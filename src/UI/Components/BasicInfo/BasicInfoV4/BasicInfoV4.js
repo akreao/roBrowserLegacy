@@ -28,5 +28,6 @@ export default createBasicInfo({
 	partyViaGetUI: true,
 	hasToolbarToggle: true,
 	hideIds: ['replay', 'tipbox', 'shortcut', 'agency'],
+	menuTip: true,
 	barScale: 1.27
 });
