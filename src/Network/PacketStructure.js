@@ -11171,6 +11171,49 @@ PACKET.ZC.NOTIFY_STANDENTRY9 = function PACKET_ZC_NOTIFY_STANDENTRY9(fp, end) {
 };
 PACKET.ZC.NOTIFY_STANDENTRY9.size = -1;
 
+// 0x96d
+PACKET.ZC.MERGE_ITEM_OPEN = function PACKET_ZC_MERGE_ITEM_OPEN(fp, end) {
+	this.itemList = [];
+	while (fp.tell() + 2 <= end) {
+		this.itemList.push(fp.readShort());
+	}
+};
+PACKET.ZC.MERGE_ITEM_OPEN.size = -1;
+
+// 0x96e
+PACKET.CZ.REQ_MERGE_ITEM = function PACKET_CZ_REQ_MERGE_ITEM() {
+	this.itemList = [];
+};
+PACKET.CZ.REQ_MERGE_ITEM.prototype.build = function () {
+	const pkt_len = 4 + this.itemList.length * 2;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0x96e);
+	pkt_buf.writeShort(pkt_len);
+	for (let i = 0; i < this.itemList.length; ++i) {
+		pkt_buf.writeShort(this.itemList[i]);
+	}
+
+	return pkt_buf;
+};
+
+// 0x96f
+PACKET.ZC.ACK_MERGE_ITEM = function PACKET_ZC_ACK_MERGE_ITEM(fp, end) {
+	this.index = fp.readShort();
+	this.amount = fp.readUShort();
+	this.reason = fp.readUChar();
+};
+PACKET.ZC.ACK_MERGE_ITEM.size = 7;
+
+// 0x974
+PACKET.CZ.CANCEL_MERGE_ITEM = function PACKET_CZ_CANCEL_MERGE_ITEM() {};
+PACKET.CZ.CANCEL_MERGE_ITEM.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(2);
+
+	pkt_buf.writeShort(0x974);
+	return pkt_buf;
+};
+
 // 0x977
 PACKET.ZC.NOTIFY_MONSTER_HP = function PACKET_ZC_NOTIFY_MONSTER_HP(fp, end) {
 	this.AID = fp.readULong();
