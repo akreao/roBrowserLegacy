@@ -336,6 +336,14 @@ export function createPartyFriends(config) {
 	};
 
 	/**
+	 * @param {number} AID
+	 * @return {object|null} the party member
+	 */
+	Component.getPartyMember = function getPartyMember(AID) {
+		return _party.find(member => member.AID === AID) || null;
+	};
+
+	/**
 	 * Clean up UI
 	 */
 	Component.clean = function clean() {

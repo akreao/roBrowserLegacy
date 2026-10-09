@@ -29,6 +29,7 @@ import Storage from 'UI/Components/Storage/Storage.js';
 import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection.js';
 import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
 import EffectManager from 'Renderer/EffectManager.js';
+import EntityManager from 'Renderer/EntityManager.js';
 
 /**
  * Spam an item on the map
@@ -351,6 +352,139 @@ function onItemCompositionResult(pkt) {
 		}
 		case 1: // Fail
 			break;
+	}
+}
+
+/**
+ * Fill a msgstringtable line's %s/%d markers in order
+ *
+ * @param {number} id - msgstringtable line
+ * @param {...(string|number)} values
+ * @return {string}
+ */
+function formatMessage(id, ...values) {
+	return values.reduce((text, value) => text.replace(/%[dsiu]/, value), DB.getMessage(id));
+}
+
+/**
+ * @param {number} ITID
+ * @return {string} the item's identified name
+ */
+function getItemName(ITID) {
+	return DB.getItemInfo(ITID).identifiedDisplayName;
+}
+
+/**
+ * Result of the Weapon Refine skill (Whitesmith)
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_WEAPONREFINE
+ */
+function onWeaponRefineResult(pkt) {
+	const results = [
+		{ msg: 911, color: '#00FFFF' }, // success
+		{ msg: 912, color: '#00CDCD' }, // failure
+		{ msg: 913, color: '#FFC8C8' }, // skill level too low
+		{ msg: 914, color: '#FFC8C8' } // material missing
+	];
+	const result = results[pkt.msg];
+	if (result) {
+		ChatBox.addText(
+			formatMessage(result.msg, getItemName(pkt.ITID)),
+			ChatBox.TYPE.INFO,
+			ChatBox.FILTER.PUBLIC_LOG,
+			result.color
+		);
+	}
+}
+
+/**
+ * Time left on a rental item
+ *
+ * @param {object} pkt - PACKET.ZC.CASH_TIME_COUNTER
+ */
+function onRentalTimeLeft(pkt) {
+	const name = getItemName(pkt.ITID);
+	const minutes = Math.floor(pkt.RemainSecond / 60);
+	const text = minutes ? formatMessage(1256, name, minutes) : formatMessage(1270, name, pkt.RemainSecond);
+
+	ChatBox.addText(text.trim(), ChatBox.TYPE.INFO, ChatBox.FILTER.ITEM, '#FFFF00');
+	if (minutes === 1) {
+		ChatBox.addText(formatMessage(1257, name).trim(), ChatBox.TYPE.INFO, ChatBox.FILTER.ITEM, '#FFFF00');
+	}
+}
+
+/**
+ * A rental item expired. At login the server sends no removal packet with it.
+ *
+ * @param {object} pkt - PACKET.ZC.CASH_ITEM_DELETE
+ */
+function onRentalExpired(pkt) {
+	const item = Inventory.getUI().getItemByIndex(pkt.index);
+	if (item) {
+		Inventory.getUI().removeItem(pkt.index, item.count || 1);
+	}
+
+	ChatBox.addText(
+		formatMessage(1258, getItemName(pkt.ITID)).trim(),
+		ChatBox.TYPE.INFO,
+		ChatBox.FILTER.ITEM,
+		'#FFFF00'
+	);
+}
+
+/**
+ * Someone's equipment was damaged (Divest, Acid Terror, ...)
+ *
+ * @param {object} pkt - PACKET.ZC.EQUIPITEM_DAMAGED
+ */
+function onEquipmentDamaged(pkt) {
+	let text = null;
+
+	if (pkt.accountID === Session.Entity.GID) {
+		const item = Equipment.getUI().getItemByLocation(pkt.wearLocation);
+		if (item) {
+			text = formatMessage(1300, DB.getItemName(item));
+		}
+	} else {
+		const entity = EntityManager.get(pkt.accountID);
+		if (entity) {
+			if (pkt.wearLocation & (EquipLocation.WEAPON | EquipLocation.SHIELD)) {
+				text = formatMessage(1301, entity.display.name, DB.getMessage(1302));
+			} else if (pkt.wearLocation & EquipLocation.ARMOR) {
+				text = formatMessage(1301, entity.display.name, DB.getMessage(1303));
+			}
+		}
+	}
+
+	if (text) {
+		ChatBox.addText(text, ChatBox.TYPE.ERROR, ChatBox.FILTER.EQUIP_DAMAGE, '#FF0000');
+	}
+}
+
+/**
+ * Result of swapping to the equipment switch set
+ *
+ * @param {object} pkt - PACKET.ZC.REQ_FULLSWITCH_RESULT
+ */
+function onEquipSwitchResult(pkt) {
+	if (pkt.failed) {
+		ChatBox.addText(
+			DB.getMessage(pkt.failed === 1 ? 3009 : 3040),
+			ChatBox.TYPE.ERROR,
+			ChatBox.FILTER.EQUIP,
+			'#FF0000'
+		);
+	}
+}
+
+/**
+ * Result of taking off all equipment
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL
+ */
+function onTakeOffAllResult(pkt) {
+	if (pkt.result === 1 || pkt.result === 2) {
+		ChatBox.addText(DB.getMessage(3956), ChatBox.TYPE.ERROR, ChatBox.FILTER.EQUIP, '#FF0000');
 	}
 }
 
@@ -756,6 +890,12 @@ export default function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.ITEMCOMPOSITION_LIST, onItemCompositionList);
 	Network.hookPacket(PACKET.ZC.ACK_ITEMCOMPOSITION, onItemCompositionResult);
 	Network.hookPacket(PACKET.ZC.ACK_ITEMREFINING, onRefineResult);
+	Network.hookPacket(PACKET.ZC.ACK_WEAPONREFINE, onWeaponRefineResult);
+	Network.hookPacket(PACKET.ZC.CASH_TIME_COUNTER, onRentalTimeLeft);
+	Network.hookPacket(PACKET.ZC.CASH_ITEM_DELETE, onRentalExpired);
+	Network.hookPacket(PACKET.ZC.EQUIPITEM_DAMAGED, onEquipmentDamaged);
+	Network.hookPacket(PACKET.ZC.REQ_FULLSWITCH_RESULT, onEquipSwitchResult);
+	Network.hookPacket(PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL, onTakeOffAllResult);
 	Network.hookPacket(PACKET.ZC.ADD_ITEM_TO_CART, onCartItemAdded);
 	Network.hookPacket(PACKET.ZC.ADD_ITEM_TO_CART2, onCartItemAdded);
 	Network.hookPacket(PACKET.ZC.ADD_ITEM_TO_CART3, onCartItemAdded);

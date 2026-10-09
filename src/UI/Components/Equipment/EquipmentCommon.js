@@ -630,6 +630,20 @@ export function createEquipment({
 		return 0;
 	};
 
+	/**
+	 * @param {number} location - equip location mask
+	 * @return {Item|null} the equipped item covering it
+	 */
+	Component.getItemByLocation = function getItemByLocation(location) {
+		for (const key in _list) {
+			const equipMask = switchEquip ? _list[key].location : _list[key].equipped;
+			if (equipMask & location) {
+				return _list[key];
+			}
+		}
+		return null;
+	};
+
 	function hideStatus() {
 		const winStats = WinStats.getUI();
 		if (winStats.isEmbedded()) {

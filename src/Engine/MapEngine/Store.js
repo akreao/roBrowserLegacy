@@ -291,6 +291,18 @@ function onSellToBuyingStoreResult(pkt) {
 }
 
 /**
+ * Buying store owner: the store closed because it bought everything it could
+ *
+ * @param {object} pkt - PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_BUYER
+ */
+function onBuyingStoreBuyerResult(pkt) {
+	const msg = { 3: 1743, 4: 1744 }[pkt.Result];
+	if (msg) {
+		ChatBox.addText(DB.getMessage(msg), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG, '#FF0000');
+	}
+}
+
+/**
  * Received items list to buy from npc
  *
  * @param {object} pkt - PACKET.ZC.PC_SELL_ITEMLIST
@@ -545,6 +557,7 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList);
 	Network.hookPacket(PACKET.ZC.ACK_ITEMLIST_BUYING_STORE, onBuyingStoreList);
 	Network.hookPacket(PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult);
+	Network.hookPacket(PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_BUYER, onBuyingStoreBuyerResult);
 	Network.hookPacket(PACKET.ZC.ITEM_DELETE_BUYING_STORE, onSellToBuyingStoreDelete);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_OPEN2, onMarketShop);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_PURCHASE_RESULT, onMarketShopResult);
