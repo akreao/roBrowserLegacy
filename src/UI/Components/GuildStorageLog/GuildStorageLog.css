@@ -89,6 +89,9 @@
 	top: 47px;
 	white-space: nowrap;
 }
+#GuildStorageLog .header.col-mark {
+	left: 6px;
+}
 #GuildStorageLog .header.col-item {
 	left: 70px;
 }
@@ -152,8 +155,8 @@
 #GuildStorageLog .prev,
 #GuildStorageLog .next {
 	top: 229px;
-	width: 13px;
-	height: 13px;
+	width: 14px;
+	height: 9px;
 	background-repeat: no-repeat;
 	cursor: pointer;
 }

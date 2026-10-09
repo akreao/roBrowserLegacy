@@ -1347,7 +1347,7 @@ function onGuildStorageLog(pkt) {
 			break;
 
 		default:
-			// The official clients (kRO and iRO) show message 1816 here
+			// As kRO and iRO do: 1816, "an unknown error has occurred" in iRO's table
 			_storageLog = [];
 			ChatBox.addText(DB.getMessage(1816), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			break;
