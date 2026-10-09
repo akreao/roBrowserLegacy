@@ -50,6 +50,8 @@ vi.mock('UI/Components/DressRoom/DressRoom.js', () => ({ default: mocks.dressRoo
 vi.mock('UI/Components/EnchantGrade/EnchantGrade.js', () => ({ default: {} }));
 vi.mock('UI/Components/Enchant/Enchant.js', () => ({ default: {} }));
 vi.mock('UI/Components/PrivateAirship/PrivateAirship.js', () => ({ default: mocks.airship }));
+vi.mock('Engine/SessionStorage.js', () => ({ default: {} }));
+vi.mock('UI/Components/Quest/Quest.js', () => ({ default: {} }));
 
 const { default: UIOpen } = await import('Engine/MapEngine/UIOpen.js');
 UIOpen();

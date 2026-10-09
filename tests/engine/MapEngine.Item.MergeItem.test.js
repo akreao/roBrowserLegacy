@@ -22,6 +22,7 @@ vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
 vi.mock('Renderer/ItemObject.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Altitude.js', () => ({ default: {} }));
 vi.mock('Renderer/EffectManager.js', () => ({ default: {} }));
+vi.mock('Renderer/EntityManager.js', () => ({ default: {} }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 	default: {
 		addText: (text, type, filter, color) => mocks.chat.push({ text, type, color }),
