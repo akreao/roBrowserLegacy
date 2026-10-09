@@ -19,6 +19,8 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
 import htmlText from './Navigation.html?raw';
 import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
@@ -368,6 +370,11 @@ Navigation.init = function init() {
 	// Bind events
 	root.querySelector('.close').addEventListener('click', () => this.hide());
 	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
+	root.querySelector('.airship-button').addEventListener('click', () => {
+		if (_finalTargetData && _finalTargetData.map) {
+			PrivateAirship.open(_finalTargetData.map);
+		}
+	});
 
 	const searchInput = root.querySelector('.search-input');
 	searchInput.addEventListener('keypress', e => {
@@ -715,6 +722,7 @@ Navigation.clear = function clear() {
 	if (targetInfo) {
 		targetInfo.style.display = 'none';
 	}
+	this.updateAirshipButton();
 
 	// Update location title with current map name
 	const currentMap = getCurrentMap();
@@ -944,6 +952,20 @@ Navigation.updateTargetText = function updateTargetText(noPathFound) {
 			targetMap: _finalTargetData.map
 		});
 	}
+	this.updateAirshipButton();
+};
+
+/**
+ * Offer the private airship when the target is on another map (2018-03-21+)
+ */
+Navigation.updateAirshipButton = function updateAirshipButton() {
+	const button = Navigation.getRoot().querySelector('.airship-button');
+	if (!button) {
+		return;
+	}
+	const targetMap = _finalTargetData && _finalTargetData.map;
+	const offered = PACKETVER.value >= 20180321 && !!targetMap && normalizeMapName(targetMap) !== getCurrentMap();
+	button.style.display = offered ? 'inline-block' : 'none';
 };
 
 /**
