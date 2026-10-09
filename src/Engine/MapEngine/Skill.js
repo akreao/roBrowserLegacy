@@ -14,6 +14,7 @@ import UIManager from 'UI/UIManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
+import StatusState from 'DB/Status/StatusState.js';
 import PathFinding from 'Utils/PathFinding.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
@@ -317,6 +318,15 @@ function onSkillList(pkt) {
  */
 function onSkillUpdate(pkt) {
 	SkillWindow.getUI().updateSkill(pkt);
+}
+
+/**
+ * Remove a skill from the list (Plagiarism, Reproduce, a job change)
+ *
+ * @param {object} pkt - PACKET.ZC.SKILLINFO_DELETE
+ */
+function onSkillDelete(pkt) {
+	SkillWindow.getUI().removeSkill(pkt.SKID);
 }
 
 /**
@@ -887,6 +897,59 @@ function onSpiritSphere(pkt) {
 }
 
 /**
+ * The official client draws no orbs on a hidden or cloaked entity
+ *
+ * @param {Entity} entity
+ * @return {boolean}
+ */
+function isHidden(entity) {
+	return !!(entity._effectState & (StatusState.EffectState.HIDE | StatusState.EffectState.CLOAK));
+}
+
+/**
+ * Kagerou/Oboro spirit charms, one effect per element
+ *
+ * @param {object} pkt - PACKET.ZC.SPIRITS_ATTRIBUTE
+ */
+function onSpiritCharm(pkt) {
+	const effects = [
+		0,
+		EffectConst.EF_CHOOKGI_WATER,
+		EffectConst.EF_CHOOKGI_GROUND,
+		EffectConst.EF_CHOOKGI_FIRE,
+		EffectConst.EF_CHOOKGI_WIND
+	];
+	EffectManager.remove(null, pkt.AID, effects.slice(1));
+
+	const entity = EntityManager.get(pkt.AID);
+	if (pkt.num > 0 && effects[pkt.spiritsType] && entity && !isHidden(entity)) {
+		EffectManager.spam({
+			effectId: effects[pkt.spiritsType],
+			ownerAID: pkt.AID,
+			spiritNum: pkt.num
+		});
+	}
+}
+
+/**
+ * Soul Reaper soul energy orbs
+ *
+ * @param {object} pkt - PACKET.ZC.SOULENERGY
+ */
+function onSoulEnergy(pkt) {
+	EffectManager.remove(null, pkt.AID, [EffectConst.EF_SOULCOLLECT]);
+
+	const entity = EntityManager.get(pkt.AID);
+	if (pkt.num > 0 && entity && !isHidden(entity)) {
+		EffectManager.spam({
+			effectId: EffectConst.EF_SOULCOLLECT,
+			ownerAID: pkt.AID,
+			spiritNum: pkt.num
+		});
+	}
+}
+
+/**
  * Millennium Shield visual effect
  *
  * @param {object} pkt - PACKET.ZC.MILLENNIUMSHIELD
@@ -953,6 +1016,7 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.SKILLINFO_UPDATE, onSkillUpdate);
 	Network.hookPacket(PACKET.ZC.SKILLINFO_UPDATE2, onSkillUpdate);
 	Network.hookPacket(PACKET.ZC.SKILLINFO_UPDATE3, onSkillUpdate);
+	Network.hookPacket(PACKET.ZC.SKILLINFO_DELETE, onSkillDelete);
 	Network.hookPacket(PACKET.ZC.ADD_SKILL, onSkillAdded);
 	Network.hookPacket(PACKET.ZC.ADD_SKILL2, onSkillAdded);
 	Network.hookPacket(PACKET.ZC.ADD_SKILL3, onSkillAdded);
@@ -982,6 +1046,8 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.REPAIRITEMLIST2, onRepairList);
 	Network.hookPacket(PACKET.ZC.SPIRITS, onSpiritSphere);
 	Network.hookPacket(PACKET.ZC.SPIRITS2, onSpiritSphere);
+	Network.hookPacket(PACKET.ZC.SPIRITS_ATTRIBUTE, onSpiritCharm);
+	Network.hookPacket(PACKET.ZC.SOULENERGY, onSoulEnergy);
 	Network.hookPacket(PACKET.ZC.MILLENNIUMSHIELD, onMillenniumShield);
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
 	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);

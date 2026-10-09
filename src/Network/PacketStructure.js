@@ -10936,6 +10936,14 @@ PACKET.ZC.NOTIFY_ACT3 = function PACKET_ZC_NOTIFY_ACT3(fp, end) {
 };
 PACKET.ZC.NOTIFY_ACT3.size = 34;
 
+// 0x8cf
+PACKET.ZC.SPIRITS_ATTRIBUTE = function PACKET_ZC_SPIRITS_ATTRIBUTE(fp, end) {
+	this.AID = fp.readULong();
+	this.spiritsType = fp.readShort();
+	this.num = fp.readShort();
+};
+PACKET.ZC.SPIRITS_ATTRIBUTE.size = 10;
+
 // 0x8d0
 PACKET.ZC.REQ_WEAR_EQUIP_ACK2 = function PACKET_ZC_REQ_WEAR_EQUIP_ACK2(fp, end) {
 	this.index = fp.readUShort();
@@ -15176,6 +15184,29 @@ PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2 = function PACKET_HC_ACCEPT_ENTER_NEO_UNI
 	this.charInfo = PACKETVER.parseCharInfo(fp, end);
 };
 PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2.size = -1;
+
+// 0xb6b
+PACKET.ZC.SUMMON_HP_INIT = function PACKET_ZC_SUMMON_HP_INIT(fp, end) {
+	this.summonAID = fp.readULong();
+	this.CurrentHP = fp.readULong();
+	this.MaxHP = fp.readULong();
+};
+PACKET.ZC.SUMMON_HP_INIT.size = 14;
+
+// 0xb6c
+PACKET.ZC.SUMMON_HP_UPDATE = function PACKET_ZC_SUMMON_HP_UPDATE(fp, end) {
+	this.summonAID = fp.readULong();
+	this.VarId = fp.readUShort();
+	this.Value = fp.readULong();
+};
+PACKET.ZC.SUMMON_HP_UPDATE.size = 12;
+
+// 0xb73
+PACKET.ZC.SOULENERGY = function PACKET_ZC_SOULENERGY(fp, end) {
+	this.AID = fp.readULong();
+	this.num = fp.readUShort();
+};
+PACKET.ZC.SOULENERGY.size = 8;
 
 // 0xb76
 PACKET.ZC.PROPERTY_HOMUN4 = function PACKET_ZC_PROPERTY_HOMUN4(fp, end) {

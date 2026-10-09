@@ -926,7 +926,15 @@ export function createSkillList({
 		this.onUpdateSkill(skill.SKID, skill.level);
 	};
 
-	Component.removeSkill = function removeSkill() {};
+	Component.removeSkill = function removeSkill(SKID) {
+		const rest = _list.filter(skill => skill.SKID !== SKID);
+		if (rest.length === _list.length) {
+			return;
+		}
+
+		// Rebuild from what is left: the skill may sit in a tree, a tab or an extra row
+		this.setSkills(rest);
+	};
 
 	Component.updateSkill = function updateSkill(skill) {
 		let target = getSkillById(skill.SKID);
