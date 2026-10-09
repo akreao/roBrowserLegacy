@@ -1,0 +1,159 @@
+:host {
+	top: 140px;
+	left: 160px;
+	width: 420px;
+	height: 360px;
+}
+
+#PartyBookingRecruit {
+	position: absolute;
+	width: 420px;
+	height: 360px;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#PartyBookingRecruit > * {
+	position: absolute;
+}
+
+#PartyBookingRecruit .titlebar {
+	position: relative;
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#PartyBookingRecruit .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#PartyBookingRecruit .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	display: inline-block;
+	white-space: nowrap;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+#PartyBookingRecruit .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#PartyBookingRecruit .titlebar .right {
+	float: right;
+	margin-right: 3px;
+}
+#PartyBookingRecruit .titlebar .clear {
+	clear: both;
+}
+
+#PartyBookingRecruit .label {
+	left: 10px;
+	font-size: 11px;
+}
+#PartyBookingRecruit .label-level {
+	top: 23px;
+}
+#PartyBookingRecruit .label-map {
+	top: 45px;
+}
+
+#PartyBookingRecruit .level {
+	left: 50px;
+	top: 20px;
+	box-sizing: border-box;
+	width: 40px;
+	height: 16px;
+	margin: 0;
+	padding: 0 2px;
+	border: 1px solid #c0c0c0;
+	background: #e8e8e8;
+	font-size: 12px;
+	outline: none;
+}
+#PartyBookingRecruit .levels {
+	left: 96px;
+	top: 22px;
+	font-size: 11px;
+	color: #6b6b6b;
+}
+
+#PartyBookingRecruit select {
+	top: 43px;
+	box-sizing: border-box;
+	height: 18px;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #c0c0c0;
+	background: #e8e8e8;
+	font-size: 11px;
+	outline: none;
+}
+#PartyBookingRecruit .region {
+	left: 50px;
+	width: 150px;
+}
+#PartyBookingRecruit .map {
+	left: 210px;
+	width: 200px;
+}
+
+#PartyBookingRecruit input:disabled,
+#PartyBookingRecruit select:disabled {
+	color: #8e8e8e;
+}
+
+#PartyBookingRecruit .jobs {
+	left: 10px;
+	top: 70px;
+	box-sizing: border-box;
+	width: 400px;
+	height: 255px;
+	padding: 2px 4px;
+	border: 1px solid #cecece;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+#PartyBookingRecruit .group {
+	margin: 3px 0 1px;
+	font-size: 11px;
+	font-weight: bold;
+	color: #3a5f9e;
+}
+#PartyBookingRecruit .checkbox {
+	display: inline-block;
+	box-sizing: border-box;
+	width: 128px;
+	height: 16px;
+	line-height: 16px;
+	padding-left: 14px;
+	background-repeat: no-repeat;
+	background-position: left center;
+	font-size: 11px;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+#PartyBookingRecruit .count {
+	left: 10px;
+	top: 336px;
+	font-size: 11px;
+	color: #6b6b6b;
+}
+#PartyBookingRecruit .ok {
+	left: 324px;
+	top: 334px;
+}
+#PartyBookingRecruit .cancel {
+	left: 370px;
+	top: 334px;
+}
