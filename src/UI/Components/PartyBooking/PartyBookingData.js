@@ -13,8 +13,6 @@ import MonsterTable from 'DB/Monsters/MonsterTable.js';
 /**
  * Jobs an ad can ask for, by category. A job's code is first + its place in the
  * category: codes 1-4 are roles, 5-63 are jobs (UISeekPartyListWnd's table).
- * The official window stops at 63; 64 and up are ours, for the jobs that came after
- * it. The server only stores and compares the codes, so any client that knows them works.
  */
 export const JOB_CATEGORIES = [
 	{ msg: 1755, first: 1, count: 4 }, // Roles
@@ -24,9 +22,7 @@ export const JOB_CATEGORIES = [
 	{ msg: 1759, first: 30, count: 7 }, // 3-2 Classes
 	{ msg: 1760, first: 37, count: 6 }, // 1st High Jobs
 	{ msg: 1761, first: 43, count: 13 }, // 2nd High Jobs
-	{ msg: 1762, first: 56, count: 8 }, // Other Jobs
-	{ label: 'Expanded Jobs', first: 64, count: 6 },
-	{ label: '4th Jobs', first: 70, count: 20 }
+	{ msg: 1762, first: 56, count: 8 } // Other Jobs
 ];
 
 /**
@@ -99,44 +95,8 @@ const CODE_JOBS = [
 	JobId.NINJA,
 	JobId.TAEKWON,
 	JobId.STAR,
-	JobId.LINKER,
-	// 64: Expanded Jobs
-	JobId.KAGEROU,
-	JobId.OBORO,
-	JobId.REBELLION,
-	JobId.DO_SUMMONER,
-	JobId.STAR_EMPEROR,
-	JobId.SOUL_REAPER,
-	// 70: 4th Jobs
-	JobId.DRAGON_KNIGHT,
-	JobId.MEISTER,
-	JobId.SHADOW_CROSS,
-	JobId.ARCH_MAGE,
-	JobId.CARDINAL,
-	JobId.WINDHAWK,
-	JobId.IMPERIAL_GUARD,
-	JobId.BIOLO,
-	JobId.ABYSS_CHASER,
-	JobId.ELEMENTAL_MASTER,
-	JobId.INQUISITOR,
-	JobId.TROUBADOUR,
-	JobId.TROUVERE,
-	JobId.SKY_EMPEROR,
-	JobId.SOUL_ASCETIC,
-	JobId.SHINKIRO,
-	JobId.SHIRANUI,
-	JobId.NIGHT_WATCH,
-	JobId.HYPER_NOVICE,
-	JobId.SPIRIT_HANDLER
+	JobId.LINKER
 ];
-
-/**
- * @param {Object} category - from JOB_CATEGORIES
- * @return {string} its title
- */
-export function getCategoryName(category) {
-	return category.label || DB.getMessage(category.msg);
-}
 
 /**
  * Most jobs an ad can ask for

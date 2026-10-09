@@ -14,7 +14,6 @@ import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import {
 	JOB_CATEGORIES,
-	getCategoryName,
 	MAX_JOBS,
 	LEVEL_RANGE,
 	getJobName,
@@ -61,7 +60,7 @@ PartyBookingRecruit.init = function init() {
 	JOB_CATEGORIES.forEach(category => {
 		const title = document.createElement('div');
 		title.className = 'group';
-		title.textContent = getCategoryName(category);
+		title.textContent = DB.getMessage(category.msg);
 		jobs.appendChild(title);
 
 		for (let code = category.first; code < category.first + category.count; ++code) {
