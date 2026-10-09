@@ -133,10 +133,10 @@
 
 /* The header and the rows share one frame in the rows' grey, so an empty list still reads as a list */
 #PartyBooking .header {
-	left: 20px;
+	left: 10px;
 	top: 102px;
 	box-sizing: border-box;
-	width: 527px;
+	width: 530px;
 	height: 22px;
 	border: 1px solid #cecece;
 	border-bottom: none;
@@ -162,10 +162,10 @@
 
 /* Five 40px rows, drawn as the official window draws them: a grey frame, two lines */
 #PartyBooking .list {
-	left: 20px;
+	left: 10px;
 	top: 124px;
 	box-sizing: border-box;
-	width: 527px;
+	width: 530px;
 	height: 202px;
 	border: 1px solid #cecece;
 	overflow-x: hidden;
@@ -174,7 +174,7 @@
 #PartyBooking .row {
 	position: relative;
 	box-sizing: border-box;
-	width: 510px;
+	width: 100%;
 	height: 40px;
 	border: 1px solid #cecece;
 	background: white;
@@ -224,24 +224,46 @@
 	display: none;
 }
 
-/* As the official window: Recruit is a text button at the bottom left (its tip is message 1764),
-   then the 30x20 direct_chat bitmap that whispers the selected leader, labelled Talk */
-#PartyBooking .recruit {
-	left: 10px;
-	top: 328px;
+/* Recruit (tip: message 1764) is drawn as the client's stretchable message-bar button,
+   mesbtn_left/mid/right; Whisper is the 30x20 direct_chat bitmap and its label, as one button */
+#PartyBooking .text-button {
+	top: 326px;
+	display: flex;
+	align-items: center;
+	height: 20px;
+	white-space: nowrap;
 	cursor: pointer;
 }
-#PartyBooking .recruit:hover {
+#PartyBooking .text-button span {
+	height: 20px;
+	line-height: 20px;
+	background-repeat: no-repeat;
+}
+#PartyBooking .text-button:hover .label {
 	color: #3a5f9e;
 }
+#PartyBooking .text-button:active .label {
+	position: relative;
+	top: 1px;
+}
+#PartyBooking .recruit {
+	left: 10px;
+}
+#PartyBooking .recruit .side {
+	width: 7px;
+}
+#PartyBooking .recruit .label {
+	padding: 0 4px;
+	background-repeat: repeat-x;
+}
 #PartyBooking .whisper {
-	left: 70px;
-	top: 326px;
+	left: 90px;
+}
+#PartyBooking .whisper .icon {
 	width: 30px;
 }
-#PartyBooking .talk {
-	left: 102px;
-	top: 330px;
+#PartyBooking .whisper .label {
+	padding-left: 3px;
 }
 #PartyBooking .ok {
 	left: 505px;
