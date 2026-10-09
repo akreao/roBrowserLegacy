@@ -1,235 +1,220 @@
 :host {
-	width: 600px;
-	height: 500px;
+	width: 640px;
+	height: 497px;
 }
 
 #Roulette {
 	position: absolute;
-	width: 100%;
-	height: 100%;
-	z-index: 50;
+	top: 0;
+	left: 0;
+	width: 640px;
+	height: 497px;
+	font-size: 12px;
+	color: #000;
 }
 
-#Roulette .body {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	background-color: #2a2a2a;
-	border: 2px solid #5a5a5a;
-	border-radius: 10px;
-}
-
+/* Title bar: titlebar_left/mid/right, sys_base at (3,3), title at (18,3) */
 #Roulette .titlebar {
-	position: relative;
-	height: 30px;
-	background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
-	border-bottom: 1px solid #5a5a5a;
-	cursor: move;
-	padding: 5px 10px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 640px;
+	height: 17px;
 }
 
-#Roulette .titlebar .left {
-	float: left;
+#Roulette .titlebar .corner,
+#Roulette .titlebar .center {
+	position: absolute;
+	top: 0;
+	height: 17px;
+	background-repeat: no-repeat;
+}
+
+#Roulette .titlebar .corner {
+	width: 12px;
+}
+
+#Roulette .titlebar .corner.left {
+	left: 0;
+}
+
+#Roulette .titlebar .corner.right {
+	right: 0;
+}
+
+#Roulette .titlebar .center {
+	left: 12px;
+	right: 12px;
+	background-repeat: repeat-x;
+}
+
+#Roulette .titlebar .base {
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 11px;
+	height: 11px;
+	background-repeat: no-repeat;
 }
 
 #Roulette .titlebar .title {
-	color: #fff;
-	font-size: 14px;
-	font-weight: bold;
-	line-height: 20px;
-}
-
-#Roulette .titlebar .right {
-	float: right;
+	position: absolute;
+	top: 3px;
+	left: 18px;
+	height: 12px;
+	line-height: 12px;
+	font-size: 12px;
+	white-space: nowrap;
+	text-shadow: 1px 1px #fff;
 }
 
 #Roulette .titlebar .close {
-	width: 20px;
-	height: 20px;
-	border: 0;
-	background-repeat: no-repeat;
-	background-position: center;
-	background-color: transparent;
-	cursor: pointer;
-}
-
-#Roulette .roulette-container {
-	position: relative;
-	width: 100%;
-	height: calc(100% - 30px);
-	padding: 20px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-
-#Roulette .roulette-wheel {
-	position: relative;
-	width: 350px;
-	height: 350px;
-	margin: 0 auto 20px;
-}
-
-#Roulette .wheel-center {
 	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 300px;
-	height: 300px;
-	border-radius: 50%;
-	background: radial-gradient(circle, #4a4a4a 0%, #2a2a2a 100%);
-	border: 3px solid #8a8a8a;
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-#Roulette .wheel-slots {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 280px;
-	height: 280px;
-	border-radius: 50%;
-	transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-#Roulette .wheel-slot {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 50px;
-	height: 50px;
-	margin-left: -25px;
-	margin-top: -25px;
-	transform-origin: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: rgba(255, 255, 255, 0.1);
-	border: 1px solid #5a5a5a;
-	border-radius: 5px;
-	transition: background-color 0.3s;
-}
-
-#Roulette .wheel-slot:hover {
-	background-color: rgba(255, 255, 255, 0.2);
-}
-
-#Roulette .wheel-slot .item-icon {
-	width: 40px;
-	height: 40px;
-	background-size: contain;
-	background-position: center;
+	top: 3px;
+	left: 626px;
+	width: 11px;
+	height: 11px;
 	background-repeat: no-repeat;
 }
 
-#Roulette .wheel-pointer {
+/* roulletteBG.bmp drawn at (0,17) */
+#Roulette .background {
 	position: absolute;
-	top: 10px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 0;
-	height: 0;
-	border-left: 15px solid transparent;
-	border-right: 15px solid transparent;
-	border-top: 30px solid #ff0000;
-	z-index: 10;
-	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
-#Roulette .roulette-info {
-	width: 100%;
-	text-align: center;
-}
-
-#Roulette .points-display {
-	margin-bottom: 15px;
-	font-size: 16px;
-	color: #fff;
-}
-
-#Roulette .points-display .label {
-	font-weight: bold;
-	margin-right: 10px;
-}
-
-#Roulette .points-display .points-value {
-	color: #ffd700;
-	font-size: 18px;
-	font-weight: bold;
-}
-
-#Roulette .buttons-container {
-	display: flex;
-	justify-content: center;
-	gap: 10px;
-	margin-bottom: 15px;
-}
-
-#Roulette .buttons-container button {
-	min-width: 80px;
-	height: 30px;
-	border: 1px solid #5a5a5a;
-	background-color: #3a3a3a;
+	top: 17px;
+	left: 0;
+	width: 640px;
+	height: 480px;
 	background-repeat: no-repeat;
-	background-position: center;
-	color: #fff;
-	border-radius: 5px;
-	transition: background-color 0.3s;
 }
 
-#Roulette .buttons-container button:hover {
-	background-color: #4a4a4a;
+/* Items, positioned from RouletteLayout.cellPosition() */
+#Roulette .item {
+	position: absolute;
+	width: 24px;
+	height: 24px;
 }
 
-#Roulette .buttons-container button:active {
-	background-color: #2a2a2a;
+#Roulette .item .icon {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 24px;
+	height: 24px;
+	background-repeat: no-repeat;
 }
 
-#Roulette .buttons-container button:disabled {
-	opacity: 0.5;
+/* Rows the spin is not on: drawn grey, roughly max(average, 120) */
+#Roulette .item.grey .icon {
+	filter: grayscale(1) contrast(0.36) brightness(1.47);
 }
 
-#Roulette .result-display {
-	min-height: 60px;
-	padding: 10px;
-	background-color: rgba(0, 0, 0, 0.3);
-	border: 1px solid #5a5a5a;
-	border-radius: 5px;
+#Roulette .item .count {
+	position: absolute;
+	top: 15px;
+	left: 14px;
+	font-size: 11px;
+	line-height: 11px;
+	white-space: nowrap;
+	color: #000;
+	text-shadow:
+		1px 0 #fff,
+		-1px 0 #fff,
+		0 1px #fff,
+		0 -1px #fff;
+	pointer-events: none;
 }
 
-#Roulette .result-display .result-label {
+#Roulette .item .count.wide {
+	left: 0;
+}
+
+#Roulette .slot {
+	display: none;
+}
+
+#Roulette .slot.visible {
 	display: block;
-	color: #fff;
-	font-weight: bold;
-	margin-bottom: 5px;
 }
 
-#Roulette .result-display .result-item {
-	display: inline-block;
-	width: 40px;
-	height: 40px;
-	background-size: contain;
-	background-position: center;
+#Roulette .slot.prize {
+	left: 189px;
+	top: 145px;
+}
+
+#Roulette .slot.bonus {
+	left: 60px;
+	top: 135px;
+}
+
+/* The box the spin moves: 36x36, white at alpha 0x44 */
+#Roulette .highlight {
+	position: absolute;
+	display: none;
+	width: 36px;
+	height: 36px;
+	background: rgba(255, 255, 255, 0.267);
+	pointer-events: none;
+}
+
+#Roulette .arrow {
+	position: absolute;
+	display: none;
+	background-repeat: no-repeat;
+	pointer-events: none;
+}
+
+#Roulette .point {
+	position: absolute;
+	left: 575px;
+	width: 25px;
+	height: 12px;
+	line-height: 12px;
+	white-space: nowrap;
+}
+
+#Roulette .point.gold {
+	top: 134px;
+}
+
+#Roulette .point.silver {
+	top: 218px;
+}
+
+#Roulette .point.bronze {
+	top: 302px;
+}
+
+#Roulette .btn-start,
+#Roulette .btn-prize {
+	position: absolute;
+	display: none;
+	top: 398px;
 	background-repeat: no-repeat;
 }
 
-#Roulette .clear {
-	clear: both;
+#Roulette .btn-start {
+	left: 339px;
 }
 
-/* Animation classes */
-#Roulette .wheel-slots.spinning {
-	animation: spin 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+#Roulette .btn-prize {
+	left: 203px;
 }
 
-@keyframes spin {
-	0% {
-		transform: translate(-50%, -50%) rotate(0deg);
-	}
-	100% {
-		transform: translate(-50%, -50%) rotate(1800deg);
-	}
+#Roulette .btn-start.visible,
+#Roulette .btn-prize.visible {
+	display: block;
+}
+
+#Roulette .tooltip {
+	position: absolute;
+	display: none;
+	z-index: 10;
+	white-space: nowrap;
+	height: 15px;
+	line-height: 15px;
+	padding: 0 4px;
+	border-radius: 3px;
+	background: rgba(0, 0, 0, 0.7);
+	color: #fff;
+	pointer-events: none;
 }

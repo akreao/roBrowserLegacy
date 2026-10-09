@@ -15834,11 +15834,11 @@ PACKET.CZ.REQ_OPEN_ROULETTE.prototype.build = function () {
 
 // 0xA1A - ZC_ACK_OPEN_ROULETTE
 PACKET.ZC.ACK_OPEN_ROULETTE = function PACKET_ZC_ACK_OPEN_ROULETTE(fp, end) {
-	this.result = fp.readChar(); // 1 byte - Result (0 = success, 1 = failed)
+	this.result = fp.readUChar(); // 1 byte - Result (0 = success, 1 = failed)
 	this.serial = fp.readLong(); // 4 bytes - Serial
-	this.step = fp.readChar(); // 1 byte - Step
-	this.idx = fp.readChar(); // 1 byte - Idx
-	this.additionItemID = fp.readUShort(); // 2 bytes - AdditionItemID
+	this.step = fp.readUChar(); // 1 byte - Step
+	this.idx = fp.readUChar(); // 1 byte - Idx (0xFF: no prize waiting)
+	this.additionItemID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort(); // AdditionItemID
 	this.goldPoint = fp.readLong(); // 4 bytes - Gold points
 	this.silverPoint = fp.readLong(); // 4 bytes - Silver points
 	this.bronzePoint = fp.readLong(); // 4 bytes - Bronze points
@@ -15856,16 +15856,20 @@ PACKET.CZ.REQ_ROULETTE_INFO.prototype.build = function () {
 
 // 0xA1C - ZC_ACK_ROULETTE_INFO (roulette item list)
 PACKET.ZC.ACK_ROULETTE_INFO = function PACKET_ZC_ACK_ROULETTE_INFO(fp, end) {
-	fp.readUShort(); // 2 bytes - packet length
 	this.serial = fp.readULong(); // 4 bytes - RouletteSerial
 	this.items = [];
+	// 12 bytes per item from 2018-05-11 (4-byte ItemId + 2 unused), 8 before
+	const itemSize = PACKETVER.value >= 20180511 ? 12 : 8;
 	// Read items until end of packet (42 items max)
-	while (fp.tell() < end) {
+	while (fp.tell() + itemSize <= end) {
 		const item = {};
 		item.row = fp.readUShort(); // 2 bytes
 		item.position = fp.readUShort(); // 2 bytes
-		item.itemId = fp.readUShort(); // 2 bytes
+		item.itemId = itemSize === 12 ? fp.readULong() : fp.readUShort();
 		item.count = fp.readUShort(); // 2 bytes
+		if (itemSize === 12) {
+			fp.readUShort(); // unused
+		}
 		this.items.push(item);
 	}
 };
@@ -15900,7 +15904,7 @@ PACKET.ZC.ACK_GENERATE_ROULETTE = function PACKET_ZC_ACK_GENERATE_ROULETTE(fp, e
 	this.result = fp.readUChar(); // 1 byte - Result
 	this.step = fp.readUShort(); // 2 bytes - Step
 	this.idx = fp.readUShort(); // 2 bytes - Idx
-	this.additionItemID = fp.readUShort(); // 2 bytes - AdditionItemID
+	this.additionItemID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort(); // AdditionItemID
 	this.remainGold = fp.readLong(); // 4 bytes - RemainGold
 	this.remainSilver = fp.readLong(); // 4 bytes - RemainSilver
 	this.remainBronze = fp.readLong(); // 4 bytes - RemainBronze
@@ -15922,7 +15926,7 @@ PACKET.CZ.RECV_ROULETTE_ITEM.prototype.build = function () {
 // 0xA22 - ZC_RECV_ROULETTE_ITEM (receive roulette item result)
 PACKET.ZC.RECV_ROULETTE_ITEM = function PACKET_ZC_RECV_ROULETTE_ITEM(fp, end) {
 	this.result = fp.readUChar(); // 1 byte - Result (0=success, 1=failed, 2=overcount, 3=overweight)
-	this.additionItemID = fp.readUShort(); // 2 bytes - AdditionItemID
+	this.additionItemID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort(); // AdditionItemID
 };
 PACKET.ZC.RECV_ROULETTE_ITEM.size = 5;
 

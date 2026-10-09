@@ -1,45 +1,34 @@
 /**
  * Engine/MapEngine/Roulette.js
  *
- * Manage Roulette System
- *
- * @author [Your Name]
+ * Lucky Roulette packets. Failures are told to the player in the chat
+ * box with the official client's messages and colours.
  */
 
 /**
  * Load dependencies
  */
+import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Roulette from 'UI/Components/Roulette/Roulette.js';
 
 /**
- * Request to Open Roulette
+ * Chat colours the official client uses (COLORREF 0x6464FF and 0x64FFFF)
  */
-/*function requestOpenRoulette() {
-		let pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
-		Network.sendPacket(pkt);
-	}*/ // UNUSED
+const COLOR_ERROR = '#FF6464';
+const COLOR_WARNING = '#FFFF64';
 
 /**
- * Request Roulette Info
+ * Show a message in the chat box
+ *
+ * @param {number} msgId - msgstringtable id
+ * @param {string} color
  */
-/*function requestRouletteInfo() {
-		let pkt = new PACKET.CZ.REQ_ROULETTE_INFO();
-		Network.sendPacket(pkt);
-	}*/ // UNUSED
-
-/**
- * Request to Close Roulette
- */
-/*function requestCloseRoulette() {
-		let pkt = new PACKET.CZ.REQ_CLOSE_ROULETTE();
-		Network.sendPacket(pkt);
-	}*/ // UNUSED
-
-/**
- * Receive Packets
- */
+function showMessage(msgId, color) {
+	ChatBox.addText(DB.getMessage(msgId), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG, color);
+}
 
 /**
  * Open Roulette Window
@@ -47,28 +36,13 @@ import Roulette from 'UI/Components/Roulette/Roulette.js';
  * @param {object} pkt - PACKET.ZC.ACK_OPEN_ROULETTE
  */
 function onOpenRoulette(pkt) {
-	// pkt structure:
-	// {
-	//   result: number,       // 0 = success, 1 = fail
-	//   serial: number,
-	//   step: number,
-	//   idx: number,
-	//   additionItemID: number,
-	//   goldPoint: number,
-	//   silverPoint: number,
-	//   bronzePoint: number
-	// }
-
-	// Server responded (standard rAthena implementation)
 	if (pkt.result === 0) {
-		// Append component to DOM if not already appended
-		if (!Roulette.ui) {
-			Roulette.append();
-		}
 		Roulette.onOpen(pkt);
-	} else {
-		console.error('Failed to open roulette:', pkt.result);
+		return;
 	}
+
+	// "You cannot open Lucky Roulette window."
+	showMessage(2632, COLOR_ERROR);
 }
 
 /**
@@ -77,16 +51,6 @@ function onOpenRoulette(pkt) {
  * @param {object} pkt - PACKET.ZC.ACK_ROULETTE_INFO
  */
 function onRouletteInfo(pkt) {
-	// pkt structure:
-	// {
-	//   serial: number,
-	//   items: [{row, position, itemId, count}, ...]
-	// }
-
-	// Append component to DOM if not already appended
-	if (!Roulette.ui) {
-		Roulette.append();
-	}
 	Roulette.onRouletteInfo(pkt);
 }
 
@@ -96,26 +60,36 @@ function onRouletteInfo(pkt) {
  * @param {object} pkt - PACKET.ZC.ACK_GENERATE_ROULETTE
  */
 function onGenerateRoulette(pkt) {
-	// pkt structure:
-	// {
-	//   result: number,       // 0 = success, other = fail
-	//   step: number,
-	//   idx: number,
-	//   additionItemID: number,
-	//   remainGold: number,
-	//   remainSilver: number,
-	//   remainBronze: number
-	// }
+	switch (pkt.result) {
+		case 0: // GENERATE_ROULETTE_SUCCESS
+			Roulette.onGenerate(pkt, false);
+			return;
 
-	if (pkt.result === 0) {
-		// Append component to DOM if not already appended
-		if (!Roulette.ui) {
-			Roulette.append();
-		}
-		Roulette.onResult(pkt);
-	} else {
-		console.error('Roulette spin failed:', pkt.result);
+		case 3: // GENERATE_ROULETTE_LOSING
+			Roulette.onGenerate(pkt, true);
+			return;
+
+		case 1: // "You cannot start Lucky Roulette."
+			showMessage(2634, COLOR_WARNING);
+			break;
+
+		case 2: // "You need points to start Lucky Roulette."
+			showMessage(2635, COLOR_WARNING);
+			break;
+
+		case 4: // "Please make more than 5 item slots in the inventory."
+			showMessage(2693, COLOR_WARNING);
+			break;
+
+		case 5: // "Drawing the blank in the previous roulette, you cannot play the higher roulette."
+			showMessage(2700, COLOR_WARNING);
+			break;
+
+		default:
+			return;
 	}
+
+	Roulette.onGenerateFailed();
 }
 
 /**
@@ -124,14 +98,13 @@ function onGenerateRoulette(pkt) {
  * @param {object} pkt - PACKET.ZC.ACK_CLOSE_ROULETTE
  */
 function onCloseRoulette(pkt) {
-	// pkt structure:
-	// {
-	//   result: number  // 0 = success, other = fail
-	// }
-
-	if (pkt.result === 0 && Roulette.ui) {
-		Roulette.ui.hide();
+	if (pkt.result === 0) {
+		Roulette.onClosed();
+		return;
 	}
+
+	// "You cannot close Lucky Roulette window."
+	showMessage(2633, COLOR_ERROR);
 }
 
 /**
@@ -140,31 +113,22 @@ function onCloseRoulette(pkt) {
  * @param {object} pkt - PACKET.ZC.RECV_ROULETTE_ITEM
  */
 function onRecvRouletteItem(pkt) {
-	// pkt structure:
-	// {
-	//   result: number,        // 0=success, 1=failed, 2=overcount, 3=overweight
-	//   additionItemID: number
-	// }
-
-	if (pkt.result === 0) {
-		// Item received successfully
-		if (Roulette.ui && typeof Roulette.onItemReceived === 'function') {
+	switch (pkt.result) {
+		case 0: // RECV_ITEM_SUCCESS
 			Roulette.onItemReceived(pkt);
-		}
-	} else {
-		let errorMsg = 'Failed to receive roulette item';
-		switch (pkt.result) {
-			case 1:
-				errorMsg = 'Failed to receive item';
-				break;
-			case 2:
-				errorMsg = 'Item count exceeded';
-				break;
-			case 3:
-				errorMsg = 'Overweight';
-				break;
-		}
-		console.error('[Roulette]', errorMsg);
+			break;
+
+		case 1: // "You cannot claim the prize."
+			showMessage(2636, COLOR_ERROR);
+			break;
+
+		case 2: // "The maximum number of items has exceeded."
+			showMessage(2637, COLOR_ERROR);
+			break;
+
+		case 3: // "You are overburdened. Please clear some items from the inventory."
+			showMessage(2638, COLOR_ERROR);
+			break;
 	}
 }
 
