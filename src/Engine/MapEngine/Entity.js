@@ -2481,6 +2481,64 @@ function updateWarlockSpheres(entity) {
 }
 
 /**
+ * Update a monster's or NPC's option and status effects
+ *
+ * @param {object} pkt - PACKET.ZC.NPC_SHOWEFST_UPDATE
+ */
+function onEntityShowEfstUpdate(pkt) {
+	const entity = EntityManager.get(pkt.AID);
+	if (!entity) {
+		return;
+	}
+
+	// The packet carries no body or health state: keep the ones the entity has
+	onEntityOptionChange({
+		AID: pkt.AID,
+		bodyState: entity.bodyState,
+		healthState: entity.healthState,
+		effectState: pkt.effectState,
+		isPKModeON: entity.isPKModeON
+	});
+	entity.virtue = pkt.showEFST;
+	entity.clevel = pkt.clevel;
+}
+
+/**
+ * Wedding effect on an entity
+ *
+ * @param {object} pkt - PACKET.ZC.CONGRATULATION
+ */
+function onCongratulation(pkt) {
+	if (pkt.AID && EntityManager.get(pkt.AID)) {
+		EffectManager.spam({ effectId: EffectConst.EF_COLORPAPER, ownerAID: pkt.AID });
+	}
+}
+
+/**
+ * A script removed an effect from an entity (removespecialeffect)
+ *
+ * @param {object} pkt - PACKET.ZC.REMOVE_EFFECT
+ */
+function onRemoveEffect(pkt) {
+	EffectManager.remove(null, pkt.AID, [pkt.effectID]);
+}
+
+/**
+ * Crimson Marker: show the marked target on the caster's mini map, or remove it (-1, -1)
+ *
+ * @param {object} pkt - PACKET.ZC.C_MARKERINFO
+ */
+function onCrimsonMarker(pkt) {
+	const key = 'crimson_marker_' + pkt.AID;
+
+	if (pkt.xPos < 0 || pkt.yPos < 0) {
+		MiniMap.getUI().removeNpcMark(key);
+	} else {
+		MiniMap.getUI().addNpcMark(key, pkt.xPos, pkt.yPos, 0xff0000, Infinity);
+	}
+}
+
+/**
  * Update player option
  *
  * @param {object} pkt - PACKET.ZC.STATE_CHANGE
@@ -2982,6 +3040,10 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.USESKILL_ACK3, onEntityCastSkill); // New "Use Skill" packet. Fixes issues with Casting.
 	Network.hookPacket(PACKET.ZC.STATE_CHANGE, onEntityOptionChange);
 	Network.hookPacket(PACKET.ZC.STATE_CHANGE3, onEntityOptionChange);
+	Network.hookPacket(PACKET.ZC.NPC_SHOWEFST_UPDATE, onEntityShowEfstUpdate);
+	Network.hookPacket(PACKET.ZC.CONGRATULATION, onCongratulation);
+	Network.hookPacket(PACKET.ZC.REMOVE_EFFECT, onRemoveEffect);
+	Network.hookPacket(PACKET.ZC.C_MARKERINFO, onCrimsonMarker);
 	Network.hookPacket(PACKET.ZC.MSG_STATE_CHANGE, onEntityStatusChange);
 	Network.hookPacket(PACKET.ZC.MSG_STATE_CHANGE2, onEntityStatusChange);
 	Network.hookPacket(PACKET.ZC.MSG_STATE_CHANGE3, onEntityStatusChange);
