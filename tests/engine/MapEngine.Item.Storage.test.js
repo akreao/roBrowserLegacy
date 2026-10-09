@@ -20,6 +20,7 @@ vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
 vi.mock('Renderer/ItemObject.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Altitude.js', () => ({ default: {} }));
 vi.mock('Renderer/EffectManager.js', () => ({ default: {} }));
+vi.mock('Renderer/EntityManager.js', () => ({ default: {} }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({ default: { addText: vi.fn(), TYPE: {}, FILTER: {} } }));
 vi.mock('UI/Components/ItemObtain/ItemObtain.js', () => ({ default: {} }));
 vi.mock('UI/Components/ItemSelection/ItemSelection.js', () => ({ default: {} }));
