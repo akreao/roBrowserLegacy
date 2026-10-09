@@ -8,10 +8,17 @@ const mocks = vi.hoisted(() => {
 		DEMON_BANE: 23,
 		HEAL: 28,
 		CURE: 35,
+		FIRST_AID: 142,
 		FAITH: 248
 	};
 
 	const skillInfo = {
+		[ids.FIRST_AID]: {
+			Name: 'NV_FIRSTAID',
+			SkillName: 'First Aid',
+			MaxLv: 1,
+			bSeperateLv: false
+		},
 		[ids.FAITH]: {
 			Name: 'CR_TRUST',
 			SkillName: 'Faith',
@@ -60,7 +67,8 @@ const mocks = vi.hoisted(() => {
 	const skillTreeView = {
 		[ids.NOVICE]: {
 			list: 1,
-			beforeJob: null
+			beforeJob: null,
+			[ids.FIRST_AID]: 7
 		},
 		[ids.CRUSADER]: {
 			list: 2,
@@ -340,6 +348,21 @@ describe('SkillListV2 deleted skills', () => {
 		const tree = getTreeSkill(component.getRoot(), mocks.ids.HEAL);
 		expect(tree.classList.contains('disabled')).toBe(false);
 		expect(tree.querySelector('.current').textContent).toBe('1');
+	});
+
+	it('shows a quest skill learned on another tab (@questskill First Aid)', () => {
+		const component = createComponent();
+		const root = component.getRoot();
+
+		component.addSkill({ SKID: mocks.ids.FIRST_AID, level: 1, type: 4, upgradable: false, spcost: 3 });
+
+		expect(component.getSkillById(mocks.ids.FIRST_AID)?.level).toBe(1);
+		const tree = root.querySelector(`#positionSkills1 .skill.id${mocks.ids.FIRST_AID}`);
+		expect(tree).not.toBeNull();
+		expect(tree.classList.contains('disabled')).toBe(false);
+		const mini = root.querySelector(`#minitab1 .skill.id${mocks.ids.FIRST_AID}`);
+		expect(mini).not.toBeNull();
+		expect(mini.classList.contains('disabled')).toBe(false);
 	});
 
 	it('fills the empty tree slot when a skill the list never had is added', () => {
