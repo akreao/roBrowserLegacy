@@ -112,6 +112,7 @@ import UIOpenEngine from './MapEngine/UIOpen.js';
 import QuestEngine from './MapEngine/Quest.js';
 import RodexEngine from './MapEngine/Rodex.js';
 import RouletteEngine from './MapEngine/Roulette.js';
+import PartyBookingEngine from './MapEngine/PartyBooking.js';
 import PCGoldTimerEngine from './MapEngine/PCGoldTimer.js';
 import CaptchaEngine from './MapEngine/Captcha.js';
 import ClanEngine from './MapEngine/Clan.js';
@@ -316,6 +317,7 @@ class MapEngine {
 			PrivateMessageEngine();
 			StorageEngine();
 			GroupEngine.init();
+			PartyBookingEngine();
 			GuildEngine.init();
 			SkillEngine();
 			ChatRoomEngine();

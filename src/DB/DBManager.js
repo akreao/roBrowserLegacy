@@ -2639,6 +2639,21 @@ class DB {
 	}
 
 	/**
+	 * Get the party booking regions and their maps, read once from the client's
+	 * seekparty Lua the way the official client reads it: queryRegionInfo(i) and
+	 * queryMapInfo(i, j), counting from 1 until a name comes back nil.
+	 * A map's id in the booking packets is (region << 8) | map.
+	 *
+	 * @return {Promise<Array>} [{ id, name, maps: [{ id, name, color }] }], empty without the files
+	 */
+	static getPartyBookingMaps() {
+		if (!_partyBookingMaps) {
+			_partyBookingMaps = loadPartyBookingMaps();
+		}
+		return _partyBookingMaps;
+	}
+
+	/**
 	 * Get a message string from the MsgEmotionCSV
 	 *
 	 * @param {string} key - The key to search for
@@ -7333,6 +7348,66 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, isRes
 	} finally {
 		onEnd.call();
 	}
+}
+
+/**
+ * @var {Promise} party booking regions, loaded on first use
+ */
+let _partyBookingMaps = null;
+
+/**
+ * Read the party booking map list from lua files/seekparty
+ *
+ * @return {Promise<Array>} regions, empty when the files are missing or fail
+ */
+async function loadPartyBookingMaps() {
+	const files = ['party_booking_config.lub', 'party_booking_function.lub'].map(
+		name => DB.LUA_PATH + 'seekparty/' + name
+	);
+	const regions = [];
+	const mounted = [];
+
+	try {
+		for (const file of files) {
+			const data = await new Promise((resolve, reject) => Client.loadFile(file, resolve, reject));
+			lua.mountFile(file, data instanceof ArrayBuffer ? new Uint8Array(data) : data);
+			mounted.push(file);
+			await lua.doFile(file);
+		}
+
+		const ctx = lua.ctx;
+		ctx.AddPartyBookingRegion = (id, name) => {
+			regions.push({ id: id, name: userStringDecoder.decode(name, userCharpage), maps: [] });
+			return 1;
+		};
+		ctx.AddPartyBookingMap = (region, id, name, r, g, b) => {
+			regions[region - 1].maps.push({
+				id: (region << 8) | id,
+				name: userStringDecoder.decode(name, userCharpage),
+				color: 'rgb(' + r + ',' + g + ',' + b + ')'
+			});
+			return 1;
+		};
+
+		lua.doStringSync(`
+			for i = 1, 255 do
+				local _, name = queryRegionInfo(i)
+				if name == nil then break end
+				AddPartyBookingRegion(i, name)
+				for j = 1, 255 do
+					local _, _, map, r, g, b = queryMapInfo(i, j)
+					if map == nil then break end
+					AddPartyBookingMap(i, j, map, r or 0, g or 0, b or 0)
+				end
+			end
+		`);
+	} catch (error) {
+		console.warn('[DB] Party booking map list not loaded:', error);
+	} finally {
+		mounted.forEach(file => lua.unmountFile(file));
+	}
+
+	return regions;
 }
 
 /**
