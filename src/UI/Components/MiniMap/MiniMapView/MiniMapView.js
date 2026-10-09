@@ -142,7 +142,7 @@ MiniMapView.init = function init() {
  * Once in the page
  */
 MiniMapView.onAppend = function onAppend() {
-	this._host.style.top = Math.max(0, Math.min(_preferences.y, Renderer.height - 556)) + 'px';
+	this._host.style.top = Math.max(0, Math.min(_preferences.y, Renderer.height - 559)) + 'px';
 	this._host.style.left = Math.max(0, Math.min(_preferences.x, Renderer.width - 516)) + 'px';
 
 	drawChecks();

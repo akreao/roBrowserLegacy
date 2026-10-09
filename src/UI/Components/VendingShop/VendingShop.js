@@ -83,12 +83,7 @@ VendingShop.init = function init() {
 	const closeBtn = root.querySelector('.btn.close');
 	if (closeBtn) {
 		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
-		// The official close button asks first (MsgStr 2926, vf34 @0x5dbb40 case 0x1EB)
-		closeBtn.addEventListener('click', () => {
-			UIManager.showPromptBox(DB.getMessage(2926, 'Do you want to close the shop?'), 'ok', 'cancel', () => {
-				VendingShop.onSubmit();
-			});
-		});
+		closeBtn.addEventListener('click', () => VendingShop.onSubmit());
 	}
 
 	const alarm = root.querySelector('.footer .alarm');

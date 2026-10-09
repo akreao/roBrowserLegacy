@@ -2,14 +2,14 @@
 	top: 100px;
 	left: 200px;
 	width: 516px;
-	height: 556px;
+	height: 559px;
 }
 
 /* Laid out from the official UIMiniMapWnd (window 0x111): positions are window pixels, title bar included */
 #MiniMapView {
 	position: absolute;
 	width: 516px;
-	height: 556px;
+	height: 559px;
 	background: white;
 	border-radius: 3px;
 	font-size: 12px;
@@ -85,7 +85,7 @@
 
 /* The three checkboxes at x 20, 120 and 220, h-19 */
 #MiniMapView .check {
-	top: 537px;
+	top: 540px;
 	height: 14px;
 	white-space: nowrap;
 	cursor: pointer;
@@ -111,7 +111,7 @@
 /* Record, at w-120, h-23 */
 #MiniMapView .record {
 	left: 396px;
-	top: 533px;
+	top: 536px;
 	width: 100px;
 	height: 20px;
 	border: none;
