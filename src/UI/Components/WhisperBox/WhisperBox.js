@@ -19,6 +19,8 @@ import cssText from './WhisperBox.css?raw';
 import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
+import Mouse from 'Controls/MouseEventHandler.js';
 
 /**
  * @var {GUIComponent} WhisperBox
@@ -178,13 +180,13 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance._contentEl = root.querySelector('.content');
 	instance._inputEl = root.querySelector('.input-whisper');
 
-	import('Engine/MapEngine/Friends.js').then(Friends => {
-		const isFriend = Friends && Friends.default.isFriend ? Friends.default.isFriend(nickname) : false;
-		const titleEl = root.querySelector('.title');
-		if (titleEl) {
-			titleEl.textContent = `With ${nickname}${isFriend ? ' (Friend)' : ''}`;
-		}
-	});
+	// The official title is "With  %s" (UIWhisperWnd::vf17 @0x553cb0), friend or not
+	const titleEl = root.querySelector('.title');
+	if (titleEl) {
+		titleEl.textContent = `With  ${nickname}`;
+	}
+
+	setupContextMenu(instance);
 
 	instance.draggable('.whisper-header, .whisper-footer');
 
@@ -286,6 +288,55 @@ WhisperBox.addText = function addText(nickname, text, color) {
 		contentEl.scrollTop = contentEl.scrollHeight;
 	}
 };
+
+/**
+ * Right click on a whisper window: "Save Chat as Text File" (MsgStr 312) and, for someone
+ * who is not a friend yet, "Register as a Friend" (MsgStr 358). UIWhisperWnd opens this
+ * menu (window 0x12) from its message handler (vf34 @0x5679f0).
+ *
+ * @param {object} instance whisper window
+ */
+function setupContextMenu(instance) {
+	instance.getRoot().addEventListener('mousedown', event => {
+		if (event.button !== 2) {
+			return;
+		}
+		// Keep the map from turning the camera on this right click.
+		event.stopPropagation();
+
+		Mouse.screen.x = event.pageX || event.clientX;
+		Mouse.screen.y = event.pageY || event.clientY;
+
+		import('Engine/MapEngine/Friends.js').then(Friends => {
+			const friends = Friends.default;
+			ContextMenu.remove();
+			ContextMenu.append();
+			ContextMenu.addElement(DB.getMessage(312, 'Save Chat as Text File'), () => saveChat(instance));
+			if (friends && !friends.isFriend(instance.nickname)) {
+				ContextMenu.addElement(DB.getMessage(358, 'Register as a Friend'), () => {
+					friends.addFriend(instance.nickname);
+				});
+			}
+		});
+	});
+}
+
+/**
+ * Save the conversation as a text file, one line per message
+ *
+ * @param {object} instance whisper window
+ */
+function saveChat(instance) {
+	const lines = [...instance._contentEl.children].map(el => el.textContent);
+	const url = URL.createObjectURL(new Blob([lines.join('\r\n')], { type: 'text/plain' }));
+	const link = document.createElement('a');
+	link.href = url;
+	link.download = `${instance.nickname}.txt`;
+	document.body.appendChild(link);
+	link.click();
+	link.remove();
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 /**
  * Move caret to the end of a contenteditable element
