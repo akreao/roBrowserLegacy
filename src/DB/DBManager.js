@@ -143,7 +143,7 @@ const ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
 let EnchantListTable = {};
 
 /**
- * @type {Array} battleground entry queues, from EntryQueue/EntryQueueList.lub, in file order
+ * @type {Array} battleground entry queues, from entryqueue/entryqueuelist.lub, in file order
  */
 let EntryQueueTable = [];
 
@@ -623,7 +623,7 @@ class DB {
 
 			// Battleground entry queues
 			if (PACKETVER.value >= 20111005) {
-				loadEntryQueueList(DB.LUA_PATH + 'EntryQueue/EntryQueueList.lub', onLoad());
+				loadEntryQueueList(DB.LUA_PATH + 'entryqueue/entryqueuelist.lub', onLoad());
 			}
 
 			// MapName
@@ -5820,7 +5820,8 @@ function loadItemReformFile(filename, callback, onEnd) {
 }
 
 /**
- * Loads EntryQueue/EntryQueueList.lub, the battlegrounds the queue window lists.
+ * Loads entryqueue/entryqueuelist.lub, the battlegrounds the queue window lists. Lowercase, as the
+ * GRFs and the English translation spell it: a case-sensitive file system misses any other spelling.
  * The official client runs the file, then calls its ReadEntryQueueList(), which
  * calls AddEntryQueue once per battleground (kRO RagexeRE 2020-12-29, 0xB9FCE0).
  *
