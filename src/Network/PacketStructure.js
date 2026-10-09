@@ -11875,6 +11875,14 @@ PACKET.ZC.USE_SKILL2 = function PACKET_ZC_USE_SKILL2(fp, end) {
 };
 PACKET.ZC.USE_SKILL2.size = 17;
 
+// 0x9c1
+PACKET.ZC.C_MARKERINFO = function PACKET_ZC_C_MARKERINFO(fp, end) {
+	this.AID = fp.readULong();
+	this.xPos = fp.readShort();
+	this.yPos = fp.readShort();
+};
+PACKET.ZC.C_MARKERINFO.size = 10;
+
 // 0x9db
 PACKET.ZC.NOTIFY_MOVEENTRY10 = function PACKET_ZC_NOTIFY_MOVEENTRY10(fp, end) {
 	this.objecttype = fp.readUChar();
@@ -14046,6 +14054,14 @@ PACKET.ZC.ACK_RANDOM_UPGRADE_ITEM = function PACKET_ZC_ACK_RANDOM_UPGRADE_ITEM(f
 };
 PACKET.ZC.ACK_RANDOM_UPGRADE_ITEM.size = 4;
 
+// 0xabd
+PACKET.ZC.NOTIFY_MEMBERINFO_TO_GROUPM = function PACKET_ZC_NOTIFY_MEMBERINFO_TO_GROUPM(fp, end) {
+	this.AID = fp.readULong();
+	this.job = fp.readShort();
+	this.level = fp.readShort();
+};
+PACKET.ZC.NOTIFY_MEMBERINFO_TO_GROUPM.size = 10;
+
 // 0xac4
 PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 	this.AuthCode = fp.readLong();
@@ -14582,6 +14598,13 @@ PACKET.ZC.ADD_QUEST3 = function PACKET_ZC_ADD_QUEST3(fp, end) {
 	})(this.count);
 };
 PACKET.ZC.ADD_QUEST3.size = 155;
+
+// 0xb0d
+PACKET.ZC.REMOVE_EFFECT = function PACKET_ZC_REMOVE_EFFECT(fp, end) {
+	this.AID = fp.readULong();
+	this.effectID = fp.readLong();
+};
+PACKET.ZC.REMOVE_EFFECT.size = 10;
 
 // 0xb0f
 PACKET.CZ.NPC_BARTER_MARKET_PURCHASE = function PACKET_CZ_NPC_BARTER_MARKET_PURCHASE() {
