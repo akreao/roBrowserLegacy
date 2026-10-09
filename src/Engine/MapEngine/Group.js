@@ -59,6 +59,7 @@ class GroupEngine {
 		Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
 		Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
 		Network.hookPacket(PACKET.ZC.NOTIFY_MEMBERINFO_TO_GROUPM, onPartyMemberInfo);
+		Network.hookPacket(PACKET.ZC.ITEM_PICKUP_PARTY2, onPartyMemberPickup);
 
 		const PartyUI = PartyFriends.getUI();
 
@@ -255,6 +256,33 @@ function onPartyCreate(pkt) {
 			ChatBox.addText(DB.getMessage(1387), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 			break;
 	}
+}
+
+/**
+ * A party member picked up an item
+ *
+ * @param {object} pkt - PACKET.ZC.ITEM_PICKUP_PARTY2
+ */
+function onPartyMemberPickup(pkt) {
+	if (pkt.AID === Session.AID) {
+		return;
+	}
+
+	const member = PartyFriends.getUI().getPartyMember(pkt.AID);
+	if (!member) {
+		return;
+	}
+
+	const item = DB.getItemName({
+		ITID: pkt.ITID,
+		IsIdentified: pkt.IsIdentified,
+		RefiningLevel: pkt.RefiningLevel,
+		enchantgrade: pkt.grade,
+		slot: pkt.slot
+	});
+	const text = DB.getMessage(1276).replace('%s', member.characterName).replace('%s', item);
+
+	ChatBox.addText(text, ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_ITEM, '#00FFFF');
 }
 
 /**

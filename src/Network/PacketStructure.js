@@ -7659,7 +7659,7 @@ PACKET.ZC.NOTIFY_WEAPONITEMLIST.size = -1;
 // 0x223
 PACKET.ZC.ACK_WEAPONREFINE = function PACKET_ZC_ACK_WEAPONREFINE(fp, end) {
 	this.msg = fp.readLong();
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 };
 PACKET.ZC.ACK_WEAPONREFINE.size = 8;
 
@@ -8437,7 +8437,7 @@ PACKET.ZC.CART_EQUIPMENT_ITEMLIST2.size = -1;
 
 // 0x298
 PACKET.ZC.CASH_TIME_COUNTER = function PACKET_ZC_CASH_TIME_COUNTER(fp, end) {
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 	this.RemainSecond = fp.readULong();
 };
 PACKET.ZC.CASH_TIME_COUNTER.size = 8;
@@ -8445,7 +8445,7 @@ PACKET.ZC.CASH_TIME_COUNTER.size = 8;
 // 0x299
 PACKET.ZC.CASH_ITEM_DELETE = function PACKET_ZC_CASH_ITEM_DELETE(fp, end) {
 	this.index = fp.readShort();
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 };
 PACKET.ZC.CASH_ITEM_DELETE.size = 6;
 
@@ -9785,6 +9785,25 @@ PACKET.ZC.CHANGE_GROUP_MASTER = function PACKET_ZC_CHANGE_GROUP_MASTER(fp, end) 
 	this.NewMasterAID = fp.readULong();
 };
 PACKET.ZC.CHANGE_GROUP_MASTER.size = 10;
+
+// 0x7fd
+PACKET.ZC.BROADCASTING_SPECIAL_ITEM_OBTAIN = function PACKET_ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN(fp, end) {
+	this.type = fp.readUChar(); // 0 from a box, 1 from a monster, 2 from an NPC
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.Name = fp.readString(fp.readChar());
+	this.boxITID = 0;
+	this.monsterName = '';
+
+	if (fp.tell() < end) {
+		const len = fp.readChar();
+		if (this.type === 0) {
+			this.boxITID = len === 4 ? fp.readULong() : fp.readUShort();
+		} else {
+			this.monsterName = fp.readString(len);
+		}
+	}
+};
+PACKET.ZC.BROADCASTING_SPECIAL_ITEM_OBTAIN.size = -1;
 
 // 0x7fe
 PACKET.ZC.PLAY_NPC_BGM = function PACKET_ZC_PLAY_NPC_BGM(fp, end) {
@@ -15614,6 +15633,12 @@ PACKET.ZC.OPEN_REFORM_UI = function PACKET_ZC_OPEN_REFORM_UI(fp, end) {
 	this.ITID = fp.readLong();
 };
 PACKET.ZC.OPEN_REFORM_UI.size = 6;
+
+// 0xbae
+PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL = function PACKET_ZC_ACK_TAKEOFF_EQUIP_ALL(fp, end) {
+	this.result = fp.readUChar();
+};
+PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL.size = 3;
 
 // 0xb90
 PACKET.CZ.CLOSE_REFORM_UI = function PACKET_CZ_CLOSE_REFORM_UI() {};

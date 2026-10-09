@@ -635,6 +635,27 @@ function onGlobalAnnounce(pkt) {
 }
 
 /**
+ * Someone obtained a rare item: from a box, a monster or an NPC
+ *
+ * @param {object} pkt - PACKET.ZC.BROADCASTING_SPECIAL_ITEM_OBTAIN
+ */
+function onSpecialItemObtain(pkt) {
+	const item = DB.getItemInfo(pkt.ITID).identifiedDisplayName;
+	let text;
+
+	if (pkt.type === 2) {
+		text = DB.getMessage(1868).replace('%s', pkt.Name).replace('%s', item);
+	} else {
+		const source = pkt.type === 0 ? DB.getItemInfo(pkt.boxITID).identifiedDisplayName : pkt.monsterName;
+		text = DB.getMessage(1628).replace('%s', pkt.Name).replace('%s', source).replace('%s', item);
+	}
+
+	ChatBox.addText(text, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_CHAT, '#FFFF00');
+	Announce.append();
+	Announce.set(text, '#FFB062');
+}
+
+/**
  * Receive player count in server
  * @param {object} pkt - PACKET.ZC.USER_COUNT
  */
@@ -1031,6 +1052,7 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.STATUS_CHANGE_ACK, onStatusParameterUpdateAnswer);
 	Network.hookPacket(PACKET.ZC.ATTACK_RANGE, onAttackRangeUpdate);
 	Network.hookPacket(PACKET.ZC.BROADCAST, onGlobalAnnounce);
+	Network.hookPacket(PACKET.ZC.BROADCASTING_SPECIAL_ITEM_OBTAIN, onSpecialItemObtain);
 	Network.hookPacket(PACKET.ZC.BROADCAST2, onGlobalAnnounce);
 	Network.hookPacket(PACKET.ZC.USER_COUNT, onPlayerCountAnswer);
 	Network.hookPacket(PACKET.ZC.NOTIFY_PLAYERCHAT, onPlayerMessage);

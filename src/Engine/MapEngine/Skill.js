@@ -330,6 +330,30 @@ function onSkillDelete(pkt) {
 }
 
 /**
+ * Message about a skill's effect on the player
+ *
+ * @param {object} pkt - PACKET.ZC.SKILLMSG
+ */
+function onSkillMessage(pkt) {
+	const messages = {
+		0x15: 889,
+		0x16: 890,
+		0x17: 891,
+		0x18: 892,
+		0x19: 893,
+		0x1c: 894,
+		0x1d: 895,
+		0x1e: 896,
+		0x1f: 897,
+		0x20: 898,
+		0x28: 915
+	};
+	if (pkt.MsgNo in messages) {
+		ChatBox.addText(DB.getMessage(messages[pkt.MsgNo]), ChatBox.TYPE.INFO, ChatBox.FILTER.STATUS, '#FF9B9B');
+	}
+}
+
+/**
  * List of skills/items in hotkey
  *
  * @param {object} pkt - PACKET_ZC_SHORTCUT_KEY_LIST_V2
@@ -1052,6 +1076,7 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
 	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);
 	Network.hookPacket(PACKET.ZC.MSG_SKILL, onMessageSkill);
+	Network.hookPacket(PACKET.ZC.SKILLMSG, onSkillMessage);
 	Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 	Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
 	Network.hookPacket(PACKET.ZC.SELECTCART, pkt => CartDecoration.onSelectCart(pkt));
