@@ -32,6 +32,7 @@ import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate.js';
 import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
 import Group from 'Engine/MapEngine/Group.js';
 import Friends from 'Engine/MapEngine/Friends.js';
+import PrivateMessage from 'Engine/MapEngine/PrivateMessage.js';
 import Guild from 'Engine/MapEngine/Guild.js';
 import HomunInformations from 'UI/Components/HomunInformations/HomunInformations.js';
 import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations.js';
@@ -379,6 +380,42 @@ const CommandStore = {
 			return;
 		},
 		aliases: ['w']
+	},
+
+	ex: {
+		description: '"<name>" Refuses whispers from a player. Without a name, lists the players refused',
+		callback: function (text) {
+			const matches = text.match(/^ex\s+(")?([^"]+)(")?/);
+			if (matches && matches[2]) {
+				PrivateMessage.requestWhisperPC(matches[2].trim(), 0);
+				return;
+			}
+			PrivateMessage.requestWhisperList();
+		}
+	},
+
+	in: {
+		description: '"<name>" Accepts whispers from a player again',
+		callback: function (text) {
+			const matches = text.match(/^in\s+(")?([^"]+)(")?/);
+			if (matches && matches[2]) {
+				PrivateMessage.requestWhisperPC(matches[2].trim(), 1);
+			}
+		}
+	},
+
+	exall: {
+		description: 'Refuses all whispers',
+		callback: function () {
+			PrivateMessage.requestWhisperState(0);
+		}
+	},
+
+	inall: {
+		description: 'Accepts all whispers again',
+		callback: function () {
+			PrivateMessage.requestWhisperState(1);
+		}
 	},
 
 	memo: {
