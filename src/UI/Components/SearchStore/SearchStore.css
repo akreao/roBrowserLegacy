@@ -1,19 +1,26 @@
 :host {
 	top: 120px;
 	left: 120px;
-	width: 420px;
-	height: 330px;
+	width: 450px;
+	height: 380px;
 }
 
+/* Laid out from the official UISerachStoreInfoWnd: positions are window pixels, title bar included */
 #SearchStore {
 	position: absolute;
-	width: 420px;
+	width: 450px;
+	height: 380px;
 	background: white;
-	border-radius: 2px;
-	font-size: 11px;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#SearchStore > * {
+	position: absolute;
 }
 
 #SearchStore .titlebar {
+	position: relative;
 	width: 100%;
 	height: 17px;
 	background-color: white;
@@ -49,98 +56,209 @@
 	clear: both;
 }
 
-#SearchStore .panel {
-	padding: 4px 6px;
-}
-#SearchStore .row {
-	height: 20px;
-	line-height: 20px;
-	white-space: nowrap;
-}
-#SearchStore .row label {
-	margin-right: 8px;
-}
-#SearchStore .uses {
-	float: right;
-	color: #555;
-}
-#SearchStore input[type='text'] {
-	box-sizing: border-box;
-	height: 17px;
-	border: 1px solid #b5b5b5;
+#SearchStore .label {
+	top: 20px;
 	font-size: 11px;
-	padding: 0 3px;
+	color: #ff3c7f;
+	text-shadow:
+		-1px 0 white,
+		1px 0 white,
+		0 -1px white,
+		0 1px white;
 }
-#SearchStore .item-name,
+#SearchStore .label-type {
+	left: 5px;
+}
+#SearchStore .label-item {
+	left: 98px;
+}
+#SearchStore .label-card {
+	left: 185px;
+}
+#SearchStore .label-zeny {
+	left: 273px;
+}
+
+#SearchStore .radio,
+#SearchStore .checkbox {
+	height: 12px;
+	line-height: 12px;
+	padding-left: 14px;
+	background-repeat: no-repeat;
+	background-position: left center;
+	white-space: nowrap;
+	cursor: pointer;
+}
+#SearchStore .type-sell {
+	left: 10px;
+	top: 40px;
+}
+#SearchStore .type-buy {
+	left: 50px;
+	top: 40px;
+}
+#SearchStore .similar {
+	left: 100px;
+	top: 60px;
+}
+
+#SearchStore input[type='text'] {
+	top: 36px;
+	box-sizing: border-box;
+	width: 76px;
+	height: 16px;
+	margin: 0;
+	padding: 0 2px;
+	border: 1px solid #c0c0c0;
+	background: #e8e8e8;
+	font-size: 12px;
+	outline: none;
+}
+#SearchStore .item-name {
+	left: 100px;
+}
 #SearchStore .card-name {
-	width: 100%;
+	left: 187px;
 }
-#SearchStore .price {
-	width: 110px;
+#SearchStore .min-price {
+	left: 275px;
 	text-align: right;
+}
+#SearchStore .tilde {
+	left: 353px;
+	top: 38px;
+}
+#SearchStore .max-price {
+	left: 364px;
+	text-align: right;
+}
+
+#SearchStore .uses {
+	right: 60px;
+	top: 60px;
+	white-space: nowrap;
 }
 #SearchStore .search {
-	display: inline-block;
-	vertical-align: middle;
-	margin-left: 6px;
-}
-#SearchStore .status {
-	height: 14px;
-	color: #c00;
-}
-
-#SearchStore .results {
-	height: 190px;
-	overflow-y: auto;
-	border: 1px solid #d6d6d6;
-}
-#SearchStore table {
-	width: 100%;
-	border-collapse: collapse;
-}
-#SearchStore th {
-	position: sticky;
-	top: 0;
-	background: #eef2f9;
-	font-weight: normal;
-	text-align: left;
-	padding: 1px 3px;
-}
-#SearchStore td {
-	padding: 1px 3px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 160px;
-}
-#SearchStore tbody tr {
+	left: 405px;
+	top: 56px;
+	display: block;
+	width: 42px;
+	height: 20px;
+	background-repeat: no-repeat;
 	cursor: pointer;
 }
-#SearchStore tbody tr:hover {
-	background: #e3ecf8;
+
+/* Header 5..445 x 80..100, then ten 25px rows; columns split at 50, 160, 330 and 360 */
+#SearchStore .header,
+#SearchStore .list {
+	left: 5px;
+	width: 440px;
 }
-#SearchStore .icon {
-	display: inline-block;
-	width: 24px;
-	height: 24px;
-	vertical-align: middle;
-	margin-right: 3px;
+#SearchStore .header {
+	top: 80px;
+	height: 20px;
+	line-height: 20px;
+	box-sizing: border-box;
+	border: 1px solid #c0c0c0;
+	background: #feffdf;
+}
+#SearchStore .list {
+	top: 100px;
+	height: 250px;
+	box-sizing: border-box;
+	border: 1px solid #c0c0c0;
+	border-top: none;
+}
+#SearchStore .row {
+	position: relative;
+	height: 25px;
+	line-height: 25px;
+	box-sizing: border-box;
+	border-bottom: 1px solid #c0c0c0;
+	cursor: pointer;
+}
+#SearchStore .row.selected {
+	background: #cadffb;
+}
+#SearchStore .header > span,
+#SearchStore .row > span {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+	white-space: nowrap;
+}
+#SearchStore .col-icon {
+	left: 0;
+	width: 45px;
 	background-repeat: no-repeat;
-	background-position: center;
+	background-position: 8px center;
 }
-#SearchStore .col-qty,
+#SearchStore .col-shop {
+	left: 45px;
+	width: 110px;
+	border-left: 1px solid #c0c0c0;
+	border-right: 1px solid #c0c0c0;
+}
+#SearchStore .col-item {
+	left: 155px;
+	width: 170px;
+}
+#SearchStore .col-qty {
+	left: 325px;
+	width: 30px;
+	border-left: 1px solid #c0c0c0;
+	border-right: 1px solid #c0c0c0;
+}
 #SearchStore .col-price {
-	text-align: right;
+	left: 355px;
+	width: 75px;
+}
+#SearchStore .header > span {
+	text-align: center;
+}
+#SearchStore .row .col-shop,
+#SearchStore .row .col-item {
+	padding-left: 4px;
+	text-overflow: ellipsis;
+}
+#SearchStore .row .col-qty,
+#SearchStore .row .col-price {
+	text-align: center;
 }
 
-#SearchStore .footer {
-	height: 18px;
-	text-align: right;
-	margin-top: 2px;
+#SearchStore .status {
+	left: 5px;
+	top: 360px;
+	color: red;
+	white-space: nowrap;
+}
+#SearchStore .page-button,
+#SearchStore .page {
+	top: 359px;
+	color: #8e8e8e;
+	white-space: nowrap;
+}
+#SearchStore .page-button {
+	cursor: pointer;
+}
+#SearchStore .page-button:hover {
+	color: black;
+}
+#SearchStore .page-button.disabled {
+	visibility: hidden;
+}
+#SearchStore .prev {
+	right: 245px;
+}
+#SearchStore .page {
+	left: 0;
+	width: 450px;
+	text-align: center;
+	pointer-events: none;
+	color: black;
 }
 #SearchStore .next {
-	display: none;
-	font-size: 10px;
-	height: 16px;
-	cursor: pointer;
+	left: 245px;
 }

@@ -41,9 +41,39 @@ const MAX_PRICE = 1000000000;
 const _preferences = Preferences.get('SearchStore', { x: 120, y: 120 }, 1.0);
 
 /**
- * @var {Array} results shown, in order
+ * Results per page, as the official window shows them
+ */
+const PAGE_SIZE = 10;
+
+/**
+ * @var {Array} results received, in order
  */
 let _results = [];
+
+/**
+ * @var {number} page shown, from 0
+ */
+let _page = 0;
+
+/**
+ * @var {boolean} the server has more results to send
+ */
+let _hasMore = false;
+
+/**
+ * @var {boolean} a page was asked for and is to be shown when it arrives
+ */
+let _waitingPage = false;
+
+/**
+ * @var {number} store type searched, SearchStore.TYPE
+ */
+let _type = 0;
+
+/**
+ * @var {boolean} names that only contain the text are searched too
+ */
+let _similar = false;
 
 SearchStore.init = function init() {
 	const root = this.getRoot();
@@ -51,7 +81,13 @@ SearchStore.init = function init() {
 	root.querySelector('.base').addEventListener('mousedown', event => event.stopImmediatePropagation());
 	root.querySelector('.close').addEventListener('click', () => SearchStore.remove());
 	root.querySelector('.search').addEventListener('click', search);
-	root.querySelector('.next').addEventListener('click', () => SearchStore.onNextPage());
+	root.querySelector('.prev').addEventListener('click', () => showPage(_page - 1));
+	root.querySelector('.next').addEventListener('click', showNextPage);
+
+	root.querySelectorAll('.radio').forEach(radio => {
+		radio.addEventListener('click', () => setType(parseInt(radio.getAttribute('data-value'), 10)));
+	});
+	root.querySelector('.similar').addEventListener('click', () => setSimilar(!_similar));
 
 	root.querySelectorAll('input[type="text"]').forEach(input => {
 		input.addEventListener('keydown', event => {
@@ -66,8 +102,10 @@ SearchStore.init = function init() {
 	root.querySelector('.card-name').placeholder = DB.getMessage(1801);
 
 	root.querySelector('.list').addEventListener('click', event => {
-		const row = event.target.closest('tr');
+		const row = event.target.closest('.row');
 		if (row) {
+			root.querySelectorAll('.row.selected').forEach(other => other.classList.remove('selected'));
+			row.classList.add('selected');
 			SearchStore.onSelectItem(_results[parseInt(row.getAttribute('data-index'), 10)]);
 		}
 	});
@@ -99,6 +137,8 @@ SearchStore.open = function open(uses) {
 	this.clearResults();
 	this.setUses(uses);
 	this.setStatus('');
+	setType(_type);
+	setSimilar(_similar);
 };
 
 /**
@@ -112,56 +152,121 @@ SearchStore.setUses = function setUses(uses) {
  * @param {string} text - message under the search fields
  */
 SearchStore.setStatus = function setStatus(text) {
+	// A failure answers the page asked for, if any
+	if (text) {
+		_waitingPage = false;
+	}
 	this.getRoot().querySelector('.status').textContent = text;
 };
 
 SearchStore.clearResults = function clearResults() {
 	_results = [];
-	this.getRoot().querySelector('.list').innerHTML = '';
-	this.getRoot().querySelector('.next').style.display = 'none';
+	_hasMore = false;
+	_waitingPage = false;
+	showPage(0);
 };
 
 /**
- * Show a page of results
+ * Add a page of results from the server
  *
  * @param {Array} list - entries of ZC_SEARCH_STORE_INFO_ACK
  * @param {boolean} firstPage - replaces the results shown
  * @param {boolean} nextPage - more results can be asked for
  */
 SearchStore.addResults = function addResults(list, firstPage, nextPage) {
-	const root = this.getRoot();
-	const tbody = root.querySelector('.list');
+	if (firstPage) {
+		_results = [];
+	}
+
+	_results.push(...list);
+	_hasMore = !!nextPage;
 
 	if (firstPage) {
-		this.clearResults();
+		showPage(0);
+	} else if (_waitingPage) {
+		showPage(_page + 1);
+	} else {
+		showPage(_page);
 	}
+	_waitingPage = false;
+};
 
-	for (const entry of list) {
-		const index = _results.push(entry) - 1;
+/**
+ * Draw one page of the results, with the page buttons that apply
+ *
+ * @param {number} page - from 0
+ */
+function showPage(page) {
+	const root = SearchStore.getRoot();
+	const list = root.querySelector('.list');
+	const pages = Math.max(1, Math.ceil(_results.length / PAGE_SIZE));
+
+	_page = Math.max(0, Math.min(page, pages - 1));
+	list.innerHTML = '';
+
+	_results.slice(_page * PAGE_SIZE, (_page + 1) * PAGE_SIZE).forEach((entry, i) => {
 		const it = DB.getItemInfo(entry.ITID);
-		const tr = document.createElement('tr');
-
-		tr.setAttribute('data-index', index);
-		tr.innerHTML =
-			'<td class="col-item"><span class="icon"></span><span class="name"></span></td>' +
-			'<td class="col-shop"></td><td class="col-qty"></td><td class="col-price"></td>';
-
+		const row = document.createElement('div');
 		const name = DB.getItemName({ ...entry, IsIdentified: true });
-		tr.querySelector('.name').textContent = name;
-		tr.querySelector('.col-item').title = name;
-		tr.querySelector('.col-shop').textContent = entry.StoreName;
-		tr.querySelector('.col-shop').title = entry.StoreName;
-		tr.querySelector('.col-qty').textContent = entry.count;
-		tr.querySelector('.col-price').textContent = formatZeny(entry.price);
-		tbody.appendChild(tr);
+
+		row.className = 'row';
+		row.setAttribute('data-index', _page * PAGE_SIZE + i);
+		row.innerHTML =
+			'<span class="col-icon"></span><span class="col-shop"></span>' +
+			'<span class="col-item"></span><span class="col-qty"></span><span class="col-price"></span>';
+
+		row.querySelector('.col-shop').textContent = entry.StoreName;
+		row.querySelector('.col-shop').title = entry.StoreName;
+		row.querySelector('.col-item').textContent = name;
+		row.querySelector('.col-item').title = name;
+		row.querySelector('.col-qty').textContent = entry.count;
+		row.querySelector('.col-price').textContent = formatZeny(entry.price);
+		list.appendChild(row);
 
 		Client.loadFile(`${DB.INTERFACE_PATH}item/${it.identifiedResourceName}.bmp`, data => {
-			tr.querySelector('.icon').style.backgroundImage = `url(${data})`;
+			row.querySelector('.col-icon').style.backgroundImage = `url(${data})`;
 		});
-	}
+	});
 
-	root.querySelector('.next').style.display = nextPage ? '' : 'none';
-};
+	root.querySelector('.page').textContent = _results.length ? String(_page + 1) : '';
+	root.querySelector('.prev').classList.toggle('disabled', _page === 0);
+	root.querySelector('.next').classList.toggle('disabled', _page >= pages - 1 && !_hasMore);
+}
+
+/**
+ * Show the next page, asking the server for it when it has not been received
+ */
+function showNextPage() {
+	if ((_page + 1) * PAGE_SIZE < _results.length) {
+		showPage(_page + 1);
+	} else if (_hasMore && !_waitingPage) {
+		_waitingPage = true;
+		SearchStore.onNextPage();
+	}
+}
+
+/**
+ * @param {number} type - SearchStore.TYPE
+ */
+function setType(type) {
+	const root = SearchStore.getRoot();
+
+	_type = type;
+	root.querySelectorAll('.radio').forEach(radio => {
+		const on = parseInt(radio.getAttribute('data-value'), 10) === type;
+		radio.querySelector('ui-image').setAttribute('src', on ? 'radiobtn_on.bmp' : 'radiobtn_off.bmp');
+	});
+}
+
+/**
+ * @param {boolean} on - also search names that only contain the text
+ */
+function setSimilar(on) {
+	_similar = on;
+	SearchStore.getRoot()
+		.querySelector('.similar ui-image')
+		.setAttribute('src', on ? 'checkbox_1.bmp' : 'checkbox_0.bmp');
+}
 
 /**
  * @param {number} zeny
@@ -182,13 +287,16 @@ function parsePrice(value) {
 
 /**
  * Item ids whose name matches: every exact match (all slot variants of an
- * item share a name), or else every item whose name contains the text
+ * item share a name), and with similar items, every item whose name contains
+ * the text. Without them, a text that names no item exactly still finds the
+ * items containing it.
  *
  * @param {string} text
  * @param {function} [accept] - limits the candidates
+ * @param {boolean} [similar] - add the items whose name contains the text
  * @return {Array} item ids
  */
-SearchStore.findItems = function findItems(text, accept = () => true) {
+SearchStore.findItems = function findItems(text, accept = () => true, similar = false) {
 	const query = text.trim().toLowerCase();
 	const exact = [];
 	const partial = [];
@@ -211,7 +319,7 @@ SearchStore.findItems = function findItems(text, accept = () => true) {
 		}
 	}
 
-	return exact.length ? exact : partial;
+	return exact.length && !similar ? exact : exact.concat(partial);
 };
 
 /**
@@ -227,7 +335,7 @@ function search() {
 		return;
 	}
 
-	const items = SearchStore.findItems(itemName);
+	const items = SearchStore.findItems(itemName, undefined, _similar);
 	if (!items.length) {
 		SearchStore.setStatus(DB.getMessage(1810));
 		return;
@@ -235,7 +343,11 @@ function search() {
 
 	// Cards are named "... Card", or carry the prefix/suffix they give an item
 	const cards = cardName.trim()
-		? SearchStore.findItems(cardName, item => !!item.prefixName || /card$/i.test(item.identifiedDisplayName || ''))
+		? SearchStore.findItems(
+				cardName,
+				item => !!item.prefixName || /card$/i.test(item.identifiedDisplayName || ''),
+				_similar
+			)
 		: [];
 	if (cardName.trim() && !cards.length) {
 		SearchStore.setStatus(DB.getMessage(1812));
@@ -260,7 +372,7 @@ function search() {
 
 	SearchStore.setStatus('');
 	SearchStore.onSearch({
-		type: root.querySelector('.type-buy').checked ? SearchStore.TYPE.BUYING_STORE : SearchStore.TYPE.VENDING,
+		type: _type === SearchStore.TYPE.BUYING_STORE ? SearchStore.TYPE.BUYING_STORE : SearchStore.TYPE.VENDING,
 		minPrice,
 		maxPrice,
 		items,
