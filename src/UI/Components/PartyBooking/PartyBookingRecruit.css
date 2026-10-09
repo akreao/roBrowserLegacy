@@ -157,3 +157,9 @@
 	left: 370px;
 	top: 334px;
 }
+
+/* The official buttons are 42x20 bitmaps; an absolutely placed ui-button has no size of its own */
+#PartyBookingRecruit ui-button {
+	width: 42px;
+	height: 20px;
+}
