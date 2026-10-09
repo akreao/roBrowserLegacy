@@ -1,0 +1,51 @@
+<div id="SearchStore">
+	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="left">
+			<button
+				class="base"
+				data-background="basic_interface/sys_base_off.bmp"
+				data-hover="basic_interface/sys_base_on.bmp"
+			></button>
+			<span class="text" data-text="1780">Search for Venders</span>
+		</div>
+		<div class="right">
+			<button
+				class="base close"
+				data-background="basic_interface/sys_close_off.bmp"
+				data-hover="basic_interface/sys_close_on.bmp"
+			></button>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<span class="label label-type">Type</span>
+	<span class="label label-item">Item</span>
+	<span class="label label-card">Card</span>
+	<span class="label label-zeny">Zeny</span>
+	<span class="radio type-sell" data-value="0"
+		><ui-image src="radiobtn_on.bmp"></ui-image><span data-text="1778">Sell</span></span
+	>
+	<span class="radio type-buy" data-value="1"
+		><ui-image src="radiobtn_off.bmp"></ui-image><span data-text="1779">Buy</span></span
+	>
+	<input type="text" class="item-name" maxlength="50" />
+	<input type="text" class="card-name" maxlength="50" />
+	<input type="text" class="price min-price" maxlength="10" />
+	<span class="tilde">~</span>
+	<input type="text" class="price max-price" maxlength="10" />
+	<span class="checkbox similar"
+		><ui-image src="checkbox_0.bmp"></ui-image><span data-text="1788">Include similar items?</span></span
+	>
+	<span class="uses"></span>
+	<ui-button class="search" bg="btn_find.bmp" hover="btn_find_a.bmp" down="btn_find_b.bmp"></ui-button>
+	<div class="header">
+		<span class="col-shop" data-text="1781">Shop Name</span>
+		<span class="col-item" data-text="1060">Item</span>
+		<span class="col-qty" data-text="1782">Qty</span>
+		<span class="col-price" data-text="1783">Price</span>
+	</div>
+	<div class="list"></div>
+	<div class="status"></div>
+	<span class="page-button prev" data-text="1053">Prev</span>
+	<span class="page"></span>
+	<span class="page-button next" data-text="1054">Next</span>
+</div>
