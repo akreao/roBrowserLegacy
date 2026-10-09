@@ -23,6 +23,85 @@ import Vending from 'UI/Components/Vending/Vending.js';
 import VendingReport from 'UI/Components/VendingReport/VendingReport.js';
 import VendingShop from 'UI/Components/VendingShop/VendingShop.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
+import SearchStore from 'UI/Components/SearchStore/SearchStore.js';
+
+/**
+ * Store search (catalog): the server opens the window
+ *
+ * @param {object} pkt - PACKET.ZC.OPEN_SEARCH_STORE_INFO
+ */
+function onSearchStoreOpen(pkt) {
+	SearchStore.open(pkt.SearchCntMax);
+}
+
+/**
+ * Store search: a page of results
+ *
+ * @param {object} pkt - PACKET.ZC.SEARCH_STORE_INFO_ACK
+ */
+function onSearchStoreResults(pkt) {
+	if (!SearchStore.__active) {
+		return;
+	}
+	SearchStore.setUses(pkt.RemainedSearchCnt);
+	SearchStore.addResults(pkt.SSI_List, !!pkt.IsFirstPage, !!pkt.IsNexPage);
+}
+
+/**
+ * Store search: nothing found, too many results, no searches left...
+ *
+ * @param {object} pkt - PACKET.ZC.SEARCH_STORE_INFO_FAILED
+ */
+function onSearchStoreFailed(pkt) {
+	const msg = [1803, 1784, 1798, 1800, 1797][pkt.Reason];
+	if (msg === undefined) {
+		return;
+	}
+	if (SearchStore.__active) {
+		SearchStore.setStatus(DB.getMessage(msg));
+	}
+	ChatBox.addText(DB.getMessage(msg), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+}
+
+/**
+ * Store search: where the clicked store stands, on this map
+ *
+ * @param {object} pkt - PACKET.ZC.SSILIST_ITEM_CLICK_ACK
+ */
+function onSearchStoreLocation(pkt) {
+	if (pkt.x < 0 || pkt.y < 0) {
+		SearchStore.setStatus(DB.getMessage(1811));
+		return;
+	}
+	MiniMap.getUI().addNpcMark('searchstore', pkt.x, pkt.y, 0xff0000, 15000);
+}
+
+SearchStore.onSearch = function onSearch(params) {
+	const pkt = new PACKET.CZ.SEARCH_STORE_INFO();
+	pkt.StoreType = params.type;
+	pkt.minPrice = params.minPrice;
+	pkt.maxPrice = params.maxPrice;
+	pkt.ItemIDList = params.items;
+	pkt.CardIDList = params.cards;
+	Network.sendPacket(pkt);
+};
+
+SearchStore.onNextPage = function onNextPage() {
+	Network.sendPacket(new PACKET.CZ.SEARCH_STORE_INFO_NEXT_PAGE());
+};
+
+SearchStore.onSelectItem = function onSelectItem(entry) {
+	const pkt = new PACKET.CZ.SSILIST_ITEM_CLICK();
+	pkt.AID = entry.AID;
+	pkt.SSI_ID = entry.SSI_ID;
+	pkt.ITID = entry.ITID;
+	Network.sendPacket(pkt);
+};
+
+SearchStore.onClose = function onClose() {
+	Network.sendPacket(new PACKET.CZ.CLOSE_SEARCH_STORE_INFO());
+};
 
 /**
  * Received items list to buy from cash npc
@@ -545,6 +624,11 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList);
 	Network.hookPacket(PACKET.ZC.ACK_ITEMLIST_BUYING_STORE, onBuyingStoreList);
 	Network.hookPacket(PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult);
+	Network.hookPacket(PACKET.ZC.OPEN_SEARCH_STORE_INFO, onSearchStoreOpen);
+	Network.hookPacket(PACKET.ZC.SEARCH_STORE_INFO_ACK, onSearchStoreResults);
+	Network.hookPacket(PACKET.ZC.SEARCH_STORE_INFO_ACK2, onSearchStoreResults);
+	Network.hookPacket(PACKET.ZC.SEARCH_STORE_INFO_FAILED, onSearchStoreFailed);
+	Network.hookPacket(PACKET.ZC.SSILIST_ITEM_CLICK_ACK, onSearchStoreLocation);
 	Network.hookPacket(PACKET.ZC.ITEM_DELETE_BUYING_STORE, onSellToBuyingStoreDelete);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_OPEN2, onMarketShop);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_PURCHASE_RESULT, onMarketShopResult);

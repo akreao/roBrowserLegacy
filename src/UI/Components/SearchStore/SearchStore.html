@@ -1,0 +1,70 @@
+<div id="SearchStore">
+	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="left">
+			<button
+				class="base"
+				data-background="basic_interface/sys_base_off.bmp"
+				data-hover="basic_interface/sys_base_on.bmp"
+			></button>
+			<span class="text" data-text="1780">Search for Venders</span>
+		</div>
+		<div class="right">
+			<button
+				class="base close"
+				data-background="basic_interface/sys_close_off.bmp"
+				data-hover="basic_interface/sys_close_on.bmp"
+			></button>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="panel">
+		<div class="row">
+			<label
+				><input type="radio" name="storetype" class="type-sell" value="0" checked /><span data-text="1778"
+					>Sell</span
+				></label
+			>
+			<label
+				><input type="radio" name="storetype" class="type-buy" value="1" /><span data-text="1779"
+					>Buy</span
+				></label
+			>
+			<span class="uses"></span>
+		</div>
+		<div class="row">
+			<input type="text" class="item-name" maxlength="50" />
+		</div>
+		<div class="row">
+			<input type="text" class="card-name" maxlength="50" />
+		</div>
+		<div class="row">
+			<span data-text="1783">Price</span>
+			<input type="text" class="price min-price" maxlength="10" />
+			~
+			<input type="text" class="price max-price" maxlength="10" />
+			<ui-button
+				class="search"
+				bg="navigation_interface/navisearch_a.bmp"
+				hover="navigation_interface/navisearch_b.bmp"
+				down="navigation_interface/navisearch_c.bmp"
+			></ui-button>
+		</div>
+		<div class="status"></div>
+		<div class="results">
+			<table>
+				<thead>
+					<tr>
+						<th class="col-item"></th>
+						<th class="col-shop" data-text="1781">Shop Name</th>
+						<th class="col-qty" data-text="1782">Qty</th>
+						<th class="col-price" data-text="1783">Price</th>
+					</tr>
+				</thead>
+				<tbody class="list"></tbody>
+			</table>
+		</div>
+		<div class="footer">
+			<button class="next">&gt;&gt;</button>
+		</div>
+	</div>
+</div>

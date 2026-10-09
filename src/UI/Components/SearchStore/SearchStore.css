@@ -1,0 +1,146 @@
+:host {
+	top: 120px;
+	left: 120px;
+	width: 420px;
+	height: 330px;
+}
+
+#SearchStore {
+	position: absolute;
+	width: 420px;
+	background: white;
+	border-radius: 2px;
+	font-size: 11px;
+}
+
+#SearchStore .titlebar {
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#SearchStore .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#SearchStore .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	display: inline-block;
+	white-space: nowrap;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+#SearchStore .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#SearchStore .titlebar .right {
+	float: right;
+	margin-right: 3px;
+}
+#SearchStore .titlebar .clear {
+	clear: both;
+}
+
+#SearchStore .panel {
+	padding: 4px 6px;
+}
+#SearchStore .row {
+	height: 20px;
+	line-height: 20px;
+	white-space: nowrap;
+}
+#SearchStore .row label {
+	margin-right: 8px;
+}
+#SearchStore .uses {
+	float: right;
+	color: #555;
+}
+#SearchStore input[type='text'] {
+	box-sizing: border-box;
+	height: 17px;
+	border: 1px solid #b5b5b5;
+	font-size: 11px;
+	padding: 0 3px;
+}
+#SearchStore .item-name,
+#SearchStore .card-name {
+	width: 100%;
+}
+#SearchStore .price {
+	width: 110px;
+	text-align: right;
+}
+#SearchStore .search {
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 6px;
+}
+#SearchStore .status {
+	height: 14px;
+	color: #c00;
+}
+
+#SearchStore .results {
+	height: 190px;
+	overflow-y: auto;
+	border: 1px solid #d6d6d6;
+}
+#SearchStore table {
+	width: 100%;
+	border-collapse: collapse;
+}
+#SearchStore th {
+	position: sticky;
+	top: 0;
+	background: #eef2f9;
+	font-weight: normal;
+	text-align: left;
+	padding: 1px 3px;
+}
+#SearchStore td {
+	padding: 1px 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 160px;
+}
+#SearchStore tbody tr {
+	cursor: pointer;
+}
+#SearchStore tbody tr:hover {
+	background: #e3ecf8;
+}
+#SearchStore .icon {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+	margin-right: 3px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+#SearchStore .col-qty,
+#SearchStore .col-price {
+	text-align: right;
+}
+
+#SearchStore .footer {
+	height: 18px;
+	text-align: right;
+	margin-top: 2px;
+}
+#SearchStore .next {
+	display: none;
+	font-size: 10px;
+	height: 16px;
+	cursor: pointer;
+}
