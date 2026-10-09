@@ -1,0 +1,32 @@
+<div id="DressRoom">
+	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="left">
+			<button
+				class="base"
+				data-background="basic_interface/sys_base_off.bmp"
+				data-hover="basic_interface/sys_base_on.bmp"
+			></button>
+			<span class="text">Dress Room</span>
+		</div>
+		<div class="right">
+			<button
+				class="base close"
+				data-background="basic_interface/sys_close_off.bmp"
+				data-hover="basic_interface/sys_close_on.bmp"
+			></button>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<select class="category">
+		<option value="head">Hairstyle</option>
+		<option value="headpalette">Hair Color</option>
+		<option value="bodypalette">Clothes Color</option>
+	</select>
+	<div class="list"></div>
+	<div class="preview" data-background="basic_interface/dressroomback.bmp">
+		<canvas width="160" height="150"></canvas>
+	</div>
+	<ui-button class="rotate rot_left" bg="scroll1left.bmp"></ui-button>
+	<ui-button class="rotate rot_right" bg="scroll1right.bmp"></ui-button>
+	<span class="button close-button">Close</span>
+</div>

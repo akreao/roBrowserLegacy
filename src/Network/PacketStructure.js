@@ -12888,6 +12888,12 @@ PACKET.ZC.SHORTCUT_KEY_LIST_V3 = function PACKET_ZC_SHORTCUT_KEY_LIST_V3(fp, end
 };
 PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
 
+// 0xa02
+PACKET.ZC.DRESSROOM_OPEN = function PACKET_ZC_DRESSROOM_OPEN(fp, end) {
+	this.view = fp.readUShort();
+};
+PACKET.ZC.DRESSROOM_OPEN.size = 4;
+
 // 0xa07
 PACKET.ZC.ACK_REMOVE_ITEM_MAIL = function ACK_REMOVE_ITEM_MAIL(fp, end) {
 	this.success = fp.readChar();
@@ -13409,6 +13415,31 @@ PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
 	})();
 };
 PACKET.ZC.GROUP_LIST2.size = -1;
+
+// 0xa49
+PACKET.CZ.PRIVATE_AIRSHIP_REQUEST = function PACKET_CZ_PRIVATE_AIRSHIP_REQUEST() {
+	this.mapName = '';
+	this.ItemID = 0;
+};
+PACKET.CZ.PRIVATE_AIRSHIP_REQUEST.prototype.build = function () {
+	const wideId = PACKETVER.value >= 20181121;
+	const pkt = new BinaryWriter(wideId ? 22 : 20);
+
+	pkt.writeShort(0xa49);
+	pkt.writeString(this.mapName, 16);
+	if (wideId) {
+		pkt.writeULong(this.ItemID);
+	} else {
+		pkt.writeUShort(this.ItemID);
+	}
+	return pkt;
+};
+
+// 0xa4a
+PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE = function PACKET_ZC_PRIVATE_AIRSHIP_RESPONSE(fp, end) {
+	this.flag = fp.readULong();
+};
+PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE.size = 6;
 
 // 0xa4e
 PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN = function PACKET_ZC_RANDOM_COMBINE_ITEM_UI_OPEN(fp, end) {
@@ -14124,6 +14155,13 @@ PACKET.CZ.REQ_CHECK_ATTENDANCE.prototype.build = function () {
 	pkt_buf.writeShort(0xaef);
 	return pkt_buf;
 };
+
+// 0xaf0
+PACKET.ZC.ACK_CHECK_ATTENDANCE = function PACKET_ZC_ACK_CHECK_ATTENDANCE(fp, end) {
+	this.type = fp.readULong();
+	this.data = fp.readULong();
+};
+PACKET.ZC.ACK_CHECK_ATTENDANCE.size = 10;
 
 // 0xaf4
 PACKET.CZ.USE_SKILL_TOGROUND3 = function PACKET_CZ_USE_SKILL_TOGROUND3() {

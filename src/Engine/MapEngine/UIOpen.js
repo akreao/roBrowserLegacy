@@ -12,12 +12,16 @@
  * Load dependencies
  */
 import Configs from 'Core/Configs.js';
+import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import DressRoom from 'UI/Components/DressRoom/DressRoom.js';
 import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade.js';
 import EnchantUI from 'UI/Components/Enchant/Enchant.js';
+import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
 
 /**
  * Received data and request to open a specific UI
@@ -69,9 +73,70 @@ function onUIOpen(pkt) {
 }
 
 /**
+ * The server answers an attendance claim (ZC_ACK_CHECK_ATTENDANCE)
+ *
+ * As the official client does: 0 updates the open window to the new count,
+ * claimed today; 1 says the claim failed and closes it.
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_CHECK_ATTENDANCE
+ */
+function onAttendanceReply(pkt) {
+	const shown = CheckAttendance.__active && CheckAttendance._host && CheckAttendance._host.style.display !== 'none';
+
+	if (pkt.type === 0) {
+		if (shown) {
+			CheckAttendance.setData(pkt.data * 10 + 1);
+			CheckAttendance.cleanUI();
+			CheckAttendance.updateUI();
+		}
+		return;
+	}
+
+	if (pkt.type === 1) {
+		ChatBox.addText(
+			DB.getMessage(3472, 'Failed to receive the attendance reward.'),
+			ChatBox.TYPE.ERROR,
+			ChatBox.FILTER.PUBLIC_LOG
+		);
+		if (shown) {
+			CheckAttendance.onClose();
+		}
+	}
+}
+
+/**
+ * The server opens the dress room (ZC_DRESSROOM_OPEN, script opendressroom)
+ */
+function onDressRoomOpen() {
+	DressRoom.open();
+}
+
+/**
+ * Answer to a private airship request (ZC_PRIVATE_AIRSHIP_RESPONSE)
+ *
+ * @param {object} pkt - PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE
+ */
+function onPrivateAirshipResult(pkt) {
+	const text = PrivateAirship.onResult(pkt.flag);
+	if (text) {
+		ChatBox.addText(text, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+	}
+}
+
+PrivateAirship.onRequest = function onRequest(mapName, itemId) {
+	const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
+	pkt.mapName = mapName + '.gat';
+	pkt.ItemID = itemId;
+	Network.sendPacket(pkt);
+};
+
+/**
  * Initialize
  */
 export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.UI_OPEN, onUIOpen);
 	Network.hookPacket(PACKET.ZC.UI_OPEN_V3, onUIOpen);
+	Network.hookPacket(PACKET.ZC.ACK_CHECK_ATTENDANCE, onAttendanceReply);
+	Network.hookPacket(PACKET.ZC.DRESSROOM_OPEN, onDressRoomOpen);
+	Network.hookPacket(PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE, onPrivateAirshipResult);
 }

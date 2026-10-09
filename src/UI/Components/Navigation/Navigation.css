@@ -260,6 +260,22 @@
 	margin-right: 2px;
 }
 
+/* Fly to the target's map with the private airship */
+.Navigation .airship-button {
+	display: none;
+	margin-left: 8px;
+	padding: 0 4px;
+	height: 14px;
+	line-height: 14px;
+	font-size: 11px;
+	color: #000;
+	border: 1px solid #b0b0b0;
+	border-radius: 3px;
+	background: linear-gradient(#ffffff, #e4e4e4);
+	cursor: pointer;
+	white-space: nowrap;
+}
+
 /* Path marker styles */
 .Navigation .start-marker,
 .Navigation .end-marker {
