@@ -32,9 +32,9 @@ EntryQueue.APPLY = {
  * Confirmation asked before each application type
  */
 const CONFIRM_MSG = {
-	1: [2146, 'Apply alone?'],
-	2: [2147, 'Apply with your party?'],
-	4: [2148, 'Apply with your guild?']
+	1: [2146, 'You have applied for the battle as a solo. Is this correct?'],
+	2: [2147, 'You have applied for the battle as a party. Is this correct?'],
+	4: [2148, 'You have applied for the battle as a guild. Is this correct?']
 };
 
 const _preferences = Preferences.get('EntryQueue', { x: 120, y: 120 }, 1.0);
@@ -128,13 +128,13 @@ EntryQueue.getSelected = function getSelected() {
 EntryQueue.levelText = function levelText(entry) {
 	switch (entry.levelType) {
 		case 1:
-			return EntryQueue.format(DB.getMessage(2151, 'Level %d and above'), entry.minLevel);
+			return EntryQueue.format(DB.getMessage(2151, 'Base LV under %d'), entry.minLevel);
 		case 2:
-			return EntryQueue.format(DB.getMessage(2152, 'Level %d and below'), entry.minLevel);
+			return EntryQueue.format(DB.getMessage(2152, 'Base LV over %d'), entry.minLevel);
 		case 3:
-			return EntryQueue.format(DB.getMessage(2153, 'Level %d ~ %d'), entry.minLevel, entry.maxLevel);
+			return EntryQueue.format(DB.getMessage(2153, 'Base LV %d ~ %d'), entry.minLevel, entry.maxLevel);
 		default:
-			return DB.getMessage(2154, 'Any level');
+			return DB.getMessage(2154, 'No limits');
 	}
 };
 
@@ -163,11 +163,15 @@ function select(entry) {
 		return;
 	}
 
+	// The official order: title, victory condition, teams, level, then the three rewards
 	const lines = [
 		entry.displayName || entry.name,
-		EntryQueue.format(DB.getMessage(2150, '%d vs %d'), entry.teamA, entry.teamB),
+		entry.victory,
+		EntryQueue.format(DB.getMessage(2150, '%d VS %d'), entry.teamA, entry.teamB),
 		EntryQueue.levelText(entry),
-		...entry.notes
+		entry.rewards.win,
+		entry.rewards.draw,
+		entry.rewards.lose
 	];
 	lines.forEach((text, i) => {
 		values[i].textContent = text;

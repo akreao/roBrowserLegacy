@@ -70,7 +70,7 @@ EntryQueueRequest.onRemove = function onRemove() {
  */
 EntryQueueRequest.setName = function setName(name) {
 	this.getRoot().querySelector('.title').textContent = EntryQueue.format(
-		DB.getMessage(2126, '%s is ready to start.'),
+		DB.getMessage(2126, '%s battleground is going to start.'),
 		name
 	);
 };
@@ -87,7 +87,7 @@ function tick() {
 	}
 
 	EntryQueueRequest.getRoot().querySelector('.countdown').textContent = EntryQueue.format(
-		DB.getMessage(2134, '%d seconds left'),
+		DB.getMessage(2134, 'Awaiting time to accept:%d seconds'),
 		left
 	);
 }

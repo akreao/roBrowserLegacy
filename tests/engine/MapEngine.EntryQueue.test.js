@@ -79,7 +79,7 @@ describe('battleground queue engine', () => {
 	it('explains a refused application', () => {
 		receive(PACKET.ZC.ACK_ENTRY_QUEUE_APPLY, { Result: 7, EntryQueueName: 'Flavius' });
 
-		expect(UIManager.showMessageBox).toHaveBeenCalledWith('You have already applied.', 'ok');
+		expect(UIManager.showMessageBox).toHaveBeenCalledWith('Request has duplicated.', 'ok');
 		expect(mocks.standBy.append).not.toHaveBeenCalled();
 	});
 

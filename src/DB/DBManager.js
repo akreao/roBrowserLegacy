@@ -5852,14 +5852,14 @@ function loadEntryQueueList(filename, onEnd) {
 					solo,
 					party,
 					guild,
-					flag4,
+					jobGroup,
 					levelType,
 					minLevel,
 					maxLevel,
-					note1,
-					note2,
-					note3,
-					note4,
+					rewardWin,
+					rewardDraw,
+					rewardLose,
+					victory,
 					image
 				) => {
 					EntryQueueTable.push({
@@ -5869,11 +5869,12 @@ function loadEntryQueueList(filename, onEnd) {
 						teamA: teamA | 0,
 						teamB: teamB | 0,
 						apply: { solo: !!solo, party: !!party, guild: !!guild },
-						flag4: flag4 | 0,
+						jobGroup: jobGroup | 0,
 						levelType: levelType | 0,
 						minLevel: minLevel | 0,
 						maxLevel: maxLevel | 0,
-						notes: [text(note1), text(note2), text(note3), text(note4)],
+						rewards: { win: text(rewardWin), draw: text(rewardDraw), lose: text(rewardLose) },
+						victory: text(victory),
 						image: key(image)
 					});
 					return 1;

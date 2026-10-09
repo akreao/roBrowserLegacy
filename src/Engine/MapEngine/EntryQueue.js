@@ -28,26 +28,26 @@ const COLOR_ENTER = '#ffff64';
  * Message for each failed ZC_ACK_ENTRY_QUEUE_APPLY result
  */
 const APPLY_FAILED = {
-	2: [2100, 'Queuing has finished.'],
-	3: [2101, 'Invalid battleground name.'],
-	4: [2102, 'Invalid application.'],
-	5: [2103, 'Too many players in your party or guild.'],
-	6: [2104, 'Your level does not meet the requirement.'],
-	7: [2105, 'You have already applied.'],
-	8: [2106, 'Please reconnect, then apply.'],
-	9: [2108, 'Only a party or guild leader can apply.'],
-	10: [2107, 'Your class cannot apply.'],
-	15: [2109, 'You cannot apply.']
+	2: [2100, 'the maximum amount has been exceeded.'],
+	3: [2101, 'Undefined battleground name.'],
+	4: [2102, 'Undefined request type.'],
+	5: [2103, 'Maximum amount of users has been exceeded.'],
+	6: [2104, 'The level is not suitable to enter.'],
+	7: [2105, 'Request has duplicated.'],
+	8: [2106, 'Please re-access and register again.'],
+	9: [2108, 'Only party member or guild leader can apply.'],
+	10: [2107, 'Job is not suitable.'],
+	15: [2109, 'there is already a team member in the battleground, it is not possible to apply.']
 };
 
 /**
  * Message for each ZC_ACK_ENTRY_QUEUE_CANCEL result that shows one
  */
 const CANCEL_RESULT = {
-	1: [2110, 'You have left the queue.'],
-	3: [2111, 'You cannot leave the queue now.'],
-	11: [2112, 'You cannot leave the queue now.'],
-	14: [2113, 'You cannot leave the queue now.']
+	1: [2110, 'The battleground queue has been cancelled.'],
+	3: [2111, 'The battleground name is wrong.'],
+	11: [2112, 'You are not on the waiting list of entering the battleground.'],
+	14: [2113, 'The battleground is not availble, the queue will now be cancelled.']
 };
 
 /**
@@ -106,7 +106,7 @@ function onApplyResult(pkt) {
 			EntryQueueStandBy.append();
 		}
 		Sound.play('se_btg_request.wav');
-		notice(pkt.EntryQueueName, 2099, 'You have applied for the battleground.', COLOR_NOTICE);
+		notice(pkt.EntryQueueName, 2099, 'You have requested to enter the battleground queue.', COLOR_NOTICE);
 		_state.inQueue = true;
 		return;
 	}
@@ -160,7 +160,7 @@ function onCancelResult(pkt) {
 		_state.inQueue = false;
 	}
 
-	notice(pkt.EntryQueueName, 2114, 'You are no longer in the queue.', COLOR_CANCEL);
+	notice(pkt.EntryQueueName, 2114, 'Entering the battleground has cancelled.', COLOR_CANCEL);
 	_state.entry = null;
 }
 
@@ -180,7 +180,7 @@ function onLobbyAdmission(pkt) {
 	EntryQueueRequest.append();
 	EntryQueueRequest.setName(displayName(pkt.EntryQueueName));
 	Sound.play('se_btg_ready.wav');
-	notice(pkt.EntryQueueName, 2115, 'The battleground is ready.', COLOR_NOTICE);
+	notice(pkt.EntryQueueName, 2115, 'Would you like to enter the battleground?', COLOR_NOTICE);
 }
 
 /**
@@ -252,7 +252,7 @@ EntryQueueRequest.onAnswer = function onAnswer(accept) {
 
 	if (accept) {
 		ChatBox.addText(
-			DB.getMessage(2132, 'Entering the battleground.'),
+			DB.getMessage(2132, 'Waiting for other requests results.'),
 			ChatBox.TYPE.INFO,
 			ChatBox.FILTER.PUBLIC_LOG,
 			COLOR_ENTER

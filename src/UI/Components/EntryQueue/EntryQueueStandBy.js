@@ -52,9 +52,12 @@ EntryQueueStandBy.onRemove = function onRemove() {
 EntryQueueStandBy.setQueue = function setQueue(name, players, ranking) {
 	const root = this.getRoot();
 
-	root.querySelector('.name').textContent = EntryQueue.format(DB.getMessage(2136, 'Battleground: %s'), name);
-	root.querySelector('.players').textContent = EntryQueue.format(DB.getMessage(2137, 'Players needed: %d'), players);
-	root.querySelector('.ranking').textContent = EntryQueue.format(DB.getMessage(2138, 'Place in queue: %d'), ranking);
+	root.querySelector('.name').textContent = EntryQueue.format(DB.getMessage(2136, 'The battleground: %s'), name);
+	root.querySelector('.players').textContent = EntryQueue.format(
+		DB.getMessage(2137, 'Required numbers for the battle: %d'),
+		players
+	);
+	root.querySelector('.ranking').textContent = EntryQueue.format(DB.getMessage(2138, 'My queue number: %d'), ranking);
 };
 
 /**
