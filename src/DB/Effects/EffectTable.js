@@ -13185,10 +13185,68 @@ export default {
 		}
 	],
 
-	//735: [{}],	//EF_CHOOKGI_FIRE	   (Nothing) - Used for elemental spheres (warlock)
-	//736: [{}],	//EF_CHOOKGI_WIND	   (Nothing) - Used for elemental spheres (warlock)
-	//737: [{}],	//EF_CHOOKGI_WATER	   (Nothing) - Used for elemental spheres (warlock)
-	//738: [{}],	//EF_CHOOKGI_GROUND	   (Nothing) - Used for elemental spheres (warlock)
+	// Spirit charm textures and sizes come from the official client's CEnergyOrbEffect
+	// (its sizes, scaled by the spirit sphere's 0.25 / 0.8)
+	735: [
+		{
+			//EF_CHOOKGI_FIRE	   Spirit charm (Kagerou/Oboro), drawn like spirit spheres with its own texture
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const spiritNum = Params.Init.spiritNum || 0;
+				const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false, {
+					texture: 'data/texture/effect/FireOrb.bmp',
+					size: 0.72
+				});
+				this.add(Spheres, Params);
+			}
+		}
+	],
+	736: [
+		{
+			//EF_CHOOKGI_WIND	   Spirit charm (Kagerou/Oboro), drawn like spirit spheres with its own texture
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const spiritNum = Params.Init.spiritNum || 0;
+				const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false, {
+					texture: 'data/texture/effect/LightningOrb.bmp',
+					size: 0.72
+				});
+				this.add(Spheres, Params);
+			}
+		}
+	],
+	737: [
+		{
+			//EF_CHOOKGI_WATER	   Spirit charm (Kagerou/Oboro), drawn like spirit spheres with its own texture
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const spiritNum = Params.Init.spiritNum || 0;
+				const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false, {
+					texture: 'data/texture/effect/WaterOrb.bmp',
+					size: 0.41
+				});
+				this.add(Spheres, Params);
+			}
+		}
+	],
+	738: [
+		{
+			//EF_CHOOKGI_GROUND	   Spirit charm (Kagerou/Oboro), drawn like spirit spheres with its own texture
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const spiritNum = Params.Init.spiritNum || 0;
+				const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false, {
+					texture: 'data/texture/effect/StoneOrb.bmp',
+					size: 0.72
+				});
+				this.add(Spheres, Params);
+			}
+		}
+	],
 	//739: [{}],	//EF_MAGENTA_TRAP	   Old Magenta Trap
 	//740: [{}],	//EF_COBALT_TRAP	   Old Cobald Trap
 	//741: [{}],	//EF_MAIZE_TRAP	   Old Maize Trap
@@ -17039,6 +17097,29 @@ export default {
 		},
 		{
 			wav: 'effect/drop_purple'
+		}
+	],
+
+	1225: [
+		{
+			//EF_SOULCOLLECT	   Soul Reaper soul energy. As the official client's CSoulCollectEffect,
+			//only the last five souls show, larger and green then red as they pass 5, 10 and 15.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const spiritNum = Params.Init.spiritNum || 0;
+				const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false, {
+					texture: 'data/texture/effect/soul_collect/soul_collect.bmp',
+					core: 0.5,
+					rings: [
+						{ size: 0.62, color: [0.0, 1.0, 0.0] },
+						{ size: 1.09, color: [0.0, 1.0, 0.0] },
+						{ size: 1.09, color: [1.0, 0.0, 0.0] },
+						{ size: 1.72, color: [1.0, 0.0, 0.0] }
+					]
+				});
+				this.add(Spheres, Params);
+			}
 		}
 	],
 
