@@ -157,7 +157,9 @@ export function createSkillList({
 				onResetChoice(this);
 			});
 			root.querySelector('.apply')?.addEventListener('click', () => {
-				onApplyChoice(this);
+				UIManager.showPromptBox(DB.getMessage(1377), 'ok', 'cancel', () => {
+					onApplyChoice(this);
+				});
 			});
 		}
 
@@ -550,7 +552,10 @@ export function createSkillList({
 		if (!main.classList.contains('skill')) {
 			main = main.parentElement;
 		}
-		const skillId = parseInt(main.getAttribute('data-index'), 10);
+		stageSkill(parseInt(main.getAttribute('data-index'), 10), root);
+	}
+
+	function stageSkill(skillId, root) {
 		const result = stageSkillPlan({
 			plan: rememberChoice,
 			skillId,
@@ -847,8 +852,13 @@ export function createSkillList({
 		const sk = SkillInfo[skill.SKID];
 		const levelup = _btnIncSkill.cloneNode(true);
 		levelup.addEventListener('click', function () {
-			const index = this.parentNode.parentNode.getAttribute('data-index');
-			Component.onIncreaseSkill(parseInt(index, 10));
+			const index = parseInt(this.parentNode.parentNode.getAttribute('data-index'), 10);
+			// The skill tree only reserves the point; Apply sends it
+			if (listOnly) {
+				Component.onIncreaseSkill(index);
+			} else {
+				stageSkill(index, root);
+			}
 		});
 		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		const tr = document.createElement('tr');
@@ -1121,7 +1131,7 @@ export function createSkillList({
 				contentbig.style.display = 'none';
 			}
 			root.querySelectorAll('.footer .btn').forEach(el => {
-				el.style.display = 'none';
+				el.style.display = 'block';
 			});
 
 			if (content) {

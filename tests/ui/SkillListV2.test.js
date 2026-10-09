@@ -110,7 +110,12 @@ const mocks = vi.hoisted(() => {
 	};
 });
 
-vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: 'data/texture/À¯ÀúÀÎÅÍÆäÀÌ½º/' } }));
+vi.mock('DB/DBManager.js', () => ({
+	default: {
+		INTERFACE_PATH: 'data/texture/À¯ÀúÀÎÅÍÆäÀÌ½º/',
+		getMessage: id => `msg${id}`
+	}
+}));
 vi.mock('DB/Skills/SkillInfo.js', () => ({ default: mocks.skillInfo }));
 vi.mock('DB/Skills/SkillTreeView.js', () => ({ default: mocks.skillTreeView }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: mocks.session }));
@@ -146,7 +151,8 @@ vi.mock('UI/UIManager.js', () => ({
 			component.getRoot().innerHTML = component.render();
 			component.init();
 			return component;
-		}
+		},
+		showPromptBox: vi.fn()
 	}
 }));
 vi.mock('UI/Elements/Elements.js', () => ({}));
@@ -167,6 +173,12 @@ vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({
 }));
 
 const { createSkillList } = await import('UI/Components/SkillList/SkillListCommon.js');
+const { default: UIManager } = await import('UI/UIManager.js');
+
+function answerPrompt(answer) {
+	const [, , , onYes, onNo] = UIManager.showPromptBox.mock.calls.at(-1);
+	(answer ? onYes : onNo)?.();
+}
 
 function getFixtureHTML() {
 	const cells = positions => positions.map(position => `<div class="skillCol s${position}"></div>`).join('');
@@ -221,6 +233,10 @@ function createComponent({ faith = 10, points = 10 } = {}) {
 	return component;
 }
 
+function getListSkill(root, skillId) {
+	return root.querySelector(`#minitab2 .skill.id${skillId}`);
+}
+
 function getTreeSkill(root, skillId) {
 	return root.querySelector(`#positionSkills2 .skill.id${skillId}`);
 }
@@ -228,6 +244,7 @@ function getTreeSkill(root, skillId) {
 describe('SkillListV2 prerequisite planning', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
+		UIManager.showPromptBox.mockClear();
 	});
 
 	it('shows and transactionally stages the complete Heal chain', () => {
@@ -270,6 +287,7 @@ describe('SkillListV2 prerequisite planning', () => {
 
 		getTreeSkill(root, mocks.ids.HEAL).querySelector('.icon').click();
 		root.querySelector('.apply').click();
+		answerPrompt(true);
 
 		expect(component.onIncreaseSkill.mock.calls.map(([skillId]) => skillId)).toEqual([
 			mocks.ids.CURE,
@@ -306,5 +324,41 @@ describe('SkillListV2 prerequisite planning', () => {
 
 		component.toggle();
 		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.current').textContent).toBe('0');
+	});
+
+	it('asks with msgstringtable 1377 before applying and keeps the plan on cancel', () => {
+		const component = createComponent();
+		const root = component.getRoot();
+		component.onIncreaseSkill = vi.fn();
+
+		getTreeSkill(root, mocks.ids.CURE).querySelector('.icon').click();
+		root.querySelector('.apply').click();
+
+		expect(UIManager.showPromptBox).toHaveBeenCalledOnce();
+		expect(UIManager.showPromptBox.mock.calls[0][0]).toBe('msg1377');
+		expect(component.onIncreaseSkill).not.toHaveBeenCalled();
+
+		answerPrompt(false);
+
+		expect(component.onIncreaseSkill).not.toHaveBeenCalled();
+		expect(getTreeSkill(root, mocks.ids.CURE).querySelector('.current').textContent).toBe('1');
+		expect(root.querySelector('.skpoints_count').textContent).toBe('9/10');
+	});
+
+	it('only reserves a point when "+" is pressed in list mode', () => {
+		const component = createComponent();
+		const root = component.getRoot();
+		component.onIncreaseSkill = vi.fn();
+
+		getListSkill(root, mocks.ids.CURE).querySelector('.levelup').click();
+
+		expect(component.onIncreaseSkill).not.toHaveBeenCalled();
+		expect(getListSkill(root, mocks.ids.CURE).querySelector('.current').textContent).toBe('1');
+		expect(root.querySelector('.skpoints_count').textContent).toBe('9/10');
+
+		root.querySelector('.apply').click();
+		answerPrompt(true);
+
+		expect(component.onIncreaseSkill.mock.calls).toEqual([[mocks.ids.CURE]]);
 	});
 });
