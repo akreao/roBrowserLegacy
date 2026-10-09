@@ -12,6 +12,7 @@
  */
 
 import 'UI/Elements/Elements.js';
+import skinInputs from 'UI/Elements/BitmapInputs.js';
 
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
@@ -127,6 +128,8 @@ export function createSkillList({
 
 	Component.init = function init() {
 		const root = this.getRoot();
+
+		skinInputs(root, 'input.view_skill_info');
 
 		if (titlebarText) {
 			const titleEl = root.querySelector('.titlebar .text');
