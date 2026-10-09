@@ -393,7 +393,6 @@ function onNavigation(pkt) {
 
 	// The route is drawn in the navigation window, so it is opened even when the script asks
 	// to hide it (pkt.hideWindow): the official client has on-screen guidance that roBrowser lacks.
-	Navigation.append();
 	Navigation.navigateTo({
 		startMap: MapRenderer.currentMap,
 		startX: Session.Entity.position[0] | 0,
@@ -403,6 +402,7 @@ function onNavigation(pkt) {
 		endY: pkt.y,
 		displayName: `${pkt.mapName} (${pkt.x}, ${pkt.y})`
 	});
+	Navigation.show();
 }
 
 /**
