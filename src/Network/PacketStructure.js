@@ -3973,16 +3973,23 @@ PACKET.CZ.PARTY_BOOKING_REQ_DELETE.prototype.build = function () {
 
 // 0x808
 PACKET.CZ.PARTY_BOOKING_REQ_UPDATE = function PACKET_CZ_PARTY_BOOKING_REQ_UPDATE() {
-	this.Job = 0;
+	this.Job = [];
+	this.Notice = '';
 };
 PACKET.CZ.PARTY_BOOKING_REQ_UPDATE.prototype.build = function () {
-	const pkt_len = 2 + 12;
-	const pkt_buf = new BinaryWriter(pkt_len);
+	const ver = this.getPacketVersion();
+	const pkt = new BinaryWriter(ver[2]);
 
-	pkt_buf.writeShort(0x808);
-	pkt_buf.writeShort(this.Job[0]);
-	pkt_buf.writeShort(this.Job[1]);
-	return pkt_buf;
+	pkt.writeShort(ver[1]);
+
+	if (ver[2] === 14) {
+		for (let i = 0; i < 6; ++i) {
+			pkt.writeShort(this.Job[i] ?? -1);
+		}
+	} else {
+		pkt.writeString(this.Notice, 37);
+	}
+	return pkt;
 };
 
 // 0x80c

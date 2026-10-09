@@ -44,6 +44,7 @@ import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
+import PartyBooking from 'UI/Components/PartyBooking/PartyBooking.js';
 import RankingTypes from 'DB/Jobs/RankingTypes.js';
 
 let aliases = {};
@@ -807,6 +808,13 @@ const CommandStore = {
 				pkt.captchaID = matches[1];
 				Network.sendPacket(pkt);
 			}
+			return;
+		}
+	},
+	booking: {
+		description: 'Open or close the party booking list',
+		callback: function () {
+			PartyBooking.toggle();
 			return;
 		}
 	},

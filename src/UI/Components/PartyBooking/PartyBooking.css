@@ -1,0 +1,280 @@
+:host {
+	top: 100px;
+	left: 100px;
+	width: 550px;
+	height: 350px;
+}
+
+/* Laid out from the official UISeekPartyListWnd: positions are window pixels, title bar included */
+#PartyBooking {
+	position: absolute;
+	width: 550px;
+	height: 350px;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#PartyBooking > * {
+	position: absolute;
+}
+
+#PartyBooking .titlebar {
+	position: relative;
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#PartyBooking .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#PartyBooking .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	display: inline-block;
+	white-space: nowrap;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+#PartyBooking .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#PartyBooking .titlebar .right {
+	float: right;
+	margin-right: 3px;
+}
+#PartyBooking .titlebar .clear {
+	clear: both;
+}
+
+#PartyBooking .label {
+	left: 10px;
+	font-size: 11px;
+}
+#PartyBooking .label-level {
+	top: 23px;
+}
+#PartyBooking .label-map {
+	top: 45px;
+}
+#PartyBooking .label-job {
+	top: 70px;
+}
+
+#PartyBooking .level {
+	left: 50px;
+	top: 20px;
+	box-sizing: border-box;
+	width: 40px;
+	height: 16px;
+	margin: 0;
+	padding: 0 2px;
+	border: 1px solid #c0c0c0;
+	background: #e8e8e8;
+	font-size: 12px;
+	outline: none;
+}
+
+#PartyBooking select {
+	box-sizing: border-box;
+	height: 18px;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #c0c0c0;
+	background: #e8e8e8;
+	font-size: 11px;
+	outline: none;
+}
+#PartyBooking .region,
+#PartyBooking .category {
+	left: 50px;
+	width: 150px;
+}
+#PartyBooking .map,
+#PartyBooking .job {
+	left: 220px;
+	width: 200px;
+}
+#PartyBooking .region,
+#PartyBooking .map {
+	top: 43px;
+}
+#PartyBooking .category,
+#PartyBooking .job {
+	top: 68px;
+}
+
+#PartyBooking .checkbox {
+	left: 430px;
+	top: 46px;
+	height: 12px;
+	line-height: 12px;
+	padding-left: 14px;
+	background-repeat: no-repeat;
+	background-position: left center;
+	font-size: 11px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+#PartyBooking .search {
+	left: 480px;
+	top: 37px;
+}
+
+/* The header and the rows share one frame in the rows' grey, so an empty list still reads as a list */
+#PartyBooking .header {
+	left: 10px;
+	top: 102px;
+	box-sizing: border-box;
+	width: 530px;
+	height: 22px;
+	border: 1px solid #cecece;
+	border-bottom: none;
+	background: #f5f5f5;
+}
+#PartyBooking .header > span {
+	position: absolute;
+	top: 2px;
+	font-size: 11px;
+}
+#PartyBooking .col-time {
+	left: 13px;
+}
+#PartyBooking .col-name {
+	left: 86px;
+}
+#PartyBooking .col-level {
+	left: 200px;
+}
+#PartyBooking .col-map {
+	left: 345px;
+}
+
+/* Five 40px rows, drawn as the official window draws them: a grey frame, two lines */
+#PartyBooking .list {
+	left: 10px;
+	top: 124px;
+	box-sizing: border-box;
+	width: 530px;
+	height: 202px;
+	border: 1px solid #cecece;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+#PartyBooking .row {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	height: 40px;
+	border: 1px solid #cecece;
+	background: white;
+	cursor: pointer;
+}
+#PartyBooking .row.selected {
+	background: #e0ebfa;
+}
+#PartyBooking .row > span {
+	position: absolute;
+	top: 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#PartyBooking .row .time {
+	left: 1px;
+}
+#PartyBooking .row .name {
+	left: 55px;
+	width: 130px;
+	text-align: center;
+}
+#PartyBooking .row .levels {
+	left: 194px;
+}
+#PartyBooking .row .map-name {
+	left: 259px;
+	width: 245px;
+}
+#PartyBooking .row .jobs {
+	left: 1px;
+	top: 21px;
+	width: 504px;
+	color: #6b6b6b;
+}
+
+#PartyBooking .more {
+	left: 247px;
+	top: 317px;
+	width: 56px;
+	height: 12px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	display: none;
+}
+
+/* Recruit (tip: message 1764) is drawn as the client's stretchable message-bar button,
+   mesbtn_left/mid/right; Whisper is the 30x20 direct_chat bitmap and its label, as one button */
+#PartyBooking .text-button {
+	top: 326px;
+	display: flex;
+	align-items: center;
+	height: 20px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+#PartyBooking .text-button span {
+	height: 20px;
+	line-height: 20px;
+	background-repeat: no-repeat;
+}
+#PartyBooking .text-button:hover .label {
+	color: #3a5f9e;
+}
+#PartyBooking .text-button.disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+#PartyBooking .text-button.disabled:hover .label {
+	color: inherit;
+}
+#PartyBooking .recruit {
+	left: 10px;
+}
+#PartyBooking .recruit .side {
+	width: 7px;
+}
+#PartyBooking .recruit .label {
+	padding: 0 4px;
+	background-repeat: repeat-x;
+}
+#PartyBooking .whisper {
+	left: 90px;
+}
+#PartyBooking .whisper .icon {
+	width: 30px;
+}
+#PartyBooking .whisper .label {
+	padding-left: 3px;
+}
+#PartyBooking .ok {
+	left: 505px;
+	top: 326px;
+}
+
+/* The official buttons are 42x20 bitmaps; an absolutely placed ui-button has no size of its own */
+#PartyBooking ui-button {
+	width: 42px;
+	height: 20px;
+}
