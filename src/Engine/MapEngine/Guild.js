@@ -23,6 +23,7 @@ import EntityManager from 'Renderer/EntityManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Guild from 'UI/Components/Guild/Guild.js';
 import GuildCompanion from 'UI/Components/GuildCompanion/GuildCompanion.js';
+import GuildStorageLog from 'UI/Components/GuildStorageLog/GuildStorageLog.js';
 import UIManager from 'UI/UIManager.js';
 import Configs from 'Core/Configs.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
@@ -56,6 +57,11 @@ const _emblemNotified = {};
  * @see docs/reference/guild/invitation-ack.md
  */
 let _lastInvited = '';
+
+/**
+ * @var {Array} guild storage log entries received, until the last page opens the window
+ */
+let _storageLog = [];
 
 /**
  * Engine namespace
@@ -114,6 +120,7 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.ACK_REQ_ALLY_GUILD, onGuildAllianceResult);
 		Network.hookPacket(PACKET.ZC.ACK_REQ_HOSTILE_GUILD, onGuildHostilityResult);
 		Network.hookPacket(PACKET.ZC.GUILD_AGIT_INFO, onGuildCastleInfo);
+		Network.hookPacket(PACKET.ZC.ACK_GUILDSTORAGE_LOG, onGuildStorageLog);
 
 		// Hook UI
 		Guild.onGuildInfoRequest = GuildEngine.requestInfo;
@@ -1313,6 +1320,38 @@ function onGuildHostilityResult(pkt) {
 
 function onGuildCastleInfo(pkt) {
 	// TODO: what is castle list?
+}
+
+/**
+ * Guild storage log, as the official client handles it: a result of 0 is a
+ * page with more to come, 1 the last page, which opens the window; 2 means
+ * there is no log and anything else that it could not be read.
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_GUILDSTORAGE_LOG
+ */
+function onGuildStorageLog(pkt) {
+	switch (pkt.result) {
+		case 0:
+			_storageLog.push(...pkt.items);
+			break;
+
+		case 1:
+			_storageLog.push(...pkt.items);
+			GuildStorageLog.open(_storageLog);
+			_storageLog = [];
+			break;
+
+		case 2:
+			_storageLog = [];
+			ChatBox.addText(DB.getMessage(2543), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+			break;
+
+		default:
+			// The official clients (kRO and iRO) show message 1816 here
+			_storageLog = [];
+			ChatBox.addText(DB.getMessage(1816), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+			break;
+	}
 }
 
 /**
