@@ -1,56 +1,118 @@
 :host {
-	width: 280px;
+	width: 290px;
 	top: 0px;
 	left: 480px;
 	overflow: hidden;
 }
 
+/* Official UIShortCutWnd: one shortcut_frame.bmp per row at a 33 px pitch, so each
+   34 px frame's last line sits under the next one */
 #ShortCut {
 	position: absolute;
-	width: 280px;
+	width: 290px;
 	height: 100%;
-	background-repeat: repeat-y;
-}
-#ShortCut .close {
-	position: absolute;
-	top: 2px;
-	right: 2px;
-	border: none;
-	background-color: transparent;
-	width: 11px;
-	height: 11px;
-}
-#ShortCut .resize {
-	position: absolute;
-	bottom: 1px;
-	right: 1px;
-	border: none;
-	background-color: transparent;
-	width: 13px;
-	height: 13px;
 }
 
 #ShortCut .row {
-	position: relative;
+	position: absolute;
+	left: 0px;
+	width: 290px;
+	height: 34px;
+	background-repeat: no-repeat;
+}
+#ShortCut .row:nth-child(1) {
+	top: 0px;
+}
+#ShortCut .row:nth-child(2) {
+	top: 33px;
+}
+#ShortCut .row:nth-child(3) {
+	top: 66px;
+}
+#ShortCut .row:nth-child(4) {
+	top: 99px;
 }
 #ShortCut .row .container {
-	float: left;
+	position: absolute;
+	top: 4px;
 	width: 24px;
-	height: 23px;
-	margin-top: 5px;
-	margin-left: 5px;
-	margin-bottom: 6px;
+	height: 24px;
+}
+#ShortCut .row .container:nth-child(1) {
+	left: 16px;
+}
+#ShortCut .row .container:nth-child(2) {
+	left: 45px;
+}
+#ShortCut .row .container:nth-child(3) {
+	left: 74px;
+}
+#ShortCut .row .container:nth-child(4) {
+	left: 103px;
+}
+#ShortCut .row .container:nth-child(5) {
+	left: 132px;
+}
+#ShortCut .row .container:nth-child(6) {
+	left: 161px;
+}
+#ShortCut .row .container:nth-child(7) {
+	left: 190px;
+}
+#ShortCut .row .container:nth-child(8) {
+	left: 219px;
+}
+#ShortCut .row .container:nth-child(9) {
+	left: 248px;
 }
 #ShortCut .row .container:hover {
-	background-color: #b5ffb5;
+	background-color: #b4ffb4;
 }
 #ShortCut .row .index {
-	float: left;
-	position: relative;
+	position: absolute;
+	left: 6px;
 	top: 13px;
-	left: 5px;
+	font-size: 11px;
+	line-height: 11px;
+	color: #2f4a4a;
+	pointer-events: none;
 }
-#ShortCut .row .clear {
+
+/* Skill Bar 1/2 switch, over row 1's number as in the official client */
+#ShortCut .skillbar {
+	position: absolute;
+	left: 3px;
+	top: 4px;
+	width: 10px;
+	height: 26px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#ShortCut .minus,
+#ShortCut .plus {
+	position: absolute;
+	right: 2px;
+	width: 11px;
+	height: 11px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#ShortCut .minus {
+	bottom: 17px;
+}
+#ShortCut .plus {
+	bottom: 2px;
+}
+#ShortCut .minus.hide {
+	display: none;
+}
+/* .active shows btn_plus_disable.bmp (data-active): all four rows are open */
+#ShortCut .plus.active {
+	pointer-events: none;
 }
 
 #ShortCut .icon {
