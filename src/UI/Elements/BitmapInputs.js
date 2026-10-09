@@ -42,8 +42,8 @@ const CSS = `
 	background-image: var(--ui-checkbox-on) !important;
 }
 .ui-bitmap-input[type='radio'] {
-	width: var(--ui-radio-w, 11px) !important;
-	height: var(--ui-radio-h, 11px) !important;
+	width: var(--ui-radio-w, 12px) !important;
+	height: var(--ui-radio-h, 12px) !important;
 	background-image: var(--ui-radio-off) !important;
 }
 .ui-bitmap-input[type='radio']:checked {

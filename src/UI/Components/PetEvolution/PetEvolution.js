@@ -107,10 +107,18 @@ PetEvolution.onRemove = function onRemove() {
  * @param {string} illust - file name under userinterface/illust/
  */
 function loadIllust(el, illust) {
+	// Drawn at the bitmap's own size (90x134 for nearly every pet), as the official window does
 	const show = url => {
-		if (el) {
-			el.style.backgroundImage = `url(${url})`;
+		if (!el) {
+			return;
 		}
+		const img = new Image();
+		img.onload = () => {
+			el.style.width = img.naturalWidth + 'px';
+			el.style.height = img.naturalHeight + 'px';
+		};
+		img.src = url;
+		el.style.backgroundImage = `url(${url})`;
 	};
 	const noImage = () => Client.loadFile('data/texture/userinterface/illust/pet_noimage.bmp', show);
 
