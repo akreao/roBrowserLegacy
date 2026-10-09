@@ -147,6 +147,7 @@ PartyBooking.open = function open() {
 	const root = this.getRoot();
 	root.querySelector('.level').value = Session.Entity?.clevel || '';
 	setNotice(_preferences.notice);
+	updateWhisper();
 
 	DB.getPartyBookingMaps().then(regions => {
 		_regions = regions;
@@ -307,6 +308,14 @@ function select(index) {
 	PartyBooking.getRoot()
 		.querySelectorAll('.row')
 		.forEach(row => row.classList.toggle('selected', parseInt(row.getAttribute('data-index'), 10) === index));
+	updateWhisper();
+}
+
+/**
+ * Whisper talks to the selected ad's leader, so it is greyed out until a row is selected
+ */
+function updateWhisper() {
+	PartyBooking.getRoot().querySelector('.whisper').classList.toggle('disabled', !_results[_selected]);
 }
 
 /**
@@ -336,6 +345,8 @@ function formatTime(time) {
 function render() {
 	const list = PartyBooking.getRoot().querySelector('.list');
 	const pad = value => String(value).padStart(2, '0');
+
+	updateWhisper();
 
 	list.replaceChildren(
 		..._results.map((ad, i) => {

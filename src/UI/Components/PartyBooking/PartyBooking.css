@@ -242,9 +242,12 @@
 #PartyBooking .text-button:hover .label {
 	color: #3a5f9e;
 }
-#PartyBooking .text-button:active .label {
-	position: relative;
-	top: 1px;
+#PartyBooking .text-button.disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+#PartyBooking .text-button.disabled:hover .label {
+	color: inherit;
 }
 #PartyBooking .recruit {
 	left: 10px;
