@@ -13,6 +13,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Preferences from 'Core/Preferences.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
+import skinInputs from 'UI/Elements/BitmapInputs.js';
 import htmlText from './ChatRoomCreate.html?raw';
 import cssText from './ChatRoomCreate.css?raw';
 import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
@@ -69,6 +70,8 @@ const _preferences = Preferences.get(
  */
 ChatRoomCreate.init = function init() {
 	const root = this.getRoot();
+
+	skinInputs(root, 'input[type="radio"]');
 
 	// Close / Cancel
 	root.querySelector('.close').addEventListener('mousedown', event => {

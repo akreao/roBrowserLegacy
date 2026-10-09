@@ -12,6 +12,7 @@ import Preferences from 'Core/Preferences.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
+import skinInputs from 'UI/Elements/BitmapInputs.js';
 import ShortCutControls from 'Preferences/ShortCutControls.js';
 import BattleMode from 'Controls/BattleMode.js';
 import htmlText from './ShortCutOption.html?raw';
@@ -76,6 +77,8 @@ ShortCutOption.render = () => htmlText;
  */
 ShortCutOption.init = function () {
 	const root = this.getRoot();
+
+	skinInputs(root, 'input[type="checkbox"]');
 
 	let close = root.querySelector('.close');
 	function closebtn(btn) {
