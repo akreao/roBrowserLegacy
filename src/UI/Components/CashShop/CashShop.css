@@ -289,6 +289,16 @@
 	background-color: transparent;
 }
 
+/* Refresh (MSG 3306), at 452,516 beside the search button (UICashShopWnd::vf14 @0xb2b380) */
+#CashShop .panel-content .panel-footer .cashshop-refresh-btn {
+	border: 0px;
+	width: 76px;
+	height: 18px;
+	margin-left: 6px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+
 #CashShop .panel-cart {
 	display: flex;
 	flex-direction: column;

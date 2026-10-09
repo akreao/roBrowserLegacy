@@ -170,6 +170,11 @@ CashShop.init = function init() {
 			return;
 		}
 
+		if (e.target.closest('#cashshop-refresh-btn')) {
+			CashShop.onRefreshRequest(CashShop.activeCashMenu);
+			return;
+		}
+
 		const tab = e.target.closest('#panel-menu .tab');
 		if (tab) {
 			onClickMenu(tab);
@@ -1131,4 +1136,11 @@ function stopPropagation(event) {
 	event.preventDefault();
 	return false;
 }
+/**
+ * Callback: the Refresh button asks the server for the shop again (set by the engine)
+ *
+ * @param {number} tab the tab shown
+ */
+CashShop.onRefreshRequest = function onRefreshRequest() {};
+
 export default UIManager.addComponent(CashShop);
