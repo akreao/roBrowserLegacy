@@ -1,0 +1,91 @@
+:host {
+	top: 200px;
+	left: 300px;
+	width: 300px;
+	height: 250px;
+}
+
+/* Laid out from the official UIEntryQueueRequestWnd: positions are window pixels, title bar included */
+#EntryQueueRequest {
+	position: absolute;
+	width: 300px;
+	height: 250px;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#EntryQueueRequest > * {
+	position: absolute;
+}
+
+#EntryQueueRequest .titlebar {
+	position: relative;
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#EntryQueueRequest .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#EntryQueueRequest .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	display: inline-block;
+	white-space: nowrap;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+#EntryQueueRequest .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#EntryQueueRequest .titlebar .clear {
+	clear: both;
+}
+
+/* The text viewer, from 10,22 */
+#EntryQueueRequest .text-box {
+	left: 10px;
+	top: 22px;
+	width: 280px;
+	height: 195px;
+	overflow: hidden;
+}
+#EntryQueueRequest .line {
+	min-height: 18px;
+	line-height: 18px;
+}
+
+/* Seconds left, 10px in and 20px off the bottom */
+#EntryQueueRequest .countdown {
+	left: 10px;
+	top: 230px;
+	width: 150px;
+	height: 20px;
+	white-space: nowrap;
+}
+
+#EntryQueueRequest button {
+	top: 226px;
+	width: 42px;
+	height: 20px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+#EntryQueueRequest .ok {
+	left: 209px;
+}
+#EntryQueueRequest .cancel {
+	left: 254px;
+}

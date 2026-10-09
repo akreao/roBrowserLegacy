@@ -10967,6 +10967,102 @@ PACKET.ZC.FASTMOVE = function PACKET_ZC_FASTMOVE(fp, end) {
 };
 PACKET.ZC.FASTMOVE.size = 10;
 
+// 0x8d7
+// Queue types: 1 solo, 2 party, 4 guild
+PACKET.CZ.REQ_ENTRY_QUEUE_APPLY = function PACKET_CZ_REQ_ENTRY_QUEUE_APPLY() {
+	this.ApplyType = 1;
+	this.EntryQueueName = '';
+};
+PACKET.CZ.REQ_ENTRY_QUEUE_APPLY.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(28);
+
+	pkt_buf.writeShort(0x8d7);
+	pkt_buf.writeShort(this.ApplyType);
+	pkt_buf.writeString(this.EntryQueueName, 24);
+	return pkt_buf;
+};
+
+// 0x8d8
+PACKET.ZC.ACK_ENTRY_QUEUE_APPLY = function PACKET_ZC_ACK_ENTRY_QUEUE_APPLY(fp, end) {
+	this.Result = fp.readUChar();
+	this.EntryQueueName = fp.readString(24);
+};
+PACKET.ZC.ACK_ENTRY_QUEUE_APPLY.size = 27;
+
+// 0x8d9
+PACKET.ZC.NOTIFY_ENTRY_QUEUE_APPLY = function PACKET_ZC_NOTIFY_ENTRY_QUEUE_APPLY(fp, end) {
+	this.EntryQueueName = fp.readString(24);
+	this.Ranking = fp.readLong();
+};
+PACKET.ZC.NOTIFY_ENTRY_QUEUE_APPLY.size = 30;
+
+// 0x8da
+PACKET.CZ.REQ_ENTRY_QUEUE_CANCEL = function PACKET_CZ_REQ_ENTRY_QUEUE_CANCEL() {
+	this.EntryQueueName = '';
+};
+PACKET.CZ.REQ_ENTRY_QUEUE_CANCEL.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(26);
+
+	pkt_buf.writeShort(0x8da);
+	pkt_buf.writeString(this.EntryQueueName, 24);
+	return pkt_buf;
+};
+
+// 0x8db
+PACKET.ZC.ACK_ENTRY_QUEUE_CANCEL = function PACKET_ZC_ACK_ENTRY_QUEUE_CANCEL(fp, end) {
+	this.Result = fp.readUChar();
+	this.EntryQueueName = fp.readString(24);
+};
+PACKET.ZC.ACK_ENTRY_QUEUE_CANCEL.size = 27;
+
+// 0x8df
+PACKET.ZC.NOTIFY_LOBBY_ADMISSION = function PACKET_ZC_NOTIFY_LOBBY_ADMISSION(fp, end) {
+	this.EntryQueueName = fp.readString(24);
+	this.LobbyName = fp.readString(24);
+};
+PACKET.ZC.NOTIFY_LOBBY_ADMISSION.size = 50;
+
+// 0x8e0
+// Result: 1 accept, 2 decline
+PACKET.CZ.REPLY_LOBBY_ADMISSION = function PACKET_CZ_REPLY_LOBBY_ADMISSION() {
+	this.Result = 1;
+	this.EntryQueueName = '';
+	this.LobbyName = '';
+};
+PACKET.CZ.REPLY_LOBBY_ADMISSION.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(51);
+
+	pkt_buf.writeShort(0x8e0);
+	pkt_buf.writeUChar(this.Result);
+	pkt_buf.writeString(this.EntryQueueName, 24);
+	pkt_buf.writeString(this.LobbyName, 24);
+	return pkt_buf;
+};
+
+// 0x8e1
+PACKET.ZC.REPLY_ACK_LOBBY_ADMISSION = function PACKET_ZC_REPLY_ACK_LOBBY_ADMISSION(fp, end) {
+	this.Result = fp.readUChar();
+	this.EntryQueueName = fp.readString(24);
+	this.LobbyName = fp.readString(24);
+};
+PACKET.ZC.REPLY_ACK_LOBBY_ADMISSION.size = 51;
+
+// 0x90a
+PACKET.CZ.REQ_ENTRY_QUEUE_RANKING = function PACKET_CZ_REQ_ENTRY_QUEUE_RANKING() {
+	this.EntryQueueName = '';
+};
+PACKET.CZ.REQ_ENTRY_QUEUE_RANKING.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(26);
+
+	pkt_buf.writeShort(0x90a);
+	pkt_buf.writeString(this.EntryQueueName, 24);
+	return pkt_buf;
+};
+
+// 0x90e
+PACKET.ZC.ENTRY_QUEUE_INIT = function PACKET_ZC_ENTRY_QUEUE_INIT(fp, end) {};
+PACKET.ZC.ENTRY_QUEUE_INIT.size = 2;
+
 // 0x8fe
 PACKET.ZC.UPDATE_MISSION_HUNT2 = function PACKET_ZC_UPDATE_MISSION_HUNT2(fp, end) {
 	this.questCount = ((end - fp.tell()) / 12) | 0; // workaround
