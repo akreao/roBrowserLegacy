@@ -308,3 +308,47 @@ describe('SkillListV2 prerequisite planning', () => {
 		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.current').textContent).toBe('0');
 	});
 });
+
+describe('SkillListV2 deleted skills', () => {
+	beforeEach(() => {
+		document.body.innerHTML = '';
+	});
+
+	const heal = level => ({ SKID: mocks.ids.HEAL, level, type: 1, upgradable: true, spcost: 13 });
+	const faith = { SKID: mocks.ids.FAITH, level: 10, type: 0, upgradable: false, spcost: 0 };
+
+	it('keeps a deleted skill out when the full list that follows carries it at level 0', () => {
+		const component = createComponent();
+		component.setSkills([faith, heal(3)]);
+
+		component.removeSkill(mocks.ids.HEAL);
+		component.setSkills([faith, heal(0)]);
+
+		expect(component.getSkillById(mocks.ids.HEAL)).toBeFalsy();
+		expect(component.getSkillById(mocks.ids.FAITH)).toBeDefined();
+	});
+
+	it('takes the skill back when it is learned again', () => {
+		const component = createComponent();
+		component.setSkills([faith, heal(3)]);
+		component.removeSkill(mocks.ids.HEAL);
+		component.setSkills([faith, heal(0)]);
+
+		component.addSkill(heal(1));
+
+		expect(component.getSkillById(mocks.ids.HEAL)?.level).toBe(1);
+		const tree = getTreeSkill(component.getRoot(), mocks.ids.HEAL);
+		expect(tree.classList.contains('disabled')).toBe(false);
+		expect(tree.querySelector('.current').textContent).toBe('1');
+	});
+
+	it('fills the empty tree slot when a skill the list never had is added', () => {
+		const component = createComponent();
+		component.setSkills([faith]);
+
+		component.addSkill(heal(1));
+
+		expect(component.getSkillById(mocks.ids.HEAL)?.level).toBe(1);
+		expect(getTreeSkill(component.getRoot(), mocks.ids.HEAL).querySelector('.current').textContent).toBe('1');
+	});
+});

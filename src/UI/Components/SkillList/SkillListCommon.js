@@ -113,6 +113,12 @@ export function createSkillList({
 	const _preferences = Preferences.get(name, preferenceDefaults, 1.0);
 
 	const _list = [];
+
+	/**
+	 * Skills the server deleted (0x0441). rAthena follows the delete with the whole skill list,
+	 * which still carries a forgotten quest skill at level 0: it stays out until learned again.
+	 */
+	const _deleted = new Set();
 	let _btnIncSkill;
 	let _points = 0;
 	let totalCounter = 0;
@@ -393,6 +399,13 @@ export function createSkillList({
 	Component.setSkills = function setSkills(skills) {
 		const root = this.getRoot();
 
+		skills = skills.filter(skill => {
+			if (skill.level > 0) {
+				_deleted.delete(skill.SKID);
+			}
+			return !(skill.level === 0 && _deleted.has(skill.SKID));
+		});
+
 		if (listOnly) {
 			for (let i = 0, count = _list.length; i < count; ++i) {
 				this.onUpdateSkill(_list[i].SKID, 0);
@@ -624,6 +637,9 @@ export function createSkillList({
 	Component.addSkill = function addSkill(skill) {
 		if (!(skill.SKID in SkillInfo)) {
 			return;
+		}
+		if (skill.level > 0) {
+			_deleted.delete(skill.SKID);
 		}
 
 		const root = this.getRoot();
@@ -927,6 +943,7 @@ export function createSkillList({
 	};
 
 	Component.removeSkill = function removeSkill(SKID) {
+		_deleted.add(SKID);
 		const rest = _list.filter(skill => skill.SKID !== SKID);
 		if (rest.length === _list.length) {
 			return;
