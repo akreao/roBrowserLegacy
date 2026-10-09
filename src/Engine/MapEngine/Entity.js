@@ -1221,6 +1221,79 @@ function onEntityLifeUpdateTiny(pkt) {
 }
 
 /**
+ * AID of the player's elemental, whose stat changes come without one
+ */
+let elementalAID = 0;
+
+/**
+ * Store an entity's HP and show it on its bar, when it is on screen
+ *
+ * @param {number} AID
+ * @param {object} data - hp and/or hp_max
+ */
+function setEntityLife(AID, data) {
+	EntityManager.storeLife(AID, data);
+
+	const entity = EntityManager.get(AID);
+	if (entity) {
+		if (data.hp !== undefined) {
+			entity.life.hp = data.hp;
+		}
+		if (data.hp_max !== undefined) {
+			entity.life.hp_max = data.hp_max;
+		}
+		entity.life.update();
+		entity.life.display = true;
+	}
+}
+
+/**
+ * HP of the player's ABR or Bionic summon (Meister, Biolo)
+ *
+ * @param {object} pkt - PACKET.ZC.SUMMON_HP_INIT
+ */
+function onSummonLifeInit(pkt) {
+	setEntityLife(pkt.summonAID, { hp: pkt.CurrentHP, hp_max: pkt.MaxHP });
+}
+
+/**
+ * @param {object} pkt - PACKET.ZC.SUMMON_HP_UPDATE
+ */
+function onSummonLifeUpdate(pkt) {
+	if (pkt.VarId === 5) {
+		setEntityLife(pkt.summonAID, { hp: pkt.Value });
+	} else if (pkt.VarId === 6) {
+		setEntityLife(pkt.summonAID, { hp_max: pkt.Value });
+	}
+}
+
+/**
+ * The player's elemental appeared
+ *
+ * @param {object} pkt - PACKET.ZC.EL_INIT
+ */
+function onElementalInit(pkt) {
+	elementalAID = pkt.AID;
+	setEntityLife(pkt.AID, { hp: pkt.hp, hp_max: pkt.maxHP, sp: pkt.sp, sp_max: pkt.maxSP });
+}
+
+/**
+ * One stat of the player's elemental changed
+ *
+ * @param {object} pkt - PACKET.ZC.EL_PAR_CHANGE
+ */
+function onElementalParameterChange(pkt) {
+	if (!elementalAID) {
+		return;
+	}
+
+	const field = { 5: 'hp', 6: 'hp_max', 7: 'sp', 8: 'sp_max' }[pkt.param];
+	if (field) {
+		setEntityLife(elementalAID, { [field]: pkt.value });
+	}
+}
+
+/**
  * Shows notification effect for quests and events
  *
  * @param {object} pkt - PACKET.ZC.QUEST_NOTIFY_EFFECT
@@ -3006,6 +3079,10 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.EMOTION, onEntityEmotion);
 	Network.hookPacket(PACKET.ZC.NOTIFY_MONSTER_HP, onEntityLifeUpdate);
 	Network.hookPacket(PACKET.ZC.HP_INFO_TINY, onEntityLifeUpdateTiny);
+	Network.hookPacket(PACKET.ZC.SUMMON_HP_INIT, onSummonLifeInit);
+	Network.hookPacket(PACKET.ZC.SUMMON_HP_UPDATE, onSummonLifeUpdate);
+	Network.hookPacket(PACKET.ZC.EL_INIT, onElementalInit);
+	Network.hookPacket(PACKET.ZC.EL_PAR_CHANGE, onElementalParameterChange);
 	Network.hookPacket(PACKET.ZC.QUEST_NOTIFY_EFFECT, onEntityQuestNotifyEffect);
 	Network.hookPacket(PACKET.ZC.BLADESTOP, onBladeStopPacket);
 	Network.hookPacket(PACKET.ZC.NOTIFY_EXP, onNotifyExp);
