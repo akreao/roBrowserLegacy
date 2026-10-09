@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
 	hooks: new Map(),
 	sent: [],
 	chat: vi.fn(),
+	storageLog: vi.fn(),
 	messages: {},
 	guild: {
 		setMembers: vi.fn(),
@@ -52,6 +53,7 @@ vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 
 vi.mock('UI/Components/Guild/Guild.js', () => ({ default: mocks.guild }));
 vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: { closeDisband: vi.fn() } }));
+vi.mock('UI/Components/GuildStorageLog/GuildStorageLog.js', () => ({ default: { open: (...args) => mocks.storageLog(...args) } }));
 vi.mock('UI/UIManager.js', () => ({ default: { showPromptBox: vi.fn(), showMessageBox: vi.fn() } }));
 vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({ default: { addGuildMemberMarker: vi.fn() } }));
 // The engine only assigns onRequestGuildSkills on it; the real module reaches
@@ -91,6 +93,7 @@ beforeEach(() => {
 	mocks.messages = {};
 	mocks.entityGet = () => null;
 	mocks.chat.mockClear();
+	mocks.storageLog.mockClear();
 	// init() also hangs its own callbacks off the window object, so only the
 	// spies are resettable.
 	for (const key in mocks.guild) {
@@ -856,5 +859,38 @@ describe('leaving a guild empties the window', () => {
 			expect(mocks.guild.getMemberName).toHaveBeenCalledWith(150001);
 			expect(mocks.chat.mock.calls[0][0]).toBe('Eremes has withdrawn from the guild');
 		});
+	});
+});
+
+// 0x9da, as the official handler reads it: result 0 is a page with more to
+// come, 1 the last page, which opens the window; 2 no log; anything else failed.
+describe('the guild storage log', () => {
+	it('opens the window on the last page, with every page received', () => {
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 0, items: [{ id: 1 }, { id: 2 }] });
+		expect(mocks.storageLog).not.toHaveBeenCalled();
+
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 1, items: [{ id: 3 }] });
+		expect(mocks.storageLog).toHaveBeenCalledWith([{ id: 1 }, { id: 2 }, { id: 3 }]);
+
+		// The next log starts afresh
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 1, items: [{ id: 4 }] });
+		expect(mocks.storageLog).toHaveBeenLastCalledWith([{ id: 4 }]);
+	});
+
+	it('says there is no log', () => {
+		mocks.messages[2543] = 'Log does not exist.';
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 2, items: [] });
+
+		expect(mocks.storageLog).not.toHaveBeenCalled();
+		expect(mocks.chat).toHaveBeenCalledWith('Log does not exist.', 1, 8);
+	});
+
+	it('shows the official failure message and drops a partial log', () => {
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 0, items: [{ id: 1 }] });
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 3, items: [] });
+		expect(mocks.chat).toHaveBeenCalledWith('NO MSG 1816', 1, 8);
+
+		deliver(PACKET.ZC.ACK_GUILDSTORAGE_LOG, { result: 1, items: [{ id: 2 }] });
+		expect(mocks.storageLog).toHaveBeenCalledWith([{ id: 2 }]);
 	});
 });

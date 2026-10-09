@@ -1,0 +1,199 @@
+:host {
+	top: 120px;
+	left: 120px;
+	width: 400px;
+	height: 250px;
+}
+
+/* Laid out from the official UIGuild_Storage_Log: positions are window pixels, title bar included */
+#GuildStorageLog {
+	position: absolute;
+	width: 400px;
+	height: 250px;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#GuildStorageLog > * {
+	position: absolute;
+}
+
+#GuildStorageLog .titlebar {
+	position: relative;
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#GuildStorageLog .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#GuildStorageLog .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	display: inline-block;
+	white-space: nowrap;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+#GuildStorageLog .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#GuildStorageLog .titlebar .clear {
+	clear: both;
+}
+
+/* Tabs: 50x20 from (0, 17); the selected one is drawn in blue */
+#GuildStorageLog .tabs {
+	left: 0;
+	top: 17px;
+	height: 20px;
+	display: flex;
+}
+#GuildStorageLog .tab {
+	width: 50px;
+	height: 20px;
+	line-height: 20px;
+	box-sizing: border-box;
+	border: 1px solid #c0c0c0;
+	border-top: none;
+	text-align: center;
+	cursor: pointer;
+}
+#GuildStorageLog .tab + .tab {
+	border-left: none;
+}
+#GuildStorageLog .tab.selected {
+	color: #2396c8;
+	border-bottom-color: transparent;
+}
+
+#GuildStorageLog .notice {
+	left: 234px;
+	top: 23px;
+	font-size: 11px;
+	color: red;
+	white-space: nowrap;
+}
+
+/* The headers and the ten rows share one frame in the rows' grey, so an empty tab still reads as a list */
+#GuildStorageLog .frame {
+	left: 3px;
+	width: 394px;
+	box-sizing: border-box;
+	border: 1px solid #cecece;
+}
+#GuildStorageLog .frame-header {
+	top: 44px;
+	height: 16px;
+	border-bottom: none;
+	background: #f5f5f5;
+}
+#GuildStorageLog .frame-list {
+	top: 59px;
+	height: 152px;
+}
+
+#GuildStorageLog .header {
+	top: 47px;
+	white-space: nowrap;
+}
+#GuildStorageLog .header.col-mark {
+	left: 6px;
+}
+#GuildStorageLog .header.col-item {
+	left: 70px;
+}
+#GuildStorageLog .header.col-count {
+	left: 150px;
+}
+#GuildStorageLog .header.col-name {
+	left: 200px;
+}
+#GuildStorageLog .header.col-time {
+	left: 320px;
+}
+
+/* Ten 15px rows from y 60: the in/out mark at x 6, then item, count, name and time */
+#GuildStorageLog .list {
+	left: 0;
+	top: 60px;
+	width: 400px;
+	height: 150px;
+}
+#GuildStorageLog .row {
+	position: relative;
+	height: 15px;
+	line-height: 15px;
+}
+#GuildStorageLog .row > span {
+	position: absolute;
+	top: 0;
+	height: 15px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+#GuildStorageLog .row.damaged > span {
+	color: red;
+}
+#GuildStorageLog .row .col-mark {
+	left: 6px;
+	width: 40px;
+	background-repeat: no-repeat;
+	background-position: left center;
+}
+#GuildStorageLog .row .col-item {
+	left: 50px;
+	width: 100px;
+	text-overflow: ellipsis;
+}
+#GuildStorageLog .row .col-count {
+	left: 150px;
+	width: 20px;
+}
+#GuildStorageLog .row .col-name {
+	left: 190px;
+	width: 80px;
+	text-overflow: ellipsis;
+}
+#GuildStorageLog .row .col-time {
+	left: 280px;
+	width: 130px;
+}
+
+#GuildStorageLog .prev,
+#GuildStorageLog .next {
+	top: 229px;
+	width: 14px;
+	height: 9px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+#GuildStorageLog .prev {
+	left: 160px;
+}
+#GuildStorageLog .next {
+	left: 215px;
+}
+#GuildStorageLog .page {
+	left: 175px;
+	top: 228px;
+	white-space: nowrap;
+}
+#GuildStorageLog .close {
+	left: 350px;
+	top: 225px;
+	width: 42px;
+	height: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}

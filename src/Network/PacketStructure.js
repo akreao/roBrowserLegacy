@@ -1699,6 +1699,40 @@ PACKET.CZ.NPC_MARKET_CLOSE.prototype.build = function () {
 	return pkt_buf;
 };
 
+// 0x9da
+// result: 0 a page (more follow), 1 the last page, 2 no log, 3 failed
+PACKET.ZC.ACK_GUILDSTORAGE_LOG = function PACKET_ZC_ACK_GUILDSTORAGE_LOG(fp, end) {
+	this.result = fp.readUShort();
+	this.amount = fp.readUShort();
+	this.items = (function () {
+		const wideId = PACKETVER.value >= 20181121;
+		const idSize = wideId ? 4 : 2;
+		const entrySize = 4 + idSize + 4 + 1 + 4 + 8 + 1 + 2 + idSize * 4 + 24 + 24 + 1;
+		const readId = () => (wideId ? fp.readULong() : fp.readUShort());
+		const count = ((end - fp.tell()) / entrySize) | 0;
+		const out = new Array(count);
+
+		for (let i = 0; i < count; ++i) {
+			const entry = {};
+			entry.id = fp.readULong();
+			entry.ITID = readId();
+			entry.count = fp.readLong();
+			entry.action = fp.readUChar(); // 1 put in, 0 taken out
+			entry.RefiningLevel = fp.readLong();
+			fp.seek(8, SEEK_CUR); // unique id
+			entry.IsIdentified = fp.readUChar();
+			entry.type = fp.readUShort();
+			entry.slot = { card1: readId(), card2: readId(), card3: readId(), card4: readId() };
+			entry.name = fp.readString(24);
+			entry.time = fp.readString(24);
+			entry.IsDamaged = fp.readUChar();
+			out[i] = entry;
+		}
+		return out;
+	})();
+};
+PACKET.ZC.ACK_GUILDSTORAGE_LOG.size = -1;
+
 // 0x19f
 PACKET.CZ.TRYCAPTURE_MONSTER = function PACKET_CZ_TRYCAPTURE_MONSTER() {
 	this.targetAID = 0;
