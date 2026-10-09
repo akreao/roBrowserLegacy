@@ -58,7 +58,7 @@ export function getJobNames(jobs) {
  * @return {string} the map's name, the region's for a whole region, '-' for none
  */
 export function getMapName(regions, id) {
-	const region = regions[(id >> 8) - 1];
+	const region = regions.find(entry => entry.index === id >> 8);
 
 	if (!region) {
 		return id ? '#' + id : '-';
@@ -88,16 +88,23 @@ export function fillMapSelects(regions, regionSelect, mapSelect, anyText) {
 	};
 
 	const fillMaps = () => {
-		const region = regions[parseInt(regionSelect.value, 10) - 1];
+		const index = parseInt(regionSelect.value, 10);
+		const region = regions.find(entry => entry.index === index);
 		mapSelect.replaceChildren(option(0, anyText));
 		if (region) {
-			region.maps.forEach(map => mapSelect.appendChild(option(map.id, map.name)));
+			region.maps.forEach(map => {
+				const el = option(map.id, map.name);
+				if (map.color) {
+					el.style.color = map.color;
+				}
+				mapSelect.appendChild(el);
+			});
 		}
 		mapSelect.disabled = !region;
 	};
 
 	regionSelect.replaceChildren(option(0, anyText));
-	regions.forEach((region, i) => regionSelect.appendChild(option(i + 1, region.name)));
+	regions.forEach(region => regionSelect.appendChild(option(region.index, region.name)));
 	regionSelect.onchange = fillMaps;
 	fillMaps();
 }

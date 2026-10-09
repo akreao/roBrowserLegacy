@@ -7366,38 +7366,66 @@ async function loadPartyBookingMaps() {
 	);
 	const regions = [];
 	const mounted = [];
+	const load = async file => {
+		const data = await new Promise((resolve, reject) => Client.loadFile(file, resolve, reject));
+		lua.mountFile(file, data instanceof ArrayBuffer ? new Uint8Array(data) : data);
+		mounted.push(file);
+		await lua.doFile(file);
+	};
 
 	try {
+		// The config names its maps as MsgStrID.MSI_MAP_LIST_*: the client's
+		// msgstring lub sets MsgStrID to a table of those keys and their text.
+		for (const name of ['msgstring_us.lub', 'msgstring_kr.lub']) {
+			try {
+				await load(DB.LUA_PATH + name);
+				break;
+			} catch {
+				// not in this client's data, try the next language
+			}
+		}
+		lua.doStringSync(`
+			if type(MsgStrID) ~= 'table' then MsgStrID = {} end
+			setmetatable(MsgStrID, { __index = function(_, key)
+				return (string.gsub(key, '^MSI_MAP_LIST_NAME_', ''))
+			end })
+		`);
+
 		for (const file of files) {
-			const data = await new Promise((resolve, reject) => Client.loadFile(file, resolve, reject));
-			lua.mountFile(file, data instanceof ArrayBuffer ? new Uint8Array(data) : data);
-			mounted.push(file);
-			await lua.doFile(file);
+			await load(file);
 		}
 
 		const ctx = lua.ctx;
-		ctx.AddPartyBookingRegion = (id, name) => {
-			regions.push({ id: id, name: userStringDecoder.decode(name, userCharpage), maps: [] });
+		ctx.AddPartyBookingRegion = (index, name) => {
+			regions.push({ index: index, name: userStringDecoder.decode(name, userCharpage), maps: [] });
 			return 1;
 		};
-		ctx.AddPartyBookingMap = (region, id, name, r, g, b) => {
-			regions[region - 1].maps.push({
-				id: (region << 8) | id,
+		ctx.AddPartyBookingMap = (index, id, name, r, g, b) => {
+			regions[regions.length - 1].maps.push({
+				id: (index << 8) | id,
 				name: userStringDecoder.decode(name, userCharpage),
-				color: 'rgb(' + r + ',' + g + ',' + b + ')'
+				color: typeof r === 'number' ? 'rgb(' + r + ',' + g + ',' + b + ')' : null
 			});
 			return 1;
 		};
 
+		// Regions marked ignore_recruit_window ("Select All") stand for any map,
+		// which the windows offer themselves, so they are left out.
 		lua.doStringSync(`
 			for i = 1, 255 do
-				local _, name = queryRegionInfo(i)
+				local _, name, _, ignore = queryRegionInfo(i)
 				if name == nil then break end
-				AddPartyBookingRegion(i, name)
-				for j = 1, 255 do
-					local _, _, map, r, g, b = queryMapInfo(i, j)
-					if map == nil then break end
-					AddPartyBookingMap(i, j, map, r or 0, g or 0, b or 0)
+				if not ignore then
+					AddPartyBookingRegion(i, name)
+					for j = 1, 255 do
+						local _, _, map, r, g, b = queryMapInfo(i, j)
+						if map == nil then break end
+						if r then
+							AddPartyBookingMap(i, j, map, r, g or 0, b or 0)
+						else
+							AddPartyBookingMap(i, j, map, nil, nil, nil)
+						end
+					end
 				end
 			end
 		`);
@@ -7405,6 +7433,7 @@ async function loadPartyBookingMaps() {
 		console.warn('[DB] Party booking map list not loaded:', error);
 	} finally {
 		mounted.forEach(file => lua.unmountFile(file));
+		lua.doStringSync('MsgStrID = nil');
 	}
 
 	return regions;
