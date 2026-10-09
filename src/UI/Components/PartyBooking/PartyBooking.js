@@ -85,6 +85,7 @@ PartyBooking.init = function init() {
 		}
 	});
 	root.querySelector('.recruit').addEventListener('click', () => PartyBooking.onRecruit());
+	root.querySelector('.recruit').title = DB.getMessage(1764);
 
 	const level = root.querySelector('.level');
 	level.addEventListener('keydown', event => {
