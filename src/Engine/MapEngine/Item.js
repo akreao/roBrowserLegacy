@@ -29,6 +29,7 @@ import Storage from 'UI/Components/Storage/Storage.js';
 import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection.js';
 import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
 import EffectManager from 'Renderer/EffectManager.js';
+import MergeItem from 'UI/Components/MergeItem/MergeItem.js';
 
 /**
  * Spam an item on the map
@@ -711,6 +712,68 @@ function onSwitchEquipRemove(pkt) {
 }
 
 /**
+ * The server offers stacks to merge (script command mergeitem)
+ *
+ * @param {object} pkt - PACKET.ZC.MERGE_ITEM_OPEN
+ */
+function onMergeItemOpen(pkt) {
+	// The official client answers an empty list with a cancel, and opens nothing
+	if (!pkt.itemList.length) {
+		Network.sendPacket(new PACKET.CZ.CANCEL_MERGE_ITEM());
+		return;
+	}
+	MergeItem.open(pkt.itemList);
+}
+
+/**
+ * Merge result: the stacks merged away are deleted by their own packets,
+ * this one gives the stack that remains its new amount
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_MERGE_ITEM
+ */
+function onMergeItemResult(pkt) {
+	switch (pkt.reason) {
+		case 0:
+			Inventory.getUI().updateItem(pkt.index, pkt.amount);
+			ChatBox.addText(DB.getMessage(2171, 'Items merged.'), ChatBox.TYPE.INFO, ChatBox.FILTER.ITEM, '#ffff64');
+			break;
+		case 1:
+			ChatBox.addText(
+				DB.getMessage(2172, 'These items cannot be merged.'),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.ITEM
+			);
+			break;
+		case 2:
+			ChatBox.addText(
+				DB.getMessage(2173, 'The merged amount would exceed the maximum stack.'),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.ITEM
+			);
+			break;
+	}
+
+	// The official window closes on any answer
+	if (MergeItem.__active) {
+		MergeItem.remove();
+	}
+}
+
+MergeItem.onMerge = function onMerge(indexes) {
+	const pkt = new PACKET.CZ.REQ_MERGE_ITEM();
+	pkt.itemList = indexes;
+	Network.sendPacket(pkt);
+};
+
+MergeItem.onCancel = function onCancel() {
+	Network.sendPacket(new PACKET.CZ.CANCEL_MERGE_ITEM());
+};
+
+MergeItem.onError = function onError(text) {
+	ChatBox.addText(text, ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
+};
+
+/**
  * Initialize
  */
 export default function ItemEngine() {
@@ -785,6 +848,8 @@ export default function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO, onSwitchEquipList);
 	Network.hookPacket(PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT, onSwitchEquipAdd);
 	Network.hookPacket(PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT, onSwitchEquipRemove);
+	Network.hookPacket(PACKET.ZC.MERGE_ITEM_OPEN, onMergeItemOpen);
+	Network.hookPacket(PACKET.ZC.ACK_MERGE_ITEM, onMergeItemResult);
 
 	Inventory.getUI().onUseCard = onUseCard;
 	Inventory.getUI().reqMoveItemToCart = reqMoveItemToCart;
