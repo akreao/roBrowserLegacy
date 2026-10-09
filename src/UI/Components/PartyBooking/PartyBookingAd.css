@@ -1,15 +1,16 @@
 :host {
 	top: 200px;
 	left: 20px;
-	width: 220px;
-	height: 110px;
+	width: 152px;
+	height: 199px;
 }
 
-/* The official UISeekPartyWnd: timer at the bottom left, rewrite and cancel at the bottom right */
+/* The official UISeekPartyWnd (152x199): a 150x150 animated mascot under the title bar, the timer at
+   the bottom left, cancel and rewrite at the bottom right */
 #PartyBookingAd {
 	position: absolute;
-	width: 220px;
-	height: 110px;
+	width: 152px;
+	height: 199px;
 	background: white;
 	border-radius: 3px;
 	font-size: 12px;
@@ -52,32 +53,22 @@
 	clear: both;
 }
 
-#PartyBookingAd .summary {
-	left: 10px;
-	top: 22px;
-	width: 200px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-#PartyBookingAd .jobs {
-	left: 10px;
-	top: 40px;
-	width: 200px;
-	height: 42px;
-	overflow: hidden;
-	font-size: 11px;
-	color: #6b6b6b;
+#PartyBookingAd .mascot {
+	left: 1px;
+	top: 18px;
+	width: 150px;
+	height: 150px;
+	background-repeat: no-repeat;
 }
 #PartyBookingAd .timer {
 	left: 10px;
-	top: 90px;
-}
-#PartyBookingAd .rewrite {
-	left: 128px;
-	top: 86px;
+	top: 179px;
 }
 #PartyBookingAd .cancel {
-	left: 174px;
-	top: 86px;
+	left: 60px;
+	top: 175px;
+}
+#PartyBookingAd .rewrite {
+	left: 106px;
+	top: 175px;
 }
