@@ -30,6 +30,7 @@ import 'UI/Elements/Elements.js';
  * @param {boolean} [config.townInfoToggle] enables the ".object" button and townInfoShow preference
  * @param {boolean} [config.coordinates] display current coordinates
  * @param {boolean} [config.arrowShadow] render the player arrow with a shadow
+ * @param {object} [config.mapView] large map window, enables the ".mini" button
  */
 export function createMiniMap({
 	name,
@@ -38,7 +39,8 @@ export function createMiniMap({
 	worldMap = null,
 	townInfoToggle = false,
 	coordinates = false,
-	arrowShadow = false
+	arrowShadow = false,
+	mapView = null
 }) {
 	/**
 	 * Create MiniMap component
@@ -125,6 +127,11 @@ export function createMiniMap({
 	const _map = createAsyncImage();
 
 	/**
+	 * @var {boolean} the current map has a minimap bitmap
+	 */
+	let _mapLoaded = false;
+
+	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
 	let _ctx;
@@ -168,6 +175,16 @@ export function createMiniMap({
 			_kafra.src = dataURI;
 		});
 
+		// Button tooltips: MsgStr 2855-2859 (UIMinimapZoomWnd::vf14)
+		const tips = { object: 2855, plus: 2856, minus: 2857, mini: 2858, viewon: 2859 };
+		Object.keys(tips).forEach(key => {
+			const button = root.querySelector(`.${key}`);
+			const text = DB.getMessage(tips[key], '');
+			if (button && text) {
+				button.title = text;
+			}
+		});
+
 		root.querySelector('.plus').addEventListener('mousedown', event => {
 			MiniMap.updateZoom(+1);
 			event.stopImmediatePropagation();
@@ -185,6 +202,16 @@ export function createMiniMap({
 				objectBtn.addEventListener('mousedown', () => {
 					_preferences.townInfoShow = !_preferences.townInfoShow;
 					_preferences.save();
+				});
+			}
+		}
+
+		if (mapView) {
+			const miniBtn = root.querySelector('.mini');
+			if (miniBtn) {
+				miniBtn.addEventListener('mousedown', event => {
+					event.stopImmediatePropagation();
+					mapView.toggle(MiniMap);
 				});
 			}
 		}
@@ -216,6 +243,7 @@ export function createMiniMap({
 	 */
 	MiniMap.setMap = function setMap(mapname) {
 		_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+		_mapLoaded = false;
 
 		_towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
 
@@ -225,7 +253,28 @@ export function createMiniMap({
 
 		Client.loadFile(`data/texture/${path}`, dataURI => {
 			_map.src = dataURI;
+			_mapLoaded = true;
 		});
+
+		if (mapView) {
+			mapView.onMapChange(mapname);
+		}
+	};
+
+	/**
+	 * What the minimap knows about the current map, for the large map window
+	 *
+	 * @return {object}
+	 */
+	MiniMap.getViewData = function getViewData() {
+		return {
+			image: _map,
+			loaded: _mapLoaded,
+			party: _party,
+			guild: _guild,
+			markers: _markers,
+			towninfo: _towninfo || []
+		};
 	};
 
 	/**
