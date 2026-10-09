@@ -42,7 +42,7 @@ PrivateAirship.RESULT = {
  * The message the official client shows for each failure (msgstringtable id)
  */
 const RESULT_MESSAGES = {
-	1: [2825, 'Please try again.'],
+	1: [2825, 'Please try again in a moment.'],
 	2: [3333, 'You do not have the item needed for the private airship.'],
 	3: [3332, 'The private airship cannot fly to this map.'],
 	4: [3331, 'The private airship cannot be used on this map.'],
@@ -157,7 +157,8 @@ PrivateAirship.onResult = function onResult(result) {
 	if (!message) {
 		return null;
 	}
-	const text = DB.getMessage(message[0], message[1]);
+	// iRO's msgstringtable leaves 3331-3333 and 3352 empty
+	const text = DB.getMessage(message[0], message[1]) || message[1];
 	this.setStatus(text);
 	return text;
 };

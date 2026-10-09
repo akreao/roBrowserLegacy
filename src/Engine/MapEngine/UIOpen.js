@@ -94,7 +94,7 @@ function onAttendanceReply(pkt) {
 
 	if (pkt.type === 1) {
 		ChatBox.addText(
-			DB.getMessage(3472, 'Failed to receive the attendance reward.'),
+			DB.getMessage(3472, 'You failed to check. Please try again.'),
 			ChatBox.TYPE.ERROR,
 			ChatBox.FILTER.PUBLIC_LOG
 		);

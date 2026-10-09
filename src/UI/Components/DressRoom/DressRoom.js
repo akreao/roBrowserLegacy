@@ -40,10 +40,13 @@ const RANGES = {
 	}
 };
 
+/**
+ * Category names: msgstringtable ids and their text, in the official combo's order
+ */
 const LABELS = {
-	head: 'Hairstyle',
-	headpalette: 'Hair Color',
-	bodypalette: 'Clothes Color'
+	headpalette: [2763, 'Hair color'],
+	head: [2764, 'Hairstyle'],
+	bodypalette: [2765, 'Dress color']
 };
 
 const _preferences = Preferences.get('DressRoom', { x: 150, y: 150 }, 1.0);
@@ -66,7 +69,7 @@ let _direction = 0;
 /**
  * @var {string} category listed, a key of RANGES
  */
-let _category = 'head';
+let _category = 'headpalette';
 
 /**
  * @var {boolean} the preview is drawn every frame
@@ -75,6 +78,11 @@ let _rendering = false;
 
 DressRoom.init = function init() {
 	const root = this.getRoot();
+
+	root.querySelectorAll('.category option').forEach(option => {
+		const [id, text] = LABELS[option.value];
+		option.textContent = DB.getMessage(id, text);
+	});
 
 	_ctx = root.querySelector('canvas').getContext('2d');
 
@@ -158,6 +166,7 @@ DressRoom.setCategory = function setCategory(category) {
 	const range = getRange(category);
 	const current = _preview ? _preview[category] : -1;
 	const list = root.querySelector('.list');
+	const label = DB.getMessage(LABELS[category][0], LABELS[category][1]);
 
 	root.querySelector('.category').value = category;
 	list.innerHTML = '';
@@ -165,7 +174,7 @@ DressRoom.setCategory = function setCategory(category) {
 		const row = document.createElement('div');
 		row.className = 'row' + (value === current ? ' selected' : '');
 		row.setAttribute('data-value', value);
-		row.textContent = `${LABELS[category]} ${value}`;
+		row.textContent = `${label} ${value}`;
 		list.appendChild(row);
 	}
 };

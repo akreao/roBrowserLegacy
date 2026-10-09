@@ -43,7 +43,8 @@ const mocks = vi.hoisted(() => {
 vi.mock('DB/DBManager.js', () => ({
 	default: {
 		isDoram: job => job === 4218,
-		getMessage: (id, text) => text,
+		// iRO leaves some airship lines empty
+		getMessage: (id, text) => (id === 3332 ? '' : text),
 		getMapName: (map, def) => (map === 'prontera.rsw' ? 'Prontera' : def),
 		getItemInfo: id => ({ identifiedDisplayName: id === 6909 ? 'Nyangvine Fruit' : 'World Tour Ticket' })
 	}
@@ -74,12 +75,21 @@ const { default: DressRoom } = await import('UI/Components/DressRoom/DressRoom.j
 const { default: PrivateAirship } = await import('UI/Components/PrivateAirship/PrivateAirship.js');
 
 describe('Dress room', () => {
-	it('opens on the player look and lists hairstyles', () => {
+	it('opens on the player look and lists hair colors first, as the official combo does', () => {
 		DressRoom.open();
-		const rows = DressRoom.getRoot().querySelectorAll('.list .row');
+		const root = DressRoom.getRoot();
 
-		expect(rows).toHaveLength(29);
-		expect(DressRoom.getRoot().querySelector('.row.selected').textContent).toBe('Hairstyle 5');
+		expect([...root.querySelectorAll('.category option')].map(o => o.textContent)).toEqual([
+			'Hair color',
+			'Hairstyle',
+			'Dress color'
+		]);
+		expect(root.querySelectorAll('.list .row')).toHaveLength(9);
+		expect(root.querySelector('.row.selected').textContent).toBe('Hair color 2');
+
+		DressRoom.setCategory('head');
+		expect(root.querySelectorAll('.list .row')).toHaveLength(29);
+		expect(root.querySelector('.row.selected').textContent).toBe('Hairstyle 5');
 	});
 
 	it('puts a choice on the preview, not on the player', () => {
@@ -88,7 +98,7 @@ describe('Dress room', () => {
 
 		expect(DressRoom.getPreview().headpalette).toBe(6);
 		expect(DressRoom.getPreview().head).toBe(5);
-		expect(DressRoom.getRoot().querySelector('.row.selected').textContent).toBe('Hair Color 6');
+		expect(DressRoom.getRoot().querySelector('.row.selected').textContent).toBe('Hair color 6');
 	});
 });
 
