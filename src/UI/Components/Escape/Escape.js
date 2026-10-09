@@ -17,6 +17,7 @@ import MenuHooks from 'UI/MenuHooks.js';
 import SoundOption from 'UI/Components/SoundOption/SoundOption.js';
 import GraphicsOption from 'UI/Components/GraphicsOption/GraphicsOption.js';
 import ShortCutOption from 'UI/Components/ShortCutOption/ShortCutOption.js';
+import DB from 'DB/DBManager.js';
 import htmlText from './Escape.html?raw';
 import cssText from './Escape.css?raw';
 
@@ -24,6 +25,12 @@ import cssText from './Escape.css?raw';
  * Create Escape window component
  */
 const Escape = new GUIComponent('Escape', cssText);
+
+/**
+ * The buttons of the normal menu. The official death menu (UIEscOptionWnd mode 1 and 2)
+ * keeps only Resurrection, Return to save point and Return to game.
+ */
+const NORMAL_BUTTONS = '.charselect, .settings, .hotkey, .exit, .hooked';
 
 /**
  * Render HTML
@@ -56,14 +63,11 @@ Escape.init = function init() {
 		el.style.display = 'none';
 	});
 
-	root.querySelector('.sound').addEventListener('click', onToggleSoundUI);
-	root.querySelector('.graphics').addEventListener('click', onToggleGraphicUI);
+	root.querySelector('.settings').addEventListener('click', onToggleSettingsUI);
 	root.querySelector('.resurection').addEventListener('click', function () {
 		Escape.onResurectionRequest();
 	});
-	root.querySelector('.savepoint').addEventListener('click', function () {
-		Escape.onReturnSavePointRequest();
-	});
+	root.querySelector('.savepoint').addEventListener('click', onSavePoint);
 	root.querySelector('.charselect').addEventListener('click', function () {
 		ExitHooks.emit('charSelect', 'escape');
 		Escape.onCharSelectionRequest();
@@ -102,7 +106,7 @@ Escape.onRemove = function onRemove() {
 	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
 		el.style.display = 'none';
 	});
-	root.querySelectorAll('.graphics, .sound, .hotkey, .hooked').forEach(function (el) {
+	root.querySelectorAll(NORMAL_BUTTONS).forEach(function (el) {
 		el.style.display = '';
 	});
 };
@@ -125,25 +129,29 @@ Escape.onKeyDown = function onKeyDown(event) {
 };
 
 /**
- * Click on Sound button, toggle the UI
+ * Click on the game settings button: the official client opens one settings window
+ * (UIGraphicSettingWnd) holding the graphics and the sound settings, which roBrowser
+ * draws as two windows. Both open and close together.
  */
-function onToggleSoundUI() {
-	if (!SoundOption._host || !SoundOption._host.parentNode) {
-		SoundOption.append();
-	} else {
-		SoundOption.remove();
-	}
+function onToggleSettingsUI() {
+	const open = [GraphicsOption, SoundOption].some(ui => ui._host && ui._host.parentNode);
+	[GraphicsOption, SoundOption].forEach(ui => {
+		const shown = ui._host && ui._host.parentNode;
+		if (open && shown) {
+			ui.remove();
+		} else if (!open && !shown) {
+			ui.append();
+		}
+	});
 }
 
 /**
- * Click on Graphic button, toggle the UI
+ * Click on Return to save point: the official client asks first (MsgStr 1548).
  */
-function onToggleGraphicUI() {
-	if (!GraphicsOption._host || !GraphicsOption._host.parentNode) {
-		GraphicsOption.append();
-	} else {
-		GraphicsOption.remove();
-	}
+function onSavePoint() {
+	UIManager.showPromptBox(DB.getMessage(1548), 'ok', 'cancel', function () {
+		Escape.onReturnSavePointRequest();
+	});
 }
 
 /**
@@ -167,7 +175,7 @@ Escape.showDeathMenu = function showDeathMenu(hasSiegfried) {
 	if (hasSiegfried) {
 		root.querySelector('.resurection').style.display = '';
 	}
-	root.querySelectorAll('.graphics, .sound, .hotkey, .hooked').forEach(function (el) {
+	root.querySelectorAll(NORMAL_BUTTONS).forEach(function (el) {
 		el.style.display = 'none';
 	});
 };
@@ -181,7 +189,7 @@ Escape.resetMenu = function resetMenu() {
 	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
 		el.style.display = 'none';
 	});
-	root.querySelectorAll('.graphics, .sound, .hotkey, .hooked').forEach(function (el) {
+	root.querySelectorAll(NORMAL_BUTTONS).forEach(function (el) {
 		el.style.display = '';
 	});
 };
@@ -199,7 +207,7 @@ function renderHookedButtons() {
 	}
 	root.querySelectorAll('.hooked').forEach(el => el.remove());
 
-	const settingsShown = root.querySelector('.graphics')?.style.display !== 'none';
+	const settingsShown = root.querySelector('.settings')?.style.display !== 'none';
 	MenuHooks.list().forEach(button => {
 		const el = document.createElement('button');
 		el.className = 'hooked';

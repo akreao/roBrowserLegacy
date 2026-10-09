@@ -53,8 +53,7 @@ describe('the option menu with buttons from plugins', () => {
 			'resurection',
 			'savepoint',
 			'charselect',
-			'graphics',
-			'sound',
+			'settings',
 			'hotkey',
 			'hooked',
 			'exit',
@@ -92,5 +91,27 @@ describe('the option menu with buttons from plugins', () => {
 
 		Escape.resetMenu();
 		expect(hooked().map(el => el.style.display)).toEqual(['', '']);
+	});
+});
+
+describe('the official buttons', () => {
+	const shown = () =>
+		[...Escape.getRoot().querySelectorAll('.container button')]
+			.filter(el => el.style.display !== 'none')
+			.map(el => el.className);
+
+	it('shows the normal menu of UIEscOptionWnd', () => {
+		Escape.resetMenu();
+		expect(shown()).toEqual(['charselect', 'settings', 'hotkey', 'exit', 'cancel']);
+	});
+
+	it('keeps only resurrection, save point and return on the death menu', () => {
+		Escape.showDeathMenu(true);
+		expect(shown()).toEqual(['resurection', 'savepoint', 'cancel']);
+		Escape.showDeathMenu(false);
+		Escape.resetMenu();
+		Escape.showDeathMenu(false);
+		expect(shown()).toEqual(['savepoint', 'cancel']);
+		Escape.resetMenu();
 	});
 });
