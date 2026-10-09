@@ -15,6 +15,7 @@ import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
 import 'UI/Elements/Elements.js';
 import {
 	JOB_CATEGORIES,
+	getCategoryName,
 	LEVEL_RANGE,
 	getJobName,
 	getJobNames,
@@ -98,7 +99,7 @@ PartyBooking.init = function init() {
 	const categorySelect = root.querySelector('.category');
 	const jobSelect = root.querySelector('.job');
 	categorySelect.appendChild(new Option(ANY, -1));
-	JOB_CATEGORIES.forEach((category, i) => categorySelect.appendChild(new Option(DB.getMessage(category.msg), i)));
+	JOB_CATEGORIES.forEach((category, i) => categorySelect.appendChild(new Option(getCategoryName(category), i)));
 	categorySelect.addEventListener('change', () => {
 		const category = JOB_CATEGORIES[parseInt(categorySelect.value, 10)];
 		jobSelect.replaceChildren(new Option(ANY, -1));
