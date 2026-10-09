@@ -1,0 +1,117 @@
+:host {
+	top: 200px;
+	left: 200px;
+	width: 195px;
+	height: 155px;
+}
+
+/* Laid out from the official CMergeItemWnd: positions are window pixels, title bar included */
+#MergeItem {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#MergeItem > * {
+	position: absolute;
+}
+
+#MergeItem .titlebar {
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#MergeItem .titlebar .text {
+	position: absolute;
+	left: 6px;
+	top: 2px;
+	font-size: 11px;
+	font-weight: bold;
+	white-space: nowrap;
+	text-shadow: 1px 1px white;
+}
+#MergeItem .titlebar .close {
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+
+/* Cells are 35px, from (10, 20); the scroll bar sits in the right margin */
+#MergeItem .list {
+	left: 10px;
+	top: 20px;
+	right: 0;
+	bottom: 30px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+#MergeItem .cell {
+	position: absolute;
+	width: 35px;
+	height: 35px;
+	cursor: pointer;
+}
+#MergeItem .cell .icon {
+	position: absolute;
+	left: 5px;
+	top: 2px;
+	width: 24px;
+	height: 24px;
+	background-repeat: no-repeat;
+}
+#MergeItem .cell .count {
+	position: absolute;
+	right: 4px;
+	top: 16px;
+	font-size: 10px;
+	text-shadow:
+		-1px 0 white,
+		1px 0 white,
+		0 -1px white,
+		0 1px white;
+	pointer-events: none;
+}
+#MergeItem .cell .checkbox {
+	position: absolute;
+	left: 0;
+	top: 20px;
+	width: 12px;
+	height: 12px;
+	background-repeat: no-repeat;
+}
+
+#MergeItem .ok,
+#MergeItem .cancel {
+	bottom: 5px;
+	width: 42px;
+	height: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+#MergeItem .ok {
+	right: 68px;
+}
+#MergeItem .cancel {
+	right: 18px;
+}
+
+#MergeItem .resize {
+	right: 0;
+	bottom: 0;
+	width: 15px;
+	height: 15px;
+	background-repeat: no-repeat;
+	cursor: nwse-resize;
+}
