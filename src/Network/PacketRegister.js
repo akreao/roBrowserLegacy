@@ -655,12 +655,18 @@ export default {
 	0x8d1: PACKET.ZC.REQ_TAKEOFF_EQUIP_ACK2, // ok
 	0x8d2: PACKET.ZC.FASTMOVE, // ok
 	0x8d6: PACKET.ZC.CLOSE_SCRIPT, // ok
+	0x8d8: PACKET.ZC.ACK_ENTRY_QUEUE_APPLY,
+	0x8d9: PACKET.ZC.NOTIFY_ENTRY_QUEUE_APPLY,
+	0x8db: PACKET.ZC.ACK_ENTRY_QUEUE_CANCEL,
+	0x8df: PACKET.ZC.NOTIFY_LOBBY_ADMISSION,
+	0x8e1: PACKET.ZC.REPLY_ACK_LOBBY_ADMISSION,
 	0x8e2: PACKET.ZC.NAVIGATION_ACTIVE,
 	0x8fe: PACKET.ZC.UPDATE_MISSION_HUNT2, // ok
 	0x8ff: PACKET.ZC.MSG_STATE_CHANGE3, // ok
 	0x906: PACKET.ZC.EQUIPWIN_MICROSCOPE_V3,
 	0x907: PACKET.CZ.INVENTORY_TAB,
 	0x908: PACKET.ZC.ITEM_FAVORITE,
+	0x90e: PACKET.ZC.ENTRY_QUEUE_INIT,
 	0x90f: PACKET.ZC.NOTIFY_NEWENTRY7, // ok
 	0x914: PACKET.ZC.NOTIFY_MOVEENTRY8, // ok
 	0x915: PACKET.ZC.NOTIFY_STANDENTRY9, // ok
@@ -690,17 +696,6 @@ export default {
 	0x99a: PACKET.ZC.ACK_TAKEOFF_EQUIP_V5, // ok
 	0x99b: PACKET.ZC.MAPPROPERTY_R2,
 	0x99f: PACKET.ZC.SKILL_ENTRY4, //ok
-	/*
-        bgqueue_ackType = 0x8d8,
-        bgqueue_notice_deleteType = 0x8db,
-        bgqueue_registerType = 0x8d7,
-        bgqueue_updateinfoType = 0x8d9,
-        bgqueue_checkstateType = 0x90a,
-        bgqueue_revokereqType = 0x8da,
-        bgqueue_battlebeginackType = 0x8e0,
-        bgqueue_notify_entryType = 0x8d9,
-        bgqueue_battlebeginsType = 0x8df,
-*/
 	0x99d: PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, // ok
 	0x9a0: PACKET.HC.CHARLIST_NOTIFY,
 	0x9a5: PACKET.AC.REFUSE_LOGIN3, // ok

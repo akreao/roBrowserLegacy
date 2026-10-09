@@ -143,6 +143,11 @@ const ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
 let EnchantListTable = {};
 
 /**
+ * @type {Array} battleground entry queues, from EntryQueue/EntryQueueList.lub, in file order
+ */
+let EntryQueueTable = [];
+
+/**
  * @const {Object} SignBoardTranslated Table
  */
 const SignBoardTranslatedTable = {};
@@ -614,6 +619,11 @@ class DB {
 			// EnchantList
 			if (PACKETVER.value >= 20211103) {
 				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', onLoad());
+			}
+
+			// Battleground entry queues
+			if (PACKETVER.value >= 20111005) {
+				loadEntryQueueList(DB.LUA_PATH + 'EntryQueue/EntryQueueList.lub', onLoad());
 			}
 
 			// MapName
@@ -2732,6 +2742,22 @@ class DB {
 	 */
 	static getMapInfo(mapname) {
 		return MapInfo[mapname] || null;
+	}
+
+	/**
+	 * Battleground entry queues the client lists, in file order
+	 * @returns {Array} entries, see loadEntryQueueList
+	 */
+	static getEntryQueueList() {
+		return EntryQueueTable;
+	}
+
+	/**
+	 * @param {string} name - battleground name, as the server knows it
+	 * @returns {object|null} entry queue with that name
+	 */
+	static getEntryQueueByName(name) {
+		return EntryQueueTable.find(entry => entry.name === name) || null;
 	}
 
 	/**
@@ -5801,6 +5827,85 @@ function loadItemReformFile(filename, callback, onEnd) {
 				// release file from memmory
 				lua.unmountFile('ItemReformSystem.lub');
 				// call onEnd
+				onEnd();
+			}
+		},
+		onEnd
+	);
+}
+
+/**
+ * Loads EntryQueue/EntryQueueList.lub, the battlegrounds the queue window lists.
+ * The official client runs the file, then calls its ReadEntryQueueList(), which
+ * calls AddEntryQueue once per battleground (kRO RagexeRE 2020-12-29, 0xB9FCE0).
+ *
+ * @param {string} filename
+ * @param {function} onEnd - called once the file is read, or failed to be
+ */
+function loadEntryQueueList(filename, onEnd) {
+	EntryQueueTable = [];
+
+	Client.loadFile(
+		filename,
+		async function (file) {
+			const name = 'entryqueuelist.lub';
+
+			try {
+				console.log('Loading file "' + filename + '"...');
+
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const ctx = lua.ctx;
+				const text = value => (value && value.length ? userStringDecoder.decode(value, userCharpage) : '');
+				const key = value => (value && value.length ? userStringDecoder.decode(value) : '');
+
+				ctx.AddEntryQueue = (
+					id,
+					queueName,
+					displayName,
+					teamA,
+					teamB,
+					solo,
+					party,
+					guild,
+					jobGroup,
+					levelType,
+					minLevel,
+					maxLevel,
+					rewardWin,
+					rewardDraw,
+					rewardLose,
+					victory,
+					image
+				) => {
+					EntryQueueTable.push({
+						id: id | 0,
+						name: key(queueName),
+						displayName: text(displayName),
+						teamA: teamA | 0,
+						teamB: teamB | 0,
+						apply: { solo: !!solo, party: !!party, guild: !!guild },
+						jobGroup: jobGroup | 0,
+						levelType: levelType | 0,
+						minLevel: minLevel | 0,
+						maxLevel: maxLevel | 0,
+						rewards: { win: text(rewardWin), draw: text(rewardDraw), lose: text(rewardLose) },
+						victory: text(victory),
+						image: key(image)
+					});
+					return 1;
+				};
+
+				lua.mountFile(name, buffer);
+				await lua.doFile(name);
+				lua.doStringSync(`
+					if type(ReadEntryQueueList) == "function" then
+						ReadEntryQueueList()
+					end
+				`);
+			} catch (error) {
+				console.error('[loadEntryQueueList] Error: ', error);
+			} finally {
+				lua.unmountFile(name);
 				onEnd();
 			}
 		},
