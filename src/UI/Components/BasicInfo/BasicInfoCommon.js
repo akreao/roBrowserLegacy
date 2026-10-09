@@ -39,6 +39,7 @@ import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
 import EntryQueue from 'UI/Components/EntryQueue/EntryQueue.js';
+import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
 	const {
@@ -161,6 +162,12 @@ export function createBasicInfo(config) {
 				break;
 			case 'battle':
 				EntryQueue.onMenuButton();
+				break;
+			case 'shop':
+				// The 2026 menu shows the cash shop icon (UIMenuIconWnd "shop", sends 0x143)
+				if (Configs.get('enableCashShop')) {
+					CashShopIcon.toggleShop();
+				}
 				break;
 		}
 	}
@@ -315,7 +322,8 @@ export function createBasicInfo(config) {
 			}
 		}
 
-		hideIds.forEach(id => {
+		const hidden = Configs.get('enableCashShop') ? hideIds : hideIds.concat('shop');
+		hidden.forEach(id => {
 			const el = root.querySelector(`#${id}`);
 			if (el) {
 				el.style.display = 'none';

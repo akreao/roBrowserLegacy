@@ -45,6 +45,7 @@ vi.mock('UI/Components/SkillList/SkillList.js', stub);
 vi.mock('UI/Components/Quest/Quest.js', stub);
 vi.mock('UI/Components/Achievement/Achievement.js', stub);
 vi.mock('UI/Components/Reputation/Reputation.js', stub);
+vi.mock('UI/Components/CashShopIcon/CashShopIcon.js', stub);
 
 const { createBasicInfo } = await import('UI/Components/BasicInfo/BasicInfoCommon.js');
 
