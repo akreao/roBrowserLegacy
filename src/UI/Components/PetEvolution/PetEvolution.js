@@ -14,6 +14,7 @@ import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -100,6 +101,27 @@ PetEvolution.onRemove = function onRemove() {
 };
 
 /**
+ * Draw a pet's illustration, or pet_noimage.bmp as the official client does when it has none
+ *
+ * @param {HTMLElement} el
+ * @param {string} illust - file name under userinterface/illust/
+ */
+function loadIllust(el, illust) {
+	const show = url => {
+		if (el) {
+			el.style.backgroundImage = `url(${url})`;
+		}
+	};
+	const noImage = () => Client.loadFile('data/texture/userinterface/illust/pet_noimage.bmp', show);
+
+	if (!illust) {
+		noImage();
+		return;
+	}
+	Client.loadFile('data/texture/userinterface/illust/' + illust, show, noImage);
+}
+
+/**
  * Update UI
  *
  * @param {object} pet evolution info
@@ -119,18 +141,8 @@ PetEvolution.SetInfo = function SetInfo(baseJobID) {
 		return;
 	}
 
-	Client.loadFile('data/texture/userinterface/illust/' + baseData.PetIllust, function (url) {
-		const el = root.querySelector('.base_pet_illust');
-		if (el) {
-			el.style.backgroundImage = `url(${url})`;
-		}
-	});
-	Client.loadFile('data/texture/userinterface/illust/' + evoData.PetIllust, function (url) {
-		const el = root.querySelector('.target_pet_illust');
-		if (el) {
-			el.style.backgroundImage = `url(${url})`;
-		}
-	});
+	loadIllust(root.querySelector('.base_pet_illust'), baseData.PetIllust);
+	loadIllust(root.querySelector('.target_pet_illust'), evoData.PetIllust);
 
 	targetEvoPetEggId = evoData.PetEggID;
 

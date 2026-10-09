@@ -14,6 +14,7 @@ import MapRenderer from 'Renderer/MapRenderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
+import skinInputs from 'UI/Elements/BitmapInputs.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import Client from 'Core/Client.js';
@@ -316,6 +317,8 @@ Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, scr
  */
 Navigation.init = function init() {
 	const root = Navigation.getRoot();
+
+	skinInputs(root, '.services-toggle');
 
 	_mapData = {
 		walkableType: Altitude.TYPE.WALKABLE

@@ -15,6 +15,7 @@ import SoundManager from 'Audio/SoundManager.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
+import skinInputs from 'UI/Elements/BitmapInputs.js';
 import htmlText from './SoundOption.html?raw';
 import cssText from './SoundOption.css?raw';
 
@@ -26,6 +27,8 @@ const _preferences = Preferences.get('SoundOption', { x: 300, y: 300 }, 1.0);
 
 SoundOption.init = function init() {
 	const root = this.getRoot();
+
+	skinInputs(root, 'input[type="checkbox"]');
 
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {

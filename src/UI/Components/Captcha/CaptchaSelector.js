@@ -17,6 +17,7 @@ import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import 'UI/Elements/Elements.js';
+import skinInputs from 'UI/Elements/BitmapInputs.js';
 import htmlText from './CaptchaSelector.html?raw';
 import cssText from './CaptchaSelector.css?raw';
 
@@ -67,6 +68,8 @@ CaptchaSelector.captureKeyEvents = true;
 CaptchaSelector.init = function init() {
 	this.draggable('.titlebar');
 	const root = this.getRoot();
+
+	skinInputs(root, 'input[type="radio"]');
 
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
