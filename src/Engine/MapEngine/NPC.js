@@ -19,12 +19,15 @@ import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import Renderer from 'Renderer/Renderer.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
 import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
+import MakeReadBook from 'UI/Components/MakeReadBook/MakeReadBook.js';
 import GUIComponent from 'UI/GUIComponent.js';
 
 /**
@@ -364,14 +367,58 @@ function onSound(pkt) {
 /**
  * Received bgm from npc
  *
- * @param {object} pkt - PACKET.ZC.PLAY_NPC_BGM
+ * @param {object} pkt - PACKET.ZC.PLAY_NPC_BGM or PACKET.ZC.PLAY_NPC_BGM2
  */
 function onBGM(pkt) {
+	// PLAY_NPC_BGM2 also carries a playType; rAthena always sends 0 (loop), which is what BGM.play does
 	if (!pkt.Bgm.match(/\.mp3$/i)) {
 		pkt.Bgm += '.mp3';
 	}
 
 	BGM.play(pkt.Bgm);
+}
+
+/**
+ * Script asks the client to show the route to a place (script command navigateto)
+ *
+ * @param {object} pkt - PACKET.ZC.NAVIGATION_ACTIVE
+ */
+function onNavigation(pkt) {
+	// type 0: map and coordinates, 1: map only, 3: map and monster.
+	// Only routes to a cell are supported; every navigateto call in rAthena's NPC scripts passes one.
+	if (pkt.type !== 0) {
+		console.warn(`[PACKET.ZC.NAVIGATION_ACTIVE] navigation type ${pkt.type} not implemented`);
+		return;
+	}
+
+	// The route is drawn in the navigation window, so it is opened even when the script asks
+	// to hide it (pkt.hideWindow): the official client has on-screen guidance that roBrowser lacks.
+	Navigation.navigateTo({
+		startMap: MapRenderer.currentMap,
+		startX: Session.Entity.position[0] | 0,
+		startY: Session.Entity.position[1] | 0,
+		endMap: pkt.mapName,
+		endX: pkt.x,
+		endY: pkt.y,
+		displayName: `${pkt.mapName} (${pkt.x}, ${pkt.y})`
+	});
+	Navigation.show();
+}
+
+/**
+ * Script opens a book (script command readbook)
+ *
+ * @param {object} pkt - PACKET.ZC.READ_BOOK
+ */
+function onReadBook(pkt) {
+	// The book id is the item id, as when reading a book from its item description.
+	// pkt.page is ignored: roBrowser splits the text into its own pages, which do not match the official ones.
+	const item = { ITID: pkt.bookID };
+
+	Client.loadFile(`data/book/${pkt.bookID}.txt`, data => {
+		MakeReadBook.startBook(data, item);
+		MakeReadBook.openBook();
+	});
 }
 
 /**
@@ -416,6 +463,9 @@ export default function NPCEngine() {
 	Network.hookPacket(PACKET.ZC.PROGRESS_CANCEL, onProgressBarStop);
 	Network.hookPacket(PACKET.ZC.SOUND, onSound);
 	Network.hookPacket(PACKET.ZC.PLAY_NPC_BGM, onBGM);
+	Network.hookPacket(PACKET.ZC.PLAY_NPC_BGM2, onBGM);
+	Network.hookPacket(PACKET.ZC.NAVIGATION_ACTIVE, onNavigation);
+	Network.hookPacket(PACKET.ZC.READ_BOOK, onReadBook);
 	Network.hookPacket(PACKET.ZC.CLOSE_SCRIPT, onCloseScript);
 	Network.hookPacket(PACKET.ZC.DYNAMICNPC_CREATE_RESULT, onDynamicNPCCreateRequest);
 }
