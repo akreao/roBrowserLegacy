@@ -7,6 +7,7 @@
  */
 
 import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
@@ -31,6 +32,23 @@ let _ad = null;
  */
 let _timer = 0;
 
+/**
+ * The mascots the official window picks from at random, as basic_interface/seekparty/type_0N/
+ * seekparty_<name>_0N_<frame>.bmp, and how many frames each has. It shows one frame a second.
+ */
+const MASCOTS = [
+	{ name: 'bibibic', frames: 6 },
+	{ name: 'bibibic', frames: 6 },
+	{ name: '\xb4\xde\xb1\xe2\xb8\xb0', frames: 18 },
+	{ name: '\xb4\xde\xb1\xe2\xb8\xb0', frames: 12 },
+	{ name: 'boya', frames: 12 }
+];
+
+/**
+ * @var {number} mascot shown, index in MASCOTS
+ */
+let _mascot = 0;
+
 PartyBookingAd.init = function init() {
 	const root = this.getRoot();
 
@@ -45,7 +63,10 @@ PartyBookingAd.onAppend = function onAppend() {
 	this._host.style.top = _preferences.y + 'px';
 	this._host.style.left = _preferences.x + 'px';
 	clearInterval(_timer);
-	_timer = setInterval(showTime, 1000);
+	_timer = setInterval(() => {
+		showTime();
+		showMascot();
+	}, 1000);
 };
 
 PartyBookingAd.onRemove = function onRemove() {
@@ -64,6 +85,7 @@ PartyBookingAd.onRemove = function onRemove() {
  */
 PartyBookingAd.show = function show(level, mapId, jobs) {
 	_ad = { level: level, mapId: mapId, jobs: jobs, since: Date.now() };
+	_mascot = Math.floor(Math.random() * MASCOTS.length);
 	this.append();
 	render();
 };
@@ -103,19 +125,55 @@ PartyBookingAd.onRewrite = function onRewrite(/* ad */) {};
 PartyBookingAd.onDelete = function onDelete() {};
 
 /**
- * Draw the ad
+ * Draw the ad. The official window shows only the mascot and the time; the ad itself is the tooltip.
  */
 function render() {
 	const root = PartyBookingAd.getRoot();
 
 	DB.getPartyBookingMaps().then(regions => {
 		if (_ad) {
-			root.querySelector('.summary').textContent =
-				_ad.level + ' ~ ' + (_ad.level + LEVEL_RANGE) + '  ' + getMapName(regions, _ad.mapId);
+			root.querySelector('.mascot').title =
+				_ad.level +
+				' ~ ' +
+				(_ad.level + LEVEL_RANGE) +
+				'  ' +
+				getMapName(regions, _ad.mapId) +
+				'\n' +
+				getJobNames(_ad.jobs);
 		}
 	});
-	root.querySelector('.jobs').textContent = getJobNames(_ad.jobs);
 	showTime();
+	showMascot();
+}
+
+/**
+ * Draw the mascot's frame for the time the ad has been up
+ */
+function showMascot() {
+	if (!_ad) {
+		return;
+	}
+
+	const mascot = MASCOTS[_mascot];
+	const type = 'type_0' + _mascot;
+	const frame = Math.floor((Date.now() - _ad.since) / 1000) % mascot.frames;
+	const el = PartyBookingAd.getRoot().querySelector('.mascot');
+
+	Client.loadFile(
+		DB.INTERFACE_PATH +
+			'basic_interface/seekparty/' +
+			type +
+			'/seekparty_' +
+			mascot.name +
+			'_0' +
+			_mascot +
+			'_' +
+			frame +
+			'.bmp',
+		url => {
+			el.style.backgroundImage = `url(${url})`;
+		}
+	);
 }
 
 /**

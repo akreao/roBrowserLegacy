@@ -2,14 +2,14 @@
 	top: 100px;
 	left: 100px;
 	width: 550px;
-	height: 360px;
+	height: 350px;
 }
 
 /* Laid out from the official UISeekPartyListWnd: positions are window pixels, title bar included */
 #PartyBooking {
 	position: absolute;
 	width: 550px;
-	height: 360px;
+	height: 350px;
 	background: white;
 	border-radius: 3px;
 	font-size: 12px;
@@ -207,7 +207,7 @@
 
 #PartyBooking .more {
 	left: 247px;
-	top: 327px;
+	top: 317px;
 	width: 56px;
 	height: 12px;
 	border: none;
@@ -218,7 +218,7 @@
 }
 
 #PartyBooking .text-button {
-	top: 340px;
+	top: 330px;
 	font-size: 11px;
 	color: #3a5f9e;
 	cursor: pointer;
@@ -234,5 +234,5 @@
 }
 #PartyBooking .ok {
 	left: 505px;
-	top: 336px;
+	top: 326px;
 }
