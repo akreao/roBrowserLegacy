@@ -58,6 +58,7 @@ class GroupEngine {
 		Network.hookPacket(PACKET.ZC.DELETE_MEMBER_FROM_GROUP, onPartyMemberLeave);
 		Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
 		Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
+		Network.hookPacket(PACKET.ZC.NOTIFY_MEMBERINFO_TO_GROUPM, onPartyMemberInfo);
 
 		const PartyUI = PartyFriends.getUI();
 
@@ -509,6 +510,15 @@ function onPartyInvitationAnswer(pkt) {
 	}
 
 	ChatBox.addText(DB.getMessage(id).replace('%s', pkt.characterName), color, ChatBox.FILTER.PARTY_SETUP);
+}
+
+/**
+ * A party member changed job or level
+ *
+ * @param {object} pkt - PACKET.ZC.NOTIFY_MEMBERINFO_TO_GROUPM
+ */
+function onPartyMemberInfo(pkt) {
+	PartyFriends.getUI().updateMemberInfo(pkt.AID, pkt.job, pkt.level);
 }
 
 /**

@@ -740,6 +740,28 @@ export function createPartyFriends(config) {
 		};
 
 		/**
+		 * A member's job or level changed
+		 *
+		 * @param {number} AID - member account id
+		 * @param {number} job - job id
+		 * @param {number} level - base level
+		 */
+		Component.updateMemberInfo = function updateMemberInfo(AID, job, level) {
+			const player = _party.find(member => member.AID === AID);
+			if (!player || (player.class_ === job && player.baseLevel === level)) {
+				return;
+			}
+
+			player.class_ = job;
+			player.baseLevel = level;
+
+			if (_detachedMembers[AID]) {
+				_detachedMembers[AID].setMember(AID, player);
+			}
+			Component.renderPartyMember(player);
+		};
+
+		/**
 		 * Render a party member into the UI
 		 */
 		Component.renderPartyMember = function renderPartyMember(player) {
@@ -1102,6 +1124,21 @@ export function createPartyFriends(config) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/' + texture, function (url) {
 					if (node) node.style.backgroundImage = `url(${url})`;
 				});
+			}
+		};
+
+		/**
+		 * A member's job or level changed: this list does not show them, so only keep them
+		 *
+		 * @param {number} AID - member account id
+		 * @param {number} job - job id
+		 * @param {number} level - base level
+		 */
+		Component.updateMemberInfo = function updateMemberInfo(AID, job, level) {
+			const player = _party.find(member => member.AID === AID);
+			if (player) {
+				player.class_ = job;
+				player.baseLevel = level;
 			}
 		};
 
