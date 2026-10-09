@@ -283,6 +283,24 @@ export function createQuest(config) {
 	};
 
 	/**
+	 * Show the quest window, and the details of one quest when it is in the list
+	 *
+	 * @param {number} questID - 0 to only show the window
+	 */
+	Quest.showQuest = function showQuest(questID) {
+		this.ui.show();
+		this.focus();
+
+		if (questID && _questList[questID]) {
+			questHelper.clearQuestDesc();
+			questHelper.setQuestInfo(_questList[questID]);
+			questHelper.prepare();
+			questHelper.append();
+			questHelper.ui.show();
+		}
+	};
+
+	/**
 	 * Set Quest list
 	 *
 	 * @param {Array} quests

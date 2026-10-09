@@ -10967,6 +10967,18 @@ PACKET.ZC.FASTMOVE = function PACKET_ZC_FASTMOVE(fp, end) {
 };
 PACKET.ZC.FASTMOVE.size = 10;
 
+// 0x8e2
+PACKET.ZC.NAVIGATION_ACTIVE = function PACKET_ZC_NAVIGATION_ACTIVE(fp, end) {
+	this.type = fp.readUChar();
+	this.flag = fp.readUChar();
+	this.hideWindow = fp.readUChar();
+	this.mapName = fp.readBinaryString(16);
+	this.x = fp.readShort();
+	this.y = fp.readShort();
+	this.mobID = fp.readUShort();
+};
+PACKET.ZC.NAVIGATION_ACTIVE.size = 27;
+
 // 0x8fe
 PACKET.ZC.UPDATE_MISSION_HUNT2 = function PACKET_ZC_UPDATE_MISSION_HUNT2(fp, end) {
 	this.questCount = ((end - fp.tell()) / 12) | 0; // workaround
@@ -15358,6 +15370,13 @@ PACKET.HC.ACCEPT_MAKECHAR = function PACKET_HC_ACCEPT_MAKECHAR(fp, end) {
 	this.charinfo = PACKETVER.parseCharInfo(fp, end)[0];
 };
 PACKET.HC.ACCEPT_MAKECHAR.size = 0;
+
+// 0xb8c
+PACKET.ZC.PLAY_NPC_BGM2 = function PACKET_ZC_PLAY_NPC_BGM2(fp, end) {
+	this.playType = fp.readUChar();
+	this.Bgm = fp.readBinaryString(end - fp.tell());
+};
+PACKET.ZC.PLAY_NPC_BGM2.size = -1;
 
 //0xb8d
 PACKET.ZC.REPUTE_INFO = function PACKET_ZC_REPUTE_INFO(fp, end) {

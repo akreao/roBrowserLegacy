@@ -682,6 +682,24 @@ function onMessage(pkt) {
 }
 
 /**
+ * Server message using msgstringtable, formatted with a value
+ *
+ * @param {object} pkt - PACKET.ZC.MSG_VALUE
+ */
+function onMessageValue(pkt) {
+	let value = pkt.value;
+
+	// msgstringtable 3278 takes an item name, and the value is the item id
+	if (pkt.msg === 3278) {
+		value = DB.getItemInfo(pkt.value).identifiedDisplayName;
+	}
+
+	const text = DB.getMessage(pkt.msg).replace(/%[dsiu]/, value);
+
+	ChatBox.addText(text, ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, '#FFFF00');
+}
+
+/**
  * Recovery of a status
  *
  * @param {object} pkt - PACKET.ZC.RECOVERY
@@ -1020,6 +1038,7 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.ACTION_FAILURE, onActionFailure);
 	Network.hookPacket(PACKET.ZC.MSG, onMessage);
 	Network.hookPacket(PACKET.ZC.MSG_COLOR, onMessage);
+	Network.hookPacket(PACKET.ZC.MSG_VALUE, onMessageValue);
 	if (PACKETVER.value < 20141022) {
 		Network.hookPacket(PACKET.ZC.RECOVERY, onRecovery);
 	} else {

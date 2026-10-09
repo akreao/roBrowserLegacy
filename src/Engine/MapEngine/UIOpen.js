@@ -15,6 +15,8 @@ import Configs from 'Core/Configs.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Quest from 'UI/Components/Quest/Quest.js';
 import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
 import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade.js';
 import EnchantUI from 'UI/Components/Enchant/Enchant.js';
@@ -41,6 +43,18 @@ function onUIOpen(pkt) {
 	//    10 = ENCHANT_UI
 
 	switch (pkt.ui_type) {
+		case 0:
+			// Same request the bank window makes when it opens; the answer opens it (Engine/MapEngine/Bank.js)
+			if (Configs.get('enableBank')) {
+				const bankCheck = new PACKET.CZ.REQ_BANKING_CHECK();
+				bankCheck.AID = Session.AID;
+				Network.sendPacket(bankCheck);
+			}
+			break;
+		case 6:
+			// data is a quest id, or 0 for the window alone
+			Quest.getUI().showQuest(pkt.data);
+			break;
 		case 7:
 			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 				CheckAttendance.prepare();
