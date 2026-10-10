@@ -191,6 +191,17 @@
 #chatbox .battlemode .bmtoggle {
 	height: 100%;
 }
+
+/* chatBattleModeBar off: the official client only stops drawing the input bar */
+#chatbox.official .battlemode {
+	border: none;
+	background-color: transparent;
+	pointer-events: none;
+}
+
+#chatbox.official .battlemode .bmtoggle {
+	display: none;
+}
 #chatbox .chat-function {
 	position: absolute;
 	right: 0px;

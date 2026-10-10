@@ -191,12 +191,21 @@ ChatBox.init = function init() {
 	this.magnet.LEFT = _preferences.magnet_left;
 	this.magnet.RIGHT = _preferences.magnet_right;
 
+	// Set chatBattleModeBar to false for the official look: with chat mode off the
+	// input bar's place stays empty (no strip, no "..." button) and clicks reach the map.
+	const battleModeBar = Configs.get('chatBattleModeBar', true);
+	root.querySelector('#chatbox').classList.toggle('official', !battleModeBar);
+
 	this.draggable('.input');
-	this.draggable('.battlemode');
+	if (battleModeBar) {
+		this.draggable('.battlemode');
+	}
 
 	// Keep chat log area click-through for walking; only block over interactive UI parts.
 	// For GUIComponent, set up manual mouse intersection blocking on interactive elements.
-	const interactiveSelector = '.input, .chat-function, .battlemode, .event_add_cursor';
+	const interactiveSelector = battleModeBar
+		? '.input, .chat-function, .battlemode, .event_add_cursor'
+		: '.input, .chat-function, .event_add_cursor';
 	const interactiveEls = root.querySelectorAll(interactiveSelector);
 	interactiveEls.forEach(el => {
 		let _intersect;
