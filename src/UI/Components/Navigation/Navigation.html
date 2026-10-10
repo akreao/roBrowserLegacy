@@ -1,105 +1,54 @@
-<div class="Navigation basic view-search">
+<div class="Navigation">
 	<div class="titlebar">
-		<div class="tb-left"><ui-image src="basic_interface/titlebar_left.bmp"></ui-image></div>
-		<div class="tb-mid"><ui-image src="basic_interface/titlebar_mid.bmp"></ui-image></div>
-		<div class="tb-right"><ui-image src="basic_interface/titlebar_right.bmp"></ui-image></div>
-		<div class="tb-base"><ui-image src="basic_interface/sys_base_off.bmp"></ui-image></div>
-		<div class="title"><ui-text msg="2221">Navigation</ui-text></div>
+		<div class="left" data-background="basic_interface/titlebar_left.bmp"></div>
+		<div class="center" data-background="basic_interface/titlebar_mid.bmp"></div>
+		<div class="right" data-background="basic_interface/titlebar_right.bmp"></div>
+		<div class="title">Navigation</div>
 		<ui-button
-			class="btn-mini"
-			bg="basic_interface/sys_mini_off.bmp"
-			hover="basic_interface/sys_mini_on.bmp"
-			down="basic_interface/sys_mini_on.bmp"
-		></ui-button>
-		<ui-button
-			class="btn-close"
+			class="close"
 			bg="basic_interface/sys_close_off.bmp"
 			hover="basic_interface/sys_close_on.bmp"
-			down="basic_interface/sys_close_on.bmp"
-		></ui-button>
-		<ui-button
-			class="btn-simple-max"
-			bg="navigation_interface3/btn_maximize_normal.bmp"
-			hover="navigation_interface3/btn_maximize_over.bmp"
-			down="navigation_interface3/btn_maximize_press.bmp"
-		></ui-button>
-		<ui-button
-			class="btn-simple-close"
-			bg="navigation_interface3/btn_close_normal.bmp"
-			hover="navigation_interface3/btn_close_over.bmp"
-			down="navigation_interface3/btn_close_press.bmp"
 		></ui-button>
 	</div>
-
-	<div class="simple-body">
-		<div class="simple-dest"><ui-image src="navigation_interface3/ico_destination.bmp"></ui-image></div>
-		<div class="simple-line1"></div>
-		<div class="simple-line2"></div>
-	</div>
-
-	<div class="toolbar">
-		<ui-button
-			class="btn-back"
-			bg="navigation_interface3/bt_back.bmp"
-			hover="navigation_interface3/bt_back_on.bmp"
-			down="navigation_interface3/bt_back_on.bmp"
-		></ui-button>
-		<div class="combo">
-			<div class="combo-bg"><ui-image src="navigation_interface3/bg_combo.bmp"></ui-image></div>
-			<div class="combo-text"></div>
+	<div class="content">
+		<div class="search-container">
+			<select class="search-type">
+				<option value="ALL">ALL</option>
+				<option value="NPC">NPC</option>
+				<option value="MOB">MOB</option>
+			</select>
+			<div class="search-left" data-background="basic_interface/txtbox_l.bmp"></div>
+			<div class="search-middle" data-background="basic_interface/txtbox_m.bmp"></div>
+			<div class="search-right" data-background="basic_interface/txtbox_r.bmp"></div>
+			<input type="text" class="search-input" placeholder="Search..." />
 			<ui-button
-				class="combo-arrow"
-				bg="navigation_interface3/dropdown_on.bmp"
-				hover="navigation_interface3/dropdown_on_over.bmp"
-				down="navigation_interface3/dropdown_on_press.bmp"
+				class="search-button"
+				bg="navigation_interface/navisearch_a.bmp"
+				hover="navigation_interface/navisearch_b.bmp"
+				down="navigation_interface/navisearch_c.bmp"
 			></ui-button>
-			<div class="combo-list">
-				<div class="combo-item" data-type="ALL"><ui-text msg="2206">ALL</ui-text></div>
-				<div class="combo-item" data-type="MAP"><ui-text msg="2207">Map</ui-text></div>
-				<div class="combo-item" data-type="NPC"><ui-text msg="2208">Npc</ui-text></div>
-				<div class="combo-item" data-type="MOB"><ui-text msg="2209">Mob</ui-text></div>
+		</div>
+		<div class="map-container">
+			<div class="services-toggle-container">
+				<label class="services-checkbox"> <input type="checkbox" class="services-toggle" /> Services </label>
+			</div>
+			<div class="location-title"></div>
+			<div class="map-display">
+				<!-- Map will be displayed here -->
 			</div>
 		</div>
-		<div class="search-box">
-			<ui-image src="navigation_interface3/bg_search.bmp"></ui-image>
-			<input type="text" class="search-input" maxlength="30" />
+	</div>
+	<div class="footer">
+		<div class="coordinates-bar">
+			<div class="map-name"></div>
+			<div class="mouse-info">
+				<span class="mouse-label">Mouse:</span>
+				<span class="mouse-coordinates"></span>
+			</div>
+			<div class="target-info">
+				<span class="target-label">Target:</span>
+				<span class="target-coordinates"></span>
+			</div>
 		</div>
-		<ui-button
-			class="search-button"
-			bg="navigation_interface3/btn_searchbar_normal.bmp"
-			hover="navigation_interface3/btn_searchbar_over.bmp"
-			down="navigation_interface3/btn_searchbar_press.bmp"
-		></ui-button>
-		<div class="sep-top"></div>
 	</div>
-
-	<div class="map-view">
-		<div class="map-frame"></div>
-		<canvas class="map-canvas" width="266" height="266"></canvas>
-		<div class="map-line1"></div>
-		<div class="map-line2"></div>
-		<div class="map-status"></div>
-	</div>
-
-	<div class="search-view">
-		<div class="dot"><ui-image src="navigation_interface3/bg_dot.bmp"></ui-image></div>
-		<div class="result-count"><ui-text msg="3207">Search[0]</ui-text></div>
-		<div class="vsep"></div>
-		<div class="hsep"></div>
-		<div class="result-list"></div>
-		<canvas class="preview-canvas" width="100" height="100"></canvas>
-		<div class="info-list"></div>
-		<div class="zeny-toggle">
-			<div class="zeny-box"></div>
-			<span class="zeny-label"><ui-text msg="3212">Allow zeny for guide</ui-text></span>
-		</div>
-		<ui-button
-			class="btn-target"
-			bg="navigation_interface3/btn_find_normal.bmp"
-			hover="navigation_interface3/btn_find_over.bmp"
-			down="navigation_interface3/btn_find_press.bmp"
-		></ui-button>
-	</div>
-
-	<div class="bottom"><ui-image src="navigation_interface3/bg_down.bmp"></ui-image></div>
 </div>

@@ -3542,9 +3542,11 @@ class DB {
 	 *
 	 * @param {string} query - The search query
 	 * @param {string} type - The type of search (ALL, MAP, NPC, MOB)
+	 * @param {Object} [options]
+	 * @param {boolean} [options.includeMaps] - let ALL return maps too (MAP always does)
 	 * @returns {Array} Array of search results
 	 */
-	static searchNavigation(query, type) {
+	static searchNavigation(query, type, options) {
 		if (!query || query.length < 2) {
 			return [];
 		}
@@ -3552,8 +3554,8 @@ class DB {
 		query = query.toLowerCase();
 		const results = [];
 
-		// Search maps if type is ALL or MAP
-		if (type === 'ALL' || type === 'MAP') {
+		// Search maps if type is MAP, or ALL when the caller asks for maps
+		if (type === 'MAP' || (type === 'ALL' && options && options.includeMaps)) {
 			const maps = naviList(NaviMapTable);
 			for (let i = 0; i < maps.length; i++) {
 				const entry = maps[i];

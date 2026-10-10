@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-// The Navigation window follows the official UINavigationV4Wnd: the four search
+// NavigationOfficial (opt-in via the `officialLayout` config) follows the official UINavigationV4Wnd: the four search
 // categories, a search view and a map view, a simple mode, and none of
 // roBrowser's own controls (coordinate footer, "Services" box, clickable map).
 const mocks = vi.hoisted(() => {
@@ -61,7 +61,7 @@ vi.mock('UI/UIManager.js', () => ({
 	}
 }));
 
-const { default: Navigation } = await import('UI/Components/Navigation/Navigation.js');
+const { default: Navigation } = await import('UI/Components/Navigation/NavigationOfficial.js');
 const root = () => Navigation.getRoot();
 const wnd = () => root().querySelector('.Navigation');
 
@@ -102,12 +102,15 @@ describe('Navigation window layout', () => {
 		expect(wnd().classList.contains('view-search')).toBe(true);
 	});
 
-	it('lists results, and "Set as the target" routes to the selected one', () => {
+	it('lists results, and "Set as the target" routes to the selected one', async () => {
 		root().querySelector('.combo-item[data-type="NPC"]').click();
 		expect(Navigation.getSearchType()).toBe('NPC');
 
 		root().querySelector('.search-input').value = 'kafra';
 		root().querySelector('.search-button').click();
+
+		const { default: DB } = await import('DB/DBManager.js');
+		expect(DB.searchNavigation).toHaveBeenCalledWith('kafra', 'NPC', { includeMaps: true });
 
 		const rows = root().querySelectorAll('.result-list .row');
 		expect(rows.length).toBe(2);

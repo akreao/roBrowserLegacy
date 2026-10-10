@@ -1,12 +1,7 @@
 /**
  * UI/Components/Navigation/Navigation.js
  *
- * Navigation window for NAVI links.
- *
- * Laid out as the official UINavigationV4Wnd (kRO 2020-12-29): a 272x338
- * "basic" window with a search row, then either a search view (result list,
- * preview, route info, "Set as the target") or a map view (266x266 minimap with
- * the route), and a 134x61 "simple" box that shows only the destination.
+ * Navigation window for NAVI links
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -26,6 +21,8 @@ import DB from 'DB/DBManager.js';
 import htmlText from './Navigation.html?raw';
 import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
+import NavigationOfficial from './NavigationOfficial.js';
+import { selectLayout } from 'UI/OfficialLayout.js';
 
 /**
  * Create Navigation component
@@ -33,47 +30,6 @@ import MapPathFinder from './MapPathFinder.js';
 const Navigation = new GUIComponent('Navigation', cssText);
 
 Navigation.render = () => htmlText;
-
-/**
- * Official sizes
- */
-const BASIC_WIDTH = 272;
-const BASIC_HEIGHT = 338;
-const MAP_SIZE = 266;
-const PREVIEW_SIZE = 100;
-
-/**
- * Route dot colour (vf17: 2x2 rects of 0xF0F00A)
- */
-const ROUTE_COLOR = '#f0f00a';
-
-/**
- * Warp types used for the route. "Allow zeny for guide" adds the paid services.
- */
-const WARP_TYPES = [200, 201];
-const WARP_TYPES_ZENY = [200, 201, 202, 203, 204, 205];
-
-/**
- * Search categories, in the official combo order (MsgStr 2206-2209)
- */
-const SEARCH_TYPES = [
-	{ type: 'ALL', msg: 2206, label: 'ALL' },
-	{ type: 'MAP', msg: 2207, label: 'Map' },
-	{ type: 'NPC', msg: 2208, label: 'Npc' },
-	{ type: 'MOB', msg: 2209, label: 'Mob' }
-];
-
-/**
- * List icons (UIListBox_NaviSearch::vf17)
- */
-const LIST_ICONS = {
-	MAP: 'navigation_interface3/icon_list_map.bmp',
-	NPC: 'navigation_interface3/icon_list_npc.bmp',
-	MOB: 'navigation_interface3/icon_list_mob.bmp',
-	START: 'navigation_interface3/icon_list_start.bmp',
-	ROUTE: 'navigation_interface3/icon_list_riute.bmp',
-	TARGET: 'navigation_interface3/icon_list_target.bmp'
-};
 
 /**
  * Async image create helper
@@ -84,74 +40,183 @@ function createAsyncImage() {
 	return img;
 }
 
+/**
+ * @var {Image} arrow image
+ */
+const _arrow = createAsyncImage();
+
+/**
+ * @var {Image} map information images
+ */
+const _toolDealer = createAsyncImage();
+const _weaponDealer = createAsyncImage();
+const _armorDealer = createAsyncImage();
+const _blacksmith = createAsyncImage();
+const _guide = createAsyncImage();
+const _inn = createAsyncImage();
+const _kafra = createAsyncImage();
+
+/**
+ * @var {Image} minimap image
+ */
 const _map = createAsyncImage();
-const _previewMap = createAsyncImage();
-const _icoDestination = createAsyncImage();
-const _icoLocation = createAsyncImage();
-
-let _mapCtx = null;
-let _previewCtx = null;
 
 /**
- * @var {string} 'basic' or 'simple'
+ * @var {CanvasRenderingContext2D} canvas context
  */
-let _mode = 'basic';
+let _ctx = null;
 
 /**
- * @var {string} 'search' or 'map'
+ * @var {Array} town information
  */
-let _view = 'search';
-
-let _searchType = 'ALL';
-let _results = [];
-let _selected = -1;
-let _previewData = null;
-let _allowZeny = false;
-let _checkboxOff = '';
-let _checkboxOn = '';
+let _towninfo = [];
 
 /**
- * Route state
+ * @var {Array} markers on the map
+ */
+const _markers = [];
+
+/**
+ * @var {Array} path points
  */
 let _path = [];
+
+/**
+ * @var {number} Last time the path was recalculated
+ */
 let _lastPathUpdate = 0;
+
+/**
+ * @var {number} Minimum time between path recalculations (in ms)
+ */
 const _pathUpdateThrottle = 500;
+
+/**
+ * @var {boolean} Lock for path update
+ */
 let _pathUpdateLock = false;
+
+/**
+ * @var {Worker} pathfinding worker
+ */
 let _pathFindingWorker = null;
+
+/**
+ * @var {Object} map data
+ */
 let _mapData = null;
+
+/**
+ * @var {Object} target data
+ */
 let _targetData = null;
+
+/**
+ * @var {Object} final target data
+ */
 let _finalTargetData = null;
 
 /**
- * @var {string} '', 'searching', 'found' or 'failed'
+ * @var {boolean} was target set by map click
  */
-let _routeStatus = '';
+let _isMapClickTarget = false;
 
+/**
+ * @var {boolean} blinking state for target coordinates
+ */
+let _blinking = false;
+
+/**
+ * @var {number} fade interval ID for blinking
+ */
+let _fadeInterval = null;
+
+/**
+ * @var {string} original color for blinking restore
+ */
+let _originalColor = '';
+
+/**
+ * Document click handler reference for cleanup
+ */
 let _documentClickHandler = null;
+
+/**
+ * Local utility functions
+ */
 
 /**
  * Normalize a map name (remove .gat extension)
  */
 function normalizeMapName(mapName) {
-	mapName = String(mapName || '')
-		.replace(/\.gat$/, '')
-		.toLowerCase();
+	mapName = mapName.replace(/\.gat$/, '').toLowerCase();
 	mapName = mapName.replace(/^(.+)_[a-d]$/, '$1');
 	return mapName;
 }
 
 /**
- * Project a map cell to a square minimap of `size` pixels.
- * The minimap bitmaps are square and hold the map centred on its longer side,
- * as the MiniMap window draws them.
+ * Format coordinates with consistent styling
  */
-function projectToMinimap(x, y, mapWidth, mapHeight, size) {
-	const max = Math.max(mapWidth, mapHeight) || 1;
-	const f = size / max;
-	return {
-		x: ((max - mapWidth) / 2 + x) * f,
-		y: ((max - mapHeight) / 2 + (mapHeight - y)) * f
-	};
+function formatCoordinates(x, y, options) {
+	options = options || {};
+	const shouldFloor = options.floor !== false;
+
+	if (shouldFloor) {
+		return `${Math.floor(x)},${Math.floor(y)}`;
+	}
+	return `${x},${y}`;
+}
+
+/**
+ * Format target coordinates text with consistent styling
+ */
+function formatTargetCoordinates(x, y, options) {
+	options = options || {};
+
+	let text = `${Math.floor(x)},${Math.floor(y)}`;
+
+	if (options.noPathFound) {
+		text += ' (no path found)';
+	} else if (options.targetMap && options.targetMap !== getCurrentMap()) {
+		text += ` (${options.targetMap})`;
+	}
+
+	return text;
+}
+
+/**
+ * Format location title with consistent styling
+ */
+function formatLocationTitle(currentMap, targetMap, displayName) {
+	let text;
+
+	if (!displayName && targetMap && currentMap !== targetMap) {
+		text = `[${currentMap} → ${targetMap}]`;
+	} else {
+		text = `[${displayName || currentMap}]`;
+	}
+
+	return text;
+}
+
+/**
+ * Convert map coordinates to screen coordinates
+ */
+function mapToScreen(x, y, width, height) {
+	const scaleX = width / _mapData.width;
+	const scaleY = height / _mapData.height;
+	const scale = Math.min(scaleX, scaleY);
+
+	const mapWidth = _mapData.width * scale;
+	const mapHeight = _mapData.height * scale;
+
+	const offsetX = (width - mapWidth) / 2;
+	const offsetY = (height - mapHeight) / 2;
+
+	const screenX = (x / _mapData.width) * mapWidth + offsetX;
+	const screenY = ((_mapData.height - y) / _mapData.height) * mapHeight + offsetY;
+
+	return { x: screenX, y: screenY };
 }
 
 /**
@@ -161,7 +226,6 @@ function getCurrentMap() {
 	if (MapRenderer && MapRenderer.currentMap) {
 		return normalizeMapName(MapRenderer.currentMap);
 	}
-	return '';
 }
 
 /**
@@ -171,39 +235,14 @@ function getPlayerPosition() {
 	if (!Session.Entity || !Session.Entity.position) {
 		return { x: 0, y: 0 };
 	}
-	return { x: Math.ceil(Session.Entity.position[0]), y: Math.ceil(Session.Entity.position[1]) };
+	const currentX = Math.ceil(Session.Entity.position[0]);
+	const currentY = Math.ceil(Session.Entity.position[1]);
+
+	return { x: currentX, y: currentY };
 }
 
 /**
- * Message with a fallback when the table does not have it
- */
-function msg(id, fallback) {
-	const text = DB.getMessage(id, fallback);
-	return text || fallback;
-}
-
-/**
- * Resolve a minimap bitmap path, through DB.mapalias
- */
-function minimapPath(mapName) {
-	let bmpPath = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapName + '.bmp';
-	bmpPath = bmpPath.replace(/\//g, '\\');
-	return 'data/texture/' + (DB.mapalias[bmpPath] || bmpPath);
-}
-
-/**
- * Resolve a GAT path, through DB.mapalias
- */
-function gatPath(mapName) {
-	let path = (mapName + '.gat').replace(/\//g, '\\');
-	path = DB.mapalias[path] || path;
-	return 'data/' + path;
-}
-
-const EMPTY_GIF = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
-
-/**
- * Pathfinding worker
+ * Terminate the pathfinding worker
  */
 function terminatePathFindingWorker() {
 	if (_pathFindingWorker) {
@@ -212,24 +251,35 @@ function terminatePathFindingWorker() {
 	}
 }
 
+/**
+ * Initialize the pathfinding worker
+ */
 function initializePathFindingWorker() {
-	if (_pathFindingWorker || typeof Worker === 'undefined') {
-		return;
+	if (!_pathFindingWorker) {
+		_pathFindingWorker = new Worker(new URL('./PathFindingWorker.js', import.meta.url).href);
+		_pathFindingWorker.id = new Date().getTime().toString();
+		_pathFindingWorker.onmessage = function (e) {
+			const data = e.data;
+			switch (data.type) {
+				case 'pathResult':
+					_pathUpdateLock = false;
+					if (_finalTargetData && data.path && data.workerId === _pathFindingWorker.id) {
+						const mapName = getCurrentMap();
+						_path = data.path;
+						if (_path.length > 0) {
+							this.updateTargetText();
+							this.setTargetCoordinatesBlinking(false);
+							this.setLocationTitle(mapName, _finalTargetData.map, _finalTargetData.displayName);
+						} else {
+							this.updateTargetText(true);
+							this.setTargetCoordinatesBlinking(false);
+							this.setLocationTitle(mapName, null);
+						}
+					}
+					break;
+			}
+		}.bind(Navigation);
 	}
-	_pathFindingWorker = new Worker(new URL('./PathFindingWorker.js', import.meta.url).href);
-	_pathFindingWorker.id = new Date().getTime().toString();
-	_pathFindingWorker.onmessage = function onmessage(e) {
-		const data = e.data;
-		if (data.type !== 'pathResult') {
-			return;
-		}
-		_pathUpdateLock = false;
-		if (_finalTargetData && data.path && _pathFindingWorker && data.workerId === _pathFindingWorker.id) {
-			_path = data.path;
-			_routeStatus = _path.length > 0 ? 'found' : 'failed';
-			Navigation.updateTargetText();
-		}
-	};
 }
 
 function resetPathFindingWorker() {
@@ -238,112 +288,120 @@ function resetPathFindingWorker() {
 }
 
 /**
+ * Convert screen coordinates to map coordinates
+ */
+Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, screenY) {
+	const width = 280;
+	const height = 230;
+
+	const scaleX = width / _mapData.width;
+	const scaleY = height / _mapData.height;
+	const scale = Math.min(scaleX, scaleY);
+
+	const scaledMapWidth = _mapData.width * scale;
+	const scaledMapHeight = _mapData.height * scale;
+
+	const offsetX = (width - scaledMapWidth) / 2;
+	const offsetY = (height - scaledMapHeight) / 2;
+
+	let mapX = ((screenX - offsetX) / scaledMapWidth) * _mapData.width;
+	let mapY = _mapData.height - ((screenY - offsetY) / scaledMapHeight) * _mapData.height;
+
+	mapX = Math.max(0, Math.min(_mapData.width, mapX));
+	mapY = Math.max(0, Math.min(_mapData.height, mapY));
+
+	return { x: Math.floor(mapX), y: Math.floor(mapY) };
+};
+
+/**
  * Initialize component
  */
 Navigation.init = function init() {
-	const root = this.getRoot();
+	const root = Navigation.getRoot();
 
 	_mapData = {
 		walkableType: Altitude.TYPE.WALKABLE
 	};
 
-	this._host.style.top = `${Math.max(0, Math.min(Renderer.height - BASIC_HEIGHT, 200))}px`;
-	this._host.style.left = `${Math.max(0, Math.min(Renderer.width - BASIC_WIDTH, 200))}px`;
+	this._host.style.top = `${Math.max(0, Math.min(Renderer.height - 300, 200))}px`;
+	this._host.style.left = `${Math.max(0, Math.min(Renderer.width - 300, 200))}px`;
 
-	const mapCanvas = root.querySelector('.map-canvas');
-	_mapCtx = mapCanvas && mapCanvas.getContext ? mapCanvas.getContext('2d') : null;
-	const previewCanvas = root.querySelector('.preview-canvas');
-	_previewCtx = previewCanvas && previewCanvas.getContext ? previewCanvas.getContext('2d') : null;
+	// Get canvas context
+	const canvas = document.createElement('canvas');
+	canvas.width = 280;
+	canvas.height = 230;
+	_ctx = canvas.getContext('2d');
+	const mapDisplay = root.querySelector('.map-display');
+	if (mapDisplay) {
+		mapDisplay.appendChild(canvas);
+	}
 
-	Client.loadFile(`${DB.INTERFACE_PATH}navigation_interface3/ico_destination.bmp`, dataURI => {
-		_icoDestination.src = dataURI;
-	});
-	Client.loadFile(`${DB.INTERFACE_PATH}navigation_interface3/ico_location.bmp`, dataURI => {
-		_icoLocation.src = dataURI;
-	});
-	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_0.bmp`, dataURI => {
-		_checkboxOff = dataURI;
-		this.updateZenyBox();
-	});
-	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_1.bmp`, dataURI => {
-		_checkboxOn = dataURI;
-		this.updateZenyBox();
+	// Load arrow image
+	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, dataURI => {
+		_arrow.src = dataURI;
 	});
 
-	// Tooltips (the official buttons carry these MsgStr ids)
-	const tooltips = {
-		'.btn-close': [3045, 'Close'],
-		'.btn-simple-close': [3045, 'Close'],
-		'.btn-mini': [2204, 'Change to simple UI'],
-		'.btn-simple-max': [2203, 'Change to basic UI'],
-		'.btn-back': [3208, 'Search&Info'],
-		'.search-button': [2196, 'Search'],
-		'.btn-target': [2197, 'Set as the target']
-	};
-	Object.keys(tooltips).forEach(selector => {
-		const el = root.querySelector(selector);
-		if (el) {
-			el.title = msg(tooltips[selector][0], tooltips[selector][1]);
-		}
+	// Load town info icons
+	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, dataURI => {
+		_toolDealer.src = dataURI;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, dataURI => {
+		_weaponDealer.src = dataURI;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, dataURI => {
+		_armorDealer.src = dataURI;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, dataURI => {
+		_blacksmith.src = dataURI;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, dataURI => {
+		_guide.src = dataURI;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, dataURI => {
+		_inn.src = dataURI;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, dataURI => {
+		_kafra.src = dataURI;
 	});
 
-	// Title bar
-	root.querySelector('.btn-close').addEventListener('click', () => this.hide());
-	root.querySelector('.btn-mini').addEventListener('click', () => this.setMode('simple'));
-	root.querySelector('.btn-simple-max').addEventListener('click', () => this.setMode('basic'));
-	root.querySelector('.btn-simple-close').addEventListener('click', () => this.onSimpleClose());
-
-	// Search row
-	root.querySelector('.btn-back').addEventListener('click', () => {
-		this.setView(_view === 'search' ? 'map' : 'search');
-	});
+	// Bind events
+	root.querySelector('.close').addEventListener('click', () => this.hide());
 	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
 
 	const searchInput = root.querySelector('.search-input');
-	searchInput.addEventListener('keydown', e => {
+	searchInput.addEventListener('keypress', e => {
 		if (e.which === KEYS.ENTER || e.key === 'Enter') {
-			e.preventDefault();
-			e.stopPropagation();
 			this.onSearch();
 		}
 	});
 
-	// Category combo
-	const combo = root.querySelector('.combo');
-	combo.addEventListener('click', e => {
-		const item = e.target.closest('.combo-item');
-		if (item) {
-			this.setSearchType(item.dataset.type);
-			combo.classList.remove('open');
-			return;
+	// Focus handling for search input
+	searchInput.addEventListener('focus', () => {
+		const resultsContainer = root.querySelector('.search-results');
+		if (resultsContainer && resultsContainer.children.length > 0) {
+			resultsContainer.style.display = '';
 		}
-		combo.classList.toggle('open');
 	});
+
+	// Hide search results when clicking outside (on document level)
 	_documentClickHandler = e => {
-		const path = typeof e.composedPath === 'function' ? e.composedPath() : [];
-		if (path.indexOf(combo) === -1) {
-			combo.classList.remove('open');
+		if (!e.target.closest('.search-results, .search-input, .search-button, .search-type')) {
+			const resultsContainer = root.querySelector('.search-results');
+			if (resultsContainer) {
+				resultsContainer.style.display = 'none';
+			}
 		}
 	};
+	document.addEventListener('click', _documentClickHandler);
 
-	// Search view
-	root.querySelector('.result-list').addEventListener('click', e => {
-		const row = e.target.closest('.row');
-		if (row) {
-			this.selectResult(Number(row.dataset.index));
-		}
-	});
-	root.querySelector('.zeny-toggle').addEventListener('click', () => {
-		_allowZeny = !_allowZeny;
-		this.updateZenyBox();
-		if (_selected > -1) {
-			this.updateRouteInfo();
-		}
-	});
-	root.querySelector('.btn-target').addEventListener('click', () => this.onSetTarget());
+	// Map click event for navigation
+	root.querySelector('.map-display').addEventListener('click', e => this.onMapClick(e));
 
-	this.setSearchType(_searchType);
-	this.updateTargetButton();
+	// Mouse move event for displaying coordinates
+	root.querySelector('.map-display').addEventListener('mousemove', e => this.onMapMouseMove(e));
+
+	// Mouse leave event to reset coordinates display
+	root.querySelector('.map-display').addEventListener('mouseleave', () => this.onMapMouseLeave());
 
 	this.draggable('.titlebar');
 
@@ -355,23 +413,31 @@ Navigation.init = function init() {
  * Once append to the DOM
  */
 Navigation.onAppend = function onAppend() {
+	// Clear path for clean render
 	this.clearPath();
 
-	Renderer.render(renderFrame);
+	// Start rendering
+	Renderer.render(this.renderCanvas.bind(this));
 
+	// Initialize pathfinding worker
 	initializePathFindingWorker();
 
-	if (_documentClickHandler) {
-		document.addEventListener('click', _documentClickHandler);
-	}
-
+	// Load the current map after initializing the worker
 	const mapName = getCurrentMap();
 	this.loadMap(mapName);
 
 	if (_finalTargetData) {
-		this.reroute();
+		const currentPos = getPlayerPosition();
+		this.navigateTo({
+			startMap: mapName,
+			startX: currentPos.x,
+			startY: currentPos.y,
+			endMap: _finalTargetData.map,
+			endX: _finalTargetData.x,
+			endY: _finalTargetData.y,
+			displayName: _finalTargetData.displayName
+		});
 	}
-	this.applyLayout();
 };
 
 /**
@@ -380,284 +446,86 @@ Navigation.onAppend = function onAppend() {
 Navigation.onRemove = function onRemove() {
 	this.clearPath();
 	terminatePathFindingWorker();
-	if (Renderer.stop) {
-		Renderer.stop(renderFrame);
-	}
+
+	// Clean up document-level event listener
 	if (_documentClickHandler) {
 		document.removeEventListener('click', _documentClickHandler);
 	}
 };
 
 /**
- * Switch between the basic window and the simple box
- */
-Navigation.setMode = function setMode(mode) {
-	_mode = mode === 'simple' ? 'simple' : 'basic';
-	this.applyLayout();
-};
-
-/**
- * Switch the basic window between the search view and the map view
- */
-Navigation.setView = function setView(view) {
-	_view = view === 'map' ? 'map' : 'search';
-	this.applyLayout();
-};
-
-Navigation.getMode = function getMode() {
-	return _mode;
-};
-
-Navigation.getView = function getView() {
-	return _view;
-};
-
-Navigation.applyLayout = function applyLayout() {
-	const root = this.getRoot();
-	const wnd = root && root.querySelector('.Navigation');
-	if (!wnd) {
-		return;
-	}
-	wnd.classList.toggle('simple', _mode === 'simple');
-	wnd.classList.toggle('basic', _mode !== 'simple');
-	wnd.classList.toggle('view-map', _view === 'map');
-	wnd.classList.toggle('view-search', _view !== 'map');
-	this.updateTargetText();
-};
-
-/**
- * Simple mode close button: while a route is shown, ask before ending it (MsgStr 2239)
- */
-Navigation.onSimpleClose = function onSimpleClose() {
-	if (_finalTargetData) {
-		UIManager.showPromptBox(msg(2239, 'Still informing! Would you like to quit?'), 'ok', 'cancel', () => {
-			this.clear();
-			_view = 'search';
-			this.applyLayout();
-		});
-		return;
-	}
-	_mode = 'basic';
-	this.applyLayout();
-	this.hide();
-};
-
-/**
- * Category combo
- */
-Navigation.setSearchType = function setSearchType(type) {
-	const entry = SEARCH_TYPES.find(t => t.type === type) || SEARCH_TYPES[0];
-	_searchType = entry.type;
-	const text = this.getRoot().querySelector('.combo-text');
-	if (text) {
-		text.textContent = msg(entry.msg, entry.label);
-	}
-};
-
-Navigation.getSearchType = function getSearchType() {
-	return _searchType;
-};
-
-/**
- * "Allow zeny for guide" checkbox
- */
-Navigation.updateZenyBox = function updateZenyBox() {
-	const box = this.getRoot().querySelector('.zeny-box');
-	if (!box) {
-		return;
-	}
-	const uri = _allowZeny ? _checkboxOn : _checkboxOff;
-	box.style.backgroundImage = uri ? `url(${uri})` : '';
-	box.classList.toggle('on', _allowZeny);
-};
-
-/**
  * Handle search button click
  */
 Navigation.onSearch = function onSearch() {
-	const root = this.getRoot();
+	const root = Navigation.getRoot();
 	const query = root.querySelector('.search-input').value.trim();
+	const type = root.querySelector('.search-type').value;
 
 	if (query.length < 2) {
 		return;
 	}
 
-	const results = DB.searchNavigation(query, _searchType) || [];
+	// Search for NPCs and MOBs
+	const results = DB.searchNavigation(query, type);
+
+	// Display search results
 	this.displaySearchResults(results);
-	this.setView('search');
 };
 
 /**
- * Fill the result list
+ * Display search results
  */
 Navigation.displaySearchResults = function displaySearchResults(results) {
-	const root = this.getRoot();
-	const list = root.querySelector('.result-list');
+	const root = Navigation.getRoot();
 
-	_results = results;
-	_selected = -1;
-	_previewData = null;
-	list.innerHTML = '';
+	// Get or create results container
+	let resultsContainer = root.querySelector('.search-results');
+	if (!resultsContainer) {
+		resultsContainer = document.createElement('div');
+		resultsContainer.className = 'search-results';
+		root.querySelector('.content').appendChild(resultsContainer);
+	} else {
+		resultsContainer.innerHTML = '';
+	}
 
+	// If no results, show a message
+	if (results.length === 0) {
+		resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+		resultsContainer.style.display = '';
+		return;
+	}
+
+	// Create results list
+	const resultsList = document.createElement('ul');
+	resultsList.className = 'results-list';
+	resultsContainer.appendChild(resultsList);
+
+	// Add each result to the list
 	for (let i = 0; i < results.length; i++) {
-		const row = createRow(LIST_ICONS[results[i].type], results[i].name);
-		row.dataset.index = String(i);
-		row.title = results[i].mapName || '';
-		list.appendChild(row);
+		const result = results[i];
+		const resultItem = document.createElement('li');
+		resultItem.className = 'result-item';
+
+		// Add type icon (NPC or MOB)
+		const typeIcon = result.type === 'NPC' ? 'npc_icon' : 'mob_icon';
+		resultItem.innerHTML =
+			`<span class="result-type ${typeIcon}">${result.type}</span>` +
+			`<span class="result-name">${result.name}</span>` +
+			`<span class="result-map">${result.mapName}</span>`;
+
+		// Store result data
+		resultItem._resultData = result;
+
+		// Add click handler
+		resultItem.addEventListener('click', () => {
+			this.navigateToSearchResult(result);
+		});
+
+		resultsList.appendChild(resultItem);
 	}
 
-	const count = root.querySelector('.result-count');
-	if (count) {
-		count.textContent = msg(3210, 'Result[%d]').replace('%d', results.length);
-	}
-
-	root.querySelector('.info-list').innerHTML = '';
-	this.updateTargetButton();
-	this.renderPreview();
-};
-
-/**
- * Build a list row: icon then text
- */
-function createRow(icon, text) {
-	const row = document.createElement('div');
-	row.className = 'row';
-	if (icon) {
-		const iconEl = document.createElement('div');
-		iconEl.className = 'icon';
-		const img = document.createElement('ui-image');
-		img.setAttribute('src', icon);
-		iconEl.appendChild(img);
-		row.appendChild(iconEl);
-	}
-	row.appendChild(document.createTextNode(text || ''));
-	return row;
-}
-
-/**
- * Select a result: highlight it, show its map and the route to it
- */
-Navigation.selectResult = function selectResult(index) {
-	if (!_results[index]) {
-		return;
-	}
-	_selected = index;
-
-	const rows = this.getRoot().querySelectorAll('.result-list .row');
-	rows.forEach(row => row.classList.toggle('selected', Number(row.dataset.index) === index));
-
-	this.updateTargetButton();
-	this.updateRouteInfo();
-	this.loadPreview(_results[index]);
-};
-
-Navigation.getSelectedResult = function getSelectedResult() {
-	return _results[_selected] || null;
-};
-
-Navigation.updateTargetButton = function updateTargetButton() {
-	const button = this.getRoot().querySelector('.btn-target');
-	if (button) {
-		button.toggleAttribute('disabled', _selected < 0);
-	}
-};
-
-/**
- * Route information list: start, the maps on the way, target
- */
-Navigation.updateRouteInfo = function updateRouteInfo() {
-	const info = this.getRoot().querySelector('.info-list');
-	const result = _results[_selected];
-	info.innerHTML = '';
-	if (!result) {
-		return;
-	}
-
-	const currentMap = getCurrentMap();
-	const pos = getPlayerPosition();
-	info.appendChild(createRow(LIST_ICONS.START, `${currentMap} (${pos.x}, ${pos.y})`));
-
-	const endMap = normalizeMapName(result.mapName);
-	const route = MapPathFinder.findPathBetweenMaps(
-		currentMap,
-		pos.x,
-		pos.y,
-		endMap,
-		result.x,
-		result.y,
-		_allowZeny ? WARP_TYPES_ZENY : WARP_TYPES
-	);
-
-	if (route && route.length > 1) {
-		for (let i = 0; i < route.length - 1; i++) {
-			info.appendChild(createRow(LIST_ICONS.ROUTE, `${route[i].map} (${route[i].x}, ${route[i].y})`));
-		}
-	}
-
-	let target = `${result.name}`;
-	if (result.x !== null && result.x !== undefined) {
-		target += ` ${endMap} (${result.x}, ${result.y})`;
-	} else if (result.type !== 'MAP') {
-		target += ` ${endMap}`;
-	}
-	info.appendChild(createRow(LIST_ICONS.TARGET, target));
-};
-
-/**
- * Preview: the selected result's map with its destination
- */
-Navigation.loadPreview = function loadPreview(result) {
-	const mapName = normalizeMapName(result.mapName);
-	_previewData = { map: mapName, x: result.x, y: result.y, width: 0, height: 0 };
-	const data = _previewData;
-
-	_previewMap.onload = () => this.renderPreview();
-	Client.loadFile(minimapPath(mapName), dataURI => {
-		if (_previewData === data) {
-			_previewMap.src = dataURI || EMPTY_GIF;
-		}
-	});
-	Client.loadFile(gatPath(mapName), gat => {
-		if (_previewData === data && gat && gat.width && gat.height) {
-			data.width = gat.width;
-			data.height = gat.height;
-			this.renderPreview();
-		}
-	});
-	this.renderPreview();
-};
-
-Navigation.renderPreview = function renderPreview() {
-	const ctx = _previewCtx;
-	if (!ctx) {
-		return;
-	}
-	ctx.clearRect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
-	if (!_previewData) {
-		return;
-	}
-	ctx.fillStyle = '#000';
-	ctx.fillRect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
-	if (_previewMap.complete && _previewMap.width) {
-		ctx.drawImage(_previewMap, 0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
-	}
-	const d = _previewData;
-	if (d.width && d.x !== null && d.x !== undefined && _icoDestination.complete && _icoDestination.width) {
-		const p = projectToMinimap(d.x, d.y, d.width, d.height, PREVIEW_SIZE);
-		ctx.drawImage(_icoDestination, Math.round(p.x - 8), Math.round(p.y - 21));
-	}
-};
-
-/**
- * "Set as the target": start the route to the selected result and show the map
- */
-Navigation.onSetTarget = function onSetTarget() {
-	const result = _results[_selected];
-	if (!result) {
-		return;
-	}
-	this.navigateToSearchResult(result);
-	this.setView('map');
+	// Show the results container
+	resultsContainer.style.display = '';
 };
 
 /**
@@ -669,11 +537,13 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
 	}
 
 	this.targetResult = result;
+	_isMapClickTarget = false;
 
+	const currentMap = getCurrentMap();
 	const currentPos = getPlayerPosition();
 
 	this.navigateTo({
-		startMap: getCurrentMap(),
+		startMap: currentMap,
 		startX: currentPos.x,
 		startY: currentPos.y,
 		endMap: result.mapName,
@@ -681,17 +551,24 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
 		endY: result.y,
 		displayName: result.name
 	});
+
+	// Hide the search results
+	const root = Navigation.getRoot();
+	const resultsContainer = root.querySelector('.search-results');
+	if (resultsContainer) {
+		resultsContainer.style.display = 'none';
+	}
 };
 
 /**
  * Find the closest walkable cell to the given coordinates
  */
 Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxRadius) {
-	if (!_mapData || !_mapData.cellTypes) {
-		return null;
-	}
 	if (x >= 0 && x < _mapData.width && y >= 0 && y < _mapData.height) {
-		if (_mapData.cellTypes[x + y * _mapData.width] & _mapData.walkableType) {
+		const index = x + y * _mapData.width;
+		const cellType = _mapData.cellTypes[index];
+
+		if (cellType & _mapData.walkableType) {
 			return { x: x, y: y };
 		}
 	}
@@ -712,7 +589,10 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
 				const cy = y + offsetY;
 
 				if (cx >= 0 && cx < _mapData.width && cy >= 0 && cy < _mapData.height) {
-					if (_mapData.cellTypes[cx + cy * _mapData.width] & _mapData.walkableType) {
+					const index = cx + cy * _mapData.width;
+					const cellType = _mapData.cellTypes[index];
+
+					if (cellType & _mapData.walkableType) {
 						const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 						if (distance < bestDistance) {
 							bestDistance = distance;
@@ -734,46 +614,112 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
 };
 
 /**
- * Load a map for display and pathfinding
+ * Handle map click event
  */
-Navigation.loadMap = function loadMap(mapName) {
-	const mapBaseName = normalizeMapName(mapName).replace(/\..*/, '');
-	if (!mapBaseName) {
-		return;
-	}
+Navigation.onMapClick = function onMapClick(event) {
+	const root = Navigation.getRoot();
+	const mapDisplay = root.querySelector('.map-display');
+	const rect = mapDisplay.getBoundingClientRect();
+	const x = Math.floor(event.clientX - rect.left);
+	const y = Math.floor(event.clientY - rect.top);
 
-	Client.loadFile(minimapPath(mapBaseName), dataURI => {
-		_map.src = dataURI || EMPTY_GIF;
-	});
+	const mapCoords = this.screenToMapCoordinates(x, y);
 
-	Client.loadFile(gatPath(mapBaseName), gatData => {
-		if (gatData && gatData.cells && gatData.width && gatData.height) {
-			_mapData.width = gatData.width;
-			_mapData.height = gatData.height;
-			_mapData.cells = gatData.cells;
+	const currentMap = getCurrentMap();
+	const currentPos = getPlayerPosition();
 
-			const cellCount = gatData.width * gatData.height;
-			const cellTypes = new Uint8Array(cellCount);
+	_isMapClickTarget = true;
 
-			for (let i = 0; i < cellCount; i++) {
-				cellTypes[i] = gatData.cells[i * 5 + 4];
-			}
-
-			_mapData.cellTypes = cellTypes;
-			_mapData.map = mapBaseName;
-		}
+	this.navigateTo({
+		startMap: currentMap,
+		startX: currentPos.x,
+		startY: currentPos.y,
+		endMap: currentMap,
+		endX: mapCoords.x,
+		endY: mapCoords.y,
+		displayName: 'Map Click'
 	});
 };
 
 /**
- * End the route
+ * Load a map for display
+ */
+Navigation.loadMap = function loadMap(mapName, displayName) {
+	if (_isMapClickTarget && _mapData && _mapData.map && _mapData.map !== mapName) {
+		this.clear();
+		_isMapClickTarget = false;
+	}
+
+	const mapBaseName = mapName.replace(/\..*/, '');
+
+	// Load town info
+	_towninfo = DB.getTownInfo(mapBaseName) || [];
+
+	// Get the correct map path using DB.mapalias
+	let bmpPath = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapBaseName + '.bmp';
+	bmpPath = bmpPath.replace(/\//g, '\\');
+	bmpPath = DB.mapalias[bmpPath] || bmpPath;
+
+	// Load the map image
+	Client.loadFile('data/texture/' + bmpPath, dataURI => {
+		if (dataURI) {
+			_map.src = dataURI;
+		} else {
+			_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+		}
+	});
+
+	// Get the correct map path using DB.mapalias
+	let gatPath = mapBaseName + '.gat';
+	gatPath = gatPath.replace(/\//g, '\\');
+	gatPath = DB.mapalias[gatPath] || gatPath;
+
+	// Load the GAT file for pathfinding
+	Client.loadFile('data/' + gatPath, gatData => {
+		if (gatData) {
+			if (gatData.cells && gatData.width && gatData.height) {
+				_mapData.width = gatData.width;
+				_mapData.height = gatData.height;
+				_mapData.cells = gatData.cells;
+
+				const cellCount = gatData.width * gatData.height;
+				const cellTypes = new Uint8Array(cellCount);
+
+				for (let i = 0; i < cellCount; i++) {
+					const cellIndex = i * 5 + 4;
+					cellTypes[i] = gatData.cells[cellIndex];
+				}
+
+				_mapData.cellTypes = cellTypes;
+				_mapData.map = mapBaseName;
+			}
+		}
+	});
+
+	this.setMapNameText(mapName);
+};
+
+/**
+ * Clear the end marker
  */
 Navigation.clear = function clear() {
 	this.clearPath();
 	_finalTargetData = null;
 	_targetData = null;
-	_routeStatus = '';
-	this.updateTargetText();
+	_isMapClickTarget = false;
+
+	// Hide the target coordinates display
+	const root = Navigation.getRoot();
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'none';
+	}
+
+	// Update location title with current map name
+	const currentMap = getCurrentMap();
+	if (currentMap) {
+		this.setLocationTitle(currentMap, null);
+	}
 };
 
 Navigation.clearPath = function clearPath() {
@@ -783,182 +729,394 @@ Navigation.clearPath = function clearPath() {
 };
 
 /**
- * Re-run the route from the player's current position
+ * Add a marker to the map
  */
-Navigation.reroute = function reroute() {
-	if (!_finalTargetData) {
-		return;
-	}
-	const pos = getPlayerPosition();
-	this.navigateTo({
-		startMap: getCurrentMap(),
-		startX: pos.x,
-		startY: pos.y,
-		endMap: _finalTargetData.map,
-		endX: _finalTargetData.x,
-		endY: _finalTargetData.y,
-		displayName: _finalTargetData.displayName
+Navigation.addMarker = function addMarker(x, y, color, label) {
+	_markers.push({
+		x: x,
+		y: y,
+		color: color || 'rgb(255,0,0)',
+		label: label || ''
 	});
 };
 
 /**
- * Per-frame update: keep the route current and draw the map view
+ * Render the map and markers
  */
-function renderFrame(tick) {
-	const host = Navigation._host;
-	if (!host || getComputedStyle(host).display === 'none') {
+Navigation.renderCanvas = function renderCanvas(tick) {
+	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+	if (hostDisplay === 'none') {
 		return;
 	}
 
-	if (_finalTargetData && tick - _lastPathUpdate > _pathUpdateThrottle && !_pathUpdateLock) {
-		Navigation.reroute();
-		_lastPathUpdate = tick;
-	}
+	const width = 280;
+	const height = 230;
+	const ctx = _ctx;
 
-	if (_mode === 'basic' && _view === 'map') {
-		Navigation.renderCanvas();
-	}
-}
-
-/**
- * Draw the minimap, the route, the destination and the player
- */
-Navigation.renderCanvas = function renderCanvas() {
-	const ctx = _mapCtx;
 	if (!ctx) {
 		return;
 	}
 
+	// Check if player position has changed
+	const currentMap = getCurrentMap();
+	const currentPos = getPlayerPosition();
+	if (_finalTargetData && tick - _lastPathUpdate > _pathUpdateThrottle && !_pathUpdateLock) {
+		this.navigateTo({
+			startMap: currentMap,
+			startX: currentPos.x,
+			startY: currentPos.y,
+			endMap: _finalTargetData.map,
+			endX: _finalTargetData.x,
+			endY: _finalTargetData.y,
+			displayName: _finalTargetData.displayName
+		});
+		_lastPathUpdate = tick;
+	}
+
+	// Clear canvas
+	ctx.clearRect(0, 0, width, height);
+
+	// Draw map background
 	ctx.fillStyle = '#000';
-	ctx.fillRect(0, 0, MAP_SIZE, MAP_SIZE);
+	ctx.fillRect(0, 0, width, height);
 
+	// Draw the map image if loaded
 	if (_map.complete && _map.width) {
-		ctx.drawImage(_map, 0, 0, MAP_SIZE, MAP_SIZE);
+		const scaleX = width / _mapData.width;
+		const scaleY = height / _mapData.height;
+		const scale = Math.min(scaleX, scaleY);
+
+		ctx.save();
+		ctx.translate(width / 2, height / 2);
+		ctx.scale(scale, scale);
+		ctx.translate(-_mapData.width / 2, -_mapData.height / 2);
+		ctx.drawImage(_map, 0, 0, _mapData.width, _mapData.height);
+		ctx.restore();
 	}
 
-	if (!_mapData || !_mapData.width || _mapData.map !== getCurrentMap()) {
-		return;
-	}
+	const mapToScreenBound = (x, y) => {
+		return mapToScreen(x, y, width, height);
+	};
 
-	const project = (x, y) => projectToMinimap(x, y, _mapData.width, _mapData.height, MAP_SIZE);
+	// Draw town info icons
+	if (_towninfo && _towninfo.length) {
+		for (let i = 0; i < _towninfo.length; i++) {
+			const info = _towninfo[i];
+			const pos = mapToScreenBound(info.X, info.Y);
 
-	// Route
-	if (_path && _path.length) {
-		ctx.fillStyle = ROUTE_COLOR;
-		for (let i = 0; i < _path.length; i++) {
-			const p = project(_path[i].x, _path[i].y);
-			ctx.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2);
+			let img;
+			switch (info.Type) {
+				case 0:
+					img = _toolDealer;
+					break;
+				case 1:
+					img = _weaponDealer;
+					break;
+				case 2:
+					img = _armorDealer;
+					break;
+				case 3:
+					img = _blacksmith;
+					break;
+				case 4:
+					img = _guide;
+					break;
+				case 5:
+					img = _inn;
+					break;
+				case 6:
+					img = _kafra;
+					break;
+				default:
+					continue;
+			}
+
+			if (img.complete && img.width) {
+				ctx.drawImage(img, pos.x - img.width / 2, pos.y - img.height / 2);
+			}
 		}
 	}
 
-	// Destination on this map (bitmap anchored at its bottom point: -8, -21)
-	if (_targetData && _icoDestination.complete && _icoDestination.width) {
-		const p = project(_targetData.x, _targetData.y);
-		ctx.drawImage(_icoDestination, Math.round(p.x - 8), Math.round(p.y - 21));
+	// Draw the path
+	if (_path && _path.length > 0) {
+		ctx.lineWidth = 2;
+
+		let currentSegment = [];
+		for (let i = 0; i < _path.length; i++) {
+			const point = _path[i];
+			const pos = mapToScreenBound(point.x, point.y);
+
+			if (currentSegment.length === 0) {
+				currentSegment.push(pos);
+				continue;
+			}
+
+			if (point.isWarp || i === _path.length - 1) {
+				currentSegment.push(pos);
+
+				ctx.strokeStyle = 'cyan';
+				ctx.beginPath();
+				ctx.moveTo(currentSegment[0].x, currentSegment[0].y);
+				for (let j = 1; j < currentSegment.length; j++) {
+					ctx.lineTo(currentSegment[j].x, currentSegment[j].y);
+				}
+				ctx.stroke();
+
+				if (point.isWarp) {
+					ctx.beginPath();
+					ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+					ctx.fillStyle = 'yellow';
+					ctx.fill();
+
+					if (i + 1 < _path.length) {
+						const exitPos = mapToScreenBound(_path[i + 1].x, _path[i + 1].y);
+
+						ctx.beginPath();
+						ctx.arc(exitPos.x, exitPos.y, 3, 0, Math.PI * 2);
+						ctx.fillStyle = 'yellow';
+						ctx.fill();
+
+						currentSegment = [exitPos];
+						i++;
+					} else {
+						currentSegment = [pos];
+					}
+				} else {
+					currentSegment = [pos];
+				}
+			} else {
+				currentSegment.push(pos);
+			}
+		}
 	}
 
-	// Player
-	if (_icoLocation.complete && _icoLocation.width) {
-		const pos = getPlayerPosition();
-		const p = project(pos.x, pos.y);
-		ctx.drawImage(_icoLocation, Math.round(p.x - _icoLocation.width / 2), Math.round(p.y - _icoLocation.height));
+	// Draw end marker (target position)
+	if (_targetData) {
+		const lastPoint = mapToScreenBound(_targetData.x, _targetData.y);
+		ctx.fillStyle = 'red';
+		ctx.beginPath();
+		ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
+		ctx.fill();
+	}
+
+	// Draw start marker (player position)
+	const startPos = mapToScreenBound(currentPos.x, currentPos.y);
+	if (_arrow.complete && _arrow.width) {
+		ctx.save();
+		ctx.translate(startPos.x, startPos.y);
+		ctx.rotate(((Session.Entity.direction + 4) * 45 * Math.PI) / 180);
+		ctx.drawImage(_arrow, -_arrow.width / 2, -_arrow.height / 2);
+		ctx.restore();
+	}
+
+	// Draw custom markers
+	for (let i = 0; i < _markers.length; i++) {
+		const marker = _markers[i];
+		const pos = mapToScreenBound(marker.x, marker.y);
+
+		ctx.fillStyle = marker.color;
+		ctx.beginPath();
+		ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+		ctx.fill();
+
+		if (marker.label) {
+			ctx.fillStyle = '#fff';
+			ctx.font = '10px Arial';
+			ctx.fillText(marker.label, pos.x + 5, pos.y + 3);
+		}
 	}
 };
 
 /**
- * Destination text: the map view's lines, and the simple box's
+ * Update the target coordinates text
  */
-Navigation.updateTargetText = function updateTargetText() {
-	const root = this.getRoot();
+Navigation.updateTargetText = function updateTargetText(noPathFound) {
+	const root = Navigation.getRoot();
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'flex';
+	}
+
+	if (_finalTargetData) {
+		this.setTargetCoordinatesText(_finalTargetData.x, _finalTargetData.y, {
+			noPathFound: noPathFound,
+			targetMap: _finalTargetData.map
+		});
+	}
+};
+
+/**
+ * Set target coordinates text with proper formatting
+ */
+Navigation.setTargetCoordinatesText = function setTargetCoordinatesText(x, y, options) {
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
 
-	let line1 = '';
-	let line2 = '';
-	let status = '';
+	const text = formatTargetCoordinates(x, y, options);
+	const targetCoords = root.querySelector('.target-coordinates');
+	if (targetCoords) {
+		targetCoords.textContent = text;
+		targetCoords.style.display = '';
+	}
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'flex';
+	}
+};
 
-	if (_finalTargetData) {
-		line1 = _finalTargetData.displayName || _finalTargetData.map;
-		line2 = _finalTargetData.map;
-		if (_finalTargetData.x !== null && _finalTargetData.x !== undefined) {
-			line2 += ` (${_finalTargetData.x}, ${_finalTargetData.y})`;
-		}
-		if (_routeStatus === 'found') {
-			status = msg(2218, '<< Informing >>');
-		} else if (_routeStatus === 'failed') {
-			status = msg(3209, 'Location is not available');
-		} else {
-			status = msg(2219, '<< Searching... >>');
-		}
+Navigation.setTargetCoordinatesBlinking = function setTargetCoordinatesBlinking(blinking) {
+	const root = Navigation.getRoot();
+	if (!root) {
+		return;
 	}
 
-	const set = (selector, text) => {
-		const el = root.querySelector(selector);
-		if (el) {
-			el.textContent = text;
-		}
-	};
-	set('.map-line1', line1);
-	set('.map-line2', line2);
-	set('.map-status', status);
-	set('.simple-line1', line1);
-	set('.simple-line2', line2);
+	const targetCoordinates = root.querySelector('.target-coordinates');
+	if (!targetCoordinates) {
+		return;
+	}
 
-	const body = root.querySelector('.simple-body');
-	if (body) {
-		body.classList.toggle('has-target', !!_finalTargetData);
+	if (blinking) {
+		if (!_blinking) {
+			_blinking = true;
+			_originalColor = getComputedStyle(targetCoordinates).color || '#ffffff';
+
+			let fadeStep = 0;
+			let fadeDirection = -1;
+			_fadeInterval = setInterval(() => {
+				fadeStep += fadeDirection * 0.1;
+
+				if (fadeStep <= 0.3) {
+					fadeDirection = 1;
+				} else if (fadeStep >= 1) {
+					fadeDirection = -1;
+				}
+
+				targetCoordinates.style.opacity = fadeStep;
+			}, 50);
+		}
+	} else {
+		if (_blinking) {
+			clearInterval(_fadeInterval);
+			_fadeInterval = null;
+			targetCoordinates.style.opacity = '1';
+			targetCoordinates.style.color = _originalColor;
+			_blinking = false;
+		}
 	}
 };
 
 /**
- * Find a path between two points on the current map using a web worker
+ * Set location title with proper formatting
  */
-Navigation.findPath = function findPath(startX, startY, endX, endY) {
-	if (!_pathFindingWorker || _pathUpdateLock) {
+Navigation.setLocationTitle = function setLocationTitle(currentMap, targetMap, displayName) {
+	const root = Navigation.getRoot();
+	if (!root) {
 		return;
 	}
-	_pathUpdateLock = true;
 
-	const naviLinkTable = DB.getNaviLinkTable();
-	const currentMap = getCurrentMap();
-	const warps = [];
+	const title = formatLocationTitle(currentMap, targetMap, displayName);
+	const locationTitle = root.querySelector('.location-title');
+	if (locationTitle) {
+		locationTitle.textContent = title;
+	}
+};
 
-	if (naviLinkTable && naviLinkTable.length) {
-		for (let i = 0; i < naviLinkTable.length; i++) {
-			const warp = naviLinkTable[i];
-			if (!warp || warp.length < 11) {
-				continue;
-			}
-
-			const srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
-			const destMap = warp[8].replace(/\.gat$/, '').toLowerCase();
-
-			if (srcMap === currentMap && destMap === currentMap) {
-				warps.push({
-					id: warp[1],
-					type: warp[2],
-					srcX: warp[6],
-					srcY: warp[7],
-					destX: warp[9],
-					destY: warp[10]
-				});
-			}
-		}
+/**
+ * Set coordinates text with proper formatting
+ */
+Navigation.setCoordinatesText = function setCoordinatesText(x, y, options) {
+	const root = Navigation.getRoot();
+	if (!root) {
+		return;
 	}
 
-	_mapData.warps = warps;
+	const text = formatCoordinates(x, y, options);
+	const coords = root.querySelector('.coordinates');
+	if (coords) {
+		coords.textContent = text;
+	}
+};
 
-	_pathFindingWorker.postMessage({
-		type: 'findPath',
-		startX: startX,
-		startY: startY,
-		endX: endX,
-		endY: endY,
-		mapData: _mapData,
-		workerId: _pathFindingWorker.id,
-		existingPath: _path
-	});
+/**
+ * Set map name text with proper formatting
+ */
+Navigation.setMapNameText = function setMapNameText(mapName) {
+	const root = Navigation.getRoot();
+	if (!root) {
+		return;
+	}
+
+	const mapNameEl = root.querySelector('.map-name');
+	if (mapNameEl) {
+		mapNameEl.textContent = normalizeMapName(mapName);
+	}
+};
+
+/**
+ * Set mouse coordinates text with proper formatting
+ */
+Navigation.setMouseCoordinatesText = function setMouseCoordinatesText(x, y, options) {
+	const root = Navigation.getRoot();
+	if (!root) {
+		return;
+	}
+
+	const text = formatCoordinates(x, y, options);
+	const mouseCoords = root.querySelector('.mouse-coordinates');
+	if (mouseCoords) {
+		mouseCoords.textContent = text;
+	}
+};
+
+/**
+ * Find a path between two points using a web worker
+ */
+Navigation.findPath = function findPath(startX, startY, endX, endY) {
+	if (_pathFindingWorker && !_pathUpdateLock) {
+		_pathUpdateLock = true;
+
+		const naviLinkTable = DB.getNaviLinkTable();
+		const currentMap = getCurrentMap();
+		const warps = [];
+
+		if (naviLinkTable && naviLinkTable.length) {
+			for (let i = 0; i < naviLinkTable.length; i++) {
+				const warp = naviLinkTable[i];
+				if (!warp || warp.length < 11) {
+					continue;
+				}
+
+				const srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
+				const destMap = warp[8].replace(/\.gat$/, '').toLowerCase();
+
+				if (srcMap === currentMap && destMap === currentMap) {
+					warps.push({
+						id: warp[1],
+						type: warp[2],
+						srcX: warp[6],
+						srcY: warp[7],
+						destX: warp[9],
+						destY: warp[10]
+					});
+				}
+			}
+		}
+
+		_mapData.warps = warps;
+
+		_pathFindingWorker.postMessage({
+			type: 'findPath',
+			startX: startX,
+			startY: startY,
+			endX: endX,
+			endY: endY,
+			mapData: _mapData,
+			workerId: _pathFindingWorker.id,
+			existingPath: _path
+		});
+	}
 };
 
 /**
@@ -977,14 +1135,43 @@ Navigation.toggle = function toggle() {
  * Show the navigation window
  */
 Navigation.show = function show() {
+	const root = Navigation.getRoot();
+
 	this.clearPath();
 	initializePathFindingWorker();
 
-	if (_finalTargetData) {
-		this.reroute();
+	// Hide coordinate displays initially
+	const mouseInfo = root.querySelector('.mouse-info');
+	if (mouseInfo) {
+		mouseInfo.style.display = 'none';
+	}
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'none';
 	}
 
-	this.applyLayout();
+	const mapName = getCurrentMap();
+	const currentPos = getPlayerPosition();
+
+	if (_finalTargetData) {
+		this.navigateTo({
+			startMap: mapName,
+			startX: currentPos.x,
+			startY: currentPos.y,
+			endMap: _finalTargetData.map,
+			endX: _finalTargetData.x,
+			endY: _finalTargetData.y,
+			displayName: _finalTargetData.displayName
+		});
+	}
+
+	this.setMapNameText(mapName);
+
+	const locationTitle = root.querySelector('.location-title');
+	if (locationTitle && !locationTitle.textContent) {
+		this.setLocationTitle(mapName, null);
+	}
+
 	this.ui.show();
 };
 
@@ -1004,7 +1191,39 @@ Navigation.onKeyDown = function onKeyDown(event) {
 };
 
 /**
- * Set the destination from a NAVI link ("map,x,y,...")
+ * Handle mouse movement over the map to display coordinates
+ */
+Navigation.onMapMouseMove = function onMapMouseMove(event) {
+	const root = Navigation.getRoot();
+	const mapDisplay = root.querySelector('.map-display');
+	const rect = mapDisplay.getBoundingClientRect();
+	const x = Math.floor(event.clientX - rect.left);
+	const y = Math.floor(event.clientY - rect.top);
+
+	const mapCoords = this.screenToMapCoordinates(x, y);
+	const mapX = Math.floor(mapCoords.x);
+	const mapY = Math.floor(mapCoords.y);
+
+	const mouseInfo = root.querySelector('.mouse-info');
+	if (mouseInfo) {
+		mouseInfo.style.display = 'flex';
+	}
+	this.setMouseCoordinatesText(mapX, mapY);
+};
+
+/**
+ * Handle mouse leaving the map area
+ */
+Navigation.onMapMouseLeave = function onMapMouseLeave() {
+	const root = Navigation.getRoot();
+	const mouseInfo = root.querySelector('.mouse-info');
+	if (mouseInfo) {
+		mouseInfo.style.display = 'none';
+	}
+};
+
+/**
+ * Set the content of the navigation window based on NAVI info
  */
 Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 	const parts = naviInfo.split(',');
@@ -1012,23 +1231,30 @@ Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 		return;
 	}
 
-	const root = this.getRoot();
+	const mapName = parts[0];
+	const x = parseInt(parts[1], 10);
+	const y = parseInt(parts[2], 10);
+
+	// Clear the search input
+	const root = Navigation.getRoot();
 	const searchInput = root.querySelector('.search-input');
 	if (searchInput) {
 		searchInput.value = '';
 	}
+	_isMapClickTarget = false;
 
-	const pos = getPlayerPosition();
+	const currentMap = getCurrentMap();
+	const currentPos = getPlayerPosition();
+
 	this.navigateTo({
-		startMap: getCurrentMap(),
-		startX: pos.x,
-		startY: pos.y,
-		endMap: parts[0],
-		endX: parseInt(parts[1], 10),
-		endY: parseInt(parts[2], 10),
+		startMap: currentMap,
+		startX: currentPos.x,
+		startY: currentPos.y,
+		endMap: mapName,
+		endX: x,
+		endY: y,
 		displayName: displayName
 	});
-	this.setView('map');
 };
 
 /**
@@ -1040,27 +1266,29 @@ Navigation.waitForMapData = function waitForMapData(callback) {
 			Navigation.waitForMapData(callback);
 		}, 100);
 	} else {
-		callback.call(this);
+		callback.bind(this)();
 	}
 };
 
 /**
- * Route to a destination, on this map or through the warps to another
+ * Unified navigation function that handles both same-map and cross-map navigation
  */
 Navigation.navigateTo = function navigateTo(options) {
+	const root = Navigation.getRoot();
 	const startMap = normalizeMapName(options.startMap);
 	const endMap = normalizeMapName(options.endMap);
 	const displayName = options.displayName;
 
 	if (
-		!_finalTargetData ||
-		_finalTargetData.map !== endMap ||
-		_finalTargetData.x !== options.endX ||
-		_finalTargetData.y !== options.endY
+		_finalTargetData &&
+		(_finalTargetData.map !== endMap || _finalTargetData.x !== options.endX || _finalTargetData.y !== options.endY)
 	) {
 		this.clearPath();
 		resetPathFindingWorker();
-		_routeStatus = 'searching';
+		this.setTargetCoordinatesText(options.endX, options.endY, {
+			targetMap: endMap
+		});
+		this.setTargetCoordinatesBlinking(true);
 	}
 
 	_finalTargetData = {
@@ -1069,7 +1297,13 @@ Navigation.navigateTo = function navigateTo(options) {
 		y: options.endY,
 		displayName: displayName
 	};
-	this.updateTargetText();
+
+	// Get warp types based on Services checkbox
+	let warpTypes = [200, 201];
+	const servicesToggle = root.querySelector('.services-toggle');
+	if (servicesToggle && servicesToggle.checked) {
+		warpTypes = [200, 201, 202, 203, 204, 205];
+	}
 
 	const path = MapPathFinder.findPathBetweenMaps(
 		startMap,
@@ -1078,52 +1312,31 @@ Navigation.navigateTo = function navigateTo(options) {
 		endMap,
 		options.endX,
 		options.endY,
-		_allowZeny ? WARP_TYPES_ZENY : WARP_TYPES
+		warpTypes
 	);
 
-	if (!path || !path.length) {
-		_targetData = null;
-		_routeStatus = 'failed';
-		this.updateTargetText();
-		return;
+	if (path && path.length > 0) {
+		const target = path[0];
+
+		this.waitForMapData(function () {
+			const walkableCell = this.findClosestWalkableCell(target.x, target.y);
+
+			if (walkableCell) {
+				_targetData = {
+					x: walkableCell.x,
+					y: walkableCell.y,
+					map: target.map,
+					displayName: displayName
+				};
+				this.findPath(options.startX, options.startY, _targetData.x, _targetData.y);
+			} else {
+				this.clear();
+			}
+		});
 	}
-
-	const target = path[0];
-
-	// A whole map as the destination (Map results): arriving is enough
-	if (target.x === null || target.x === undefined) {
-		_targetData = null;
-		_path = [];
-		_routeStatus = startMap === endMap ? 'found' : 'failed';
-		this.updateTargetText();
-		return;
-	}
-
-	this.waitForMapData(function () {
-		const walkableCell = this.findClosestWalkableCell(target.x, target.y);
-
-		if (walkableCell) {
-			_targetData = {
-				x: walkableCell.x,
-				y: walkableCell.y,
-				map: target.map,
-				displayName: displayName
-			};
-			this.findPath(options.startX, options.startY, _targetData.x, _targetData.y);
-		} else {
-			_targetData = null;
-			_routeStatus = 'failed';
-			this.updateTargetText();
-		}
-	});
 };
-
-/**
- * Exposed for tests
- */
-Navigation.projectToMinimap = projectToMinimap;
 
 /**
  * Create component and export it
  */
-export default UIManager.addComponent(Navigation);
+export default selectLayout('Navigation', UIManager.addComponent(Navigation), NavigationOfficial);
