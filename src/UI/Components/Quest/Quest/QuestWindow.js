@@ -9,6 +9,7 @@
  */
 
 import Preferences from 'Core/Preferences.js';
+import Configs from 'Core/Configs.js';
 import DB from 'DB/DBManager.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
@@ -29,9 +30,15 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * `legacyQuestTracker: true` keeps roBrowser's own tracker: four quests, and hunts
+ * counted as "n / m" to the end.
+ */
+const isLegacy = () => !!Configs.get('legacyQuestTracker', false);
+
+/**
  * The official tracker (UIQuestDisplay::vf17 @0xaf58a0) stops after the fifth quest.
  */
-const MAX_QUESTS = 5;
+const maxQuests = () => (isLegacy() ? 4 : 5);
 
 /**
  * Create Component
@@ -132,7 +139,7 @@ QuestWindow.setQuestList = function setQuestList(quests, questNotShowList) {
 	for (const questID in quests) {
 		if (!questNotShowList.includes(quests[questID].questID)) {
 			if (!isInCooldown(quests[questID])) {
-				if (quests[questID].active == 1 && already_show < MAX_QUESTS) {
+				if (quests[questID].active == 1 && already_show < maxQuests()) {
 					QuestWindow.addQuestToUI(quests[questID]);
 					already_show++;
 				}
@@ -192,7 +199,7 @@ QuestWindow.addQuestToUI = function addQuestToUI(quest) {
  * @return {string}
  */
 function huntLine(hunt) {
-	if (hunt.maxCount > 0 && hunt.huntCount >= hunt.maxCount) {
+	if (!isLegacy() && hunt.maxCount > 0 && hunt.huntCount >= hunt.maxCount) {
 		return `${hunt.mobName} ( ${DB.getMessage(2030, 'Complete')} )`;
 	}
 	return `${hunt.mobName} ( ${hunt.huntCount} / ${hunt.maxCount} )`;

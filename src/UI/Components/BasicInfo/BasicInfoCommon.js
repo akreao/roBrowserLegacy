@@ -245,6 +245,11 @@ export function createBasicInfo(config) {
 	Component.init = function init() {
 		const root = this.getRoot();
 
+		// `legacyMenuPanel: true` keeps the 132px menu panel, three rows, that scrolls
+		if (Configs.get('legacyMenuPanel', false)) {
+			root.querySelector(innerId)?.classList.add('legacy_panel');
+		}
+
 		if (menuTip) {
 			setupMenuTip(root);
 		}

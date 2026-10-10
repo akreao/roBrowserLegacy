@@ -21,6 +21,7 @@ import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import Mouse from 'Controls/MouseEventHandler.js';
+import Configs from 'Core/Configs.js';
 
 /**
  * @var {GUIComponent} WhisperBox
@@ -180,10 +181,21 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance._contentEl = root.querySelector('.content');
 	instance._inputEl = root.querySelector('.input-whisper');
 
-	// The official title is "With  %s" (UIWhisperWnd::vf17 @0x553cb0), friend or not
-	const titleEl = root.querySelector('.title');
-	if (titleEl) {
-		titleEl.textContent = `With  ${nickname}`;
+	// The official title is "With  %s" (UIWhisperWnd::vf17 @0x553cb0), friend or not.
+	// `legacyWhisperTitle: true` keeps roBrowser's "With name (Friend)".
+	if (Configs.get('legacyWhisperTitle', false)) {
+		import('Engine/MapEngine/Friends.js').then(Friends => {
+			const isFriend = Friends && Friends.default.isFriend ? Friends.default.isFriend(nickname) : false;
+			const titleEl = root.querySelector('.title');
+			if (titleEl) {
+				titleEl.textContent = `With ${nickname}${isFriend ? ' (Friend)' : ''}`;
+			}
+		});
+	} else {
+		const titleEl = root.querySelector('.title');
+		if (titleEl) {
+			titleEl.textContent = `With  ${nickname}`;
+		}
 	}
 
 	setupContextMenu(instance);

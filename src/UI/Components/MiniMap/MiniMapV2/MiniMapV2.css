@@ -41,6 +41,18 @@
 	text-shadow: 1px 1px 1px #000;
 }
 
+/* legacyMiniMapButtons: the buttons spread across the map's width */
+#MiniMapV2.legacy .info_container {
+	display: flex;
+	justify-content: space-between;
+	width: auto;
+	height: auto;
+}
+#MiniMapV2.legacy .info_container ui-button,
+#MiniMapV2.legacy .info_container .coordinates {
+	position: static;
+}
+
 #MiniMapV2 ui-button.cashshopIcon {
 	position: absolute;
 	height: 43px;

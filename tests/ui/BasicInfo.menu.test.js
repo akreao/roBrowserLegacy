@@ -72,6 +72,11 @@ describe.each(Object.entries(VERSIONS))('BasicInfo%s menu panel', (version, spec
 		expect(panel).toMatch(/overflow-x: hidden;/);
 	});
 
+	it('keeps the 132px panel with legacyMenuPanel', () => {
+		expect(block(`#BasicInfo${version}.legacy_panel .buttons`)).toMatch(/height: 132px;/);
+		expect(block(`#BasicInfo${version}.legacy_panel.large .menu_tip`)).toMatch(new RegExp(`top: ${spec.large + 132 + 4}px`));
+	});
+
 	it('still fits five buttons beside the scrollbar', () => {
 		// 220px panel, 13px scrollbar: 207px for five buttons of 32px + 2 x 4px.
 		expect(css).toMatch(

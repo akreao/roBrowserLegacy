@@ -12,6 +12,7 @@
  * Load dependencies
  */
 import DB from 'DB/DBManager.js';
+import Configs from 'Core/Configs.js';
 import StatusProperty from 'DB/Status/StatusProperty.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import Session from 'Engine/SessionStorage.js';
@@ -25,6 +26,7 @@ import Damage from 'Renderer/Effects/Damage.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
+import Announce from 'UI/Components/Announce/Announce.js';
 import BroadcastBalloon from 'UI/Components/BroadcastBalloon/BroadcastBalloon.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ChangeCart from 'UI/Components/ChangeCart/ChangeCart.js';
@@ -631,6 +633,13 @@ function onGlobalAnnounce(pkt) {
 	}
 
 	ChatBox.addText(pkt.msg, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_CHAT, color);
+	// `legacyAnnounce: true` keeps roBrowser's one-line announce
+	if (Configs.get('legacyAnnounce', false)) {
+		Announce.append();
+		Announce.set(pkt.msg, color);
+		return;
+	}
+
 	// ZC_BROADCAST wraps at 72 bytes; ZC_BROADCAST2 is one line at its own font size
 	const isBroadcast2 = 'fontColor' in pkt;
 	BroadcastBalloon.add(pkt.msg, color, {

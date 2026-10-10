@@ -17,6 +17,7 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Renderer from 'Renderer/Renderer.js';
 import Preferences from 'Core/Preferences.js';
+import Configs from 'Core/Configs.js';
 import Session from 'Engine/SessionStorage.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import UIManager from 'UI/UIManager.js';
@@ -134,7 +135,16 @@ function _processContent(container) {
 /**
  * Render HTML
  */
-CashShop.render = () => htmlText;
+/**
+ * The ninth tab is the official "Limited Sales" (img_shop_tap9). `legacyCashShopTabs: true`
+ * keeps roBrowser's "Account Limited" (img_shop_tap8) there.
+ */
+CashShop.render = () =>
+	Configs.get('legacyCashShopTabs', false)
+		? htmlText
+				.replace('data-title="Limited Sales"', 'data-title="Account Limited"')
+				.replace(/img_shop_tap9_/g, 'img_shop_tap8_')
+		: htmlText;
 
 CashShop.init = function init() {
 	const root = _root();

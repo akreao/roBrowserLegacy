@@ -327,3 +327,14 @@
 	z-index: 10;
 	display: none;
 }
+
+/* legacyMenuPanel: the 132px panel, three rows, that scrolls */
+#BasicInfoV5.legacy_panel .buttons {
+	height: 132px;
+}
+#BasicInfoV5.legacy_panel.large .menu_tip {
+	top: 296px;
+}
+#BasicInfoV5.legacy_panel.small .menu_tip {
+	top: 216px;
+}

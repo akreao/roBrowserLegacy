@@ -18,6 +18,7 @@ import SoundOption from 'UI/Components/SoundOption/SoundOption.js';
 import GraphicsOption from 'UI/Components/GraphicsOption/GraphicsOption.js';
 import ShortCutOption from 'UI/Components/ShortCutOption/ShortCutOption.js';
 import DB from 'DB/DBManager.js';
+import Configs from 'Core/Configs.js';
 import htmlText from './Escape.html?raw';
 import cssText from './Escape.css?raw';
 
@@ -27,15 +28,25 @@ import cssText from './Escape.css?raw';
 const Escape = new GUIComponent('Escape', cssText);
 
 /**
- * The buttons of the normal menu. The official death menu (UIEscOptionWnd mode 1 and 2)
- * keeps only Resurrection, Return to save point and Return to game.
+ * `legacyEscapeMenu: true` keeps roBrowser's own menu: separate Graphics and Sound
+ * buttons, the older exit and save point pictures, no question before returning to
+ * the save point, and character select and exit still shown on the death menu.
  */
-const NORMAL_BUTTONS = '.charselect, .settings, .hotkey, .exit, .hooked';
+const isLegacy = () => !!Configs.get('legacyEscapeMenu', false);
 
 /**
- * Render HTML
+ * The buttons of the normal menu, hidden on the death menu. The official death menu
+ * (UIEscOptionWnd mode 1 and 2) keeps only Resurrection, Return to save point and
+ * Return to game.
  */
-Escape.render = () => htmlText;
+const normalButtons = () =>
+	isLegacy() ? '.graphics, .sound, .hotkey, .hooked' : '.charselect, .settings, .hotkey, .exit, .hooked';
+
+/**
+ * Render HTML: the official exit (esc_09) and save point (esc_10) pictures, or the
+ * older ones (esc_03, esc_04) with the legacy menu
+ */
+Escape.render = () => (isLegacy() ? htmlText.replace(/esc_09/g, 'esc_03').replace(/esc_10/g, 'esc_04') : htmlText);
 
 /**
  * Initialize UI
@@ -63,7 +74,14 @@ Escape.init = function init() {
 		el.style.display = 'none';
 	});
 
-	root.querySelector('.settings').addEventListener('click', onToggleSettingsUI);
+	if (isLegacy()) {
+		root.querySelector('.settings').remove();
+		root.querySelector('.sound').addEventListener('click', onToggleSoundUI);
+		root.querySelector('.graphics').addEventListener('click', onToggleGraphicUI);
+	} else {
+		root.querySelectorAll('.graphics, .sound').forEach(el => el.remove());
+		root.querySelector('.settings').addEventListener('click', onToggleSettingsUI);
+	}
 	root.querySelector('.resurection').addEventListener('click', function () {
 		Escape.onResurectionRequest();
 	});
@@ -106,7 +124,7 @@ Escape.onRemove = function onRemove() {
 	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
 		el.style.display = 'none';
 	});
-	root.querySelectorAll(NORMAL_BUTTONS).forEach(function (el) {
+	root.querySelectorAll(normalButtons()).forEach(function (el) {
 		el.style.display = '';
 	});
 };
@@ -146,9 +164,35 @@ function onToggleSettingsUI() {
 }
 
 /**
+ * Click on Sound button, toggle the UI (legacy menu)
+ */
+function onToggleSoundUI() {
+	if (!SoundOption._host || !SoundOption._host.parentNode) {
+		SoundOption.append();
+	} else {
+		SoundOption.remove();
+	}
+}
+
+/**
+ * Click on Graphic button, toggle the UI (legacy menu)
+ */
+function onToggleGraphicUI() {
+	if (!GraphicsOption._host || !GraphicsOption._host.parentNode) {
+		GraphicsOption.append();
+	} else {
+		GraphicsOption.remove();
+	}
+}
+
+/**
  * Click on Return to save point: the official client asks first (MsgStr 1548).
  */
 function onSavePoint() {
+	if (isLegacy()) {
+		Escape.onReturnSavePointRequest();
+		return;
+	}
 	UIManager.showPromptBox(DB.getMessage(1548), 'ok', 'cancel', function () {
 		Escape.onReturnSavePointRequest();
 	});
@@ -175,7 +219,7 @@ Escape.showDeathMenu = function showDeathMenu(hasSiegfried) {
 	if (hasSiegfried) {
 		root.querySelector('.resurection').style.display = '';
 	}
-	root.querySelectorAll(NORMAL_BUTTONS).forEach(function (el) {
+	root.querySelectorAll(normalButtons()).forEach(function (el) {
 		el.style.display = 'none';
 	});
 };
@@ -189,7 +233,7 @@ Escape.resetMenu = function resetMenu() {
 	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
 		el.style.display = 'none';
 	});
-	root.querySelectorAll(NORMAL_BUTTONS).forEach(function (el) {
+	root.querySelectorAll(normalButtons()).forEach(function (el) {
 		el.style.display = '';
 	});
 };
@@ -207,7 +251,7 @@ function renderHookedButtons() {
 	}
 	root.querySelectorAll('.hooked').forEach(el => el.remove());
 
-	const settingsShown = root.querySelector('.settings')?.style.display !== 'none';
+	const settingsShown = root.querySelector(isLegacy() ? '.graphics' : '.settings')?.style.display !== 'none';
 	MenuHooks.list().forEach(button => {
 		const el = document.createElement('button');
 		el.className = 'hooked';

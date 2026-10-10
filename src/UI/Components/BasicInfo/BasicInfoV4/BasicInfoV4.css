@@ -266,3 +266,14 @@
 	pointer-events: none;
 	top: -5px;
 }
+
+/* legacyMenuPanel: the 132px panel, three rows, that scrolls */
+#BasicInfoV4.legacy_panel .buttons {
+	height: 132px;
+}
+#BasicInfoV4.legacy_panel.large .menu_tip {
+	top: 280px;
+}
+#BasicInfoV4.legacy_panel.small .menu_tip {
+	top: 198px;
+}

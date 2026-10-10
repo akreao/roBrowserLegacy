@@ -10,6 +10,7 @@
 
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -174,6 +175,11 @@ export function createMiniMap({
 		Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, dataURI => {
 			_kafra.src = dataURI;
 		});
+
+		// `legacyMiniMapButtons: true` keeps roBrowser's own button row, spread across the map's width
+		if (Configs.get('legacyMiniMapButtons', false)) {
+			root.querySelector('.MiniMapUI')?.classList.add('legacy');
+		}
 
 		// Button tooltips: MsgStr 2855-2859 (UIMinimapZoomWnd::vf14)
 		const tips = { object: 2855, plus: 2856, minus: 2857, mini: 2858, viewon: 2859 };
