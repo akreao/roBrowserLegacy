@@ -67,8 +67,19 @@ WorldMap.init = function init() {
 	const selectEl = root.querySelector('.titlebar select');
 	if (selectEl) selectEl.addEventListener('change', onSelect);
 
+	// Set worldMapExtras to false for the official window: no toggle-all-maps
+	// button and no preview tooltip; hovering a region highlights it and names it.
+	const extras = Configs.get('worldMapExtras', true);
+	root.querySelector('#WorldMap')?.classList.toggle('official', !extras);
+
 	const toggleBtn = root.querySelector('.titlebar .togglemaps');
-	if (toggleBtn) toggleBtn.addEventListener('click', onToggleMaps);
+	if (toggleBtn) {
+		if (extras) {
+			toggleBtn.addEventListener('click', onToggleMaps);
+		} else {
+			toggleBtn.style.display = 'none';
+		}
+	}
 
 	const showLvlBtn = root.querySelector('.titlebar .showlvl');
 	if (showLvlBtn) showLvlBtn.addEventListener('click', onShowLVL);
@@ -79,8 +90,10 @@ WorldMap.init = function init() {
 	const content = root.querySelector('.map .content');
 	if (content) {
 		content.addEventListener('click', onWorldMapSectionClick);
-		content.addEventListener('mouseover', onWorldMapMouseOver);
-		content.addEventListener('mouseout', onWorldMapMouseOut);
+		if (extras) {
+			content.addEventListener('mouseover', onWorldMapMouseOver);
+			content.addEventListener('mouseout', onWorldMapMouseOut);
+		}
 	}
 
 	WorldMap.showLVLMode = false;

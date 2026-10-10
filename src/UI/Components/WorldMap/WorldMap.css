@@ -129,6 +129,13 @@
 	display: none;
 }
 
+/* worldMapExtras off: the official hover, a filled region with its name */
+#WorldMap.official .worldmap .section:hover {
+	border: 1px solid #e8ae23;
+	background-color: rgba(247, 226, 126, 0.5);
+}
+
+#WorldMap.official .worldmap .section:hover .mapname,
 #WorldMap .worldmap .section.currentmap .mapname {
 	display: block;
 	position: absolute;
