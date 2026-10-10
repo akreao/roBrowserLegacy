@@ -256,7 +256,10 @@ PetInformations.setIntimacy = function setIntimacy(val) {
 	const root = PetInformations.getRoot();
 	const el = root.querySelector('.intimacy');
 	if (el) {
-		el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
+		// Same bands as the official client (UIPetInfoWnd).
+		el.textContent = DB.getMessage(
+			val < 101 ? 672 : val < 251 ? 673 : val < 751 ? 669 : val < 901 ? 674 : val <= 1000 ? 675 : 676
+		);
 	}
 };
 
@@ -283,7 +286,10 @@ PetInformations.setHunger = function setHunger(val) {
 	const root = PetInformations.getRoot();
 	const el = root.querySelector('.hunger');
 	if (el) {
-		el.textContent = DB.getMessage(val < 10 ? 667 : val < 25 ? 668 : val < 75 ? 669 : val < 90 ? 670 : 671);
+		// Same bands as the official client: 0-10, 11-25, 26-75, 76-90, 91-100.
+		el.textContent = DB.getMessage(
+			val < 11 ? 667 : val < 26 ? 668 : val < 76 ? 669 : val < 91 ? 670 : val <= 100 ? 671 : 676
+		);
 	}
 };
 

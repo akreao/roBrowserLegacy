@@ -460,7 +460,25 @@ HomunInformations.setIntimacy = function setIntimacy(val) {
 	const root = HomunInformations.getRoot();
 	const el = root.querySelector('.intimacy');
 	if (el) {
-		el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
+		// Same bands as the official client (UIHomunInfoWnd::OnDraw):
+		// Hate with a Passion, Hate, Awkward, Shy, Neutral, Cordial, Loyal.
+		el.textContent = DB.getMessage(
+			val < 4
+				? 1022
+				: val < 11
+					? 1021
+					: val < 101
+						? 672
+						: val < 251
+							? 673
+							: val < 751
+								? 669
+								: val < 911
+									? 674
+									: val <= 1000
+										? 675
+										: 676
+		);
 	}
 };
 

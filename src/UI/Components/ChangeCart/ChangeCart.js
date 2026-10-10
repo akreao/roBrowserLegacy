@@ -141,13 +141,13 @@ function updateList(blvl) {
 		el.style.display = 'none';
 	});
 
-	if (blvl > 131) {
+	if (blvl > 130) {
 		root.querySelector(".cart[data-id='9']").style.display = '';
 	}
-	if (blvl > 121) {
+	if (blvl > 120) {
 		root.querySelector(".cart[data-id='8']").style.display = '';
 	}
-	if (blvl > 111) {
+	if (blvl > 110) {
 		root.querySelector(".cart[data-id='7']").style.display = '';
 	}
 	if (blvl > 100) {
