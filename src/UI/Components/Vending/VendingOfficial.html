@@ -22,29 +22,33 @@
 		<div class="titlebar">
 			<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 			<div class="text">
-				<span class="WinSell"><ui-text msg="224">Vending</ui-text></span>
-				<span class="WinBuy"><ui-text msg="1720">Buying</ui-text></span>
+				<span class="WinSell"><ui-text msg="224">Vend a Shop</ui-text></span>
+				<span class="WinBuy"><ui-text msg="1720">Opening purchase shop</ui-text></span>
 			</div>
 		</div>
-		<div class="container">
-			<div class="nstore"><ui-text msg="407">Name</ui-text></div>
-			<input class="shopname" type="text" value="" maxlength="36" /><br />
-			<div class="content add_shop">
-				<ui-image src="basic_interface/itemwin_mid.bmp"></ui-image>
+		<div class="body">
+			<div class="nstore"><ui-text msg="282">Name</ui-text></div>
+			<input class="shopname" type="text" value="" maxlength="36" />
+			<div class="rows"></div>
+			<div class="hint WinSell">
+				<ui-text msg="3223">If you sell an item, you get zeny after the transaction.</ui-text>
 			</div>
-		</div>
-		<div class="footer WinBuy">
-			<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
-			<span class="WinBuy zenyLabel"><ui-text msg="2464">Zeny</ui-text></span>
-			<span class="WinBuy zenySpan">0</span>
-			<span class="WinBuy weightLabel">Weigth:</span>
-			<span class="WinBuy weightSpan">0/0</span>
+			<div class="hint WinBuy">
+				<ui-text msg="3224">If you buy an item, you pay zeny after the transaction.</ui-text>
+			</div>
+			<div class="zenyLabel WinBuy"><ui-text msg="1722">Zeny</ui-text></div>
+			<div class="zenySpan WinBuy"></div>
+			<div class="weightSpan WinBuy"></div>
 		</div>
 		<div class="footer">
 			<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
-			<div class="limit WinBuy"><ui-text msg="1723">Purchase Zeny Limit</ui-text></div>
-			<input class="limitZeny WinBuy" type="text" value="" maxlength="36" /><br />
-			<div class="zeny WinBuy"><ui-text msg="2464">Zeny</ui-text></div>
+			<div class="safecheck WinSell">
+				<button class="checkbox"></button>
+				<ui-text msg="2479">Safe check for over 10,000,000Zeny</ui-text>
+			</div>
+			<div class="limit WinBuy"><ui-text msg="1723">purchase Zeny limit</ui-text></div>
+			<input class="limitZeny WinBuy" type="text" value="" maxlength="15" />
+			<div class="limitUnit WinBuy">Zeny</div>
 			<ui-button class="btn sell" bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp"></ui-button>
 			<ui-button
 				class="btn cancel"

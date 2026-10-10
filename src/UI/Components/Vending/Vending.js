@@ -3,11 +3,6 @@
  *
  * Vending / Buying store setup windows
  *
- * Follows the official client: the cart (or, for a buying store, the inventory) is mirrored
- * in its own window (UIMerchantMirrorItemWnd), and the shop is set up in one "Vend a Shop"
- * window (UIMerchantShopMakeWnd) with a price field, and for a buying store a count field,
- * on every slot row.
- *
  * @author Vincent Thibault
  */
 
@@ -27,15 +22,8 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import VendingModelMessage from 'UI/Components/Vending/VendingModelMessage/VendingModelMessage.js';
-import {
-	MAX_VENDING_PRICE,
-	MAX_BUYING_PRICE,
-	SAFE_CHECK_PRICE,
-	transactionZeny,
-	parsePrice,
-	safeCheckAmount,
-	stripColors
-} from 'UI/Components/Vending/VendingRules.js';
+import VendingOfficial from 'UI/Components/Vending/VendingOfficial.js';
+import { selectLayout } from 'UI/OfficialLayout.js';
 import htmlText from './Vending.html?raw';
 import cssText from './Vending.css?raw';
 import Renderer from 'Renderer/Renderer.js';
@@ -53,11 +41,6 @@ Vending.Type = {
 };
 
 /**
- * Slot rows the official window allows: 13 for vending, 5 for a buying store.
- */
-const MAX_ROWS = [13, 5];
-
-/**
  * @var {Preferences}
  */
 const _preferences = Preferences.get(
@@ -73,8 +56,7 @@ const _preferences = Preferences.get(
 			y: 100 + 7 * 32 - 2 * 32,
 			height: 5
 		},
-		select_all: false,
-		safe_check: true
+		select_all: false
 	},
 	1.0
 );
@@ -88,12 +70,6 @@ const _input = [];
  * @var {Array} output list
  */
 const _output = [];
-
-/**
- * @var {Array<number>} item index shown on each slot row, in the order they were added
- */
-const _rows = [];
-
 let _slots = 0;
 
 /**
@@ -115,13 +91,6 @@ function isItemStackable(item) {
 		item.type !== ItemType.PETEGG &&
 		item.type !== ItemType.PETARMOR
 	);
-}
-
-/**
- * Show a message that has the item name in it
- */
-function showMessage(text) {
-	UIManager.showMessageBox(text, 'ok');
 }
 
 Vending.captureKeyEvents = true;
@@ -159,85 +128,60 @@ Vending.init = function init() {
 		extendBtn.addEventListener('mousedown', onResizeInput);
 	}
 
-	const safeCheck = root.querySelector('.safecheck');
-	if (safeCheck) {
-		safeCheck.addEventListener('mousedown', e => {
-			e.stopImmediatePropagation();
-			_preferences.safe_check = !_preferences.safe_check;
-			_preferences.save();
-			updateSafeCheck();
-		});
-	}
-
-	// The cart mirror
-	const available = root.querySelector('.InputWindow .content');
-	available.addEventListener('contextmenu', e => {
-		const item = e.target.closest('.item');
-		if (item) {
-			onItemInfo(e, parseInt(item.getAttribute('data-index'), 10));
-		}
-	});
-	available.addEventListener('wheel', e => {
-		onScroll.call(available, e);
-	});
-	available.addEventListener('mouseover', e => {
-		const item = e.target.closest('.item');
-		if (item) {
-			onItemOver.call(item);
-		}
-	});
-	available.addEventListener('mouseout', e => {
-		if (e.target.closest('.item')) {
-			onItemOut();
-		}
-	});
-	available.addEventListener('dblclick', e => {
-		const item = e.target.closest('.item');
-		if (item && _type === Vending.Type.BUYING_STORE) {
-			requestMoveItem(parseInt(item.getAttribute('data-index'), 10), true);
-		}
-	});
-	available.addEventListener('mousedown', e => {
-		const item = e.target.closest('.item');
-		if (item) {
-			onItemFocus.call(item);
-		}
-	});
-
-	// The shop's slot rows
-	const rows = root.querySelector('.OutputWindow .rows');
-	rows.addEventListener('contextmenu', e => {
-		const row = e.target.closest('.row[data-index]');
-		if (row && e.target.closest('.icon')) {
-			onItemInfo(e, parseInt(row.getAttribute('data-index'), 10));
-		}
-	});
-	rows.addEventListener('dblclick', e => {
-		const row = e.target.closest('.row[data-index]');
-		if (row && _type === Vending.Type.BUYING_STORE && !e.target.closest('input')) {
-			requestMoveItem(parseInt(row.getAttribute('data-index'), 10), false);
-		}
-	});
-	rows.addEventListener('input', e => {
-		if (e.target.matches('input.price, input.count')) {
-			onRowEdit(e.target);
-		}
-	});
-	rows.addEventListener('change', e => {
-		if (e.target.matches('input.price')) {
-			onPriceCommit(e.target);
-		}
-	});
-
-	[available, rows].forEach(content => {
-		content.addEventListener('dragstart', e => {
-			const el = e.target.closest('[data-index]');
-			if (el) {
-				onDragStart.call(el, e);
+	// Delegated event handlers on content areas
+	const contents = root.querySelectorAll('.content');
+	contents.forEach(content => {
+		content.addEventListener('contextmenu', e => {
+			const icon = e.target.closest('.icon');
+			if (icon) {
+				onItemInfo.call(icon, e);
 			}
 		});
-		content.addEventListener('dragend', () => {
-			delete window._OBJ_DRAG_;
+
+		content.addEventListener('wheel', e => {
+			onScroll.call(content, e);
+		});
+
+		content.addEventListener('mouseover', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOver.call(item);
+			}
+		});
+
+		content.addEventListener('mouseout', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOut();
+			}
+		});
+
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemSelected.call(item);
+			}
+		});
+
+		content.addEventListener('mousedown', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemFocus.call(item);
+			}
+		});
+
+		content.addEventListener('dragstart', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onDragStart.call(item, e);
+			}
+		});
+
+		content.addEventListener('dragend', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				delete window._OBJ_DRAG_;
+			}
 		});
 	});
 
@@ -246,6 +190,10 @@ Vending.init = function init() {
 	const outputWin = root.querySelector('.OutputWindow');
 
 	[inputWin, outputWin].forEach(win => {
+		if (!win) {
+			return;
+		}
+
 		win.addEventListener('drop', e => {
 			onDrop.call(win, e);
 		});
@@ -261,20 +209,22 @@ Vending.init = function init() {
 	});
 
 	// Make sub-windows independently draggable
-	this.draggable.call(
-		{ _host: inputWin, _shadow: null, _container: inputWin, magnet: {}, needFocus: false, manager: null },
-		inputWin.querySelector('.titlebar')
-	);
-	this.draggable.call(
-		{ _host: outputWin, _shadow: null, _container: outputWin, magnet: {}, needFocus: false, manager: null },
-		outputWin.querySelector('.titlebar')
-	);
+	if (inputWin) {
+		this.draggable.call(
+			{ _host: inputWin, _shadow: null, _container: inputWin, magnet: {}, needFocus: false, manager: null },
+			inputWin.querySelector('.titlebar')
+		);
+	}
+	if (outputWin) {
+		this.draggable.call(
+			{ _host: outputWin, _shadow: null, _container: outputWin, magnet: {}, needFocus: false, manager: null },
+			outputWin.querySelector('.titlebar')
+		);
+	}
 
 	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/itemwin_mid.bmp`, data => {
 		Vending.itemBg = data;
 	});
-
-	updateSafeCheck();
 };
 
 Vending.onAppend = function onAppend() {
@@ -282,14 +232,16 @@ Vending.onAppend = function onAppend() {
 	const inputWin = root.querySelector('.InputWindow');
 	const outputWin = root.querySelector('.OutputWindow');
 	const inputContent = inputWin.querySelector('.content');
+	const outputContent = outputWin.querySelector('.content');
 
 	inputWin.style.top = `${Math.min(Math.max(0, _preferences.inputWindow.y), Renderer.height - inputContent.offsetHeight)}px`;
 	inputWin.style.left = `${Math.min(Math.max(0, _preferences.inputWindow.x), Renderer.width - inputContent.offsetWidth)}px`;
 
-	outputWin.style.top = `${Math.min(Math.max(0, _preferences.outputWindow.y), Renderer.height - 289)}px`;
-	outputWin.style.left = `${Math.min(Math.max(0, _preferences.outputWindow.x), Renderer.width - 400)}px`;
+	outputWin.style.top = `${Math.min(Math.max(0, _preferences.outputWindow.y), Renderer.height - outputContent.offsetHeight)}px`;
+	outputWin.style.left = `${Math.min(Math.max(0, _preferences.outputWindow.x), Renderer.width - outputContent.offsetWidth)}px`;
 
 	resize(inputContent, _preferences.inputWindow.height);
+	resize(outputContent, _preferences.outputWindow.height);
 
 	this._host.style.display = 'none';
 };
@@ -299,23 +251,29 @@ Vending.setType = function setType(type) {
 
 	const winBuyEls = root.querySelectorAll('.WinBuy');
 	const winSellEls = root.querySelectorAll('.WinSell');
-	const buying = type === Vending.Type.BUYING_STORE;
 
-	winBuyEls.forEach(el => {
-		el.style.display = buying ? '' : 'none';
-	});
-	winSellEls.forEach(el => {
-		el.style.display = buying ? 'none' : '';
-	});
-	root.querySelector('.OutputWindow').classList.toggle('buying', buying);
+	switch (type) {
+		case Vending.Type.VENDING_STORE:
+			winBuyEls.forEach(el => {
+				el.style.display = 'none';
+			});
+			winSellEls.forEach(el => {
+				el.style.display = '';
+			});
+			break;
 
-	if (buying) {
-		root.querySelector('.zenySpan').textContent = `${prettyZeny(Session.zeny)} Zeny`;
-		const info = BasicInfo.getUI();
-		const weight = root.querySelector('.weightSpan');
-		weight.textContent = `Weight : ${info.weight} / ${info.weight_max}`;
-		weight.classList.toggle('heavy', (info.weight * 100) / Math.max(1, info.weight_max) >= 50);
-		root.querySelector('.limitZeny').value = '0';
+		case Vending.Type.BUYING_STORE:
+			winSellEls.forEach(el => {
+				el.style.display = 'none';
+			});
+			winBuyEls.forEach(el => {
+				el.style.display = '';
+			});
+			root.querySelector('.zenySpan').textContent = prettyZeny(Session.zeny);
+			root.querySelector('.weightSpan').textContent =
+				`${BasicInfo.getUI().weight}/${BasicInfo.getUI().weight_max}`;
+			root.querySelector('.limitZeny').value = '0';
+			break;
 	}
 
 	_type = type;
@@ -335,7 +293,6 @@ Vending.onRemove = function onRemove() {
 
 	_input.length = 0;
 	_output.length = 0;
-	_rows.length = 0;
 
 	_preferences.inputWindow.x = parseInt(inputWin.style.left, 10);
 	_preferences.inputWindow.y = parseInt(inputWin.style.top, 10);
@@ -343,11 +300,13 @@ Vending.onRemove = function onRemove() {
 
 	_preferences.outputWindow.x = parseInt(outputWin.style.left, 10);
 	_preferences.outputWindow.y = parseInt(outputWin.style.top, 10);
+	_preferences.outputWindow.height = (outputWin.querySelector('.content').offsetHeight / 32) | 0;
 
 	_preferences.save();
 
-	root.querySelector('.InputWindow .content').innerHTML = '';
-	root.querySelector('.OutputWindow .rows').innerHTML = '';
+	root.querySelectorAll('.content').forEach(el => {
+		el.innerHTML = '';
+	});
 
 	this._host.style.display = 'none';
 
@@ -375,11 +334,12 @@ Vending.onKeyDown = function onKeyDown(event) {
 Vending.setList = function setList(items) {
 	const root = Vending.getRoot();
 
-	root.querySelector('.InputWindow .content').innerHTML = '';
+	root.querySelectorAll('.content').forEach(el => {
+		el.innerHTML = '';
+	});
 
 	_input.length = 0;
 	_output.length = 0;
-	_rows.length = 0;
 
 	const content = root.querySelector('.InputWindow .content');
 
@@ -398,15 +358,12 @@ Vending.setList = function setList(items) {
 
 		const out = Object.assign({}, items[i]);
 		out.count = 0;
-		out.price = 0;
 
-		addMirrorItem(content, items[i]);
+		addItem(content, items[i], true);
 
 		_input[items[i].index] = items[i];
 		_output[items[i].index] = out;
 	}
-
-	renderRows();
 };
 
 function prettyZeny(val, useStyle) {
@@ -431,305 +388,192 @@ function prettyZeny(val, useStyle) {
 			'color:#000000; text-shadow:1px 0px #cece63;',
 			'color:#ff0000; text-shadow:1px 0px #ff007b;'
 		];
-		str = `<span style="${style[Math.min(count, style.length) - 1]}">${str}</span>`;
+		str = `<span style="${style[count - 1]}">${str}</span>`;
 	}
 
 	return str;
 }
 
-function loadIcon(item, element) {
+function addItem(content, item, isinput) {
 	const it = DB.getItemInfo(item.ITID);
-	Client.loadFile(
-		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
-		data => {
-			element.style.backgroundImage = `url(${data})`;
-		}
-	);
-}
-
-/**
- * Add or update an item in the cart mirror
- */
-function addMirrorItem(content, item) {
 	const element = content.querySelector(`.item[data-index="${item.index}"]`);
+	const textPrice = DB.getMessage(1721);
 
 	if (item.count === 0) {
 		if (element) {
-			element.remove();
+			const parent = element.closest('.item-container');
+			if (parent) {
+				parent.remove();
+			} else {
+				element.remove();
+			}
 		}
 		return;
 	}
 
 	if (element) {
-		element.querySelector('.amount').textContent = item.IsStackable ? item.count : '';
+		const amountEl = element.querySelector('.amount');
+		if (amountEl) {
+			amountEl.textContent = item.IsStackable ? item.count : '';
+		}
 		return;
 	}
 
-	const itemObj = document.createElement('div');
-	itemObj.className = 'item input';
-	itemObj.draggable = true;
-	itemObj.dataset.index = item.index;
-	itemObj.innerHTML = '<div class="icon"></div>' + `<div class="amount">${item.IsStackable ? item.count : ''}</div>`;
+	let itemObj;
+
+	if (isinput) {
+		itemObj = document.createElement('div');
+		itemObj.className = 'item input';
+		itemObj.draggable = true;
+		itemObj.dataset.index = item.index;
+		itemObj.innerHTML =
+			'<div class="icon"></div>' + `<div class="amount">${item.IsStackable ? item.count : ''}</div>`;
+	} else {
+		const price = prettyZeny(item.price, true);
+		const container = document.createElement('div');
+		container.className = 'item-container';
+
+		const amountText = _type === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : '';
+		const eaHtml = _type === Vending.Type.BUYING_STORE ? `<div class="amount_">${item.count} ea</div>` : '';
+
+		container.innerHTML =
+			`<div class="item output" draggable="true" data-index="${item.index}">` +
+			'<div class="icon"></div>' +
+			`<div class="amount">${amountText}</div>` +
+			eaHtml +
+			`<div class="name">${escapeHtml(DB.getItemName(item))}</div>` +
+			`<div class="price">${textPrice} ${price}</div>` +
+			'</div>';
+
+		itemObj = container;
+
+		if (_type === Vending.Type.BUYING_STORE) {
+			const root = Vending.getRoot();
+			const limitInput = root.querySelector('.limitZeny');
+			let limit = parseInt(limitInput.value, 10);
+			limit += item.count * item.price;
+			limitInput.value = limit;
+		}
+	}
+
+	const actualItem = itemObj.classList.contains('item') ? itemObj : itemObj.querySelector('.item');
 
 	if (item.IsDamaged) {
-		itemObj.style.backgroundImage = `url("${Vending.itemBg}")`;
-		itemObj.classList.add('damaged');
+		actualItem.style.backgroundImage = `url("${Vending.itemBg}")`;
+		actualItem.classList.add('damaged');
 	}
 
 	content.appendChild(itemObj);
-	loadIcon(item, itemObj.querySelector('.icon'));
+
+	Client.loadFile(
+		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+		data => {
+			const icon = content.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
+		}
+	);
 }
 
-/**
- * Draw the slot rows of the shop window: one per slot, the filled ones first
- */
-function renderRows() {
-	const root = Vending.getRoot();
-	const rows = root.querySelector('.OutputWindow .rows');
-	const buying = _type === Vending.Type.BUYING_STORE;
-	const total = Math.max(_rows.length, Math.min(_slots, MAX_ROWS[buying ? 1 : 0]));
+const transferItem = (() => {
+	let tmpItem = {};
 
-	rows.innerHTML = '';
+	return (fromContent, toContent, isAdding, index, count) => {
+		if (isAdding) {
+			if (!_input[index].IsIdentified) {
+				VendingModelMessage.setInit(603);
+				return;
+			}
 
-	for (let i = 0; i < total; ++i) {
-		const row = document.createElement('div');
-		row.className = 'row';
+			_output[index].count =
+				_type === Vending.Type.BUYING_STORE
+					? count
+					: Math.min(_output[index].count + count, _input[index].count);
+			tmpItem = Object.assign({}, _input[index]);
 
-		const item = i < _rows.length ? _output[_rows[i]] : null;
-		const disabled = item ? '' : ' disabled';
+			tmpItem.count = _type === Vending.Type.BUYING_STORE ? 0 : _input[index].count - _output[index].count;
 
-		let html = '';
-		if (item) {
-			row.dataset.index = item.index;
-			const amount = !buying && item.IsStackable ? item.count : '';
-			html +=
-				'<div class="icon"></div>' +
-				`<div class="amount">${amount}</div>` +
-				`<div class="name">${escapeHtml(DB.getItemName(item))}</div>`;
-		}
-
-		if (buying) {
-			html +=
-				`<input class="count" type="text" maxlength="5"${disabled} />` +
-				`<div class="label ea">${escapeHtml(DB.getMessage(588))}</div>` +
-				`<div class="label price">${escapeHtml(DB.getMessage(1721))}</div>`;
+			addItem(fromContent, tmpItem, true);
+			addItem(toContent, _output[index], false);
 		} else {
-			html += `<div class="label price">${escapeHtml(DB.getMessage(369))}</div>`;
-		}
-		html += `<input class="price" type="text" maxlength="14"${disabled} />` + '<div class="transaction"></div>';
-
-		row.innerHTML = html;
-
-		if (item) {
-			row.querySelector('input.price').value = item.priceText || '';
-			if (buying) {
-				row.querySelector('input.count').value = item.countText || '';
+			count = Math.min(count, _output[index].count);
+			if (!count) {
+				return;
 			}
-			if (item.IsDamaged) {
-				row.querySelector('.icon').classList.add('damaged');
-			}
-			row.querySelector('.icon').draggable = true;
-			loadIcon(item, row.querySelector('.icon'));
-			updateTransaction(row, item);
+
+			_output[index].count = _type === Vending.Type.BUYING_STORE ? 0 : _output[index].count - count;
+
+			tmpItem = Object.assign({}, _input[index]);
+			tmpItem.count =
+				_type === Vending.Type.BUYING_STORE ? _input[index].total : _input[index].count + _output[index].count;
+
+			addItem(fromContent, _output[index], false);
+			addItem(toContent, tmpItem, true);
 		}
-
-		rows.appendChild(row);
-	}
-
-	updateLimit();
-}
-
-/**
- * "Transaction : <zeny>" under the price, once a price is set
- */
-function updateTransaction(row, item) {
-	const el = row.querySelector('.transaction');
-	const price = parsePrice(item.priceText || '');
-
-	if (!price) {
-		el.innerHTML = '';
-		return;
-	}
-
-	const zeny = transactionZeny(price, _type === Vending.Type.BUYING_STORE);
-	el.innerHTML = `${escapeHtml(DB.getMessage(3222))}${prettyZeny(zeny, true)}`;
-}
-
-/**
- * A buying store's purchase limit follows what its rows add up to
- */
-function updateLimit() {
-	if (_type !== Vending.Type.BUYING_STORE) {
-		return;
-	}
-
-	let sum = 0;
-	_rows.forEach(index => {
-		const item = _output[index];
-		sum += (parsePrice(item.priceText || '') || 0) * (parsePrice(item.countText || '') || 0);
-	});
-
-	const root = Vending.getRoot();
-	root.querySelector('.limitZeny').value = String(sum);
-}
-
-function onRowEdit(input) {
-	const row = input.closest('.row');
-	const item = _output[parseInt(row.getAttribute('data-index'), 10)];
-	if (!item) {
-		return;
-	}
-
-	if (input.classList.contains('count')) {
-		item.countText = input.value;
-	} else {
-		item.priceText = input.value;
-		updateTransaction(row, item);
-	}
-
-	updateLimit();
-}
-
-/**
- * Check a vending price once it has been typed, as the official window does when the field loses focus
- */
-function onPriceCommit(input) {
-	const row = input.closest('.row');
-	const item = _output[parseInt(row.getAttribute('data-index'), 10)];
-	if (!item) {
-		return;
-	}
-
-	const setPrice = text => {
-		input.value = text;
-		item.priceText = text;
-		updateTransaction(row, item);
-		updateLimit();
 	};
+})();
 
-	const price = parsePrice(input.value);
+function requestMoveItem(index, fromContent, toContent, isAdding) {
+	let count;
+	const item_price = 0;
 
-	if (price === null) {
-		VendingModelMessage.setInit(602);
-		setPrice('');
-		return;
-	}
-
-	if (_type !== Vending.Type.VENDING_STORE) {
-		return;
-	}
-
-	const confirmSafeCheck = value => {
-		if (!_preferences.safe_check || value < SAFE_CHECK_PRICE) {
-			return;
-		}
-		const text = [
-			DB.getMessage(2473).replace('%s', DB.getItemName(item)),
-			safeCheckAmount(value, id => DB.getMessage(id)),
-			stripColors(DB.getMessage(2478)).replace('\\n', '\n')
-		].join('\n');
-		UIManager.showPromptBox(text, 'ok', 'cancel', null, () => setPrice(''));
-	};
-
-	if (price > MAX_VENDING_PRICE) {
-		UIManager.showPromptBox(
-			DB.getMessage(2467),
-			'ok',
-			'cancel',
-			() => {
-				setPrice(String(MAX_VENDING_PRICE));
-				confirmSafeCheck(MAX_VENDING_PRICE);
-			},
-			() => setPrice('')
-		);
-		return;
-	}
-
-	confirmSafeCheck(price);
-}
-
-function updateSafeCheck() {
-	const root = Vending.getRoot();
-	const checkbox = root.querySelector('.safecheck .checkbox');
-	if (!checkbox) {
-		return;
-	}
-	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_${_preferences.safe_check ? 1 : 0}.bmp`, data => {
-		checkbox.style.backgroundImage = `url(${data})`;
-	});
-}
-
-/**
- * Place an item on a slot row, or take it off again
- */
-function transferItem(isAdding, index, count) {
-	const root = Vending.getRoot();
-	const mirror = root.querySelector('.InputWindow .content');
-	const buying = _type === Vending.Type.BUYING_STORE;
-	const output = _output[index];
-	const input = _input[index];
-
-	if (isAdding) {
-		if (!_rows.includes(index)) {
-			_rows.push(index);
-		}
-		if (!buying) {
-			output.count = Math.min(output.count + count, input.total);
-			input.count = input.total - output.count;
-			addMirrorItem(mirror, input);
-		}
-	} else {
-		if (!buying) {
-			output.count -= Math.min(count, output.count);
-			input.count = input.total - output.count;
-			addMirrorItem(mirror, input);
-		}
-		if (buying || output.count === 0) {
-			output.count = 0;
-			output.priceText = '';
-			output.countText = '';
-			_rows.splice(_rows.indexOf(index), 1);
-		}
-	}
-
-	renderRows();
-}
-
-function requestMoveItem(index, isAdding) {
-	const buying = _type === Vending.Type.BUYING_STORE;
 	const item = isAdding ? _input[index] : _output[index];
 
-	if (!item) {
-		return;
-	}
-
-	if (isAdding && !_rows.includes(index) && !(_rows.length < Math.min(_slots, MAX_ROWS[buying ? 1 : 0]))) {
-		return;
-	}
-
-	// A buying store sets its count on the row itself
-	if (buying) {
-		if (isAdding !== _rows.includes(index)) {
-			transferItem(isAdding, index, 0);
+	if (isAdding) {
+		if (!(countSlotsUsed() < _slots)) {
+			return false;
 		}
-		return;
+		count = _input[index].count;
+	} else {
+		count = _output[index].count;
 	}
 
-	if (!item.count) {
-		return;
-	}
-
-	if (item.count === 1 || !item.IsStackable) {
-		transferItem(isAdding, index, item.count);
-		return;
+	if ((item.count === 1 || !item.IsStackable) && _type === Vending.Type.VENDING_STORE) {
+		if (isAdding) {
+			InputBox.append();
+			InputBox.setType('price', false, item_price);
+			InputBox.onSubmitRequest = function (_item_price) {
+				InputBox.remove();
+				_output[index].price = _item_price;
+				if (_item_price > 0) {
+					transferItem(fromContent, toContent, isAdding, index, item.count);
+				}
+			};
+		} else {
+			transferItem(fromContent, toContent, isAdding, index, item.count);
+		}
+		return false;
 	}
 
 	InputBox.append();
-	InputBox.setType('number', false, item.count);
-	InputBox.onSubmitRequest = function (count) {
+	InputBox.setType('number', false, count);
+	InputBox.onSubmitRequest = function (_count) {
 		InputBox.remove();
-		if (count > 0) {
-			transferItem(isAdding, index, count);
+		if (_count > 0) {
+			if (_count >= 9999 && _type === Vending.Type.BUYING_STORE) {
+				VendingModelMessage.setInit(1742);
+				return;
+			}
+
+			if (item.count + _count > 9999 && _type === Vending.Type.BUYING_STORE) {
+				VendingModelMessage.setInit(1728);
+				return;
+			}
+
+			if (isAdding) {
+				InputBox.append();
+				InputBox.setType('price', false, item_price);
+				InputBox.onSubmitRequest = function (_item_price) {
+					InputBox.remove();
+					_output[index].price = _item_price;
+					if (_item_price > 0) {
+						transferItem(fromContent, toContent, isAdding, index, _count);
+					}
+				};
+			} else {
+				transferItem(fromContent, toContent, isAdding, index, _count);
+			}
 		}
 	};
 }
@@ -746,19 +590,22 @@ function onDrop(event) {
 		return;
 	}
 
-	const target = this.classList.contains('OutputWindow') ? 'OutputWindow' : 'InputWindow';
-
-	if (data.type !== 'item' || data.from !== 'Vending' || data.container === target) {
+	if (data.type !== 'item' || data.from !== 'Vending' || data.container === this.className) {
 		return;
 	}
 
-	requestMoveItem(parseInt(data.index, 10), target === 'OutputWindow');
+	const root = Vending.getRoot();
+	const fromContent = root.querySelector(`.${data.container} .content`);
+	const toContent = this.querySelector('.content');
+
+	requestMoveItem(data.index, fromContent, toContent, this.className === 'OutputWindow');
 }
 
-function onItemInfo(event, index) {
+function onItemInfo(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 
+	const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 	const item = _input[index];
 
 	if (!item) {
@@ -773,6 +620,31 @@ function onItemInfo(event, index) {
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
+}
+
+function onItemSelected() {
+	if (_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) {
+		return;
+	}
+
+	const root = Vending.getRoot();
+	const inputWin = root.querySelector('.InputWindow');
+
+	let from, to;
+	if (inputWin.contains(this)) {
+		from = inputWin;
+		to = root.querySelector('.OutputWindow');
+	} else {
+		from = root.querySelector('.OutputWindow');
+		to = inputWin;
+	}
+
+	requestMoveItem(
+		parseInt(this.getAttribute('data-index'), 10),
+		from.querySelector('.content'),
+		to.querySelector('.content'),
+		from === inputWin
+	);
 }
 
 function onItemFocus() {
@@ -800,17 +672,15 @@ function onScroll(event) {
 function onDragStart(event) {
 	const root = Vending.getRoot();
 	const inputWin = root.querySelector('.InputWindow');
-	const container = inputWin.contains(this) ? 'InputWindow' : 'OutputWindow';
-	const icon = this.querySelector('.icon');
-	const match = icon && icon.style.backgroundImage.match(/\(([^)]+)/);
+	const outputWin = root.querySelector('.OutputWindow');
 
-	if (match) {
-		const img = new Image();
-		img.decoding = 'async';
-		img.src = match[1].replace(/"/g, '');
-		event.dataTransfer.setDragImage(img, 12, 12);
-	}
+	const container = (inputWin.contains(this) ? inputWin : outputWin).className;
+	const img = new Image();
+	const url = this.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1].replace(/"/g, '');
+	img.decoding = 'async';
+	img.src = url;
 
+	event.dataTransfer.setDragImage(img, 12, 12);
 	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
@@ -857,42 +727,21 @@ function onResizeInput() {
 	window.addEventListener('mouseup', onMouseUp);
 }
 
-function openWindow(items) {
-	const root = Vending.getRoot();
-	Vending.setList(items);
-
-	root.querySelector('.shopname').value = '';
-	Vending._host.style.display = '';
-	placeLimitInput();
-	Vending._fixPositionOverflow();
-
-	Vending.isOpen = true;
-}
-
-/**
- * The purchase limit field sits just after its label
- */
-function placeLimitInput() {
-	const root = Vending.getRoot();
-	const label = root.querySelector('.OutputWindow .limit');
-	const input = root.querySelector('.limitZeny');
-	const unit = root.querySelector('.limitUnit');
-
-	if (_type !== Vending.Type.BUYING_STORE || !label.offsetWidth) {
-		return;
-	}
-
-	input.style.left = `${label.offsetLeft + label.offsetWidth + 5}px`;
-	unit.style.left = `${input.offsetLeft + input.offsetWidth + 5}px`;
-}
-
 Vending.onVendingSkill = function onVendingSkill(pkt) {
 	if (Vending.isOpen) {
 		return;
 	}
 
 	_slots = pkt.itemcount;
-	openWindow(CartItems.list);
+	this.setList(CartItems.list);
+
+	const root = Vending.getRoot();
+	root.querySelector('.add_shop').style.height = `${32 * _slots}px`;
+	root.querySelector('.shopname').value = '';
+	this._host.style.display = '';
+	this._fixPositionOverflow();
+
+	Vending.isOpen = true;
 };
 
 Vending.onBuyingSkill = function onBuyingSkill(pkt) {
@@ -908,7 +757,15 @@ Vending.onBuyingSkill = function onBuyingSkill(pkt) {
 			buyable.push(item);
 		}
 	}
-	openWindow(buyable);
+	this.setList(buyable);
+
+	const root = Vending.getRoot();
+	root.querySelector('.add_shop').style.height = `${32 * _slots}px`;
+	root.querySelector('.shopname').value = '';
+	this._host.style.display = '';
+	this._fixPositionOverflow();
+
+	Vending.isOpen = true;
 };
 
 Vending.onClose = function onClose() {
@@ -916,152 +773,79 @@ Vending.onClose = function onClose() {
 	Vending.isOpen = false;
 };
 
-/**
- * Check every row of a vending shop. Returns false when a row is wrong (a message is shown).
- */
-function checkVendingRows(flags) {
-	for (const index of _rows) {
-		const item = _output[index];
-		const price = parsePrice(item.priceText || '');
-
-		if (price === null) {
-			VendingModelMessage.setInit(602);
-			return false;
-		}
-
-		if (!item.IsIdentified) {
-			VendingModelMessage.setInit(603);
-			return false;
-		}
-
-		item.price = Math.min(price, MAX_VENDING_PRICE);
-
-		if (price === 0) {
-			flags.zero = true;
-		}
-		if (price > MAX_VENDING_PRICE && !_preferences.safe_check) {
-			flags.over = true;
-		}
-	}
-	return true;
-}
-
-/**
- * Check every row of a buying store. Returns false when a row is wrong (a message is shown).
- */
-function checkBuyingRows() {
-	for (const index of _rows) {
-		const item = _output[index];
-		const name = DB.getItemName(item);
-		const price = parsePrice(item.priceText || '');
-		const count = parsePrice(item.countText || '');
-
-		if (price === null || count === null) {
-			VendingModelMessage.setInit(602);
-			return false;
-		}
-
-		if (price === 0) {
-			showMessage(DB.getMessage(1725).replace('%s', name));
-			return false;
-		}
-
-		if (price > MAX_BUYING_PRICE) {
-			showMessage(DB.getMessage(1726).replace('%s', name));
-			return false;
-		}
-
-		if (count === 0) {
-			showMessage(DB.getMessage(1727).replace('%s', name));
-			return false;
-		}
-
-		if (count + _input[index].total > 9999) {
-			VendingModelMessage.setInit(1728);
-			return false;
-		}
-
-		item.price = price;
-		item.count = count;
-	}
-	return true;
-}
-
 Vending.onSubmit = function onSubmit() {
+	const output = [];
+	const count = _output.length;
+
 	const root = Vending.getRoot();
 	const shopname = root.querySelector('.shopname').value;
-	const buying = _type === Vending.Type.BUYING_STORE;
 
-	if (!_rows.length) {
-		VendingModelMessage.setInit(buying ? 1724 : 2494);
+	let limitZeny;
+	let ctr = 0;
+
+	for (let i = 0; i < count; ++i) {
+		if (_output[i] && _output[i].count) {
+			output.push(_output[i]);
+			ctr++;
+		}
+	}
+
+	if (ctr < 1) {
+		VendingModelMessage.setInit(2494);
 		return;
 	}
 
-	const send = () => {
-		let pkt;
-
-		if (!shopname) {
-			VendingModelMessage.setInit(225);
+	let pkt;
+	if (_type === Vending.Type.VENDING_STORE) {
+		pkt = new PACKET.CZ.REQ_OPENSTORE2();
+	} else {
+		pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+		limitZeny = parseInt(root.querySelector('.limitZeny').value, 10);
+		if (limitZeny > Session.zeny) {
+			VendingModelMessage.setInit(3683);
 			return;
 		}
-
-		if (buying) {
-			const limitZeny = parsePrice(root.querySelector('.limitZeny').value) || 0;
-			if (limitZeny > Session.zeny || limitZeny >= 0x80000000) {
-				VendingModelMessage.setInit(3683);
-				return;
-			}
-			if (limitZeny <= 0) {
-				VendingModelMessage.setInit(1730);
-				return;
-			}
-			pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
-			pkt.LimitZeny = limitZeny;
-		} else {
-			pkt = new PACKET.CZ.REQ_OPENSTORE2();
+		if (limitZeny <= 0) {
+			VendingModelMessage.setInit(1730);
+			return;
 		}
-
-		pkt.storeName = shopname;
-		pkt.result = 1;
-		pkt.storeList = _rows.map(index => _output[index]);
-
-		Vending._shopname = shopname;
-		submitNetworkPacket(pkt);
-		Vending.onRemove();
-	};
-
-	if (buying) {
-		if (checkBuyingRows()) {
-			send();
-		}
-		return;
+		pkt.LimitZeny = limitZeny;
 	}
 
-	const flags = { zero: false, over: false };
-	if (!checkVendingRows(flags)) {
+	pkt.storeName = shopname;
+	pkt.result = 1;
+	pkt.storeList = output;
+
+	if (!shopname) {
+		VendingModelMessage.setInit(225);
 		return;
-	}
-
-	const askOver = () => {
-		if (flags.over) {
-			UIManager.showPromptBox(DB.getMessage(2467), 'ok', 'cancel', send, null);
-		} else {
-			send();
-		}
-	};
-
-	if (flags.zero) {
-		UIManager.showPromptBox(DB.getMessage(604), 'ok', 'cancel', askOver, null);
 	} else {
-		askOver();
+		this._shopname = shopname;
+		submitNetworkPacket(pkt);
 	}
+
+	this.onRemove();
 };
+
+function countSlotsUsed() {
+	let count = 0;
+	_output.forEach(item => {
+		if (item.count > 0) {
+			count++;
+		}
+	});
+	return count;
+}
 
 function submitNetworkPacket(pkt) {
 	Network.sendPacket(pkt);
 }
 
 function onItemOver() {
+	if (!this.classList.contains('input')) {
+		return;
+	}
+
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item =
 		_type === Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getUI().getItemByIndex(idx);
@@ -1089,4 +873,4 @@ function onItemOut() {
 
 Vending.mouseMode = GUIComponent.MouseMode.STOP;
 
-export default UIManager.addComponent(Vending);
+export default selectLayout('Vending', UIManager.addComponent(Vending), VendingOfficial);
