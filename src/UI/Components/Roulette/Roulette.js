@@ -415,6 +415,9 @@ Roulette.requestReceiveItem = function requestReceiveItem(condition) {
 };
 
 /**
- * Export
+ * Export: roBrowser's window, or the official layout when the config picks it
  */
-export default UIManager.addComponent(Roulette);
+import RouletteOfficial from './RouletteOfficial.js';
+import { selectLayout } from 'UI/OfficialLayout.js';
+
+export default selectLayout('Roulette', UIManager.addComponent(Roulette), RouletteOfficial);
