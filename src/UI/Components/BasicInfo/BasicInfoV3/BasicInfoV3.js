@@ -25,6 +25,6 @@ export default createBasicInfo({
 	buttonsEvent: 'mousedown',
 	buttonKeyBy: 'id',
 	hasToolbarToggle: true,
-	hideIds: ['battle', 'replay'],
+	hideIds: ['replay'],
 	barScale: 1.27
 });
