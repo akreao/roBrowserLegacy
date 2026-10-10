@@ -148,8 +148,8 @@ function prepare() {
 		};
 
 		const oldSetList = ShortCut.setList;
-		ShortCut.setList = function (list) {
-			oldSetList.call(ShortCut, list);
+		ShortCut.setList = function (list, tab) {
+			oldSetList.call(ShortCut, list, tab);
 			JoystickUIRenderer.sync();
 		};
 

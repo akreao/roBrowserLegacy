@@ -359,10 +359,7 @@ function onSkillMessage(pkt) {
  * @param {object} pkt - PACKET_ZC_SHORTCUT_KEY_LIST_V2
  */
 function onShortCutList(pkt) {
-	if (pkt.tab && pkt.tab > 0) {
-		return;
-	} // not available yet
-	ShortCut.setList(pkt.ShortCutKey);
+	ShortCut.setList(pkt.ShortCutKey, pkt.tab || 0);
 }
 
 /**
@@ -661,6 +658,7 @@ ShortCut.onChange = function onChange(index, isSkill, ID, count) {
 		pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE1();
 	}
 	pkt.Index = index;
+	pkt.tab = ShortCut.getSkillBar();
 	pkt.ShortCutKey.isSkill = isSkill ? 1 : 0;
 	pkt.ShortCutKey.ID = ID;
 	pkt.ShortCutKey.count = count;

@@ -32,22 +32,57 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import SkillWindow from 'UI/Components/SkillList/SkillList.js';
 import htmlText from './ShortCut.html?raw';
 import cssText from './ShortCut.css?raw';
+import renewalHtmlText from './ShortCutRenewal.html?raw';
+import renewalCssText from './ShortCutRenewal.css?raw';
 
 /**
  * Create Component
  */
 const ShortCut = new GUIComponent('ShortCut', cssText);
-ShortCut.render = () => htmlText;
 
 /**
- * @var {Array} ShortCut list
+ * @var {boolean} official renewal bar (config enableRenewalShortCut) instead of the classic one
  */
-const _list = [];
+let _renewal = false;
+
+/**
+ * Pick the bar's look once, when the window is first built
+ */
+ShortCut.prepare = function prepare() {
+	if (!this.__loaded) {
+		_renewal = !!Configs.get('enableRenewalShortCut', false);
+		this._cssText = _renewal ? renewalCssText : cssText;
+	}
+	return GUIComponent.prototype.prepare.call(this);
+};
+ShortCut.render = () => (_renewal ? renewalHtmlText : htmlText);
+
+/**
+ * @var {Array} the two skill bars' shortcut lists (packet 0xb20 "tab" 0 and 1)
+ */
+const _lists = [[], []];
+
+/**
+ * @var {number} the skill bar shown, 0 or 1 (official option 10, "Change Skill Bar")
+ */
+let _skillBar = 0;
+
+/**
+ * @var {Array} ShortCut list of the skill bar shown
+ */
+let _list = _lists[0];
 
 /**
  * @var {number} max number of rows
  */
 let _rowCount = 0;
+
+/**
+ * @return {number} row pitch: 33 px on the official renewal bar (UIShortCutWnd), 34 on the classic one
+ */
+function rowHeight() {
+	return _renewal ? 33 : 34;
+}
 
 /**
  * @var {object} server load hotkeys
@@ -68,6 +103,7 @@ const _preferences = Preferences.get(
 		x: 480,
 		y: 0,
 		size: 1,
+		skillbar: 0,
 		magnet_top: true,
 		magnet_bottom: false,
 		magnet_left: false,
@@ -82,18 +118,22 @@ const _preferences = Preferences.get(
 ShortCut.init = function init() {
 	const root = ShortCut.getRoot();
 
-	const resizeBtn = root.querySelector('.resize');
-	if (resizeBtn) {
-		resizeBtn.addEventListener('mousedown', onResize);
-	}
+	if (_renewal) {
+		initRenewalButtons(root);
+	} else {
+		const resizeBtn = root.querySelector('.resize');
+		if (resizeBtn) {
+			resizeBtn.addEventListener('mousedown', onResize);
+		}
 
-	const closeBtn = root.querySelector('.close');
-	if (closeBtn) {
-		closeBtn.addEventListener('mousedown', e => {
-			e.stopImmediatePropagation();
-			e.preventDefault();
-		});
-		closeBtn.addEventListener('click', onClose);
+		const closeBtn = root.querySelector('.close');
+		if (closeBtn) {
+			closeBtn.addEventListener('mousedown', e => {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+			});
+			closeBtn.addEventListener('click', onClose);
+		}
 	}
 
 	const container = root.querySelector('#ShortCut');
@@ -162,7 +202,8 @@ ShortCut.init = function init() {
  */
 ShortCut.onAppend = function onAppend() {
 	// Set height first so position clamping uses correct dimensions
-	this._host.style.height = `${34 * _preferences.size}px`;
+	this._host.style.height = `${rowHeight() * _preferences.size}px`;
+	updateRowButtons();
 	const rect = this._host.getBoundingClientRect();
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height)}px`;
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - rect.width)}px`;
@@ -172,6 +213,11 @@ ShortCut.onAppend = function onAppend() {
 	this.magnet.RIGHT = _preferences.magnet_right;
 
 	SkillWindow.getUI().onUpdateSkill = onUpdateSkill;
+
+	// The saved skill bar (preferences load after init)
+	if (hasSkillBarSwitch()) {
+		setSkillBar(_preferences.skillbar ? 1 : 0);
+	}
 
 	// Initialize tooltips for empty slots
 	updateEmptySlotTooltips();
@@ -197,7 +243,7 @@ ShortCut.onRemove = function onRemove() {
 	// Save preferences
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
-	_preferences.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
+	_preferences.size = Math.round(parseInt(this._host.style.height, 10) / rowHeight());
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -216,10 +262,12 @@ ShortCut.clean = function clean() {
 	}
 	_activeAnimations.clear();
 
-	_list.length = 0;
+	_lists[0].length = 0;
+	_lists[1].length = 0;
 	const root = ShortCut.getRoot();
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
+		el.removeAttribute('data-tooltip');
 	});
 };
 
@@ -234,10 +282,9 @@ ShortCut.onShortCut = function onShortCut(key) {
 			clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
 			break;
 
+		// F12: one more row each press, hidden after the last (official 0xC9 from the key)
 		case 'EXTEND':
-			_preferences.size = (_preferences.size + 1) % (_rowCount + 1);
-			_preferences.save();
-			this._host.style.height = `${_preferences.size * 34}px`;
+			setRows((_preferences.size + 1) % ((_renewal ? getMaxRows() : _rowCount) + 1));
 			break;
 	}
 };
@@ -273,17 +320,27 @@ ShortCut.getSkillById = function getSkillById(id) {
  * Bind UI with list of shortcut
  *
  * @param {Array} shortcut list
+ * @param {number} skill bar the list is for (packet 0xb20 "tab"), 0 by default
  */
-ShortCut.setList = function setList(list) {
+ShortCut.setList = function setList(list, tab = 0) {
 	let skill;
 	let needGuildSkills = false;
 	const root = ShortCut.getRoot();
 
+	_rowCount = Math.min(4, Math.floor(list.length / 9));
+	updateRowButtons();
+
+	// The other skill bar: keep it until the player switches to it
+	if (tab !== _skillBar) {
+		_lists[tab] = Array.from(list, copyEntry);
+		return;
+	}
+
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
+		el.removeAttribute('data-tooltip');
 	});
 	_list.length = list.length;
-	_rowCount = Math.min(4, Math.floor(list.length / 9));
 
 	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].isSkill) {
@@ -312,7 +369,123 @@ ShortCut.setList = function setList(list) {
 	if (needGuildSkills) {
 		ShortCut.onRequestGuildSkills();
 	}
+
+	updateEmptySlotTooltips();
 };
+
+/**
+ * Renewal bar: the Skill Bar 1/2 switch and the -/+ row buttons
+ *
+ * @param {ShadowRoot} root
+ */
+function initRenewalButtons(root) {
+	const buttons = [
+		['.skillbar', () => setSkillBar(_skillBar ? 0 : 1)],
+		['.minus', () => setRows(_preferences.size - 1)],
+		['.plus', () => setRows(_preferences.size + 1)]
+	];
+	buttons.forEach(([selector, callback]) => {
+		const button = root.querySelector(selector);
+		button.addEventListener('mousedown', e => {
+			e.stopImmediatePropagation();
+		});
+		button.addEventListener('click', callback);
+	});
+
+	const skillBarBtn = root.querySelector('.skillbar');
+	if (hasSkillBarSwitch()) {
+		skillBarBtn.setAttribute('data-tooltip', DB.getMessage(3596));
+		skillBarBtn.addEventListener('mouseenter', onContainerMouseEnter);
+		skillBarBtn.addEventListener('mouseleave', onContainerMouseLeave);
+	} else {
+		skillBarBtn.style.display = 'none';
+	}
+}
+
+/**
+ * Only the renewal bar has the switch, and only servers that store a
+ * second skill bar (packet 0xb21 "tab") get it
+ *
+ * @return {boolean}
+ */
+function hasSkillBarSwitch() {
+	return _renewal && PACKETVER.value >= 20190522;
+}
+
+/**
+ * @return {number} the skill bar shown, 0 or 1
+ */
+ShortCut.getSkillBar = function getSkillBar() {
+	return _skillBar;
+};
+
+/**
+ * Copy a shortcut entry's contents
+ *
+ * @param {object} entry
+ * @return {object} copy
+ */
+function copyEntry(entry) {
+	if (!entry) {
+		return { isSkill: 0, ID: 0, count: 0 };
+	}
+	return { isSkill: entry.isSkill, ID: entry.ID, count: entry.count };
+}
+
+/**
+ * Show the other skill bar (official "Change Skill Bar" switch, option 10)
+ *
+ * @param {number} skill bar, 0 or 1
+ */
+function setSkillBar(tab) {
+	const root = ShortCut.getRoot();
+	root.querySelector('.skillbar')?.classList.toggle('active', tab === 1);
+
+	if (_preferences.skillbar !== tab) {
+		_preferences.skillbar = tab;
+		_preferences.save();
+	}
+
+	if (tab === _skillBar) {
+		return;
+	}
+
+	_skillBar = tab;
+	_list = _lists[tab];
+	ShortCut.setList(Array.from(_list, copyEntry), tab);
+}
+
+/**
+ * @return {number} rows the bar can open
+ */
+function getMaxRows() {
+	return _rowCount || 4;
+}
+
+/**
+ * Show a number of rows, 0 hides the bar
+ *
+ * @param {number} rows
+ */
+function setRows(rows) {
+	_preferences.size = Math.min(Math.max(rows, 0), getMaxRows());
+	_preferences.save();
+	ShortCut._host.style.height = `${_preferences.size * rowHeight()}px`;
+	updateRowButtons();
+}
+
+/**
+ * Official relayout (UIShortCutWnd message 0xE): no minus on one row,
+ * a disabled plus once every row is open
+ */
+function updateRowButtons() {
+	const root = ShortCut.getRoot();
+	if (!_renewal || !root) {
+		return;
+	}
+	root.querySelector('.minus').classList.toggle('hide', _preferences.size <= 1);
+	root.querySelector('.plus').classList.toggle('active', _preferences.size >= getMaxRows());
+}
 
 /**
  * Hook: ask the server for the guild skill list (set by MapEngine/Guild)
@@ -538,7 +711,7 @@ ShortCut.setElement = function setElement(isSkill, ID, count) {
 };
 
 /**
- * Resizing hotkey window
+ * Resizing hotkey window (classic bar)
  */
 function onResize(event) {
 	const host = ShortCut._host;
@@ -640,33 +813,62 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 	const hotkey = getHotKeyString(index);
 	const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
 
+	const list = _list;
+	const entry = _list[index];
+
 	Client.loadFile(`${DB.INTERFACE_PATH}item/${file}.bmp`, url => {
+		// The skill bar was switched, or the slot changed, while the icon loaded
+		if (list !== _list || entry.ID !== ID || entry.isSkill != isSkill) {
+			return;
+		}
+
 		ui.innerHTML = '<div draggable="true" class="icon"><div class="img"></div><div class="amount"></div></div>';
 
 		ui.querySelector('.img').style.backgroundImage = `url(${url})`;
 		ui.querySelector('.amount').textContent = count;
 		ui.setAttribute('data-tooltip', tooltipText);
+
+		if (entry.Delay > Renderer.tick) {
+			drawDelay(index);
+		}
 	});
 };
 
 /**
- * Displays the cooldown overlay on an icon
+ * Starts a cooldown on a slot of either skill bar
  *
+ * @param {Array} skill bar list
  * @param {number} index of the icon
  * @param {number} delay in ms
  */
-function setDelayOnIndex(index, delay) {
+function setDelayOnIndex(list, index, delay) {
 	// Safety validation to ensure the index exists in the list
-	if (!_list[index]) {
+	if (!list[index]) {
 		return;
 	}
 
 	// do nothing, the new delay would end sooner.
-	if (_list[index].Delay && _list[index].Delay >= Renderer.tick + delay) {
+	if (list[index].Delay && list[index].Delay >= Renderer.tick + delay) {
 		return;
 	}
 
-	_list[index].Delay = Renderer.tick + delay;
+	list[index].Delay = Renderer.tick + delay;
+	list[index].DelayTotal = delay;
+
+	// The hidden skill bar draws it when shown
+	if (list === _list) {
+		drawDelay(index);
+	}
+}
+
+/**
+ * Displays the cooldown overlay on an icon of the skill bar shown
+ *
+ * @param {number} index of the icon
+ */
+function drawDelay(index) {
+	const entry = _list[index];
+	const delay = entry.DelayTotal;
 	const root = ShortCut.getRoot();
 	const ui = root.querySelector(`.container[data-index="${index}"]`);
 	if (!ui) return;
@@ -693,8 +895,8 @@ function setDelayOnIndex(index, delay) {
 	}
 
 	function updateCooldown() {
-		// Safety check against post-destruction or logout leaks
-		if (!_list || !_list[index]) {
+		// Safety check against post-destruction, logout leaks or a skill bar switch
+		if (_list[index] !== entry) {
 			overlay.remove();
 			if (_activeAnimations.has(index)) {
 				cancelAnimationFrame(_activeAnimations.get(index));
@@ -704,11 +906,11 @@ function setDelayOnIndex(index, delay) {
 		}
 
 		const now = Renderer.tick;
-		const remaining = _list[index].Delay - now;
+		const remaining = entry.Delay - now;
 
-		if (remaining <= 0 || !_list[index].Delay) {
+		if (remaining <= 0 || !entry.Delay) {
 			overlay.remove();
-			_list[index].Delay = 0;
+			entry.Delay = 0;
 			if (_activeAnimations.has(index)) {
 				cancelAnimationFrame(_activeAnimations.get(index));
 				_activeAnimations.delete(index);
@@ -734,10 +936,12 @@ function setDelayOnIndex(index, delay) {
  * @param {number} delay in ms
  */
 ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
-	_list.forEach((element, index) => {
-		if (element.isSkill) {
-			setDelayOnIndex(index, delay);
-		}
+	_lists.forEach(list => {
+		list.forEach((element, index) => {
+			if (element.isSkill) {
+				setDelayOnIndex(list, index, delay);
+			}
+		});
 	});
 };
 
@@ -748,10 +952,12 @@ ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
  * @param {number} delay in ms
  */
 ShortCut.setSkillDelay = function setSkillDelay(ID, delay) {
-	_list.forEach((element, index) => {
-		if (element.isSkill && element.ID == ID) {
-			setDelayOnIndex(index, delay);
-		}
+	_lists.forEach(list => {
+		list.forEach((element, index) => {
+			if (element.isSkill && element.ID == ID) {
+				setDelayOnIndex(list, index, delay);
+			}
+		});
 	});
 };
 
@@ -951,7 +1157,7 @@ function clickElement(index) {
 }
 
 /**
- * Closing the window
+ * Closing the window (classic bar)
  */
 function onClose() {
 	ShortCut._host.style.height = '0px';
