@@ -124,11 +124,13 @@
 
 /* Search row (y = 21) */
 
+/* Above the two views, which cover the whole window and come later */
 .Navigation .toolbar {
 	top: 0;
 	left: 0;
 	width: 272px;
 	height: 44px;
+	z-index: 1;
 }
 
 .Navigation .btn-back {
