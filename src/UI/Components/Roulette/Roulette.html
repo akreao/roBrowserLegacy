@@ -1,52 +1,55 @@
 <div id="Roulette">
-	<div class="titlebar">
-		<div class="corner left"><ui-image src="basic_interface/titlebar_left.bmp"></ui-image></div>
-		<div class="center"><ui-image src="basic_interface/titlebar_mid.bmp"></ui-image></div>
-		<div class="corner right"><ui-image src="basic_interface/titlebar_right.bmp"></ui-image></div>
-		<div class="base"><ui-image src="basic_interface/sys_base_off.bmp"></ui-image></div>
-		<ui-text class="title" msg="2641">Lucky Roulette</ui-text>
-		<ui-button
-			class="close"
-			bg="basic_interface/sys_close_off.bmp"
-			hover="basic_interface/sys_close_on.bmp"
-			down="basic_interface/sys_close_on.bmp"
-		></ui-button>
+	<div class="body" data-background="basic_interface/roullette/roulletteBG.bmp">
+		<div class="titlebar">
+			<div class="left">
+				<span class="title">Roulette</span>
+			</div>
+			<div class="right">
+				<button class="base close">×</button>
+			</div>
+			<div class="clear"></div>
+		</div>
+
+		<div class="roulette-container">
+			<div class="roulette-wheel">
+				<div class="wheel-center"></div>
+				<div class="wheel-slots">
+					<!-- Slots will be generated dynamically -->
+				</div>
+				<div class="wheel-pointer"></div>
+			</div>
+
+			<div class="roulette-info">
+				<div class="points-display">
+					<span class="label">Points:</span>
+					<span class="points-value">0</span>
+				</div>
+
+				<div class="buttons-container">
+					<button
+						class="btn-spin"
+						data-background="basic_interface/roullette/StartRoullette_a.bmp"
+						data-hover="basic_interface/roullette/StartRoullette_b.bmp"
+					>
+						<span>Spin</span>
+					</button>
+					<button class="btn-info">
+						<span>Info</span>
+					</button>
+					<button
+						class="btn-close"
+						data-background="basic_interface/roullette/GetWinPrize_a.bmp"
+						data-hover="basic_interface/roullette/GetWinPrize_b.bmp"
+					>
+						<span>Get Prize</span>
+					</button>
+				</div>
+
+				<div class="result-display">
+					<span class="result-label">Result:</span>
+					<div class="result-item"></div>
+				</div>
+			</div>
+		</div>
 	</div>
-
-	<div class="background"><ui-image src="basic_interface/roullette/roulletteBG.bmp"></ui-image></div>
-
-	<div class="board"></div>
-	<div class="highlight"></div>
-
-	<div class="item slot prize">
-		<div class="icon"></div>
-		<div class="count"></div>
-	</div>
-	<div class="item slot bonus">
-		<div class="icon"></div>
-		<div class="count"></div>
-	</div>
-
-	<div class="arrow current"></div>
-	<div class="arrow next"></div>
-	<div class="arrow next-row"></div>
-
-	<div class="point gold">0</div>
-	<div class="point silver">0</div>
-	<div class="point bronze">0</div>
-
-	<ui-button
-		class="btn-prize"
-		bg="basic_interface/roullette/GetWinPrize_a.bmp"
-		hover="basic_interface/roullette/GetWinPrize_a.bmp"
-		down="basic_interface/roullette/GetWinPrize_b.bmp"
-	></ui-button>
-	<ui-button
-		class="btn-start"
-		bg="basic_interface/roullette/StartRoullette_a.bmp"
-		hover="basic_interface/roullette/StartRoullette_a.bmp"
-		down="basic_interface/roullette/StartRoullette_b.bmp"
-	></ui-button>
-
-	<div class="tooltip"></div>
 </div>
