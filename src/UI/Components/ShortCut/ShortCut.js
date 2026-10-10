@@ -16,6 +16,7 @@ import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -31,12 +32,30 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import SkillWindow from 'UI/Components/SkillList/SkillList.js';
 import htmlText from './ShortCut.html?raw';
 import cssText from './ShortCut.css?raw';
+import renewalHtmlText from './ShortCutRenewal.html?raw';
+import renewalCssText from './ShortCutRenewal.css?raw';
 
 /**
  * Create Component
  */
 const ShortCut = new GUIComponent('ShortCut', cssText);
-ShortCut.render = () => htmlText;
+
+/**
+ * @var {boolean} official renewal bar (config enableRenewalShortCut) instead of the classic one
+ */
+let _renewal = false;
+
+/**
+ * Pick the bar's look once, when the window is first built
+ */
+ShortCut.prepare = function prepare() {
+	if (!this.__loaded) {
+		_renewal = !!Configs.get('enableRenewalShortCut', false);
+		this._cssText = _renewal ? renewalCssText : cssText;
+	}
+	return GUIComponent.prototype.prepare.call(this);
+};
+ShortCut.render = () => (_renewal ? renewalHtmlText : htmlText);
 
 /**
  * @var {Array} the two skill bars' shortcut lists (packet 0xb20 "tab" 0 and 1)
@@ -59,9 +78,11 @@ let _list = _lists[0];
 let _rowCount = 0;
 
 /**
- * @var {number} row pitch of the official bar (UIShortCutWnd)
+ * @return {number} row pitch: 33 px on the official renewal bar (UIShortCutWnd), 34 on the classic one
  */
-const ROW_HEIGHT = 33;
+function rowHeight() {
+	return _renewal ? 33 : 34;
+}
 
 /**
  * @var {object} server load hotkeys
@@ -97,28 +118,22 @@ const _preferences = Preferences.get(
 ShortCut.init = function init() {
 	const root = ShortCut.getRoot();
 
-	// Skill bar switch and the -/+ row buttons
-	const buttons = [
-		['.skillbar', () => setSkillBar(_skillBar ? 0 : 1)],
-		['.minus', () => setRows(_preferences.size - 1)],
-		['.plus', () => setRows(_preferences.size + 1)]
-	];
-	buttons.forEach(([selector, callback]) => {
-		const button = root.querySelector(selector);
-		button.addEventListener('mousedown', e => {
-			e.stopImmediatePropagation();
-		});
-		button.addEventListener('click', callback);
-	});
-
-	// Only servers that store a second skill bar (packet 0xb21 "tab") get the switch
-	const skillBarBtn = root.querySelector('.skillbar');
-	if (PACKETVER.value >= 20190522) {
-		skillBarBtn.setAttribute('data-tooltip', DB.getMessage(3596));
-		skillBarBtn.addEventListener('mouseenter', onContainerMouseEnter);
-		skillBarBtn.addEventListener('mouseleave', onContainerMouseLeave);
+	if (_renewal) {
+		initRenewalButtons(root);
 	} else {
-		skillBarBtn.style.display = 'none';
+		const resizeBtn = root.querySelector('.resize');
+		if (resizeBtn) {
+			resizeBtn.addEventListener('mousedown', onResize);
+		}
+
+		const closeBtn = root.querySelector('.close');
+		if (closeBtn) {
+			closeBtn.addEventListener('mousedown', e => {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+			});
+			closeBtn.addEventListener('click', onClose);
+		}
 	}
 
 	const container = root.querySelector('#ShortCut');
@@ -187,7 +202,7 @@ ShortCut.init = function init() {
  */
 ShortCut.onAppend = function onAppend() {
 	// Set height first so position clamping uses correct dimensions
-	this._host.style.height = `${ROW_HEIGHT * _preferences.size}px`;
+	this._host.style.height = `${rowHeight() * _preferences.size}px`;
 	updateRowButtons();
 	const rect = this._host.getBoundingClientRect();
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height)}px`;
@@ -200,7 +215,7 @@ ShortCut.onAppend = function onAppend() {
 	SkillWindow.getUI().onUpdateSkill = onUpdateSkill;
 
 	// The saved skill bar (preferences load after init)
-	if (PACKETVER.value >= 20190522) {
+	if (hasSkillBarSwitch()) {
 		setSkillBar(_preferences.skillbar ? 1 : 0);
 	}
 
@@ -228,7 +243,7 @@ ShortCut.onRemove = function onRemove() {
 	// Save preferences
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
-	_preferences.size = Math.round(parseInt(this._host.style.height, 10) / ROW_HEIGHT);
+	_preferences.size = Math.round(parseInt(this._host.style.height, 10) / rowHeight());
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -269,7 +284,7 @@ ShortCut.onShortCut = function onShortCut(key) {
 
 		// F12: one more row each press, hidden after the last (official 0xC9 from the key)
 		case 'EXTEND':
-			setRows((_preferences.size + 1) % (getMaxRows() + 1));
+			setRows((_preferences.size + 1) % ((_renewal ? getMaxRows() : _rowCount) + 1));
 			break;
 	}
 };
@@ -359,6 +374,45 @@ ShortCut.setList = function setList(list, tab = 0) {
 };
 
 /**
+ * Renewal bar: the Skill Bar 1/2 switch and the -/+ row buttons
+ *
+ * @param {ShadowRoot} root
+ */
+function initRenewalButtons(root) {
+	const buttons = [
+		['.skillbar', () => setSkillBar(_skillBar ? 0 : 1)],
+		['.minus', () => setRows(_preferences.size - 1)],
+		['.plus', () => setRows(_preferences.size + 1)]
+	];
+	buttons.forEach(([selector, callback]) => {
+		const button = root.querySelector(selector);
+		button.addEventListener('mousedown', e => {
+			e.stopImmediatePropagation();
+		});
+		button.addEventListener('click', callback);
+	});
+
+	const skillBarBtn = root.querySelector('.skillbar');
+	if (hasSkillBarSwitch()) {
+		skillBarBtn.setAttribute('data-tooltip', DB.getMessage(3596));
+		skillBarBtn.addEventListener('mouseenter', onContainerMouseEnter);
+		skillBarBtn.addEventListener('mouseleave', onContainerMouseLeave);
+	} else {
+		skillBarBtn.style.display = 'none';
+	}
+}
+
+/**
+ * Only the renewal bar has the switch, and only servers that store a
+ * second skill bar (packet 0xb21 "tab") get it
+ *
+ * @return {boolean}
+ */
+function hasSkillBarSwitch() {
+	return _renewal && PACKETVER.value >= 20190522;
+}
+
+/**
  * @return {number} the skill bar shown, 0 or 1
  */
 ShortCut.getSkillBar = function getSkillBar() {
@@ -385,7 +439,7 @@ function copyEntry(entry) {
  */
 function setSkillBar(tab) {
 	const root = ShortCut.getRoot();
-	root.querySelector('.skillbar').classList.toggle('active', tab === 1);
+	root.querySelector('.skillbar')?.classList.toggle('active', tab === 1);
 
 	if (_preferences.skillbar !== tab) {
 		_preferences.skillbar = tab;
@@ -416,7 +470,7 @@ function getMaxRows() {
 function setRows(rows) {
 	_preferences.size = Math.min(Math.max(rows, 0), getMaxRows());
 	_preferences.save();
-	ShortCut._host.style.height = `${_preferences.size * ROW_HEIGHT}px`;
+	ShortCut._host.style.height = `${_preferences.size * rowHeight()}px`;
 	updateRowButtons();
 }
 
@@ -426,7 +480,7 @@ function setRows(rows) {
  */
 function updateRowButtons() {
 	const root = ShortCut.getRoot();
-	if (!root) {
+	if (!_renewal || !root) {
 		return;
 	}
 	root.querySelector('.minus').classList.toggle('hide', _preferences.size <= 1);
@@ -655,6 +709,46 @@ ShortCut.setElement = function setElement(isSkill, ID, count) {
 		}
 	}
 };
+
+/**
+ * Resizing hotkey window (classic bar)
+ */
+function onResize(event) {
+	const host = ShortCut._host;
+	const top = host.offsetTop;
+	let lastHeight = 0;
+
+	function resizing() {
+		let h = Math.floor((Mouse.screen.y - top) / ShortCut.scale / 34 + 1);
+
+		// Maximum and minimum window size
+		h = Math.min(Math.max(h, 1), _rowCount);
+
+		if (h === lastHeight) {
+			return;
+		}
+
+		host.style.height = `${h * 34}px`;
+		_preferences.size = h;
+		_preferences.save();
+		lastHeight = h;
+	}
+
+	// Start resizing
+	const _Interval = setInterval(resizing, 30);
+
+	// Stop resizing on left click
+	const mouseUpHandler = _event => {
+		if (_event.which === 1) {
+			clearInterval(_Interval);
+			window.removeEventListener('mouseup', mouseUpHandler);
+		}
+	};
+	window.addEventListener('mouseup', mouseUpHandler);
+
+	event.stopImmediatePropagation();
+	event.preventDefault();
+}
 
 /**
  * Add an element to shortcut
@@ -1060,6 +1154,15 @@ function clickElement(index) {
 			Inventory.getUI().useItem(item);
 		}
 	}
+}
+
+/**
+ * Closing the window (classic bar)
+ */
+function onClose() {
+	ShortCut._host.style.height = '0px';
+	_preferences.size = 0;
+	_preferences.save();
 }
 
 /**

@@ -14,6 +14,8 @@ const mocks = vi.hoisted(() => {
 		}
 
 		draggable() {}
+
+		prepare() {}
 	}
 
 	const items = {
@@ -24,7 +26,8 @@ const mocks = vi.hoisted(() => {
 		MockGUIComponent,
 		items,
 		preferences: { x: 0, y: 0, size: 1, skillbar: 0, save: vi.fn() },
-		packetver: { value: 20221005 }
+		packetver: { value: 20221005 },
+		config: { enableRenewalShortCut: true }
 	};
 });
 
@@ -48,7 +51,7 @@ vi.mock('Core/Client.js', () => ({
 	}
 }));
 vi.mock('Core/Preferences.js', () => ({ default: { get: () => mocks.preferences } }));
-vi.mock('Core/Configs.js', () => ({ default: { get: (_key, def) => def } }));
+vi.mock('Core/Configs.js', () => ({ default: { get: (key, def) => (key in mocks.config ? mocks.config[key] : def) } }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: {} }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800, tick: 0 } }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: mocks.packetver }));
@@ -56,6 +59,7 @@ vi.mock('UI/GUIComponent.js', () => ({ default: mocks.MockGUIComponent }));
 vi.mock('UI/UIManager.js', () => ({
 	default: {
 		addComponent(component) {
+			component.prepare();
 			component.getRoot().innerHTML = component.render();
 			component.init();
 			return component;
@@ -78,7 +82,7 @@ vi.mock('UI/Components/SkillList/SkillList.js', () => ({
 vi.mock('Preferences/ShortCutControls.js', () => ({ default: { ShortCuts: {} } }));
 vi.mock('Controls/KeyEventHandler.js', () => ({ default: { toReadableKey: key => String(key) } }));
 
-const { default: ShortCut } = await import('UI/Components/ShortCut/ShortCut.js');
+let ShortCut = (await import('UI/Components/ShortCut/ShortCut.js')).default;
 
 const root = () => ShortCut.getRoot();
 const slot = index => root().querySelector(`.container[data-index="${index}"]`);
@@ -162,5 +166,35 @@ describe('ShortCut renewal hotbar', () => {
 			ShortCut.onShortCut({ cmd: 'EXTEND' });
 			expect(host.style.height).toBe(height);
 		});
+	});
+});
+
+describe('ShortCut classic hotbar (enableRenewalShortCut off)', () => {
+	beforeEach(async () => {
+		mocks.config.enableRenewalShortCut = false;
+		mocks.preferences.size = 1;
+		mocks.preferences.skillbar = 1;
+		vi.resetModules();
+		ShortCut = (await import('UI/Components/ShortCut/ShortCut.js')).default;
+		ShortCut.onAppend();
+	});
+
+	it('keeps the close button, the resize handle and the 34 px rows', () => {
+		expect(root().querySelector('.close')).not.toBeNull();
+		expect(root().querySelector('.resize')).not.toBeNull();
+		expect(root().querySelector('.skillbar')).toBeNull();
+		expect(ShortCut._host.style.height).toBe('34px');
+
+		click('.close');
+
+		expect(ShortCut._host.style.height).toBe('0px');
+	});
+
+	it('shows skill bar 1 whatever the saved choice', () => {
+		ShortCut.setList(list(0, { isSkill: 0, ID: 501, count: 0 }), 0);
+		ShortCut.setList(list(0, { isSkill: 1, ID: 28, count: 5 }), 1);
+
+		expect(ShortCut.getSkillBar()).toBe(0);
+		expect(slot(0).getAttribute('data-tooltip')).toBe('item501');
 	});
 });

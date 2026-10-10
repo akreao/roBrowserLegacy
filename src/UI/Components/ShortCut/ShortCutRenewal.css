@@ -1,0 +1,189 @@
+:host {
+	width: 290px;
+	top: 0px;
+	left: 480px;
+	overflow: hidden;
+}
+
+/* Official UIShortCutWnd: one shortcut_frame.bmp per row at a 33 px pitch, so each
+   34 px frame's last line sits under the next one */
+#ShortCut {
+	position: absolute;
+	width: 290px;
+	height: 100%;
+}
+
+#ShortCut .row {
+	position: absolute;
+	left: 0px;
+	width: 290px;
+	height: 34px;
+	background-repeat: no-repeat;
+}
+#ShortCut .row:nth-child(1) {
+	top: 0px;
+}
+#ShortCut .row:nth-child(2) {
+	top: 33px;
+}
+#ShortCut .row:nth-child(3) {
+	top: 66px;
+}
+#ShortCut .row:nth-child(4) {
+	top: 99px;
+}
+#ShortCut .row .container {
+	position: absolute;
+	top: 4px;
+	width: 24px;
+	height: 24px;
+}
+#ShortCut .row .container:nth-child(1) {
+	left: 16px;
+}
+#ShortCut .row .container:nth-child(2) {
+	left: 45px;
+}
+#ShortCut .row .container:nth-child(3) {
+	left: 74px;
+}
+#ShortCut .row .container:nth-child(4) {
+	left: 103px;
+}
+#ShortCut .row .container:nth-child(5) {
+	left: 132px;
+}
+#ShortCut .row .container:nth-child(6) {
+	left: 161px;
+}
+#ShortCut .row .container:nth-child(7) {
+	left: 190px;
+}
+#ShortCut .row .container:nth-child(8) {
+	left: 219px;
+}
+#ShortCut .row .container:nth-child(9) {
+	left: 248px;
+}
+#ShortCut .row .container:hover {
+	background-color: #b4ffb4;
+}
+#ShortCut .row .index {
+	position: absolute;
+	left: 6px;
+	top: 13px;
+	font-size: 11px;
+	line-height: 11px;
+	color: #2f4a4a;
+	pointer-events: none;
+}
+
+/* Skill Bar 1/2 switch, over row 1's number as in the official client */
+#ShortCut .skillbar {
+	position: absolute;
+	left: 3px;
+	top: 4px;
+	width: 10px;
+	height: 26px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#ShortCut .minus,
+#ShortCut .plus {
+	position: absolute;
+	right: 2px;
+	width: 11px;
+	height: 11px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#ShortCut .minus {
+	bottom: 17px;
+}
+#ShortCut .plus {
+	bottom: 2px;
+}
+#ShortCut .minus.hide {
+	display: none;
+}
+/* .active shows btn_plus_disable.bmp (data-active): all four rows are open */
+#ShortCut .plus.active {
+	pointer-events: none;
+}
+
+#ShortCut .icon {
+	position: relative;
+}
+#ShortCut .icon .img {
+	width: 24px;
+	height: 24px;
+	background-repeat: no-repeat;
+	border: none;
+	background-color: transparent;
+}
+#ShortCut .icon .name {
+	display: none;
+	z-index: 1;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background-color: rgba(0, 0, 0, 0.6);
+	text-shadow: 1px 1px black;
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+}
+#ShortCut .icon:hover .name {
+	display: block;
+}
+#ShortCut .icon.hide .name {
+	display: none;
+}
+#ShortCut .icon .amount {
+	position: absolute;
+	right: 1px;
+	top: 20px;
+	text-shadow: 1px 1px 0px white;
+	text-align: right;
+	font-weight: bold;
+}
+
+.shortcut-tooltip {
+	display: none;
+	position: fixed;
+	background-color: rgba(0, 0, 0, 0.8);
+	text-shadow: 1px 1px black;
+	color: white;
+	padding: 2px 6px;
+	white-space: nowrap;
+	z-index: 10000;
+	border-radius: 2px;
+	pointer-events: none;
+	line-height: 1.2;
+}
+.shortcut-tooltip.show {
+	display: block;
+}
+/* In the top layer while the hotbar is scaled (ShortCut.js): undo the popover defaults */
+.shortcut-tooltip[popover] {
+	inset: auto;
+	margin: 0;
+	border: none;
+	overflow: visible;
+}
+
+#ShortCut .cooldown-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 24px;
+	height: 24px;
+	pointer-events: none;
+	border-radius: 2px;
+	z-index: 999;
+	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);
+}
