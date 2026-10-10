@@ -61,7 +61,10 @@ class EntityControl {
 			case Entity.TYPE_PC:
 			case Entity.TYPE_ELEM:
 			case Entity.TYPE_HOM:
-			case Entity.TYPE_MERC: {
+			case Entity.TYPE_MERC:
+			// A player's ABR or Bionic summon (Meister, Biolo) fights on its master's side
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC: {
 				if ((KEYS.SHIFT === true || Preferences.noshift === true) && this !== Session.Entity) {
 					if (!Camera.action.active) {
 						Cursor.setType(Cursor.ACTION.ATTACK);
@@ -76,8 +79,6 @@ class EntityControl {
 
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
-			case Entity.TYPE_NPC_ABR:
-			case Entity.TYPE_NPC_BIONIC:
 				Cursor.setType(Cursor.ACTION.ATTACK);
 				break;
 
@@ -268,6 +269,8 @@ class EntityControl {
 			case Entity.TYPE_PC:
 			case Entity.TYPE_ELEM:
 			case Entity.TYPE_HOM:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 				// TODO: add check for PVP/WOE mapflag
 				if (KEYS.SHIFT === false && Preferences.noshift === false && !this.canAttackEntity()) {
 					if (!Camera.action.active) {
@@ -281,8 +284,6 @@ class EntityControl {
 
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
-			case Entity.TYPE_NPC_ABR:
-			case Entity.TYPE_NPC_BIONIC:
 				// Start rendering the lock on arrow
 				this.attachments.add({
 					uid: 'lockon',
