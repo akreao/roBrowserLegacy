@@ -25,7 +25,7 @@ import Damage from 'Renderer/Effects/Damage.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
-import Announce from 'UI/Components/Announce/Announce.js';
+import BroadcastBalloon from 'UI/Components/BroadcastBalloon/BroadcastBalloon.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ChangeCart from 'UI/Components/ChangeCart/ChangeCart.js';
 import PartyUI from 'UI/Components/PartyFriends/PartyFriends.js';
@@ -605,9 +605,10 @@ function onParameterChange(pkt) {
 }
 
 /**
- * Received announce from server
+ * Received announce from server, shown in the 2026 client's broadcast balloon
+ * (iRO Recv_0x009A @0x52acb0, Recv_0x01C3 @0x52a870)
  *
- * @param {object} pkt - PACKET.ZC.BROADCAST
+ * @param {object} pkt - PACKET.ZC.BROADCAST or PACKET.ZC.BROADCAST2
  */
 function onGlobalAnnounce(pkt) {
 	let color;
@@ -630,8 +631,12 @@ function onGlobalAnnounce(pkt) {
 	}
 
 	ChatBox.addText(pkt.msg, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_CHAT, color);
-	Announce.append();
-	Announce.set(pkt.msg, color);
+	// ZC_BROADCAST wraps at 72 bytes; ZC_BROADCAST2 is one line at its own font size
+	const isBroadcast2 = 'fontColor' in pkt;
+	BroadcastBalloon.add(pkt.msg, color, {
+		wrap: !isBroadcast2,
+		fontSize: isBroadcast2 && pkt.fontSize > 0 ? pkt.fontSize : 12
+	});
 }
 
 /**
