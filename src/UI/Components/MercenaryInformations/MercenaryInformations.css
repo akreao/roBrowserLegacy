@@ -269,3 +269,57 @@
 	float: right;
 	text-align: right;
 }
+
+/* mercenaryGauges off: the official UIMerInfoWnd block, the end date in red and
+   three counters with no gauges. Offsets are the official ones less (100, 105). */
+#MercenaryInformations .contract {
+	display: none;
+	position: absolute;
+	top: 105px;
+	left: 100px;
+	width: 200px;
+	height: 70px;
+}
+#MercenaryInformations.official .contract {
+	display: block;
+}
+#MercenaryInformations.official .block2 {
+	display: none;
+}
+#MercenaryInformations .contract > div {
+	position: absolute;
+	white-space: nowrap;
+}
+#MercenaryInformations .contract .title_expire {
+	top: 6px;
+	left: 0;
+}
+#MercenaryInformations .contract .expire {
+	top: 6px;
+	left: 55px;
+	color: #ff0000;
+}
+#MercenaryInformations .contract .title_faith {
+	top: 30px;
+	left: 0;
+}
+#MercenaryInformations .contract .faith {
+	top: 28px;
+	left: 70px;
+}
+#MercenaryInformations .contract .title_calls {
+	top: 54px;
+	left: 0;
+}
+#MercenaryInformations .contract .calls {
+	top: 52px;
+	left: 70px;
+}
+#MercenaryInformations .contract .title_kills {
+	top: 28px;
+	left: 130px;
+}
+#MercenaryInformations .contract .kills {
+	top: 52px;
+	left: 145px;
+}
