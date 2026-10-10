@@ -942,6 +942,7 @@ export default function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.REQ_TAKEOFF_EQUIP_ACK, onEquipementTakeOff);
 	Network.hookPacket(PACKET.ZC.REQ_TAKEOFF_EQUIP_ACK2, onEquipementTakeOff);
 	Network.hookPacket(PACKET.ZC.ACK_TAKEOFF_EQUIP_V5, onEquipementTakeOff);
+	Network.hookPacket(PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL, () => Equipment.getUI().onTakeOffAllResult());
 	Network.hookPacket(PACKET.ZC.REQ_WEAR_EQUIP_ACK, onItemEquip);
 	Network.hookPacket(PACKET.ZC.REQ_WEAR_EQUIP_ACK2, onItemEquip);
 	Network.hookPacket(PACKET.ZC.ACK_WEAR_EQUIP_V5, onItemEquip);

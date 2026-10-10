@@ -121,6 +121,7 @@ export function createEquipment({
 	const tabLinks = {};
 	const contentDivs = {};
 	let currentTabId = 'general';
+	let _takeOffPending = false;
 
 	let switchappend;
 	let switchUIopen;
@@ -227,6 +228,12 @@ export function createEquipment({
 			const switchEquipBtn = root.querySelector('.switch_equip');
 			if (switchEquipBtn) switchEquipBtn.addEventListener('click', onSwtichEquip);
 		}
+		const removeEquipBtn = root.querySelector('.remove_equip');
+		if (removeEquipBtn) {
+			removeEquipBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+			removeEquipBtn.addEventListener('click', onTakeOffAll);
+			updateTakeOffAll();
+		}
 
 		if (titles) {
 			const titleList = root.querySelector('#title_list');
@@ -331,6 +338,7 @@ export function createEquipment({
 		}
 
 		currentTabId = selectedId;
+		updateTakeOffAll();
 
 		if (switchEquip) {
 			if (SwitchEquip.ui) {
@@ -1141,7 +1149,37 @@ export function createEquipment({
 		};
 	}
 
+	/**
+	 * Take off all: the server takes off every non-costume slot, so the button
+	 * works on the General tab only, once at a time until the reply comes
+	 * (UIEquipWnd vf37, button 0x23f; rAthena CZ_REQ_TAKEOFF_EQUIP_ALL 0x0bad)
+	 */
+	function updateTakeOffAll() {
+		const btn = Component.getRoot().querySelector('.remove_equip');
+		if (btn) {
+			btn.disabled = _takeOffPending || currentTabId !== 'general' || PACKETVER.value < 20210818;
+		}
+	}
+
+	function onTakeOffAll() {
+		if (_takeOffPending || currentTabId !== 'general' || PACKETVER.value < 20210818) {
+			return;
+		}
+		_takeOffPending = true;
+		updateTakeOffAll();
+		Component.onUnEquipAll();
+	}
+
+	/**
+	 * The server answered the take-off-all request (ZC_ACK_TAKEOFF_EQUIP_ALL 0x0bae)
+	 */
+	Component.onTakeOffAllResult = function onTakeOffAllResult() {
+		_takeOffPending = false;
+		updateTakeOffAll();
+	};
+
 	Component.onUnEquip = function onUnEquip(/* index */) {};
+	Component.onUnEquipAll = function onUnEquipAll() {};
 	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
 	Component.onEquipItem = function onEquipItem(/* index, location */) {};
 	Component.onRemoveCart = function onRemoveCart() {};

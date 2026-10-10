@@ -13831,6 +13831,20 @@ PACKET.ZC.RESPONSE_ENCHANT = function PACKET_ZC_RESPONSE_ENCHANT(fp, end) {
 };
 PACKET.ZC.RESPONSE_ENCHANT.size = 10;
 
+// 0xbad
+PACKET.CZ.REQ_TAKEOFF_EQUIP_ALL = function PACKET_CZ_REQ_TAKEOFF_EQUIP_ALL() {};
+PACKET.CZ.REQ_TAKEOFF_EQUIP_ALL.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(2);
+	pkt_buf.writeShort(0x0bad);
+	return pkt_buf;
+};
+
+// 0xbae
+PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL = function PACKET_ZC_ACK_TAKEOFF_EQUIP_ALL(fp, end) {
+	this.result = fp.readUChar();
+};
+PACKET.ZC.ACK_TAKEOFF_EQUIP_ALL.size = 3;
+
 // 0xba0
 PACKET.CZ.CLOSE_UI_ENCHANT = function PACKET_CZ_CLOSE_UI_ENCHANT() {};
 PACKET.CZ.CLOSE_UI_ENCHANT.prototype.build = function () {

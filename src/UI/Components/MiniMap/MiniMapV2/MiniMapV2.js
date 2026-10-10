@@ -9,6 +9,7 @@
  */
 
 import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
+import MiniMapView from '../MiniMapView/MiniMapView.js';
 import htmlText from './MiniMapV2.html?raw';
 import cssText from './MiniMapV2.css?raw';
 import { createMiniMap } from '../MiniMapCommon.js';
@@ -20,5 +21,6 @@ export default createMiniMap({
 	worldMap: WorldMap,
 	townInfoToggle: true,
 	coordinates: true,
-	arrowShadow: true
+	arrowShadow: true,
+	mapView: MiniMapView
 });

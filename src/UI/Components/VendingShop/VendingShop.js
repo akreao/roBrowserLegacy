@@ -26,6 +26,7 @@ import Vending from 'UI/Components/Vending/Vending.js';
 import htmlText from './VendingShop.html?raw';
 import cssText from './VendingShop.css?raw';
 import VendingReport from 'UI/Components/VendingReport/VendingReport.js';
+import Sound from 'Audio/SoundManager.js';
 
 /**
  * Create Component
@@ -67,7 +68,8 @@ const _preferences = Preferences.get(
 		y: 200,
 		width: 8,
 		height: 2,
-		reduce: false
+		reduce: false,
+		alarm: false
 	},
 	1.0
 );
@@ -82,6 +84,17 @@ VendingShop.init = function init() {
 	if (closeBtn) {
 		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		closeBtn.addEventListener('click', () => VendingShop.onSubmit());
+	}
+
+	const alarm = root.querySelector('.footer .alarm');
+	if (alarm) {
+		alarm.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		alarm.addEventListener('click', event => {
+			event.preventDefault();
+			_preferences.alarm = !_preferences.alarm;
+			_preferences.save();
+			drawAlarm();
+		});
 	}
 
 	this._host.addEventListener('drop', onDrop);
@@ -153,7 +166,28 @@ VendingShop.onAppend = function onAppend() {
 	if (shopnameEl) {
 		shopnameEl.textContent = `${messageText} : ${titleShop}`;
 	}
+	drawAlarm();
 };
+
+/**
+ * Show the alarm checkbox: "Alarms when items sold" (MsgStr 2642), or "Alarms when
+ * purchasing items" (MsgStr 2698) for a buying store
+ */
+function drawAlarm() {
+	const root = VendingShop.getRoot();
+	const label = root.querySelector('.footer .alarm .label');
+	const box = root.querySelector('.footer .alarm .box');
+	if (!label || !box) {
+		return;
+	}
+	label.textContent =
+		_type === VendingShop.Type.BUYING_LIST
+			? DB.getMessage(2698, 'Alarms when purchasing items')
+			: DB.getMessage(2642, 'Alarms when items sold');
+	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_${_preferences.alarm ? 1 : 0}.bmp`, url => {
+		box.style.backgroundImage = `url(${url})`;
+	});
+}
 
 /**
  * Specify the type of the shop
@@ -162,6 +196,7 @@ VendingShop.onAppend = function onAppend() {
  */
 VendingShop.setType = function setType(type) {
 	_type = type;
+	drawAlarm();
 };
 
 /**
@@ -350,6 +385,11 @@ VendingShop.removeItem = function removeItem(index, count) {
 
 	const msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
 	ChatBox.addText(msg, ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
+
+	// With the alarm on, the official client plays ef_steal.wav on each sale (0x766866)
+	if (_preferences.alarm) {
+		Sound.play('effect/ef_steal.wav');
+	}
 
 	const root = this.getRoot();
 

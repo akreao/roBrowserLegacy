@@ -464,6 +464,7 @@ class MapEngine {
 			// Bind UIs
 			WinStats.getUI().onRequestUpdate = onRequestStatUpdate;
 			Equipment.getUI().onUnEquip = onUnEquip;
+			Equipment.getUI().onUnEquipAll = onUnEquipAll;
 			Equipment.getUI().onConfigUpdate = onConfigUpdate;
 			Equipment.getUI().onEquipItem = onEquipItem;
 			Equipment.getUI().onRemoveOption = onRemoveOption;
@@ -1292,6 +1293,13 @@ function onUnEquip(index) {
 	const pkt = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
 	pkt.index = index;
 	Network.sendPacket(pkt);
+}
+
+/**
+ * Take off every equip but the costumes
+ */
+function onUnEquipAll() {
+	Network.sendPacket(new PACKET.CZ.REQ_TAKEOFF_EQUIP_ALL());
 }
 
 /**

@@ -22,6 +22,7 @@
 
 #QuestWindow .quest-window-ul .quest-window-li .quest-window-li-title {
 	color: yellow;
+	cursor: pointer;
 }
 
 #QuestWindow .quest-window-ul .quest-window-li .quest-window-li-summary {

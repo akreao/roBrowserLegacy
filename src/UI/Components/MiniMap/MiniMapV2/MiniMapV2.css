@@ -3,34 +3,54 @@
 	right: 16px;
 }
 
+/* The button row under the map, at the official UIMinimapZoomWnd offsets: object at 1,
+   then plus, minus, mini and viewon at w-55, w-41, w-27 and w-13 (vf14 @0x5435a0) */
 #MiniMapV2 .info_container {
-	display: flex;
-	justify-content: space-between;
+	position: relative;
+	width: 128px;
+	height: 12px;
+}
+#MiniMapV2 .info_container ui-button {
+	position: absolute;
+	top: 0;
+	width: 12px;
+	height: 12px;
 }
 #MiniMapV2 .info_container .object {
-	width: 12px;
-	height: 12px;
+	left: 1px;
 }
 #MiniMapV2 .info_container .plus {
-	width: 12px;
-	height: 12px;
+	left: 73px;
 }
 #MiniMapV2 .info_container .minus {
-	width: 12px;
-	height: 12px;
+	left: 87px;
 }
 #MiniMapV2 .info_container .mini {
-	width: 12px;
-	height: 12px;
+	left: 101px;
 }
 #MiniMapV2 .info_container .viewon {
-	width: 12px;
-	height: 12px;
+	left: 115px;
 }
 #MiniMapV2 .info_container .coordinates {
+	position: absolute;
+	top: 0;
+	left: 19px;
+	line-height: 12px;
+	white-space: nowrap;
 	color: #fff;
 	text-shadow: 1px 1px 1px #000;
-	left: 14px;
+}
+
+/* Without officialMiniMapButtons: the buttons spread across the map's width */
+#MiniMapV2.legacy .info_container {
+	display: flex;
+	justify-content: space-between;
+	width: auto;
+	height: auto;
+}
+#MiniMapV2.legacy .info_container ui-button,
+#MiniMapV2.legacy .info_container .coordinates {
+	position: static;
 }
 
 #MiniMapV2 ui-button.cashshopIcon {

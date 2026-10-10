@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // The shortcut grid of the Basic Information menu (V4 and V5) is a panel made
-// for fifteen buttons: three rows of five 32px buttons with 6px margins, over a
-// frame 132px tall (Flux159/ragnarokoffline.app#390). One more button wrapped
-// onto a fourth row below the frame, and every mod button would do the same, so
+// for five rows of five 32px buttons with 6px margins, 229px tall under the 9px
+// toggle bar, as the 2026 client's 220x238 icon panel (Flux159/ragnarokoffline.app#390
+// had it 132px). A sixth row, from mod buttons, would wrap below the frame, so
 // the panel scrolls instead. A scrolling panel clips what a button drew above
 // itself, so its name is drawn once, below the frame.
 
@@ -45,6 +45,7 @@ vi.mock('UI/Components/SkillList/SkillList.js', stub);
 vi.mock('UI/Components/Quest/Quest.js', stub);
 vi.mock('UI/Components/Achievement/Achievement.js', stub);
 vi.mock('UI/Components/Reputation/Reputation.js', stub);
+vi.mock('UI/Components/CashShopIcon/CashShopIcon.js', stub);
 
 const { createBasicInfo } = await import('UI/Components/BasicInfo/BasicInfoCommon.js');
 
@@ -66,9 +67,14 @@ describe.each(Object.entries(VERSIONS))('BasicInfo%s menu panel', (version, spec
 
 	it('keeps the size of its frame and scrolls', () => {
 		const panel = block(`#BasicInfo${version} .buttons`);
-		expect(panel).toMatch(/height: 132px;/);
+		expect(panel).toMatch(/height: 229px;/);
 		expect(panel).toMatch(/overflow-y: auto;/); // the client attaches its scrollbar to this
 		expect(panel).toMatch(/overflow-x: hidden;/);
+	});
+
+	it('keeps the 132px panel without officialMenuBar', () => {
+		expect(block(`#BasicInfo${version}.legacy_panel .buttons`)).toMatch(/height: 132px;/);
+		expect(block(`#BasicInfo${version}.legacy_panel.large .menu_tip`)).toMatch(new RegExp(`top: ${spec.large + 132 + 4}px`));
 	});
 
 	it('still fits five buttons beside the scrollbar', () => {
@@ -82,9 +88,9 @@ describe.each(Object.entries(VERSIONS))('BasicInfo%s menu panel', (version, spec
 		expect(css).not.toMatch(/:hover \.name \{\s*display: table/);
 		const tip = block(`#BasicInfo${version} .menu_tip`);
 		expect(tip).toMatch(/left: 110px;\s*transform: translateX\(-50%\);/); // centred on the 220px frame
-		// The panel's top, its 132px, and a 4px gap.
-		expect(block(`#BasicInfo${version}.large .menu_tip`)).toMatch(new RegExp(`top: ${spec.large + 132 + 4}px`));
-		expect(block(`#BasicInfo${version}.small .menu_tip`)).toMatch(new RegExp(`top: ${spec.small + 132 + 4}px`));
+		// The panel's top, its 229px, and a 4px gap.
+		expect(block(`#BasicInfo${version}.large .menu_tip`)).toMatch(new RegExp(`top: ${spec.large + 229 + 4}px`));
+		expect(block(`#BasicInfo${version}.small .menu_tip`)).toMatch(new RegExp(`top: ${spec.small + 229 + 4}px`));
 	});
 
 	it('puts the new-item mark over the button it marks', () => {

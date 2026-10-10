@@ -28,6 +28,7 @@ export default createBasicInfo({
 	partyViaGetUI: true,
 	hasToolbarToggle: true,
 	hideIds: ['replay', 'tipbox', 'shortcut', 'agency'],
+	officialIds: ['shop'],
 	menuTip: true,
 	barScale: 1.27,
 	hasApBar: true

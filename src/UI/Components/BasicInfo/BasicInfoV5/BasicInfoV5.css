@@ -188,12 +188,13 @@
 	text-align: right;
 	white-space: nowrap;
 }
+/* The 2026 icon panel is 220x238 with its toggle bar: five rows of icons (UIMenuIconWnd vf15) */
 #BasicInfoV5 .buttons {
 	position: absolute;
 	left: 0px;
 	top: 9px;
 	width: 220px;
-	height: 132px;
+	height: 229px;
 	overflow-x: hidden;
 	overflow-y: auto; /* the client's scrollbar attaches to this, and only shows when there is more */
 	background-repeat: no-repeat;
@@ -308,10 +309,10 @@
 	font-size: 0.6rem;
 }
 #BasicInfoV5.large .menu_tip {
-	top: 296px; /* the panel is at 160px, 132px tall */
+	top: 393px; /* the panel is at 160px, 229px tall */
 }
 #BasicInfoV5.small .menu_tip {
-	top: 216px; /* the panel is at 80px, 132px tall */
+	top: 313px; /* the panel is at 80px, 229px tall */
 }
 
 #BasicInfoV5 .buttons .btn_overlay {
@@ -325,4 +326,15 @@
 	left: 0;
 	z-index: 10;
 	display: none;
+}
+
+/* Without officialMenuBar: the 132px panel, three rows, that scrolls */
+#BasicInfoV5.legacy_panel .buttons {
+	height: 132px;
+}
+#BasicInfoV5.legacy_panel.large .menu_tip {
+	top: 296px;
+}
+#BasicInfoV5.legacy_panel.small .menu_tip {
+	top: 216px;
 }

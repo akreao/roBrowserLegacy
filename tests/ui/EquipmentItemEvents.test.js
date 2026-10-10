@@ -185,3 +185,33 @@ describe('Equipment titles', () => {
 		expect(Equipment.selectTitle).toHaveBeenCalledWith(1001);
 	});
 });
+
+describe('Equipment take off all', () => {
+	const button = () => Equipment.getRoot().querySelector('.remove_equip');
+	const showTab = id => Equipment.getRoot().querySelector(`a[href="#${id}"]`).click();
+
+	beforeEach(() => {
+		Equipment.onUnEquipAll = vi.fn();
+		Equipment.onTakeOffAllResult();
+		showTab('general');
+	});
+
+	it('asks the server once, then waits for its reply', () => {
+		button().click();
+		button().click();
+		expect(Equipment.onUnEquipAll).toHaveBeenCalledTimes(1);
+		expect(button().disabled).toBe(true);
+
+		Equipment.onTakeOffAllResult();
+		expect(button().disabled).toBe(false);
+		button().click();
+		expect(Equipment.onUnEquipAll).toHaveBeenCalledTimes(2);
+	});
+
+	it('does nothing on the costume tab', () => {
+		showTab('costume');
+		expect(button().disabled).toBe(true);
+		button().click();
+		expect(Equipment.onUnEquipAll).not.toHaveBeenCalled();
+	});
+});

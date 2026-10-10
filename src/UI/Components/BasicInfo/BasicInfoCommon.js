@@ -39,6 +39,7 @@ import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
 import EntryQueue from 'UI/Components/EntryQueue/EntryQueue.js';
+import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
 	const {
@@ -59,6 +60,7 @@ export function createBasicInfo(config) {
 		hasToolbarToggle = false,
 		miniLayout = false,
 		hideIds = [],
+		officialIds = [],
 		barScale = 1.27,
 		hasApBar = false,
 		menuTip = false
@@ -162,6 +164,12 @@ export function createBasicInfo(config) {
 			case 'battle':
 				EntryQueue.onMenuButton();
 				break;
+			case 'shop':
+				// The 2026 menu shows the cash shop icon (UIMenuIconWnd "shop", sends 0x143)
+				if (Configs.get('enableCashShop')) {
+					CashShopIcon.toggleShop();
+				}
+				break;
 		}
 	}
 
@@ -237,6 +245,12 @@ export function createBasicInfo(config) {
 
 	Component.init = function init() {
 		const root = this.getRoot();
+
+		// roBrowser's 132px menu panel, three rows, that scrolls; with `officialMenuBar: true`
+		// the 2026 five-row panel
+		if (!Configs.get('officialMenuBar', false)) {
+			root.querySelector(innerId)?.classList.add('legacy_panel');
+		}
 
 		if (menuTip) {
 			setupMenuTip(root);
@@ -315,7 +329,13 @@ export function createBasicInfo(config) {
 			}
 		}
 
-		hideIds.forEach(id => {
+		// The icons the 2026 menu adds show only with `officialMenuBar: true`, and the shop
+		// icon only with the cash shop on
+		let hidden = Configs.get('officialMenuBar', false) ? hideIds : hideIds.concat(officialIds);
+		if (!Configs.get('enableCashShop')) {
+			hidden = hidden.concat('shop');
+		}
+		hidden.forEach(id => {
 			const el = root.querySelector(`#${id}`);
 			if (el) {
 				el.style.display = 'none';
