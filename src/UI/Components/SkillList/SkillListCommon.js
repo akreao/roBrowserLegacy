@@ -158,7 +158,7 @@ export function createSkillList({
 				onResetChoice(this);
 			});
 			root.querySelector('.apply')?.addEventListener('click', () => {
-				if (Configs.get('skillListInstantLevelUp', false)) {
+				if (!Configs.get('enableOfficialSkillList', false)) {
 					onApplyChoice(this);
 					return;
 				}
@@ -858,9 +858,8 @@ export function createSkillList({
 		const levelup = _btnIncSkill.cloneNode(true);
 		levelup.addEventListener('click', function () {
 			const index = parseInt(this.parentNode.parentNode.getAttribute('data-index'), 10);
-			// Like the official client, "+" only reserves the point and Apply sends it,
-			// unless skillListInstantLevelUp asks for the old immediate level-up
-			if (listOnly || Configs.get('skillListInstantLevelUp', false)) {
+			// enableOfficialSkillList: like the official client, "+" only reserves the point and Apply sends it
+			if (listOnly || !Configs.get('enableOfficialSkillList', false)) {
 				Component.onIncreaseSkill(index);
 			} else {
 				stageSkill(index, root);
@@ -1136,8 +1135,8 @@ export function createSkillList({
 			if (contentbig) {
 				contentbig.style.display = 'none';
 			}
-			// Official list mode keeps Apply/Reset; the old instant level-up mode has nothing to apply
-			const showApply = !Configs.get('skillListInstantLevelUp', false);
+			// Official list mode keeps Apply/Reset; the classic one levels up at once and has nothing to apply
+			const showApply = Configs.get('enableOfficialSkillList', false);
 			root.querySelectorAll('.footer .btn').forEach(el => {
 				el.style.display = showApply ? 'block' : 'none';
 			});

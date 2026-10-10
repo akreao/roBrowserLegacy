@@ -443,7 +443,7 @@ var ROConfig = {
 	enableBank: false, // Enable Bank UI? (Requires PACKETVER 20130724 above)
 	enableMapName: false, // Enable Map Name Banner? (Requires client data (GRF) newer than 2019.06.19)
 	enableRefineUI: false, // Enable Renewal Refine UI? (Requires client data (GRF) newer than 2016.10.12) (Should also enable in server side)
-	skillListInstantLevelUp: false, // Skill window: "+" levels up at once and Apply sends without asking (roBrowser's old behaviour). Off follows the official client: points are reserved until Apply, which asks first
+	enableOfficialSkillList: false, // Skill window like the official client: "+" in list mode only reserves points until Apply, and Apply asks first (msgstringtable 1377)
 	enableDmgSuffix: false, // Enable Damage Suffix (>1M = K, >100M = M) - Requires client data (GRF) newer or equals to 2019.05.08
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920

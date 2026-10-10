@@ -126,7 +126,7 @@ vi.mock('Core/Client.js', () => ({
 		}
 	}
 }));
-const configs = vi.hoisted(() => ({ skillListInstantLevelUp: false }));
+const configs = vi.hoisted(() => ({ enableOfficialSkillList: true }));
 vi.mock('Core/Configs.js', () => ({
 	default: { get: (key, fallback) => configs[key] ?? fallback }
 }));
@@ -249,7 +249,7 @@ describe('SkillListV2 prerequisite planning', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
 		UIManager.showPromptBox.mockClear();
-		configs.skillListInstantLevelUp = false;
+		configs.enableOfficialSkillList = true;
 	});
 
 	it('shows and transactionally stages the complete Heal chain', () => {
@@ -367,8 +367,8 @@ describe('SkillListV2 prerequisite planning', () => {
 		expect(component.onIncreaseSkill.mock.calls).toEqual([[mocks.ids.CURE]]);
 	});
 
-	it('keeps the old instant behaviour behind skillListInstantLevelUp', () => {
-		configs.skillListInstantLevelUp = true;
+	it('keeps the classic instant behaviour unless enableOfficialSkillList is set', () => {
+		configs.enableOfficialSkillList = false;
 		const component = createComponent();
 		const root = component.getRoot();
 		component.onIncreaseSkill = vi.fn();
