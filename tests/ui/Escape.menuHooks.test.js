@@ -6,6 +6,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('Core/Configs.js', () => ({ default: { get: (key, fallback) => (key === 'officialEscapeMenu' ? true : fallback) } }));
 // GUIComponent imports these lazily; mocked so they don't pull the renderer in.
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: { DEFAULT: 0 }, setType: vi.fn(), getActualType: vi.fn() } }));
 vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: 'data/texture/ui/', getMessage: () => '' } }));
@@ -53,8 +54,7 @@ describe('the option menu with buttons from plugins', () => {
 			'resurection',
 			'savepoint',
 			'charselect',
-			'graphics',
-			'sound',
+			'settings',
 			'hotkey',
 			'hooked',
 			'exit',
@@ -92,5 +92,27 @@ describe('the option menu with buttons from plugins', () => {
 
 		Escape.resetMenu();
 		expect(hooked().map(el => el.style.display)).toEqual(['', '']);
+	});
+});
+
+describe('the official buttons', () => {
+	const shown = () =>
+		[...Escape.getRoot().querySelectorAll('.container button')]
+			.filter(el => el.style.display !== 'none')
+			.map(el => el.className);
+
+	it('shows the normal menu of UIEscOptionWnd', () => {
+		Escape.resetMenu();
+		expect(shown()).toEqual(['charselect', 'settings', 'hotkey', 'exit', 'cancel']);
+	});
+
+	it('keeps only resurrection, save point and return on the death menu', () => {
+		Escape.showDeathMenu(true);
+		expect(shown()).toEqual(['resurection', 'savepoint', 'cancel']);
+		Escape.showDeathMenu(false);
+		Escape.resetMenu();
+		Escape.showDeathMenu(false);
+		expect(shown()).toEqual(['savepoint', 'cancel']);
+		Escape.resetMenu();
 	});
 });

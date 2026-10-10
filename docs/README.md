@@ -445,6 +445,13 @@ var ROConfig = {
 	enableRefineUI: false, // Enable Renewal Refine UI? (Requires client data (GRF) newer than 2016.10.12) (Should also enable in server side)
 	enableDmgSuffix: false, // Enable Damage Suffix (>1M = K, >100M = M) - Requires client data (GRF) newer or equals to 2019.05.08
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
+	officialEscapeMenu: false, // Official Esc menu: one Game Settings button, save point question, official death menu
+	officialQuestTracker: false, // Official quest tracker: 5 quests, finished hunts read "( Complete )"
+	officialMiniMapButtons: false, // Official minimap button positions
+	officialWhisperTitle: false, // Official whisper title "With  name" (no "(Friend)")
+	officialCashShopTabs: false, // Official "Limited Sales" as the Cash Shop's ninth tab
+	officialMenuBar: false, // Official 2026 menu bar: five-row panel, cash shop icon, Reputation for every job
+	officialAnnounce: false, // Official 2026 broadcast balloon for announcements (up to 3, stacked)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
 	loadLua: false, // Enable this option to load LUA tables (currently only item table) from client/System/...
 	customItemInfo: ['kRO.lua', 'jRO.lua', 'lua files514/iteminfo.lua'], // Customized iteminfo array-list, it loads using firt to last priority

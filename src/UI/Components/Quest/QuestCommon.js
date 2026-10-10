@@ -94,6 +94,8 @@ export function createQuest(config) {
 		questHelper.prepare();
 		if (questWindow) {
 			questWindow.prepare();
+			questWindow.onShowInfo = showQuestInfo;
+			questWindow.onDelete = quest => sendActiveQuest(quest, 0);
 		}
 
 		if (renewLayout) {
@@ -675,20 +677,28 @@ export function createQuest(config) {
 		const toggleEl = e.currentTarget;
 		const tid = toggleEl.id;
 		const id = tid.replace('qid', '');
+		sendActiveQuest(_questList[id], _questList[id].active == 1 ? 0 : 1);
+	}
+
+	function sendActiveQuest(quest, active) {
 		const _pkt = new PACKET.CZ.ACTIVE_QUEST();
-		_pkt.questID = _questList[id].questID;
-		_pkt.active = _questList[id].active == 1 ? 0 : 1;
+		_pkt.questID = quest.questID;
+		_pkt.active = active;
 		Network.sendPacket(_pkt);
 	}
 
 	function onClickView() {
 		if (_index > -1) {
-			questHelper.clearQuestDesc();
-			questHelper.setQuestInfo(_questList[_index]);
-			questHelper.prepare();
-			questHelper.append();
-			questHelper.ui.show();
+			showQuestInfo(_questList[_index]);
 		}
+	}
+
+	function showQuestInfo(quest) {
+		questHelper.clearQuestDesc();
+		questHelper.setQuestInfo(quest);
+		questHelper.prepare();
+		questHelper.append();
+		questHelper.ui.show();
 	}
 
 	function onClickQuestCheckbox() {

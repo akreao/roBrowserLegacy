@@ -17,6 +17,7 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Renderer from 'Renderer/Renderer.js';
 import Preferences from 'Core/Preferences.js';
+import Configs from 'Core/Configs.js';
 import Session from 'Engine/SessionStorage.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import UIManager from 'UI/UIManager.js';
@@ -134,7 +135,16 @@ function _processContent(container) {
 /**
  * Render HTML
  */
-CashShop.render = () => htmlText;
+/**
+ * The ninth tab is roBrowser's "Account Limited" (img_shop_tap8), or with
+ * `officialCashShopTabs: true` the official "Limited Sales" (img_shop_tap9).
+ */
+CashShop.render = () =>
+	!Configs.get('officialCashShopTabs', false)
+		? htmlText
+				.replace('data-title="Limited Sales"', 'data-title="Account Limited"')
+				.replace(/img_shop_tap9_/g, 'img_shop_tap8_')
+		: htmlText;
 
 CashShop.init = function init() {
 	const root = _root();
@@ -167,6 +177,11 @@ CashShop.init = function init() {
 		const purchaseBtn = e.target.closest('#purchase-btn');
 		if (purchaseBtn) {
 			onClickActionBuyItem();
+			return;
+		}
+
+		if (e.target.closest('#cashshop-refresh-btn')) {
+			CashShop.onRefreshRequest(CashShop.activeCashMenu);
 			return;
 		}
 
@@ -1131,4 +1146,11 @@ function stopPropagation(event) {
 	event.preventDefault();
 	return false;
 }
+/**
+ * Callback: the Refresh button asks the server for the shop again (set by the engine)
+ *
+ * @param {number} tab the tab shown
+ */
+CashShop.onRefreshRequest = function onRefreshRequest() {};
+
 export default UIManager.addComponent(CashShop);

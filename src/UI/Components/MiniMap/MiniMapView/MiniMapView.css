@@ -1,0 +1,120 @@
+:host {
+	top: 100px;
+	left: 200px;
+	width: 516px;
+	height: 559px;
+}
+
+/* Laid out from the official UIMiniMapWnd (window 0x111): positions are window pixels, title bar included */
+#MiniMapView {
+	position: absolute;
+	width: 516px;
+	height: 559px;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#MiniMapView > * {
+	position: absolute;
+}
+
+#MiniMapView .titlebar {
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 17px;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0 0;
+}
+#MiniMapView .titlebar button {
+	position: absolute;
+	top: 3px;
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#MiniMapView .titlebar .base {
+	left: 3px;
+}
+#MiniMapView .titlebar .close {
+	right: 3px;
+}
+#MiniMapView .titlebar .text {
+	position: absolute;
+	left: 17px;
+	top: 2px;
+	font-size: 11px;
+	font-weight: bold;
+	white-space: nowrap;
+	text-shadow: 1px 1px white;
+}
+
+/* The map, 512x512 at 2,19 on a grey ground */
+#MiniMapView .map {
+	left: 2px;
+	top: 19px;
+	width: 512px;
+	height: 512px;
+	background: #aaaaaa;
+	overflow: hidden;
+}
+#MiniMapView .map canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+#MiniMapView .map.recording {
+	cursor: crosshair;
+}
+#MiniMapView .points > div {
+	position: absolute;
+	background-repeat: no-repeat;
+}
+#MiniMapView .points .memo {
+	width: 15px;
+	height: 13px;
+	cursor: pointer;
+}
+#MiniMapView .points .boss {
+	width: 24px;
+	height: 24px;
+}
+
+/* The three checkboxes at x 20, 120 and 220, h-19 */
+#MiniMapView .check {
+	top: 540px;
+	height: 14px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+#MiniMapView .check .box {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 4px;
+	vertical-align: -1px;
+	background-repeat: no-repeat;
+}
+#MiniMapView .check.quest {
+	left: 20px;
+}
+#MiniMapView .check.npc {
+	left: 120px;
+}
+#MiniMapView .check.member {
+	left: 220px;
+}
+
+/* Record, at w-120, h-23 */
+#MiniMapView .record {
+	left: 396px;
+	top: 536px;
+	width: 100px;
+	height: 20px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}

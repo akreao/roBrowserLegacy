@@ -121,6 +121,23 @@
 	position: relative;
 	border-right: 1px solid #ccc;
 }
+/* "Alarms when items sold", a checkbox at 12,h-18 (UIMerchantItemMyShopWnd::vf14 @0x5c6fd0) */
+#vendingshop .footer .alarm {
+	position: absolute;
+	left: 12px;
+	top: 7px;
+	height: 12px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+#vendingshop .footer .alarm .box {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 4px;
+	vertical-align: -1px;
+	background-repeat: no-repeat;
+}
 #vendingshop .footer .right {
 	float: right;
 	margin-right: 3px;

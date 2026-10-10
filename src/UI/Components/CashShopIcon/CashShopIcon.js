@@ -56,6 +56,11 @@ function onClickCashShopIcon() {
 	}
 }
 
+/**
+ * Open or close the shop, as the icon does (also used by the menu bar)
+ */
+CashShopIcon.toggleShop = onClickCashShopIcon;
+
 CashShopIcon.needFocus = false;
 CashShopIcon.mouseMode = GUIComponent.MouseMode.CROSS;
 

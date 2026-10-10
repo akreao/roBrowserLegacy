@@ -1,0 +1,141 @@
+:host {
+	top: 120px;
+	left: 120px;
+	width: 350px;
+	height: 350px;
+}
+
+/* Laid out from the official UIEntryQueueWnd: positions are window pixels, title bar included */
+#EntryQueue {
+	position: absolute;
+	width: 350px;
+	height: 350px;
+	background: white;
+	border-radius: 3px;
+	font-size: 12px;
+	color: black;
+}
+#EntryQueue > * {
+	position: absolute;
+}
+
+#EntryQueue .titlebar {
+	position: relative;
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#EntryQueue .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#EntryQueue .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	display: inline-block;
+	white-space: nowrap;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+#EntryQueue .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#EntryQueue .titlebar .right {
+	float: right;
+	margin-right: 3px;
+}
+#EntryQueue .titlebar .clear {
+	clear: both;
+}
+
+#EntryQueue .hint {
+	left: 10px;
+	top: 23px;
+	color: #c0c0c0;
+	white-space: nowrap;
+}
+
+/* The list box, 10,40 130x270 */
+#EntryQueue .list {
+	left: 10px;
+	top: 40px;
+	width: 130px;
+	height: 270px;
+	box-sizing: border-box;
+	border: 1px solid #f0f0f0;
+	overflow-y: auto;
+}
+#EntryQueue .list .entry {
+	height: 18px;
+	line-height: 18px;
+	padding: 0 4px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+#EntryQueue .list .entry.selected {
+	background: #cadffb;
+}
+
+/* The battleground's picture, from battle_field/ */
+#EntryQueue .image {
+	left: 157px;
+	top: 25px;
+	width: 180px;
+	height: 128px;
+	background-repeat: no-repeat;
+}
+
+/* Seven lines from 157,165, 20px apart; each value starts 5px after its label */
+#EntryQueue .info {
+	left: 157px;
+	top: 165px;
+	width: 185px;
+}
+#EntryQueue .info .row {
+	display: flex;
+	height: 20px;
+	line-height: 20px;
+	white-space: nowrap;
+}
+#EntryQueue .info .label:not(:empty) {
+	margin-right: 5px;
+	color: #4a4a4a;
+}
+#EntryQueue .info .value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Apply buttons, 93px apart from 8, 24px off the bottom */
+#EntryQueue .apply {
+	top: 326px;
+	width: 85px;
+	height: 20px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+#EntryQueue .apply.solo {
+	left: 8px;
+}
+#EntryQueue .apply.party {
+	left: 101px;
+}
+#EntryQueue .apply.guild {
+	left: 194px;
+}
+#EntryQueue .apply:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
