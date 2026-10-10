@@ -443,6 +443,7 @@ var ROConfig = {
 	enableBank: false, // Enable Bank UI? (Requires PACKETVER 20130724 above)
 	enableMapName: false, // Enable Map Name Banner? (Requires client data (GRF) newer than 2019.06.19)
 	enableRefineUI: false, // Enable Renewal Refine UI? (Requires client data (GRF) newer than 2016.10.12) (Should also enable in server side)
+	enableRenewalShortCut: false, // Use the renewal hotbar (+/- row buttons, Skill Bar 1/2 switch) instead of the classic one? (Requires client data (GRF) with texture/유저인터페이스/shortcut/) (Skill Bar 2 requires PACKETVER 20190522 above)
 	enableDmgSuffix: false, // Enable Damage Suffix (>1M = K, >100M = M) - Requires client data (GRF) newer or equals to 2019.05.08
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
