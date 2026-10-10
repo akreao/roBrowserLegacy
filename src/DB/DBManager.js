@@ -3541,10 +3541,12 @@ class DB {
 	 * Search for NPCs or MOBs in the navigation tables
 	 *
 	 * @param {string} query - The search query
-	 * @param {string} type - The type of search (ALL, NPC, MOB)
+	 * @param {string} type - The type of search (ALL, MAP, NPC, MOB)
+	 * @param {Object} [options]
+	 * @param {boolean} [options.includeMaps] - let ALL return maps too (MAP always does)
 	 * @returns {Array} Array of search results
 	 */
-	static searchNavigation(query, type) {
+	static searchNavigation(query, type, options) {
 		if (!query || query.length < 2) {
 			return [];
 		}
@@ -3552,11 +3554,37 @@ class DB {
 		query = query.toLowerCase();
 		const results = [];
 
+		// Search maps if type is MAP, or ALL when the caller asks for maps
+		if (type === 'MAP' || (type === 'ALL' && options && options.includeMaps)) {
+			const maps = naviList(NaviMapTable);
+			for (let i = 0; i < maps.length; i++) {
+				const entry = maps[i];
+				if (!Array.isArray(entry) || typeof entry[0] !== 'string') {
+					continue;
+				}
+				const mapName = entry[0].replace(/\.gat$/, '');
+				const label = entry.find((v, idx) => idx > 0 && typeof v === 'string' && v) || '';
+				const name = label || DB.getMapName(mapName + '.gat', mapName);
+
+				if (name.toLowerCase().indexOf(query) !== -1 || mapName.toLowerCase().indexOf(query) !== -1) {
+					results.push({
+						type: 'MAP',
+						id: entry[1],
+						name: name,
+						mapName: mapName,
+						x: null,
+						y: null
+					});
+				}
+			}
+		}
+
 		// Search NPCs if type is ALL or NPC
 		if (type === 'ALL' || type === 'NPC') {
 			// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
-			for (let i = 0; i < NaviNpcTable.length; i++) {
-				const npc = NaviNpcTable[i];
+			const npcs = naviList(NaviNpcTable);
+			for (let i = 0; i < npcs.length; i++) {
+				const npc = npcs[i];
 				const mapName = npc[0];
 				const npcId = npc[1];
 				const npcName = npc[4] || '';
@@ -3583,8 +3611,9 @@ class DB {
 		// Search MOBs if type is ALL or MOB
 		if (type === 'ALL' || type === 'MOB') {
 			// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
-			for (let i = 0; i < NaviMobTable.length; i++) {
-				const mob = NaviMobTable[i];
+			const mobs = naviList(NaviMobTable);
+			for (let i = 0; i < mobs.length; i++) {
+				const mob = mobs[i];
 				const mapName = mob[0];
 				const mobId = mob[3]; // Using mob_class as the ID
 				const mobName = mob[4] || '';
@@ -3625,7 +3654,7 @@ class DB {
 	 * @returns {Array} The NaviLinkTable
 	 */
 	static getNaviLinkTable() {
-		return NaviLinkTable;
+		return naviList(NaviLinkTable);
 	}
 
 	/**
@@ -3634,7 +3663,7 @@ class DB {
 	 * @returns {Array} The NaviLinkDistanceTable
 	 */
 	static getNaviLinkDistanceTable() {
-		return NaviLinkDistanceTable;
+		return naviList(NaviLinkDistanceTable);
 	}
 
 	/**
@@ -7333,6 +7362,30 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, isRes
 	} finally {
 		onEnd.call();
 	}
+}
+
+const _naviLists = new WeakMap();
+
+/**
+ * The navigation tables are filled with Object.assign() from the Lua tables,
+ * so they are plain objects keyed "0".."n" with no length. Read them as lists.
+ *
+ * @param {Object|Array} table
+ * @return {Array}
+ */
+function naviList(table) {
+	if (!table) {
+		return [];
+	}
+	if (Array.isArray(table)) {
+		return table;
+	}
+	let list = _naviLists.get(table);
+	if (!list || !list.length) {
+		list = Object.values(table);
+		_naviLists.set(table, list);
+	}
+	return list;
 }
 
 /**

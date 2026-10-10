@@ -1,0 +1,509 @@
+/*
+ * Navigation window, laid out as the official UINavigationV4Wnd (kRO 2020-12-29):
+ * basic mode 272x338 (vf14 @004c79a0, layout @004c7310 / @004c75c0 / @004c7170,
+ * vf17 @004c8d30), simple mode 134x61. All positions are window-relative pixels.
+ */
+
+:host {
+	top: 200px;
+	left: 200px;
+}
+
+.Navigation {
+	position: relative;
+	width: 272px;
+	height: 338px;
+	background-color: #ffffff;
+	color: #000000;
+	font-size: 12px;
+	overflow: hidden;
+	z-index: 50;
+}
+
+.Navigation > div,
+.Navigation .titlebar > *,
+.Navigation .toolbar > *,
+.Navigation .map-view > *,
+.Navigation .search-view > *,
+.Navigation .simple-body > * {
+	position: absolute;
+	box-sizing: border-box;
+}
+
+.Navigation ui-button {
+	display: block;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+/* Title bar */
+
+.Navigation .titlebar {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 17px;
+	cursor: move;
+	z-index: 2;
+}
+
+.Navigation .tb-left {
+	top: 0;
+	left: 0;
+	width: 12px;
+	height: 17px;
+}
+
+.Navigation .tb-mid {
+	top: 0;
+	left: 12px;
+	right: 12px;
+	height: 17px;
+	background-repeat: repeat-x;
+}
+
+.Navigation .tb-right {
+	top: 0;
+	right: 0;
+	width: 12px;
+	height: 17px;
+}
+
+.Navigation .tb-base {
+	top: 3px;
+	left: 3px;
+	width: 11px;
+	height: 11px;
+}
+
+.Navigation .title {
+	top: 2px;
+	left: 17px;
+	height: 13px;
+	line-height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+	white-space: nowrap;
+	text-shadow: 1px 1px #ffffff;
+}
+
+.Navigation .btn-mini,
+.Navigation .btn-close {
+	top: 3px;
+	width: 11px;
+	height: 11px;
+}
+
+/* official: 0x9c at (w-28,3), 0x94 at (w-14,3) */
+.Navigation .btn-mini {
+	left: 244px;
+}
+
+.Navigation .btn-close {
+	left: 258px;
+}
+
+/* simple mode's own buttons: 0xa4 at (w-32,2), 0x98 at (w-15,2) */
+.Navigation .btn-simple-max,
+.Navigation .btn-simple-close {
+	top: 2px;
+	width: 14px;
+	height: 14px;
+	display: none;
+}
+
+.Navigation .btn-simple-max {
+	left: 102px;
+}
+
+.Navigation .btn-simple-close {
+	left: 119px;
+}
+
+/* Search row (y = 21) */
+
+.Navigation .toolbar {
+	top: 0;
+	left: 0;
+	width: 272px;
+	height: 44px;
+}
+
+.Navigation .btn-back {
+	top: 21px;
+	left: 4px;
+	width: 22px;
+	height: 18px;
+}
+
+.Navigation .combo {
+	top: 21px;
+	left: 29px;
+	width: 61px;
+	height: 18px;
+	cursor: pointer;
+	z-index: 5;
+}
+
+.Navigation .combo > * {
+	position: absolute;
+}
+
+.Navigation .combo-bg {
+	top: 0;
+	left: 0;
+	width: 43px;
+	height: 18px;
+}
+
+.Navigation .combo-text {
+	top: 0;
+	left: 0;
+	width: 43px;
+	height: 18px;
+	line-height: 18px;
+	text-align: center;
+	color: #646464;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.Navigation .combo-arrow {
+	top: 0;
+	left: 43px;
+	width: 18px;
+	height: 18px;
+}
+
+.Navigation .combo-list {
+	top: 18px;
+	left: 0;
+	width: 61px;
+	display: none;
+	background-color: #e8e8e8;
+	border: 1px solid #646464;
+	box-sizing: border-box;
+}
+
+.Navigation .combo.open .combo-list {
+	display: block;
+}
+
+.Navigation .combo-item {
+	position: relative;
+	height: 16px;
+	line-height: 16px;
+	padding-left: 3px;
+	color: #646464;
+	white-space: nowrap;
+}
+
+.Navigation .combo-item:hover {
+	background-color: #ffffff;
+}
+
+.Navigation .search-box {
+	top: 21px;
+	left: 94px;
+	width: 113px;
+	height: 18px;
+}
+
+.Navigation .search-input {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 113px;
+	height: 18px;
+	padding: 0 4px;
+	box-sizing: border-box;
+	border: none;
+	outline: none;
+	background-color: transparent;
+	font-size: 12px;
+}
+
+.Navigation .search-button {
+	top: 21px;
+	left: 207px;
+	width: 25px;
+	height: 18px;
+}
+
+.Navigation .sep-top {
+	top: 43px;
+	left: 0;
+	width: 272px;
+	height: 1px;
+	background-color: #cccccc;
+}
+
+/* Map view: grey box (1,44) 270x270, minimap 266x266 at (3,46) */
+
+.Navigation .map-view,
+.Navigation .search-view {
+	top: 0;
+	left: 0;
+	width: 272px;
+	height: 338px;
+	display: none;
+}
+
+.Navigation.view-map .map-view,
+.Navigation.view-search .search-view {
+	display: block;
+}
+
+.Navigation .map-frame {
+	top: 44px;
+	left: 1px;
+	width: 270px;
+	height: 270px;
+	background-color: #cccccc;
+}
+
+.Navigation .map-canvas {
+	top: 46px;
+	left: 3px;
+	width: 266px;
+	height: 266px;
+}
+
+.Navigation .map-line1,
+.Navigation .map-line2,
+.Navigation .map-status {
+	left: 10px;
+	max-width: 252px;
+	height: 14px;
+	line-height: 14px;
+	color: #ffffff;
+	white-space: nowrap;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.Navigation .map-line1 {
+	top: 48px;
+}
+
+.Navigation .map-line2 {
+	top: 68px;
+}
+
+/* official: (10, h-42) */
+.Navigation .map-status {
+	top: 296px;
+}
+
+/* Search view */
+
+.Navigation .dot {
+	top: 46px;
+	left: 5px;
+	width: 12px;
+	height: 13px;
+}
+
+.Navigation .result-count {
+	top: 48px;
+	left: 20px;
+	width: 100px;
+	height: 20px;
+	white-space: nowrap;
+}
+
+.Navigation .vsep {
+	top: 44px;
+	left: 138px;
+	width: 1px;
+	height: 270px;
+	background-color: #cccccc;
+}
+
+.Navigation .hsep {
+	top: 242px;
+	left: 139px;
+	width: 132px;
+	height: 1px;
+	background-color: #cccccc;
+}
+
+/* 2020: 138x244; kRO 2026-02 shrinks it to 138x224 */
+.Navigation .result-list {
+	top: 70px;
+	left: 1px;
+	width: 137px;
+	height: 224px;
+	background-color: #ffffff;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.Navigation .info-list {
+	top: 166px;
+	left: 139px;
+	width: 132px;
+	height: 76px;
+	background-color: #f0f4fd;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.Navigation .row {
+	position: relative;
+	height: 18px;
+	line-height: 18px;
+	padding-left: 14px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.Navigation .info-list .row {
+	cursor: default;
+}
+
+.Navigation .row .icon {
+	position: absolute;
+	top: 3px;
+	left: 2px;
+	width: 11px;
+	height: 11px;
+}
+
+.Navigation .result-list .row.selected {
+	background-color: #d6e2f7;
+}
+
+.Navigation .preview-canvas {
+	top: 60px;
+	left: 155px;
+	width: 100px;
+	height: 100px;
+}
+
+.Navigation .zeny-toggle {
+	top: 247px;
+	left: 146px;
+	width: 110px;
+	height: 12px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.Navigation .zeny-box {
+	position: absolute;
+	top: 1px;
+	left: 0;
+	width: 10px;
+	height: 10px;
+	background-repeat: no-repeat;
+}
+
+.Navigation .zeny-label {
+	position: absolute;
+	top: 0;
+	left: 13px;
+	height: 12px;
+	line-height: 12px;
+	font-size: 11px;
+}
+
+.Navigation .btn-target {
+	top: 263px;
+	left: 145px;
+	width: 120px;
+	height: 20px;
+}
+
+.Navigation .btn-target[disabled] {
+	opacity: 0.5;
+	cursor: default;
+}
+
+/* Bottom strip: bg_down.bmp at (0, h-24) */
+
+.Navigation .bottom {
+	top: 314px;
+	left: 0;
+	width: 272px;
+	height: 24px;
+}
+
+/* Simple mode: 134x61, white frame, black box (1,17) 132x43 */
+
+.Navigation .simple-body {
+	display: none;
+	top: 17px;
+	left: 1px;
+	width: 132px;
+	height: 43px;
+	background-color: #000000;
+}
+
+.Navigation.simple {
+	width: 134px;
+	height: 61px;
+}
+
+.Navigation.simple .tb-left,
+.Navigation.simple .tb-mid,
+.Navigation.simple .tb-right,
+.Navigation.simple .tb-base,
+.Navigation.simple .btn-mini,
+.Navigation.simple .btn-close,
+.Navigation.simple .toolbar,
+.Navigation.simple .map-view,
+.Navigation.simple .search-view,
+.Navigation.simple .bottom {
+	display: none;
+}
+
+.Navigation.simple .btn-simple-max,
+.Navigation.simple .btn-simple-close,
+.Navigation.simple .simple-body {
+	display: block;
+}
+
+.Navigation.simple .title {
+	top: 3px;
+	left: 3px;
+	font-size: 12px;
+	font-weight: normal;
+	text-shadow: none;
+}
+
+/* ico_destination at (2,18) of the window, i.e. (1,1) of the box */
+.Navigation .simple-dest {
+	top: 1px;
+	left: 1px;
+	width: 15px;
+	height: 21px;
+	display: none;
+}
+
+.Navigation .simple-body.has-target .simple-dest {
+	display: block;
+}
+
+.Navigation .simple-line1,
+.Navigation .simple-line2 {
+	left: 19px;
+	width: 110px;
+	height: 14px;
+	line-height: 14px;
+	color: #ffffff;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.Navigation .simple-line1 {
+	top: 4px;
+}
+
+.Navigation .simple-line2 {
+	top: 23px;
+}
