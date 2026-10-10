@@ -223,49 +223,49 @@
 	right: 20px;
 }
 
-/* Official UIMerInfoWnd: the end date in red and three counters, no gauges.
-   Offsets are the official ones less the block's own (100, 105). */
 #MercenaryInformations .block2 {
 	position: absolute;
 	top: 105px;
 	left: 100px;
-	width: 200px;
+	width: 170px;
 	height: 70px;
 }
-#MercenaryInformations .block2 > div {
-	position: absolute;
-	white-space: nowrap;
+
+#MercenaryInformations .block2 .title_timeleft {
+	width: 100%;
 }
-#MercenaryInformations .block2 .title_expire {
-	top: 6px;
-	left: 0;
+#MercenaryInformations .block2 .timeleft {
+	width: 50px;
+	float: right;
+	text-align: right;
 }
-#MercenaryInformations .block2 .expire {
-	top: 6px;
-	left: 55px;
-	color: #ff0000;
+#MercenaryInformations canvas.life.title_timeleft {
+	position: relative;
+	top: -3px;
 }
-#MercenaryInformations .block2 .title_faith {
-	top: 30px;
-	left: 0;
-}
-#MercenaryInformations .block2 .faith {
-	top: 28px;
-	left: 70px;
-}
-#MercenaryInformations .block2 .title_calls {
-	top: 54px;
-	left: 0;
-}
-#MercenaryInformations .block2 .calls {
-	top: 52px;
-	left: 70px;
-}
+
 #MercenaryInformations .block2 .title_kills {
-	top: 28px;
-	left: 130px;
+	width: 100%;
+	position: absolute;
+	top: 27px;
 }
 #MercenaryInformations .block2 .kills {
-	top: 52px;
-	left: 145px;
+	width: 50px;
+	float: right;
+	text-align: right;
+}
+#MercenaryInformations canvas.life.title_kills {
+	position: relative;
+	top: 10px;
+}
+
+#MercenaryInformations .block2 .title_faith {
+	width: 100%;
+	position: absolute;
+	top: 55px;
+}
+#MercenaryInformations .block2 .faith {
+	width: 50px;
+	float: right;
+	text-align: right;
 }

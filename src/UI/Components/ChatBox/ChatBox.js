@@ -192,10 +192,11 @@ ChatBox.init = function init() {
 	this.magnet.RIGHT = _preferences.magnet_right;
 
 	this.draggable('.input');
+	this.draggable('.battlemode');
 
 	// Keep chat log area click-through for walking; only block over interactive UI parts.
 	// For GUIComponent, set up manual mouse intersection blocking on interactive elements.
-	const interactiveSelector = '.input, .chat-function, .event_add_cursor';
+	const interactiveSelector = '.input, .chat-function, .battlemode, .event_add_cursor';
 	const interactiveEls = root.querySelectorAll(interactiveSelector);
 	interactiveEls.forEach(el => {
 		let _intersect;
@@ -559,6 +560,16 @@ ChatBox.init = function init() {
 			if (event.target.closest('.content a, .content .item-link')) {
 				event.stopPropagation();
 			}
+		});
+	}
+
+	const bmtoggle = root.querySelector('.battlemode .bmtoggle');
+	if (bmtoggle) {
+		bmtoggle.addEventListener('click', () => {
+			const inputEl = root.querySelector('.input');
+			const bmEl = root.querySelector('.battlemode');
+			if (inputEl) inputEl.style.display = inputEl.style.display === 'none' ? 'block' : 'none';
+			if (bmEl) bmEl.style.display = bmEl.style.display === 'none' ? 'block' : 'none';
 		});
 	}
 

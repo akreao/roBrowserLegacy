@@ -46,6 +46,8 @@ const _preferences = Preferences.get(
 // Party member store
 let _partyMembersByMap = {};
 
+let _hoveredSection = null;
+
 // Sizing params
 const C_TITLEBARHEIGHT = 17;
 const C_BASEWIDTH = 1280;
@@ -65,6 +67,9 @@ WorldMap.init = function init() {
 	const selectEl = root.querySelector('.titlebar select');
 	if (selectEl) selectEl.addEventListener('change', onSelect);
 
+	const toggleBtn = root.querySelector('.titlebar .togglemaps');
+	if (toggleBtn) toggleBtn.addEventListener('click', onToggleMaps);
+
 	const showLvlBtn = root.querySelector('.titlebar .showlvl');
 	if (showLvlBtn) showLvlBtn.addEventListener('click', onShowLVL);
 
@@ -74,6 +79,8 @@ WorldMap.init = function init() {
 	const content = root.querySelector('.map .content');
 	if (content) {
 		content.addEventListener('click', onWorldMapSectionClick);
+		content.addEventListener('mouseover', onWorldMapMouseOver);
+		content.addEventListener('mouseout', onWorldMapMouseOut);
 	}
 
 	WorldMap.showLVLMode = false;
@@ -170,6 +177,78 @@ function onWorldMapSectionClick(e) {
 }
 
 /**
+ * When worldmap container is mouse over
+ * @param {*} e
+ */
+function onWorldMapMouseOver(e) {
+	const section = e.target.closest('.section');
+	if (!section || section === _hoveredSection) return;
+	_hoveredSection = section;
+	showTooltip(section);
+}
+
+/**
+ * When worldmap container is mouse out
+ * @param {*} e
+ */
+function onWorldMapMouseOut(e) {
+	if (!_hoveredSection) return;
+	if (_hoveredSection.contains(e.relatedTarget)) return;
+	_hoveredSection = null;
+	hideTooltip();
+}
+
+/**
+ * Show tooltip
+ * @param {*} section
+ */
+function showTooltip(section) {
+	const root = WorldMap.getRoot();
+	const tooltip = root.querySelector('#map-tooltip');
+	if (!tooltip) return;
+
+	const displayName = section.getAttribute('data-displayname') || '';
+	tooltip.querySelector('.tooltip-mapname').textContent = displayName;
+	tooltip.querySelector('.tooltip-mapid').textContent = section.id;
+
+	const tooltipImg = tooltip.querySelector('.tooltip-img');
+	tooltipImg.style.backgroundImage = '';
+
+	// position tooltip
+	const rect = section.getBoundingClientRect();
+	tooltip.style.display = 'block';
+	tooltip.style.left = rect.right + 10 + 'px';
+	tooltip.style.top = rect.top + 'px';
+
+	// adjust if tooltip is out of screen
+	const tooltipRect = tooltip.getBoundingClientRect();
+	if (tooltipRect.right > window.innerWidth) {
+		tooltip.style.left = rect.left - tooltipRect.width - 10 + 'px';
+	}
+	if (tooltipRect.bottom > window.innerHeight) {
+		tooltip.style.top = window.innerHeight - tooltipRect.height - 10 + 'px';
+	}
+
+	// load map image asset and render it
+	Client.loadFile(`${DB.INTERFACE_PATH}map/${section.id}.bmp`, data => {
+		if (_hoveredSection === section) {
+			tooltipImg.style.backgroundImage = `url(${data})`;
+		}
+	});
+}
+
+/**
+ * Hide tooltip
+ */
+function hideTooltip() {
+	const root = WorldMap.getRoot();
+	const tooltip = root.querySelector('#map-tooltip');
+	if (tooltip) {
+		tooltip.style.display = 'none';
+	}
+}
+
+/**
  * Create the .worldmap container and loop through all the maps
  * and render them to the container.
  *
@@ -213,6 +292,7 @@ function createWorldMapView(map, imgData) {
 			!WorldMap.settings.remove.includes(section.id)
 		) {
 			const el = document.createElement('div');
+			const el_mapid = document.createElement('div');
 			const el_mapname = document.createElement('div');
 
 			el.id = section.id;
@@ -311,8 +391,12 @@ function createWorldMapView(map, imgData) {
 				el.setAttribute('data-displayname', mapName);
 			}
 
+			el_mapid.className = 'mapid'; // rsw name
+			el_mapid.innerHTML = section.id;
+
 			el.appendChild(el_displayname);
 			el.appendChild(el_mapname);
+			el.appendChild(el_mapid);
 
 			if (section.moblevel !== undefined && section.moblevel.length > 0) {
 				const el_level = document.createElement('div');
@@ -481,6 +565,7 @@ WorldMap.toggle = function toggle() {
 	const isVisible = this._host.style.display !== 'none';
 	if (isVisible) {
 		this._host.style.display = 'none';
+		hideTooltip();
 	} else {
 		this._host.style.display = '';
 		selectMap();
@@ -550,6 +635,20 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
 		if (el) el.classList.add('membersonmap');
 	}
 };
+
+/**
+ * Toggle all maps
+ */
+function onToggleMaps() {
+	const root = WorldMap.getRoot();
+	if (WorldMap.showAllMaps) {
+		root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('allmapvisible'));
+		WorldMap.showAllMaps = false;
+	} else {
+		root.querySelectorAll('.worldmap .section').forEach(el => el.classList.add('allmapvisible'));
+		WorldMap.showAllMaps = true;
+	}
+}
 
 /**
  * Show Monster level range

@@ -4,8 +4,7 @@
  * Shared factory for every Equipment window version (V0 - V4).
  *
  * Version differences are passed as capability flags; the WinStats status
- * window is anchored through the embed/unembed model, only in the versions
- * whose window has a "view status" button (V1/V2)
+ * window is anchored through the embed/unembed model for every version
  * (the legacy .status_component / WinStats._host path used by V3/V4 was dead
  * code after the WinStats refactor and is converged here).
  *
@@ -22,6 +21,7 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import ItemType from 'DB/Items/ItemType.js';
 import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -94,13 +94,9 @@ export function createEquipment({
 	titles = false,
 	costumeConfig = false,
 	damageSkin = false,
-	statsDefault = false
+	statsDefault = true
 }) {
 	const Component = new GUIComponent(name, cssText);
-
-	// Only the older windows (V1/V2) carry a "view status" button. The 2026 official
-	// clients keep the status window apart (Alt+A), so V3/V4 never attach it.
-	const statusButton = htmlText.includes('class="view_status"');
 
 	Component.render = () => htmlText;
 
@@ -219,7 +215,13 @@ export function createEquipment({
 		const removeOptBtn = root.querySelector('.removeOption');
 		if (removeOptBtn) removeOptBtn.addEventListener('mousedown', onRemoveOption);
 		const viewStatusBtn = root.querySelector('.view_status');
-		if (viewStatusBtn) viewStatusBtn.addEventListener('mousedown', toggleStatus);
+		if (viewStatusBtn) {
+			if (embedStatus()) {
+				viewStatusBtn.addEventListener('mousedown', toggleStatus);
+			} else {
+				viewStatusBtn.style.display = 'none';
+			}
+		}
 		const showEquipBtn = root.querySelector('.show_equip');
 		if (showEquipBtn) showEquipBtn.addEventListener('mousedown', toggleEquip);
 		if (costumeConfig) {
@@ -427,10 +429,10 @@ export function createEquipment({
 		}
 
 		if (UIVersionManager.getEquipmentVersion() > 0) {
-			if (statusButton && _preferences.stats && _preferences.show) {
+			if (embedStatus() && _preferences.stats && _preferences.show) {
 				const winStats = WinStats.getUI();
 				winStats.embed(Component._host);
-			} else if (statusButton) {
+			} else if (embedStatus()) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
 					const root = Component.getRoot();
 					const btn = root.querySelector('.view_status');
@@ -484,7 +486,7 @@ export function createEquipment({
 			Renderer.render(renderCharacter);
 			if (UIVersionManager.getEquipmentVersion() > 0) {
 				if (_btnLevelUp && _btnLevelUp.parentNode) _btnLevelUp.remove();
-				if (statusButton && _preferences.stats) {
+				if (embedStatus() && _preferences.stats) {
 					WinStats.getUI().embed(Component._host);
 				}
 			}
@@ -634,6 +636,14 @@ export function createEquipment({
 		}
 		return 0;
 	};
+
+	/**
+	 * Set equipmentStatusEmbedded to false for the official 2026 windows: Status is
+	 * then always its own (Alt+A) window and the view-status button is hidden.
+	 */
+	function embedStatus() {
+		return Configs.get('equipmentStatusEmbedded', true);
+	}
 
 	function hideStatus() {
 		const winStats = WinStats.getUI();

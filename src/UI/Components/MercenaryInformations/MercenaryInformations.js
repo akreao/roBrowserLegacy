@@ -158,58 +158,95 @@ MercenaryInformations.onKeyDown = function onKeyDown(event) {
 };
 
 /**
- * Format the contract end the way the official window does (MsgStr 1260,
- * "%m/%d %H:%M", local time)
- * @param {number} timestamp - Unix time the contract ends
- * @returns {string} formatted date
+ * Format expire date into readable string
+ * @param {number} timestamp - Unix timestamp
+ * @returns {string} Formatted time string
  */
 MercenaryInformations.formatExpireDate = function formatExpireDate(timestamp) {
 	if (!timestamp) {
-		return '';
+		return '0';
 	}
 
-	const date = new Date(timestamp * 1000);
-	const pad = n => String(n).padStart(2, '0');
-	const fields = {
-		m: pad(date.getMonth() + 1),
-		d: pad(date.getDate()),
-		H: pad(date.getHours()),
-		M: pad(date.getMinutes())
-	};
+	const now = Date.now() / 1000;
+	const remaining = Math.max(0, timestamp - now);
 
-	return DB.getMessage(1260, '%m/%d %H:%M').replace(/%([mdHM])/g, (_, k) => fields[k]);
+	const hours = Math.floor(remaining / 3600);
+	const minutes = Math.floor((remaining % 3600) / 60);
+
+	return `${hours}h ${minutes}m`;
 };
 
 /**
- * Set the contract end date
- * @param {number} timestamp - Unix time the contract ends
+ * Set time left bar and value
+ * @param {number} timestamp - Unix timestamp for expiration
  */
-MercenaryInformations.setExpiration = function setExpiration(timestamp) {
-	const el = MercenaryInformations.getRoot().querySelector('.block2 .expire');
-	if (el) {
-		el.textContent = this.formatExpireDate(timestamp);
+MercenaryInformations.setTimeLeft = function setTimeLeft(timestamp) {
+	const root = MercenaryInformations.getRoot();
+
+	if (!timestamp) {
+		const timeleftEl = root.querySelector('.block2 .timeleft');
+		if (timeleftEl) {
+			timeleftEl.textContent = '0';
+		}
+		return;
+	}
+
+	const now = Date.now() / 1000;
+	const remaining = Math.max(0, timestamp - now);
+	const TOTAL_DURATION = 30 * 60;
+	const time_per = remaining / TOTAL_DURATION;
+
+	const timeleftEl = root.querySelector('.block2 .timeleft');
+	if (timeleftEl) {
+		timeleftEl.textContent = this.formatExpireDate(timestamp);
+	}
+
+	const canvas = root.querySelector('canvas.life.title_timeleft');
+	if (canvas) {
+		const ctx = canvas.getContext('2d');
+		const width = 60,
+			height = 5;
+
+		ctx.fillStyle = '#424242';
+		ctx.fillRect(1, 1, width - 2, height - 2);
+
+		ctx.fillStyle = time_per < 0.25 ? '#ff1e00' : '#205cc3';
+		ctx.fillRect(1, 1, Math.round((width - 2) * time_per), 3);
 	}
 };
 
 /**
- * Set monster kills
+ * Set monster kills bar and value
  * @param {number} kills - Number of monsters killed
  */
 MercenaryInformations.setKills = function setKills(kills) {
-	const el = MercenaryInformations.getRoot().querySelector('.block2 .kills');
-	if (el) {
-		el.textContent = kills;
-	}
-};
+	const root = MercenaryInformations.getRoot();
 
-/**
- * Set how many times this mercenary type was summoned
- * @param {number} calls - Summon count
- */
-MercenaryInformations.setCalls = function setCalls(calls) {
-	const el = MercenaryInformations.getRoot().querySelector('.block2 .calls');
-	if (el) {
-		el.textContent = calls;
+	if (kills === undefined) {
+		const killsEl = root.querySelector('.block2 .kills');
+		if (killsEl) {
+			killsEl.textContent = '0';
+		}
+		return;
+	}
+
+	const killsEl = root.querySelector('.block2 .kills');
+	if (killsEl) {
+		killsEl.textContent = kills;
+	}
+
+	const canvas = root.querySelector('canvas.life.title_kills');
+	if (canvas) {
+		const ctx = canvas.getContext('2d');
+		const width = 60,
+			height = 5;
+		const kills_per = (kills % 50) / 50;
+
+		ctx.fillStyle = '#424242';
+		ctx.fillRect(1, 1, width - 2, height - 2);
+
+		ctx.fillStyle = '#205cc3';
+		ctx.fillRect(1, 1, Math.round((width - 2) * kills_per), 3);
 	}
 };
 
@@ -243,10 +280,9 @@ MercenaryInformations.setInformations = function setInformations(info) {
 	this.setHpSpBar('sp', info.sp, info.maxSP);
 
 	// Additional Info
-	this.setExpiration(info.ExpireDate);
-	this.setFaith(info.faith || 0);
-	this.setCalls(info.toal_call_num || 0);
+	this.setTimeLeft(info.ExpireDate);
 	this.setKills(info.approval_monster_kill_counter || 0);
+	this.setFaith(info.faith || 0);
 
 	SkillListMH.mercenary.setPoints(info.SKPoint);
 };
