@@ -14,6 +14,7 @@
 import 'UI/Elements/Elements.js';
 
 import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import DB from 'DB/DBManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import Mouse from 'Controls/MouseEventHandler.js';
@@ -157,6 +158,10 @@ export function createSkillList({
 				onResetChoice(this);
 			});
 			root.querySelector('.apply')?.addEventListener('click', () => {
+				if (Configs.get('skillListInstantLevelUp', false)) {
+					onApplyChoice(this);
+					return;
+				}
 				UIManager.showPromptBox(DB.getMessage(1377), 'ok', 'cancel', () => {
 					onApplyChoice(this);
 				});
@@ -853,8 +858,9 @@ export function createSkillList({
 		const levelup = _btnIncSkill.cloneNode(true);
 		levelup.addEventListener('click', function () {
 			const index = parseInt(this.parentNode.parentNode.getAttribute('data-index'), 10);
-			// The skill tree only reserves the point; Apply sends it
-			if (listOnly) {
+			// Like the official client, "+" only reserves the point and Apply sends it,
+			// unless skillListInstantLevelUp asks for the old immediate level-up
+			if (listOnly || Configs.get('skillListInstantLevelUp', false)) {
 				Component.onIncreaseSkill(index);
 			} else {
 				stageSkill(index, root);
@@ -1130,8 +1136,10 @@ export function createSkillList({
 			if (contentbig) {
 				contentbig.style.display = 'none';
 			}
+			// Official list mode keeps Apply/Reset; the old instant level-up mode has nothing to apply
+			const showApply = !Configs.get('skillListInstantLevelUp', false);
 			root.querySelectorAll('.footer .btn').forEach(el => {
-				el.style.display = 'block';
+				el.style.display = showApply ? 'block' : 'none';
 			});
 
 			if (content) {

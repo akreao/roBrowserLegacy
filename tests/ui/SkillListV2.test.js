@@ -126,6 +126,10 @@ vi.mock('Core/Client.js', () => ({
 		}
 	}
 }));
+const configs = vi.hoisted(() => ({ skillListInstantLevelUp: false }));
+vi.mock('Core/Configs.js', () => ({
+	default: { get: (key, fallback) => configs[key] ?? fallback }
+}));
 vi.mock('Core/Preferences.js', () => ({
 	default: {
 		get() {
@@ -245,6 +249,7 @@ describe('SkillListV2 prerequisite planning', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
 		UIManager.showPromptBox.mockClear();
+		configs.skillListInstantLevelUp = false;
 	});
 
 	it('shows and transactionally stages the complete Heal chain', () => {
@@ -360,5 +365,21 @@ describe('SkillListV2 prerequisite planning', () => {
 		answerPrompt(true);
 
 		expect(component.onIncreaseSkill.mock.calls).toEqual([[mocks.ids.CURE]]);
+	});
+
+	it('keeps the old instant behaviour behind skillListInstantLevelUp', () => {
+		configs.skillListInstantLevelUp = true;
+		const component = createComponent();
+		const root = component.getRoot();
+		component.onIncreaseSkill = vi.fn();
+
+		getListSkill(root, mocks.ids.CURE).querySelector('.levelup').click();
+		expect(component.onIncreaseSkill.mock.calls).toEqual([[mocks.ids.CURE]]);
+
+		getTreeSkill(root, mocks.ids.DIVINE_PROTECTION).querySelector('.icon').click();
+		root.querySelector('.apply').click();
+
+		expect(UIManager.showPromptBox).not.toHaveBeenCalled();
+		expect(component.onIncreaseSkill.mock.calls).toEqual([[mocks.ids.CURE], [mocks.ids.CURE], [mocks.ids.DIVINE_PROTECTION]]);
 	});
 });
