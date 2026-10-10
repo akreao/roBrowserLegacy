@@ -24,6 +24,8 @@ import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
 import htmlText from './Navigation.html?raw';
 import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
+import NavigationOfficial from './NavigationOfficial.js';
+import { selectLayout } from 'UI/OfficialLayout.js';
 
 /**
  * Create Navigation component
@@ -1362,4 +1364,4 @@ Navigation.navigateTo = function navigateTo(options) {
 /**
  * Create component and export it
  */
-export default UIManager.addComponent(Navigation);
+export default selectLayout('Navigation', UIManager.addComponent(Navigation), NavigationOfficial);
