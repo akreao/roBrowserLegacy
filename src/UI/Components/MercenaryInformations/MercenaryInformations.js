@@ -8,6 +8,7 @@
 
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
@@ -47,6 +48,10 @@ const _preferences = Preferences.get(
  */
 MercenaryInformations.init = function init() {
 	const root = MercenaryInformations.getRoot();
+
+	// Set mercenaryGauges to false for the official layout: the contract end date
+	// and the Loyalty, Summons and Kill counters, without gauges.
+	root.querySelector('#MercenaryInformations')?.classList.toggle('official', !Configs.get('mercenaryGauges', true));
 
 	this.draggable('.content');
 
@@ -283,6 +288,7 @@ MercenaryInformations.setInformations = function setInformations(info) {
 	this.setTimeLeft(info.ExpireDate);
 	this.setKills(info.approval_monster_kill_counter || 0);
 	this.setFaith(info.faith || 0);
+	this.setContract(info);
 
 	SkillListMH.mercenary.setPoints(info.SKPoint);
 };
@@ -401,6 +407,50 @@ MercenaryInformations.setFaith = function setFaith(faith) {
 	const el = root.querySelector('.block2 .faith');
 	if (el) {
 		el.textContent = faith;
+	}
+};
+
+/**
+ * Format the contract end the way the official window does (MsgStr 1260,
+ * "%m/%d %H:%M", local time)
+ * @param {number} timestamp - Unix time the contract ends
+ * @returns {string} formatted date
+ */
+MercenaryInformations.formatEndDate = function formatEndDate(timestamp) {
+	if (!timestamp) {
+		return '';
+	}
+
+	const date = new Date(timestamp * 1000);
+	const pad = n => String(n).padStart(2, '0');
+	const fields = {
+		m: pad(date.getMonth() + 1),
+		d: pad(date.getDate()),
+		H: pad(date.getHours()),
+		M: pad(date.getMinutes())
+	};
+
+	return DB.getMessage(1260, '%m/%d %H:%M').replace(/%([mdHM])/g, (_, k) => fields[k]);
+};
+
+/**
+ * Fill the official contract block: end date, loyalty, summons and kills
+ * @param {object} info - mercenary info packet
+ */
+MercenaryInformations.setContract = function setContract(info) {
+	const root = MercenaryInformations.getRoot();
+	const values = {
+		expire: this.formatEndDate(info.ExpireDate),
+		faith: info.faith || 0,
+		calls: info.toal_call_num || 0,
+		kills: info.approval_monster_kill_counter || 0
+	};
+
+	for (const [field, value] of Object.entries(values)) {
+		const el = root.querySelector(`.contract .${field}`);
+		if (el) {
+			el.textContent = value;
+		}
 	}
 };
 
