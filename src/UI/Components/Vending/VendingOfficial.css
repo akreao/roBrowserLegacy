@@ -1,0 +1,362 @@
+:host {
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+#vending {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+#vending .titlebar {
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+	text-shadow: 1px 1px white;
+	font-size: 11px;
+	font-weight: bold;
+}
+#vending .titlebar .text {
+	position: relative;
+	top: 2px;
+	left: 15px;
+	white-space: nowrap;
+}
+#vending .footer {
+	width: 100%;
+	height: 27px;
+	background-repeat: repeat-x;
+	background-color: transparent;
+	position: relative;
+	border-radius: 0px 0px 3px 3px;
+}
+#vending .resize {
+	position: absolute;
+	right: 1px;
+	bottom: 1px;
+	width: 13px;
+	height: 13px;
+	border: none;
+	background-repeat: no-repeat;
+	background-color: transparent;
+}
+#vending .btn {
+	width: 42px;
+	height: 20px;
+	border: none;
+	margin: 0;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#vending .selectall {
+	vertical-align: 2px;
+	width: 10px;
+	height: 10px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#vending .ask_quantity {
+	padding-top: 7px;
+	padding-left: 20px;
+}
+
+#vending .content .item-container {
+	width: 32px;
+	height: 32px;
+	display: block;
+	float: left;
+	clear: both;
+}
+#vending .content .damaged {
+	background-color: red;
+	background-blend-mode: luminosity;
+}
+#vending .container {
+	padding-left: 16px;
+	border-right: 1px solid #ccc;
+	background: white;
+	background-repeat: repeat-y;
+	padding-right: 2px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+#vending .container .overlay {
+	position: absolute;
+	display: none;
+	white-space: nowrap;
+	z-index: 900;
+	height: 15px;
+	line-height: 15px;
+	border-radius: 3px;
+	padding: 4px;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	text-shadow: 1px 1px black;
+}
+#vending .content {
+	overflow-y: auto;
+	width: 100%;
+	height: 100%;
+	min-height: 65px;
+	background-color: transparent;
+	background-repeat: repeat-y;
+}
+#vending .content .item {
+	display: block;
+	position: relative;
+	height: 28px;
+	padding-top: 4px;
+}
+#vending .content .item.selected {
+	background-color: #346ae180;
+}
+
+#vending .content.available {
+	width: 100%;
+	height: 100%;
+	min-height: 65px;
+	background-color: transparent;
+	background-repeat: repeat;
+}
+#vending .content.available .item {
+	display: block;
+	float: left;
+	width: 28px;
+	position: relative;
+	height: 28px;
+	padding-top: 4px;
+}
+#vending .content.available .item.selected {
+	background-color: transparent;
+}
+
+#vending .content .item .icon {
+	position: absolute;
+	top: 6px;
+	left: 4px;
+	width: 24px;
+	height: 24px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#vending .content .item .amount {
+	position: absolute;
+	white-space: nowrap;
+	top: 18px;
+	left: 18px;
+	text-align: left;
+	text-shadow: -1px -1px white;
+}
+
+#vending .footer .total,
+#vending .footer .totalP,
+#vending .footer .cashuser {
+	padding-left: 10px;
+	padding-top: 8px;
+}
+#vending .footer .extend {
+	position: absolute;
+	right: 0px;
+	bottom: 1px;
+	width: 13px;
+	height: 13px;
+	border: none;
+	background-repeat: no-repeat;
+	background-color: transparent;
+}
+#vending .InputWindow {
+	width: 280px;
+	position: absolute;
+	z-index: 50;
+}
+#vending .OutputWindow {
+	width: 400px;
+	position: absolute;
+	z-index: 50;
+}
+
+/* Vend a Shop (UIMerchantShopMakeWnd): 400x260, or 360x289 for a buying store */
+#vending .OutputWindow .body {
+	position: relative;
+	height: 222px;
+	background-color: #f7f7f7;
+	border-left: 1px solid #a5a5a5;
+	border-right: 1px solid #a5a5a5;
+}
+#vending .OutputWindow.buying {
+	width: 360px;
+}
+#vending .OutputWindow.buying .body {
+	height: 251px;
+}
+#vending .OutputWindow .nstore {
+	position: absolute;
+	top: 8px;
+	left: 2px;
+}
+#vending .OutputWindow input {
+	position: absolute;
+	height: 16px;
+	box-sizing: border-box;
+	border: none;
+	padding: 0 2px;
+	outline: none;
+	background-color: #e8e8e8;
+	font-size: 12px;
+}
+#vending .OutputWindow input:disabled {
+	background-color: #b6b6b6;
+}
+#vending .OutputWindow input.shopname {
+	top: 5px;
+	left: 41px;
+	width: calc(100% - 66px);
+}
+#vending .OutputWindow .rows {
+	position: absolute;
+	top: 29px;
+	left: 0;
+	right: 0;
+	height: 168px;
+	overflow-y: auto;
+}
+#vending .OutputWindow .row {
+	position: relative;
+	height: 42px;
+	border-bottom: 1px solid #e0e0e0;
+	box-sizing: border-box;
+}
+#vending .OutputWindow .row .icon {
+	position: absolute;
+	top: 2px;
+	left: 7px;
+	width: 24px;
+	height: 24px;
+	background-repeat: no-repeat;
+}
+#vending .OutputWindow .row .amount {
+	position: absolute;
+	top: 18px;
+	left: 21px;
+	white-space: nowrap;
+	text-shadow: -1px -1px white;
+}
+#vending .OutputWindow .row .name {
+	position: absolute;
+	top: 11px;
+	left: 39px;
+	width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#vending .OutputWindow .row .label {
+	position: absolute;
+	top: 11px;
+	white-space: nowrap;
+}
+#vending .OutputWindow .row .label.price {
+	left: calc(100% - 165px);
+}
+#vending .OutputWindow.buying .row .label.price {
+	left: calc(100% - 155px);
+}
+#vending .OutputWindow .row .label.ea {
+	left: calc(100% - 176px);
+}
+#vending .OutputWindow .row input.price {
+	top: 8px;
+	right: 25px;
+	width: 94px;
+}
+#vending .OutputWindow .row input.count {
+	top: 8px;
+	right: 189px;
+	width: 42px;
+}
+#vending .OutputWindow .row .transaction {
+	position: absolute;
+	top: 26px;
+	left: calc(100% - 165px);
+	white-space: nowrap;
+}
+#vending .OutputWindow.buying .row .transaction {
+	left: calc(100% - 155px);
+}
+#vending .OutputWindow .hint {
+	position: absolute;
+	top: 200px;
+	left: 5px;
+	color: #ff0000;
+	white-space: nowrap;
+}
+#vending .OutputWindow .zenyLabel,
+#vending .OutputWindow .zenySpan,
+#vending .OutputWindow .weightSpan {
+	position: absolute;
+	top: 235px;
+	white-space: nowrap;
+}
+#vending .OutputWindow .zenyLabel {
+	left: 5px;
+}
+#vending .OutputWindow .zenySpan {
+	right: calc(100% - 155px);
+}
+#vending .OutputWindow .weightSpan {
+	right: 20px;
+}
+#vending .OutputWindow .weightSpan.heavy {
+	color: #ff0000;
+}
+#vending .OutputWindow .footer {
+	height: 21px;
+}
+#vending .OutputWindow .safecheck {
+	position: absolute;
+	top: 4px;
+	left: 12px;
+	white-space: nowrap;
+}
+#vending .OutputWindow .safecheck .checkbox {
+	vertical-align: -1px;
+	width: 10px;
+	height: 10px;
+	border: none;
+	padding: 0;
+	margin-right: 3px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#vending .OutputWindow .limit {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	white-space: nowrap;
+}
+#vending .OutputWindow input.limitZeny {
+	top: 4px;
+	left: 110px;
+	width: 94px;
+}
+#vending .OutputWindow .limitUnit {
+	position: absolute;
+	top: 5px;
+	left: 189px;
+}
+#vending .OutputWindow .btn.sell {
+	position: absolute;
+	top: 0;
+	right: 50px;
+}
+#vending .OutputWindow .btn.cancel {
+	position: absolute;
+	top: 0;
+	right: 4px;
+}
