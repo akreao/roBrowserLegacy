@@ -22,6 +22,8 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import VendingModelMessage from 'UI/Components/Vending/VendingModelMessage/VendingModelMessage.js';
+import VendingOfficial from 'UI/Components/Vending/VendingOfficial.js';
+import { selectLayout } from 'UI/OfficialLayout.js';
 import htmlText from './Vending.html?raw';
 import cssText from './Vending.css?raw';
 import Renderer from 'Renderer/Renderer.js';
@@ -871,4 +873,4 @@ function onItemOut() {
 
 Vending.mouseMode = GUIComponent.MouseMode.STOP;
 
-export default UIManager.addComponent(Vending);
+export default selectLayout('Vending', UIManager.addComponent(Vending), VendingOfficial);
