@@ -286,6 +286,12 @@ CashShop.init = function init() {
 	// Prevent dragover on whole component
 	container.addEventListener('dragover', stopPropagation);
 
+	// Refresh draws its label (MSG 3306) on a blank bitmap, as UIBmpTextButton does
+	const refreshBtn = root.querySelector('.cashshop-refresh-btn');
+	if (refreshBtn) {
+		refreshBtn.textContent = DB.getMessage(3306, 'Refresh');
+	}
+
 	// Enter in the search box searches, as the magnifier does
 	const searchInput = root.querySelector('.cashshop-search');
 	if (searchInput) {

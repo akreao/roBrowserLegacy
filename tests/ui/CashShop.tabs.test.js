@@ -29,7 +29,8 @@ vi.mock('DB/DBManager.js', () => ({
 	default: {
 		INTERFACE_PATH: '',
 		getItemInfo: id => ({ identifiedDisplayName: `item ${id}`, identifiedResourceName: `res${id}` }),
-		getCashShopBannerTable: () => []
+		getCashShopBannerTable: () => [],
+		getMessage: (id, defaultText) => defaultText
 	}
 }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
