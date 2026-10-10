@@ -78,6 +78,13 @@ function mountChatBox() {
 	return host;
 }
 
+// jsdom never matches :focus-visible; treat a button as reached by Tab
+function focusFromKeyboard(button) {
+	const matches = button.matches.bind(button);
+	button.matches = selector => selector === ':focus-visible' || matches(selector);
+	button.focus();
+}
+
 function enterEvent(target) {
 	return {
 		which: KEYS.ENTER,
@@ -104,7 +111,7 @@ describe('ChatBox — Enter on a focused button', () => {
 	it('yields Enter to a focused button outside the ChatBox root', () => {
 		const button = document.createElement('button');
 		document.body.appendChild(button);
-		button.focus();
+		focusFromKeyboard(button);
 		expect(KEYS.getDeepActiveElement()).toBe(button);
 
 		const event = enterEvent(button);
@@ -119,7 +126,7 @@ describe('ChatBox — Enter on a focused button', () => {
 		const shadow = otherHost.attachShadow({ mode: 'open' });
 		shadow.innerHTML = '<div class="tabs"><button class="members">Guildsmen Info</button></div>';
 		const button = shadow.querySelector('button');
-		button.focus();
+		focusFromKeyboard(button);
 
 		// document.activeElement stops at the host; only the deep walk reaches
 		// the button, and the guard has to be reading the deep one.
@@ -129,6 +136,18 @@ describe('ChatBox — Enter on a focused button', () => {
 		const event = enterEvent(otherHost);
 		expect(ChatBox.onKeyDown(event)).toBe(true);
 		expect(event.stopImmediatePropagation).not.toHaveBeenCalled();
+	});
+
+	// A menu icon keeps focus after a click; Enter must open the chat, as in
+	// the official client, not reopen that icon's window.
+	it('claims Enter from a button that kept focus after a click', () => {
+		const button = document.createElement('button');
+		document.body.appendChild(button);
+		button.focus();
+
+		const event = enterEvent(button);
+		expect(ChatBox.onKeyDown(event)).toBe(false);
+		expect(event.stopImmediatePropagation).toHaveBeenCalled();
 	});
 
 	it('keeps Enter for its own buttons', () => {

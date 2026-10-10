@@ -1111,7 +1111,15 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 			// that default leaves every button in the client reachable by Tab
 			// but dead to Enter. Space already works, because a button
 			// activates on Space keyup, which never reaches this branch.
-			if (activeElement && activeElement.tagName === 'BUTTON' && !root.contains(activeElement)) {
+			// Only a button reached from the keyboard keeps it, though: one that
+			// kept focus after a click (a menu icon) would otherwise reopen its
+			// window on every Enter, where the official client opens the chat.
+			if (
+				activeElement &&
+				activeElement.tagName === 'BUTTON' &&
+				!root.contains(activeElement) &&
+				focusedFromKeyboard(activeElement)
+			) {
 				return true;
 			}
 
@@ -1218,6 +1226,21 @@ ChatBox.submit = function Submit() {
 
 	this.onRequestTalk(user, trimmedText, ChatBox.sendTo);
 };
+
+/**
+ * Whether a button got focus from the keyboard (Tab) rather than a click.
+ * Where :focus-visible is not supported, assume the keyboard.
+ *
+ * @param {HTMLElement} element
+ * @returns {boolean}
+ */
+function focusedFromKeyboard(element) {
+	try {
+		return element.matches(':focus-visible');
+	} catch {
+		return true;
+	}
+}
 
 /**
  * Whether an Alt/Option keydown produces a different printable character than its key
