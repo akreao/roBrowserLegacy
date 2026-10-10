@@ -106,15 +106,15 @@
 	overflow: visible;
 }
 
-#WorldMap .worldmap .section:hover,
-#WorldMap .worldmap .section.allmapvisible,
 #WorldMap .worldmap .section.currentmap,
 #WorldMap .worldmap .section.membersonmap {
 	border: 1px solid #dddddd7a;
 }
 
+/* The official map highlights the region under the cursor and names it. */
 #WorldMap .worldmap .section:hover {
-	background-color: rgba(0, 128, 255, 0.5);
+	border: 1px solid #e8ae23;
+	background-color: rgba(247, 226, 126, 0.5);
 }
 
 #WorldMap .worldmap .section.membersonmap:not(.currentmap) {
@@ -129,6 +129,7 @@
 	display: none;
 }
 
+#WorldMap .worldmap .section:hover .mapname,
 #WorldMap .worldmap .section.currentmap .mapname {
 	display: block;
 	position: absolute;
@@ -144,26 +145,6 @@
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
 	text-wrap: nowrap;
-	text-align: center;
-}
-
-#WorldMap .worldmap .section .mapid {
-	display: none;
-}
-
-#WorldMap .worldmap .section.allmapvisible .mapid {
-	display: block;
-	position: absolute;
-	bottom: 3px;
-	left: 50%;
-	transform: translate(-50%, 0);
-	height: 10px;
-	color: white;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
 	text-align: center;
 }
 
@@ -283,47 +264,4 @@
 	height: 1px;
 	background-color: rgba(255, 0, 0, 0.5);
 	pointer-events: none;
-}
-
-#WorldMap #map-tooltip {
-	position: fixed;
-	z-index: 100;
-	pointer-events: none;
-	padding: 5px;
-	background-color: rgba(0, 0, 0, 0.85);
-	border: 1px solid #666;
-	border-radius: 4px;
-}
-
-#WorldMap #map-tooltip .tooltip-img {
-	width: 150px;
-	height: 150px;
-	background-color: #111;
-	background-size: cover;
-	background-position: center;
-}
-
-#WorldMap #map-tooltip .tooltip-mapname {
-	color: gold;
-	font-weight: bold;
-	text-align: center;
-	font-size: 12px;
-	padding: 3px 0 0;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
-}
-
-#WorldMap #map-tooltip .tooltip-mapid {
-	color: white;
-	text-align: center;
-	font-size: 11px;
-	padding: 2px 0;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
 }
