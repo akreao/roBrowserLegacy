@@ -15,6 +15,7 @@ import 'UI/Elements/Elements.js';
 import skinInputs from 'UI/Elements/BitmapInputs.js';
 
 import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import DB from 'DB/DBManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import Mouse from 'Controls/MouseEventHandler.js';
@@ -160,7 +161,13 @@ export function createSkillList({
 				onResetChoice(this);
 			});
 			root.querySelector('.apply')?.addEventListener('click', () => {
-				onApplyChoice(this);
+				if (!Configs.get('enableOfficialSkillList', false)) {
+					onApplyChoice(this);
+					return;
+				}
+				UIManager.showPromptBox(DB.getMessage(1377), 'ok', 'cancel', () => {
+					onApplyChoice(this);
+				});
 			});
 		}
 
@@ -553,7 +560,10 @@ export function createSkillList({
 		if (!main.classList.contains('skill')) {
 			main = main.parentElement;
 		}
-		const skillId = parseInt(main.getAttribute('data-index'), 10);
+		stageSkill(parseInt(main.getAttribute('data-index'), 10), root);
+	}
+
+	function stageSkill(skillId, root) {
 		const result = stageSkillPlan({
 			plan: rememberChoice,
 			skillId,
@@ -850,8 +860,13 @@ export function createSkillList({
 		const sk = SkillInfo[skill.SKID];
 		const levelup = _btnIncSkill.cloneNode(true);
 		levelup.addEventListener('click', function () {
-			const index = this.parentNode.parentNode.getAttribute('data-index');
-			Component.onIncreaseSkill(parseInt(index, 10));
+			const index = parseInt(this.parentNode.parentNode.getAttribute('data-index'), 10);
+			// enableOfficialSkillList: like the official client, "+" only reserves the point and Apply sends it
+			if (listOnly || !Configs.get('enableOfficialSkillList', false)) {
+				Component.onIncreaseSkill(index);
+			} else {
+				stageSkill(index, root);
+			}
 		});
 		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		const tr = document.createElement('tr');
@@ -1131,8 +1146,10 @@ export function createSkillList({
 			if (contentbig) {
 				contentbig.style.display = 'none';
 			}
+			// Official list mode keeps Apply/Reset; the classic one levels up at once and has nothing to apply
+			const showApply = Configs.get('enableOfficialSkillList', false);
 			root.querySelectorAll('.footer .btn').forEach(el => {
-				el.style.display = 'none';
+				el.style.display = showApply ? 'block' : 'none';
 			});
 
 			if (content) {
