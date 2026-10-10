@@ -4,7 +4,8 @@
  * Shared factory for every Equipment window version (V0 - V4).
  *
  * Version differences are passed as capability flags; the WinStats status
- * window is anchored through the embed/unembed model for every version
+ * window is anchored through the embed/unembed model, only in the versions
+ * whose window has a "view status" button (V1/V2)
  * (the legacy .status_component / WinStats._host path used by V3/V4 was dead
  * code after the WinStats refactor and is converged here).
  *
@@ -93,9 +94,13 @@ export function createEquipment({
 	titles = false,
 	costumeConfig = false,
 	damageSkin = false,
-	statsDefault = true
+	statsDefault = false
 }) {
 	const Component = new GUIComponent(name, cssText);
+
+	// Only the older windows (V1/V2) carry a "view status" button. The 2026 official
+	// clients keep the status window apart (Alt+A), so V3/V4 never attach it.
+	const statusButton = htmlText.includes('class="view_status"');
 
 	Component.render = () => htmlText;
 
@@ -422,10 +427,10 @@ export function createEquipment({
 		}
 
 		if (UIVersionManager.getEquipmentVersion() > 0) {
-			if (_preferences.stats && _preferences.show) {
+			if (statusButton && _preferences.stats && _preferences.show) {
 				const winStats = WinStats.getUI();
 				winStats.embed(Component._host);
-			} else {
+			} else if (statusButton) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
 					const root = Component.getRoot();
 					const btn = root.querySelector('.view_status');
@@ -479,7 +484,7 @@ export function createEquipment({
 			Renderer.render(renderCharacter);
 			if (UIVersionManager.getEquipmentVersion() > 0) {
 				if (_btnLevelUp && _btnLevelUp.parentNode) _btnLevelUp.remove();
-				if (_preferences.stats) {
+				if (statusButton && _preferences.stats) {
 					WinStats.getUI().embed(Component._host);
 				}
 			}
