@@ -7,6 +7,8 @@
  */
 
 import DB from 'DB/DBManager.js';
+import JobId from 'DB/Jobs/JobConst.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
 
 /**
  * Jobs an ad can ask for, by category. A job's code is first + its place in the
@@ -24,6 +26,79 @@ export const JOB_CATEGORIES = [
 ];
 
 /**
+ * The job each code stands for, from code 5. Names come from the job table rather than
+ * msgstringtable 1629-1687, which some translations get wrong (1680, Novice, reads "Wedding").
+ */
+const CODE_JOBS = [
+	// 5: 1st Jobs
+	JobId.SWORDMAN,
+	JobId.MAGICIAN,
+	JobId.ARCHER,
+	JobId.ACOLYTE,
+	JobId.MERCHANT,
+	JobId.THIEF,
+	// 11: 2nd Jobs
+	JobId.KNIGHT,
+	JobId.PRIEST,
+	JobId.WIZARD,
+	JobId.BLACKSMITH,
+	JobId.HUNTER,
+	JobId.ASSASSIN,
+	JobId.CRUSADER,
+	JobId.MONK,
+	JobId.SAGE,
+	JobId.ROGUE,
+	JobId.ALCHEMIST,
+	JobId.BARD,
+	JobId.DANCER,
+	// 24: 3-1 Classes
+	JobId.RUNE_KNIGHT,
+	JobId.WARLOCK,
+	JobId.RANGER,
+	JobId.ARCHBISHOP,
+	JobId.MECHANIC,
+	JobId.GUILLOTINE_CROSS,
+	// 30: 3-2 Classes
+	JobId.ROYAL_GUARD,
+	JobId.SORCERER,
+	JobId.MINSTREL,
+	JobId.WANDERER,
+	JobId.SURA,
+	JobId.GENETIC,
+	JobId.SHADOW_CHASER,
+	// 37: 1st High Jobs
+	JobId.SWORDMAN_H,
+	JobId.MAGICIAN_H,
+	JobId.ARCHER_H,
+	JobId.ACOLYTE_H,
+	JobId.MERCHANT_H,
+	JobId.THIEF_H,
+	// 43: 2nd High Jobs
+	JobId.KNIGHT_H,
+	JobId.PRIEST_H,
+	JobId.WIZARD_H,
+	JobId.BLACKSMITH_H,
+	JobId.HUNTER_H,
+	JobId.ASSASSIN_H,
+	JobId.CRUSADER_H,
+	JobId.MONK_H,
+	JobId.SAGE_H,
+	JobId.ROGUE_H,
+	JobId.ALCHEMIST_H,
+	JobId.BARD_H,
+	JobId.DANCER_H,
+	// 56: Other Jobs
+	JobId.NOVICE,
+	JobId.NOVICE_H,
+	JobId.SUPERNOVICE,
+	JobId.GUNSLINGER,
+	JobId.NINJA,
+	JobId.TAEKWON,
+	JobId.STAR,
+	JobId.LINKER
+];
+
+/**
  * Most jobs an ad can ask for
  */
 export const MAX_JOBS = 6;
@@ -38,10 +113,10 @@ export const LEVEL_RANGE = 15;
  * @return {string} its name, empty for none (-1)
  */
 export function getJobName(code) {
-	if (code < 1 || code > 63) {
+	if (code < 1 || code >= 5 + CODE_JOBS.length) {
 		return '';
 	}
-	return DB.getMessage(code < 5 ? 1711 + code : 1624 + code);
+	return code < 5 ? DB.getMessage(1711 + code) : MonsterTable[CODE_JOBS[code - 5]] || '';
 }
 
 /**
