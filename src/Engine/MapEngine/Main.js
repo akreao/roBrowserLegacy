@@ -633,8 +633,8 @@ function onGlobalAnnounce(pkt) {
 	}
 
 	ChatBox.addText(pkt.msg, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_CHAT, color);
-	// `legacyAnnounce: true` keeps roBrowser's one-line announce
-	if (Configs.get('legacyAnnounce', false)) {
+	// roBrowser's one-line announce, or with `officialAnnounce: true` the 2026 broadcast balloon
+	if (!Configs.get('officialAnnounce', false)) {
 		Announce.append();
 		Announce.set(pkt.msg, color);
 		return;

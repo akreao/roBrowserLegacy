@@ -328,7 +328,7 @@
 	display: none;
 }
 
-/* legacyMenuPanel: the 132px panel, three rows, that scrolls */
+/* Without officialMenuBar: the 132px panel, three rows, that scrolls */
 #BasicInfoV5.legacy_panel .buttons {
 	height: 132px;
 }

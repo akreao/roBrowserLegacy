@@ -60,6 +60,7 @@ export function createBasicInfo(config) {
 		hasToolbarToggle = false,
 		miniLayout = false,
 		hideIds = [],
+		officialIds = [],
 		barScale = 1.27,
 		hasApBar = false,
 		menuTip = false
@@ -245,8 +246,9 @@ export function createBasicInfo(config) {
 	Component.init = function init() {
 		const root = this.getRoot();
 
-		// `legacyMenuPanel: true` keeps the 132px menu panel, three rows, that scrolls
-		if (Configs.get('legacyMenuPanel', false)) {
+		// roBrowser's 132px menu panel, three rows, that scrolls; with `officialMenuBar: true`
+		// the 2026 five-row panel
+		if (!Configs.get('officialMenuBar', false)) {
 			root.querySelector(innerId)?.classList.add('legacy_panel');
 		}
 
@@ -327,7 +329,12 @@ export function createBasicInfo(config) {
 			}
 		}
 
-		const hidden = Configs.get('enableCashShop') ? hideIds : hideIds.concat('shop');
+		// The icons the 2026 menu adds show only with `officialMenuBar: true`, and the shop
+		// icon only with the cash shop on
+		let hidden = Configs.get('officialMenuBar', false) ? hideIds : hideIds.concat(officialIds);
+		if (!Configs.get('enableCashShop')) {
+			hidden = hidden.concat('shop');
+		}
 		hidden.forEach(id => {
 			const el = root.querySelector(`#${id}`);
 			if (el) {

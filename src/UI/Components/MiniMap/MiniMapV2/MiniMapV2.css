@@ -41,7 +41,7 @@
 	text-shadow: 1px 1px 1px #000;
 }
 
-/* legacyMiniMapButtons: the buttons spread across the map's width */
+/* Without officialMiniMapButtons: the buttons spread across the map's width */
 #MiniMapV2.legacy .info_container {
 	display: flex;
 	justify-content: space-between;

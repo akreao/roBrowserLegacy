@@ -72,7 +72,7 @@ describe.each(Object.entries(VERSIONS))('BasicInfo%s menu panel', (version, spec
 		expect(panel).toMatch(/overflow-x: hidden;/);
 	});
 
-	it('keeps the 132px panel with legacyMenuPanel', () => {
+	it('keeps the 132px panel without officialMenuBar', () => {
 		expect(block(`#BasicInfo${version}.legacy_panel .buttons`)).toMatch(/height: 132px;/);
 		expect(block(`#BasicInfo${version}.legacy_panel.large .menu_tip`)).toMatch(new RegExp(`top: ${spec.large + 132 + 4}px`));
 	});

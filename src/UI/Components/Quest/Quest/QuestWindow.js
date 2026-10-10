@@ -30,10 +30,10 @@ const _preferences = Preferences.get(
 );
 
 /**
- * `legacyQuestTracker: true` keeps roBrowser's own tracker: four quests, and hunts
- * counted as "n / m" to the end.
+ * roBrowser's own tracker: four quests, and hunts counted as "n / m" to the end.
+ * `officialQuestTracker: true` gives the official five quests and "( Complete )".
  */
-const isLegacy = () => !!Configs.get('legacyQuestTracker', false);
+const isLegacy = () => !Configs.get('officialQuestTracker', false);
 
 /**
  * The official tracker (UIQuestDisplay::vf17 @0xaf58a0) stops after the fifth quest.

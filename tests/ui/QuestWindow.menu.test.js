@@ -20,7 +20,7 @@ vi.mock('UI/Scrollbar.js', () => ({ default: {} }));
 vi.mock('UI/UIManager.js', () => ({ default: { addComponent: component => component } }));
 vi.mock('Controls/MouseEventHandler.js', () => ({ default: { screen: { x: 0, y: 0 } } }));
 
-const config = { legacyQuestTracker: false };
+const config = { officialQuestTracker: true };
 vi.mock('Core/Configs.js', () => ({ default: { get: (key, fallback) => (key in config ? config[key] : fallback) } }));
 const menu = [];
 vi.mock('UI/Components/ContextMenu/ContextMenu.js', () => ({
@@ -86,15 +86,15 @@ describe('the quest tracker', () => {
 	});
 });
 
-describe('the legacy quest tracker', () => {
+describe('roBrowser\'s own quest tracker', () => {
 	it('shows four quests and counts hunts to the end', () => {
-		config.legacyQuestTracker = true;
+		config.officialQuestTracker = false;
 		const quests = {};
 		for (let i = 1; i <= 7; i++) {
 			quests[i] = quest(i, i === 1 ? { a: { mobName: 'Poring', huntCount: 3, maxCount: 3 } } : {});
 		}
 		const shown = show(quests);
-		config.legacyQuestTracker = false;
+		config.officialQuestTracker = true;
 		expect(shown).toHaveLength(4);
 		expect(shown[0].querySelector('.quest-window-li-monster li').textContent).toBe('Poring ( 3 / 3 )');
 	});

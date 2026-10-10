@@ -176,8 +176,9 @@ export function createMiniMap({
 			_kafra.src = dataURI;
 		});
 
-		// `legacyMiniMapButtons: true` keeps roBrowser's own button row, spread across the map's width
-		if (Configs.get('legacyMiniMapButtons', false)) {
+		// roBrowser's button row, spread across the map's width; with `officialMiniMapButtons: true`
+		// the official UIMinimapZoomWnd offsets
+		if (!Configs.get('officialMiniMapButtons', false)) {
 			root.querySelector('.MiniMapUI')?.classList.add('legacy');
 		}
 

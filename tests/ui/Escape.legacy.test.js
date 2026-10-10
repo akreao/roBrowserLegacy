@@ -1,12 +1,12 @@
 /**
  * tests/ui/Escape.legacy.test.js
  *
- * `legacyEscapeMenu: true` keeps roBrowser's own option menu: separate Graphics
+ * Without `officialEscapeMenu`, roBrowser's own option menu stays: separate Graphics
  * and Sound buttons, the older pictures, and no question before the save point.
  */
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('Core/Configs.js', () => ({ default: { get: (key, fallback) => (key === 'legacyEscapeMenu' ? true : fallback) } }));
+vi.mock('Core/Configs.js', () => ({ default: { get: (_key, fallback) => fallback } }));
 // GUIComponent imports these lazily; mocked so they don't pull the renderer in.
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: { DEFAULT: 0 }, setType: vi.fn(), getActualType: vi.fn() } }));
 vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: 'data/texture/ui/', getMessage: () => '' } }));

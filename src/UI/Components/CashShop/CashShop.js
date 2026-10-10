@@ -136,11 +136,11 @@ function _processContent(container) {
  * Render HTML
  */
 /**
- * The ninth tab is the official "Limited Sales" (img_shop_tap9). `legacyCashShopTabs: true`
- * keeps roBrowser's "Account Limited" (img_shop_tap8) there.
+ * The ninth tab is roBrowser's "Account Limited" (img_shop_tap8), or with
+ * `officialCashShopTabs: true` the official "Limited Sales" (img_shop_tap9).
  */
 CashShop.render = () =>
-	Configs.get('legacyCashShopTabs', false)
+	!Configs.get('officialCashShopTabs', false)
 		? htmlText
 				.replace('data-title="Limited Sales"', 'data-title="Account Limited"')
 				.replace(/img_shop_tap9_/g, 'img_shop_tap8_')

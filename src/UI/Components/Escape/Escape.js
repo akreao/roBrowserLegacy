@@ -28,11 +28,11 @@ import cssText from './Escape.css?raw';
 const Escape = new GUIComponent('Escape', cssText);
 
 /**
- * `legacyEscapeMenu: true` keeps roBrowser's own menu: separate Graphics and Sound
- * buttons, the older exit and save point pictures, no question before returning to
- * the save point, and character select and exit still shown on the death menu.
+ * roBrowser's own menu: separate Graphics and Sound buttons, the esc_03/esc_04 pictures,
+ * no question before returning to the save point, and character select and exit still
+ * shown on the death menu. `officialEscapeMenu: true` gives the official UIEscOptionWnd.
  */
-const isLegacy = () => !!Configs.get('legacyEscapeMenu', false);
+const isLegacy = () => !Configs.get('officialEscapeMenu', false);
 
 /**
  * The buttons of the normal menu, hidden on the death menu. The official death menu

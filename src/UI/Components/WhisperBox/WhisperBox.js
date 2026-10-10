@@ -181,9 +181,9 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance._contentEl = root.querySelector('.content');
 	instance._inputEl = root.querySelector('.input-whisper');
 
-	// The official title is "With  %s" (UIWhisperWnd::vf17 @0x553cb0), friend or not.
-	// `legacyWhisperTitle: true` keeps roBrowser's "With name (Friend)".
-	if (Configs.get('legacyWhisperTitle', false)) {
+	// roBrowser's "With name (Friend)", or with `officialWhisperTitle: true` the official
+	// "With  %s" (UIWhisperWnd::vf17 @0x553cb0), friend or not
+	if (!Configs.get('officialWhisperTitle', false)) {
 		import('Engine/MapEngine/Friends.js').then(Friends => {
 			const isFriend = Friends && Friends.default.isFriend ? Friends.default.isFriend(nickname) : false;
 			const titleEl = root.querySelector('.title');
