@@ -7,14 +7,17 @@
  * display shows one frame in four for two refreshes, and frame times alternate
  * between 13.3 and 26.7 ms. That reads as stutter, though the average is 60.
  *
- * Instead, the refresh interval is measured from the rAF timestamps, and every
- * frame lasts the same whole number of refreshes: the most that still keeps
- * the rate at or above the limit, which is never cut below what was asked.
- * 60 on 60 Hz and 120 Hz stays 60; on 75 Hz it is 75 (no throttling); on
- * 144 Hz, 72; on 165 Hz, 82.5. 90 on 144 Hz is 144.
+ * A limit is a ceiling: players set one for heat and power, so it is never
+ * exceeded. The refresh interval is measured from the rAF timestamps, and when
+ * a whole number of refreshes per frame gives a rate at or under the limit and
+ * within 10% of it, every frame lasts that many refreshes: 60 on 60 or 120 Hz
+ * is an even 60, 60 on 165 Hz an even 55, 30 on 60 Hz an even 30. When none
+ * does (60 on 75 Hz would be 37.5, on 144 Hz 48), the limit is applied by time,
+ * as before: the cap holds, unevenly. A display rate under the limit is used
+ * as it is, every refresh.
  *
  * Until enough refreshes have been seen, or when the rAF rate is not steady
- * (a hidden tab, a fallback timer), the limit is applied by time, as before.
+ * (a hidden tab, a fallback timer), the limit is also applied by time.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
@@ -58,8 +61,10 @@ class FramePacer {
 	}
 
 	/**
-	 * Measured refresh interval: the median of the recent rAF intervals,
-	 * or 0 while there are too few
+	 * Measured refresh interval: the mean of the middle half of the recent
+	 * rAF intervals (robust to a stall, and to timestamps that jitter either
+	 * side of the refresh, where a median picks one side), or 0 while there
+	 * are too few
 	 *
 	 * @return {number} ms
 	 */
@@ -70,12 +75,18 @@ class FramePacer {
 		const sorted = _sorted.subarray(0, _count);
 		sorted.set(_intervals.subarray(0, _count));
 		sorted.sort();
-		return sorted[_count >> 1];
+		const from = _count >> 2;
+		const to = _count - from;
+		let sum = 0;
+		for (let i = from; i < to; ++i) {
+			sum += sorted[i];
+		}
+		return sum / (to - from);
 	}
 
 	/**
-	 * How many refreshes each frame lasts, for a limit: the most that keeps
-	 * the frame rate at or above it. 1% of slack lets a 59.94 or 119.88 Hz
+	 * How many refreshes each frame lasts, for a limit: the fewest that keep
+	 * the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
 	 * display count as 60 or 120.
 	 *
 	 * @param {number} limit fps
@@ -83,7 +94,20 @@ class FramePacer {
 	 * @return {number} 1 or more
 	 */
 	static refreshesPerFrame(limit, refresh) {
-		return Math.max(1, Math.floor((1000 / refresh / limit) * 1.01));
+		return Math.max(1, Math.ceil(1000 / refresh / (limit * 1.01)));
+	}
+
+	/**
+	 * Whether frames can be paced evenly under a limit: the rate a whole
+	 * number of refreshes gives is the display's own, or within 10% of it
+	 *
+	 * @param {number} limit fps
+	 * @param {number} refresh refresh interval (ms)
+	 * @return {boolean}
+	 */
+	static canPace(limit, refresh) {
+		const frames = FramePacer.refreshesPerFrame(limit, refresh);
+		return frames === 1 || 1000 / refresh / frames >= limit * 0.9;
 	}
 
 	/**
@@ -98,9 +122,9 @@ class FramePacer {
 		const elapsed = now - last;
 		const refresh = FramePacer.refreshInterval();
 
-		if (!refresh) {
+		if (!refresh || !FramePacer.canPace(limit, refresh)) {
 			// By time, as before: keep to the interval grid, so the rate
-			// does not drift below the limit
+			// does not drift below the limit (nor above it)
 			const interval = 1000 / limit;
 			return elapsed < interval ? -1 : now - (elapsed % interval);
 		}
