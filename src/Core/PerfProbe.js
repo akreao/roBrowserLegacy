@@ -12,6 +12,8 @@
  * On, `window.roPerf` gives:
  *   stats()        frame statistics since the last reset(), plus the marks
  *   reset()        start a new measurement window
+ *   slowFrames()   frames over 33 ms since the reset, also marked in Chrome
+ *                  traces as 'roPerf slow frame' measures
  *   marks          { login, maps: [{ map, loadMs, firstFrameMs }] }
  *   overlay(bool)  show or hide the overlay (shown by default)
  *
@@ -38,7 +40,8 @@ function readEnabled() {
 }
 
 /**
- * Frames kept per window: ten minutes at 60 fps
+ * Frames kept per window, as a ring: the statistics cover the last this many
+ * (ten minutes at 60 fps, about twenty seconds uncapped)
  */
 const MAX_FRAMES = 36000;
 
@@ -47,15 +50,24 @@ const MAX_FRAMES = 36000;
  */
 const HITCH_MS = 50;
 
+/**
+ * A frame slower than this (ms) goes in the slow frame log, and into a
+ * performance.measure that Chrome traces show ('roPerf slow frame')
+ */
+const SLOW_MS = 33;
+const MAX_SLOW = 1000;
+
 const DRAW_CALLS = ['drawArrays', 'drawElements', 'drawArraysInstanced', 'drawElementsInstanced', 'drawRangeElements'];
 
 const _interval = new Float32Array(MAX_FRAMES); // frame start to frame start
 const _work = new Float32Array(MAX_FRAMES); // time spent inside the render loop
 const _draws = new Uint32Array(MAX_FRAMES);
-let _count = 0;
+let _total = 0; // frames since the reset; the newest is at (_total - 1) % MAX_FRAMES
+let _pending = 0; // this frame's interval, 0 for the first frame of a window
 let _windowStart = 0;
 
 let _frameStart = 0;
+let _frameTime = 0;
 let _lastFrameStart = 0;
 let _frameDraws = 0;
 let _frameVertices = 0;
@@ -68,6 +80,8 @@ let _overlayTimer = 0;
 let _mapStart = 0;
 let _mapName = '';
 let _mapReady = 0;
+
+const _slow = [];
 
 const _marks = {
 	login: null,
@@ -110,6 +124,31 @@ function summarize(values, count) {
 		p99: round(percentile(sorted, 99)),
 		max: round(count ? sorted[count - 1] : 0)
 	};
+}
+
+/**
+ * Record a slow frame: the gap since the previous frame started, up to the
+ * end of this frame's work
+ *
+ * @param {number} interval ms since the previous frame started
+ * @param {number} work ms spent in this frame
+ * @param {number} draws draw calls in this frame
+ */
+function logSlow(interval, work, draws) {
+	const start = _frameTime - interval;
+	if (_slow.length < MAX_SLOW) {
+		_slow.push({
+			at: Math.round(start),
+			frameMs: Math.round(interval * 10) / 10,
+			workMs: Math.round(work * 10) / 10,
+			draws
+		});
+	}
+	try {
+		performance.measure('roPerf slow frame', { start, end: performance.now() });
+	} catch (_e) {
+		// no User Timing Level 3
+	}
 }
 
 /**
@@ -161,7 +200,8 @@ function updateOverlay() {
 	let worst = 0;
 	let draws = 0;
 	let elapsed = 0;
-	for (let i = _count - 1; i >= 0 && elapsed < 1000; --i) {
+	for (let k = _total - 1; k >= Math.max(0, _total - MAX_FRAMES) && elapsed < 1000; --k) {
+		const i = k % MAX_FRAMES;
 		frames++;
 		elapsed += _interval[i];
 		work += _work[i];
@@ -215,9 +255,8 @@ class PerfProbe {
 	 */
 	static frameStart(now) {
 		_frameStart = performance.now();
-		if (_lastFrameStart && _count < MAX_FRAMES) {
-			_interval[_count] = now - _lastFrameStart;
-		}
+		_frameTime = now;
+		_pending = _lastFrameStart ? now - _lastFrameStart : 0;
 		_lastFrameStart = now;
 		_frameDraws = 0;
 		_frameVertices = 0;
@@ -231,12 +270,17 @@ class PerfProbe {
 			return;
 		}
 		// The first frame of a window has no interval: it is not stored
-		if (_interval[_count] > 0 && _count < MAX_FRAMES) {
-			_work[_count] = performance.now() - _frameStart;
-			_draws[_count] = _frameDraws;
+		if (_pending > 0) {
+			const i = _total % MAX_FRAMES;
+			_interval[i] = _pending;
+			_work[i] = performance.now() - _frameStart;
+			_draws[i] = _frameDraws;
 			_totalVertices += _frameVertices;
-			_count++;
-			_interval[_count] = 0;
+			if (_pending > SLOW_MS) {
+				logSlow(_pending, _work[i], _frameDraws);
+			}
+			_total++;
+			_pending = 0;
 		}
 		if (_mapReady) {
 			const map = _marks.maps[_marks.maps.length - 1];
@@ -285,10 +329,11 @@ class PerfProbe {
 	 * Start a new measurement window
 	 */
 	static reset() {
-		_count = 0;
-		_interval[0] = 0;
+		_total = 0;
+		_pending = 0;
 		_lastFrameStart = 0;
 		_totalVertices = 0;
+		_slow.length = 0;
 		_windowStart = performance.now();
 	}
 
@@ -299,26 +344,38 @@ class PerfProbe {
 	 */
 	static stats() {
 		const seconds = (performance.now() - _windowStart) / 1000;
-		const draws = summarize(_draws, _count);
+		const kept = Math.min(_total, MAX_FRAMES);
+		const draws = summarize(_draws, kept);
 		let hitches = 0;
-		for (let i = 0; i < _count; ++i) {
+		for (let i = 0; i < kept; ++i) {
 			if (_interval[i] > HITCH_MS) {
 				hitches++;
 			}
 		}
 		const memory = performance.memory;
 		return {
-			frames: _count,
+			frames: _total,
+			kept,
 			seconds: Math.round(seconds * 10) / 10,
-			fps: Math.round((_count / Math.max(seconds, 0.001)) * 10) / 10,
-			frameMs: summarize(_interval, _count),
-			workMs: summarize(_work, _count),
+			fps: Math.round((_total / Math.max(seconds, 0.001)) * 10) / 10,
+			frameMs: summarize(_interval, kept),
+			workMs: summarize(_work, kept),
 			drawCalls: draws,
-			verticesPerFrame: _count ? Math.round(_totalVertices / _count) : 0,
+			verticesPerFrame: _total ? Math.round(_totalVertices / _total) : 0,
 			hitches,
 			heapMB: memory ? Math.round(memory.usedJSHeapSize / 1048576) : null,
 			marks: JSON.parse(JSON.stringify(_marks))
 		};
+	}
+
+	/**
+	 * Frames slower than 33 ms since the last reset: when the gap started
+	 * (performance.now() time), its length, and the frame's work and draws
+	 *
+	 * @return {Array}
+	 */
+	static slowFrames() {
+		return _slow.slice();
 	}
 
 	/**
@@ -342,6 +399,7 @@ if (PerfProbe.enabled) {
 	window.roPerf = {
 		stats: PerfProbe.stats,
 		reset: PerfProbe.reset,
+		slowFrames: PerfProbe.slowFrames,
 		overlay: PerfProbe.overlay,
 		get marks() {
 			return JSON.parse(JSON.stringify(_marks));

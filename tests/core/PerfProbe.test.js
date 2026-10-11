@@ -72,6 +72,21 @@ describe('PerfProbe', () => {
 		expect(PerfProbe.stats().frames).toBe(0);
 	});
 
+	it('logs frames slower than 33 ms', async () => {
+		const PerfProbe = await load(true);
+		PerfProbe.attach(makeGl());
+		for (const t of [0, 16, 32, 132, 148]) {
+			PerfProbe.frameStart(1000 + t);
+			PerfProbe.frameEnd();
+		}
+		const slow = PerfProbe.slowFrames();
+		expect(slow).toHaveLength(1);
+		expect(slow[0].frameMs).toBe(100);
+		expect(slow[0].at).toBe(1032);
+		PerfProbe.reset();
+		expect(PerfProbe.slowFrames()).toHaveLength(0);
+	});
+
 	it('records map load and login marks', async () => {
 		const PerfProbe = await load(true);
 		PerfProbe.loginShown();
