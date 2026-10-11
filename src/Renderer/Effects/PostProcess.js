@@ -20,6 +20,11 @@ let _external = [];
 let _externalAt = -1;
 let _gl = null;
 
+// Modules whose init() has run. A built-in pass is initialised the first time
+// it is active (prepare), not when it is registered on every map load: most
+// are off, and each init compiles shaders and builds framebuffers.
+const _ready = new Set();
+
 // The scene's depth, as a texture, while the passes run; and whether they are
 // running, so a pass's beforeRenderPass leaves that depth alone.
 let _sceneDepth = null;
@@ -38,7 +43,8 @@ class PostProcess {
 	static scene = null;
 
 	/**
-	 * Register module in pass priority order and init
+	 * Register module in pass priority order. It is initialised the first
+	 * time it is active, so its isActive() must not depend on init().
 	 * @param {ShaderModule} module - Post Process Modular effect.
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
@@ -49,7 +55,29 @@ class PostProcess {
 		}
 		_gl = gl;
 		_effects.push(module);
-		module.init(gl);
+	}
+
+	/**
+	 * Initialise a module once
+	 * @param {ShaderModule} module
+	 * @param {WebGLRenderingContext} gl
+	 */
+	static initModule(module, gl) {
+		if (!_ready.has(module)) {
+			_ready.add(module);
+			module.init(gl);
+		}
+	}
+
+	/**
+	 * Clean a module, if it was initialised
+	 * @param {ShaderModule} module
+	 * @param {WebGLRenderingContext} gl
+	 */
+	static cleanModule(module, gl) {
+		if (_ready.delete(module)) {
+			module.clean(gl);
+		}
 	}
 
 	/**
@@ -59,9 +87,11 @@ class PostProcess {
 	static registerExternal(gl) {
 		_gl = gl;
 		_externalAt = _effects.length;
+		// Plugin passes are initialised now, as before: their isActive() may
+		// depend on init() having run
 		_external.forEach(module => {
 			_effects.push(module);
-			module.init(gl);
+			PostProcess.initModule(module, gl);
 		});
 	}
 
@@ -82,7 +112,7 @@ class PostProcess {
 		_external.push(module);
 		if (_gl && _externalAt >= 0) {
 			_effects.splice(_externalAt + _external.length - 1, 0, module);
-			module.init(_gl);
+			PostProcess.initModule(module, _gl);
 		}
 	}
 
@@ -96,7 +126,7 @@ class PostProcess {
 		if (index >= 0) {
 			_effects.splice(index, 1);
 			if (_gl) {
-				module.clean(_gl);
+				PostProcess.cleanModule(module, _gl);
 			}
 		}
 	}
@@ -118,10 +148,13 @@ class PostProcess {
 	static prepare(gl) {
 		_activeEffects = _effects.filter(e => e.isActive());
 
-		// Ensure global buffers exist and match canvas size
-		this.validateBuffers(gl);
-
 		if (_activeEffects.length > 0) {
+			_activeEffects.forEach(e => PostProcess.initModule(e, gl));
+
+			// Ensure global buffers exist and match canvas size (only needed
+			// when a pass runs: without one the scene goes straight to screen)
+			this.validateBuffers(gl);
+
 			// Render the scene into the write buffer (which becomes read buffer in .render())
 			PostProcess.beforeRenderPass(gl, _writeFbo);
 		} else {
@@ -226,8 +259,8 @@ class PostProcess {
 	 */
 	static restartModules(gl) {
 		_activeEffects.forEach(module => {
-			module.clean(gl);
-			module.init(gl);
+			PostProcess.cleanModule(module, gl);
+			PostProcess.initModule(module, gl);
 		});
 		_activeEffects = [];
 
@@ -278,9 +311,10 @@ class PostProcess {
 		_readFbo = this.createFbo(gl, scaledWidth, scaledHeight, _readFbo);
 		_writeFbo = this.createFbo(gl, scaledWidth, scaledHeight, _writeFbo);
 
-		// Notify modules to recreate their internal buffers (if any)
+		// Notify modules to recreate their internal buffers (if any); one not
+		// initialised yet sizes them in init()
 		_effects.forEach(module => {
-			if (module.recreateFbo) {
+			if (module.recreateFbo && _ready.has(module)) {
 				module.recreateFbo(gl, scaledWidth, scaledHeight);
 			}
 		});
@@ -290,7 +324,7 @@ class PostProcess {
 	 * Clean current registered modules
 	 */
 	static clean(gl) {
-		_effects.forEach(module => module.clean(gl));
+		_effects.forEach(module => PostProcess.cleanModule(module, gl));
 		_effects = [];
 		_activeEffects = [];
 		_externalAt = -1;
