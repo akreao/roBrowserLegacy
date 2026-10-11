@@ -1029,7 +1029,12 @@ class GUIComponent {
 			setTimeout(() => checkScrollbars(root), 150);
 			setTimeout(() => checkScrollbars(root), 500);
 
-			// Re-apply on visibility or content changes
+			// Re-apply on visibility or content changes. A window appended while
+			// already open (the NPC dialog does it for every line) replaces its
+			// observer rather than adding one, or they pile up for the session.
+			if (self.__scrollbarObserver) {
+				self.__scrollbarObserver.disconnect();
+			}
 			const observer = new MutationObserver(mutations => {
 				let needsCheck = false;
 				for (const mutation of mutations) {
