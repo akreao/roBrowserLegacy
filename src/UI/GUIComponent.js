@@ -16,6 +16,7 @@ import Session from 'Engine/SessionStorage.js';
 import Targa from 'Loaders/Targa.js';
 import ClampToViewport from 'UI/ClampToViewport.js';
 import UIScale from 'UI/UIScale.js';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 /**
  * Heavy modules loaded lazily to keep viewer bundles lightweight.
@@ -60,36 +61,6 @@ function _ensureDeps() {
  * Snap cache shared across all draggable instances (same as UIComponent)
  */
 let _snapCache = [];
-
-/**
- * Windows whose data-* images wait for their first showing, keyed by host.
- * Entering the map prepares some fifty windows the player may never open, and
- * fetching their art then is hundreds of requests in the busiest moment of
- * loading. Each window fetches it when it is first on screen instead.
- * A window put on the page by some other path than append() is still caught,
- * by watching what is added to the body.
- */
-const _pendingImages = new Map();
-let _bodyObserver = null;
-
-function _watchPendingImages(component) {
-	_pendingImages.set(component._host, component);
-	if (_bodyObserver) return;
-	_bodyObserver = new MutationObserver(() => {
-		for (const pending of [..._pendingImages.values()]) pending._loadPendingImages();
-	});
-	_bodyObserver.observe(document.body, { childList: true });
-}
-
-function _unwatchPendingImages(component) {
-	_pendingImages.delete(component._host);
-	component.__pendingStyleObserver?.disconnect();
-	component.__pendingStyleObserver = null;
-	if (!_pendingImages.size && _bodyObserver) {
-		_bodyObserver.disconnect();
-		_bodyObserver = null;
-	}
-}
 
 /**
  * Mouse interaction modes
@@ -254,7 +225,7 @@ class GUIComponent {
 		}
 
 		// Process legacy data-* attributes (background, hover, down, text, etc.)
-		// Text now; images when the window is first shown.
+		// Text now; each image when its node is first drawn.
 		this._processAllDataAttrs(true);
 
 		// Create jQuery compatibility proxy
@@ -320,9 +291,6 @@ class GUIComponent {
 		if (this.onAppend) {
 			this.onAppend();
 		}
-
-		// After onAppend, which may hide the window again
-		this._loadPendingImages();
 
 		// Scrollbars
 		this._setupScrollbars();
@@ -1252,8 +1220,8 @@ class GUIComponent {
 	 * Walk the shadow DOM and process all elements with data-* attributes.
 	 * Called once during prepare().
 	 *
-	 * @param {boolean} [deferImages] - set the text now and keep the image
-	 *   nodes for _loadPendingImages()
+	 * @param {boolean} [deferImages] - set the text now, and fetch each
+	 *   node's images when it is first drawn (UI/WhenDrawn.js)
 	 */
 	_processAllDataAttrs(deferImages = false) {
 		const root = this._shadow || this._host;
@@ -1261,7 +1229,6 @@ class GUIComponent {
 
 		const selector = '[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]';
 		const nodes = root.querySelectorAll(selector);
-		const pending = [];
 		for (const node of nodes) {
 			if (!deferImages) {
 				GUIComponent.processDataAttrs(node);
@@ -1270,37 +1237,8 @@ class GUIComponent {
 			GUIComponent.processDataAttrs(node, { images: false });
 			const { background, hover, down, active, preload } = node.dataset;
 			if (background || hover || down || active || preload) {
-				pending.push(node);
+				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false }));
 			}
-		}
-
-		if (pending.length) {
-			this.__pendingImageNodes = pending;
-			_watchPendingImages(this);
-		}
-	}
-
-	/**
-	 * Fetch the data-* images prepare() kept back, once the window is on the
-	 * page and not display:none. A window appended hidden (its saved state)
-	 * waits for its style to change.
-	 */
-	_loadPendingImages() {
-		const nodes = this.__pendingImageNodes;
-		if (!nodes || !this._host?.isConnected) return;
-
-		if (this._host.style.display === 'none') {
-			if (!this.__pendingStyleObserver) {
-				this.__pendingStyleObserver = new MutationObserver(() => this._loadPendingImages());
-				this.__pendingStyleObserver.observe(this._host, { attributes: true, attributeFilter: ['style'] });
-			}
-			return;
-		}
-
-		this.__pendingImageNodes = null;
-		_unwatchPendingImages(this);
-		for (const node of nodes) {
-			GUIComponent.processDataAttrs(node, { text: false });
 		}
 	}
 
