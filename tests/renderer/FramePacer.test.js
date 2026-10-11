@@ -44,9 +44,28 @@ describe('FramePacer', () => {
 		FramePacer.reset();
 		expect(refreshes(run(144, 60), 144)).toEqual([2]); // 72 fps
 		FramePacer.reset();
-		expect(refreshes(run(165, 60), 165)).toEqual([3]); // 55 fps
+		expect(refreshes(run(165, 60), 165)).toEqual([2]); // 82.5 fps
 		FramePacer.reset();
 		expect(refreshes(run(60, 30), 60)).toEqual([2]);
+		FramePacer.reset();
+		expect(refreshes(run(75, 30), 75)).toEqual([2]); // 37.5 fps
+	});
+
+	it('never paces below the limit', () => {
+		for (const hz of [59.94, 60, 75, 119.88, 120, 144, 165, 240]) {
+			for (const limit of [30, 60, 90, 120]) {
+				const refresh = 1000 / hz;
+				const frames = FramePacer.refreshesPerFrame(limit, refresh);
+				// 1% slack: 59.94 Hz counts as 60; a limit above the refresh
+				// rate gets every refresh
+				expect(hz / frames).toBeGreaterThanOrEqual(Math.min(limit, hz) * 0.99);
+				// and not more refreshes per frame than that allows
+				expect(hz / (frames + 1)).toBeLessThan(limit * 0.99);
+			}
+		}
+		expect(FramePacer.refreshesPerFrame(90, 1000 / 144)).toBe(1);
+		expect(FramePacer.refreshesPerFrame(60, 1000 / 119.88)).toBe(2);
+		expect(FramePacer.refreshesPerFrame(60, 1000 / 59.94)).toBe(1);
 	});
 
 	it('measures the refresh interval from rAF timestamps', () => {
