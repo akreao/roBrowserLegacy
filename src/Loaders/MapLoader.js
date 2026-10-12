@@ -32,6 +32,23 @@ function request(requests, filename) {
 }
 
 /**
+ * The file asked for early, for the one step that uses it. An image comes as
+ * a blob URL, and Texture.load revokes it once the image has loaded, so two
+ * steps must not share one: a texture the ground and a model both use would
+ * load for whichever came first and never for the other. A later step that
+ * needs the same file asks again, and gets its own.
+ *
+ * @param {Map} requests - filename to Promise of the loaded file
+ * @param {string} filename
+ * @returns {Promise}
+ */
+function take(requests, filename) {
+	const pending = request(requests, filename);
+	requests.delete(filename);
+	return pending;
+}
+
+/**
  * Helper to load list
  *
  * @param {array} file list to load
@@ -92,7 +109,7 @@ class Loader {
 		}
 
 		const filename = this.list.shift();
-		request(this.requests, filename).then(data => {
+		take(this.requests, filename).then(data => {
 			// Store the result
 			this.out[this.files.indexOf(filename)] = data;
 			this.offset++;
