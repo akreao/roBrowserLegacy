@@ -5038,15 +5038,20 @@ function loadTownInfoFile(filename, callback, onEnd) {
 				const ctx = lua.ctx;
 
 				// create AddTownInfo required functions in context
+				const updatedMaps = new Set();
 				ctx.AddTownInfo = function AddTownInfo(mapName, name, X, Y, TYPE) {
 					mapName = userStringDecoder.decode(mapName);
-					TownInfo[mapName] = [];
+					if (!updatedMaps.has(mapName)) {
+						TownInfo[mapName] = [];
+						updatedMaps.add(mapName);
+					}
 					TownInfo[mapName].push({
 						Name: userStringDecoder.decode(name, userCharpage),
 						X: X,
 						Y: Y,
 						Type: TYPE
 					});
+					return 1;
 				};
 				// mount file
 				lua.mountFile(filename, buffer);
@@ -6713,7 +6718,9 @@ function loadSkillInfoList(filename, callback, onEnd) {
 						SkillName: userStringDecoder.decode(skillName, userCharpage),
 						MaxLv: maxLv,
 						SpAmount: toArray(spAmount),
-						bSeperateLv: bSeperateLv,
+						// Absent (nil) is not "no": the pre-renewal translation's table leaves it
+						// out of most skills, Fire Bolt among them, and its level arrows went with it.
+						bSeperateLv: bSeperateLv ?? SkillInfo[skillId]?.bSeperateLv ?? false,
 						AttackRange: toArray(attackRange),
 						SkillScale: skillScale,
 						NeedSkillList: {},
@@ -6779,7 +6786,7 @@ function loadSkillInfoList(filename, callback, onEnd) {
 								local skillName = skillData.SkillName or ""  
 								local maxLv = skillData.MaxLv or 1  
 								local spAmount = skillData.SpAmount or {}  
-								local bSeperateLv = skillData.bSeperateLv or false  
+								local bSeperateLv = skillData.bSeperateLv
 								local attackRange = skillData.AttackRange or {}  
 								local skillScale = skillData.SkillScale or {}  
 
