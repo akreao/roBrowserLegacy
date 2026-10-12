@@ -410,7 +410,7 @@ class FileManager {
 					case 'bmp':
 					case 'gif':
 					case 'png':
-						result = URL.createObjectURL(new Blob([buffer], { type: 'image/' + ext }));
+						result = URL.createObjectURL(new Blob([buffer], { type: imageType(buffer, ext) }));
 						break;
 
 					// Audio
@@ -486,6 +486,23 @@ class FileManager {
 		});
 	}
 }
+/**
+ * The type of a picture: its extension, unless the bytes are a WebP, which an
+ * asset server may send for a BMP or JPEG to a player on a slow link.
+ *
+ * @param {ArrayBuffer} buffer
+ * @param {string} ext
+ * @return {string}
+ */
+function imageType(buffer, ext) {
+	const head = new Uint8Array(buffer, 0, Math.min(12, buffer.byteLength));
+	const tag = String.fromCharCode(...head);
+	if (tag.length === 12 && tag.startsWith('RIFF') && tag.endsWith('WEBP')) {
+		return 'image/webp';
+	}
+	return 'image/' + ext;
+}
+
 /**
  * Export
  */
