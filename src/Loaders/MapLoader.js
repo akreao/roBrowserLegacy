@@ -211,11 +211,17 @@ class MapLoader {
 			world = resourceWorld;
 			loader.setProgress(1);
 
-			// Ask for the ground and the models now, while the altitude loads.
-			const ground = request(requests, `data\\${getFilePath(world.files.gnd)}`);
-			for (const model of world.models) {
-				request(requests, `data\\model\\${model.filename}`);
-			}
+			// Ask for the ground now, while the altitude loads. Once it arrives,
+			// ask for its textures, which are needed first, then the models.
+			const ground = request(requests, `data\\${getFilePath(world.files.gnd)}`).then(resourceGround => {
+				for (const texture of resourceGround?.textures || []) {
+					request(requests, `data\\texture\\${texture}`);
+				}
+				for (const model of world.models) {
+					request(requests, `data\\model\\${model.filename}`);
+				}
+				return resourceGround;
+			});
 
 			// Load Altitude
 			request(requests, `data\\${getFilePath(world.files.gat)}`).then(altitude => {
@@ -245,12 +251,6 @@ class MapLoader {
 			}
 
 			loader.setProgress(3);
-
-			// Ask for the ground's textures before compiling it, which takes a
-			// while. They are the names compile() hands on.
-			for (const texture of ground.textures) {
-				request(requests, `data\\texture\\${texture}`);
-			}
 
 			// Compiling ground
 			if (ground && ground.version >= 1.8) {

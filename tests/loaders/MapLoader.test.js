@@ -54,7 +54,7 @@ describe('MapLoader', () => {
 		files.pending.clear();
 	});
 
-	it('asks for the ground and the models with the altitude, and still hands them on in order', async () => {
+	it('asks for the ground with the altitude, then its textures and the models, and still hands them on in order', async () => {
 		const loader = new MapLoader();
 		const order = [];
 		loader.ondata = type => order.push(type);
@@ -63,27 +63,25 @@ describe('MapLoader', () => {
 
 		answer('data\\map.rsw', world);
 		await settle();
-		expect(files.asked).toEqual([
-			'data\\map.rsw',
-			'data\\map.gnd',
-			'data\\model\\a.rsm',
-			'data\\model\\b.rsm',
-			'data\\map.gat'
-		]);
+		expect(files.asked).toEqual(['data\\map.rsw', 'data\\map.gnd', 'data\\map.gat']);
 
-		// The ground arrives first, but is not used before the altitude.
+		// The ground arrives first: its textures and the models are asked for
+		// at once, but the ground is not used before the altitude.
 		answer('data\\map.gnd', ground);
 		await settle();
+		expect(files.asked.slice(3)).toEqual([
+			'data\\texture\\t1.bmp',
+			'data\\texture\\t2.bmp',
+			'data\\model\\a.rsm',
+			'data\\model\\b.rsm'
+		]);
 		expect(order).toEqual([]);
 
 		answer('data\\map.gat', altitude);
 		await settle();
 		expect(order).toEqual(['MAP_ALTITUDE']);
-		// Its textures were asked for once, not again by the texture step.
-		expect(files.asked.filter(name => name.startsWith('data\\texture\\'))).toEqual([
-			'data\\texture\\t1.bmp',
-			'data\\texture\\t2.bmp'
-		]);
+		// The texture step asked for nothing again.
+		expect(files.asked).toHaveLength(7);
 
 		answer('data\\model\\a.rsm', { ...model });
 		answer('data\\model\\b.rsm', { ...model });
@@ -103,6 +101,7 @@ describe('MapLoader', () => {
 		loader.onload = (ok, error) => order.push(`done:${ok}:${error}`);
 		loader.load('map.rsw');
 
+		const compile = vi.spyOn(ground, 'compile');
 		answer('data\\map.rsw', world);
 		await settle();
 		answer('data\\map.gnd', ground);
@@ -110,6 +109,7 @@ describe('MapLoader', () => {
 		await settle();
 
 		expect(order).toEqual(['done:false:Can\'t find file "map.gat" !']);
-		expect(files.asked.some(name => name.startsWith('data\\texture\\'))).toBe(false);
+		expect(compile).not.toHaveBeenCalled();
+		compile.mockRestore();
 	});
 });
