@@ -102,7 +102,6 @@ let _gl = null;
 let _program = null;
 let _vao = null;
 let _instanceBuffer = null;
-let _instanceCapacity = 0;
 let _upload = new Float32Array(0);
 let _active = false;
 
@@ -489,12 +488,10 @@ class SpriteBatch {
 		_upload.set(shadow.data.subarray(0, shadow.count * FLOATS), 0);
 		_upload.set(main.data.subarray(0, main.count * FLOATS), shadow.count * FLOATS);
 
+		// A fresh store each time (bufferData, not bufferSubData): writing into
+		// the one the previous frame's draws still read makes the driver wait.
 		gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
-		if (_instanceCapacity < _upload.byteLength) {
-			_instanceCapacity = _upload.byteLength;
-			gl.bufferData(gl.ARRAY_BUFFER, _instanceCapacity, gl.STREAM_DRAW);
-		}
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, _upload, 0, total * FLOATS);
+		gl.bufferData(gl.ARRAY_BUFFER, _upload, gl.STREAM_DRAW, 0, total * FLOATS);
 
 		gl.useProgram(_program);
 		gl.bindVertexArray(_vao);
