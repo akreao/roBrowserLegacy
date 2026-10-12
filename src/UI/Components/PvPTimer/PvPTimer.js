@@ -14,6 +14,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import htmlText from './PvPTimer.html?raw';
 import cssText from './PvPTimer.css?raw';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 const PvPTimer = new GUIComponent('PvPTimer', cssText);
 
@@ -58,7 +59,10 @@ let isFirstTime = true;
  * Initialize UI
  */
 PvPTimer.init = function init() {
-	Client.loadFiles(
+	// Fetched when the window is first drawn, not on entering the map
+	// (UI/WhenDrawn.js).
+	const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+	loadFiles(
 		[
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.act',
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.spr',
