@@ -269,6 +269,11 @@ class Background {
 			return;
 		}
 
+		// Whatever is put on screen during the fade (the map behind, its
+		// windows) stays under the image until the screen is black.
+		_container.style.zIndex = '998';
+		_canvas.style.zIndex = '999';
+
 		transition(() => {
 			_container.style.zIndex = '0';
 			_canvas.style.zIndex = '0';
@@ -326,11 +331,27 @@ function transition(callback) {
 		_overlayAnim.stop();
 	}
 
-	_overlay.style.opacity = '0.01';
-	document.body.appendChild(_overlay);
+	// A transition that starts while another is under way carries on from
+	// where the overlay is. When a map loads before the fade to its loading
+	// image is over, Background.remove runs inside that fade's callback, with
+	// the screen already black: there is nothing left to fade.
+	let duration = transitionDuration;
+	if (_overlay.parentNode) {
+		if (parseFloat(_overlay.style.opacity) >= 0.99) {
+			duration = 1;
+		}
+	} else {
+		_overlay.style.opacity = '0.01';
+		document.body.appendChild(_overlay);
+	}
 
-	_overlayAnim = animateElement(_overlay, { opacity: 1.0 }, transitionDuration, () => {
+	const anim = animateElement(_overlay, { opacity: 1.0 }, duration, () => {
 		callback();
+
+		// The callback started a transition of its own, which now fades back
+		if (_overlayAnim !== anim) {
+			return;
+		}
 
 		_overlayAnim = animateElement(_overlay, { opacity: 0.01 }, transitionDuration, () => {
 			if (_overlay.parentNode) {
@@ -338,6 +359,7 @@ function transition(callback) {
 			}
 		});
 	});
+	_overlayAnim = anim;
 }
 
 /**
