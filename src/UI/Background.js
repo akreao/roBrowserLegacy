@@ -269,6 +269,11 @@ class Background {
 			return;
 		}
 
+		// Whatever is put on screen during the fade (the map behind, its
+		// windows) stays under the image until the screen is black.
+		_container.style.zIndex = '998';
+		_canvas.style.zIndex = '999';
+
 		transition(() => {
 			_container.style.zIndex = '0';
 			_canvas.style.zIndex = '0';
