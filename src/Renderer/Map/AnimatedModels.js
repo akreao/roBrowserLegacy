@@ -104,6 +104,89 @@ function isNodeStatic(node) {
 }
 
 /**
+ * Whether a node and every parent above it are static
+ */
+function isNodeFrozen(model, node) {
+	const seen = new Set();
+	while (node && !seen.has(node)) {
+		if (!node._isStatic) {
+			return false;
+		}
+		seen.add(node);
+		node = node.parentname && node.parentname !== node.name ? model._nodeMap[node.parentname] : null;
+	}
+	return true;
+}
+
+/**
+ * The normal of each face, from vertices that never change
+ */
+function computeFaceNormals(node) {
+	const faces = node.faces;
+	const vertices = node.vertices;
+	const normals = new Float32Array(faces.length * 3);
+
+	for (let f = 0; f < faces.length; f++) {
+		const v0 = vertices[faces[f].vertidx[0]];
+		const v1 = vertices[faces[f].vertidx[1]];
+		const v2 = vertices[faces[f].vertidx[2]];
+
+		const ax = v1[0] - v0[0],
+			ay = v1[1] - v0[1],
+			az = v1[2] - v0[2];
+		const bx = v2[0] - v0[0],
+			by = v2[1] - v0[1],
+			bz = v2[2] - v0[2];
+
+		let nx = ay * bz - az * by;
+		let ny = az * bx - ax * bz;
+		let nz = ax * by - ay * bx;
+
+		// Normalize
+		let len = nx * nx + ny * ny + nz * nz;
+		if (len > 0) {
+			len = 1.0 / Math.sqrt(len);
+			nx *= len;
+			ny *= len;
+			nz *= len;
+		}
+
+		normals[f * 3] = nx;
+		normals[f * 3 + 1] = ny;
+		normals[f * 3 + 2] = nz;
+	}
+
+	return normals;
+}
+
+/**
+ * The parts of the buffer the moving nodes write, as [start, end) float
+ * ranges, neighbours merged
+ */
+function computeDirtyRanges(model) {
+	const ranges = [];
+
+	for (const tid in model.writePlans) {
+		const plans = model.writePlans[tid].writePlan;
+		for (let p = 0; p < plans.length; p++) {
+			if (model.nodes[plans[p].nodeIndex]._frozen) {
+				continue;
+			}
+			const start = plans[p].targetOffset;
+			const end = start + plans[p].faceCount * 3 * 9;
+			const last = ranges[ranges.length - 1];
+			if (last && last[1] === start) {
+				last[1] = end;
+			} else {
+				ranges.push([start, end]);
+			}
+		}
+	}
+
+	return ranges;
+}
+
+/**
  * Add an animated model
  */
 function add(gl, modelData) {
@@ -153,7 +236,7 @@ function add(gl, modelData) {
 			rotKeyframes: srcNode.rotKeyframes || [],
 			posKeyframes: srcNode.posKeyframes || [],
 			scaleKeyFrames: srcNode.scaleKeyFrames || [],
-			_isStatic: !hasAnyAnimation,
+			_isStatic: isNodeStatic(srcNode),
 			_index: n,
 			_cache: {
 				local: mat4.create(),
@@ -339,6 +422,15 @@ function add(gl, modelData) {
 		animModel._globalMatrices[n] = mat4.create();
 	}
 
+	// A node that does not move, under parents that do not move either, has
+	// the same geometry on every frame: it is written once, by the first
+	// update, and only the moving nodes are written and uploaded after that.
+	for (let n = 0; n < nodes.length; n++) {
+		nodes[n]._frozen = isNodeFrozen(animModel, nodes[n]);
+		nodes[n]._faceNormals = computeFaceNormals(nodes[n]);
+	}
+	animModel.dirtyRanges = computeDirtyRanges(animModel);
+
 	// Allocate Buffer on GPU immediately (Empty but sized)
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, animModel._gpuBuffer.byteLength, gl.DYNAMIC_DRAW);
@@ -517,6 +609,7 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
 		n10 = n[10];
 
 	const faces = node.faces;
+	const faceNormals = node._faceNormals;
 	const vertices = node.vertices;
 	const tvertices = node.tvertices;
 	const textures = node.textures;
@@ -530,30 +623,10 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
 			continue;
 		}
 
-		// Compute Face Normal (using Original Vertices)
-		const v0 = vertices[face.vertidx[0]];
-		const v1 = vertices[face.vertidx[1]];
-		const v2 = vertices[face.vertidx[2]];
-
-		const ax = v1[0] - v0[0],
-			ay = v1[1] - v0[1],
-			az = v1[2] - v0[2];
-		const bx = v2[0] - v0[0],
-			by = v2[1] - v0[1],
-			bz = v2[2] - v0[2];
-
-		let nx = ay * bz - az * by;
-		let ny = az * bx - ax * bz;
-		let nz = ax * by - ay * bx;
-
-		// Normalize
-		let len = nx * nx + ny * ny + nz * nz;
-		if (len > 0) {
-			len = 1.0 / Math.sqrt(len);
-			nx *= len;
-			ny *= len;
-			nz *= len;
-		}
+		// Face normal, computed once from the original vertices
+		const nx = faceNormals[f * 3];
+		const ny = faceNormals[f * 3 + 1];
+		const nz = faceNormals[f * 3 + 2];
 
 		// Transform Normal
 		const tnx = n0 * nx + n4 * ny + n8 * nz;
@@ -603,6 +676,9 @@ function updateModelBuffer(gl, model, frame, force) {
 	if (model.staticModel && model.lastAnimFrame !== -1 && !force) {
 		return;
 	}
+
+	// The first update (or a forced one) writes every node; later ones only the moving ones
+	const full = force || model.lastAnimFrame === -1;
 
 	model.lastAnimFrame = currentAnimFrame;
 	model.lastFrame = frame;
@@ -682,6 +758,9 @@ function updateModelBuffer(gl, model, frame, force) {
 		for (let p = 0; p < plans.length; p++) {
 			const plan = plans[p];
 			const node = model.nodes[plan.nodeIndex];
+			if (node._frozen && !full) {
+				continue;
+			}
 			const finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
 
 			transformAndWrite(node, finalInstanceMatrix, textureId, plan.targetOffset, buffer, model.alpha);
@@ -689,9 +768,16 @@ function updateModelBuffer(gl, model, frame, force) {
 	}
 
 	// 4. Upload to GPU
-	// Use bufferSubData to avoid reallocation
+	// Use bufferSubData to avoid reallocation, and only what changed
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
-	gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
+	if (full) {
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
+	} else {
+		const ranges = model.dirtyRanges;
+		for (let r = 0; r < ranges.length; r++) {
+			gl.bufferSubData(gl.ARRAY_BUFFER, ranges[r][0] * 4, buffer, ranges[r][0], ranges[r][1] - ranges[r][0]);
+		}
+	}
 }
 
 /**
