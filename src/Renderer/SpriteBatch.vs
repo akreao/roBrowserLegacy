@@ -10,12 +10,14 @@ in vec4 aPositionZIndex;  // xyz world position, w zIndex
 in vec4 aOffsetSize;      // xy offset, zw size (both in world units)
 in vec4 aColor;
 in vec4 aUV;              // xy top-left, zw bottom-right, in the texture
-in vec3 aAngleDepthShadow; // angle (degrees), depth, shadow
+in vec4 aAngleDepthShadowLayer; // angle (degrees), depth, shadow, atlas layer
+in vec2 aSource;          // where the pixels are, palette row (see SpriteBatch.js)
 
 out vec2 vTextureCoord;
 flat out vec4 vUV;
 flat out vec4 vColor;
 flat out float vShadow;
+flat out vec3 vSource;    // source, atlas layer, palette row
 
 uniform mat4 uModelViewMat;
 uniform mat4 uViewModelMat;
@@ -57,7 +59,7 @@ vec3 getCameraForward() {
 
 void main(void) {
     // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js
-    float angle = -aAngleDepthShadow.x / 180.0 * 3.14159265358979;
+    float angle = -aAngleDepthShadowLayer.x / 180.0 * 3.14159265358979;
     float c = cos(angle);
     float s = sin(angle);
     vec2 scaled = aPosition * aOffsetSize.zw;
@@ -92,10 +94,11 @@ void main(void) {
 
         gl_Position.z = uFullPlaneDepth ? correctedZBase : min(gl_Position.z, correctedZBase);
     }
-    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadow.y) / max(uCameraZoom, 1.0);
+    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowLayer.y) / max(uCameraZoom, 1.0);
 
     vTextureCoord = aTextureCoord;
     vUV     = aUV;
     vColor  = aColor;
-    vShadow = aAngleDepthShadow.z;
+    vShadow = aAngleDepthShadowLayer.z;
+    vSource = vec3(aSource.x, aAngleDepthShadowLayer.w, aSource.y);
 }
