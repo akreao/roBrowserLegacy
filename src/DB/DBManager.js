@@ -4171,11 +4171,36 @@ async function startLua() {
 		CLua.Lua.create({ customWasmUri: wasmUrl }),
 		CLua.Lua.create({ customWasmUri: wasmUrl })
 	]);
-	lua = l;
+	lua = oneRunAtATime(l);
 	HO_AI = ha;
 	MER_AI = ma;
 	default_HO_AI = dha;
 	default_MER_AI = dma;
+}
+
+/**
+ * Runs a state's files and strings one after another, never two at once.
+ *
+ * wasmoon keeps each run's thread on the state's stack and removes it by
+ * index when the run ends. Two runs started in the same task end out of
+ * order, the wrong slot is removed, and every later call into the state fails
+ * with "memory access out of bounds". Files loaded from the network start in
+ * separate tasks, but a cached file is handed back at once: character select
+ * loads the headgear and garment tables, lazyInit asks for them again, both
+ * start together, and not one table loads after that.
+ *
+ * @param {object} state Lua instance
+ * @return {object} the same instance
+ */
+function oneRunAtATime(state) {
+	const run = state.callByteCode.bind(state);
+	let last = Promise.resolve();
+	state.callByteCode = loader => {
+		const result = last.then(() => run(loader));
+		last = result.catch(() => {});
+		return result;
+	};
+	return state;
 }
 
 function loadFontFromClient(fontPath) {
@@ -4196,41 +4221,41 @@ function loadFontFromClient(fontPath) {
 					style.textContent = `
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
+								src: url('${fontUrl4}') format('opentype');
 								font-weight: 100; /* Thin */  
 								font-style: normal;  
 							}  
 							
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
+								src: url('${fontUrl4}') format('opentype');
 								font-weight: 200; /* Extra Light */  
 								font-style: normal;  
 							}  
 							
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
+								src: url('${fontUrl4}') format('opentype');
 								font-weight: 300; /* Light */  
 								font-style: normal;  
 							}  											
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
+								src: url('${fontUrl4}') format('opentype');
 								font-weight: 400; /* Normal */  
 								font-style: normal;  
 							}  
 							
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl4}') format('opentype');  
+								src: url('${fontUrl6}') format('opentype');
 								font-weight: 700; /* Bold */  
 								font-style: normal;  
 							}
 								
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl4}') format('opentype');  
+								src: url('${fontUrl6}') format('opentype');
 								font-weight: 900; /* Black/Bolder */  
 								font-style: normal;  
 							}  								
