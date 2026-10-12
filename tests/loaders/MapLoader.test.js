@@ -94,6 +94,35 @@ describe('MapLoader', () => {
 		expect(new Set(files.asked).size).toBe(files.asked.length);
 	});
 
+	it("gives a texture the ground and a model share to each its own answer, since a blob URL is revoked once loaded", async () => {
+		const loader = new MapLoader();
+		const data = {};
+		loader.ondata = (type, value) => (data[type] = value);
+		loader.onload = () => {};
+		loader.load('map.rsw');
+
+		answer('data\\map.rsw', { ...world, models: [{ filename: 'a.rsm' }] });
+		await settle();
+		answer('data\\map.gnd', ground);
+		answer('data\\map.gat', altitude);
+		await settle();
+		answer('data\\texture\\t1.bmp', 'blob:ground-t1');
+		answer('data\\texture\\t2.bmp', 'blob:ground-t2');
+		answer('data\\model\\a.rsm', {
+			...model,
+			compile: () => ({ meshes: [{ 0: new Float32Array(9) }], textures: ['t1.bmp'] })
+		});
+		await settle();
+		await settle();
+
+		// The model's texture is asked for again, not handed the ground's URL
+		answer('data\\texture\\t1.bmp', 'blob:model-t1');
+		await settle();
+
+		expect(data.MAP_GROUND.textures).toEqual(['blob:ground-t1', 'blob:ground-t2']);
+		expect(data.MAP_MODELS.infos.map(info => info.texture)).toEqual(['blob:model-t1']);
+	});
+
 	it('stops at a missing altitude without using the ground', async () => {
 		const loader = new MapLoader();
 		const order = [];
