@@ -11,12 +11,38 @@
 import FileManager from 'Core/FileManager.js';
 
 /**
+ * A file loaded once per map, by whichever step asks first. The map loads in
+ * steps (world, altitude, ground, ground textures, models, model textures),
+ * and each used to ask for its files only when the step before had finished:
+ * over a remote link, a round trip per step with the connection idle. Asking
+ * for a later step's files as soon as their names are known lets them arrive
+ * while the earlier steps still run; the steps still run in the same order.
+ *
+ * @param {Map} requests - filename to Promise of the loaded file
+ * @param {string} filename
+ * @returns {Promise}
+ */
+function request(requests, filename) {
+	let pending = requests.get(filename);
+	if (!pending) {
+		pending = new Promise(resolve => FileManager.load(filename, resolve));
+		requests.set(filename, pending);
+	}
+	return pending;
+}
+
+/**
  * Helper to load list
  *
  * @param {array} file list to load
  */
 class Loader {
-	constructor(list) {
+	/**
+	 * @param {Array} list of files to load
+	 * @param {Map} [requests] files already asked for (see request)
+	 */
+	constructor(list, requests) {
+		this.requests = requests || new Map();
 		this.files = list;
 		this.list = list.slice(0);
 		this.offset = 0;
@@ -66,7 +92,7 @@ class Loader {
 		}
 
 		const filename = this.list.shift();
-		FileManager.load(filename, data => {
+		request(this.requests, filename).then(data => {
 			// Store the result
 			this.out[this.files.indexOf(filename)] = data;
 			this.offset++;
@@ -163,6 +189,7 @@ class MapLoader {
 		this.setProgress(0);
 
 		const loader = this;
+		const requests = (this.requests = new Map());
 		let world;
 
 		//  Get file path (if it's a copy of a file)
@@ -184,21 +211,30 @@ class MapLoader {
 			world = resourceWorld;
 			loader.setProgress(1);
 
+			// Ask for the ground and the models now, while the altitude loads.
+			const ground = request(requests, `data\\${getFilePath(world.files.gnd)}`);
+			for (const model of world.models) {
+				request(requests, `data\\model\\${model.filename}`);
+			}
+
 			// Load Altitude
-			FileManager.load(`data\\${getFilePath(world.files.gat)}`, onAltitudeReady);
+			request(requests, `data\\${getFilePath(world.files.gat)}`).then(altitude => {
+				if (onAltitudeReady(altitude)) {
+					ground.then(onGroundReady);
+				}
+			});
 		}
 
 		// Loading altitude
 		function onAltitudeReady(altitude) {
 			if (!altitude) {
 				loader.onload(false, `Can't find file "${world.files.gat}" !`);
-				return;
+				return false;
 			}
 
 			loader.setProgress(2);
 			loader.ondata('MAP_ALTITUDE', altitude.compile());
-
-			FileManager.load(`data\\${getFilePath(world.files.gnd)}`, onGroundReady);
+			return true;
 		}
 
 		// Load ground
@@ -209,6 +245,12 @@ class MapLoader {
 			}
 
 			loader.setProgress(3);
+
+			// Ask for the ground's textures before compiling it, which takes a
+			// while. They are the names compile() hands on.
+			for (const texture of ground.textures) {
+				request(requests, `data\\texture\\${texture}`);
+			}
 
 			// Compiling ground
 			if (ground && ground.version >= 1.8) {
@@ -271,7 +313,7 @@ class MapLoader {
 		}
 
 		// Start loading
-		const loader = new Loader(textures);
+		const loader = new Loader(textures, this.requests);
 
 		// On progress
 		loader.onprogress = () => {
@@ -307,7 +349,7 @@ class MapLoader {
 			}
 		}
 
-		const loader = new Loader(files);
+		const loader = new Loader(files, this.requests);
 
 		// Update the progressbar
 		loader.onprogress = () => {
@@ -472,7 +514,7 @@ class MapLoader {
 		}
 
 		// Load texture
-		const loader = new Loader(textures);
+		const loader = new Loader(textures, this.requests);
 
 		// On Progress
 		loader.onprogress = (index, _count) => {
@@ -499,6 +541,7 @@ class MapLoader {
 				this.sendAnimatedModels(this._animatedModels);
 			}
 
+			this.requests.clear();
 			this.onload(true);
 		};
 
