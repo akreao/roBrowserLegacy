@@ -340,9 +340,11 @@ const renderEntity = (function renderEntityClosure() {
 			SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + 0.05;
 
 			// Keep shadow on ground: depth test on, depth write off, disabledepthcorrection
+			SpriteRenderer.shadowQueue = true;
 			SpriteRenderer.runWithDepth(true, false, false, function () {
 				renderElement(self, self.files.shadow, 'shadow', _position, false);
 			});
+			SpriteRenderer.shadowQueue = false;
 		}
 
 		SpriteRenderer.position.set(self.position);
@@ -1235,6 +1237,8 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.xSize = this.xSize;
 	SpriteRenderer.ySize = this.ySize;
 	SpriteRenderer.image.texture = frame.texture;
+	SpriteRenderer.image.spr = spr;
+	SpriteRenderer.image.frame = frame;
 
 	// Draw Sprite
 	SpriteRenderer.render(isBlendModeOne);
