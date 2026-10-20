@@ -209384,6 +209384,7 @@ var init_SpriteAtlas = __esmMin((() => {
 				_index$1.destroy();
 				_rgba.destroy();
 			}
+			if (_palettes) _gl$4.deleteTexture(_palettes);
 			_gl$4 = gl;
 			_generation++;
 			_index$1 = new ArrayAtlas(gl, false, 2048, 2, 16);
@@ -209399,6 +209400,17 @@ var init_SpriteAtlas = __esmMin((() => {
 			gl.activeTexture(gl.TEXTURE0);
 			_paletteRows = /* @__PURE__ */ new WeakMap();
 			_paletteNext = 0;
+		}
+		/**
+		* Forget the textures of a lost context, which the restored context
+		* object still matches. The next init() creates them again, and the
+		* new generation makes every sprite file pack itself again.
+		*/
+		static contextRestored() {
+			_gl$4 = null;
+			_index$1 = null;
+			_rgba = null;
+			_palettes = null;
 		}
 		/**
 		* @returns {object} { index, rgba, palettes, indexSize } the textures to bind
@@ -209686,6 +209698,21 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static paletteRow(texture, data) {
 			return SpriteAtlas.paletteRow(texture, data);
+		}
+		/**
+		* Forget every GPU object made on the lost context. The context object
+		* stays the same after a restore, so the next open() would otherwise
+		* keep using them. Call from Renderer.onContextRestored.
+		*/
+		static contextRestored() {
+			_gl$3 = null;
+			_program$25 = null;
+			_vao = null;
+			_instanceBuffer = null;
+			_active$3 = false;
+			_queues[QUEUE_SHADOW].clear();
+			_queues[QUEUE_MAIN].clear();
+			SpriteAtlas.contextRestored();
 		}
 		/**
 		* Record one sprite. Returns the offset in the queue's data where the
@@ -263800,6 +263827,7 @@ var init_Renderer = __esmMin((() => {
 	init_SessionStorage();
 	init_PostProcess();
 	init_MemoryManager();
+	init_SpriteBatch();
 	init_preload_helper();
 	({mat4: mat4$9} = gl_matrix_default);
 	_requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
@@ -263930,6 +263958,7 @@ var init_Renderer = __esmMin((() => {
 			gl.enable(gl.BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			PostProcess.restartModules(gl);
+			SpriteBatch.contextRestored();
 			this.resize();
 			this.render();
 		}
