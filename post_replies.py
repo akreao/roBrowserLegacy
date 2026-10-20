@@ -59,6 +59,10 @@ for pr in PRS:
         body = body.strip() + "\n"
         title = re.sub(r"^[^A-Za-z0-9]+", "", title)
         match = best(title, roots)
+        if match and any(c.get("in_reply_to_id") == match["id"] and "devin" not in c["user"]["login"].lower()
+                         for c in comments):
+            print(f"#{pr} {title.strip()!r}: already answered, skipped")
+            continue
         if match:
             where = f"reply to {match['path']}: {match['body'].strip().splitlines()[0][:70]!r}"
             if not dry:
