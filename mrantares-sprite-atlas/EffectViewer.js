@@ -209482,19 +209482,40 @@ var init_SpriteBatch$1 = __esmMin((() => {
 //#endregion
 //#region src/Renderer/SpriteBatch.js
 /**
-* Create the program and the vertex array
+* Create the program, the quad and the vertex array. The batch keeps its own
+* quad (the same one SpriteRenderer draws), so a context restore rebuilds it
+* here whatever SpriteRenderer holds.
 *
 * @param {WebGL2RenderingContext} gl
-* @param {WebGLBuffer} quad - SpriteRenderer's quad: x, y, u, v per vertex
 */
-function init$12(gl, quad) {
+function init$12(gl) {
 	_gl$3 = gl;
 	_program$25 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
+	_quad = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+		-.5,
+		.5,
+		0,
+		0,
+		.5,
+		.5,
+		1,
+		0,
+		-.5,
+		-.5,
+		0,
+		1,
+		.5,
+		-.5,
+		1,
+		1
+	]), gl.STATIC_DRAW);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
 	const attribute = _program$25.attribute;
 	gl.bindVertexArray(_vao);
-	gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
 	gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -209531,7 +209552,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 80);
 }
-var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -209585,6 +209606,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_gl$3 = null;
 	_program$25 = null;
 	_vao = null;
+	_quad = null;
 	_instanceBuffer = null;
 	_upload = /* @__PURE__ */ new Float32Array(0);
 	_active$3 = false;
@@ -209646,13 +209668,12 @@ var init_SpriteBatch = __esmMin((() => {
 		* Start recording.
 		*
 		* @param {WebGL2RenderingContext} gl
-		* @param {WebGLBuffer} quad - SpriteRenderer's quad buffer
 		* @param {object} state - the GL state now: { depthTest, depthMask }
 		* @returns {boolean} whether recording started
 		*/
-		static open(gl, quad, state) {
+		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$3 || typeof gl.drawArraysInstanced !== "function") return false;
-			if (!_program$25 || _gl$3 !== gl) init$12(gl, quad);
+			if (!_program$25 || _gl$3 !== gl) init$12(gl);
 			SpriteAtlas.init(gl);
 			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
@@ -209708,6 +209729,7 @@ var init_SpriteBatch = __esmMin((() => {
 			_gl$3 = null;
 			_program$25 = null;
 			_vao = null;
+			_quad = null;
 			_instanceBuffer = null;
 			_active$3 = false;
 			_queues[QUEUE_SHADOW].clear();
@@ -210368,7 +210390,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {WebGL2RenderingContext} gl
 		*/
 		static beginBatch(gl) {
-			if (SpriteBatch.open(gl, _buffer$18, {
+			if (SpriteBatch.open(gl, {
 				depthTest: _depthTest,
 				depthMask: _depthMask
 			})) _blendOne = null;
