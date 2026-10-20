@@ -262884,6 +262884,7 @@ function onMapComplete(success, error) {
 	JoystickUI_default.onRestore();
 	MapRenderer.loading = false;
 	_revealing = true;
+	if (PerfProbe.enabled) PerfProbe.mapReady();
 	MapRenderer.onLoad();
 	Sky_default.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
@@ -262892,7 +262893,6 @@ function onMapComplete(success, error) {
 	Background.remove(() => {
 		if (loadId !== MapRenderer._loadId) return;
 		_revealing = false;
-		if (PerfProbe.enabled) PerfProbe.mapReady();
 		Mouse.intersect = true;
 		if (_nextMap) {
 			const mapname = _nextMap;
