@@ -233544,7 +233544,7 @@ var init_SoundOption = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/FramePacer.js
-var SAMPLES, MIN_SAMPLES, MAX_INTERVAL, _intervals, _sorted, _count, _next, _lastTick, FramePacer;
+var SAMPLES, MIN_SAMPLES, MAX_INTERVAL, _intervals, _sorted, _count, _next, _lastTick, _frames, _framesLimit, FramePacer;
 var init_FramePacer = __esmMin((() => {
 	SAMPLES = 31;
 	MIN_SAMPLES = 8;
@@ -233554,6 +233554,8 @@ var init_FramePacer = __esmMin((() => {
 	_count = 0;
 	_next = 0;
 	_lastTick = 0;
+	_frames = 0;
+	_framesLimit = 0;
 	FramePacer = class FramePacer {
 		/**
 		* Record a rAF callback, rendered or not
@@ -233592,12 +233594,21 @@ var init_FramePacer = __esmMin((() => {
 		* the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
 		* display count as 60 or 120.
 		*
+		* The slack is only used to choose a count, not to move to a lower one:
+		* the last count chosen is kept while the rate it gives is still under
+		* the limit itself. A display measured either side of the slack (60.6 Hz
+		* for 60) would otherwise switch on every few frames between pacing and
+		* the time limiter, and stutter.
+		*
 		* @param {number} limit fps
 		* @param {number} refresh refresh interval (ms)
 		* @return {number} 1 or more
 		*/
 		static refreshesPerFrame(limit, refresh) {
-			return Math.max(1, Math.ceil(1e3 / refresh / (limit * 1.01)));
+			const display = 1e3 / refresh;
+			const frames = Math.max(1, Math.ceil(display / (limit * 1.01)));
+			if (limit === _framesLimit && _frames > frames && display / (_frames - 1) > limit) return _frames;
+			return frames;
 		}
 		/**
 		* Whether frames can be paced evenly under a limit: the rate a whole
@@ -233622,11 +233633,15 @@ var init_FramePacer = __esmMin((() => {
 		static next(now, last, limit) {
 			const elapsed = now - last;
 			const refresh = FramePacer.refreshInterval();
+			if (refresh) {
+				_frames = FramePacer.refreshesPerFrame(limit, refresh);
+				_framesLimit = limit;
+			}
 			if (!refresh || !FramePacer.canPace(limit, refresh)) {
 				const interval = 1e3 / limit;
 				return elapsed < interval ? -1 : now - elapsed % interval;
 			}
-			return elapsed < (FramePacer.refreshesPerFrame(limit, refresh) - .5) * refresh ? -1 : now;
+			return elapsed < (_frames - .5) * refresh ? -1 : now;
 		}
 		/**
 		* The frame rate a limit is expected to give on this display: the display's
@@ -233652,6 +233667,8 @@ var init_FramePacer = __esmMin((() => {
 			_count = 0;
 			_next = 0;
 			_lastTick = 0;
+			_frames = 0;
+			_framesLimit = 0;
 		}
 	};
 }));
@@ -263285,7 +263302,7 @@ var init_Renderer = __esmMin((() => {
 			if (this.contextLost) return;
 			const now = typeof time === "number" ? time : Date.now();
 			if (!this._renderBound) this._renderBound = this._render.bind(this);
-			FramePacer.sample(now);
+			if (typeof time === "number") FramePacer.sample(now);
 			if (typeof this._lastFrameTime === "undefined" || this._lastFrameTime === 0) {
 				this._lastFrameTime = now;
 				if (!this.tick) this.tick = Date.now();
