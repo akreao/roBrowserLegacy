@@ -12,7 +12,8 @@ it to those PRs. Needs gh, logged in.
 import json, re, subprocess, sys, urllib.request
 
 REPO = "MrAntares/roBrowserLegacy"
-RAW = "https://raw.githubusercontent.com/akreao/roBrowserLegacy/mrantares-pr-bodies/replies-2026-10-20/{}.md"
+DIR = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--dir=")), "replies-2026-10-20")
+RAW = "https://raw.githubusercontent.com/akreao/roBrowserLegacy/mrantares-pr-bodies/" + DIR + "/{}.md"
 dry = "--dry-run" in sys.argv
 PRS = [int(a) for a in sys.argv[1:] if a.isdigit()] or range(1513, 1522)
 
