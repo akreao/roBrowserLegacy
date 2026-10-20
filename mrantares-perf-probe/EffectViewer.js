@@ -262884,10 +262884,10 @@ function onMapComplete(success, error) {
 	JoystickUI_default.onRestore();
 	MapRenderer.loading = false;
 	_revealing = true;
-	if (PerfProbe.enabled) PerfProbe.mapReady();
 	MapRenderer.onLoad();
 	Sky_default.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
+	if (PerfProbe.enabled) PerfProbe.mapReady();
 	Renderer.show();
 	Renderer.render(MapRenderer.onRender);
 	Background.remove(() => {
