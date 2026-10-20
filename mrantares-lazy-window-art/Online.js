@@ -78489,6 +78489,18 @@ function onIntersect(entries) {
 	}
 }
 /**
+* The host and the elements under it, in its light and shadow DOM, that
+* still wait to be drawn.
+*
+* @param {Element} host
+* @returns {Element[]}
+*/
+function pendingWithin(host) {
+	const elements = [host, ...host.querySelectorAll("*")];
+	if (host.shadowRoot) elements.push(...host.shadowRoot.querySelectorAll("*"));
+	return elements.filter((element) => _pending$1.has(element));
+}
+/**
 * @param {Element} element
 * @param {function} callback
 */
@@ -78510,6 +78522,26 @@ var _pending$1, _observer;
 var init_WhenDrawn = __esmMin((() => {
 	_pending$1 = /* @__PURE__ */ new WeakMap();
 	_observer = null;
+	/**
+	* Stop watching what waits under a window taken off the page, so the
+	* observer does not hold on to a window that is never shown again. The
+	* callbacks stay with their elements and are freed with them.
+	*
+	* @param {Element} host
+	*/
+	whenDrawn.suspend = function suspend(host) {
+		if (!_observer || !host) return;
+		for (const element of pendingWithin(host)) _observer.unobserve(element);
+	};
+	/**
+	* Watch again what waits under a window put back on the page.
+	*
+	* @param {Element} host
+	*/
+	whenDrawn.resume = function resume(host) {
+		if (!_observer || !host) return;
+		for (const element of pendingWithin(host)) _observer.observe(element);
+	};
 }));
 //#endregion
 //#region src/Preferences/Graphics.js
@@ -226316,6 +226348,7 @@ function createWorldMapView(map, imgData) {
 		}
 		let className = "section";
 		if (currentMap == section.id) className += " currentmap";
+		if (_partyMembersByMap[section.id]) className += " membersonmap";
 		if (sectionType === 1) {
 			const posKey = section.left + "_" + section.top;
 			if (renderedDungeonPos.has(posKey)) className += " is-dungeon-stacked";
@@ -316613,6 +316646,7 @@ var init_GUIComponent = __esmMin((() => {
 			if (this.init) this.init();
 			this._setupMouseMode();
 			this._host.remove();
+			whenDrawn.suspend(this._host);
 		}
 		/**
 		* Add the component to the DOM.
@@ -316633,6 +316667,7 @@ var init_GUIComponent = __esmMin((() => {
 				return;
 			}
 			parent.appendChild(this._host);
+			whenDrawn.resume(this._host);
 			if (this._noCursorStyle) _trackNoCursorStyle(this._noCursorStyle);
 			if (this.onKeyDown) this._bindKeyDown();
 			if (this.mouseMode === MouseMode.FREEZE) {
@@ -316674,6 +316709,7 @@ var init_GUIComponent = __esmMin((() => {
 					node.dispatchEvent(new Event("x_remove"));
 				});
 				this._host.remove();
+				whenDrawn.suspend(this._host);
 				if (this._noCursorStyle) _untrackNoCursorStyle(this._noCursorStyle);
 				if (this.mouseMode === MouseMode.FREEZE) {
 					Mouse.intersect = true;
@@ -317142,12 +317178,20 @@ var init_GUIComponent = __esmMin((() => {
 		* Process legacy data-* attributes on a single DOM element.
 		* Handles: data-background, data-hover, data-down, data-active, data-text, data-preload.
 		* Static so it can be called from anywhere (e.g. dynamically created buttons).
+		*
+		* @param {HTMLElement} node
+		* @param {object} [options]
+		* @param {boolean} [options.text] - set the localized text
+		* @param {boolean} [options.images] - fetch the images
+		* @param {boolean} [options.late] - fetched after the window was built:
+		*   keep a background the window has set itself
 		*/
-		static processDataAttrs(node, { text = true, images = true } = {}) {
+		static processDataAttrs(node, { text = true, images = true, late = false } = {}) {
 			if (!_Client || !_DB) {
 				_ensureDeps().then(() => GUIComponent.processDataAttrs(node, {
 					text,
-					images
+					images,
+					late
 				}));
 				return;
 			}
@@ -317184,6 +317228,7 @@ var init_GUIComponent = __esmMin((() => {
 				} catch (e) {
 					console.error(e.message);
 				}
+				if (late && node.style.backgroundImage) return;
 				updateBg();
 			});
 			if (active) {
@@ -317264,7 +317309,10 @@ var init_GUIComponent = __esmMin((() => {
 				}
 				GUIComponent.processDataAttrs(node, { images: false });
 				const { background, hover, down, active, preload } = node.dataset;
-				if (background || hover || down || active || preload) whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false }));
+				if (background || hover || down || active || preload) whenDrawn(node, () => GUIComponent.processDataAttrs(node, {
+					text: false,
+					late: true
+				}));
 			}
 		}
 		/**
