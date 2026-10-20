@@ -209181,6 +209181,7 @@ var init_SpriteBatch$1 = __esmMin((() => {
 */
 function init$13(gl, quad) {
 	_gl$3 = gl;
+	_generation++;
 	_program$25 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
@@ -209234,6 +209235,7 @@ function pointInstances(first) {
 function buildAtlas(gl, spr) {
 	const pages = [];
 	spr._atlasPages = pages;
+	spr._atlasGeneration = _generation;
 	const maxSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096, 4096);
 	const pageWidth = Math.min(ATLAS_WIDTH, maxSize);
 	for (const type of [0, 1]) {
@@ -209326,7 +209328,7 @@ function uploadPage(gl, page) {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 }
-var mat4$22, FLOATS, STRIDE, ATLAS_WIDTH, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS, STRIDE, ATLAS_WIDTH, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _instanceBuffer, _upload, _active$3, _generation, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -209379,6 +209381,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_instanceBuffer = null;
 	_upload = /* @__PURE__ */ new Float32Array(0);
 	_active$3 = false;
+	_generation = 0;
 	_queues = [new Queue$1(), new Queue$1()];
 	_modelView = /* @__PURE__ */ new Float32Array(16);
 	_viewModel = /* @__PURE__ */ new Float32Array(16);
@@ -209468,8 +209471,22 @@ var init_SpriteBatch = __esmMin((() => {
 		* @returns {object|null} { page: { texture, width, height }, u0, v0, u1, v1 }
 		*/
 		static atlasFor(spr, frame) {
-			if (!spr._atlasPages) buildAtlas(_gl$3, spr);
+			if (!spr._atlasPages || spr._atlasGeneration !== _generation) buildAtlas(_gl$3, spr);
 			return frame._atlas || null;
+		}
+		/**
+		* Forget every GPU object made on the lost context. The context object
+		* stays the same after a restore, so the next open() would otherwise
+		* keep using them. Call from Renderer.onContextRestored.
+		*/
+		static contextRestored() {
+			_gl$3 = null;
+			_program$25 = null;
+			_vao = null;
+			_instanceBuffer = null;
+			_active$3 = false;
+			_queues[QUEUE_SHADOW].clear();
+			_queues[QUEUE_MAIN].clear();
 		}
 		/**
 		* Record one sprite. Returns the offset in the queue's data where the
@@ -263563,6 +263580,7 @@ var init_Renderer = __esmMin((() => {
 	init_SessionStorage();
 	init_PostProcess();
 	init_MemoryManager();
+	init_SpriteBatch();
 	init_preload_helper();
 	({mat4: mat4$9} = gl_matrix_default);
 	_requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
@@ -263693,6 +263711,7 @@ var init_Renderer = __esmMin((() => {
 			gl.enable(gl.BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			PostProcess.restartModules(gl);
+			SpriteBatch.contextRestored();
 			this.resize();
 			this.render();
 		}
