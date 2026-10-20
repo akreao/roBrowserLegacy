@@ -226584,6 +226584,17 @@ function setAirplanePosition(airplane) {
 	el.style.transform = "rotate(75deg)";
 }
 /**
+* Mark the built sections that have party members on them
+*/
+function showPartyMembers() {
+	const root = WorldMap.getRoot();
+	root.querySelectorAll(".worldmap .section").forEach((el) => el.classList.remove("membersonmap"));
+	for (const mapId of Object.keys(_partyMembersByMap)) {
+		const el = root.querySelector(".worldmap .section#" + CSS.escape(mapId));
+		if (el) el.classList.add("membersonmap");
+	}
+}
+/**
 * Toggle all maps
 */
 function onToggleMaps() {
@@ -226773,12 +226784,20 @@ var init_WorldMap = __esmMin((() => {
 				});
 			}
 		});
-		const root = WorldMap.getRoot();
-		root.querySelectorAll(".worldmap .section").forEach((el) => el.classList.remove("membersonmap"));
-		for (const mapId of Object.keys(_partyMembersByMap)) {
-			const el = root.querySelector(".worldmap .section#" + CSS.escape(mapId));
-			if (el) el.classList.add("membersonmap");
+		showPartyMembers();
+	};
+	/**
+	* Forget a member who left the party, or the whole party when it is us
+	*
+	* @param {number} AID
+	*/
+	WorldMap.removePartyMember = function removePartyMember(AID) {
+		if (AID === SessionStorage_default.AID) _partyMembersByMap = {};
+		else for (const mapId of Object.keys(_partyMembersByMap)) {
+			_partyMembersByMap[mapId] = _partyMembersByMap[mapId].filter((member) => member.AID !== AID);
+			if (!_partyMembersByMap[mapId].length) delete _partyMembersByMap[mapId];
 		}
+		showPartyMembers();
 	};
 	WorldMap.mouseMode = GUIComponent.MouseMode.STOP;
 	WorldMap_default = UIManager.addComponent(WorldMap);
@@ -247903,6 +247922,7 @@ function onPartyMemberLeave(pkt) {
 	}
 	if (SessionStorage_default.AID === pkt.AID) SessionStorage_default.hasParty = false;
 	controller.removePartyMember(pkt.AID, pkt.characterName);
+	WorldMap_default.removePartyMember(pkt.AID);
 }
 /**
 * Display entity life
@@ -317341,15 +317361,16 @@ var init_GUIComponent = __esmMin((() => {
 		* @param {object} [options]
 		* @param {boolean} [options.text] - set the localized text
 		* @param {boolean} [options.images] - fetch the images
-		* @param {boolean} [options.late] - fetched after the window was built:
-		*   keep a background the window has set itself
+		* @param {string} [options.deferredFrom] - the node's inline background
+		*   when its images were deferred: a different one set since then by the
+		*   window itself stays
 		*/
-		static processDataAttrs(node, { text = true, images = true, late = false } = {}) {
+		static processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
 			if (!_Client || !_DB) {
 				_ensureDeps().then(() => GUIComponent.processDataAttrs(node, {
 					text,
 					images,
-					late
+					deferredFrom
 				}));
 				return;
 			}
@@ -317386,7 +317407,7 @@ var init_GUIComponent = __esmMin((() => {
 				} catch (e) {
 					console.error(e.message);
 				}
-				if (late && node.style.backgroundImage) return;
+				if (deferredFrom !== void 0 && node.style.backgroundImage !== deferredFrom) return;
 				updateBg();
 			});
 			if (active) {
@@ -317467,10 +317488,13 @@ var init_GUIComponent = __esmMin((() => {
 				}
 				GUIComponent.processDataAttrs(node, { images: false });
 				const { background, hover, down, active, preload } = node.dataset;
-				if (background || hover || down || active || preload) whenDrawn(node, () => GUIComponent.processDataAttrs(node, {
-					text: false,
-					late: true
-				}));
+				if (background || hover || down || active || preload) {
+					const deferredFrom = node.style.backgroundImage;
+					whenDrawn(node, () => GUIComponent.processDataAttrs(node, {
+						text: false,
+						deferredFrom
+					}));
+				}
 			}
 		}
 		/**
