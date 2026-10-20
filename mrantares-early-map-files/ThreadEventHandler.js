@@ -19415,40 +19415,119 @@ var FileManager = class FileManager {
 * @author Vincent Thibault
 */
 /**
-* A file loaded once per map, by whichever step asks first. The map loads in
-* steps (world, altitude, ground, ground textures, models, model textures),
-* and each used to ask for its files only when the step before had finished:
-* over a remote link, a round trip per step with the connection idle. Asking
-* for a later step's files as soon as their names are known lets them arrive
-* while the earlier steps still run; the steps still run in the same order.
+* The files of one map load, each loaded once, by whichever step asks first.
+* The map loads in steps (world, altitude, ground, ground textures, models,
+* model textures), and each used to ask for its files only when the step
+* before had finished: over a remote link, a round trip per step with the
+* connection idle. Asking for a later step's files as soon as their names are
+* known lets them arrive while the earlier steps still run; the steps still
+* run in the same order.
 *
-* @param {Map} requests - filename to Promise of the loaded file
-* @param {string} filename
-* @returns {Promise}
+* At most `limit` files load at once across all the steps, as when each step
+* ran alone. A file a step is waiting for goes before one asked for early.
 */
-function request(requests, filename) {
-	let pending = requests.get(filename);
-	if (!pending) {
-		pending = new Promise((resolve) => FileManager.load(filename, resolve));
-		requests.set(filename, pending);
+var MapFiles = class {
+	/**
+	* @param {number} limit - files loading at once
+	*/
+	constructor(limit) {
+		this.limit = limit;
+		this.running = 0;
+		this.closed = false;
+		this.files = /* @__PURE__ */ new Map();
+		this.needed = [];
+		this.early = [];
 	}
-	return pending;
-}
+	/**
+	* Ask for a file before a step needs it.
+	*
+	* @param {string} filename
+	* @returns {Promise} the loaded file
+	*/
+	request(filename) {
+		if (this.closed) return Promise.resolve(null);
+		let entry = this.files.get(filename);
+		if (!entry) {
+			entry = this._entry(filename);
+			this.files.set(filename, entry);
+			this.early.push(entry);
+			this._run();
+		}
+		return entry.promise;
+	}
+	/**
+	* The file, for the one step that uses it. An image comes as a blob URL,
+	* and Texture.load revokes it once the image has loaded, so two steps must
+	* not share one: a texture the ground and a model both use would load for
+	* whichever came first and never for the other. A later step that needs
+	* the same file asks again, and gets its own.
+	*
+	* @param {string} filename
+	* @returns {Promise} the loaded file
+	*/
+	take(filename) {
+		let entry = this.files.get(filename);
+		if (entry) {
+			this.files.delete(filename);
+			const index = this.early.indexOf(entry);
+			if (index !== -1) {
+				this.early.splice(index, 1);
+				this.needed.push(entry);
+			}
+		} else {
+			entry = this._entry(filename);
+			this.needed.push(entry);
+		}
+		this._run();
+		return entry.promise;
+	}
+	/**
+	* The load is over, done or failed: ask for nothing more, and free the
+	* blob URLs of files no step took, now or when they arrive.
+	*/
+	close() {
+		this.closed = true;
+		this.needed.length = 0;
+		this.early.length = 0;
+		for (const entry of this.files.values()) {
+			entry.dropped = true;
+			if (entry.done) release(entry.data);
+		}
+		this.files.clear();
+	}
+	_entry(filename) {
+		const entry = {
+			filename,
+			done: false,
+			dropped: false,
+			data: null
+		};
+		entry.promise = new Promise((resolve) => entry.resolve = resolve);
+		return entry;
+	}
+	_run() {
+		while (!this.closed && this.running < this.limit) {
+			const entry = this.needed.shift() || this.early.shift();
+			if (!entry) return;
+			this.running++;
+			FileManager.load(entry.filename, (data) => {
+				this.running--;
+				entry.done = true;
+				entry.data = data;
+				if (entry.dropped) release(data);
+				entry.resolve(data);
+				this._run();
+			});
+		}
+	}
+};
 /**
-* The file asked for early, for the one step that uses it. An image comes as
-* a blob URL, and Texture.load revokes it once the image has loaded, so two
-* steps must not share one: a texture the ground and a model both use would
-* load for whichever came first and never for the other. A later step that
-* needs the same file asks again, and gets its own.
+* Free a loaded file no step will use.
 *
-* @param {Map} requests - filename to Promise of the loaded file
-* @param {string} filename
-* @returns {Promise}
+* @param {*} data
 */
-function take(requests, filename) {
-	const pending = request(requests, filename);
-	requests.delete(filename);
-	return pending;
+function release(data) {
+	if (typeof data === "string" && data.startsWith("blob:")) URL.revokeObjectURL(data);
 }
 /**
 * Helper to load list
@@ -19458,10 +19537,10 @@ function take(requests, filename) {
 var Loader = class Loader {
 	/**
 	* @param {Array} list of files to load
-	* @param {Map} [requests] files already asked for (see request)
+	* @param {MapFiles} requests - the map's files
 	*/
 	constructor(list, requests) {
-		this.requests = requests || /* @__PURE__ */ new Map();
+		this.requests = requests;
 		this.files = list;
 		this.list = list.slice(0);
 		this.offset = 0;
@@ -19498,7 +19577,7 @@ var Loader = class Loader {
 	_next() {
 		if (!this.list.length) return;
 		const filename = this.list.shift();
-		take(this.requests, filename).then((data) => {
+		this.requests.take(filename).then((data) => {
 			this.out[this.files.indexOf(filename)] = data;
 			this.offset++;
 			if (this.onprogress && this.offset <= this.count) this.onprogress(this.offset, this.count);
@@ -19557,7 +19636,7 @@ var MapLoader = class {
 	load(mapname) {
 		this.setProgress(0);
 		const loader = this;
-		const requests = this.requests = /* @__PURE__ */ new Map();
+		const requests = this.requests = new MapFiles(6);
 		let world;
 		function getFilePath(path) {
 			if (path in FileManager.filesAlias) return FileManager.filesAlias[path];
@@ -19570,17 +19649,18 @@ var MapLoader = class {
 			}
 			world = resourceWorld;
 			loader.setProgress(1);
-			const ground = request(requests, `data\\${getFilePath(world.files.gnd)}`).then((resourceGround) => {
-				for (const texture of resourceGround?.textures || []) request(requests, `data\\texture\\${texture}`);
-				for (const model of world.models) request(requests, `data\\model\\${model.filename}`);
+			const ground = requests.request(`data\\${getFilePath(world.files.gnd)}`).then((resourceGround) => {
+				for (const texture of resourceGround?.textures || []) requests.request(`data\\texture\\${texture}`);
+				for (const model of world.models) requests.request(`data\\model\\${model.filename}`);
 				return resourceGround;
 			});
-			request(requests, `data\\${getFilePath(world.files.gat)}`).then((altitude) => {
+			requests.request(`data\\${getFilePath(world.files.gat)}`).then((altitude) => {
 				if (onAltitudeReady(altitude)) ground.then(onGroundReady);
 			});
 		}
 		function onAltitudeReady(altitude) {
 			if (!altitude) {
+				requests.close();
 				loader.onload(false, `Can't find file "${world.files.gat}" !`);
 				return false;
 			}
@@ -19590,6 +19670,7 @@ var MapLoader = class {
 		}
 		function onGroundReady(ground) {
 			if (!ground) {
+				requests.close();
 				loader.onload(false, `Can't find file "${world.files.gnd}" !`);
 				return;
 			}
@@ -19750,7 +19831,7 @@ var MapLoader = class {
 				infos
 			});
 			if (this._animatedModels && this._animatedModels.length > 0) this.sendAnimatedModels(this._animatedModels);
-			this.requests.clear();
+			this.requests.close();
 			this.onload(true);
 		};
 		loader.start();
