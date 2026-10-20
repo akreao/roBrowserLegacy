@@ -207909,7 +207909,7 @@ var init_Background = __esmMin((() => {
 		position: "absolute",
 		top: "0",
 		left: "0",
-		zIndex: "1000",
+		zIndex: "1010",
 		backgroundColor: "black",
 		opacity: "0"
 	});
@@ -208092,12 +208092,13 @@ var init_Background = __esmMin((() => {
 		* @param {function} callback once the overlay hide the window (optional)
 		*/
 		static remove(callback) {
-			const removal = {};
+			const removal = { zIndex: [_container.style.zIndex, _canvas.style.zIndex] };
 			Background._removal = removal;
-			_container.style.zIndex = "998";
-			_canvas.style.zIndex = "999";
+			_container.style.zIndex = "1008";
+			_canvas.style.zIndex = "1009";
 			transition(() => {
-				if (Background._removal === removal) {
+				if (Background._removal !== removal) [_container.style.zIndex, _canvas.style.zIndex] = removal.zIndex;
+				else {
 					Background._removal = null;
 					_container.style.zIndex = "0";
 					_canvas.style.zIndex = "0";
@@ -262403,6 +262404,10 @@ var init_MapRenderer = __esmMin((() => {
 		*/
 		static _loadRequest = 0;
 		/**
+		* @var {Array<function>} worker results of the map load in progress, held until the fade is over
+		*/
+		static _fadeQueue = [];
+		/**
 		* @var {Float32Array} diffuse Modified diffuse color
 		*/
 		static diffuse = null;
@@ -262445,9 +262450,10 @@ var init_MapRenderer = __esmMin((() => {
 				const filename = mapname.replace(/\.gat$/i, ".rsw");
 				let faded = false;
 				const waiting = [];
+				this._fadeQueue = waiting;
 				const afterFade = (fn) => (...args) => {
 					if (faded) fn(...args);
-					else waiting.push(() => fn(...args));
+					else if (loadId === MapRenderer._loadId) waiting.push(() => fn(...args));
 				};
 				Thread.hook("MAP_PROGRESS", afterFade(loadEvent(onProgressUpdate)));
 				Thread.hook("MAP_WORLD", afterFade(loadEvent(onWorldComplete)));
@@ -262456,11 +262462,8 @@ var init_MapRenderer = __esmMin((() => {
 				Thread.hook("MAP_MODELS", afterFade(loadEvent(onModelsComplete)));
 				Thread.hook("MAP_ANIMATED_MODEL", afterFade(loadEvent(onAnimatedModelComplete)));
 				MapRenderer._loadRequest = Thread.send("LOAD_MAP", filename, afterFade(loadStep(loadId, onMapComplete)));
-				Background.setLoading(function() {
-					if (loadId !== MapRenderer._loadId) {
-						waiting.length = 0;
-						return;
-					}
+				Background.setLoading(() => {
+					if (loadId !== MapRenderer._loadId) return;
 					MapRenderer.free();
 					Renderer.remove();
 					faded = true;
@@ -262488,6 +262491,7 @@ var init_MapRenderer = __esmMin((() => {
 		static cancelLoad() {
 			this._loadId++;
 			this._loadRequest = 0;
+			this._fadeQueue.length = 0;
 			this.loading = false;
 			_revealing = false;
 			_nextMap = null;
