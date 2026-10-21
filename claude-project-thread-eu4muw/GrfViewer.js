@@ -254030,7 +254030,11 @@ var init_StrEffect = __esmMin((() => {
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
 			gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 			gl.bindTexture(gl.TEXTURE_2D, material);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			if (this.aimAngle) {
+				gl.disable(gl.DEPTH_TEST);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.enable(gl.DEPTH_TEST);
+			} else gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}
 		/**
 		* Initialize StrEffect
@@ -321156,6 +321160,27 @@ function loadBSONFile(filename, targetTable, onEnd) {
 	}, onEnd);
 }
 /**
+* Whether a skill's effects already draw this STR file.
+*
+* @param {object} skillEntry SkillEffect row, or undefined
+* @param {object} EffectTable
+* @param {string} file STR path without extension
+* @return {boolean}
+*/
+function skillPlaysFile(skillEntry, EffectTable, file) {
+	if (!skillEntry || !file) return false;
+	const wanted = file.toLowerCase();
+	for (const field in skillEntry) {
+		const value = skillEntry[field];
+		const names = Array.isArray(value) ? value : [value];
+		for (const name of names) {
+			const effects = typeof name === "string" ? EffectTable[name] : null;
+			if (Array.isArray(effects) && effects.some((effect) => (effect.file || "").toLowerCase() === wanted)) return true;
+		}
+	}
+	return false;
+}
+/**
 * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
 */
 function mergeEz2Effects(EffectTable, SkillEffect) {
@@ -321252,7 +321277,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			attachedEntity: true
 		}];
 		count++;
-		if (skillId) {
+		if (skillId && !skillPlaysFile(SkillEffect[skillId], EffectTable, EffectTable[effectName][0].file)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 			if (skillEntry[field]) {
