@@ -11445,6 +11445,34 @@ BinaryReader.prototype.seek = function seek(index, type) {
 	type = type || 2;
 	this.offset = type === 1 ? this.offset + index : type === 3 ? this.length + index : index;
 };
+/**
+* Reset BinaryReader in-place to read from a new buffer (or sub-range of one),
+* avoiding a heap allocation per network message on the hot path.
+*
+* Accepts either:
+*   - An ArrayBuffer / Uint8Array  →  wraps in a new DataView
+*   - A DataView already sized to the desired range  →  reused directly
+*
+* @param {ArrayBuffer|Uint8Array|DataView} buffer
+* @param {number} [start=0]  byte offset into buffer (ignored when DataView is passed)
+* @param {number} [end]      exclusive end byte (ignored when DataView is passed)
+*/
+BinaryReader.prototype.reset = function reset(buffer, start, end) {
+	if (buffer instanceof DataView) {
+		this.view = buffer;
+		this.length = buffer.byteLength;
+	} else {
+		const u8 = buffer instanceof Uint8Array ? buffer : null;
+		const ab = u8 ? u8.buffer : buffer;
+		const base = u8 ? u8.byteOffset : 0;
+		const s = base + (start || 0);
+		const e = end !== void 0 ? base + end : base + (u8 ? u8.byteLength : ab.byteLength);
+		this.view = new DataView(ab, s, e - s);
+		this.length = e - s;
+	}
+	this.buffer = this.view.buffer;
+	this.offset = 0;
+};
 var bf_byteBuff = /* @__PURE__ */ new ArrayBuffer(4);
 var bf_wba = new Int8Array(bf_byteBuff);
 var bf_wia = new Int32Array(bf_byteBuff);
@@ -16227,7 +16255,7 @@ var RSW = class RSW {
 			this.ground.left = fp.readLong();
 			this.ground.right = fp.readLong();
 		}
-		if (version >= 2.7) {
+		if (version >= 2.7 && this.files.buildnumber >= 221) {
 			count = fp.readLong();
 			fp.seek(4 * count, SEEK_CUR);
 		}
@@ -17115,6 +17143,7 @@ var Node = class {
 		const max = Math.max, min = Math.min;
 		let x, y, z;
 		mat4.copy(this.matrix, _matrix);
+		if (this.baseMatrix) mat4.multiply(this.matrix, this.matrix, this.baseMatrix);
 		mat4.translate(this.matrix, this.matrix, this.pos);
 		if (!this.rotKeyframes.length) mat4.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
 		else mat4.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
@@ -17139,7 +17168,10 @@ var Node = class {
 			box.range[i] = (box.max[i] - box.min[i]) / 2;
 			box.center[i] = box.min[i] + box.range[i];
 		}
-		for (i = 0, count = nodes.length; i < count; ++i) if (nodes[i].parentname === this.name && this.name !== this.parentname) nodes[i].calcBoundingBox(this.matrix);
+		for (i = 0, count = nodes.length; i < count; ++i) {
+			if (this.absoluteTransform) break;
+			if (nodes[i].parentname === this.name && this.name !== this.parentname) nodes[i].calcBoundingBox(this.matrix);
+		}
 	}
 	/**
 	* Compile Node
@@ -17227,6 +17259,7 @@ var Node = class {
 		]);
 		const nodeMatrix = mat4.create();
 		mat4.identity(nodeMatrix);
+		if (this.baseMatrix) mat4.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
 		const animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
 		if (animPos) mat4.translate(nodeMatrix, nodeMatrix, animPos);
 		else mat4.translate(nodeMatrix, nodeMatrix, this.pos);
@@ -17455,7 +17488,13 @@ var RSM = class RSM {
 		const fp = new BinaryReader(data);
 		const header = fp.readBinaryString(4);
 		if (header !== "GRSM" && header !== "GRSX") throw new Error(`RSM::load() - Incorrect header "${header}", must be "GRSM"`);
-		this.version = fp.readByte() + fp.readByte() / 10;
+		const major = fp.readByte();
+		const minor = fp.readByte();
+		this.version = major + minor / 10;
+		if (major === 2 && minor >= 2) {
+			this.loadRsm2(fp, minor);
+			return;
+		}
 		this.animLen = fp.readLong();
 		this.shadeType = fp.readLong();
 		this.main_node = null;
@@ -17479,6 +17518,7 @@ var RSM = class RSM {
 		}
 		count = fp.readLong();
 		const nodes = new Array(count);
+		if (nodes.length === 0) throw new Error("RSM::load() - Model contains no nodes");
 		for (i = 0; i < count; ++i) {
 			nodes[i] = new RSM.Node(this, fp, count === 1);
 			if (mainNodeName && nodes[i].name === mainNodeName && this.main_node === null) this.main_node = nodes[i];
@@ -17533,6 +17573,227 @@ var RSM = class RSM {
 			});
 		}
 		this.volumebox = volumebox;
+		this.instances = [];
+		this.box = new RSM.Box();
+		this.calcBoundingBox();
+	}
+	/**
+	* Load an RSM2 model.
+	*
+	* RSM2 stores an absolute 3x4 world transform per node and uses
+	* length-prefixed strings. Versions 2.2 and 2.3 also use different face
+	* encodings, so they cannot be parsed by the legacy Node constructor.
+	* The transform is baked into the vertices here while retaining the
+	* existing Node/renderer mesh API.
+	*
+	* @param {object} fp BinaryReader
+	* @param {number} minor RSM2 minor version
+	*/
+	loadRsm2(fp, minor) {
+		let i;
+		const readString = () => fp.readBinaryString(fp.readLong());
+		this.animLen = fp.readLong();
+		this.shadeType = fp.readLong();
+		this.alpha = fp.readUByte() / 255;
+		this.frameRatePerSecond = fp.readFloat();
+		const sharedTextures = [];
+		if (minor <= 2) {
+			const textureCount = fp.readLong();
+			for (i = 0; i < textureCount; i++) sharedTextures.push(readString());
+		}
+		const rootNodeCount = fp.readLong();
+		const rootNodeNames = new Array(rootNodeCount);
+		for (i = 0; i < rootNodeCount; i++) rootNodeNames[i] = readString();
+		const nodeCount = fp.readLong();
+		const nodes = new Array(nodeCount);
+		const allTextures = sharedTextures.slice();
+		const addTexture = (texture) => {
+			let index = allTextures.indexOf(texture);
+			if (index === -1) {
+				index = allTextures.length;
+				allTextures.push(texture);
+			}
+			return index;
+		};
+		for (i = 0; i < nodeCount; i++) {
+			const name = readString();
+			const parentname = readString();
+			const textureCount = fp.readLong();
+			const nodeTextures = new Array(textureCount);
+			for (let j = 0; j < textureCount; j++) {
+				const texture = minor <= 2 ? sharedTextures[fp.readLong()] : readString();
+				nodeTextures[j] = addTexture(texture || "");
+			}
+			const transform = new Array(12);
+			for (let j = 0; j < transform.length; j++) transform[j] = fp.readFloat();
+			const vertexCount = fp.readLong();
+			const vertices = new Array(vertexCount);
+			for (let j = 0; j < vertexCount; j++) {
+				const x = fp.readFloat();
+				const y = fp.readFloat();
+				const z = fp.readFloat();
+				vertices[j] = [
+					x,
+					y,
+					z
+				];
+			}
+			const tvertexCount = fp.readLong();
+			const tvertices = new Float32Array(tvertexCount * 6);
+			for (let j = 0; j < tvertexCount; j++) {
+				const offset = j * 6;
+				fp.readULong();
+				tvertices[offset + 4] = fp.readFloat() * .98 + .01;
+				tvertices[offset + 5] = fp.readFloat() * .98 + .01;
+			}
+			const faceCount = fp.readLong();
+			const faces = new Array(faceCount);
+			for (let j = 0; j < faceCount; j++) {
+				let faceLength = 24;
+				if (minor >= 2) faceLength = fp.readLong();
+				const face = {
+					vertidx: [
+						fp.readUShort(),
+						fp.readUShort(),
+						fp.readUShort()
+					],
+					tvertidx: [
+						fp.readUShort(),
+						fp.readUShort(),
+						fp.readUShort()
+					],
+					texid: fp.readUShort(),
+					padding: fp.readUShort(),
+					twoSide: fp.readLong(),
+					smoothGroup: 0
+				};
+				if (minor === 1 || minor >= 2) face.smoothGroup = fp.readLong();
+				const consumed = minor >= 2 ? 24 : 24;
+				if (minor >= 2 && faceLength > consumed) fp.seek(faceLength - consumed, SEEK_CUR);
+				faces[j] = face;
+			}
+			const scaleCount = fp.readLong();
+			const scaleKeyFrames = new Array(scaleCount);
+			for (let j = 0; j < scaleCount; j++) scaleKeyFrames[j] = {
+				Frame: fp.readLong(),
+				Scale: [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				],
+				Data: fp.readFloat()
+			};
+			const rotationCount = fp.readLong();
+			const rotationKeyFrames = new Array(rotationCount);
+			for (let j = 0; j < rotationCount; j++) rotationKeyFrames[j] = {
+				frame: fp.readLong(),
+				q: [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				]
+			};
+			const positionCount = fp.readLong();
+			const positionKeyFrames = new Array(positionCount);
+			for (let j = 0; j < positionCount; j++) positionKeyFrames[j] = {
+				frame: fp.readLong(),
+				px: fp.readFloat(),
+				py: fp.readFloat(),
+				pz: fp.readFloat(),
+				Data: fp.readLong()
+			};
+			if (minor === 3) {
+				const uvAnimationCount = fp.readLong();
+				for (let j = 0; j < uvAnimationCount; j++) {
+					fp.readLong();
+					const typeCount = fp.readLong();
+					for (let k = 0; k < typeCount; k++) {
+						fp.readLong();
+						fp.seek(fp.readLong() * 8, SEEK_CUR);
+					}
+				}
+			}
+			const node = Object.create(Node.prototype);
+			node.main = this;
+			node.is_only = true;
+			node.name = name;
+			node.parentname = parentname || null;
+			node.textures = nodeTextures;
+			node.mat3 = [
+				1,
+				0,
+				0,
+				0,
+				1,
+				0,
+				0,
+				0,
+				1
+			];
+			node.offset = [
+				0,
+				0,
+				0
+			];
+			node.pos = [
+				0,
+				0,
+				0
+			];
+			node.rotangle = 0;
+			node.rotaxis = [
+				0,
+				0,
+				0
+			];
+			node.scale = [
+				1,
+				1,
+				1
+			];
+			node.flip = [
+				1,
+				-1,
+				1
+			];
+			node.box = new RSM.Box();
+			node.matrix = mat4.create();
+			node.vertices = vertices;
+			node.tvertices = tvertices;
+			node.faces = faces;
+			node.rotKeyframes = rotationKeyFrames;
+			node.posKeyframes = positionKeyFrames;
+			node.scaleKeyFrames = scaleKeyFrames;
+			node.textureKeyFrameGroup = [];
+			node.absoluteTransform = true;
+			node.baseMatrix = mat4.create();
+			node.baseMatrix[0] = transform[0];
+			node.baseMatrix[1] = transform[1];
+			node.baseMatrix[2] = transform[2];
+			node.baseMatrix[4] = transform[3];
+			node.baseMatrix[5] = transform[4];
+			node.baseMatrix[6] = transform[5];
+			node.baseMatrix[8] = transform[6];
+			node.baseMatrix[9] = transform[7];
+			node.baseMatrix[10] = transform[8];
+			node.baseMatrix[12] = transform[9];
+			node.baseMatrix[13] = transform[10];
+			node.baseMatrix[14] = transform[11];
+			nodes[i] = node;
+		}
+		if (fp.offset + 4 <= fp.length) {
+			const volumeBoxCount = fp.readLong();
+			const remaining = fp.length - fp.offset;
+			const volumeBoxSize = remaining === volumeBoxCount * 40 || remaining < volumeBoxCount * 232 ? 40 : 232;
+			if (volumeBoxCount >= 0 && fp.offset + volumeBoxCount * volumeBoxSize <= fp.length) fp.seek(volumeBoxCount * volumeBoxSize, SEEK_CUR);
+		}
+		this.textures = allTextures;
+		this.nodes = nodes;
+		if (nodes.length === 0) throw new Error("RSM::load() - Model contains no nodes");
+		this.main_node = rootNodeNames.map((name) => nodes.find((node) => node.name === name)).find(Boolean) || nodes[0];
+		this.posKeyframes = [];
+		this.volumebox = [];
 		this.instances = [];
 		this.box = new RSM.Box();
 		this.calcBoundingBox();
@@ -19581,7 +19842,8 @@ onmessage = function receive(event) {
 			map.onprogress = function(progress) {
 				postMessage({
 					type: "MAP_PROGRESS",
-					data: progress
+					data: progress,
+					request: msg.uid
 				});
 			};
 			map.onload = function(success, error) {
@@ -19597,7 +19859,8 @@ onmessage = function receive(event) {
 			map.ondata = function(type, data) {
 				postMessage({
 					type,
-					data
+					data,
+					request: msg.uid
 				});
 			};
 			map.load(msg.data);
