@@ -31,7 +31,15 @@ vi.mock('Engine/SessionStorage.js', () => ({ default: session }));
 vi.mock('Utils/PathFinding.js', () => ({ default: pathFinding }));
 vi.mock('Renderer/Map/Altitude.js', () => ({ default: { getCellHeight: () => 0 } }));
 
+vi.mock('DB/DBManager.js', () => ({ default: {} }));
+
+const configs = vi.hoisted(() => ({ movePrediction: true }));
+vi.mock('Core/Configs.js', () => ({
+	default: { get: (key, defaultValue) => (key in configs ? configs[key] : defaultValue) }
+}));
+
 const { default: InitWalk, gridPathDuration } = await import('Renderer/Entity/EntityWalk.js');
+const { default: InitAction } = await import('Renderer/Entity/EntityAction.js');
 
 const ACTION = { IDLE: 0, WALK: 1, ATTACK: 2, READYFIGHT: 3, DIE: 4 };
 const SPEED = 150;
@@ -70,6 +78,7 @@ beforeEach(() => {
 	session.serverTick = 50_000;
 	session.serverTickSynced = true;
 	session.ping.value = 0;
+	configs.movePrediction = true;
 });
 
 describe('gridPathDuration', () => {
@@ -100,6 +109,30 @@ describe('walkTo', () => {
 		mob.walkTo(11, 10, 16, 12, 0, session.serverTick);
 		mob.walkProcess();
 		expect(mob.position[0]).toBeCloseTo(before, 5);
+	});
+
+	it('makes up at most one cell of an old packet for a monster, all of it for a player', () => {
+		session.ping.value = 300;
+		const mob = makeEntity(10, 10);
+		mob.walkTo(10, 10, 16, 10, 0, session.serverTick - 300);
+		const mobTotal = mob.walk.segmentDurations.slice(0, 6).reduce((a, b) => a + b, 0);
+		expect(mobTotal).toBeCloseTo(6 * SPEED - SPEED);
+
+		const player = makeEntity(10, 10);
+		player.objecttype = player.constructor.TYPE_PC;
+		player.walkTo(10, 10, 16, 10, 0, session.serverTick - 300);
+		const playerTotal = player.walk.segmentDurations.slice(0, 6).reduce((a, b) => a + b, 0);
+		expect(playerTotal).toBeCloseTo(6 * SPEED - 300);
+	});
+
+	it('searches one path per move packet, from where the entity is drawn', () => {
+		const mob = makeEntity(10, 10);
+		const search = vi.spyOn(pathFinding, 'search');
+		// The server has it a cell further on than it is drawn.
+		mob.walkTo(11, 10, 16, 10, 0, session.serverTick);
+		expect(search).toHaveBeenCalledOnce();
+		expect(search.mock.calls[0].slice(0, 2)).toEqual([10, 10]);
+		search.mockRestore();
 	});
 });
 
@@ -167,6 +200,61 @@ describe('predictWalkTo', () => {
 		expect(me.position[1]).toBe(10);
 		expect(me.action).toBe(ACTION.IDLE);
 	});
+
+	it('walks back from a short walk the server never answers', () => {
+		const me = makeEntity(10, 10);
+		me.predictWalkTo(11, 10, 400);
+		step(me, 300); // there at 150 ms, no reply
+		expect(me.position[0]).toBe(11);
+		step(me, 2000);
+		expect([me.position[0], me.position[1]]).toEqual([10, 10]);
+		expect(me.walk.predicted).toBe(null);
+	});
+
+	it('stays put when the reply comes after a short walk ended', () => {
+		const me = makeEntity(10, 10);
+		me.predictWalkTo(11, 10, 400);
+		step(me, 250);
+		me.walkTo(10, 10, 11, 10, 0, session.serverTick);
+		expect(me.walk.predicted).toBe(null);
+		step(me, 2000);
+		expect([me.position[0], me.position[1]]).toEqual([11, 10]);
+	});
+
+	it('walks back when a hit stops a walk the server never answers', () => {
+		// The real setAction, which drops the route when a walk turns into a hurt.
+		function Pc() {}
+		Pc.TYPE_PC = 0;
+		const me = Object.assign(new Pc(), {
+			objecttype: Pc.TYPE_PC,
+			position: new Float32Array([10, 10, 0]),
+			cast: { display: false },
+			sound: { free() {} }
+		});
+		InitAction.call(me);
+		InitWalk.call(me);
+		me.action = me.ACTION.IDLE;
+		me.walk.speed = SPEED;
+		me.predictWalkTo(15, 10, 400);
+		step(me, 200);
+		me.setAction({ action: me.ACTION.HURT, frame: 0, play: true });
+		const stoppedAt = me.position[0];
+		expect(stoppedAt).toBeGreaterThan(10);
+		step(me, 2000);
+		expect([me.position[0], me.position[1]]).toEqual([10, 10]);
+	});
+
+	it('puts a player who died meanwhile where the server has it, without a walk', () => {
+		const me = makeEntity(10, 10);
+		me.predictWalkTo(15, 10, 400);
+		step(me, 200);
+		me.resetRoute(); // what the real setAction does on the way into DIE
+		me.walk.predicted = { queue: [[15, 10]], fallback: [10, 10], deadline: now + 200 };
+		me.action = ACTION.DIE;
+		step(me, 1000);
+		expect(me.action).toBe(ACTION.DIE);
+		expect([me.position[0], me.position[1]]).toEqual([10, 10]);
+	});
 });
 
 describe('settleTo', () => {
@@ -198,5 +286,34 @@ describe('settleTo', () => {
 		const mob = makeEntity(10, 10);
 		expect(mob.settleTo(20, 10)).toBe(false);
 		expect(mob.position[0]).toBe(20);
+	});
+});
+
+describe('with movePrediction off (the default)', () => {
+	beforeEach(() => {
+		delete configs.movePrediction;
+	});
+
+	it('keeps the old timing: an old packet starts the walk ahead, by at most a cell for a monster', () => {
+		session.ping.value = 300;
+		const mob = makeEntity(10, 10);
+		mob.walkTo(10, 10, 16, 10, 0, session.serverTick - 300);
+		expect(mob.walk.tick).toBe(now - SPEED);
+		// FixPathTime adds the difference to each segment; none here, as both paths are straight.
+		const total = mob.walk.segmentDurations.slice(0, 6).reduce((a, b) => a + b, 0);
+		expect(total).toBeCloseTo(6 * SPEED);
+
+		const player = makeEntity(10, 10);
+		player.objecttype = player.constructor.TYPE_PC;
+		player.walkTo(10, 10, 16, 10, 0, session.serverTick - 300);
+		expect(player.walk.tick).toBe(now - 300);
+	});
+
+	it('searches one path per move packet', () => {
+		const mob = makeEntity(10, 10);
+		const search = vi.spyOn(pathFinding, 'search');
+		mob.walkTo(11, 10, 16, 10, 0, session.serverTick);
+		expect(search).toHaveBeenCalledOnce();
+		search.mockRestore();
 	});
 });
