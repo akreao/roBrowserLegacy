@@ -1465,17 +1465,22 @@ var iconv = (() => {
 			while (i < len) res += String.fromCharCode.apply(String, codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH));
 			return res;
 		}
+		function decodeCharCodes(codes) {
+			const len = codes.length;
+			if (len <= MAX_ARGUMENTS_LENGTH) return String.fromCharCode.apply(String, codes);
+			let res = "";
+			for (let i = 0; i < len; i += MAX_ARGUMENTS_LENGTH) res += String.fromCharCode.apply(String, codes.subarray(i, i + MAX_ARGUMENTS_LENGTH));
+			return res;
+		}
 		function asciiSlice(buf, start, end) {
-			let ret = "";
 			end = Math.min(buf.length, end);
-			for (let i = start; i < end; ++i) ret += String.fromCharCode(buf[i] & 127);
-			return ret;
+			const codes = new Uint8Array(Math.max(0, end - start));
+			for (let i = 0; i < codes.length; ++i) codes[i] = buf[start + i] & 127;
+			return decodeCharCodes(codes);
 		}
 		function latin1Slice(buf, start, end) {
-			let ret = "";
 			end = Math.min(buf.length, end);
-			for (let i = start; i < end; ++i) ret += String.fromCharCode(buf[i]);
-			return ret;
+			return decodeCharCodes(new Uint8Array(buf.buffer, buf.byteOffset + start, Math.max(0, end - start)));
 		}
 		function hexSlice(buf, start, end) {
 			const len = buf.length;
@@ -1487,9 +1492,9 @@ var iconv = (() => {
 		}
 		function utf16leSlice(buf, start, end) {
 			const bytes = buf.slice(start, end);
-			let res = "";
-			for (let i = 0; i < bytes.length - 1; i += 2) res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);
-			return res;
+			const codes = new Uint16Array(bytes.length >> 1);
+			for (let i = 0; i < codes.length; ++i) codes[i] = bytes[2 * i] + bytes[2 * i + 1] * 256;
+			return decodeCharCodes(codes);
 		}
 		Buffer2.prototype.slice = function slice(start, end) {
 			const len = this.length;
@@ -17476,7 +17481,7 @@ var RSM = class RSM {
 		const nodes = new Array(count);
 		for (i = 0; i < count; ++i) {
 			nodes[i] = new RSM.Node(this, fp, count === 1);
-			if (mainNodeName && nodes[i].name === mainNodeName) this.main_node = nodes[i];
+			if (mainNodeName && nodes[i].name === mainNodeName && this.main_node === null) this.main_node = nodes[i];
 		}
 		if (this.main_node === null) this.main_node = nodes[0];
 		if (this.version < 1.6) {
@@ -18929,7 +18934,7 @@ var FileManager = class FileManager {
 					case "bmp":
 					case "gif":
 					case "png":
-						result = URL.createObjectURL(new Blob([buffer], { type: "image/" + ext }));
+						result = URL.createObjectURL(new Blob([buffer], { type: imageType(buffer, ext) }));
 						break;
 					case "wav":
 					case "mp3":
@@ -18984,6 +18989,20 @@ var FileManager = class FileManager {
 		});
 	}
 };
+/**
+* The type of a picture: its extension, unless the bytes are a WebP, which an
+* asset server may send for a BMP or JPEG to a player on a slow link.
+*
+* @param {ArrayBuffer} buffer
+* @param {string} ext
+* @return {string}
+*/
+function imageType(buffer, ext) {
+	const head = new Uint8Array(buffer, 0, Math.min(12, buffer.byteLength));
+	const tag = String.fromCharCode(...head);
+	if (tag.length === 12 && tag.startsWith("RIFF") && tag.endsWith("WEBP")) return "image/webp";
+	return "image/" + ext;
+}
 //#endregion
 //#region src/Loaders/MapLoader.js
 /**
@@ -18996,12 +19015,53 @@ var FileManager = class FileManager {
 * @author Vincent Thibault
 */
 /**
+* A file loaded once per map, by whichever step asks first. The map loads in
+* steps (world, altitude, ground, ground textures, models, model textures),
+* and each used to ask for its files only when the step before had finished:
+* over a remote link, a round trip per step with the connection idle. Asking
+* for a later step's files as soon as their names are known lets them arrive
+* while the earlier steps still run; the steps still run in the same order.
+*
+* @param {Map} requests - filename to Promise of the loaded file
+* @param {string} filename
+* @returns {Promise}
+*/
+function request(requests, filename) {
+	let pending = requests.get(filename);
+	if (!pending) {
+		pending = new Promise((resolve) => FileManager.load(filename, resolve));
+		requests.set(filename, pending);
+	}
+	return pending;
+}
+/**
+* The file asked for early, for the one step that uses it. An image comes as
+* a blob URL, and Texture.load revokes it once the image has loaded, so two
+* steps must not share one: a texture the ground and a model both use would
+* load for whichever came first and never for the other. A later step that
+* needs the same file asks again, and gets its own.
+*
+* @param {Map} requests - filename to Promise of the loaded file
+* @param {string} filename
+* @returns {Promise}
+*/
+function take(requests, filename) {
+	const pending = request(requests, filename);
+	requests.delete(filename);
+	return pending;
+}
+/**
 * Helper to load list
 *
 * @param {array} file list to load
 */
 var Loader = class Loader {
-	constructor(list) {
+	/**
+	* @param {Array} list of files to load
+	* @param {Map} [requests] files already asked for (see request)
+	*/
+	constructor(list, requests) {
+		this.requests = requests || /* @__PURE__ */ new Map();
 		this.files = list;
 		this.list = list.slice(0);
 		this.offset = 0;
@@ -19038,7 +19098,7 @@ var Loader = class Loader {
 	_next() {
 		if (!this.list.length) return;
 		const filename = this.list.shift();
-		FileManager.load(filename, (data) => {
+		take(this.requests, filename).then((data) => {
 			this.out[this.files.indexOf(filename)] = data;
 			this.offset++;
 			if (this.onprogress && this.offset <= this.count) this.onprogress(this.offset, this.count);
@@ -19109,6 +19169,7 @@ var MapLoader = class {
 	load(mapname) {
 		this.setProgress(0);
 		const loader = this;
+		const requests = this.requests = /* @__PURE__ */ new Map();
 		let world;
 		function getFilePath(path) {
 			if (path in FileManager.filesAlias) return FileManager.filesAlias[path];
@@ -19121,16 +19182,23 @@ var MapLoader = class {
 			}
 			world = resourceWorld;
 			loader.setProgress(1);
-			FileManager.load(`data\\${getFilePath(world.files.gat)}`, onAltitudeReady);
+			const ground = request(requests, `data\\${getFilePath(world.files.gnd)}`).then((resourceGround) => {
+				for (const texture of resourceGround?.textures || []) request(requests, `data\\texture\\${texture}`);
+				for (const model of world.models) request(requests, `data\\model\\${model.filename}`);
+				return resourceGround;
+			});
+			request(requests, `data\\${getFilePath(world.files.gat)}`).then((altitude) => {
+				if (onAltitudeReady(altitude)) ground.then(onGroundReady);
+			});
 		}
 		function onAltitudeReady(altitude) {
 			if (!altitude) {
 				loader.onload(false, `Can't find file "${world.files.gat}" !`);
-				return;
+				return false;
 			}
 			loader.setProgress(2);
 			loader.ondata("MAP_ALTITUDE", altitude.compile());
-			FileManager.load(`data\\${getFilePath(world.files.gnd)}`, onGroundReady);
+			return true;
 		}
 		function onGroundReady(ground) {
 			if (!ground) {
@@ -19168,7 +19236,7 @@ var MapLoader = class {
 			for (i = 0; i < 32; ++i) textures.push(`${path}${i < 10 ? "0" + i : i}.jpg`);
 		}
 		for (i = 0, count = ground.textures.length; i < count; ++i) textures.push(`data\\texture\\${ground.textures[i]}`);
-		const loader = new Loader(textures);
+		const loader = new Loader(textures, this.requests);
 		loader.onprogress = () => {
 			this.setProgress(3 + 97 / this.fileCount * ++this.offset);
 		};
@@ -19191,7 +19259,7 @@ var MapLoader = class {
 			models[i].filename = `data\\model\\${models[i].filename}`;
 			if (files.indexOf(models[i].filename) < 0) files.push(models[i].filename);
 		}
-		const loader = new Loader(files);
+		const loader = new Loader(files, this.requests);
 		loader.onprogress = () => {
 			this.setProgress(3 + 97 / this.fileCount * ++this.offset);
 		};
@@ -19296,7 +19364,7 @@ var MapLoader = class {
 			buffer.set(object.mesh, offset);
 			offset += size;
 		}
-		const loader = new Loader(textures);
+		const loader = new Loader(textures, this.requests);
 		loader.onprogress = (index, _count) => {
 			this.setProgress(progress + (100 - progress) / _count * (index + 1));
 		};
@@ -19311,6 +19379,7 @@ var MapLoader = class {
 				infos
 			});
 			if (this._animatedModels && this._animatedModels.length > 0) this.sendAnimatedModels(this._animatedModels);
+			this.requests.clear();
 			this.onload(true);
 		};
 		loader.start();
