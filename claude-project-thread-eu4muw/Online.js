@@ -221282,12 +221282,11 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.KR_IRON_HOWLING] = { effectId: "ef_druid_iron_howling" };
 	SkillEffect[SkillConst_default.KR_SHARPEN_GUST] = {
-		effectId: "ef_druid_sharpen_gust",
+		effectIdOnCaster: "ef_druid_sharpen_gust",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_SHARPEN_HAIL] = {
-		effectIdOnCaster: "ef_druid_sharpen_hail_shot",
-		effectId: "ef_druid_sharpen_hail",
+		effectId: ["ef_druid_sharpen_hail_shot", "ef_druid_sharpen_hail"],
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_TYPHOON_WING] = {
@@ -221367,15 +221366,15 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_wolf"
 	};
 	SkillEffect[SkillConst_default.AT_PINION_SHOT] = {
-		effectId: "ef_druid_pinion_shot",
+		effectIdOnCaster: "ef_druid_pinion_shot",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_QUILL_SPEAR] = {
-		effectId: "ef_druid_quill_spear",
+		effectIdOnCaster: "ef_druid_quill_spear",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_QUILL_SPEAR_S] = {
-		effectId: "ef_druid_quill_spear_s",
+		effectIdOnCaster: "ef_druid_quill_spear_s",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_TEMPEST_FLAP] = {
@@ -221412,11 +221411,11 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.AT_ROARING_PIERCER] = {
 		beginCastEffectId: "ef_druid_thunder_cast",
-		effectId: "ef_druid_roaring_piercer_g",
+		effectIdOnCaster: "ef_druid_roaring_piercer_g",
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.AT_ROARING_PIERCER_S] = {
-		effectId: "ef_druid_roaring_piercer_y",
+		effectIdOnCaster: "ef_druid_roaring_piercer_y",
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
 	SkillEffect[SkillConst_default.AT_ROARING_CHARGE] = {
@@ -253777,10 +253776,12 @@ var init_StrEffect = __esmMin((() => {
 			if (keyIndex >= strFile.maxKey) this.needCleanUp = true;
 		}
 		/**
-		* How far to turn an effect that flies at its target, so the way its art
-		* travels points at the target on screen.
+		* How far to turn an effect aimed between two entities, so it lines up
+		* with them on screen.
 		*
-		* The art is drawn facing `facing` degrees (0 = right, 180 = left).
+		* `facing` is where the other entity sits in the file, in degrees (0 =
+		* right, 180 = left): the target for an effect on the caster, the caster
+		* for one on the target.
 		*
 		* @return {number} counter-clockwise turn in degrees, 0 when not aimed
 		*/
@@ -300532,13 +300533,17 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/dr_shooting_feather/shooting_feather/shooting_feather",
 			texturePath: "druid/dr_shooting_feather/shooting_feather/",
 			min: "druid/dr_shooting_feather/shooting_feather/min_shooting_feather",
-			wav: "effect/druid/dr_shooting_feather"
+			wav: "effect/druid/dr_shooting_feather",
+			rotateToTarget: true,
+			facing: 0
 		}],
 		ef_druid_shooting_feather_hit: [{
 			type: "STR",
 			file: "druid/dr_shooting_feather/shooting_feather_attack/shooting_feather_attack",
 			texturePath: "druid/dr_shooting_feather/shooting_feather_attack/",
-			min: "druid/dr_shooting_feather/shooting_feather_attack/min_shooting_feather_attack"
+			min: "druid/dr_shooting_feather/shooting_feather_attack/min_shooting_feather_attack",
+			rotateToTarget: true,
+			facing: 180
 		}],
 		ef_druid_flicking_tonado: [{
 			type: "STR",
@@ -300558,7 +300563,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/dr_low_flight/low_flight_horizon/low_flight_horizon",
 			texturePath: "druid/dr_low_flight/low_flight_horizon/",
 			min: "druid/dr_low_flight/low_flight_horizon/min_low_flight_horizon",
-			wav: "effect/druid/dr_low_flight"
+			wav: "effect/druid/dr_low_flight",
+			rotateToTarget: true,
+			facing: 0
 		}, {
 			type: "STR",
 			file: "druid/dr_low_flight/low_flight_bottom/low_flight_bottom",
@@ -300691,7 +300698,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/kr_sharpen_gust/sharpen_gust/sharpen_gust",
 			texturePath: "druid/kr_sharpen_gust/sharpen_gust/",
 			min: "druid/kr_sharpen_gust/sharpen_gust/min_sharpen_gust",
-			wav: "effect/druid/kr_sharpen_gust"
+			wav: "effect/druid/kr_sharpen_gust",
+			rotateToTarget: true,
+			facing: 0
 		}, {
 			type: "STR",
 			file: "druid/kr_sharpen_gust/sharpen_gust_bottom/sharpen_gust_bottom",
@@ -300981,21 +300990,27 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/at_pinion_shot/pinion_shot/pinion_shot",
 			texturePath: "druid/at_pinion_shot/pinion_shot/",
 			min: "druid/at_pinion_shot/pinion_shot/min_pinion_shot",
-			wav: "effect/druid/at_pinion_shot"
+			wav: "effect/druid/at_pinion_shot",
+			rotateToTarget: true,
+			facing: 0
 		}],
 		ef_druid_quill_spear: [{
 			type: "STR",
 			file: "druid/at_quill_spear/quill_spear_3x7/quill_spear_3x7",
 			texturePath: "druid/at_quill_spear/quill_spear_3x7/",
 			min: "druid/at_quill_spear/quill_spear_3x7/min_quill_spear_3x7",
-			wav: "effect/druid/at_quill_spear"
+			wav: "effect/druid/at_quill_spear",
+			rotateToTarget: true,
+			facing: 0
 		}],
 		ef_druid_quill_spear_s: [{
 			type: "STR",
 			file: "druid/at_quill_spear/quill_spear_5x7/quill_spear_5x7",
 			texturePath: "druid/at_quill_spear/quill_spear_5x7/",
 			min: "druid/at_quill_spear/quill_spear_5x7/min_quill_spear_5x7",
-			wav: "effect/druid/at_quill_spear"
+			wav: "effect/druid/at_quill_spear",
+			rotateToTarget: true,
+			facing: 0
 		}],
 		ef_druid_tempest_flap: [{
 			type: "STR",
@@ -301116,14 +301131,18 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/at_roaring_piercer/roaring_piercer_g/roaring_piercer_g",
 			texturePath: "druid/at_roaring_piercer/roaring_piercer_g/",
 			min: "druid/at_roaring_piercer/roaring_piercer_g/min_roaring_piercer_g",
-			wav: "effect/druid/at_roaring_piercer_g"
+			wav: "effect/druid/at_roaring_piercer_g",
+			rotateToTarget: true,
+			facing: 180
 		}],
 		ef_druid_roaring_piercer_y: [{
 			type: "STR",
 			file: "druid/at_roaring_piercer/roaring_piercer_y/roaring_piercer_y",
 			texturePath: "druid/at_roaring_piercer/roaring_piercer_y/",
 			min: "druid/at_roaring_piercer/roaring_piercer_y/min_roaring_piercer_y",
-			wav: "effect/druid/at_roaring_piercer_y"
+			wav: "effect/druid/at_roaring_piercer_y",
+			rotateToTarget: true,
+			facing: 180
 		}],
 		ef_druid_roaring_charge: [{
 			type: "STR",
