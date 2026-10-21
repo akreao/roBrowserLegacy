@@ -4,7 +4,7 @@
 * This file is part of ROBrowser, (http://www.robrowser.com/).
 * @author Vincent Thibault and the community
 */
-//#region src/Loaders/GameFileDecrypt.js
+// src/Loaders/GameFileDecrypt.js
 /**
 * Loaders/GameFileDecrypt.js
 *
@@ -652,8 +652,7 @@ shuffleDec.table = (function init_substitution() {
 	}
 	return out;
 })();
-//#endregion
-//#region src/Utils/Struct.js
+// src/Utils/Struct.js
 /**
 * Utils/Struct.js
 *
@@ -731,8 +730,7 @@ function Struct() {
 	this._list = out;
 	this.size = total;
 }
-//#endregion
-//#region src/Vendors/iconv-lite.js
+// src/Vendors/iconv-lite.js
 var iconv = (() => {
 	var __getOwnPropNames = Object.getOwnPropertyNames;
 	var __commonJS = (cb, mod) => function __require() {
@@ -11112,8 +11110,7 @@ buffer/index.js:
 safe-buffer/index.js:
 (*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
 */
-//#endregion
-//#region src/Utils/CodepageManager.js
+// src/Utils/CodepageManager.js
 /**
 * Smart decode helper.
 *
@@ -11519,8 +11516,7 @@ BinaryReader.prototype.getPos2 = BinaryReader.prototype.readPos2 = function getP
 		f & 15
 	];
 };
-//#endregion
-//#region src/Utils/Inflate.js
+// src/Utils/Inflate.js
 /**
 * Utils/Inflate.js
 *
@@ -12359,8 +12355,7 @@ Inflate.prototype.readBlock = function Inflate_readBlock() {
 		for (let k = 0; k < len; ++k, ++pos) buffer[pos] = buffer[pos - dist];
 	}
 };
-//#endregion
-//#region src/Loaders/GameFile.js
+// src/Loaders/GameFile.js
 /**
 * Loaders/GameFile.js
 *
@@ -12579,8 +12574,7 @@ function loadEntries(out, count, version) {
 	}
 	return entries;
 }
-//#endregion
-//#region src/Vendors/gl-matrix.js
+// src/Vendors/gl-matrix.js
 /**
 * @fileoverview gl-matrix - High performance matrix and vector operations
 * @author Brandon Jones
@@ -15783,8 +15777,7 @@ quat.str = function(a) {
 	return "quat(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
 };
 if (typeof exports !== "undefined") exports.quat = quat;
-//#endregion
-//#region src/Utils/gl-matrix.js
+// src/Utils/gl-matrix.js
 /**
 * Utils/gl-matrix.js
 *
@@ -16119,8 +16112,7 @@ exports.mat4.toInverseMat3 = function(mat, dest) {
 	return dest;
 };
 var gl_matrix_default = exports;
-//#endregion
-//#region src/Loaders/World.js
+// src/Loaders/World.js
 /**
 * Loaders/World.js
 *
@@ -16361,8 +16353,7 @@ var RSW = class RSW {
 		};
 	}
 };
-//#endregion
-//#region src/Loaders/Ground.js
+// src/Loaders/Ground.js
 /**
 * Loaders/Ground.js
 *
@@ -16815,8 +16806,7 @@ var GND = class {
 		};
 	}
 };
-//#endregion
-//#region src/Loaders/Altitude.js
+// src/Loaders/Altitude.js
 /**
 * Loaders/Altitude.js
 *
@@ -16905,8 +16895,7 @@ var GAT = class GAT {
 		};
 	}
 };
-//#endregion
-//#region src/Loaders/Model.js
+// src/Loaders/Model.js
 /**
 * Loaders/Model.js
 *
@@ -18029,8 +18018,7 @@ function getScaleAtFrame(keyframes, frame, animLen) {
 		prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
 	];
 }
-//#endregion
-//#region src/Loaders/Sprite.js
+// src/Loaders/Sprite.js
 /**
 * Loaders/Sprite.js
 *
@@ -18344,8 +18332,7 @@ var SPR = class SPR {
 		};
 	}
 };
-//#endregion
-//#region src/Loaders/Action.js
+// src/Loaders/Action.js
 /**
 * Loaders/Action.js
 *
@@ -18487,8 +18474,7 @@ var ACT = class {
 		};
 	}
 };
-//#endregion
-//#region src/Loaders/Str.js
+// src/Loaders/Str.js
 /**
 * Loaders/Str.js
 *
@@ -18593,8 +18579,7 @@ var STR = class {
 		for (i = 0; i < this.layernum; ++i) this.layers[i] = new STRLayer(fp, this.texturePath);
 	}
 };
-//#endregion
-//#region src/Core/FileSystem.js
+// src/Core/FileSystem.js
 /**
 * Core/FileSystem.js
 *
@@ -18923,8 +18908,7 @@ var FileSystem = class FileSystem {
 		}, errorHandler);
 	}
 };
-//#endregion
-//#region src/Core/FileManager.js
+// src/Core/FileManager.js
 /**
 * Core/FileManager.js
 *
@@ -19264,8 +19248,7 @@ function imageType(buffer, ext) {
 	if (tag.length === 12 && tag.startsWith("RIFF") && tag.endsWith("WEBP")) return "image/webp";
 	return "image/" + ext;
 }
-//#endregion
-//#region src/Loaders/MapLoader.js
+// src/Loaders/MapLoader.js
 /**
 * Loaders/MapLoader.js
 *
@@ -19714,8 +19697,7 @@ function SortMeshByTextures(a, b) {
 	if (a.texture > b.texture) return 1;
 	return 0;
 }
-//#endregion
-//#region src/Core/ThreadEventHandler.js
+// src/Core/ThreadEventHandler.js
 /**
 * Core/ThreadEventHandler.js
 *
@@ -19872,4 +19854,3 @@ onmessage = function receive(event) {
 * Once the thread is ready
 */
 postMessage({ type: "THREAD_READY" });
-//#endregion
