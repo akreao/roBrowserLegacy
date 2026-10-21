@@ -329562,6 +329562,10 @@ function UpdateGeneric(type, func, fallback) {
 				if (fallback && !final) {
 					_val = DB[fallback](val);
 					filepath = DB[func](_val, _this.job, _this._sex);
+					if (type === "weapon" && filepath === path) {
+						_val = DB.getWeaponType(val, true);
+						filepath = DB[func](_val, _this.job, _this._sex);
+					}
 					if (filepath) LoadView(filepath, true);
 				} else if (type === "robe" && !final) {
 					const fallbackPath = DB.getRobePathNoSex(val, _this.job, _this._sex);
