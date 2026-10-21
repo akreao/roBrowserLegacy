@@ -177,6 +177,7 @@ function free() {
 
 	_list.length = 0;
 	_gidMap.clear();
+	_over = null;
 	_pickList.length = 0;
 	_renderSortDirty = true;
 	_pickSortDirty = true;
@@ -350,6 +351,42 @@ function isCulled(culling, entity) {
 }
 
 /**
+ * Hide the entity overlays while culled, show them back once drawn
+ *
+ * @param {Entity} entity
+ * @param {boolean} culled
+ */
+function setCulled(entity, culled) {
+	if (entity.culled === culled) {
+		return;
+	}
+
+	entity.culled = culled;
+
+	const display = culled ? 'none' : '';
+	entity.life.canvas.style.display = display;
+	entity.emblem.canvas.style.display = display;
+	entity.display.canvas.style.display = display;
+	entity.dialog.canvas.style.display = display;
+	entity.cast.canvas.style.display = display;
+	if (entity.room.node) {
+		entity.room.node.ui[0].style.display = display;
+	}
+}
+
+/**
+ * Decide, once per frame and before any pass draws, which entities are out of
+ * the view area: their overlays are hidden and every pass skips them
+ */
+function cull() {
+	const culling = getCulling();
+
+	for (let i = 0, count = _list.length; i < count; ++i) {
+		setCulled(_list[i], isCulled(culling, _list[i]));
+	}
+}
+
+/**
  * Render all entities (picking or not)
  *
  * @param {object} gl webgl context
@@ -381,11 +418,9 @@ function render(gl, modelView, projection, fog, renderEffects) {
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 	SpriteRenderer.beginBatch(gl);
 
-	const culling = getCulling();
-
 	// Rendering
 	try {
-		renderList(modelView, projection, renderEffects, tick, culling);
+		renderList(modelView, projection, renderEffects, tick);
 	} finally {
 		SpriteRenderer.endBatch();
 	}
@@ -397,7 +432,7 @@ function render(gl, modelView, projection, fog, renderEffects) {
 /**
  * The entity loop of render()
  */
-function renderList(modelView, projection, renderEffects, tick, culling) {
+function renderList(modelView, projection, renderEffects, tick) {
 	let i, count;
 
 	for (i = 0, count = _list.length; i < count; ++i) {
@@ -423,7 +458,7 @@ function renderList(modelView, projection, renderEffects, tick, culling) {
 				_pickSortDirty = true;
 				continue;
 			}
-			if (isCulled(culling, _list[i])) {
+			if (_list[i].culled) {
 				continue;
 			}
 			_list[i].render(modelView, projection);
@@ -446,13 +481,11 @@ function renderWaterDepth(gl, modelView, projection, fog) {
 		return;
 	}
 
-	const culling = getCulling();
-
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 	gl.colorMask(false, false, false, false);
 
 	for (let i = 0, count = _list.length; i < count; ++i) {
-		if (!isCulled(culling, _list[i])) {
+		if (!_list[i].culled) {
 			_list[i].renderWaterDepth();
 		}
 	}
@@ -742,6 +775,7 @@ const EntityManager = {
 	removeLife: removeLife,
 	clearLifeCache: clearLifeCache,
 
+	cull: cull,
 	render: render,
 	renderWaterDepth: renderWaterDepth,
 	intersect: intersect,

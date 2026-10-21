@@ -22,6 +22,7 @@ import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import AttackEffect from 'DB/Monsters/AttackEffectTable.js';
 import Sound from 'Audio/SoundManager.js';
+import Configs from 'Core/Configs.js';
 import Events from 'Core/Events.js';
 import Guild from 'Engine/MapEngine/Guild.js';
 import Session from 'Engine/SessionStorage.js';
@@ -122,6 +123,20 @@ const QuestMarkColors = {
 	2: 0x00e16a, // QMARK_GREEN
 	3: 0x800080 // QMARK_PURPLE
 };
+
+function requestEntityGuildEmblem(entity) {
+	const actorId = entity.GID;
+	const guildId = entity.GUID;
+	Guild.requestGuildEmblem(guildId, entity.GEmblemVer, (image, gif) => {
+		if (EntityManager.get(actorId) !== entity || entity.GUID !== guildId || entity.GEmblemVer === 0) {
+			return;
+		}
+		entity.setEntityGuildEmblem(image, gif);
+		if (Session.mapState.isSiege && guildId !== Session.Entity?.GUID) {
+			entity.emblem.display = true;
+		}
+	});
+}
 
 /**
  * Spam an entity on the map
@@ -285,12 +300,7 @@ function onEntitySpam(pkt) {
 	}
 
 	if (entity.GUID) {
-		Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, (image, gif) => {
-			entity.setEntityGuildEmblem(image, gif);
-			if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
-				entity.emblem.display = true;
-			}
-		});
+		requestEntityGuildEmblem(entity);
 	}
 
 	// load others aura
@@ -446,10 +456,29 @@ function onEntityMove(pkt) {
  */
 function onEntityStopMove(pkt) {
 	const entity = EntityManager.get(pkt.AID);
-	if (entity) {
-		// Glide the last bit of the way, walking until it gets there, rather than jump.
-		entity.settleTo(pkt.xPos, pkt.yPos);
+	if (!entity) {
+		return;
 	}
+
+	// With move prediction, glide the last bit of the way, walking until it gets there, rather than jump.
+	if (Configs.get('movePrediction', false)) {
+		entity.settleTo(pkt.xPos, pkt.yPos);
+		return;
+	}
+
+	if (entity.action === entity.ACTION.WALK) {
+		entity.setAction({
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: true,
+			play: true
+		});
+	}
+
+	entity.resetRoute();
+	entity.position[0] = pkt.xPos;
+	entity.position[1] = pkt.yPos;
+	entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 }
 
 /**
@@ -1105,6 +1134,9 @@ function onEntityIdentity(pkt) {
 			}
 		}
 
+		// ZC_ACK_REQNAMEALL_NPC (0xadf) carries the mob_db / NPC title
+		entity.display.unit_title = pkt.Title || '';
+
 		entity.display.party_name = pkt.PName || '';
 		entity.display.guild_name = pkt.GName || '';
 		entity.display.guild_rank = pkt.RName || '';
@@ -1112,12 +1144,7 @@ function onEntityIdentity(pkt) {
 		entity.display.load = entity.display.TYPE.COMPLETE;
 
 		if (entity.GUID) {
-			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, (image, gif) => {
-				entity.setEntityGuildEmblem(image, gif);
-				if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
-					entity.emblem.display = true;
-				}
-			});
+			requestEntityGuildEmblem(entity);
 		} else if (pkt.GID) {
 			DB.loadGroupEmblem(pkt.GID, image => {
 				entity.setEntityGuildEmblem(image);
@@ -1165,7 +1192,7 @@ function updateEntityStyle(entity) {
 
 function onTitleChangeAck(pkt) {
 	if (pkt.result === 0) {
-		const comp = Equipment.getUI();
+		const comp = Equipment;
 		if (comp && typeof comp.setTitle === 'function') {
 			comp.setTitle(pkt.title_id);
 		}
@@ -1362,7 +1389,7 @@ function onEntityViewChange(pkt) {
 						ui.append();
 					}
 					// Update UI for all client versions
-					BasicInfo.getUI().update('job', pkt.value);
+					BasicInfo.update('job', pkt.value);
 				}
 			}
 			break;
@@ -2724,9 +2751,9 @@ function onNotifyExp(pkt) {
  */
 
 function onMarkMvp(pkt) {
-	MiniMap.getUI().removeNpcMark('mvp'); //hack for mark system (todo: debug this)
+	MiniMap.removeNpcMark('mvp'); //hack for mark system (todo: debug this)
 	if (pkt.infoType == 1) {
-		MiniMap.getUI().addNpcMark('mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity);
+		MiniMap.addNpcMark('mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity);
 		/**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
 				ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
 			}*/
@@ -2831,7 +2858,7 @@ function onEntityWillBeHitSub(pkt, dstEntity) {
  * Does player have a Token of Siegfried?
  */
 function haveSiegfriedItem() {
-	const itemInfo = Inventory.getUI().getItemById(7621);
+	const itemInfo = Inventory.getItemById(7621);
 
 	if (Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode) {
 		return false;
