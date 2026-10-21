@@ -55,6 +55,18 @@ const _matrix = mat4.create();
  */
 let _lastAngle = -1;
 
+/**
+ * @var {mat4} model view of the frame being drawn, to aim effects at a target
+ */
+let _modelView = null;
+
+/**
+ * Centre of the art in kRO's newer STR files, which are laid out on a
+ * 640x480 canvas. An aimed effect turns about this point.
+ */
+const AIM_PIVOT_X = 320;
+const AIM_PIVOT_Y = 240;
+
 // Pixel to world conversion for attachment offsets
 const PIXEL_TO_WORLD_Z = 1.0 / 5.0;
 
@@ -312,6 +324,8 @@ class StrEffect {
 			return;
 		}
 
+		this.aimAngle = this.getAimAngle();
+
 		keyIndex = ((tick - this.startTick) / 1000) * strFile.fps;
 
 		// Loop persistent effects
@@ -362,6 +376,36 @@ class StrEffect {
 	}
 
 	/**
+	 * How far to turn an effect that flies at its target, so the way its art
+	 * travels points at the target on screen.
+	 *
+	 * The art is drawn facing `facing` degrees (0 = right, 180 = left).
+	 *
+	 * @return {number} counter-clockwise turn in degrees, 0 when not aimed
+	 */
+	getAimAngle() {
+		const effect = this._Params?.effect;
+		const target = this._Params?.Inst?.otherPosition;
+		if (!effect?.rotateToTarget || !target || !this.position || !_modelView) {
+			return 0;
+		}
+
+		// World offset in the shader's axes (x, -z, y), then into view space
+		const x = target[0] - this.position[0];
+		const y = -(target[2] - this.position[2]);
+		const z = target[1] - this.position[1];
+		const m = _modelView;
+		const viewX = m[0] * x + m[4] * y + m[8] * z;
+		const viewY = m[1] * x + m[5] * y + m[9] * z;
+
+		if (!viewX && !viewY) {
+			return 0;
+		}
+
+		return (Math.atan2(viewY, viewX) * 180) / Math.PI - (effect.facing || 0);
+	}
+
+	/**
 	 * Setup geometries, send data to GPU
 	 *
 	 * @param {object} webgl context
@@ -399,10 +443,11 @@ class StrEffect {
 		_bufferData[14] = 1; //anim.uv[6];
 		_bufferData[15] = 1; //anim.uv[7];
 
-		if (animat.angle !== _lastAngle) {
+		const angle = animat.angle - (this.aimAngle || 0);
+		if (angle !== _lastAngle) {
 			mat4.identity(_matrix);
-			mat4.rotateZ(_matrix, _matrix, (-animat.angle / 180) * Math.PI);
-			_lastAngle = animat.angle;
+			mat4.rotateZ(_matrix, _matrix, (-angle / 180) * Math.PI);
+			_lastAngle = angle;
 		}
 
 		const spriteOffset = new Float32Array(2);
@@ -414,6 +459,15 @@ class StrEffect {
 			// flip Y offset only
 			spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 			verticalBase = 0.0;
+		} else if (this.aimAngle) {
+			// Turn the layout about the art's centre; STR y points down the screen
+			const rad = (this.aimAngle / 180) * Math.PI;
+			const cos = Math.cos(rad);
+			const sin = Math.sin(rad);
+			const x = animat.pos[0] - AIM_PIVOT_X;
+			const y = AIM_PIVOT_Y - animat.pos[1];
+			spriteOffset[0] = x * cos - y * sin;
+			spriteOffset[1] = AIM_PIVOT_Y - 320 - (x * sin + y * cos);
 		} else {
 			spriteOffset[0] = animat.pos[0] - 320;
 			spriteOffset[1] = animat.pos[1] - 320;
@@ -510,6 +564,8 @@ class StrEffect {
 	static beforeRender(gl, modelView, projection, fog, tick) {
 		const uniform = _program.uniform;
 		const attribute = _program.attribute;
+
+		_modelView = modelView;
 
 		gl.depthMask(false);
 		gl.useProgram(_program);
