@@ -4,7 +4,7 @@ Before: on the V4 character creation screen, only the human male hairstyle list 
 
 After: every hairstyle list gets its buttons and the selection highlight.
 
-The grid layout has four hairstyle lists, one per race and gender, each with its own `.style{n}` buttons. When the screen moved from jQuery to `querySelector`, `ui.find('.style' + n)` (every match) became `querySelector(...)` (the first match). It now uses `querySelectorAll`.
+The grid layout has four hairstyle lists, one per race and gender, each with its own `.style1`, `.style2`, … buttons. When the screen moved from jQuery to `querySelector`, `ui.find('.style' + n)` (every match) became `querySelector(...)` (the first match). It now uses `querySelectorAll`.
 
 **Tests:** `npx vitest run`: all tests pass. ESLint and Prettier are clean on the changed file. No new test, because the screen has no DOM test harness.
 
