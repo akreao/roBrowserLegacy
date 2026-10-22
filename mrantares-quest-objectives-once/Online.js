@@ -237302,7 +237302,7 @@ function createQuest(config) {
 		const prevMaxCount = hunt.maxCount;
 		if (hunt_info.huntIDCount) hunt.huntIDCount = hunt_info.huntIDCount;
 		if (hunt_info.maxCount) hunt.maxCount = hunt_info.maxCount;
-		if (hunt_info.huntCount) hunt.huntCount = hunt_info.huntCount;
+		if (typeof hunt_info.huntCount === "number") hunt.huntCount = hunt_info.huntCount;
 		if (hunt_info.mobGID) hunt.mobGID = hunt_info.mobGID;
 		if (hunt.huntCount === prevHuntCount && hunt.maxCount === prevMaxCount) {
 			if (questWindow) {
