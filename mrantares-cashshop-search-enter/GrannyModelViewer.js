@@ -324822,7 +324822,7 @@ function onClickSearch() {
 			items[iit].tab = CashShop.cashShopListItem[i].tabNum;
 			const it = DB.getItemInfo(items[iit].itemId);
 			if (it.identifiedDisplayName) {
-				if (new RegExp(val).test(it.identifiedDisplayName.toLowerCase())) newList.push(items[iit]);
+				if (it.identifiedDisplayName.toLowerCase().includes(val)) newList.push(items[iit]);
 			}
 		}
 	}
@@ -325286,6 +325286,7 @@ var init_CashShop$1 = __esmMin((() => {
 		container.addEventListener("dragover", stopPropagation$6);
 		const searchInput = root.querySelector(".cashshop-search");
 		if (searchInput) searchInput.addEventListener("keydown", (e) => {
+			if (e.isComposing || e.keyCode === 229) return;
 			if (e.which === KEYS.ENTER || e.key === "Enter") {
 				e.preventDefault();
 				onClickSearch();
