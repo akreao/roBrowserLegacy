@@ -139089,11 +139089,20 @@ function keepBuiltInSkills(tree, jobIds, builtIn = BuiltInSkillTreeView) {
 		}
 	}
 }
-var isSkill, BuiltInSkillTreeView;
+var isSkill, BuiltInSkillTreeView, BuiltInTreeGroup;
 var init_SkillTreeMerge = __esmMin((() => {
 	init_SkillTreeView();
 	isSkill = (key) => /^\d+$/.test(key);
 	BuiltInSkillTreeView = Object.freeze(Object.fromEntries(Object.entries(SkillTreeView).map(([jobId, entry]) => [jobId, Object.freeze({ ...entry })])));
+	BuiltInTreeGroup = (() => {
+		const first = /* @__PURE__ */ new Map();
+		const group = {};
+		for (const [jobId, entry] of Object.entries(SkillTreeView)) {
+			if (!first.has(entry)) first.set(entry, jobId);
+			group[jobId] = first.get(entry);
+		}
+		return Object.freeze(group);
+	})();
 }));
 // src/DB/Jobs/JobHitSoundTable.js
 function duplicateEntry$1(origin) {
@@ -231999,17 +232008,18 @@ function getJobLineage(jobId, skillTreeView) {
 /**
 * Find which of candidateJobIds applies to the character's job: the first one
 * met walking up the job's lineage (the job, then the job before it, and so
-* on). Aliased jobs in SkillTreeView share the same tree object, so an alias
-* matches its canonical job's entry. Returns the matching candidate as given,
-* or undefined.
+* on). An alias matches its canonical job's entry: aliased jobs share one
+* tree object in SkillTreeView, and, once a reset or a client file has given
+* each its own copy, the same group in treeGroup. Returns the matching
+* candidate as given, or undefined.
 */
-function findLineageJob(candidateJobIds, jobId, skillTreeView) {
+function findLineageJob(candidateJobIds, jobId, skillTreeView, treeGroup = BuiltInTreeGroup) {
 	const candidates = Array.from(candidateJobIds, String);
 	for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
 		if (candidates.includes(String(lineageJobId))) return String(lineageJobId);
 		const lineageTree = skillTreeView[lineageJobId];
-		if (!lineageTree) continue;
-		const canonicalJobId = candidates.find((candidateJobId) => skillTreeView[candidateJobId] === lineageTree);
+		const lineageGroup = treeGroup[lineageJobId];
+		const canonicalJobId = candidates.find((candidateJobId) => lineageTree && skillTreeView[candidateJobId] === lineageTree || lineageGroup !== void 0 && treeGroup[candidateJobId] === lineageGroup);
 		if (canonicalJobId !== void 0) return canonicalJobId;
 	}
 }
@@ -232112,7 +232122,9 @@ function createSkillUpgradeOrder(options) {
 	for (const skillId of plan.keys()) if (!visit(skillId)) return null;
 	return order;
 }
-var init_SkillRequirements = __esmMin((() => {}));
+var init_SkillRequirements = __esmMin((() => {
+	init_SkillTreeMerge();
+}));
 // src/UI/Components/SkillDescription/SkillDescription.html?raw
 var SkillDescription_default$2;
 var init_SkillDescription$2 = __esmMin((() => {
