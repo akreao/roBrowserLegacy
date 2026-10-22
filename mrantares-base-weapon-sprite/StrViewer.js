@@ -313412,6 +313412,7 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		let keepLook = false;
 		if (val <= 0) {
 			this["_" + type] = 0;
 			return;
@@ -313434,7 +313435,7 @@ function UpdateGeneric(type, func, fallback) {
 		function LoadView(filepath, final) {
 			Client.loadFile(filepath + ".act");
 			Client.loadFile(filepath + ".spr", function() {
-				_this["_" + type] = _val;
+				_this["_" + type] = keepLook ? val : _val;
 				if (!(type === "accessory" || type === "accessory2" || type === "accessory3") || !shouldSuppressHead.call(_this)) {
 					_this.files[type].spr = filepath + ".spr";
 					_this.files[type].act = filepath + ".act";
@@ -313457,6 +313458,7 @@ function UpdateGeneric(type, func, fallback) {
 					if (type === "weapon" && filepath === path) {
 						_val = DB.getWeaponType(val, true);
 						filepath = DB[func](_val, _this.job, _this._sex);
+						keepLook = true;
 					}
 					if (filepath) LoadView(filepath, true);
 				} else if (type === "robe" && !final) {
