@@ -233989,6 +233989,20 @@ var init_SkillDescription$1 = __esmMin((() => {
 }));
 // src/UI/Components/SkillDescription/SkillDescription.js
 /**
+* Replace the job id that starts a job-specific line with the job's name.
+* Ids in the monster range, or without a name, are left as they are.
+*
+* @param {string} txt - skill description text
+* @returns {string}
+*/
+function _resolveJobLines(txt) {
+	return txt.replace(_jobLineReg, (match, id) => {
+		const jobId = Number(id);
+		const name = (jobId < 1e3 || jobId >= 4e3) && Object.hasOwn(MonsterTable_default, jobId) ? MonsterTable_default[jobId] : null;
+		return name ? `${name} ` : match;
+	});
+}
+/**
 * Sanitize and format RO text with ^rrggbb color codes, ^nItemID^NNN
 * item name substitution, and newline conversion.
 *
@@ -234001,7 +234015,7 @@ function _formatROText(value) {
 	tmp.querySelectorAll("*").forEach((el) => {
 		if (!_allowedTags.has(el.tagName.toLowerCase())) el.replaceWith(...el.childNodes);
 	});
-	let txt = tmp.innerHTML;
+	let txt = _resolveJobLines(tmp.innerHTML);
 	let result;
 	const colorReg = /\^([a-fA-F0-9]{6})/;
 	while (result = colorReg.exec(txt)) txt = txt.replace(result[0], `<span style="color:#${result[1]}">`) + "</span>";
@@ -234010,10 +234024,11 @@ function _formatROText(value) {
 	txt = txt.replace(/\n/g, "<br/>");
 	return txt;
 }
-var _allowedTags, SkillDescription$1, SkillDescription_default;
+var _allowedTags, _jobLineReg, SkillDescription$1, SkillDescription_default;
 var init_SkillDescription = __esmMin((() => {
 	init_DBManager();
 	init_Renderer();
+	init_MonsterTable();
 	init_KeyEventHandler();
 	init_MouseEventHandler();
 	init_UIManager();
@@ -234025,6 +234040,7 @@ var init_SkillDescription = __esmMin((() => {
 		"i",
 		"b"
 	]);
+	_jobLineReg = /^(\d+)(?=\^[a-fA-F0-9]{6})/gm;
 	SkillDescription$1 = new GUIComponent("SkillDescription", SkillDescription_default$1);
 	SkillDescription$1.render = () => SkillDescription_default$2;
 	/**
