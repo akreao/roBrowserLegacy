@@ -10,6 +10,7 @@
 
 import DB from 'DB/DBManager.js';
 import Renderer from 'Renderer/Renderer.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
@@ -23,13 +24,36 @@ import cssText from './SkillDescription.css?raw';
 const _allowedTags = new Set(['font', 'i', 'b']);
 
 /**
+ * A line that applies to one job only starts with that job's id, right
+ * before its colour code: "16^CC3399Requirement: Seismic Weapon 1". The
+ * official client shows the job's name there, followed by a space.
+ */
+const _jobLineReg = /^(\d+)(?=\^[a-fA-F0-9]{6})/gm;
+
+/**
+ * Replace the job id that starts a job-specific line with the job's name.
+ * Ids in the monster range, or without a name, are left as they are.
+ *
+ * @param {string} txt - skill description text
+ * @returns {string}
+ */
+function _resolveJobLines(txt) {
+	return txt.replace(_jobLineReg, (match, id) => {
+		const jobId = Number(id);
+		const isJob = jobId < 1000 || jobId >= 4000;
+		const name = isJob && Object.hasOwn(MonsterTable, jobId) ? MonsterTable[jobId] : null;
+		return name ? `${name} ` : match;
+	});
+}
+
+/**
  * Sanitize and format RO text with ^rrggbb color codes, ^nItemID^NNN
  * item name substitution, and newline conversion.
  *
  * @param {string} value - raw skill description text
  * @returns {string} safe HTML string
  */
-function _formatROText(value) {
+export function _formatROText(value) {
 	const tmp = document.createElement('div');
 	tmp.innerHTML = String(value);
 
@@ -39,7 +63,7 @@ function _formatROText(value) {
 		}
 	});
 
-	let txt = tmp.innerHTML;
+	let txt = _resolveJobLines(tmp.innerHTML);
 
 	let result;
 	const colorReg = /\^([a-fA-F0-9]{6})/;
