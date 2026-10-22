@@ -85892,19 +85892,19 @@ var init_WeaponAction = __esmMin((() => {
 		this[WeaponType_default.TWOHANDROD] = 1;
 		this[WeaponType_default.SHORTSWORD] = 2;
 	})()];
-	WeaponAction[JobConst_default.DO_SUMMONER] = new (function() {
-		this[WeaponType_default.NONE] = 0;
-		this[WeaponType_default.ROD] = 1;
-		this[WeaponType_default.TWOHANDROD] = 1;
-	})();
-	WeaponAction[JobConst_default.DRUID] = new (function() {
-		this[WeaponType_default.NONE] = 0;
-		this[WeaponType_default.SHORTSWORD] = 1;
-		this[WeaponType_default.AXE] = 2;
-		this[WeaponType_default.TWOHANDAXE] = 2;
-		this[WeaponType_default.MACE] = 2;
-		this[WeaponType_default.TWOHANDMACE] = 2;
-	})();
+	WeaponAction[JobConst_default.DO_SUMMONER] = {
+		[WeaponType_default.NONE]: 0,
+		[WeaponType_default.ROD]: 1,
+		[WeaponType_default.TWOHANDROD]: 1
+	};
+	WeaponAction[JobConst_default.DRUID] = {
+		[WeaponType_default.NONE]: 0,
+		[WeaponType_default.SHORTSWORD]: 1,
+		[WeaponType_default.AXE]: 2,
+		[WeaponType_default.TWOHANDAXE]: 2,
+		[WeaponType_default.MACE]: 2,
+		[WeaponType_default.TWOHANDMACE]: 2
+	};
 	duplicateEntry$4(JobConst_default.NOVICE, JobConst_default.NOVICE_H, JobConst_default.NOVICE_B);
 	duplicateEntry$4(JobConst_default.SWORDMAN, JobConst_default.SWORDMAN_H, JobConst_default.SWORDMAN_B);
 	duplicateEntry$4(JobConst_default.MAGICIAN, JobConst_default.MAGICIAN_H, JobConst_default.MAGICIAN_B);
