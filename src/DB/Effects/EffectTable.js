@@ -11807,6 +11807,69 @@ export default {
 		}
 	],
 
+	// Star Burst's mark on its target (EFST_STAR_BURST), as the official client draws it:
+	// a burst every 250 ms while the status lasts, cycling the four galaxy files, each
+	// with the ground ring and the Star Cannon sound. Each STR plays once (70 or 79 keys
+	// at 60 fps), so the next burst starts before the last one ends: duration + a negative
+	// repeatDelay keep the 1000 ms (galaxy) and 250 ms (ground) cadence. 13.5 units up.
+	ef_efst_star_burst: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy00',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy00',
+			attachedEntity: true,
+			yOffset: 13.5,
+			duration: 1167,
+			repeatDelay: -167
+		},
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy01',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy01',
+			attachedEntity: true,
+			yOffset: 13.5,
+			delayStart: 250,
+			duration: 1167,
+			repeatDelay: -167
+		},
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy02',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy02',
+			attachedEntity: true,
+			yOffset: 13.5,
+			delayStart: 500,
+			duration: 1167,
+			repeatDelay: -167
+		},
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy03',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy03',
+			attachedEntity: true,
+			yOffset: 13.5,
+			delayStart: 750,
+			duration: 1167,
+			repeatDelay: -167
+		},
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/ske_twinkling_galaxy_bottom',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/min_ske_twinkling_galaxy_bottom',
+			wav: 'effect/sky_emperor/ske_star_cannon',
+			attachedEntity: true,
+			renderBeforeEntities: true,
+			yOffset: 13.5,
+			duration: 1317,
+			repeatDelay: -1067
+		}
+	],
+
 	// Star Cannon (SKE_STAR_CANNON): the ground unit, official effect 2350.
 	// Drops a star at a random point every 18 ticks (300 ms) while the unit exists.
 	// Area width by skill level: 13, 13, 11, 11, 9 cells.
