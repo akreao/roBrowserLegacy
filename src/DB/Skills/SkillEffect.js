@@ -1132,7 +1132,7 @@ SkillEffect[SK.SKE_TWINKLING_GALAXY] = { castAuraEffectId: 441 }; //Twinkling Ga
 SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst', castAuraEffectId: 441 }; //Star Burst
 SkillEffect[SK.SKE_STAR_CANNON] = { castAuraEffectId: 441 }; //Star Cannon (the stars come from its skill unit)
 SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: 'ef_ske_all_in_the_sky' }; //All in the Sky: on the target when the cast starts, not on the hit
-SkillEffect[SK.SKE_ENCHANTING_SKY] = {}; //Enchanting Sky: drawn by the Sky Enchant status (StatusEffectTable.js)
+SkillEffect[SK.SKE_ENCHANTING_SKY] = { castAuraEffectId: 831 }; //Enchanting Sky: the blue cone cast aura; the skill is drawn by the Sky Enchant status (StatusEffectTable.js)
 SkillEffect[5502 /* SKE_SKY_SUN */] = { effectId: 'ef_ske_sky_sun', hitEffectId: 'ef_ske_sky_sun_hit' }; //Sky Sun
 SkillEffect[5503 /* SKE_SKY_MOON */] = {
 	beginCastEffectId: 'ef_ske_sky_moon_cast',
@@ -1142,8 +1142,9 @@ SkillEffect[5503 /* SKE_SKY_MOON */] = {
 }; //Sky Moon: cast loop on the caster, moon once on the target, hit on each target
 SkillEffect[5504 /* SKE_STAR_LIGHT_KICK */] = {
 	successEffectId: 'ef_ske_star_light_kick',
+	successEffectIdOnCaster: 'ef_ske_star_light_kick_caster',
 	hitEffectId: 'ef_ske_star_light_kick_hit'
-}; //Star Light Kick: the star on the target once per use, the hit effect on each damage
+}; //Star Light Kick: the star on the target and the kick pose on the caster once per use, the hit effect on each damage
 // Eclage Skills
 SkillEffect[SK.ECL_SNOWFLIP] = {}; //Snow Flip
 SkillEffect[SK.ECL_PEONYMAMY] = {}; //Peony Mamy
