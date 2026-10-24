@@ -37,9 +37,10 @@ describe('Sky Sun bursts', () => {
 			min: 'sky_emperor/ske_sunset_blast/min_sunset_blast_small',
 			wav: 'effect/sky_emperor/ske_sky_sun_1',
 			yOffset: 10,
-			renderBeforeEntities: true,
 			attachedEntity: false
 		});
+		// Not a floor effect (EZ2 sky_sun_small): drawn over the characters
+		expect(SKY_SUN_BURST.renderBeforeEntities).toBeUndefined();
 	});
 
 	it('spawns them around the cast position, from the cast tick', () => {
@@ -69,12 +70,13 @@ describe('Sky Sun effect table', () => {
 		);
 	});
 
-	it('draws the sun on the caster, then the bursts', () => {
+	it('draws the sun under the caster, then the bursts', () => {
 		const cast = block(effectTable, 'ef_ske_sky_sun');
 		expect(cast).toMatch(/file: 'sky_emperor\/ske_sky_sun\/sky_sun\/sky_sun'/);
 		expect(cast).toMatch(/wav: 'effect\/sky_emperor\/ske_sky_sun'/);
 		expect(cast).toMatch(/yOffset: 10/);
-		expect(cast).toMatch(/renderBeforeEntities: false/);
+		// A floor effect (EZ2 sky_sun IsFloor)
+		expect(cast).toMatch(/renderBeforeEntities: true/);
 		expect(cast).toMatch(/attachedEntity: true/);
 		expect(cast).toMatch(/func: spawnSkySunBursts/);
 	});

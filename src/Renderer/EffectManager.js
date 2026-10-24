@@ -117,17 +117,22 @@ function spamSTR(Params) {
 		fallbacks.unshift({ filename: 'data/texture/effect/' + pick(Params.effect.file) + '.str', texturePath });
 	}
 
-	// Start effect
-	EffectManager.add(
-		new StrEffect(
-			'data/texture/effect/' + filename + '.str',
-			Params.Inst.position,
-			Params.Inst.startTick,
-			texturePath,
-			fallbacks
-		),
-		Params
+	const str = new StrEffect(
+		'data/texture/effect/' + filename + '.str',
+		Params.Inst.position,
+		Params.Inst.startTick,
+		texturePath,
+		fallbacks
 	);
+
+	// A row from the client's EZ2 table carries its PosX/PosY: placed as the
+	// client places those effects (StrEffect.layout).
+	if (Params.effect.xOffset !== undefined || Params.effect.yOffset !== undefined) {
+		str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
+	}
+
+	// Start effect
+	EffectManager.add(str, Params);
 }
 
 /**

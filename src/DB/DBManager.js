@@ -4857,7 +4857,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 				type: 'STR',
 				file: (entry.FilePath || '').replace(/\\/g, '/').replace(/\.str$/i, ''),
 				texturePath: texturePath,
-				renderBeforeEntities: entry.IsFloor ? false : true,
+				// Floor effects (the *_bottom rings) go under the characters
+				renderBeforeEntities: !!entry.IsFloor,
 				xOffset: entry.PosX || 0,
 				yOffset: entry.PosY || 0,
 				wav: entry.SoundPath ? entry.SoundPath.replace(/\\/g, '/').replace(/\.wav$/i, '') : null,

@@ -75,6 +75,8 @@ describe('All in the Sky', () => {
 		expect(text).toMatch(/attachedEntity: true/);
 		expect(text).toMatch(/xOffset: 1,/);
 		expect(text).toMatch(/yOffset: 3\b/);
+		// Not a floor effect: drawn over the characters
+		expect(text).not.toMatch(/renderBeforeEntities/);
 	});
 
 	it('spawns the cast-start effect on the target, with the caster as the other actor', () => {
