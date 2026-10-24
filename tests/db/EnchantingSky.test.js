@@ -25,9 +25,9 @@ describe('Enchanting Sky', () => {
 		);
 	});
 
-	it('draws nothing of its own when the skill is used', () => {
+	it('draws only its cast aura when the skill is used', () => {
 		const line = skillEffect.split('\n').find(l => l.startsWith('SkillEffect[SK.SKE_ENCHANTING_SKY] ='));
-		expect(line).toMatch(/= \{\};/);
+		expect(line).toMatch(/= \{ castAuraEffectId: 831 \};/);
 	});
 
 	it('plays the burst once, with the sound, under the player', () => {

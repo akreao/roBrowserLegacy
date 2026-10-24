@@ -38,6 +38,7 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
+import CastCone from 'Renderer/Effects/CastCone.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -15041,7 +15042,24 @@ export default {
 	],
 
 	//830: [{}],	//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
-	//831: [{}],	//EF_BEGINSPELL_N2	   Blue cone [S]
+	831: [
+		{
+			//EF_BEGINSPELL_N2	   Blue cone cast aura (Enchanting Sky)
+			// The official client's bubble cone in blue, over two blue squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 0,
+						ground: true
+					}),
+					Params
+				);
+			}
+		}
+	],
 
 	832: [
 		{
