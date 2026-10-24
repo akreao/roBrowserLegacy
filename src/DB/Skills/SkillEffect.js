@@ -41,6 +41,7 @@
  *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
+ *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
  *
  */
 
@@ -1123,7 +1124,7 @@ SkillEffect[SK.OB_AKAITSUKI] = {}; //Ominous Moonlight
 SkillEffect[SK.SKE_RISING_SUN] = { effectId: 'ef_ske_rising_sun' }; //Rising Sun
 SkillEffect[SK.SKE_NOON_BLAST] = { effectId: 'ef_ske_noon_blast' }; //Noon Blast
 SkillEffect[SK.SKE_SUNSET_BLAST] = { effectId: 'ef_ske_sunset_blast' }; //Sunset Blast
-SkillEffect[SK.SKE_MIDNIGHT_KICK] = { effectId: 'ef_ske_midnight_kick' }; //Midnight Kick
+SkillEffect[SK.SKE_MIDNIGHT_KICK] = { effectId: 'ef_ske_midnight_kick', castAuraEffectId: 58 }; //Midnight Kick
 SkillEffect[SK.SKE_DAWN_BREAK] = { effectId: 'ef_ske_dawn_break' }; //Dawn Break
 SkillEffect[SK.SKE_TWINKLING_GALAXY] = { effectId: 'ef_ske_twinkling_galaxy' }; //Twinkling Galaxy
 SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst' }; //Star Burst
