@@ -216,6 +216,11 @@ const TitleTable = {};
  * @type {Object} PetDBTable
  */
 let PetDBTable = {};
+
+/**
+ * Whether System/PetEvolutionCln listed any auto-feed pets
+ */
+let PetAutoFeedListLoaded = false;
 let EggIDToJobID = {};
 
 /**
@@ -4164,6 +4169,22 @@ class DB {
 	static getPetEvolutionByJob(jobID) {
 		const pet = PetDBTable[jobID];
 		return pet && pet.Evolution ? pet.Evolution : null;
+	}
+
+	/**
+	 * Whether a pet takes the auto-feed setting. Like the official client, only
+	 * pets listed by InsertPetAutoFeeding in System/PetEvolutionCln do (the
+	 * server ignores the setting for the rest). Without that list, all pets do.
+	 *
+	 * @param {number} jobID - Job ID
+	 * @returns {boolean}
+	 */
+	static isPetAutoFeedAllowed(jobID) {
+		if (!PetAutoFeedListLoaded) {
+			return true;
+		}
+		const pet = PetDBTable[jobID];
+		return !!(pet && pet.AutoFeeding);
 	}
 
 	/**
@@ -8146,6 +8167,7 @@ function loadPetEvolution(filename, callback, onEnd) {
 
 				// InsertPetAutoFeeding(PetID)
 				ctx.InsertPetAutoFeeding = eggID => {
+					PetAutoFeedListLoaded = true;
 					const jobID = EggIDToJobID[eggID];
 
 					if (!jobID || !PetDBTable[jobID]) {

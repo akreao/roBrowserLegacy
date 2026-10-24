@@ -245,6 +245,13 @@ PetInformations.setInformations = function setInformations(info) {
 			}
 		}
 	}
+
+	// Only pets that take auto-feeding show the checkbox, as in the official client
+	const feeding = root.querySelector('.feeding');
+	if (feeding) {
+		const allowed = PACKETVER.value >= 20141008 && DB.isPetAutoFeedAllowed(info.job);
+		feeding.style.display = allowed ? '' : 'none';
+	}
 };
 
 /**
