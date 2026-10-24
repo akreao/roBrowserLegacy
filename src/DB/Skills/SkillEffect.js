@@ -33,6 +33,9 @@
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
  *								Can be used to create casting effects.
  *
+ *	- beginCastTargetEffectId: 	Triggers once when the cast starts, on the skill's target. Nothing plays without a known target.
+ *								Can be used for effects the official client shows on the target while the caster casts.
+ *
  *	- successEffectId: 			Triggers when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
@@ -41,6 +44,7 @@
  *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
+ *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
  *
  */
 
@@ -1120,14 +1124,14 @@ SkillEffect[SK.OB_ZANGETSU] = {}; //Distorted Crescent
 SkillEffect[SK.OB_OBOROGENSOU] = {}; //Moonlight Fantasy
 SkillEffect[SK.OB_OBOROGENSOU_TRANSITION_ATK] = {}; //Moonlight Fantasy Transition Attack
 SkillEffect[SK.OB_AKAITSUKI] = {}; //Ominous Moonlight
-SkillEffect[SK.SKE_NOON_BLAST] = { effectId: 'ef_ske_noon_blast' }; //Noon Blast
+SkillEffect[SK.SKE_NOON_BLAST] = { successEffectId: 'ef_ske_noon_blast' }; //Noon Blast: on the target when the use packet succeeds, not on each hit
 SkillEffect[SK.SKE_SUNSET_BLAST] = { effectId: 'ef_ske_sunset_blast' }; //Sunset Blast
-SkillEffect[SK.SKE_MIDNIGHT_KICK] = { effectId: 'ef_ske_midnight_kick' }; //Midnight Kick
+SkillEffect[SK.SKE_MIDNIGHT_KICK] = { effectId: 'ef_ske_midnight_kick', castAuraEffectId: 58 }; //Midnight Kick
 SkillEffect[SK.SKE_DAWN_BREAK] = { effectId: 'ef_ske_dawn_break' }; //Dawn Break
-SkillEffect[SK.SKE_TWINKLING_GALAXY] = { effectId: 'ef_ske_twinkling_galaxy' }; //Twinkling Galaxy
-SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst' }; //Star Burst
-SkillEffect[SK.SKE_STAR_CANNON] = { effectId: 'ef_ske_star_cannon' }; //Star Cannon
-SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { effectId: 'ef_ske_all_in_the_sky' }; //All in the Sky
+SkillEffect[SK.SKE_TWINKLING_GALAXY] = { castAuraEffectId: 441 }; //Twinkling Galaxy (the field's stars come from its skill unit)
+SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst', castAuraEffectId: 441 }; //Star Burst
+SkillEffect[SK.SKE_STAR_CANNON] = { castAuraEffectId: 441 }; //Star Cannon (the stars come from its skill unit)
+SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: 'ef_ske_all_in_the_sky' }; //All in the Sky: on the target when the cast starts, not on the hit
 SkillEffect[SK.SKE_ENCHANTING_SKY] = { effectId: 'ef_ske_enchanting_sky' }; //Enchanting Sky
 SkillEffect[5502 /* SKE_SKY_SUN */] = { effectId: 'ef_ske_sky_sun', hitEffectId: 'ef_ske_sky_sun_hit' }; //Sky Sun
 SkillEffect[5503 /* SKE_SKY_MOON */] = {
