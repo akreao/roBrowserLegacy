@@ -220625,7 +220625,10 @@ var init_SkillEffect = __esmMin((() => {
 		castAuraEffectId: 441
 	};
 	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { castAuraEffectId: 441 };
-	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: "ef_ske_all_in_the_sky" };
+	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = {
+		beginCastTargetEffectId: "ef_ske_all_in_the_sky",
+		castAuraEffectId: 845
+	};
 	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = { castAuraEffectId: 831 };
 	SkillEffect[5502] = {
 		effectId: "ef_ske_sky_sun",
@@ -295753,6 +295756,14 @@ var init_EffectTable = __esmMin((() => {
 				this.add(Spheres, Params);
 			}
 		}],
+		845: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 8 }), Params);
+			}
+		}],
 		847: [{ wav: "effect/¼öÁÝÀºÇÏ·çÀÇ¿ì¿ï" }],
 		856: [{
 			type: "3D",
@@ -350158,7 +350169,8 @@ function onEntityCastCancel(pkt) {
 			454,
 			60,
 			513,
-			831
+			831,
+			845
 		]);
 		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
