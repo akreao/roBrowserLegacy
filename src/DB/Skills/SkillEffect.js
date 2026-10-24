@@ -1137,9 +1137,9 @@ SkillEffect[5503 /* SKE_SKY_MOON */] = {
 	hitEffectId: 'ef_ske_sky_moon_hit'
 }; //Sky Moon
 SkillEffect[5504 /* SKE_STAR_LIGHT_KICK */] = {
-	effectId: 'ef_ske_star_light_kick',
+	successEffectId: 'ef_ske_star_light_kick',
 	hitEffectId: 'ef_ske_star_light_kick_hit'
-}; //Star Light Kick
+}; //Star Light Kick: the star on the target once per use, the hit effect on each damage
 // Eclage Skills
 SkillEffect[SK.ECL_SNOWFLIP] = {}; //Snow Flip
 SkillEffect[SK.ECL_PEONYMAMY] = {}; //Peony Mamy
