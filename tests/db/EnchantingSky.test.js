@@ -30,20 +30,22 @@ describe('Enchanting Sky', () => {
 		expect(line).toMatch(/= \{\};/);
 	});
 
-	it('plays the burst once, with the sound', () => {
+	it('plays the burst once, with the sound, under the player', () => {
 		const burst = entry('ef_ske_enchanting_sky');
 		expect(burst).toContain("file: 'sky_emperor/ske_enchanting_sky/ske_enchanting_sky_00'");
 		expect(burst).toContain("wav: 'effect/sky_emperor/ske_enchanting_sky'");
 		expect(burst).toContain('yOffset: 13');
+		expect(burst).toContain('renderBeforeEntities: true');
 		expect(burst).not.toMatch(/repeat|delayStart|ske_enchanting_sky_01/);
 	});
 
-	it('loops the second part from 320 ms, silently', () => {
+	it('loops the second part from 320 ms, silently, under the player', () => {
 		const loop = entry('ef_ske_enchanting_sky_loop');
 		expect(loop).toContain("file: 'sky_emperor/ske_enchanting_sky/ske_enchanting_sky_01'");
 		expect(loop).toContain('delayStart: 320');
 		expect(loop).toContain('repeat: true');
 		expect(loop).toContain('yOffset: 13');
+		expect(loop).toContain('renderBeforeEntities: true');
 		expect(loop).not.toMatch(/wav:|delayOffset/);
 	});
 });
