@@ -11747,14 +11747,33 @@ export default {
 		}
 	],
 
-	// Twinkling Galaxy (SKE_TWINKLING_GALAXY), from the client's own effect folders.
-	ef_ske_twinkling_galaxy: [
+	// Twinkling Galaxy (SKE_TWINKLING_GALAXY): the field, official effect 2349.
+	// Drops a star at a random point of the field every 18 ticks (300 ms).
+	// Field width by skill level: 13, 13, 11, 11, 9 cells.
+	ef_ske_twinkling_galaxy_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ske_twinkling_galaxy_star',
+			interval: 300,
+			areaByLevel: [13, 13, 11, 11, 9]
+		}
+	],
+
+	// One Twinkling Galaxy star: the falling star, its landing on the floor, and the Star Cannon sound.
+	ef_ske_twinkling_galaxy_star: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/ske_twinkling_galaxy_bottom',
 			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/',
 			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/min_ske_twinkling_galaxy_bottom',
 			renderBeforeEntities: true
+		},
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy03',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy03',
+			wav: 'effect/sky_emperor/ske_star_cannon'
 		}
 	],
 

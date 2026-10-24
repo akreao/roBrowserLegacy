@@ -127,6 +127,9 @@ SkillUnit[SU.UNT_ICEMINE] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_MAGMA_ERUPTION] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_B_TRAP] = EC.EF_NONE; // Todo
 
+// Twinkling Galaxy: drops stars in its field while it exists (official effect 2349)
+SkillUnit[SU.UNT_TWINKLING_GALAXY] = 'ef_ske_twinkling_galaxy_field';
+
 // Druid line: the effect stays while the unit exists
 SkillUnit[SU.UNT_ICE_PILLAR] = 'ef_druid_ice_pillar_loop';
 SkillUnit[SU.UNT_GLACIAL_MONOLITH] = 'ef_druid_glacier_monolith_loop';
