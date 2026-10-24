@@ -220552,7 +220552,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SKE_RISING_SUN] = { effectId: "ef_ske_rising_sun" };
 	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { effectId: "ef_ske_noon_blast" };
 	SkillEffect[SkillConst_default.SKE_SUNSET_BLAST] = { effectId: "ef_ske_sunset_blast" };
-	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = { effectId: "ef_ske_midnight_kick" };
+	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = {
+		effectId: "ef_ske_midnight_kick",
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.SKE_DAWN_BREAK] = { effectId: "ef_ske_dawn_break" };
 	SkillEffect[SkillConst_default.SKE_TWINKLING_GALAXY] = { effectId: "ef_ske_twinkling_galaxy" };
 	SkillEffect[SkillConst_default.SKE_STAR_BURST] = { effectId: "ef_ske_star_burst" };
@@ -292530,7 +292533,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_midnight_kick/ske_midnight_kick",
 			texturePath: "sky_emperor/ske_midnight_kick/",
 			min: "sky_emperor/ske_midnight_kick/min_ske_midnight_kick",
-			wav: "effect/sky_emperor/ske_midnight_kick"
+			wav: "effect/sky_emperor/ske_midnight_kick",
+			attachedEntity: true,
+			yOffset: 10
 		}],
 		ef_ske_dawn_break: [{
 			type: "STR",
