@@ -148,7 +148,7 @@ describe('Rising Sun status effects', () => {
 		expect(loop.wav).toBeUndefined();
 		for (const part of [burst, loop]) {
 			expect(part.texturePath).toBe('sky_emperor/ske_rising_sun/');
-			expect(part.ez2PosY).toBe(13);
+			expect(part.yOffset).toBe(13);
 			expect(part.attachedEntity).toBe(true);
 		}
 	});
