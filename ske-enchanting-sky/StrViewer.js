@@ -149099,6 +149099,29 @@ var init_StatusInfo = __esmMin((() => {
 		]
 	};
 }));
+// src/DB/Status/StatusEffectTable.js
+var StatusEffectTable_default;
+var init_StatusEffectTable = __esmMin((() => {
+	init_StatusConst();
+	StatusEffectTable_default = {
+		[StatusConst_default.RISING_MOON]: {
+			start: ["ef_ske_rising_moon_00"],
+			loop: ["ef_ske_rising_moon_01"]
+		},
+		[StatusConst_default.MIDNIGHT_MOON]: {
+			start: ["ef_ske_rising_moon_02"],
+			loop: ["ef_ske_rising_moon_03"]
+		},
+		[StatusConst_default.DAWN_MOON]: {
+			start: ["ef_ske_rising_moon_04"],
+			loop: ["ef_ske_rising_moon_05"]
+		},
+		[StatusConst_default.SKY_ENCHANT]: {
+			start: ["ef_ske_enchanting_sky"],
+			loop: ["ef_ske_enchanting_sky_loop"]
+		}
+	};
+}));
 // src/Vendors/xmlparse.js
 /**
 * Vendors/xmlparse.js
@@ -292530,7 +292553,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "sky_emperor/ske_rising_moon/",
 			min: "sky_emperor/ske_rising_moon/min_ske_rising_moon_00",
 			wav: "effect/sky_emperor/ske_rising_sun_moon",
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -292541,7 +292564,49 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_rising_moon/min_ske_rising_moon_01",
 			repeat: true,
 			delayStart: 336,
-			ez2PosY: 13,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_moon_02: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_moon/ske_rising_moon_02",
+			texturePath: "sky_emperor/ske_rising_moon/",
+			min: "sky_emperor/ske_rising_moon/min_ske_rising_moon_02",
+			wav: "effect/sky_emperor/ske_rising_sun_moon",
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_moon_03: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_moon/ske_rising_moon_03",
+			texturePath: "sky_emperor/ske_rising_moon/",
+			min: "sky_emperor/ske_rising_moon/min_ske_rising_moon_03",
+			repeat: true,
+			delayStart: 656,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_moon_04: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_moon/ske_rising_moon_04",
+			texturePath: "sky_emperor/ske_rising_moon/",
+			min: "sky_emperor/ske_rising_moon/min_ske_rising_moon_04",
+			wav: "effect/sky_emperor/ske_rising_sun_moon",
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_moon_05: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_moon/ske_rising_moon_05",
+			texturePath: "sky_emperor/ske_rising_moon/",
+			min: "sky_emperor/ske_rising_moon/min_ske_rising_moon_05",
+			repeat: true,
+			delayStart: 656,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -321609,6 +321674,16 @@ function skillPlaysFile(skillEntry, EffectTable, file) {
 	return false;
 }
 /**
+* Whether a status in StatusEffectTable draws this STR file.
+*
+* @param {object} EffectTable
+* @param {string} file STR path without extension
+* @return {boolean}
+*/
+function statusPlaysFile(EffectTable, file) {
+	return Object.values(StatusEffectTable_default).some((row) => skillPlaysFile(row, EffectTable, file));
+}
+/**
 * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
 */
 function mergeEz2Effects(EffectTable, SkillEffect) {
@@ -321705,7 +321780,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			attachedEntity: true
 		}];
 		count++;
-		if (skillId && !skillPlaysFile(SkillEffect[skillId], EffectTable, EffectTable[effectName][0].file)) {
+		const file = EffectTable[effectName][0].file;
+		if (skillId && !skillPlaysFile(SkillEffect[skillId], EffectTable, file) && !statusPlaysFile(EffectTable, file)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 			if (skillEntry[field]) {
@@ -324316,6 +324392,7 @@ var init_DBManager = __esmMin((() => {
 	init_TownInfo();
 	init_StatusInfo();
 	init_StatusConst();
+	init_StatusEffectTable();
 	init_xmlparse();
 	init_Base62();
 	init_bson();
@@ -347950,21 +348027,6 @@ var init_Footprints = __esmMin((() => {
 				},
 				Init: { ownerAID: null }
 			});
-		}
-	};
-}));
-// src/DB/Status/StatusEffectTable.js
-var StatusEffectTable_default;
-var init_StatusEffectTable = __esmMin((() => {
-	init_StatusConst();
-	StatusEffectTable_default = {
-		[StatusConst_default.RISING_MOON]: {
-			start: ["ef_ske_rising_moon_00"],
-			loop: ["ef_ske_rising_moon_01"]
-		},
-		[StatusConst_default.SKY_ENCHANT]: {
-			start: ["ef_ske_enchanting_sky"],
-			loop: ["ef_ske_enchanting_sky_loop"]
 		}
 	};
 }));
