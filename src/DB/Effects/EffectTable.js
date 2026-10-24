@@ -11818,7 +11818,24 @@ export default {
 			file: 'sky_emperor/ske_sunset_blast/sunset_blast',
 			texturePath: 'sky_emperor/ske_sunset_blast/',
 			min: 'sky_emperor/ske_sunset_blast/min_sunset_blast',
-			wav: 'effect/sky_emperor/ske_sunset_blast'
+			wav: 'effect/sky_emperor/ske_sunset_blast',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Sunset Blast's six small blasts, 32 ms apart, each on the ground within about 3 cells of the target.
+	ef_ske_sunset_blast_small: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_sunset_blast/sunset_blast_small',
+			texturePath: 'sky_emperor/ske_sunset_blast/',
+			min: 'sky_emperor/ske_sunset_blast/min_sunset_blast_small',
+			wav: 'effect/sky_emperor/ske_sunset_blast_small',
+			yOffset: 10,
+			duplicate: 6,
+			timeBetweenDupli: 32,
+			groundScatter: 15
 		}
 	],
 
