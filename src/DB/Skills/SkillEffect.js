@@ -41,6 +41,7 @@
  *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
+ *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
  *
  */
 
