@@ -26,5 +26,11 @@ export default {
 	[StatusConst.DAWN_MOON]: {
 		start: ['ef_ske_rising_moon_04'],
 		loop: ['ef_ske_rising_moon_05']
+	},
+
+	// Enchanting Sky (SKE_ENCHANTING_SKY)
+	[StatusConst.SKY_ENCHANT]: {
+		start: ['ef_ske_enchanting_sky'],
+		loop: ['ef_ske_enchanting_sky_loop']
 	}
 };

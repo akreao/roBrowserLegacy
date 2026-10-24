@@ -43,9 +43,10 @@ describe('fourth-job effects mapped to the art the client has', () => {
 	});
 
 	it('draws Enchanting Sky and Dark Dragon - Nightmare, not just their sound', () => {
-		expect(skillEffect).toMatch(/SkillEffect\[SK\.SKE_ENCHANTING_SKY\] = \{ effectId: 'ef_ske_enchanting_sky' \}/);
+		// Enchanting Sky is drawn by its status (EnchantingSky.test.js): a burst, then a loop.
 		expect(skillEffect).toMatch(/SkillEffect\[SK\.SS_ANKOKURYUUAKUMU\] = \{ effectId: 'ef_ss_ankokuryuuakumu' \}/);
-		expect(effect('ef_ske_enchanting_sky').filter(layer => layer.str)).toHaveLength(2);
+		expect(effect('ef_ske_enchanting_sky').filter(layer => layer.str)).toHaveLength(1);
+		expect(effect('ef_ske_enchanting_sky_loop').filter(layer => layer.str)).toHaveLength(1);
 		expect(effect('ef_ss_ankokuryuuakumu').filter(layer => layer.str)).toHaveLength(2);
 	});
 
@@ -57,7 +58,12 @@ describe('fourth-job effects mapped to the art the client has', () => {
 	});
 
 	it('gives every layer a file, its texture folder and a lighter version', () => {
-		for (const id of ['ef_nw_hasty_fire_in_the_hole', 'ef_ske_enchanting_sky', 'ef_ss_ankokuryuuakumu']) {
+		for (const id of [
+			'ef_nw_hasty_fire_in_the_hole',
+			'ef_ske_enchanting_sky',
+			'ef_ske_enchanting_sky_loop',
+			'ef_ss_ankokuryuuakumu'
+		]) {
 			for (const layer of effect(id).filter(l => l.str)) {
 				const file = layer.get('file');
 				const folder = file.slice(0, file.lastIndexOf('/') + 1);
