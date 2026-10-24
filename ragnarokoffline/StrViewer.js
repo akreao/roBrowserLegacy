@@ -293112,6 +293112,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_00",
 			wav: "effect/sky_emperor/ske_enchanting_sky",
 			yOffset: 13,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
 		ef_ske_enchanting_sky_loop: [{
@@ -293122,6 +293123,7 @@ var init_EffectTable = __esmMin((() => {
 			delayStart: 320,
 			repeat: true,
 			yOffset: 13,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
 		ef_ske_sky_sun: [{
