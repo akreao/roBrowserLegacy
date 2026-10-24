@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 // Star Light Kick's caster effect, official effect 2426. It draws nothing: on the
 // 60 Hz effect clock it holds the caster on frame 5 of the skill motion at tick 5
-// (83 ms) and lets them go back to standing at tick 35 (583 ms), but only if
+// (83 ms) and lets them go back to their combat stance at tick 35 (583 ms), but only if
 // nothing else changed their motion in between.
 //
 // Read as text: the tables import the renderer, which does not load without a canvas.
@@ -31,7 +31,7 @@ function play(entityOverrides = {}) {
 
 	const anims = [];
 	const entity = {
-		ACTION: { IDLE: 0, WALK: 1, SIT: 2, DIE: 8, SKILL: 12 },
+		ACTION: { IDLE: 0, WALK: 1, SIT: 2, READYFIGHT: 4, DIE: 8, SKILL: 12 },
 		action: 12,
 		animation: { play: true, next: false },
 		calls: [],
@@ -62,7 +62,7 @@ describe('Star Light Kick caster pose (effect 2426)', () => {
 		expect(row).toContain("successEffectIdOnCaster: 'ef_ske_star_light_kick_caster'");
 	});
 
-	it('holds frame 5 of the skill motion from tick 5, then goes back to standing at tick 35', () => {
+	it('holds frame 5 of the skill motion from tick 5, then goes back to the combat stance at tick 35', () => {
 		const { entity, at, pending } = play();
 		at(80);
 		expect(entity.calls).toHaveLength(0);
@@ -71,8 +71,15 @@ describe('Star Light Kick caster pose (effect 2426)', () => {
 		at(580);
 		expect(entity.calls).toHaveLength(1);
 		at(584);
-		expect(entity.calls[1]).toEqual({ action: 0, frame: 0, repeat: true, play: true, next: false });
+		expect(entity.calls[1]).toEqual({ action: 4, frame: 0, repeat: true, play: true, next: false });
 		expect(pending()).toBe(0);
+	});
+
+	it('stands up instead when the sprite has no combat stance', () => {
+		const { entity, at } = play({ ACTION: { IDLE: 0, WALK: 1, SIT: 2, READYFIGHT: -1, DIE: 8, SKILL: 12 } });
+		at(84);
+		at(584);
+		expect(entity.calls[1].action).toBe(0);
 	});
 
 	it('leaves the caster alone if they moved on before tick 35', () => {

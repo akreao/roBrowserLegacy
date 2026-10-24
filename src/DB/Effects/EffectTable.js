@@ -12251,7 +12251,7 @@ export default {
 
 	// Star Light Kick (SKE_STAR_LIGHT_KICK), official effect 2426 on the caster. It
 	// draws nothing: 5 ticks in (60 Hz clock) it holds the caster on frame 5 of the
-	// skill motion, the kick pose, and 35 ticks in it lets them go back to standing,
+	// skill motion, the kick pose, and 35 ticks in it lets them go back to their stance,
 	// unless something else moved them in between. Same pose as Flying Kick (457).
 	ef_ske_star_light_kick_caster: [
 		{
@@ -12291,9 +12291,10 @@ export default {
 						return false;
 					}
 					// Only let go of our own pose: walking, getting hit or dying in between wins.
+					// Back to the combat stance, or standing for sprites without one.
 					if (entity.action === entity.ACTION.SKILL && entity.animation.play === false && !entity.animation.next) {
 						entity.setAction({
-							action: entity.ACTION.IDLE,
+							action: entity.ACTION.READYFIGHT >= 0 ? entity.ACTION.READYFIGHT : entity.ACTION.IDLE,
 							frame: 0,
 							repeat: true,
 							play: true,
