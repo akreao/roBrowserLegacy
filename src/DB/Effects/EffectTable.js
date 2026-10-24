@@ -12250,6 +12250,64 @@ export default {
 		}
 	],
 
+	// Star Light Kick (SKE_STAR_LIGHT_KICK), official effect 2426 on the caster. It
+	// draws nothing: 5 ticks in (60 Hz clock) it holds the caster on frame 5 of the
+	// skill motion, the kick pose, and 35 ticks in it lets them go back to their stance,
+	// unless something else moved them in between. Same pose as Flying Kick (457).
+	ef_ske_star_light_kick_caster: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				const start = Params.Inst.startTick - Renderer.tick;
+				const POSE_AT = 83; // 5 ticks
+				const RELEASE_AT = 583; // 35 ticks
+				let posed = false;
+
+				if (!(entity.ACTION.SKILL >= 0)) {
+					return;
+				}
+
+				entity.animations.add(function (tick) {
+					const t = tick - start;
+					if (!posed) {
+						if (t < POSE_AT) {
+							return false;
+						}
+						if (entity.action === entity.ACTION.DIE || entity.action === entity.ACTION.SIT) {
+							return true;
+						}
+						entity.setAction({
+							action: entity.ACTION.SKILL,
+							frame: 5,
+							repeat: false,
+							play: false,
+							next: false
+						});
+						posed = true;
+						return false;
+					}
+					if (t < RELEASE_AT) {
+						return false;
+					}
+					// Only let go of our own pose: walking, getting hit or dying in between wins.
+					// Back to the combat stance, or standing for sprites without one.
+					if (entity.action === entity.ACTION.SKILL && entity.animation.play === false && !entity.animation.next) {
+						entity.setAction({
+							action: entity.ACTION.READYFIGHT >= 0 ? entity.ACTION.READYFIGHT : entity.ACTION.IDLE,
+							frame: 0,
+							repeat: true,
+							play: true,
+							next: false
+						});
+					}
+					return true;
+				});
+			}
+		}
+	],
+
 	// Star Light Kick (SKE_STAR_LIGHT_KICK), on each target hit, with its own sound.
 	ef_ske_star_light_kick_hit: [
 		{
