@@ -15034,7 +15034,23 @@ export default {
 	//842: [{}],	//EF_BEGINSPELL_N5	   Yellow cone
 	//843: [{}],	//EF_BEGINSPELL_N6	   White cone
 	//844: [{}],	//EF_BEGINSPELL_N7	   Purple cone
-	//845: [{}],	//EF_BEGINSPELL_N8	   light-bluish turquoise cone
+	845: [
+		{
+			//EF_BEGINSPELL_N8	   Turquoise cone cast aura (All in the Sky)
+			// The official client's bubble cone in turquoise, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 8
+					}),
+					Params
+				);
+			}
+		}
+	],
 	//846: [{}],	//EF_WATER_SMOKE	   (Nothing)
 
 	847: [

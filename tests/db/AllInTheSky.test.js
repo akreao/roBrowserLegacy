@@ -48,8 +48,22 @@ function manager(SkillEffect, known) {
 describe('All in the Sky', () => {
 	it('plays on the target when the cast starts, not on the hit', () => {
 		expect(skillEffect).toMatch(
-			/SkillEffect\[SK\.SKE_ALL_IN_THE_SKY\] = \{ beginCastTargetEffectId: 'ef_ske_all_in_the_sky' \};/
+			/SkillEffect\[SK\.SKE_ALL_IN_THE_SKY\] = \{ beginCastTargetEffectId: 'ef_ske_all_in_the_sky', castAuraEffectId: 845 \};/
 		);
+	});
+
+	it('casts with the turquoise cone (845, colour variant 8), with no ground squares', () => {
+		const text = entry('845');
+		expect(text).toMatch(/type: 'FUNC'/);
+		expect(text).toMatch(/attachedEntity: true/);
+		expect(text).toMatch(/wav: 'effect\/ef_beginspell'/);
+		expect(text).toMatch(/new CastCone\([^)]*\{\s*variant: 8\s*\}\)/);
+		expect(text).not.toMatch(/ground:/);
+	});
+
+	it('removes the cone when the cast is cancelled', () => {
+		const entity = read('Engine/MapEngine/Entity.js');
+		expect(entity).toMatch(/EffectManager\.remove\(null, entity\.GID, \[[^\]]*\b845\]\)/);
 	});
 
 	it('uses the EZ2 entry: file, lighter file, sound, attached, PosX 1, PosY 3', () => {

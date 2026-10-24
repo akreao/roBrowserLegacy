@@ -104,6 +104,6 @@ describe('Enchanting Sky', () => {
 
 	it('is removed when the cast is cancelled', () => {
 		const source = readFileSync(join(process.cwd(), 'src/Engine/MapEngine/Entity.js'), 'utf8');
-		expect(source).toContain('454, 60, 513, 831]');
+		expect(source).toMatch(/454, 60, 513, 831[,\]]/);
 	});
 });
