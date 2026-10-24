@@ -220570,7 +220570,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SKE_STAR_BURST] = { effectId: "ef_ske_star_burst" };
 	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { effectId: "ef_ske_star_cannon" };
 	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { effectId: "ef_ske_all_in_the_sky" };
-	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = { castAuraEffectId: 831 };
+	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = {};
 	SkillEffect[5502] = {
 		effectId: "ef_ske_sky_sun",
 		hitEffectId: "ef_ske_sky_sun_hit"
