@@ -220402,7 +220402,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SKE_TWINKLING_GALAXY] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SKE_STAR_BURST] = { effectId: "ef_ske_star_burst" };
 	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { castAuraEffectId: 441 };
-	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { effectId: "ef_ske_all_in_the_sky" };
+	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: "ef_ske_all_in_the_sky" };
 	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = { effectId: "ef_ske_enchanting_sky" };
 	SkillEffect[5502] = {
 		effectId: "ef_ske_sky_sun",
@@ -274046,6 +274046,18 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.spam(EF_Init_Par);
 				});
 			}
+			if (SkillEffect[skillId].beginCastTargetEffectId && srcAID && EntityManager.get(srcAID)) {
+				effects = Array.isArray(SkillEffect[skillId].beginCastTargetEffectId) ? SkillEffect[skillId].beginCastTargetEffectId : [SkillEffect[skillId].beginCastTargetEffectId];
+				effects.forEach((effectId) => {
+					EF_Init_Par = {
+						effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					};
+					EffectManager.spam(EF_Init_Par);
+				});
+			}
 		}
 		/**
 		* Spam a item on a target
@@ -292580,7 +292592,11 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_all_in_the_sky/ske_all_in_the_sky",
 			texturePath: "sky_emperor/ske_all_in_the_sky/",
 			min: "sky_emperor/ske_all_in_the_sky/min_ske_all_in_the_sky",
-			wav: "effect/sky_emperor/ske_all_in_the_sky"
+			wav: "effect/sky_emperor/ske_all_in_the_sky",
+			attachedEntity: true,
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 3
 		}],
 		ef_ske_enchanting_sky: [
 			{
