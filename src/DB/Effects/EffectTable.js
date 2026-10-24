@@ -11844,7 +11844,11 @@ export default {
 			file: 'sky_emperor/ske_all_in_the_sky/ske_all_in_the_sky',
 			texturePath: 'sky_emperor/ske_all_in_the_sky/',
 			min: 'sky_emperor/ske_all_in_the_sky/min_ske_all_in_the_sky',
-			wav: 'effect/sky_emperor/ske_all_in_the_sky'
+			wav: 'effect/sky_emperor/ske_all_in_the_sky',
+			attachedEntity: true,
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 3
 		}
 	],
 
