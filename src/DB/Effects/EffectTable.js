@@ -11723,7 +11723,7 @@ export default {
 			texturePath: 'sky_emperor/ske_rising_sun/',
 			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_00',
 			wav: 'effect/sky_emperor/ske_rising_sun_moon',
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11737,7 +11737,7 @@ export default {
 			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_01',
 			repeat: true,
 			delayStart: 336,
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11751,7 +11751,7 @@ export default {
 			texturePath: 'sky_emperor/ske_rising_sun/',
 			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_02',
 			wav: 'effect/sky_emperor/ske_rising_sun_moon',
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11765,7 +11765,7 @@ export default {
 			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_03',
 			repeat: true,
 			delayStart: 656,
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11779,7 +11779,7 @@ export default {
 			texturePath: 'sky_emperor/ske_rising_sun/',
 			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_04',
 			wav: 'effect/sky_emperor/ske_rising_sun_moon',
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11793,7 +11793,7 @@ export default {
 			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_05',
 			repeat: true,
 			delayStart: 656,
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11949,6 +11949,7 @@ export default {
 			min: 'sky_emperor/ske_dawn_break/min_ske_dawn_break',
 			wav: 'effect/sky_emperor/ske_dawn_break',
 			attachedEntity: true,
+			renderBeforeEntities: true,
 			yOffset: 7
 		}
 	],
@@ -12093,7 +12094,6 @@ export default {
 			min: 'sky_emperor/ske_all_in_the_sky/min_ske_all_in_the_sky',
 			wav: 'effect/sky_emperor/ske_all_in_the_sky',
 			attachedEntity: true,
-			renderBeforeEntities: true,
 			xOffset: 1,
 			yOffset: 3
 		}
@@ -12142,7 +12142,7 @@ export default {
 			min: 'sky_emperor/ske_sky_sun/sky_sun/min_sky_sun',
 			wav: 'effect/sky_emperor/ske_sky_sun',
 			yOffset: 10,
-			renderBeforeEntities: false,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		},
 		{
@@ -12159,7 +12159,6 @@ export default {
 			texturePath: 'sky_emperor/ske_sky_sun/sky_sun_hit/',
 			min: 'sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit',
 			yOffset: 8,
-			renderBeforeEntities: true,
 			attachedEntity: true
 		}
 	],

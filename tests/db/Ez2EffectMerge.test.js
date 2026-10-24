@@ -57,4 +57,26 @@ describe('kRO effect table merged into skills', () => {
 		assert.equal(skills[5468], undefined);
 		assert.equal(merge(moon, EffectTable, {})[5468].groundEffectId, 'ske_rising_moon_01');
 	});
+
+	it('draws floor effects under the characters and the rest over them', () => {
+		const EffectTable = {};
+		merge(
+			{
+				cutting_wind: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind\\cutting_wind.str', PosY: 10 },
+				cutting_wind_bottom: {
+					FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_bottom\\cutting_wind_bottom.str',
+					IsFloor: true,
+					PosX: -5,
+					PosY: 12
+				}
+			},
+			EffectTable,
+			{}
+		);
+		assert.equal(EffectTable.cutting_wind[0].renderBeforeEntities, false);
+		assert.equal(EffectTable.cutting_wind_bottom[0].renderBeforeEntities, true);
+		assert.equal(EffectTable.cutting_wind[0].yOffset, 10);
+		assert.equal(EffectTable.cutting_wind_bottom[0].xOffset, -5);
+		assert.equal(EffectTable.cutting_wind_bottom[0].yOffset, 12);
+	});
 });

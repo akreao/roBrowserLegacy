@@ -405,6 +405,52 @@ class StrEffect {
 	}
 
 	/**
+	 * Where a frame's art sits about the effect's position.
+	 *
+	 * Classic effects put the art's (320,320) on the position, half a cell
+	 * lower. An effect from the client's EZ2 table (one with xOffset/yOffset)
+	 * puts the art's centre (320,240) on the position moved PosX/PosY client
+	 * units along the screen, as CEZ2STREffectEx does: 5 client units to a
+	 * cell, 35 STR pixels to a cell.
+	 *
+	 * @param {object} animat - frame
+	 * @param {number} sizeScale - owner's size, for attachments
+	 * @param {Float32Array|Array<number>} out - gets the offset in STR pixels
+	 * @returns {number} vertical base, in cells
+	 */
+	layout(animat, sizeScale, out) {
+		const ez2 = !this.ownerEntity && this.ez2Offset;
+		const pivotY = ez2 ? AIM_PIVOT_Y : 320;
+		const shiftX = ez2 ? this.ez2Offset[0] * PIXEL_TO_WORLD_Z * 35 : 0;
+		const shiftY = ez2 ? this.ez2Offset[1] * PIXEL_TO_WORLD_Z * 35 : 0;
+		const verticalBase = ez2 ? 0.0 : 0.5;
+
+		if (this.ownerEntity) {
+			// Attachment: center at (320,320), apply offsets, scale with entity
+			out[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			// flip Y offset only
+			out[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			return 0.0;
+		}
+
+		if (this.aimAngle) {
+			// Turn the layout about the art's centre; STR y points down the screen
+			const rad = (this.aimAngle / 180) * Math.PI;
+			const cos = Math.cos(rad);
+			const sin = Math.sin(rad);
+			const x = animat.pos[0] - AIM_PIVOT_X;
+			const y = AIM_PIVOT_Y - animat.pos[1];
+			out[0] = x * cos - y * sin + shiftX;
+			out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) - shiftY;
+			return verticalBase;
+		}
+
+		out[0] = animat.pos[0] - 320 + shiftX;
+		out[1] = animat.pos[1] - pivotY - shiftY;
+		return verticalBase;
+	}
+
+	/**
 	 * Setup geometries, send data to GPU
 	 *
 	 * @param {object} webgl context
@@ -432,27 +478,7 @@ class StrEffect {
 		gl.uniform4fv(uniform.uCornerX, _cornerX);
 		gl.uniform4fv(uniform.uCornerY, _cornerY);
 
-		let verticalBase = 0.5;
-
-		if (this.ownerEntity) {
-			// Attachment: center at (320,320), apply offsets, scale with entity
-			_spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-			// flip Y offset only
-			_spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-			verticalBase = 0.0;
-		} else if (this.aimAngle) {
-			// Turn the layout about the art's centre; STR y points down the screen
-			const rad = (this.aimAngle / 180) * Math.PI;
-			const cos = Math.cos(rad);
-			const sin = Math.sin(rad);
-			const x = animat.pos[0] - AIM_PIVOT_X;
-			const y = AIM_PIVOT_Y - animat.pos[1];
-			_spriteOffset[0] = x * cos - y * sin;
-			_spriteOffset[1] = AIM_PIVOT_Y - 320 - (x * sin + y * cos);
-		} else {
-			_spriteOffset[0] = animat.pos[0] - 320;
-			_spriteOffset[1] = animat.pos[1] - 320;
-		}
+		const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
 
 		// Send effect parameters
 		gl.uniform4fv(uniform.uSpriteColor, animat.color);
