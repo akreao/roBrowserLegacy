@@ -74,8 +74,31 @@ describe('Rising Moon status effects', () => {
 		expect(loop.wav).toBeUndefined();
 		for (const part of [burst, loop]) {
 			expect(part.texturePath).toBe('sky_emperor/ske_rising_moon/');
-			expect(part.ez2PosY).toBe(13);
+			expect(part.yOffset).toBe(13);
 			expect(part.attachedEntity).toBe(true);
+		}
+	});
+
+	it('plays the next stance each time Rising Moon is cast', () => {
+		const stances = [
+			[StatusConst.MIDNIGHT_MOON, '02', '03'],
+			[StatusConst.DAWN_MOON, '04', '05']
+		];
+		for (const [status, burstId, loopId] of stances) {
+			vi.clearAllMocks();
+			updateStatusEffects(7, status, 1);
+			expect(EffectManager.spam.mock.calls.map(c => c[0].effectId)).toEqual([
+				`ef_ske_rising_moon_${burstId}`,
+				`ef_ske_rising_moon_${loopId}`
+			]);
+			const burst = effectEntry(`ef_ske_rising_moon_${burstId}`)[0];
+			const loop = effectEntry(`ef_ske_rising_moon_${loopId}`)[0];
+			expect(burst.file).toBe(`sky_emperor/ske_rising_moon/ske_rising_moon_${burstId}`);
+			expect(burst.wav).toBe('effect/sky_emperor/ske_rising_sun_moon');
+			expect(loop.repeat).toBe(true);
+			expect(loop.delayStart).toBe(656);
+			updateStatusEffects(7, status, 0);
+			expect(EffectManager.remove).toHaveBeenCalledWith(null, 7, `ef_ske_rising_moon_${loopId}`);
 		}
 	});
 });
