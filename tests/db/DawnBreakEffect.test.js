@@ -37,6 +37,8 @@ describe('Dawn Break', () => {
 		expect(str.attachedEntity).toBe(true);
 		expect(str.yOffset).toBe(7);
 		expect(str.xOffset).toBeUndefined();
+		// A floor effect (EZ2 IsFloor): under the caster
+		expect(str.renderBeforeEntities).toBe(true);
 		expect(str.delayStart).toBeUndefined();
 		expect(str.repeat).toBeUndefined();
 	});
