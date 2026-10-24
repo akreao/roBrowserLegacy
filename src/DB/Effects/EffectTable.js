@@ -11734,14 +11734,17 @@ export default {
 		}
 	],
 
-	// Dawn Break (SKE_DAWN_BREAK), from the client's own effect folders.
+	// Dawn Break (SKE_DAWN_BREAK): EZ2 effect "ske_dawn_break", played once on the
+	// caster when the skill is used (PosY 7).
 	ef_ske_dawn_break: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_dawn_break/ske_dawn_break',
 			texturePath: 'sky_emperor/ske_dawn_break/',
 			min: 'sky_emperor/ske_dawn_break/min_ske_dawn_break',
-			wav: 'effect/sky_emperor/ske_dawn_break'
+			wav: 'effect/sky_emperor/ske_dawn_break',
+			attachedEntity: true,
+			yOffset: 7
 		}
 	],
 
