@@ -1595,7 +1595,7 @@ function onEntityUseSkill(pkt) {
  * @param {object} pkt - PACKET.ZC.SKILL_ENTRY
  */
 function onSkillAppear(pkt) {
-	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
+	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID, pkt.level, pkt.range);
 }
 
 /**
@@ -1983,6 +1983,11 @@ function onEntityCastSkill(pkt) {
 			case 9:
 				EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 				break;
+		}
+
+		// Some skills always use the same cast aura, whatever the packet's element
+		if (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].castAuraEffectId) {
+			EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;
 		}
 
 		EffectManager.spam(EF_Init_Par);
@@ -2493,6 +2498,17 @@ function onEntityStatusChange(pkt) {
 			});
 			break;
 		}
+		case StatusConst.STAR_BURST:
+			// Star Burst's mark: bursts of stars on the target while the status lasts.
+			// When it ends no new burst starts; the ones already playing finish.
+			if (pkt.state == 1) {
+				EffectManager.remove(null, pkt.AID, 'ef_efst_star_burst');
+				EffectManager.spam({ effectId: 'ef_efst_star_burst', ownerAID: pkt.AID, persistent: true });
+			} else {
+				EffectManager.endRepeat(null, pkt.AID, 'ef_efst_star_burst');
+			}
+			break;
+
 		case StatusConst.CLAN_INFO:
 			DB.loadClanEmblem(pkt.val[1], image => {
 				entity.clanId = pkt.val[1];
