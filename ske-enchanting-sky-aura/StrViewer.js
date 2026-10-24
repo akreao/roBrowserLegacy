@@ -220603,6 +220603,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[5504] = {
 		successEffectId: "ef_ske_star_light_kick",
+		successEffectIdOnCaster: "ef_ske_star_light_kick_caster",
 		hitEffectId: "ef_ske_star_light_kick_hit"
 	};
 	SkillEffect[SkillConst_default.ECL_SNOWFLIP] = {};
@@ -293586,6 +293587,43 @@ var init_EffectTable = __esmMin((() => {
 			renderBeforeEntities: true,
 			attachedEntity: true,
 			yOffset: 11
+		}],
+		ef_ske_star_light_kick_caster: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				const start = Params.Inst.startTick - Renderer.tick;
+				const POSE_AT = 83;
+				const RELEASE_AT = 583;
+				let posed = false;
+				if (!(entity.ACTION.SKILL >= 0)) return;
+				entity.animations.add(function(tick) {
+					const t = tick - start;
+					if (!posed) {
+						if (t < POSE_AT) return false;
+						if (entity.action === entity.ACTION.DIE || entity.action === entity.ACTION.SIT) return true;
+						entity.setAction({
+							action: entity.ACTION.SKILL,
+							frame: 5,
+							repeat: false,
+							play: false,
+							next: false
+						});
+						posed = true;
+						return false;
+					}
+					if (t < RELEASE_AT) return false;
+					if (entity.action === entity.ACTION.SKILL && entity.animation.play === false && !entity.animation.next) entity.setAction({
+						action: entity.ACTION.READYFIGHT >= 0 ? entity.ACTION.READYFIGHT : entity.ACTION.IDLE,
+						frame: 0,
+						repeat: true,
+						play: true,
+						next: false
+					});
+					return true;
+				});
+			}
 		}],
 		ef_ske_star_light_kick_hit: [{
 			type: "STR",
