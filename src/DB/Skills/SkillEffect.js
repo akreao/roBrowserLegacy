@@ -1129,7 +1129,7 @@ SkillEffect[SK.SKE_TWINKLING_GALAXY] = { effectId: 'ef_ske_twinkling_galaxy' }; 
 SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst' }; //Star Burst
 SkillEffect[SK.SKE_STAR_CANNON] = { effectId: 'ef_ske_star_cannon' }; //Star Cannon
 SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { effectId: 'ef_ske_all_in_the_sky' }; //All in the Sky
-SkillEffect[SK.SKE_ENCHANTING_SKY] = { effectId: 'ef_ske_enchanting_sky' }; //Enchanting Sky
+SkillEffect[SK.SKE_ENCHANTING_SKY] = { castAuraEffectId: 831 }; //Enchanting Sky (the Sky Enchant status shows the rest)
 SkillEffect[5502 /* SKE_SKY_SUN */] = { effectId: 'ef_ske_sky_sun', hitEffectId: 'ef_ske_sky_sun_hit' }; //Sky Sun
 SkillEffect[5503 /* SKE_SKY_MOON */] = {
 	effectId: 'ef_ske_sky_moon',

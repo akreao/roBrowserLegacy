@@ -11723,6 +11723,92 @@ export default {
 		}
 	],
 
+	// Rising Moon (SKE_RISING_MOON) stances. Each stance plays a burst when it
+	// starts, then loops its emblem on the caster until it ends (StatusEffectTable.js).
+	// RISING_MOON
+	ef_ske_rising_moon_00: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_00',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_00',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_moon_01: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_01',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_01',
+			repeat: true,
+			delayStart: 336,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// MIDNIGHT_MOON
+	ef_ske_rising_moon_02: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_02',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_02',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_moon_03: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_03',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_03',
+			repeat: true,
+			delayStart: 656,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// DAWN_MOON
+	ef_ske_rising_moon_04: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_04',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_04',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_moon_05: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_05',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_05',
+			repeat: true,
+			delayStart: 656,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Midnight Kick (SKE_MIDNIGHT_KICK), from the client's own effect folders.
 	ef_ske_midnight_kick: [
 		{
@@ -11793,24 +11879,31 @@ export default {
 		}
 	],
 
-	// Enchanting Sky (SKE_ENCHANTING_SKY), from the client's own effect folders.
+	// Enchanting Sky (SKE_ENCHANTING_SKY): shown by the Sky Enchant status, as in the
+	// official client. Burst with the sound when the status starts (EZ2 ske_enchanting_sky_00).
 	ef_ske_enchanting_sky: [
-		{
-			wav: 'effect/sky_emperor/ske_enchanting_sky',
-			attachedEntity: true
-		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_enchanting_sky/ske_enchanting_sky_00',
 			texturePath: 'sky_emperor/ske_enchanting_sky/',
 			min: 'sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_00',
+			wav: 'effect/sky_emperor/ske_enchanting_sky',
+			yOffset: 13,
 			attachedEntity: true
-		},
+		}
+	],
+
+	// Enchanting Sky loop while the status lasts (EZ2 ske_enchanting_sky_01): starts 320 ms
+	// in, where the burst ends, and replays until the status ends.
+	ef_ske_enchanting_sky_loop: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_enchanting_sky/ske_enchanting_sky_01',
 			texturePath: 'sky_emperor/ske_enchanting_sky/',
 			min: 'sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_01',
+			delayStart: 320,
+			repeat: true,
+			yOffset: 13,
 			attachedEntity: true
 		}
 	],
