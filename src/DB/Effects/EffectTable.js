@@ -12222,31 +12222,40 @@ export default {
 		}
 	],
 
-	// Star Light Kick (SKE_STAR_LIGHT_KICK), from the client's own effect folders.
+	// Star Light Kick (SKE_STAR_LIGHT_KICK), as the official client plays it when
+	// the skill is used: the falling star and the ground ring, both on the target
+	// and following it. yOffset keeps the EZ2 rows' PosY (13 and 11).
 	ef_ske_star_light_kick: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_star_light_kick/star_light_kick/star_light_kick',
 			texturePath: 'sky_emperor/ske_star_light_kick/star_light_kick/',
 			min: 'sky_emperor/ske_star_light_kick/star_light_kick/min_star_light_kick',
-			wav: 'effect/sky_emperor/ske_star_light_kick'
+			wav: 'effect/sky_emperor/ske_star_light_kick',
+			attachedEntity: true,
+			yOffset: 13
 		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_star_light_kick/star_light_kick_bottom/star_light_kick_bottom',
 			texturePath: 'sky_emperor/ske_star_light_kick/star_light_kick_bottom/',
 			min: 'sky_emperor/ske_star_light_kick/star_light_kick_bottom/min_star_light_kick_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			attachedEntity: true,
+			yOffset: 11
 		}
 	],
 
-	// Star Light Kick (SKE_STAR_LIGHT_KICK), from the client's own effect folders.
+	// Star Light Kick (SKE_STAR_LIGHT_KICK), on each target hit, with its own sound.
 	ef_ske_star_light_kick_hit: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_star_light_kick/star_light_kick_hit/star_light_kick_hit',
 			texturePath: 'sky_emperor/ske_star_light_kick/star_light_kick_hit/',
-			min: 'sky_emperor/ske_star_light_kick/star_light_kick_hit/min_star_light_kick_hit'
+			min: 'sky_emperor/ske_star_light_kick/star_light_kick_hit/min_star_light_kick_hit',
+			wav: 'effect/sky_emperor/ske_star_light_kick_hit',
+			attachedEntity: true,
+			yOffset: 7
 		}
 	],
 
