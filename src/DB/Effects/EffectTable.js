@@ -12292,7 +12292,11 @@ export default {
 					}
 					// Only let go of our own pose: walking, getting hit or dying in between wins.
 					// Back to the combat stance, or standing for sprites without one.
-					if (entity.action === entity.ACTION.SKILL && entity.animation.play === false && !entity.animation.next) {
+					if (
+						entity.action === entity.ACTION.SKILL &&
+						entity.animation.play === false &&
+						!entity.animation.next
+					) {
 						entity.setAction({
 							action: entity.ACTION.READYFIGHT >= 0 ? entity.ACTION.READYFIGHT : entity.ACTION.IDLE,
 							frame: 0,
