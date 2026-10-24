@@ -1910,7 +1910,7 @@ function onEntityCastSkill(pkt) {
 	}
 
 	//Spells like Bash, Hide, Double Strafe etc. has special casting effect
-	EffectManager.spamSkillCast(pkt.SKID, pkt.AID, null, pkt.targetID);
+	EffectManager.spamSkillCast(pkt.SKID, pkt.AID, null, pkt.targetID, pkt.delayTime);
 
 	if (dstEntity && dstEntity !== srcEntity) {
 		srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
@@ -2000,6 +2000,7 @@ function onEntityCastCancel(pkt) {
 
 		// Cancel effects
 		EffectManager.remove(null, entity.GID, [12, 54, 55, 56, 57, 58, 59, 454, 60, 513]);
+		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
 		EffectManager.remove(MagicRing, entity.GID);
