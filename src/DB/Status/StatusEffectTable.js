@@ -14,6 +14,23 @@
 import StatusConst from './StatusConst.js';
 
 export default {
+	// Rising Sun (SKE_RISING_SUN)
+	[StatusConst.RISING_SUN]: {
+		start: ['ef_ske_rising_sun_00'],
+		loop: ['ef_ske_rising_sun_01']
+	},
+
+	// Rising Sun's second and third stages
+	[StatusConst.NOON_SUN]: {
+		start: ['ef_ske_rising_sun_02'],
+		loop: ['ef_ske_rising_sun_03']
+	},
+
+	[StatusConst.SUNSET_SUN]: {
+		start: ['ef_ske_rising_sun_04'],
+		loop: ['ef_ske_rising_sun_05']
+	},
+
 	// Rising Moon (SKE_RISING_MOON)
 	[StatusConst.RISING_MOON]: {
 		start: ['ef_ske_rising_moon_00'],
