@@ -36,7 +36,8 @@ describe('Sky Sun bursts', () => {
 			texturePath: 'sky_emperor/ske_sunset_blast/',
 			min: 'sky_emperor/ske_sunset_blast/min_sunset_blast_small',
 			wav: 'effect/sky_emperor/ske_sky_sun_1',
-			ez2PosY: 10,
+			yOffset: 10,
+			renderBeforeEntities: true,
 			attachedEntity: false
 		});
 	});
@@ -68,12 +69,12 @@ describe('Sky Sun effect table', () => {
 		);
 	});
 
-	it('draws the sun on the caster, under characters, then the bursts', () => {
+	it('draws the sun on the caster, then the bursts', () => {
 		const cast = block(effectTable, 'ef_ske_sky_sun');
 		expect(cast).toMatch(/file: 'sky_emperor\/ske_sky_sun\/sky_sun\/sky_sun'/);
 		expect(cast).toMatch(/wav: 'effect\/sky_emperor\/ske_sky_sun'/);
-		expect(cast).toMatch(/ez2PosY: 10/);
-		expect(cast).toMatch(/renderBeforeEntities: true/);
+		expect(cast).toMatch(/yOffset: 10/);
+		expect(cast).toMatch(/renderBeforeEntities: false/);
 		expect(cast).toMatch(/attachedEntity: true/);
 		expect(cast).toMatch(/func: spawnSkySunBursts/);
 	});
@@ -81,7 +82,7 @@ describe('Sky Sun effect table', () => {
 	it('draws the hit on the target, without a sound', () => {
 		const hit = block(effectTable, 'ef_ske_sky_sun_hit');
 		expect(hit).toMatch(/file: 'sky_emperor\/ske_sky_sun\/sky_sun_hit\/sky_sun_hit'/);
-		expect(hit).toMatch(/ez2PosY: 8/);
+		expect(hit).toMatch(/yOffset: 8/);
 		expect(hit).toMatch(/attachedEntity: true/);
 		expect(hit).not.toMatch(/wav:/);
 	});

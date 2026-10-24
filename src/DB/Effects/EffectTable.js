@@ -11818,6 +11818,7 @@ export default {
 
 	// Sky Sun (SKE_SKY_SUN), as the official client plays it: the sun on the
 	// caster, then six small bursts scattered around them (SkySunEffect.js).
+	// Offsets and draw order follow DBManager.mergeEz2Effects for the EZ2 rows.
 	ef_ske_sky_sun: [
 		{
 			type: 'STR',
@@ -11825,8 +11826,8 @@ export default {
 			texturePath: 'sky_emperor/ske_sky_sun/sky_sun/',
 			min: 'sky_emperor/ske_sky_sun/sky_sun/min_sky_sun',
 			wav: 'effect/sky_emperor/ske_sky_sun',
-			ez2PosY: 10,
-			renderBeforeEntities: true,
+			yOffset: 10,
+			renderBeforeEntities: false,
 			attachedEntity: true
 		},
 		{
@@ -11842,7 +11843,8 @@ export default {
 			file: 'sky_emperor/ske_sky_sun/sky_sun_hit/sky_sun_hit',
 			texturePath: 'sky_emperor/ske_sky_sun/sky_sun_hit/',
 			min: 'sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit',
-			ez2PosY: 8,
+			yOffset: 8,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}
 	],

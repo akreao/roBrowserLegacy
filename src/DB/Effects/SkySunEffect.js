@@ -24,7 +24,8 @@ export const SKY_SUN_BURST = {
 	texturePath: 'sky_emperor/ske_sunset_blast/',
 	min: 'sky_emperor/ske_sunset_blast/min_sunset_blast_small',
 	wav: 'effect/sky_emperor/ske_sky_sun_1',
-	ez2PosY: 10,
+	yOffset: 10,
+	renderBeforeEntities: true,
 	attachedEntity: false
 };
 
