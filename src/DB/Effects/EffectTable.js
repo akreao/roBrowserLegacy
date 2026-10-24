@@ -12100,6 +12100,7 @@ export default {
 
 	// Enchanting Sky (SKE_ENCHANTING_SKY): shown by the Sky Enchant status, as in the
 	// official client. Burst with the sound when the status starts (EZ2 ske_enchanting_sky_00).
+	// Both parts are floor effects (EZ2 IsFloor), drawn under the player.
 	ef_ske_enchanting_sky: [
 		{
 			type: 'STR',
@@ -12108,6 +12109,7 @@ export default {
 			min: 'sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_00',
 			wav: 'effect/sky_emperor/ske_enchanting_sky',
 			yOffset: 13,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}
 	],
@@ -12123,6 +12125,7 @@ export default {
 			delayStart: 320,
 			repeat: true,
 			yOffset: 13,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}
 	],
