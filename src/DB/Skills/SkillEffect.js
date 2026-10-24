@@ -33,6 +33,9 @@
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
  *								Can be used to create casting effects.
  *
+ *	- beginCastTargetEffectId: 	Triggers once when the cast starts, on the skill's target. Nothing plays without a known target.
+ *								Can be used for effects the official client shows on the target while the caster casts.
+ *
  *	- successEffectId: 			Triggers when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
@@ -1128,7 +1131,7 @@ SkillEffect[SK.SKE_DAWN_BREAK] = { effectId: 'ef_ske_dawn_break' }; //Dawn Break
 SkillEffect[SK.SKE_TWINKLING_GALAXY] = { effectId: 'ef_ske_twinkling_galaxy' }; //Twinkling Galaxy
 SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst' }; //Star Burst
 SkillEffect[SK.SKE_STAR_CANNON] = { effectId: 'ef_ske_star_cannon' }; //Star Cannon
-SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { effectId: 'ef_ske_all_in_the_sky' }; //All in the Sky
+SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: 'ef_ske_all_in_the_sky' }; //All in the Sky: on the target when the cast starts, not on the hit
 SkillEffect[SK.SKE_ENCHANTING_SKY] = { effectId: 'ef_ske_enchanting_sky' }; //Enchanting Sky
 SkillEffect[5502 /* SKE_SKY_SUN */] = { effectId: 'ef_ske_sky_sun', hitEffectId: 'ef_ske_sky_sun_hit' }; //Sky Sun
 SkillEffect[5503 /* SKE_SKY_MOON */] = {

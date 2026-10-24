@@ -1073,6 +1073,25 @@ class EffectManager {
 				EffectManager.spam(EF_Init_Par);
 			});
 		}
+
+		// Played on the skill's target (srcAID here) when the cast starts.
+		// Without a known target nothing plays, like the official client.
+		if (SkillEffect[skillId].beginCastTargetEffectId && srcAID && EntityManager.get(srcAID)) {
+			effects = Array.isArray(SkillEffect[skillId].beginCastTargetEffectId)
+				? SkillEffect[skillId].beginCastTargetEffectId
+				: [SkillEffect[skillId].beginCastTargetEffectId];
+
+			effects.forEach(effectId => {
+				EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				};
+
+				EffectManager.spam(EF_Init_Par);
+			});
+		}
 	}
 
 	/**
