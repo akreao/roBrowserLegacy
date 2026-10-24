@@ -220583,7 +220583,10 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SKE_DAWN_BREAK] = { effectId: "ef_ske_dawn_break" };
 	SkillEffect[SkillConst_default.SKE_TWINKLING_GALAXY] = { castAuraEffectId: 441 };
-	SkillEffect[SkillConst_default.SKE_STAR_BURST] = { effectId: "ef_ske_star_burst" };
+	SkillEffect[SkillConst_default.SKE_STAR_BURST] = {
+		effectId: "ef_ske_star_burst",
+		castAuraEffectId: 441
+	};
 	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: "ef_ske_all_in_the_sky" };
 	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = { effectId: "ef_ske_enchanting_sky" };
@@ -292745,6 +292748,63 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/sky_emperor/ske_star_burst",
 			attachedEntity: true
 		}],
+		ef_efst_star_burst: [
+			{
+				type: "STR",
+				file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy00",
+				texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/",
+				min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy00",
+				attachedEntity: true,
+				yOffset: 13.5,
+				duration: 1167,
+				repeatDelay: -167
+			},
+			{
+				type: "STR",
+				file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy01",
+				texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/",
+				min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy01",
+				attachedEntity: true,
+				yOffset: 13.5,
+				delayStart: 250,
+				duration: 1167,
+				repeatDelay: -167
+			},
+			{
+				type: "STR",
+				file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy02",
+				texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/",
+				min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy02",
+				attachedEntity: true,
+				yOffset: 13.5,
+				delayStart: 500,
+				duration: 1167,
+				repeatDelay: -167
+			},
+			{
+				type: "STR",
+				file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy03",
+				texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/",
+				min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy03",
+				attachedEntity: true,
+				yOffset: 13.5,
+				delayStart: 750,
+				duration: 1167,
+				repeatDelay: -167
+			},
+			{
+				type: "STR",
+				file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/ske_twinkling_galaxy_bottom",
+				texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/",
+				min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/min_ske_twinkling_galaxy_bottom",
+				wav: "effect/sky_emperor/ske_star_cannon",
+				attachedEntity: true,
+				renderBeforeEntities: true,
+				yOffset: 13.5,
+				duration: 1317,
+				repeatDelay: -1067
+			}
+		],
 		ef_ske_star_cannon_field: [{
 			type: "AREA_SPAWN",
 			spawnEffectId: "ef_ske_star_cannon_star",
@@ -349624,6 +349684,16 @@ function onEntityStatusChange(pkt) {
 			});
 			break;
 		}
+		case StatusConst_default.STAR_BURST:
+			if (pkt.state == 1) {
+				EffectManager.remove(null, pkt.AID, "ef_efst_star_burst");
+				EffectManager.spam({
+					effectId: "ef_efst_star_burst",
+					ownerAID: pkt.AID,
+					persistent: true
+				});
+			} else EffectManager.endRepeat(null, pkt.AID, "ef_efst_star_burst");
+			break;
 		case StatusConst_default.CLAN_INFO: DB.loadClanEmblem(pkt.val[1], (image) => {
 			entity.clanId = pkt.val[1];
 			entity.setEntityGuildEmblem(image);
