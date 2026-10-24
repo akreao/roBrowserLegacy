@@ -19,6 +19,7 @@ import Events from 'Core/Events.js';
 import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
 import EffectPrim from 'Renderer/Effects/EffectPrim.js';
+import groundScatter from 'Renderer/Effects/GroundScatter.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import RsmEffect from 'Renderer/Effects/RsmEffect.js';
 import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
@@ -644,6 +645,13 @@ class EffectManager {
 		Params.Inst.position = Params.effect.attachedEntity
 			? Params.Inst.position
 			: [Params.Inst.position[0], Params.Inst.position[1], Params.Inst.position[2]];
+
+		// Some world-placed copies land at a random spot around the position (official units).
+		if (Params.effect.groundScatter && !Params.effect.attachedEntity) {
+			const [dx, dy] = groundScatter(Params.effect.groundScatter);
+			Params.Inst.position[0] += dx;
+			Params.Inst.position[1] += dy;
+		}
 
 		// Repeat
 		Params.Inst.persistent = Params.Init.persistent || false;
