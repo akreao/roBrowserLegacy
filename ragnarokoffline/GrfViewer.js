@@ -220561,7 +220561,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU_TRANSITION_ATK] = {};
 	SkillEffect[SkillConst_default.OB_AKAITSUKI] = {};
 	SkillEffect[SkillConst_default.SKE_RISING_SUN] = { effectId: "ef_ske_rising_sun" };
-	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { effectId: "ef_ske_noon_blast" };
+	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { successEffectId: "ef_ske_noon_blast" };
 	SkillEffect[SkillConst_default.SKE_SUNSET_BLAST] = { effectId: "ef_ske_sunset_blast" };
 	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = {
 		effectId: "ef_ske_midnight_kick",
@@ -292663,7 +292663,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_noon_blast/ske_noon_blast",
 			texturePath: "sky_emperor/ske_noon_blast/",
 			min: "sky_emperor/ske_noon_blast/min_ske_noon_blast",
-			wav: "effect/sky_emperor/ske_noon_blast"
+			wav: "effect/sky_emperor/ske_noon_blast",
+			attachedEntity: true,
+			yOffset: 13
 		}],
 		ef_ske_sunset_blast: [{
 			type: "STR",
