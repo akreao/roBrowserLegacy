@@ -36,6 +36,7 @@ import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
+import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -11815,24 +11816,34 @@ export default {
 		}
 	],
 
-	// Sky Sun (SKE_SKY_SUN), from the client's own effect folders.
+	// Sky Sun (SKE_SKY_SUN), as the official client plays it: the sun on the
+	// caster, then six small bursts scattered around them (SkySunEffect.js).
 	ef_ske_sky_sun: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_sun/sky_sun/sky_sun',
 			texturePath: 'sky_emperor/ske_sky_sun/sky_sun/',
 			min: 'sky_emperor/ske_sky_sun/sky_sun/min_sky_sun',
-			wav: 'effect/sky_emperor/ske_sky_sun'
+			wav: 'effect/sky_emperor/ske_sky_sun',
+			ez2PosY: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		},
+		{
+			type: 'FUNC',
+			func: spawnSkySunBursts
 		}
 	],
 
-	// Sky Sun (SKE_SKY_SUN), from the client's own effect folders.
+	// Sky Sun (SKE_SKY_SUN), on each target hit.
 	ef_ske_sky_sun_hit: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_sun/sky_sun_hit/sky_sun_hit',
 			texturePath: 'sky_emperor/ske_sky_sun/sky_sun_hit/',
-			min: 'sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit'
+			min: 'sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit',
+			ez2PosY: 8,
+			attachedEntity: true
 		}
 	],
 
