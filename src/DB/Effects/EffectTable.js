@@ -1196,31 +1196,48 @@ export default {
 	17: [
 		{
 			//EF_MAGNUMBREAK	Magnum Break
-			type: 'CYLINDER',
-			alphaMax: 0.7,
-			animation: 4,
-			attachedEntity: true,
-			bottomSize: 4,
-			duration: 300,
-			fade: true,
-			height: 1,
-			rotate: true,
-			textureName: 'ring_yellow',
-			topSize: 6
+			// Official client parts: two flat yellow rings and a fire sphere, 30 ticks at 60 a second.
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 30) * 0.5,
+			width: 12,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15,
+			wav: 'effect/ef_magnumbreak'
 		},
 		{
-			type: 'CYLINDER',
-			alphaMax: 0.6,
-			animation: 4,
-			attachedEntity: true,
-			bottomSize: 4,
-			duration: 300,
-			fade: true,
-			height: 4,
-			rotate: true,
-			textureName: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
-			topSize: 1,
-			wav: 'effect/ef_magnumbreak'
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.15,
+			radiusAccel: -(1.15 / 30) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 30) * 0.5,
+			width: 12,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15
 		}
 	],
 
