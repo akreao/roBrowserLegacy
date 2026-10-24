@@ -219347,8 +219347,8 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 49
 	};
 	SkillEffect[SkillConst_default.WZ_JUPITEL] = {
-		effectId: 93,
-		beforeHitEffectId: 94
+		releaseEffectId: 93,
+		hitEffectId: 94
 	};
 	SkillEffect[SkillConst_default.WZ_VERMILION] = {
 		effectId: 90,
@@ -219710,7 +219710,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NPC_GRANDDARKNESS] = {};
 	SkillEffect[SkillConst_default.NPC_DARKSTRIKE] = { effectId: 451 };
 	SkillEffect[SkillConst_default.NPC_DARKTHUNDER] = {
-		effectId: 93,
+		releaseEffectId: 93,
 		hitEffectId: 94
 	};
 	SkillEffect[SkillConst_default.NPC_STOP] = { effectId: 453 };
@@ -285916,7 +285916,7 @@ var init_EffectTable = __esmMin((() => {
 			{
 				type: "3D",
 				file: "effect/thunder_center.bmp",
-				duration: 200,
+				duration: 333,
 				size: 35,
 				toSrc: true,
 				blendMode: 2,
@@ -285934,7 +285934,7 @@ var init_EffectTable = __esmMin((() => {
 					"effect/thunder_ball_f.bmp"
 				],
 				frameDelay: 10,
-				duration: 200,
+				duration: 333,
 				size: 45,
 				toSrc: true,
 				overlay: true,
@@ -285944,7 +285944,7 @@ var init_EffectTable = __esmMin((() => {
 		94: [{
 			type: "3D",
 			file: "effect/thunder_pang.bmp",
-			duration: 100,
+			duration: 167,
 			sizeStart: 0,
 			sizeEnd: 25,
 			blendMode: 2,
