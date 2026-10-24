@@ -11723,6 +11723,35 @@ export default {
 		}
 	],
 
+	// Rising Moon (EFST_RISING_MOON): a moon burst when the status starts,
+	// then a moon circle under the caster until it ends. See StatusEffectTable.js.
+	ef_ske_rising_moon_00: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_00',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_00',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_moon_01: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_01',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_01',
+			repeat: true,
+			delayStart: 336,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Midnight Kick (SKE_MIDNIGHT_KICK), from the client's own effect folders.
 	ef_ske_midnight_kick: [
 		{
