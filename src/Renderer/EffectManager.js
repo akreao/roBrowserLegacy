@@ -20,6 +20,7 @@ import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
 import EffectPrim from 'Renderer/Effects/EffectPrim.js';
 import groundScatter from 'Renderer/Effects/GroundScatter.js';
+import AreaSpawner from 'Renderer/Effects/AreaSpawner.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import RsmEffect from 'Renderer/Effects/RsmEffect.js';
 import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
@@ -729,6 +730,20 @@ class EffectManager {
 				EffectManager.add(new EffectPrim(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 
+			case 'AREA_SPAWN':
+				EffectManager.add(
+					new AreaSpawner(
+						Params.effect,
+						Params.Inst,
+						Params.Init,
+						(effectId, position, startTick) =>
+							EffectManager.spam({ effectId, position, startTick, otherAID: Params.Init.otherAID }),
+						(x, y) => Altitude.getCellHeight(x, y)
+					),
+					Params
+				);
+				break;
+
 			case '2D':
 				EffectManager.add(new TwoDEffect(Params.effect, Params.Inst, Params.Init), Params);
 				break;
@@ -775,8 +790,11 @@ class EffectManager {
 	 * @param {number} position x
 	 * @param {number} position y
 	 * @param {number} skill unique id
+	 * @param {number} creator id
+	 * @param {number} [level] skill level, when the packet has it
+	 * @param {number} [range] skill unit range, when the packet has it
 	 */
-	static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid) {
+	static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid, level, range) {
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -817,7 +835,9 @@ class EffectManager {
 			startTick: Renderer.tick,
 			persistent: true,
 			duration: -1, // Infinite by default but the effect param can have a duration that overrides this
-			otherAID: creatorUid
+			otherAID: creatorUid,
+			skillLevel: level,
+			unitRange: range
 		};
 
 		EffectManager.spam(EF_Init_Par);
@@ -1076,6 +1096,25 @@ class EffectManager {
 					ownerAID: destAID,
 					startTick: tick,
 					otherAID: srcAID
+				};
+
+				EffectManager.spam(EF_Init_Par);
+			});
+		}
+
+		// Played on the skill's target (srcAID here) when the cast starts.
+		// Without a known target nothing plays, like the official client.
+		if (SkillEffect[skillId].beginCastTargetEffectId && srcAID && EntityManager.get(srcAID)) {
+			effects = Array.isArray(SkillEffect[skillId].beginCastTargetEffectId)
+				? SkillEffect[skillId].beginCastTargetEffectId
+				: [SkillEffect[skillId].beginCastTargetEffectId];
+
+			effects.forEach(effectId => {
+				EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
 				};
 
 				EffectManager.spam(EF_Init_Par);

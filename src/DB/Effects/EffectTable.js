@@ -9471,7 +9471,27 @@ export default {
 		}
 	],
 
-	//441: [{}],	//EF_BLUECASTING	   Comfort Skills Cast Aura
+	441: [
+		{
+			//EF_BLUECASTING	   Blue cast aura (Comfort skills, Star Emperor skills)
+			// Same as the yellow (12) and white (58) cast auras in the official client, with ring_blue.
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
 	//442: [{}],	//EF_RUN	   Foot Prints caused by Sprint.
 	//443: [{}],	//EF_STOPRUN	   (Nothing)
 
@@ -11708,7 +11728,9 @@ export default {
 			file: 'sky_emperor/ske_noon_blast/ske_noon_blast',
 			texturePath: 'sky_emperor/ske_noon_blast/',
 			min: 'sky_emperor/ske_noon_blast/min_ske_noon_blast',
-			wav: 'effect/sky_emperor/ske_noon_blast'
+			wav: 'effect/sky_emperor/ske_noon_blast',
+			attachedEntity: true,
+			yOffset: 13
 		}
 	],
 
@@ -11740,14 +11762,16 @@ export default {
 		}
 	],
 
-	// Midnight Kick (SKE_MIDNIGHT_KICK), from the client's own effect folders.
+	// Midnight Kick (SKE_MIDNIGHT_KICK): EZ2 effect "ske_midnight_kick", played once on the caster when the skill is used.
 	ef_ske_midnight_kick: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_midnight_kick/ske_midnight_kick',
 			texturePath: 'sky_emperor/ske_midnight_kick/',
 			min: 'sky_emperor/ske_midnight_kick/min_ske_midnight_kick',
-			wav: 'effect/sky_emperor/ske_midnight_kick'
+			wav: 'effect/sky_emperor/ske_midnight_kick',
+			attachedEntity: true,
+			yOffset: 10
 		}
 	],
 
@@ -11762,14 +11786,33 @@ export default {
 		}
 	],
 
-	// Twinkling Galaxy (SKE_TWINKLING_GALAXY), from the client's own effect folders.
-	ef_ske_twinkling_galaxy: [
+	// Twinkling Galaxy (SKE_TWINKLING_GALAXY): the field, official effect 2349.
+	// Drops a star at a random point of the field every 18 ticks (300 ms).
+	// Field width by skill level: 13, 13, 11, 11, 9 cells.
+	ef_ske_twinkling_galaxy_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ske_twinkling_galaxy_star',
+			interval: 300,
+			areaByLevel: [13, 13, 11, 11, 9]
+		}
+	],
+
+	// One Twinkling Galaxy star: the falling star, its landing on the floor, and the Star Cannon sound.
+	ef_ske_twinkling_galaxy_star: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/ske_twinkling_galaxy_bottom',
 			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/',
 			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/min_ske_twinkling_galaxy_bottom',
 			renderBeforeEntities: true
+		},
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy03',
+			texturePath: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/',
+			min: 'sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy03',
+			wav: 'effect/sky_emperor/ske_star_cannon'
 		}
 	],
 
@@ -11781,8 +11824,20 @@ export default {
 		}
 	],
 
-	// Star Cannon (SKE_STAR_CANNON), from the client's own effect folders.
-	ef_ske_star_cannon: [
+	// Star Cannon (SKE_STAR_CANNON): the ground unit, official effect 2350.
+	// Drops a star at a random point every 18 ticks (300 ms) while the unit exists.
+	// Area width by skill level: 13, 13, 11, 11, 9 cells.
+	ef_ske_star_cannon_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ske_star_cannon_star',
+			interval: 300,
+			areaByLevel: [13, 13, 11, 11, 9]
+		}
+	],
+
+	// One Star Cannon star: the falling star, its landing on the floor, and its sound.
+	ef_ske_star_cannon_star: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_star_cannon/star_cannon/ske_star_cannon',
@@ -11806,7 +11861,11 @@ export default {
 			file: 'sky_emperor/ske_all_in_the_sky/ske_all_in_the_sky',
 			texturePath: 'sky_emperor/ske_all_in_the_sky/',
 			min: 'sky_emperor/ske_all_in_the_sky/min_ske_all_in_the_sky',
-			wav: 'effect/sky_emperor/ske_all_in_the_sky'
+			wav: 'effect/sky_emperor/ske_all_in_the_sky',
+			attachedEntity: true,
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 3
 		}
 	],
 
