@@ -1141,9 +1141,9 @@ SkillEffect[5503 /* SKE_SKY_MOON */] = {
 	hideCastAura: true
 }; //Sky Moon: cast loop on the caster, moon once on the target, hit on each target
 SkillEffect[5504 /* SKE_STAR_LIGHT_KICK */] = {
-	effectId: 'ef_ske_star_light_kick',
+	successEffectId: 'ef_ske_star_light_kick',
 	hitEffectId: 'ef_ske_star_light_kick_hit'
-}; //Star Light Kick
+}; //Star Light Kick: the star on the target once per use, the hit effect on each damage
 // Eclage Skills
 SkillEffect[SK.ECL_SNOWFLIP] = {}; //Snow Flip
 SkillEffect[SK.ECL_PEONYMAMY] = {}; //Peony Mamy
