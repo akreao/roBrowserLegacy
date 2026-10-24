@@ -1323,6 +1323,22 @@ class EffectManager {
 		}
 	}
 	/**
+	 * Whether an actor already has an effect running (or waiting to start)
+	 *
+	 * @param {number} AID effect owner ID
+	 * @param {mixed} effectID effect ID
+	 * @return {boolean}
+	 */
+	static has(AID, effectID) {
+		return Object.keys(_list).some(name =>
+			_list[name].some(
+				effect =>
+					effect._Params && effect._Params.Init.ownerAID === AID && effect._Params.Inst.effectID === effectID
+			)
+		);
+	}
+
+	/**
 	 * Stops an effect's repeat
 	 *
 	 * @param {effect}

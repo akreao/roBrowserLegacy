@@ -52,6 +52,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { startFootprints } from 'Renderer/Effects/Footprints.js';
+import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
 
 // Excludes for skill name display
 const SkillNameDisplayExclude = [
@@ -2517,6 +2518,7 @@ function onEntityStatusChange(pkt) {
 			break;
 	}
 
+	updateStatusEffects(pkt.AID, pkt.index, pkt.state);
 	processBlockStatus(entity, pkt);
 
 	// Modify icon
