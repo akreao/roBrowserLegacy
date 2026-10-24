@@ -293275,7 +293275,7 @@ var init_EffectTable = __esmMin((() => {
 					}
 					if (t < RELEASE_AT) return false;
 					if (entity.action === entity.ACTION.SKILL && entity.animation.play === false && !entity.animation.next) entity.setAction({
-						action: entity.ACTION.IDLE,
+						action: entity.ACTION.READYFIGHT >= 0 ? entity.ACTION.READYFIGHT : entity.ACTION.IDLE,
 						frame: 0,
 						repeat: true,
 						play: true,
