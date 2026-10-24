@@ -12,6 +12,7 @@ import { join } from 'node:path';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const effectTable = read('DB/Effects/EffectTable.js');
 const entity = read('Engine/MapEngine/Entity.js');
+const skillEffect = read('DB/Skills/SkillEffect.js');
 
 function layers(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);
@@ -63,6 +64,12 @@ describe('Star Burst status mark', () => {
 			expect(layer.text).toMatch(/attachedEntity: true/);
 			expect(layer.num('yOffset')).toBe(13.5);
 		}
+	});
+
+	it('casts with the blue comfort aura, effect 441', () => {
+		expect(skillEffect).toMatch(
+			/SkillEffect\[SK\.SKE_STAR_BURST\] = \{ effectId: 'ef_ske_star_burst', castAuraEffectId: 441 \}/
+		);
 	});
 
 	it('starts with the status and stops repeating when it ends', () => {
