@@ -220553,9 +220553,10 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_ske_sky_sun_hit"
 	};
 	SkillEffect[5503] = {
-		effectId: "ef_ske_sky_moon",
-		effectIdOnCaster: "ef_ske_sky_moon_cast",
-		hitEffectId: "ef_ske_sky_moon_hit"
+		beginCastEffectId: "ef_ske_sky_moon_cast",
+		successEffectId: "ef_ske_sky_moon",
+		hitEffectId: "ef_ske_sky_moon_hit",
+		hideCastAura: true
 	};
 	SkillEffect[5504] = {
 		effectId: "ef_ske_star_light_kick",
@@ -292625,31 +292626,46 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_sky_moon/sky_moon/sky_moon",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon/",
 			min: "sky_emperor/ske_sky_moon/sky_moon/min_sky_moon",
-			wav: "effect/sky_emperor/ske_sky_moon"
+			wav: "effect/sky_emperor/ske_sky_moon",
+			yOffset: 10,
+			attachedEntity: true
 		}, {
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_bottom/sky_moon_bottom",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_bottom/",
 			min: "sky_emperor/ske_sky_moon/sky_moon_bottom/min_sky_moon_bottom",
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_ske_sky_moon_cast: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_cast/sky_moon_cast",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_cast/",
-			min: "sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast"
+			min: "sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast",
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
+			castLoop: true,
+			yOffset: 10,
+			attachedEntity: true
 		}, {
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_cast_bottom/sky_moon_cast_bottom",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_cast_bottom/",
 			min: "sky_emperor/ske_sky_moon/sky_moon_cast_bottom/min_sky_moon_cast_bottom",
-			renderBeforeEntities: true
+			castLoop: true,
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_ske_sky_moon_hit: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_hit/sky_moon_hit",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_hit/",
-			min: "sky_emperor/ske_sky_moon/sky_moon_hit/min_sky_moon_hit"
+			min: "sky_emperor/ske_sky_moon/sky_moon_hit/min_sky_moon_hit",
+			wav: "effect/sky_emperor/ske_sky_moon_hit",
+			yOffset: 8,
+			attachedEntity: true
 		}],
 		ef_ske_star_light_kick: [{
 			type: "STR",
