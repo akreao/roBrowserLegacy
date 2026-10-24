@@ -1124,7 +1124,6 @@ SkillEffect[SK.OB_ZANGETSU] = {}; //Distorted Crescent
 SkillEffect[SK.OB_OBOROGENSOU] = {}; //Moonlight Fantasy
 SkillEffect[SK.OB_OBOROGENSOU_TRANSITION_ATK] = {}; //Moonlight Fantasy Transition Attack
 SkillEffect[SK.OB_AKAITSUKI] = {}; //Ominous Moonlight
-SkillEffect[SK.SKE_RISING_SUN] = { effectId: 'ef_ske_rising_sun' }; //Rising Sun
 SkillEffect[SK.SKE_NOON_BLAST] = { successEffectId: 'ef_ske_noon_blast' }; //Noon Blast: on the target when the use packet succeeds, not on each hit
 SkillEffect[SK.SKE_SUNSET_BLAST] = { effectId: 'ef_ske_sunset_blast' }; //Sunset Blast
 SkillEffect[SK.SKE_MIDNIGHT_KICK] = { effectId: 'ef_ske_midnight_kick', castAuraEffectId: 58 }; //Midnight Kick
