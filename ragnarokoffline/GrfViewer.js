@@ -149126,6 +149126,18 @@ var StatusEffectTable_default;
 var init_StatusEffectTable = __esmMin((() => {
 	init_StatusConst();
 	StatusEffectTable_default = {
+		[StatusConst_default.RISING_SUN]: {
+			start: ["ef_ske_rising_sun_00"],
+			loop: ["ef_ske_rising_sun_01"]
+		},
+		[StatusConst_default.NOON_SUN]: {
+			start: ["ef_ske_rising_sun_02"],
+			loop: ["ef_ske_rising_sun_03"]
+		},
+		[StatusConst_default.SUNSET_SUN]: {
+			start: ["ef_ske_rising_sun_04"],
+			loop: ["ef_ske_rising_sun_05"]
+		},
 		[StatusConst_default.RISING_MOON]: {
 			start: ["ef_ske_rising_moon_00"],
 			loop: ["ef_ske_rising_moon_01"]
@@ -149137,6 +149149,10 @@ var init_StatusEffectTable = __esmMin((() => {
 		[StatusConst_default.DAWN_MOON]: {
 			start: ["ef_ske_rising_moon_04"],
 			loop: ["ef_ske_rising_moon_05"]
+		},
+		[StatusConst_default.SKY_ENCHANT]: {
+			start: ["ef_ske_enchanting_sky"],
+			loop: ["ef_ske_enchanting_sky_loop"]
 		}
 	};
 }));
@@ -220579,14 +220595,16 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU] = {};
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU_TRANSITION_ATK] = {};
 	SkillEffect[SkillConst_default.OB_AKAITSUKI] = {};
-	SkillEffect[SkillConst_default.SKE_RISING_SUN] = { effectId: "ef_ske_rising_sun" };
 	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { successEffectId: "ef_ske_noon_blast" };
-	SkillEffect[SkillConst_default.SKE_SUNSET_BLAST] = { effectId: "ef_ske_sunset_blast" };
+	SkillEffect[SkillConst_default.SKE_SUNSET_BLAST] = { successEffectId: ["ef_ske_sunset_blast", "ef_ske_sunset_blast_small"] };
 	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = {
 		effectId: "ef_ske_midnight_kick",
 		castAuraEffectId: 58
 	};
-	SkillEffect[SkillConst_default.SKE_DAWN_BREAK] = { effectId: "ef_ske_dawn_break" };
+	SkillEffect[SkillConst_default.SKE_DAWN_BREAK] = {
+		successEffectIdOnCaster: "ef_ske_dawn_break",
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.SKE_TWINKLING_GALAXY] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SKE_STAR_BURST] = {
 		effectId: "ef_ske_star_burst",
@@ -220594,18 +220612,19 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: "ef_ske_all_in_the_sky" };
-	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = { effectId: "ef_ske_enchanting_sky" };
+	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = {};
 	SkillEffect[5502] = {
 		effectId: "ef_ske_sky_sun",
 		hitEffectId: "ef_ske_sky_sun_hit"
 	};
 	SkillEffect[5503] = {
-		effectId: "ef_ske_sky_moon",
-		effectIdOnCaster: "ef_ske_sky_moon_cast",
-		hitEffectId: "ef_ske_sky_moon_hit"
+		beginCastEffectId: "ef_ske_sky_moon_cast",
+		successEffectId: "ef_ske_sky_moon",
+		hitEffectId: "ef_ske_sky_moon_hit",
+		hideCastAura: true
 	};
 	SkillEffect[5504] = {
-		effectId: "ef_ske_star_light_kick",
+		successEffectId: "ef_ske_star_light_kick",
 		hitEffectId: "ef_ske_star_light_kick_hit"
 	};
 	SkillEffect[SkillConst_default.ECL_SNOWFLIP] = {};
@@ -269965,6 +269984,25 @@ var init_EffectPrim = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/GroundScatter.js
+/**
+* Renderer/Effects/GroundScatter.js
+*
+* Random ground offset the official client gives some world-placed effect copies
+* (Sunset Blast's small blasts). Each horizontal axis gets
+* units - (random integer 0 .. 2 * units - 1) official units, so -(units - 1)..+units.
+* 5 official units are one roBrowser cell.
+*/
+/**
+* @param {number} units  scatter in official units (EffectTable `groundScatter`)
+* @param {function} [random] source of numbers in [0, 1), Math.random by default
+* @return {number[]} [x, y] offset in roBrowser cells
+*/
+function groundScatter(units, random = Math.random) {
+	const axis = () => (units - Math.floor(random() * units * 2)) / 5;
+	return [axis(), axis()];
+}
+var init_GroundScatter = __esmMin((() => {}));
 // src/Renderer/Effects/AreaSpawner.js
 /**
 * Renderer/Effects/AreaSpawner.js
@@ -273697,6 +273735,7 @@ var init_EffectManager = __esmMin((() => {
 	init_Configs();
 	init_Cylinder();
 	init_EffectPrim();
+	init_GroundScatter();
 	init_AreaSpawner();
 	init_StrEffect();
 	init_RsmEffect();
@@ -273940,6 +273979,11 @@ var init_EffectManager = __esmMin((() => {
 				Params.Inst.position[1],
 				Params.Inst.position[2]
 			];
+			if (Params.effect.groundScatter && !Params.effect.attachedEntity) {
+				const [dx, dy] = groundScatter(Params.effect.groundScatter);
+				Params.Inst.position[0] += dx;
+				Params.Inst.position[1] += dy;
+			}
 			Params.Inst.persistent = Params.Init.persistent || false;
 			if (typeof Params.effect.repeat !== "undefined" && Params.effect.repeat !== null) Params.Inst.persistent = Params.effect.repeat;
 			Params.Inst.repeatEnd = Params.Init.repeatEnd ? Params.Init.repeatEnd : Params.effect.repeatEnd || 0;
@@ -273959,6 +274003,10 @@ var init_EffectManager = __esmMin((() => {
 			Params.Inst.delayLate = !isNaN(Params.effect.delayLate) ? Params.effect.delayLate + Params.Inst.delayLateDelta : 0;
 			Params.Inst.startTick = Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
 			Params.Inst.endTick = Params.Inst.duration > 0 ? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration : -1;
+			if (Params.effect.castLoop && Params.Init.castEndTick > 0) {
+				Params.Inst.repeatEnd = Params.Init.castEndTick;
+				Params.Inst.endTick = Params.Init.castEndTick;
+			}
 			switch (Params.effect.type) {
 				case "SPR":
 					spamSprite(Params);
@@ -274221,10 +274269,14 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} skill id
 		* @param {number} target aid
 		* @param {number} tick
+		* @param {number} source aid
+		* @param {number} cast time in ms, used by effect rows marked castLoop
 		*/
-		static spamSkillCast(skillId, destAID, tick, srcAID) {
+		static spamSkillCast(skillId, destAID, tick, srcAID, castTime) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
+			const startTick = tick || Renderer.tick;
+			const castEndTick = castTime > 0 ? startTick + castTime : 0;
 			if (SkillEffect[skillId].beginCastEffectId) {
 				effects = Array.isArray(SkillEffect[skillId].beginCastEffectId) ? SkillEffect[skillId].beginCastEffectId : [SkillEffect[skillId].beginCastEffectId];
 				effects.forEach((effectId) => {
@@ -274232,7 +274284,8 @@ var init_EffectManager = __esmMin((() => {
 						effectId,
 						ownerAID: destAID,
 						startTick: tick,
-						otherAID: srcAID
+						otherAID: srcAID,
+						castEndTick
 					};
 					EffectManager.spam(EF_Init_Par);
 				});
@@ -274249,6 +274302,25 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.spam(EF_Init_Par);
 				});
 			}
+		}
+		/**
+		* Remove the cast effects (rows marked castLoop) still playing on an entity,
+		* when its cast is cancelled.
+		*
+		* @param {number} aid
+		*/
+		static removeCastLoops(AID) {
+			Object.keys(_list$3).forEach((name) => {
+				const list = _list$3[name];
+				for (let i = list.length - 1; i >= 0; --i) {
+					const Params = list[i]._Params;
+					if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
+						if (list[i].free) list[i].free(_gl$1);
+						list.splice(i, 1);
+					}
+				}
+				if (!list.length) delete _list$3[name];
+			});
 		}
 		/**
 		* Spam a item on a target
@@ -283384,6 +283456,68 @@ var init_SpiritSphere = __esmMin((() => {
 	};
 	SpiritSphere.renderBeforeEntities = false;
 }));
+// src/DB/Effects/SkySunEffect.js
+/**
+* Where and when each burst plays.
+*
+* Each ground axis gets 15 - (a random integer from 0 to 29) official units,
+* so -14 to +15 units, up to 3 cells either way.
+*
+* @param {function} random returns a number in [0, 1)
+* @return {Array<{x: number, y: number, delay: number}>} offsets in cells, delay in ms
+*/
+function skySunBursts(random = Math.random) {
+	const bursts = [];
+	for (let k = 0; k < 6; ++k) {
+		const x = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$1;
+		const y = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$1;
+		bursts.push({
+			x,
+			y,
+			delay: k * 2 * 1e3 / 60
+		});
+	}
+	return bursts;
+}
+/**
+* FUNC layer: spawn the bursts around the cast position. Called with the
+* effect manager as `this`.
+*
+* @param {object} Params effect params of the FUNC layer
+*/
+function spawnSkySunBursts(Params) {
+	const base = Params.Inst.position;
+	if (!base) return;
+	skySunBursts().forEach((burst, k) => {
+		this.spamEffect({
+			effect: SKY_SUN_BURST,
+			Inst: {
+				effectID: Params.Inst.effectID,
+				duplicateID: k,
+				startTick: Params.Inst.startTick + burst.delay
+			},
+			Init: Object.assign({}, Params.Init, { position: [
+				base[0] + burst.x,
+				base[1] + burst.y,
+				base[2]
+			] })
+		});
+	});
+}
+var UNITS_PER_CELL$1, SKY_SUN_BURST;
+var init_SkySunEffect = __esmMin((() => {
+	UNITS_PER_CELL$1 = 5;
+	SKY_SUN_BURST = {
+		type: "STR",
+		file: "sky_emperor/ske_sunset_blast/sunset_blast_small",
+		texturePath: "sky_emperor/ske_sunset_blast/",
+		min: "sky_emperor/ske_sunset_blast/min_sunset_blast_small",
+		wav: "effect/sky_emperor/ske_sky_sun_1",
+		yOffset: 10,
+		renderBeforeEntities: true,
+		attachedEntity: false
+	};
+}));
 // src/Renderer/Effects/WarlockSphere.vs?raw
 var WarlockSphere_default$1;
 var init_WarlockSphere$2 = __esmMin((() => {
@@ -283664,6 +283798,7 @@ var init_EffectTable = __esmMin((() => {
 	init_Blind();
 	init_SpiderWeb();
 	init_SpiritSphere();
+	init_SkySunEffect();
 	init_WarlockSphere();
 	init_Altitude();
 	init_Renderer();
@@ -292697,10 +292832,68 @@ var init_EffectTable = __esmMin((() => {
 			file: "food_luk",
 			attachedEntity: true
 		}],
-		ef_ske_rising_sun: [{
+		ef_ske_rising_sun_00: [{
 			type: "STR",
-			file: "sky_emperor/ske_rising_sun/ske_rising_sun",
-			texturePath: "sky_emperor/ske_rising_sun/"
+			file: "sky_emperor/ske_rising_sun/ske_rising_sun_00",
+			texturePath: "sky_emperor/ske_rising_sun/",
+			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_00",
+			wav: "effect/sky_emperor/ske_rising_sun_moon",
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_sun_01: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_sun/ske_rising_sun_01",
+			texturePath: "sky_emperor/ske_rising_sun/",
+			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_01",
+			repeat: true,
+			delayStart: 336,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_sun_02: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_sun/ske_rising_sun_02",
+			texturePath: "sky_emperor/ske_rising_sun/",
+			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_02",
+			wav: "effect/sky_emperor/ske_rising_sun_moon",
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_sun_03: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_sun/ske_rising_sun_03",
+			texturePath: "sky_emperor/ske_rising_sun/",
+			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_03",
+			repeat: true,
+			delayStart: 656,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_sun_04: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_sun/ske_rising_sun_04",
+			texturePath: "sky_emperor/ske_rising_sun/",
+			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_04",
+			wav: "effect/sky_emperor/ske_rising_sun_moon",
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ske_rising_sun_05: [{
+			type: "STR",
+			file: "sky_emperor/ske_rising_sun/ske_rising_sun_05",
+			texturePath: "sky_emperor/ske_rising_sun/",
+			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_05",
+			repeat: true,
+			delayStart: 656,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_ske_noon_blast: [{
 			type: "STR",
@@ -292716,7 +292909,20 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_sunset_blast/sunset_blast",
 			texturePath: "sky_emperor/ske_sunset_blast/",
 			min: "sky_emperor/ske_sunset_blast/min_sunset_blast",
-			wav: "effect/sky_emperor/ske_sunset_blast"
+			wav: "effect/sky_emperor/ske_sunset_blast",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_ske_sunset_blast_small: [{
+			type: "STR",
+			file: "sky_emperor/ske_sunset_blast/sunset_blast_small",
+			texturePath: "sky_emperor/ske_sunset_blast/",
+			min: "sky_emperor/ske_sunset_blast/min_sunset_blast_small",
+			wav: "effect/sky_emperor/ske_sunset_blast_small",
+			yOffset: 10,
+			duplicate: 6,
+			timeBetweenDupli: 32,
+			groundScatter: 15
 		}],
 		ef_ske_rising_moon_00: [{
 			type: "STR",
@@ -292795,7 +293001,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_dawn_break/ske_dawn_break",
 			texturePath: "sky_emperor/ske_dawn_break/",
 			min: "sky_emperor/ske_dawn_break/min_ske_dawn_break",
-			wav: "effect/sky_emperor/ske_dawn_break"
+			wav: "effect/sky_emperor/ske_dawn_break",
+			attachedEntity: true,
+			yOffset: 7
 		}],
 		ef_ske_twinkling_galaxy_field: [{
 			type: "AREA_SPAWN",
@@ -292919,88 +293127,118 @@ var init_EffectTable = __esmMin((() => {
 			xOffset: 1,
 			yOffset: 3
 		}],
-		ef_ske_enchanting_sky: [
-			{
-				wav: "effect/sky_emperor/ske_enchanting_sky",
-				attachedEntity: true
-			},
-			{
-				type: "STR",
-				file: "sky_emperor/ske_enchanting_sky/ske_enchanting_sky_00",
-				texturePath: "sky_emperor/ske_enchanting_sky/",
-				min: "sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_00",
-				attachedEntity: true
-			},
-			{
-				type: "STR",
-				file: "sky_emperor/ske_enchanting_sky/ske_enchanting_sky_01",
-				texturePath: "sky_emperor/ske_enchanting_sky/",
-				min: "sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_01",
-				attachedEntity: true
-			}
-		],
+		ef_ske_enchanting_sky: [{
+			type: "STR",
+			file: "sky_emperor/ske_enchanting_sky/ske_enchanting_sky_00",
+			texturePath: "sky_emperor/ske_enchanting_sky/",
+			min: "sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_00",
+			wav: "effect/sky_emperor/ske_enchanting_sky",
+			yOffset: 13,
+			attachedEntity: true
+		}],
+		ef_ske_enchanting_sky_loop: [{
+			type: "STR",
+			file: "sky_emperor/ske_enchanting_sky/ske_enchanting_sky_01",
+			texturePath: "sky_emperor/ske_enchanting_sky/",
+			min: "sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_01",
+			delayStart: 320,
+			repeat: true,
+			yOffset: 13,
+			attachedEntity: true
+		}],
 		ef_ske_sky_sun: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_sun/sky_sun/sky_sun",
 			texturePath: "sky_emperor/ske_sky_sun/sky_sun/",
 			min: "sky_emperor/ske_sky_sun/sky_sun/min_sky_sun",
-			wav: "effect/sky_emperor/ske_sky_sun"
+			wav: "effect/sky_emperor/ske_sky_sun",
+			yOffset: 10,
+			renderBeforeEntities: false,
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			func: spawnSkySunBursts
 		}],
 		ef_ske_sky_sun_hit: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_sun/sky_sun_hit/sky_sun_hit",
 			texturePath: "sky_emperor/ske_sky_sun/sky_sun_hit/",
-			min: "sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit"
+			min: "sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit",
+			yOffset: 8,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_ske_sky_moon: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon/sky_moon",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon/",
 			min: "sky_emperor/ske_sky_moon/sky_moon/min_sky_moon",
-			wav: "effect/sky_emperor/ske_sky_moon"
+			wav: "effect/sky_emperor/ske_sky_moon",
+			yOffset: 10,
+			attachedEntity: true
 		}, {
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_bottom/sky_moon_bottom",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_bottom/",
 			min: "sky_emperor/ske_sky_moon/sky_moon_bottom/min_sky_moon_bottom",
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_ske_sky_moon_cast: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_cast/sky_moon_cast",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_cast/",
-			min: "sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast"
+			min: "sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast",
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
+			castLoop: true,
+			yOffset: 10,
+			attachedEntity: true
 		}, {
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_cast_bottom/sky_moon_cast_bottom",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_cast_bottom/",
 			min: "sky_emperor/ske_sky_moon/sky_moon_cast_bottom/min_sky_moon_cast_bottom",
-			renderBeforeEntities: true
+			castLoop: true,
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_ske_sky_moon_hit: [{
 			type: "STR",
 			file: "sky_emperor/ske_sky_moon/sky_moon_hit/sky_moon_hit",
 			texturePath: "sky_emperor/ske_sky_moon/sky_moon_hit/",
-			min: "sky_emperor/ske_sky_moon/sky_moon_hit/min_sky_moon_hit"
+			min: "sky_emperor/ske_sky_moon/sky_moon_hit/min_sky_moon_hit",
+			wav: "effect/sky_emperor/ske_sky_moon_hit",
+			yOffset: 8,
+			attachedEntity: true
 		}],
 		ef_ske_star_light_kick: [{
 			type: "STR",
 			file: "sky_emperor/ske_star_light_kick/star_light_kick/star_light_kick",
 			texturePath: "sky_emperor/ske_star_light_kick/star_light_kick/",
 			min: "sky_emperor/ske_star_light_kick/star_light_kick/min_star_light_kick",
-			wav: "effect/sky_emperor/ske_star_light_kick"
+			wav: "effect/sky_emperor/ske_star_light_kick",
+			attachedEntity: true,
+			yOffset: 13
 		}, {
 			type: "STR",
 			file: "sky_emperor/ske_star_light_kick/star_light_kick_bottom/star_light_kick_bottom",
 			texturePath: "sky_emperor/ske_star_light_kick/star_light_kick_bottom/",
 			min: "sky_emperor/ske_star_light_kick/star_light_kick_bottom/min_star_light_kick_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			attachedEntity: true,
+			yOffset: 11
 		}],
 		ef_ske_star_light_kick_hit: [{
 			type: "STR",
 			file: "sky_emperor/ske_star_light_kick/star_light_kick_hit/star_light_kick_hit",
 			texturePath: "sky_emperor/ske_star_light_kick/star_light_kick_hit/",
-			min: "sky_emperor/ske_star_light_kick/star_light_kick_hit/min_star_light_kick_hit"
+			min: "sky_emperor/ske_star_light_kick/star_light_kick_hit/min_star_light_kick_hit",
+			wav: "effect/sky_emperor/ske_star_light_kick_hit",
+			attachedEntity: true,
+			yOffset: 7
 		}],
 		600: [{
 			type: "3D",
@@ -349401,7 +349639,7 @@ function onEntityCastSkill(pkt) {
 	if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED || srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM || srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM) {
 		if (!SkillNameDisplayExclude.includes(pkt.SKID)) srcEntity.dialog.set((SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName || "Unknown Skill") + " !!", "white");
 	}
-	EffectManager.spamSkillCast(pkt.SKID, pkt.AID, null, pkt.targetID);
+	EffectManager.spamSkillCast(pkt.SKID, pkt.AID, null, pkt.targetID, pkt.delayTime);
 	if (dstEntity && dstEntity !== srcEntity) {
 		srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 		if (pkt.delayTime) {
@@ -349493,6 +349731,7 @@ function onEntityCastCancel(pkt) {
 			60,
 			513
 		]);
+		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
 		EffectManager.remove(MagicRing, entity.GID);
