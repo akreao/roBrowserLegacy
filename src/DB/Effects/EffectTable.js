@@ -3190,7 +3190,7 @@ export default {
 		{
 			type: '3D',
 			file: 'effect/thunder_center.bmp',
-			duration: 200, // Aprox. 20 frames on C++
+			duration: 333, // 20 ticks of the official 60 Hz effect clock
 			size: 35, // widthSize 3.5f
 			toSrc: true, // PT3DTEX_CHKTARGETPOS
 			blendMode: 2, // RF_EMISSIVE (Aprox. Additive)
@@ -3208,7 +3208,7 @@ export default {
 				'effect/thunder_ball_f.bmp'
 			],
 			frameDelay: 10, // m_animSpeed = 1 on C++
-			duration: 200, // Aprox. 20 frames on C++
+			duration: 333, // 20 ticks of the official 60 Hz effect clock
 			size: 45, // widthSize 4.5f
 			toSrc: true, // PT3DTEX_CHKTARGETPOS
 			overlay: true,
@@ -3221,7 +3221,7 @@ export default {
 			//EF_YUFITELHIT	Jupitel Thunder (Hit)
 			type: '3D',
 			file: 'effect/thunder_pang.bmp',
-			duration: 100, // Aprox. 10 frames on C++
+			duration: 167, // 10 ticks of the official 60 Hz effect clock
 			sizeStart: 0,
 			sizeEnd: 25, // widthSpeed 2.5f (Growing up)
 			blendMode: 2, // RF_EMISSIVE (Aprox. Additive)
