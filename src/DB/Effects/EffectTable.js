@@ -11822,24 +11822,31 @@ export default {
 		}
 	],
 
-	// Enchanting Sky (SKE_ENCHANTING_SKY), from the client's own effect folders.
+	// Enchanting Sky (SKE_ENCHANTING_SKY): shown by the Sky Enchant status, as in the
+	// official client. Burst with the sound when the status starts (EZ2 ske_enchanting_sky_00).
 	ef_ske_enchanting_sky: [
-		{
-			wav: 'effect/sky_emperor/ske_enchanting_sky',
-			attachedEntity: true
-		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_enchanting_sky/ske_enchanting_sky_00',
 			texturePath: 'sky_emperor/ske_enchanting_sky/',
 			min: 'sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_00',
+			wav: 'effect/sky_emperor/ske_enchanting_sky',
+			yOffset: 13,
 			attachedEntity: true
-		},
+		}
+	],
+
+	// Enchanting Sky loop while the status lasts (EZ2 ske_enchanting_sky_01): starts 320 ms
+	// in, where the burst ends, and replays until the status ends.
+	ef_ske_enchanting_sky_loop: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_enchanting_sky/ske_enchanting_sky_01',
 			texturePath: 'sky_emperor/ske_enchanting_sky/',
 			min: 'sky_emperor/ske_enchanting_sky/min_ske_enchanting_sky_01',
+			delayStart: 320,
+			repeat: true,
+			yOffset: 13,
 			attachedEntity: true
 		}
 	],
