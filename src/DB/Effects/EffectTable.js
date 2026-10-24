@@ -9471,7 +9471,27 @@ export default {
 		}
 	],
 
-	//441: [{}],	//EF_BLUECASTING	   Comfort Skills Cast Aura
+	441: [
+		{
+			//EF_BLUECASTING	   Blue cast aura (Comfort skills, Star Emperor skills)
+			// Same as the yellow (12) and white (58) cast auras in the official client, with ring_blue.
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
 	//442: [{}],	//EF_RUN	   Foot Prints caused by Sprint.
 	//443: [{}],	//EF_STOPRUN	   (Nothing)
 
@@ -11785,8 +11805,20 @@ export default {
 		}
 	],
 
-	// Star Cannon (SKE_STAR_CANNON), from the client's own effect folders.
-	ef_ske_star_cannon: [
+	// Star Cannon (SKE_STAR_CANNON): the ground unit, official effect 2350.
+	// Drops a star at a random point every 18 ticks (300 ms) while the unit exists.
+	// Area width by skill level: 13, 13, 11, 11, 9 cells.
+	ef_ske_star_cannon_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ske_star_cannon_star',
+			interval: 300,
+			areaByLevel: [13, 13, 11, 11, 9]
+		}
+	],
+
+	// One Star Cannon star: the falling star, its landing on the floor, and its sound.
+	ef_ske_star_cannon_star: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_star_cannon/star_cannon/ske_star_cannon',
