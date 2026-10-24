@@ -9471,7 +9471,27 @@ export default {
 		}
 	],
 
-	//441: [{}],	//EF_BLUECASTING	   Comfort Skills Cast Aura
+	441: [
+		{
+			//EF_BLUECASTING	   Blue cast aura (Comfort skills, Star Emperor skills)
+			// Same as the yellow (12) and white (58) cast auras in the official client, with ring_blue.
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
 	//442: [{}],	//EF_RUN	   Foot Prints caused by Sprint.
 	//443: [{}],	//EF_STOPRUN	   (Nothing)
 
