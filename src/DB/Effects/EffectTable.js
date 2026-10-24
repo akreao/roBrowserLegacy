@@ -11712,12 +11712,88 @@ export default {
 		}
 	],
 
-	// Rising Sun (SKE_RISING_SUN), from the client's own effect folders.
-	ef_ske_rising_sun: [
+	// Rising Sun (EFST_RISING_SUN): a sun burst when the status starts,
+	// then a sun circle under the caster until it ends. See StatusEffectTable.js.
+	ef_ske_rising_sun_00: [
 		{
 			type: 'STR',
-			file: 'sky_emperor/ske_rising_sun/ske_rising_sun',
-			texturePath: 'sky_emperor/ske_rising_sun/'
+			file: 'sky_emperor/ske_rising_sun/ske_rising_sun_00',
+			texturePath: 'sky_emperor/ske_rising_sun/',
+			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_00',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_sun_01: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_sun/ske_rising_sun_01',
+			texturePath: 'sky_emperor/ske_rising_sun/',
+			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_01',
+			repeat: true,
+			delayStart: 336,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Noon Sun (EFST_NOON_SUN), Rising Sun's second stage: same pattern.
+	ef_ske_rising_sun_02: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_sun/ske_rising_sun_02',
+			texturePath: 'sky_emperor/ske_rising_sun/',
+			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_02',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_sun_03: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_sun/ske_rising_sun_03',
+			texturePath: 'sky_emperor/ske_rising_sun/',
+			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_03',
+			repeat: true,
+			delayStart: 656,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Sunset Sun (EFST_SUNSET_SUN), Rising Sun's third stage: same pattern.
+	ef_ske_rising_sun_04: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_sun/ske_rising_sun_04',
+			texturePath: 'sky_emperor/ske_rising_sun/',
+			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_04',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_sun_05: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_sun/ske_rising_sun_05',
+			texturePath: 'sky_emperor/ske_rising_sun/',
+			min: 'sky_emperor/ske_rising_sun/min_ske_rising_sun_05',
+			repeat: true,
+			delayStart: 656,
+			ez2PosY: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
