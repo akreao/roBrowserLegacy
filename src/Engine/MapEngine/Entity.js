@@ -1594,7 +1594,7 @@ function onEntityUseSkill(pkt) {
  * @param {object} pkt - PACKET.ZC.SKILL_ENTRY
  */
 function onSkillAppear(pkt) {
-	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
+	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID, pkt.level, pkt.range);
 }
 
 /**
@@ -1982,6 +1982,11 @@ function onEntityCastSkill(pkt) {
 			case 9:
 				EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 				break;
+		}
+
+		// Some skills always use the same cast aura, whatever the packet's element
+		if (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].castAuraEffectId) {
+			EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;
 		}
 
 		EffectManager.spam(EF_Init_Par);
