@@ -220550,16 +220550,19 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU_TRANSITION_ATK] = {};
 	SkillEffect[SkillConst_default.OB_AKAITSUKI] = {};
 	SkillEffect[SkillConst_default.SKE_RISING_SUN] = { effectId: "ef_ske_rising_sun" };
-	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { effectId: "ef_ske_noon_blast" };
+	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { successEffectId: "ef_ske_noon_blast" };
 	SkillEffect[SkillConst_default.SKE_SUNSET_BLAST] = { effectId: "ef_ske_sunset_blast" };
-	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = { effectId: "ef_ske_midnight_kick" };
+	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = {
+		effectId: "ef_ske_midnight_kick",
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.SKE_DAWN_BREAK] = { effectId: "ef_ske_dawn_break" };
-	SkillEffect[SkillConst_default.SKE_TWINKLING_GALAXY] = { effectId: "ef_ske_twinkling_galaxy" };
+	SkillEffect[SkillConst_default.SKE_TWINKLING_GALAXY] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SKE_STAR_BURST] = {
 		effectId: "ef_ske_star_burst",
 		castAuraEffectId: 441
 	};
-	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { effectId: "ef_ske_star_cannon" };
+	SkillEffect[SkillConst_default.SKE_STAR_CANNON] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SKE_ALL_IN_THE_SKY] = { effectId: "ef_ske_all_in_the_sky" };
 	SkillEffect[SkillConst_default.SKE_ENCHANTING_SKY] = { effectId: "ef_ske_enchanting_sky" };
 	SkillEffect[5502] = {
@@ -223072,8 +223075,10 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_ICEMINE] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_MAGMA_ERUPTION] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_B_TRAP] = EffectConst_default.EF_NONE;
+	SkillUnit[SkillUnitConst_default.UNT_TWINKLING_GALAXY] = "ef_ske_twinkling_galaxy_field";
 	SkillUnit[SkillUnitConst_default.UNT_ICE_PILLAR] = "ef_druid_ice_pillar_loop";
 	SkillUnit[SkillUnitConst_default.UNT_GLACIAL_MONOLITH] = "ef_druid_glacier_monolith_loop";
+	SkillUnit[SkillUnitConst_default.UNT_STAR_CANNON] = "ef_ske_star_cannon_field";
 }));
 // src/DB/Items/ItemEffect.js
 var ItemEffect;
@@ -269930,6 +269935,106 @@ var init_EffectPrim = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/AreaSpawner.js
+/**
+* Renderer/Effects/AreaSpawner.js
+*
+* An effect that draws nothing itself: while it lives, it spams another effect
+* at a random point of a square area, on a fixed interval. The official client
+* does this for ground skills such as Twinkling Galaxy, which drops a star
+* somewhere in its field every 18 ticks.
+*
+* EffectTable fields (type 'AREA_SPAWN'):
+*	- spawnEffectId:	effect spammed at each point
+*	- interval:		ms between two spawns (the first one is at the start)
+*	- areaByLevel:		square width in cells, by skill level (index 0 is level 1)
+*	- area:			square width in cells when the level is unknown
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* Width of the square, in cells.
+* Uses the skill level when the unit packet has one, else the unit range (2 * range + 1).
+*
+* @param {object} effect - EffectTable entry
+* @param {number} [level] - skill level
+* @param {number} [range] - skill unit range
+* @returns {number}
+*/
+function spawnAreaWidth(effect, level, range) {
+	const table = effect.areaByLevel;
+	if (table && table.length && level > 0) return table[Math.min(level, table.length) - 1];
+	if (range > 0) return range * 2 + 1;
+	return effect.area || (table && table.length ? table[table.length - 1] : 1);
+}
+/**
+* Offset of a point from the centre along one axis, in cells.
+* Like the official client: 50 steps per cell, uniform over [-width / 2, width / 2].
+*
+* @param {number} width - square width in cells
+* @param {number} random - a number in [0, 1)
+* @returns {number}
+*/
+function spawnOffset(width, random) {
+	const steps = Math.round(width * 50);
+	return (Math.min(Math.floor(random * (steps + 1)), steps) - steps / 2) / 50;
+}
+/**
+* How many spawns are due by this tick, counting the one at the start.
+*
+* @param {number} startTick - when the effect started (ms)
+* @param {number} interval - ms between spawns
+* @param {number} tick - now (ms)
+* @returns {number}
+*/
+function spawnsDue(startTick, interval, tick) {
+	if (tick < startTick) return 0;
+	return Math.floor((tick - startTick) / interval) + 1;
+}
+var AreaSpawner;
+var init_AreaSpawner = __esmMin((() => {
+	AreaSpawner = class {
+		/**
+		* @param {object} effect - EffectTable entry
+		* @param {object} EF_Inst_Par - instance params
+		* @param {object} EF_Init_Par - init params (skillLevel, unitRange)
+		* @param {function} spawn - called with (effectId, position, tick) for each point
+		* @param {function} [heightAt] - ground height of a cell
+		*/
+		constructor(effect, EF_Inst_Par, EF_Init_Par, spawn, heightAt) {
+			this.position = EF_Inst_Par.position;
+			this.startTick = EF_Inst_Par.startTick;
+			this.interval = effect.interval > 0 ? effect.interval : 1e3;
+			this.width = spawnAreaWidth(effect, EF_Init_Par.skillLevel, EF_Init_Par.unitRange);
+			this.spawnEffectId = effect.spawnEffectId;
+			this.spawn = spawn;
+			this.heightAt = heightAt;
+			this.spawned = 0;
+			this.ready = true;
+		}
+		render(gl, tick) {
+			const due = spawnsDue(this.startTick, this.interval, tick);
+			if (due - this.spawned > 1) this.spawned = due - 1;
+			while (this.spawned < due) {
+				const x = this.position[0] + spawnOffset(this.width, Math.random());
+				const y = this.position[1] + spawnOffset(this.width, Math.random());
+				const z = this.heightAt ? this.heightAt(x, y) : this.position[2];
+				this.spawn(this.spawnEffectId, [
+					x,
+					y,
+					z
+				], this.startTick + this.spawned * this.interval);
+				this.spawned++;
+			}
+		}
+		static init() {
+			this.ready = true;
+		}
+		static beforeRender() {}
+		static afterRender() {}
+	};
+	AreaSpawner.ready = true;
+}));
 // src/Renderer/Effects/RsmEffect.vs?raw
 var RsmEffect_default$1;
 var init_RsmEffect$2 = __esmMin((() => {
@@ -273562,6 +273667,7 @@ var init_EffectManager = __esmMin((() => {
 	init_Configs();
 	init_Cylinder();
 	init_EffectPrim();
+	init_AreaSpawner();
 	init_StrEffect();
 	init_RsmEffect();
 	init_TwoDEffect();
@@ -273836,6 +273942,14 @@ var init_EffectManager = __esmMin((() => {
 				case "PRIM":
 					EffectManager.add(new EffectPrim(Params.effect, Params.Inst, Params.Init), Params);
 					break;
+				case "AREA_SPAWN":
+					EffectManager.add(new AreaSpawner(Params.effect, Params.Inst, Params.Init, (effectId, position, startTick) => EffectManager.spam({
+						effectId,
+						position,
+						startTick,
+						otherAID: Params.Init.otherAID
+					}), (x, y) => Altitude.getCellHeight(x, y)), Params);
+					break;
 				case "2D":
 					EffectManager.add(new TwoDEffect(Params.effect, Params.Inst, Params.Init), Params);
 					break;
@@ -273869,8 +273983,11 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} position x
 		* @param {number} position y
 		* @param {number} skill unique id
+		* @param {number} creator id
+		* @param {number} [level] skill level, when the packet has it
+		* @param {number} [range] skill unit range, when the packet has it
 		*/
-		static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid) {
+		static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid, level, range) {
 			if (!Map_default.effect) return;
 			if (!(unit_id in SkillUnit)) return;
 			const effectId = SkillUnit[unit_id];
@@ -273898,7 +274015,9 @@ var init_EffectManager = __esmMin((() => {
 				startTick: Renderer.tick,
 				persistent: true,
 				duration: -1,
-				otherAID: creatorUid
+				otherAID: creatorUid,
+				skillLevel: level,
+				unitRange: range
 			};
 			EffectManager.spam(EF_Init_Par);
 		}
@@ -290810,6 +290929,23 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/¾Æ¼ûÇÁÆ¼¿À",
 			attachedEntity: true
 		}],
+		441: [{
+			alphaMax: .8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: "ring_blue",
+			topSize: 5,
+			type: "CYLINDER",
+			wav: "effect/ef_beginspell"
+		}],
 		444: [{
 			wav: "effect/t_È¿°úÀ½1",
 			attachedEntity: true
@@ -292519,7 +292655,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_noon_blast/ske_noon_blast",
 			texturePath: "sky_emperor/ske_noon_blast/",
 			min: "sky_emperor/ske_noon_blast/min_ske_noon_blast",
-			wav: "effect/sky_emperor/ske_noon_blast"
+			wav: "effect/sky_emperor/ske_noon_blast",
+			attachedEntity: true,
+			yOffset: 13
 		}],
 		ef_ske_sunset_blast: [{
 			type: "STR",
@@ -292533,7 +292671,9 @@ var init_EffectTable = __esmMin((() => {
 			file: "sky_emperor/ske_midnight_kick/ske_midnight_kick",
 			texturePath: "sky_emperor/ske_midnight_kick/",
 			min: "sky_emperor/ske_midnight_kick/min_ske_midnight_kick",
-			wav: "effect/sky_emperor/ske_midnight_kick"
+			wav: "effect/sky_emperor/ske_midnight_kick",
+			attachedEntity: true,
+			yOffset: 10
 		}],
 		ef_ske_dawn_break: [{
 			type: "STR",
@@ -292542,12 +292682,30 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_dawn_break/min_ske_dawn_break",
 			wav: "effect/sky_emperor/ske_dawn_break"
 		}],
-		ef_ske_twinkling_galaxy: [{
+		ef_ske_twinkling_galaxy_field: [{
+			type: "AREA_SPAWN",
+			spawnEffectId: "ef_ske_twinkling_galaxy_star",
+			interval: 300,
+			areaByLevel: [
+				13,
+				13,
+				11,
+				11,
+				9
+			]
+		}],
+		ef_ske_twinkling_galaxy_star: [{
 			type: "STR",
 			file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/ske_twinkling_galaxy_bottom",
 			texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/",
 			min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy_bottom/min_ske_twinkling_galaxy_bottom",
 			renderBeforeEntities: true
+		}, {
+			type: "STR",
+			file: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/ske_twinkling_galaxy03",
+			texturePath: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/",
+			min: "sky_emperor/ske_twinkling_galaxy/twinkling_galaxy/min_ske_twinkling_galaxy03",
+			wav: "effect/sky_emperor/ske_star_cannon"
 		}],
 		ef_ske_star_burst: [{
 			wav: "effect/sky_emperor/ske_star_burst",
@@ -292610,7 +292768,19 @@ var init_EffectTable = __esmMin((() => {
 				repeatDelay: -1067
 			}
 		],
-		ef_ske_star_cannon: [{
+		ef_ske_star_cannon_field: [{
+			type: "AREA_SPAWN",
+			spawnEffectId: "ef_ske_star_cannon_star",
+			interval: 300,
+			areaByLevel: [
+				13,
+				13,
+				11,
+				11,
+				9
+			]
+		}],
+		ef_ske_star_cannon_star: [{
 			type: "STR",
 			file: "sky_emperor/ske_star_cannon/star_cannon/ske_star_cannon",
 			texturePath: "sky_emperor/ske_star_cannon/star_cannon/",
@@ -348921,7 +349091,7 @@ function onEntityUseSkill(pkt) {
 * @param {object} pkt - PACKET.ZC.SKILL_ENTRY
 */
 function onSkillAppear(pkt) {
-	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
+	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID, pkt.level, pkt.range);
 }
 /**
 * Remove a skill from screen
@@ -349139,6 +349309,7 @@ function onEntityCastSkill(pkt) {
 				break;
 			case 9: EF_Init_Par.effectId = EffectConst_default.EF_DARKCASTING;
 		}
+		if (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].castAuraEffectId) EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;
 		EffectManager.spam(EF_Init_Par);
 	}
 }
