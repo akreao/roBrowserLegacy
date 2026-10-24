@@ -134,4 +134,7 @@ SkillUnit[SU.UNT_TWINKLING_GALAXY] = 'ef_ske_twinkling_galaxy_field';
 SkillUnit[SU.UNT_ICE_PILLAR] = 'ef_druid_ice_pillar_loop';
 SkillUnit[SU.UNT_GLACIAL_MONOLITH] = 'ef_druid_glacier_monolith_loop';
 
+// Star Cannon: drops stars around the caster while it exists (official effect 2350)
+SkillUnit[SU.UNT_STAR_CANNON] = 'ef_ske_star_cannon_field';
+
 export default SkillUnit;

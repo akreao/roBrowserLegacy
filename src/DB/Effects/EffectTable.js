@@ -11803,8 +11803,20 @@ export default {
 		}
 	],
 
-	// Star Cannon (SKE_STAR_CANNON), from the client's own effect folders.
-	ef_ske_star_cannon: [
+	// Star Cannon (SKE_STAR_CANNON): the ground unit, official effect 2350.
+	// Drops a star at a random point every 18 ticks (300 ms) while the unit exists.
+	// Area width by skill level: 13, 13, 11, 11, 9 cells.
+	ef_ske_star_cannon_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ske_star_cannon_star',
+			interval: 300,
+			areaByLevel: [13, 13, 11, 11, 9]
+		}
+	],
+
+	// One Star Cannon star: the falling star, its landing on the floor, and its sound.
+	ef_ske_star_cannon_star: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_star_cannon/star_cannon/ske_star_cannon',
