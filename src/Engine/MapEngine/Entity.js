@@ -1594,7 +1594,7 @@ function onEntityUseSkill(pkt) {
  * @param {object} pkt - PACKET.ZC.SKILL_ENTRY
  */
 function onSkillAppear(pkt) {
-	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
+	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID, pkt.level, pkt.range);
 }
 
 /**
