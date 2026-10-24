@@ -12160,48 +12160,65 @@ export default {
 		}
 	],
 
-	// Sky Moon (SKE_SKY_MOON), from the client's own effect folders.
+	// Sky Moon (SKE_SKY_MOON), as the official client plays it (EZ2 effects
+	// sky_moon, sky_moon_bottom): on the target once when the skill is used.
 	ef_ske_sky_moon: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon/sky_moon',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon/',
 			min: 'sky_emperor/ske_sky_moon/sky_moon/min_sky_moon',
-			wav: 'effect/sky_emperor/ske_sky_moon'
+			wav: 'effect/sky_emperor/ske_sky_moon',
+			yOffset: 10,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_bottom/sky_moon_bottom',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_bottom/',
 			min: 'sky_emperor/ske_sky_moon/sky_moon_bottom/min_sky_moon_bottom',
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
-	// Sky Moon (SKE_SKY_MOON), from the client's own effect folders.
+	// Sky Moon cast (EZ2 sky_moon_cast, sky_moon_cast_bottom): on the caster,
+	// looping until the cast time ends.
 	ef_ske_sky_moon_cast: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_cast/sky_moon_cast',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_cast/',
-			min: 'sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast'
+			min: 'sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
+			castLoop: true,
+			yOffset: 10,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/sky_moon_cast_bottom',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/',
 			min: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/min_sky_moon_cast_bottom',
-			renderBeforeEntities: true
+			castLoop: true,
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
-	// Sky Moon (SKE_SKY_MOON), from the client's own effect folders.
+	// Sky Moon hit (EZ2 sky_moon_hit): on each damaged target.
 	ef_ske_sky_moon_hit: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_hit/sky_moon_hit',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_hit/',
-			min: 'sky_emperor/ske_sky_moon/sky_moon_hit/min_sky_moon_hit'
+			min: 'sky_emperor/ske_sky_moon/sky_moon_hit/min_sky_moon_hit',
+			wav: 'effect/sky_emperor/ske_sky_moon_hit',
+			yOffset: 8,
+			attachedEntity: true
 		}
 	],
 

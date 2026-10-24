@@ -1135,10 +1135,11 @@ SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { beginCastTargetEffectId: 'ef_ske_all_in_t
 SkillEffect[SK.SKE_ENCHANTING_SKY] = {}; //Enchanting Sky: drawn by the Sky Enchant status (StatusEffectTable.js)
 SkillEffect[5502 /* SKE_SKY_SUN */] = { effectId: 'ef_ske_sky_sun', hitEffectId: 'ef_ske_sky_sun_hit' }; //Sky Sun
 SkillEffect[5503 /* SKE_SKY_MOON */] = {
-	effectId: 'ef_ske_sky_moon',
-	effectIdOnCaster: 'ef_ske_sky_moon_cast',
-	hitEffectId: 'ef_ske_sky_moon_hit'
-}; //Sky Moon
+	beginCastEffectId: 'ef_ske_sky_moon_cast',
+	successEffectId: 'ef_ske_sky_moon',
+	hitEffectId: 'ef_ske_sky_moon_hit',
+	hideCastAura: true
+}; //Sky Moon: cast loop on the caster, moon once on the target, hit on each target
 SkillEffect[5504 /* SKE_STAR_LIGHT_KICK */] = {
 	effectId: 'ef_ske_star_light_kick',
 	hitEffectId: 'ef_ske_star_light_kick_hit'

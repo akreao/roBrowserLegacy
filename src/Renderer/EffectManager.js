@@ -713,6 +713,13 @@ class EffectManager {
 				? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration
 				: -1;
 
+		// Cast effects marked castLoop replay until the cast ends and stop there,
+		// like the official client's cast effects. Without a cast time they play once.
+		if (Params.effect.castLoop && Params.Init.castEndTick > 0) {
+			Params.Inst.repeatEnd = Params.Init.castEndTick;
+			Params.Inst.endTick = Params.Init.castEndTick;
+		}
+
 		switch (Params.effect.type) {
 			case 'SPR':
 				spamSprite(Params);
@@ -1078,12 +1085,17 @@ class EffectManager {
 	 * @param {number} skill id
 	 * @param {number} target aid
 	 * @param {number} tick
+	 * @param {number} source aid
+	 * @param {number} cast time in ms, used by effect rows marked castLoop
 	 */
-	static spamSkillCast(skillId, destAID, tick, srcAID) {
+	static spamSkillCast(skillId, destAID, tick, srcAID, castTime) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
+
+		const startTick = tick || Renderer.tick;
+		const castEndTick = castTime > 0 ? startTick + castTime : 0;
 
 		if (SkillEffect[skillId].beginCastEffectId) {
 			effects = Array.isArray(SkillEffect[skillId].beginCastEffectId)
@@ -1095,7 +1107,8 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: destAID,
 					startTick: tick,
-					otherAID: srcAID
+					otherAID: srcAID,
+					castEndTick: castEndTick
 				};
 
 				EffectManager.spam(EF_Init_Par);
@@ -1120,6 +1133,30 @@ class EffectManager {
 				EffectManager.spam(EF_Init_Par);
 			});
 		}
+	}
+
+	/**
+	 * Remove the cast effects (rows marked castLoop) still playing on an entity,
+	 * when its cast is cancelled.
+	 *
+	 * @param {number} aid
+	 */
+	static removeCastLoops(AID) {
+		Object.keys(_list).forEach(name => {
+			const list = _list[name];
+			for (let i = list.length - 1; i >= 0; --i) {
+				const Params = list[i]._Params;
+				if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
+					if (list[i].free) {
+						list[i].free(_gl);
+					}
+					list.splice(i, 1);
+				}
+			}
+			if (!list.length) {
+				delete _list[name];
+			}
+		});
 	}
 
 	/**
