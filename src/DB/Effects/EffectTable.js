@@ -11728,7 +11728,9 @@ export default {
 			file: 'sky_emperor/ske_noon_blast/ske_noon_blast',
 			texturePath: 'sky_emperor/ske_noon_blast/',
 			min: 'sky_emperor/ske_noon_blast/min_ske_noon_blast',
-			wav: 'effect/sky_emperor/ske_noon_blast'
+			wav: 'effect/sky_emperor/ske_noon_blast',
+			attachedEntity: true,
+			yOffset: 13
 		}
 	],
 
