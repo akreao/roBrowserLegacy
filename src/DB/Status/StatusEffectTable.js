@@ -14,10 +14,18 @@
 import StatusConst from './StatusConst.js';
 
 export default {
-	// Rising Moon (SKE_RISING_MOON)
+	// Rising Moon (SKE_RISING_MOON): each cast moves to the next stance
 	[StatusConst.RISING_MOON]: {
 		start: ['ef_ske_rising_moon_00'],
 		loop: ['ef_ske_rising_moon_01']
+	},
+	[StatusConst.MIDNIGHT_MOON]: {
+		start: ['ef_ske_rising_moon_02'],
+		loop: ['ef_ske_rising_moon_03']
+	},
+	[StatusConst.DAWN_MOON]: {
+		start: ['ef_ske_rising_moon_04'],
+		loop: ['ef_ske_rising_moon_05']
 	},
 
 	// Enchanting Sky (SKE_ENCHANTING_SKY)

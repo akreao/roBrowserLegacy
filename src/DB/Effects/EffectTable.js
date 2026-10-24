@@ -11723,8 +11723,9 @@ export default {
 		}
 	],
 
-	// Rising Moon (EFST_RISING_MOON): a moon burst when the status starts,
-	// then a moon circle under the caster until it ends. See StatusEffectTable.js.
+	// Rising Moon (SKE_RISING_MOON) stances. Each stance plays a burst when it
+	// starts, then loops its emblem on the caster until it ends (StatusEffectTable.js).
+	// RISING_MOON
 	ef_ske_rising_moon_00: [
 		{
 			type: 'STR',
@@ -11732,7 +11733,7 @@ export default {
 			texturePath: 'sky_emperor/ske_rising_moon/',
 			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_00',
 			wav: 'effect/sky_emperor/ske_rising_sun_moon',
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -11746,7 +11747,63 @@ export default {
 			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_01',
 			repeat: true,
 			delayStart: 336,
-			ez2PosY: 13,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// MIDNIGHT_MOON
+	ef_ske_rising_moon_02: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_02',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_02',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_moon_03: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_03',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_03',
+			repeat: true,
+			delayStart: 656,
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// DAWN_MOON
+	ef_ske_rising_moon_04: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_04',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_04',
+			wav: 'effect/sky_emperor/ske_rising_sun_moon',
+			yOffset: 13,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	ef_ske_rising_moon_05: [
+		{
+			type: 'STR',
+			file: 'sky_emperor/ske_rising_moon/ske_rising_moon_05',
+			texturePath: 'sky_emperor/ske_rising_moon/',
+			min: 'sky_emperor/ske_rising_moon/min_ske_rising_moon_05',
+			repeat: true,
+			delayStart: 656,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}

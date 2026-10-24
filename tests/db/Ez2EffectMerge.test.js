@@ -7,12 +7,17 @@ import vm from 'node:vm';
 const sourceRoot = process.env.EFFECT_SOURCE_ROOT || join(process.cwd(), 'src');
 
 // mergeEz2Effects over `records`, with `SkillEffect` as the hand-written rows.
-function merge(records, EffectTable, SkillEffect) {
+function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}) {
 	const db = readFileSync(join(sourceRoot, 'DB/DBManager.js'), 'utf8');
 	const start = db.indexOf('function loadBSONFile(');
 	const end = db.indexOf('function loadAttendanceFile(');
 	assert.ok(start >= 0 && end > start, 'BSON merge source boundaries');
-	const context = vm.createContext({ console: { log() {} }, Ez2streffect: records, SKID: { DR_CUTTING_WIND: 6542 } });
+	const context = vm.createContext({
+		console: { log() {} },
+		Ez2streffect: records,
+		SKID: { DR_CUTTING_WIND: 6542, SKE_RISING_MOON: 5468 },
+		StatusEffectTable
+	});
 	vm.runInContext(db.slice(start, end), context);
 	context.mergeEz2Effects(EffectTable, SkillEffect);
 	return SkillEffect;
@@ -39,5 +44,17 @@ describe('kRO effect table merged into skills', () => {
 		const skills = merge(records, {}, {});
 		assert.equal(skills[6542].effectId, 'cutting_wind');
 		assert.equal(skills[6542].hitEffectId, 'cutting_wind_hit');
+	});
+
+	it('does not add a file a status already plays', () => {
+		const moon = {
+			ske_rising_moon_01: { FilePath: 'SKY_EMPEROR\\SKE_RISING_MOON\\ske_rising_moon_01.str', IsFloor: true, IsInfinite: true }
+		};
+		const EffectTable = {
+			ef_ske_rising_moon_01: [{ type: 'STR', file: 'sky_emperor/ske_rising_moon/ske_rising_moon_01' }]
+		};
+		const skills = merge(moon, EffectTable, {}, { 1388: { start: [], loop: ['ef_ske_rising_moon_01'] } });
+		assert.equal(skills[5468], undefined);
+		assert.equal(merge(moon, EffectTable, {})[5468].groundEffectId, 'ske_rising_moon_01');
 	});
 });
