@@ -18,6 +18,7 @@ import Commands from 'Controls/ProcessCommand.js';
 import Events from 'Core/Events.js';
 import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
+import EffectPrim from 'Renderer/Effects/EffectPrim.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import RsmEffect from 'Renderer/Effects/RsmEffect.js';
 import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
@@ -714,6 +715,10 @@ class EffectManager {
 
 			case 'CYLINDER':
 				EffectManager.add(new Cylinder(Params.effect, Params.Inst, Params.Init), Params);
+				break;
+
+			case 'PRIM':
+				EffectManager.add(new EffectPrim(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 
 			case '2D':
