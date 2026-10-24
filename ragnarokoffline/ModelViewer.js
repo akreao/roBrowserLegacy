@@ -253909,7 +253909,7 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var mat4$19, D3DBLEND, _program$24, _buffer$17, _bufferData, _users, _matrix$6, _lastAngle, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var mat4$19, D3DBLEND, _program$24, _buffer$17, _bufferData, _users, _matrix$6, _spriteOffset, _lastAngle, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
@@ -253923,6 +253923,7 @@ var init_StrEffect = __esmMin((() => {
 	_bufferData = /* @__PURE__ */ new Float32Array(16);
 	_users = /* @__PURE__ */ new Set();
 	_matrix$6 = mat4$19.create();
+	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
 	_lastAngle = -1;
 	_modelView$1 = null;
 	AIM_PIVOT_X = 320;
@@ -254064,6 +254065,45 @@ var init_StrEffect = __esmMin((() => {
 			return Math.atan2(viewY, viewX) * 180 / Math.PI - (effect.facing || 0);
 		}
 		/**
+		* Where a frame's art sits about the effect's position.
+		*
+		* Classic effects put the art's (320,320) on the position, half a cell
+		* lower. An effect from the client's EZ2 table (one with xOffset/yOffset)
+		* puts the art's centre (320,240) on the position moved PosX/PosY client
+		* units along the screen, as CEZ2STREffectEx does: 5 client units to a
+		* cell, 35 STR pixels to a cell.
+		*
+		* @param {object} animat - frame
+		* @param {number} sizeScale - owner's size, for attachments
+		* @param {Float32Array|Array<number>} out - gets the offset in STR pixels
+		* @returns {number} vertical base, in cells
+		*/
+		layout(animat, sizeScale, out) {
+			const ez2 = !this.ownerEntity && this.ez2Offset;
+			const pivotY = ez2 ? AIM_PIVOT_Y : 320;
+			const shiftX = ez2 ? this.ez2Offset[0] * PIXEL_TO_WORLD_Z * 35 : 0;
+			const shiftY = ez2 ? this.ez2Offset[1] * PIXEL_TO_WORLD_Z * 35 : 0;
+			const verticalBase = ez2 ? 0 : .5;
+			if (this.ownerEntity) {
+				out[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				out[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				return 0;
+			}
+			if (this.aimAngle) {
+				const rad = this.aimAngle / 180 * Math.PI;
+				const cos = Math.cos(rad);
+				const sin = Math.sin(rad);
+				const x = animat.pos[0] - AIM_PIVOT_X;
+				const y = AIM_PIVOT_Y - animat.pos[1];
+				out[0] = x * cos - y * sin + shiftX;
+				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) - shiftY;
+				return verticalBase;
+			}
+			out[0] = animat.pos[0] - 320 + shiftX;
+			out[1] = animat.pos[1] - pivotY - shiftY;
+			return verticalBase;
+		}
+		/**
 		* Setup geometries, send data to GPU
 		*
 		* @param {object} webgl context
@@ -254097,26 +254137,9 @@ var init_StrEffect = __esmMin((() => {
 				mat4$19.rotateZ(_matrix$6, _matrix$6, -angle / 180 * Math.PI);
 				_lastAngle = angle;
 			}
-			const spriteOffset = /* @__PURE__ */ new Float32Array(2);
-			let verticalBase = .5;
-			if (this.ownerEntity) {
-				spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-				spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-				verticalBase = 0;
-			} else if (this.aimAngle) {
-				const rad = this.aimAngle / 180 * Math.PI;
-				const cos = Math.cos(rad);
-				const sin = Math.sin(rad);
-				const x = animat.pos[0] - AIM_PIVOT_X;
-				const y = AIM_PIVOT_Y - animat.pos[1];
-				spriteOffset[0] = x * cos - y * sin;
-				spriteOffset[1] = -80 - (x * sin + y * cos);
-			} else {
-				spriteOffset[0] = animat.pos[0] - 320;
-				spriteOffset[1] = animat.pos[1] - 320;
-			}
+			const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
 			gl.uniform4fv(uniform.uSpriteColor, animat.color);
-			gl.uniform2fv(uniform.uSpriteOffset, spriteOffset);
+			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
 			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$6);
@@ -273604,7 +273627,9 @@ function spamSTR(Params) {
 		filename: "data/texture/effect/" + pick(Params.effect.file) + ".str",
 		texturePath
 	});
-	EffectManager.add(new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks), Params);
+	const str = new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
+	if (Params.effect.xOffset !== void 0 || Params.effect.yOffset !== void 0) str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
+	EffectManager.add(str, Params);
 }
 /**
 * Spam an effect to the scene
@@ -283493,7 +283518,6 @@ var init_SkySunEffect = __esmMin((() => {
 		min: "sky_emperor/ske_sunset_blast/min_sunset_blast_small",
 		wav: "effect/sky_emperor/ske_sky_sun_1",
 		yOffset: 10,
-		renderBeforeEntities: true,
 		attachedEntity: false
 	};
 }));
@@ -293193,7 +293217,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "sky_emperor/ske_rising_sun/",
 			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_00",
 			wav: "effect/sky_emperor/ske_rising_sun_moon",
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -293204,7 +293228,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_01",
 			repeat: true,
 			delayStart: 336,
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -293214,7 +293238,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "sky_emperor/ske_rising_sun/",
 			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_02",
 			wav: "effect/sky_emperor/ske_rising_sun_moon",
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -293225,7 +293249,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_03",
 			repeat: true,
 			delayStart: 656,
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -293235,7 +293259,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "sky_emperor/ske_rising_sun/",
 			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_04",
 			wav: "effect/sky_emperor/ske_rising_sun_moon",
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -293246,7 +293270,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_rising_sun/min_ske_rising_sun_05",
 			repeat: true,
 			delayStart: 656,
-			ez2PosY: 13,
+			yOffset: 13,
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -293358,6 +293382,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_dawn_break/min_ske_dawn_break",
 			wav: "effect/sky_emperor/ske_dawn_break",
 			attachedEntity: true,
+			renderBeforeEntities: true,
 			yOffset: 7
 		}],
 		ef_ske_twinkling_galaxy_field: [{
@@ -293478,7 +293503,6 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_all_in_the_sky/min_ske_all_in_the_sky",
 			wav: "effect/sky_emperor/ske_all_in_the_sky",
 			attachedEntity: true,
-			renderBeforeEntities: true,
 			xOffset: 1,
 			yOffset: 3
 		}],
@@ -293510,7 +293534,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "sky_emperor/ske_sky_sun/sky_sun/min_sky_sun",
 			wav: "effect/sky_emperor/ske_sky_sun",
 			yOffset: 10,
-			renderBeforeEntities: false,
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}, {
 			type: "FUNC",
@@ -293522,7 +293546,6 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "sky_emperor/ske_sky_sun/sky_sun_hit/",
 			min: "sky_emperor/ske_sky_sun/sky_sun_hit/min_sky_sun_hit",
 			yOffset: 8,
-			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
 		ef_ske_sky_moon: [{
@@ -322678,7 +322701,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			type: "STR",
 			file: (entry.FilePath || "").replace(/\\/g, "/").replace(/\.str$/i, ""),
 			texturePath,
-			renderBeforeEntities: entry.IsFloor ? false : true,
+			renderBeforeEntities: !!entry.IsFloor,
 			xOffset: entry.PosX || 0,
 			yOffset: entry.PosY || 0,
 			wav: entry.SoundPath ? entry.SoundPath.replace(/\\/g, "/").replace(/\.wav$/i, "") : null,
