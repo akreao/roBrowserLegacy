@@ -47,6 +47,7 @@ import TownInfo from './TownInfo.js';
 import StatusInfo from './Status/StatusInfo.js';
 import SC from './Status/StatusConst.js';
 import { stateIconFiles, BEFORE_MOD_NAMES, AFTER_MOD_NAMES, BEFORE_MOD_ROWS } from './Status/StateIconMods.js';
+import StatusEffectTable from './Status/StatusEffectTable.js';
 import XmlParse from 'Vendors/xmlparse.js';
 import Base62 from 'Utils/Base62.js';
 import { BSON } from 'bson';
@@ -4752,6 +4753,17 @@ function skillPlaysFile(skillEntry, EffectTable, file) {
 }
 
 /**
+ * Whether a status in StatusEffectTable draws this STR file.
+ *
+ * @param {object} EffectTable
+ * @param {string} file STR path without extension
+ * @return {boolean}
+ */
+function statusPlaysFile(EffectTable, file) {
+	return Object.values(StatusEffectTable).some(row => skillPlaysFile(row, EffectTable, file));
+}
+
+/**
  * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
  */
 function mergeEz2Effects(EffectTable, SkillEffect) {
@@ -4898,9 +4910,14 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		count++;
 
 		// Pass 6: SkillEffect Mapping with differentiated fields
-		// A skill that already plays this file, from a hand-written entry, would
-		// draw it twice.
-		if (skillId && !skillPlaysFile(SkillEffect[skillId], EffectTable, EffectTable[effectName][0].file)) {
+		// A skill that already plays this file, from a hand-written entry, or a
+		// status that plays it (StatusEffectTable.js), would draw it twice.
+		const file = EffectTable[effectName][0].file;
+		if (
+			skillId &&
+			!skillPlaysFile(SkillEffect[skillId], EffectTable, file) &&
+			!statusPlaysFile(EffectTable, file)
+		) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 
