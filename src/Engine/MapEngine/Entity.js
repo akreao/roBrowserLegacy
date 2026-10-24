@@ -2497,6 +2497,17 @@ function onEntityStatusChange(pkt) {
 			});
 			break;
 		}
+		case StatusConst.STAR_BURST:
+			// Star Burst's mark: bursts of stars on the target while the status lasts.
+			// When it ends no new burst starts; the ones already playing finish.
+			if (pkt.state == 1) {
+				EffectManager.remove(null, pkt.AID, 'ef_efst_star_burst');
+				EffectManager.spam({ effectId: 'ef_efst_star_burst', ownerAID: pkt.AID, persistent: true });
+			} else {
+				EffectManager.endRepeat(null, pkt.AID, 'ef_efst_star_burst');
+			}
+			break;
+
 		case StatusConst.CLAN_INFO:
 			DB.loadClanEmblem(pkt.val[1], image => {
 				entity.clanId = pkt.val[1];
