@@ -1984,6 +1984,11 @@ function onEntityCastSkill(pkt) {
 				break;
 		}
 
+		// Some skills always use the same cast aura, whatever the packet's element
+		if (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].castAuraEffectId) {
+			EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;
+		}
+
 		EffectManager.spam(EF_Init_Par);
 	}
 }

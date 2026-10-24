@@ -11723,14 +11723,16 @@ export default {
 		}
 	],
 
-	// Midnight Kick (SKE_MIDNIGHT_KICK), from the client's own effect folders.
+	// Midnight Kick (SKE_MIDNIGHT_KICK): EZ2 effect "ske_midnight_kick", played once on the caster when the skill is used.
 	ef_ske_midnight_kick: [
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_midnight_kick/ske_midnight_kick',
 			texturePath: 'sky_emperor/ske_midnight_kick/',
 			min: 'sky_emperor/ske_midnight_kick/min_ske_midnight_kick',
-			wav: 'effect/sky_emperor/ske_midnight_kick'
+			wav: 'effect/sky_emperor/ske_midnight_kick',
+			attachedEntity: true,
+			yOffset: 10
 		}
 	],
 
