@@ -305776,7 +305776,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		const prefix = skidNames[i] + "_";
 		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
 			const other = SkillConst_default[skidNames[j]];
-			if (skidNames[j].startsWith(prefix) && SkillEffect[other] && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
+			if (skidNames[j].startsWith(prefix) && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
 		}
 	}
 	function siblingPlaysFile(skillId, file) {
