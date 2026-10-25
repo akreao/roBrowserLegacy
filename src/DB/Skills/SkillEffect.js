@@ -1975,8 +1975,9 @@ SkillEffect[SK.KR_FEATHER_SPRINKLE] = { effectIdOnCaster: 'ef_druid_feather_spri
 SkillEffect[SK.KR_WIND_VEIL] = { effectId: 'ef_druid_wind_veil' };
 SkillEffect[SK.KR_ICE_PILLAR] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_pillar_start', hitEffectId: 'ef_druid_ice_hit' };
 SkillEffect[SK.KR_ICE_SPLASH] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_splash', hitEffectId: 'ef_druid_ice_hit' };
-SkillEffect[SK.KR_THUNDERING_FOCUS] = { beginCastEffectId: 'ef_druid_thunder_cast', effectIdOnCaster: 'ef_druid_thundering_focus_g', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.KR_THUNDERING_FOCUS_S] = { effectIdOnCaster: 'ef_druid_thundering_focus_y', hitEffectId: 'ef_druid_thunder_hit_y' };
+// Thundering Focus: one floor ring on the target when the use succeeds, the same at every level
+SkillEffect[SK.KR_THUNDERING_FOCUS] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectId: 'ef_druid_thundering_focus_g', hitEffectId: 'ef_druid_thunder_hit_g' };
+SkillEffect[SK.KR_THUNDERING_FOCUS_S] = { successEffectId: 'ef_druid_thundering_focus_y', hitEffectId: 'ef_druid_thunder_hit_y' };
 SkillEffect[SK.KR_THUNDERING_ORB] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: 'ef_druid_thundering_orb_g', hitEffectId: 'ef_druid_thunder_hit_g' };
 SkillEffect[SK.KR_THUNDERING_ORB_S] = { effectId: 'ef_druid_thundering_orb_y', hitEffectId: 'ef_druid_thunder_hit_y' };
 // Thundering Call: on the target when the use succeeds, 3x3 for level 1-6 and 5x5 from 7

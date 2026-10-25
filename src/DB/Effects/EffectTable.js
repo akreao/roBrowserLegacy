@@ -25602,7 +25602,10 @@ export default {
 			file: 'druid/kr_thundering_focus/thundering_focus_g/thundering_focus_g',
 			texturePath: 'druid/kr_thundering_focus/thundering_focus_g/',
 			min: 'druid/kr_thundering_focus/thundering_focus_g/min_thundering_focus_g',
-			wav: 'effect/druid/kr_thundering_focus_g'
+			wav: 'effect/druid/kr_thundering_focus_g',
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 	ef_druid_thundering_focus_y: [
@@ -25611,7 +25614,10 @@ export default {
 			file: 'druid/kr_thundering_focus/thundering_focus_y/thundering_focus_y',
 			texturePath: 'druid/kr_thundering_focus/thundering_focus_y/',
 			min: 'druid/kr_thundering_focus/thundering_focus_y/min_thundering_focus_y',
-			wav: 'effect/druid/kr_thundering_focus_y'
+			wav: 'effect/druid/kr_thundering_focus_y',
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 	ef_druid_thundering_orb_g: [
