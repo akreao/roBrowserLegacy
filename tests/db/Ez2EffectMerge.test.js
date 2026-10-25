@@ -6,8 +6,9 @@ import vm from 'node:vm';
 
 const sourceRoot = process.env.EFFECT_SOURCE_ROOT || join(process.cwd(), 'src');
 
-// mergeEz2Effects over `records`, with `SkillEffect` as the hand-written rows.
-function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}) {
+// mergeEz2Effects over `records`, with `SkillEffect` as the hand-written rows
+// and `units` as SkillUnit.js ({ start: SkillUnit, end: SkillUnitEnd }).
+function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}, units = {}) {
 	const db = readFileSync(join(sourceRoot, 'DB/DBManager.js'), 'utf8');
 	const start = db.indexOf('function loadBSONFile(');
 	const end = db.indexOf('function loadAttendanceFile(');
@@ -16,7 +17,9 @@ function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}) {
 		console: { log() {} },
 		Ez2streffect: records,
 		SKID: { DR_CUTTING_WIND: 6542, SKE_RISING_MOON: 5468, NW_INTENSIVE_AIM: 5403 },
-		StatusEffectTable
+		StatusEffectTable,
+		SkillUnit: units.start || {},
+		SkillUnitEnd: units.end || {}
 	});
 	vm.runInContext(db.slice(start, end), context);
 	context.mergeEz2Effects(EffectTable, SkillEffect);
@@ -158,5 +161,20 @@ describe('kRO effect table merged into skills', () => {
 		assert.deepEqual({ ...merge(aim, EffectTable, hand(), status)[5403] }, hand()[5403]);
 		// Without the status row, the last stage would be bolted onto the skill
 		assert.equal(merge(aim, EffectTable, hand())[5403].effectId, 'intensive_aim_10');
+	});
+
+	it('does not add a file a skill unit plays', () => {
+		const EffectTable = {};
+		const nova = {
+			cutting_wind_start: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_start.str' },
+			cutting_wind_end: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_end.str' },
+			cutting_wind_hit: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_hit\\cutting_wind_hit.str' }
+		};
+		const units = { start: { 300: ['cutting_wind_start'] }, end: { 300: ['cutting_wind_end'] } };
+		const skills = merge(nova, EffectTable, {}, {}, units);
+		assert.equal(skills[6542].effectId, undefined);
+		assert.equal(skills[6542].hitEffectId, 'cutting_wind_hit');
+		// Without the unit rows, the unit's start and end would play on the cast
+		assert.deepEqual([...merge(nova, {}, {})[6542].effectId], ['cutting_wind_start', 'cutting_wind_end']);
 	});
 });

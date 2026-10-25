@@ -47,6 +47,7 @@ import TownInfo from './TownInfo.js';
 import StatusInfo from './Status/StatusInfo.js';
 import SC from './Status/StatusConst.js';
 import StatusEffectTable from './Status/StatusEffectTable.js';
+import SkillUnit, { SkillUnitEnd } from './Skills/SkillUnit.js';
 import { stateIconFiles, BEFORE_MOD_NAMES, AFTER_MOD_NAMES, BEFORE_MOD_ROWS } from './Status/StateIconMods.js';
 import XmlParse from 'Vendors/xmlparse.js';
 import Base62 from 'Utils/Base62.js';
@@ -4818,6 +4819,17 @@ function statusPlaysFile(EffectTable, file) {
 }
 
 /**
+ * Whether a skill unit in SkillUnit.js draws this STR file (its start, loop or end rows).
+ *
+ * @param {object} EffectTable
+ * @param {string} file STR path without extension
+ * @return {boolean}
+ */
+function unitPlaysFile(EffectTable, file) {
+	return [SkillUnit, SkillUnitEnd].some(table => skillPlaysFile(table, EffectTable, file));
+}
+
+/**
  * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
  */
 function mergeEz2Effects(EffectTable, SkillEffect) {
@@ -4966,7 +4978,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 
 		// Pass 6: SkillEffect Mapping with differentiated fields
 		// A skill that already plays this file, from a hand-written entry, or a
-		// status that plays it (StatusEffectTable.js), would draw it twice.
+		// status that plays it (StatusEffectTable.js) or a skill unit that does
+		// (SkillUnit.js), would draw it twice.
 		// Endless (IsInfinite) files are a status's or a unit's loop: played
 		// from a skill's cast, nothing would ever stop them.
 		// Only one variant of an effect: the official client picks one by
@@ -4976,7 +4989,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			skillId &&
 			!entry.IsInfinite &&
 			!skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) &&
-			!statusPlaysFile(EffectTable, file)
+			!statusPlaysFile(EffectTable, file) &&
+			!unitPlaysFile(EffectTable, file)
 		) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
