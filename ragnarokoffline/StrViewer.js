@@ -220474,7 +220474,15 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = {};
 	SkillEffect[SkillConst_default.RL_R_TRIP_PLUSATK] = {};
 	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { effectId: "ef_nw_intensive_aim" };
-	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { effectId: "ef_nw_grenade_fragment" };
+	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { successEffectIdOnCasterByLevel: [
+		"ef_nw_grenade_fragment_water",
+		"ef_nw_grenade_fragment_wind",
+		"ef_nw_grenade_fragment_earth",
+		"ef_nw_grenade_fragment_fire",
+		"ef_nw_grenade_fragment_darkness",
+		"ef_nw_grenade_fragment_saint",
+		"ef_nw_grenade_fragment_reset"
+	] };
 	SkillEffect[SkillConst_default.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: "ef_nw_the_vigilante_at_night" };
 	SkillEffect[SkillConst_default.NW_ONLY_ONE_BULLET] = {
 		effectId: "ef_nw_only_one_bullet",
@@ -274152,8 +274160,10 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} skill id
 		* @param {number} target aid
 		* @param {number} tick
+		* @param {number} srcAID caster aid
+		* @param {number} [level] skill level from the packet
 		*/
-		static spamSkillSuccess(skillId, destAID, tick, srcAID) {
+		static spamSkillSuccess(skillId, destAID, tick, srcAID, level) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			if (SkillEffect[skillId].successEffectId) {
@@ -274166,6 +274176,17 @@ var init_EffectManager = __esmMin((() => {
 						otherAID: srcAID
 					};
 					EffectManager.spam(EF_Init_Par);
+				});
+			}
+			const byLevel = SkillEffect[skillId].successEffectIdOnCasterByLevel;
+			if (byLevel && byLevel.length && level > 0) {
+				const effectId = byLevel[Math.min(level, byLevel.length) - 1];
+				if (effectId) EffectManager.spam({
+					effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					skillLevel: level
 				});
 			}
 			if (SkillEffect[skillId].successEffectIdOnCaster) {
@@ -300755,11 +300776,68 @@ var init_EffectTable = __esmMin((() => {
 			min: "night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full",
 			wav: "effect/night_watch/nw_intensive_aim"
 		}],
-		ef_nw_grenade_fragment: [{
+		ef_nw_grenade_fragment_water: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_water/grenade_fragment_water",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_water/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_water/min_grenade_fragment_water",
+			wav: "effect/night_watch/nw_grenade_fragment_water",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_wind: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_wind/grenade_fragment_wind",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_wind/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_wind/min_grenade_fragment_wind",
+			wav: "effect/night_watch/nw_grenade_fragment_wind",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_earth: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_earth/grenade_fragment_earth",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_earth/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_earth/min_grenade_fragment_earth",
+			wav: "effect/night_watch/nw_grenade_fragment_earth",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_fire: [{
 			type: "STR",
 			file: "night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire",
 			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_fire/",
-			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire"
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire",
+			wav: "effect/night_watch/nw_grenade_fragment_fire",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_darkness: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_darkness/grenade_fragment_darkness",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_darkness/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_darkness/min_grenade_fragment_darkness",
+			wav: "effect/night_watch/nw_grenade_fragment_darkness",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_saint: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_saint/grenade_fragment_saint",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_saint/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_saint/min_grenade_fragment_saint",
+			wav: "effect/night_watch/nw_grenade_fragment_saint",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_reset: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_reset/grenade_fragment_reset",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_reset/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_reset/min_grenade_fragment_reset",
+			wav: "effect/night_watch/nw_grenade_fragment_reset",
+			yOffset: 10,
+			attachedEntity: true
 		}],
 		ef_nw_the_vigilante_at_night: [{
 			type: "STR",
@@ -349946,7 +350024,7 @@ function onEntityUseSkill(pkt) {
 			}
 		}
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
-		if (pkt.result == 1) EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID);
+		if (pkt.result == 1) EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 	}
 }
 /**
