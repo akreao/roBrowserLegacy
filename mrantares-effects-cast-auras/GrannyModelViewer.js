@@ -140369,7 +140369,7 @@ var init_EffectConst = __esmMin((() => {
 	};
 }));
 // src/DB/Skills/SkillUnit.js
-var SkillUnit, SkillUnitEnd;
+var SkillUnit, SkillUnitFallback, SkillUnitEnd;
 var init_SkillUnit = __esmMin((() => {
 	init_SkillUnitConst();
 	init_EffectConst();
@@ -140515,6 +140515,11 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_CROSS_RAIN] = ["new_cross_rain_bottom", "ef_ig_cross_rain_field"];
 	SkillUnit[SkillUnitConst_default.UNT_KUNAIWAIKYOKU] = ["kunaiarea_01_start", "kunaiarea_01_loop"];
 	SkillUnit[SkillUnitConst_default.UNT_SHINKIROU] = ["shinkirou_idle_start", "shinkirou_idle_loop"];
+	SkillUnitFallback = {};
+	SkillUnitFallback[SkillUnitConst_default.UNT_JACK_FROST_NOVA] = ["ef_hn_jack_frost_nova"];
+	SkillUnitFallback[SkillUnitConst_default.UNT_GROUND_GRAVITATION] = ["ef_hn_ground_gravitation"];
+	SkillUnitFallback[SkillUnitConst_default.UNT_TOTEM_OF_TUTELARY] = ["ef_soa_totem_of_tutelary"];
+	SkillUnitFallback[SkillUnitConst_default.UNT_HYUN_ROKS_BREEZE] = ["ef_sh_hyun_roks_breeze"];
 	SkillUnitEnd = {};
 	SkillUnitEnd[SkillUnitConst_default.UNT_JACK_FROST_NOVA] = ["jack_frost_nova_end"];
 	SkillUnitEnd[SkillUnitConst_default.UNT_TOTEM_OF_TUTELARY] = ["totem_of_tutelary_bottom_end", "totem_of_tutelary_end"];
@@ -242487,10 +242492,10 @@ var init_StrEffect = __esmMin((() => {
 				const cos = Math.cos(rad);
 				const sin = Math.sin(rad);
 				const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
-				const y = (AIM_PIVOT_Y - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+				const y = (pivotY - animat.pos[1]) * k * (this.flipY ? -1 : 1);
 				const squash = this.tilt ? Math.cos(this.tilt / 180 * Math.PI) : 1;
 				out[0] = x * cos - y * sin + shiftX;
-				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) * squash - shiftY;
+				out[1] = -(x * sin + y * cos) * squash - shiftY;
 				return verticalBase;
 			}
 			out[0] = (animat.pos[0] - 320) * k + shiftX;
@@ -256375,6 +256380,8 @@ var init_EffectPrim = __esmMin((() => {
 					this.texture = texture;
 					this.ready = true;
 				});
+			}, () => {
+				this.needCleanUp = true;
 			});
 		}
 		/**
@@ -260791,6 +260798,7 @@ var init_EffectManager = __esmMin((() => {
 								effect.needInit = false;
 							}
 							if (effect.ready) effect.render(gl, tick);
+							else if (effect.endTick > 0 && tick > effect.endTick) effect.needCleanUp = true;
 						}
 						size += repeatEffect(effect);
 						if (effect.needCleanUp) {
@@ -260967,7 +260975,12 @@ var init_EffectManager = __esmMin((() => {
 		static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid, level, range) {
 			if (!Map_default.effect) return;
 			if (!(unit_id in SkillUnit)) return;
-			const effectIds = [SkillUnit[unit_id]].flat().filter((effectId) => effectId in EffectTable_default);
+			let effectIds = [SkillUnit[unit_id]].flat().filter((effectId) => effectId in EffectTable_default);
+			let persistent = true;
+			if (!effectIds.length && unit_id in SkillUnitFallback) {
+				effectIds = SkillUnitFallback[unit_id].filter((effectId) => effectId in EffectTable_default);
+				persistent = false;
+			}
 			if (!effectIds.length) return;
 			EffectManager.remove(null, uid);
 			const entity = new Entity();
@@ -260992,7 +261005,7 @@ var init_EffectManager = __esmMin((() => {
 						Altitude.getCellHeight(xPos, yPos)
 					],
 					startTick: Renderer.tick,
-					persistent: true,
+					persistent,
 					duration: -1,
 					otherAID: creatorUid,
 					skillLevel: level,
@@ -276971,11 +276984,23 @@ var init_EffectTable = __esmMin((() => {
 			file: "hyper_novice/hn_jupitel_thunder_storm/jupitel_thunder_storm_ball/jupitel_thunder_storm_ball",
 			texturePath: "hyper_novice/hn_jupitel_thunder_storm/jupitel_thunder_storm_ball/"
 		}],
+		ef_hn_jack_frost_nova: [{
+			type: "STR",
+			file: "hyper_novice/hn_jack_frost_nova/jack_frost_nova_end/jack_frost_nova_end",
+			texturePath: "hyper_novice/hn_jack_frost_nova/jack_frost_nova_end/",
+			wav: "effect/hyper_novice/hn_jack_frost_nova"
+		}],
 		ef_hn_hells_drive: [{
 			type: "STR",
 			file: "hyper_novice/hn_hells_drive/hells_drive_bottom",
 			texturePath: "hyper_novice/hn_hells_drive/",
 			renderBeforeEntities: true
+		}],
+		ef_hn_ground_gravitation: [{
+			type: "STR",
+			file: "hyper_novice/hn_ground_gravitation/ground_gravitation_loop",
+			texturePath: "hyper_novice/hn_ground_gravitation/",
+			wav: "effect/hyper_novice/hn_ground_gravitation"
 		}],
 		ef_hn_napalm_vulcan_strike: [{
 			type: "STR",
@@ -280213,6 +280238,19 @@ var init_EffectTable = __esmMin((() => {
 			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/min_colors_of_hyun_rok_fire",
 			wav: "effect/spirit_handler/sh_colors_of_hyun_rok"
 		}],
+		ef_sh_hyun_roks_breeze: [{
+			type: "STR",
+			file: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/hyun_roks_breeze",
+			texturePath: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/",
+			min: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/min_hyun_roks_breeze",
+			wav: "effect/spirit_handler/sh_hyun_roks_breeze"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/hyun_roks_breeze_bottom",
+			texturePath: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/",
+			min: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/min_hyun_roks_breeze_bottom",
+			renderBeforeEntities: true
+		}],
 		ef_sh_hyun_rok_cannon: [{
 			type: "STR",
 			file: "spirit_handler/skid_sh_hyun_rok_cannon/hyun_rok_cannon",
@@ -281708,6 +281746,12 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "soul_ascetic/soa_soul_gathering/",
 			min: "soul_ascetic/soa_soul_gathering/min_soul_gathering",
 			wav: "effect/soul_ascetic/soa_soul_gathering"
+		}],
+		ef_soa_totem_of_tutelary: [{
+			type: "STR",
+			file: "soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/totem_of_tutelary_end",
+			texturePath: "soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/",
+			min: "soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/min_totem_of_tutelary_end"
 		}],
 		ef_soa_talisman_of_five_elements: [{
 			type: "STR",
@@ -309546,8 +309590,8 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	for (const field in skillEntry) {
 		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]).flat(Infinity);
 		for (const name of names) {
-			const effects = typeof name === "string" ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
+			const effects = typeof name === "string" || typeof name === "number" ? EffectTable[name] : null;
+			if (Array.isArray(effects) && effects.some((effect) => effect && effect.type === "STR" && keyOf(effect.file) === wanted)) return true;
 		}
 	}
 	return false;
@@ -309636,9 +309680,18 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			}
 		}
 	}
-	const skidNames = Object.keys(SkillConst_default);
+	const siblingIds = {};
+	const skidNames = Object.keys(SkillConst_default).sort();
+	for (let i = 0; i < skidNames.length; i++) {
+		const prefix = skidNames[i] + "_";
+		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
+			const other = SkillConst_default[skidNames[j]];
+			if (skidNames[j].startsWith(prefix) && SkillEffect[other] && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
+		}
+	}
 	function siblingPlaysFile(skillId, file) {
-		return skidNames.some((name) => SkillConst_default[name] === skillId && skidNames.some((other) => other.startsWith(name + "_") && skillPlaysFile(SkillEffect[SkillConst_default[other]], EffectTable, file)));
+		const siblings = siblingIds[skillId];
+		return !!siblings && siblings.some((id) => skillPlaysFile(SkillEffect[id], EffectTable, file));
 	}
 	for (const effectName in Ez2streffect) {
 		const entry = Ez2streffect[effectName];
@@ -336927,7 +336980,7 @@ function onEntityStatusChange(pkt) {
 			updateEntityStyle(entity);
 		});
 	}
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state);
+	updateStatusEffects(pkt.AID, pkt.index, Object.prototype.hasOwnProperty.call(pkt, "state") ? pkt.state : 1);
 	processBlockStatus(entity, pkt);
 	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS);
 }
