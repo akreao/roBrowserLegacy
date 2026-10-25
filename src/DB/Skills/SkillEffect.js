@@ -69,6 +69,7 @@
 import SK from 'DB/Skills/SkillConst.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import { REPEAT_WINDOW_MS } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 
 // _job dont store mount variants, just the real job, so it's ok to check like this
 // this is used on monk asura strike effect
@@ -1082,7 +1083,10 @@ SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; 
 SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
 SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card' }; //Hidden Card
 SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit' }; //Mission Bombard (the bomb and its fire come from its skill unit)
-SkillEffect[SK.NW_HASTY_FIRE_IN_THE_HOLE] = { effectId: 'ef_nw_hasty_fire_in_the_hole' }; //Hasty Fire in the Hole
+SkillEffect[SK.NW_HASTY_FIRE_IN_THE_HOLE] = {
+	effectId: 'ef_nw_hasty_fire_in_the_hole', // 5x5, 7x7 and 9x9 in turn
+	groundRepeatWindowMs: REPEAT_WINDOW_MS
+}; //Hasty Fire in the Hole
 SkillEffect[5500 /* NW_WILD_SHOT */] = {
 	effectId: 'ef_nw_wild_shot',
 	effectIdOnCaster: 'ef_nw_wild_shot_cast',

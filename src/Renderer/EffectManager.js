@@ -38,6 +38,7 @@ import Trail from 'Renderer/Effects/Trail.js';
 import WaterfallEffect from 'Renderer/Effects/WaterfallEffect.js';
 import Session from 'Engine/SessionStorage.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
+import { isRepeatGroundPacket } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 
 /**
  * @type {object} saved webgl context
@@ -896,6 +897,14 @@ class EffectManager {
 	static spamSkill(skillId, destAID, position, tick, srcAID) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
+			return;
+		}
+
+		// Skills the official client plays in full from their ground packet
+		// (Hasty Fire in the Hole): not from their damage packets, and not again
+		// when the server resends the ground packet for a later blast
+		const repeatWindowMs = SkillEffect[skillId].groundRepeatWindowMs;
+		if (repeatWindowMs && (!position || isRepeatGroundPacket(skillId, srcAID, position, repeatWindowMs))) {
 			return;
 		}
 
