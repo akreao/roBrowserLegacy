@@ -26146,19 +26146,6 @@ export default {
 			attachedEntity: true
 		}
 	],
-<<<<<<< HEAD
-	2368: [
-		{
-			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
-						variant: 11
-					}),
-=======
 	2367: [
 		{
 			// Night Watch, Soul Ascetic and Spirit Handler cast aura: the client's cast-aura ring in
@@ -26176,6 +26163,22 @@ export default {
 						'ring_yellow.tga',
 						[0, 0]
 					),
+					Params
+				);
+			}
+		}
+	],
+	2368: [
+		{
+			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 11
+					}),
 					Params
 				);
 			}
@@ -26242,7 +26245,6 @@ export default {
 						'new_battle_w/abr_battle_warior.tga',
 						[0, 0]
 					),
->>>>>>> origin/claude/4th-cast-white-rings
 					Params
 				);
 			}
