@@ -56,6 +56,10 @@ PvPCount.init = function init() {
 		(rAct, rSpr) => {
 			_rankfontAct = rAct;
 			_rankfontSpr = rSpr;
+			// setData may have come first, while the font was loading
+			if (total > 0) {
+				renderRankText(`${ranking}/${total}`);
+			}
 		}
 	);
 

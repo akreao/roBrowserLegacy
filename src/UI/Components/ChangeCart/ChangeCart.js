@@ -105,7 +105,7 @@ function onCart(num) {
  */
 ChangeCart.onAppend = function onAppend() {
 	this._host.style.display = 'none';
-	loadCartData();
+	whenDrawn(this._host, loadCartData);
 };
 
 ChangeCart.onChangeCartSkill = function onChangeCartSkill() {

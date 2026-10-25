@@ -38,8 +38,11 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
+import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
+import CastCircle from 'Renderer/Effects/CastCircle.js';
+import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -6635,13 +6638,43 @@ export default {
 		}
 	],
 
-	// Hell's Drive (HN_HELLS_DRIVE), from the client's own effect folders.
-	ef_hn_hells_drive: [
+	// Hell's Drive (HN_HELLS_DRIVE): the EZ2 rows, each placed once on the ground
+	// at one spot of the skill's grid (SkillEffect successEffectGrid*): the floor
+	// layer plus one of the three blasts, picked at random.
+	ef_hn_hells_drive_bottom: [
 		{
 			type: 'STR',
 			file: 'hyper_novice/hn_hells_drive/hells_drive_bottom',
 			texturePath: 'hyper_novice/hn_hells_drive/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 0
+		}
+	],
+	ef_hn_hells_drive_00: [
+		{
+			type: 'STR',
+			file: 'hyper_novice/hn_hells_drive/hells_drive_00',
+			texturePath: 'hyper_novice/hn_hells_drive/',
+			wav: 'effect/hyper_novice/hn_hells_drive_00',
+			yOffset: 0
+		}
+	],
+	ef_hn_hells_drive_01: [
+		{
+			type: 'STR',
+			file: 'hyper_novice/hn_hells_drive/hells_drive_01',
+			texturePath: 'hyper_novice/hn_hells_drive/',
+			wav: 'effect/hyper_novice/hn_hells_drive_01',
+			yOffset: 0
+		}
+	],
+	ef_hn_hells_drive_02: [
+		{
+			type: 'STR',
+			file: 'hyper_novice/hn_hells_drive/hells_drive_02',
+			texturePath: 'hyper_novice/hn_hells_drive/',
+			wav: 'effect/hyper_novice/hn_hells_drive_02',
+			yOffset: 0
 		}
 	],
 
@@ -10579,14 +10612,82 @@ export default {
 		}
 	],
 
-	// Colors of Hyunrok (SH_COLORS_OF_HYUN_ROK), from the client's own effect folders.
-	ef_sh_colors_of_hyun_rok: [
+	// Colors of Hyunrok (SH_COLORS_OF_HYUN_ROK): one per level, the EZ2 rows of the same name (PosY 7).
+	ef_sh_colors_of_hyun_rok_water: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/colors_of_hyun_rok_water',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/min_colors_of_hyun_rok_water',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_wind: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/colors_of_hyun_rok_wind',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/min_colors_of_hyun_rok_wind',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_earth: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/colors_of_hyun_rok_earth',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/min_colors_of_hyun_rok_earth',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_fire: [
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/colors_of_hyun_rok_fire',
 			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/',
 			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/min_colors_of_hyun_rok_fire',
-			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok'
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_darkness: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/colors_of_hyun_rok_darkness',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/min_colors_of_hyun_rok_darkness',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_saint: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/colors_of_hyun_rok_saint',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/min_colors_of_hyun_rok_saint',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_reset: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/colors_of_hyun_rok_reset',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/min_colors_of_hyun_rok_reset',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok01',
+			yOffset: 7,
+			attachedEntity: true
 		}
 	],
 
@@ -13742,10 +13843,50 @@ export default {
 		}
 	],
 
-	//735: [{}],	//EF_CHOOKGI_FIRE	   (Nothing) - Used for elemental spheres (warlock)
-	//736: [{}],	//EF_CHOOKGI_WIND	   (Nothing) - Used for elemental spheres (warlock)
-	//737: [{}],	//EF_CHOOKGI_WATER	   (Nothing) - Used for elemental spheres (warlock)
-	//738: [{}],	//EF_CHOOKGI_GROUND	   (Nothing) - Used for elemental spheres (warlock)
+	735: [
+		{
+			//EF_CHOOKGI_FIRE	Spirit charm orbs, fire (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new EnergyOrb(Params.Init.ownerEntity, 735, Params.Init.spiritNum, Params.Inst.startTick), Params);
+			}
+		}
+	],
+
+	736: [
+		{
+			//EF_CHOOKGI_WIND	Spirit charm orbs, wind (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new EnergyOrb(Params.Init.ownerEntity, 736, Params.Init.spiritNum, Params.Inst.startTick), Params);
+			}
+		}
+	],
+
+	737: [
+		{
+			//EF_CHOOKGI_WATER	Spirit charm orbs, water (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new EnergyOrb(Params.Init.ownerEntity, 737, Params.Init.spiritNum, Params.Inst.startTick), Params);
+			}
+		}
+	],
+
+	738: [
+		{
+			//EF_CHOOKGI_GROUND	Spirit charm orbs, earth (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new EnergyOrb(Params.Init.ownerEntity, 738, Params.Init.spiritNum, Params.Inst.startTick), Params);
+			}
+		}
+	],
+
 	//739: [{}],	//EF_MAGENTA_TRAP	   Old Magenta Trap
 	//740: [{}],	//EF_COBALT_TRAP	   Old Cobald Trap
 	//741: [{}],	//EF_MAIZE_TRAP	   Old Maize Trap
@@ -17739,6 +17880,27 @@ export default {
 		}
 	],
 
+	1709: [
+		{
+			// Hell's Drive cast aura: the client's untinted cast circle in
+			// new_earthdrive/ring_brown.tga, white, for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_earthdrive/ring_brown.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
+
 	1869: [
 		{
 			type: 'STR',
@@ -19039,6 +19201,57 @@ export default {
 			file: 'imperial_guard/ig_radiant_spear/radiant_spear_cast/radiant_spear_cast',
 			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_cast/',
 			min: 'imperial_guard/ig_radiant_spear/radiant_spear_cast/min_radiant_spear_cast'
+		}
+	],
+
+	// Radiant Spear's spear for a target on the right half of the screen: floor ring
+	// first, then the spear, on the ground where the target stood.
+	ef_ig_radiant_spear_leftdown: [
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/radiant_spear_leftdown_bottom',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/min_radiant_spear_leftdown_bottom',
+			wav: 'effect/lg_radiant_spear2',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		},
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown/radiant_spear_leftdown',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown/min_radiant_spear_leftdown',
+			wav: 'effect/lg_radiant_spear1',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
+		}
+	],
+
+	// Radiant Spear's spear for a target on the left half of the screen.
+	ef_ig_radiant_spear_rightdown: [
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/radiant_spear_rightdown_bottom',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/min_radiant_spear_rightdown_bottom',
+			wav: 'effect/lg_radiant_spear2',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		},
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown/radiant_spear_rightdown',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown/min_radiant_spear_rightdown',
+			wav: 'effect/lg_radiant_spear1',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
 		}
 	],
 
@@ -20828,18 +21041,6 @@ export default {
 		}
 	],
 
-	// Servant Weapon Demolition (DK_SERVANT_W_DEMOL), from the client's own effect folders.
-	ef_dk_servant_w_demol_hit: [
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/servant_demolition_hit',
-			texturePath: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/',
-			min: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/min_servant_demolition_hit',
-			fallback: ['servant_demolition/servant_demolition_hit/servant_demolition_hit'],
-			wav: 'effect/dk_servant_w_demol'
-		}
-	],
-
 	// Charging Pierce (DK_CHARGINGPIERCE), from the client's own effect folders.
 	ef_dk_chargingpierce_cast: [
 		{
@@ -20963,6 +21164,9 @@ export default {
 
 	// Storm Slash (DK_STORMSLASH): one stage per skill level, ef_dk_stormslash_1 to _5.
 	...stormSlashEffects(),
+
+	// Servant Weapon: Demolition (DK_SERVANT_W_DEMOL): gather, strike and hit rows.
+	...servantDemolitionEffects(),
 
 	// Dragonic Breath (DK_DRAGONIC_BREATH), from the client's own effect folders.
 	ef_dk_dragonic_breath: [

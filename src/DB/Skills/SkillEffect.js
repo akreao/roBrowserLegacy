@@ -30,6 +30,12 @@
  *	- releaseEffectId: 			Triggers once when the skill is released on a target (after the cast, before the hit lands), even if the skill misses.
  *								Can be used for effects traveling from the caster toward the target.
  *
+ *	- damageEffectIdOnCaster:	Triggers on the caster as soon as each damage packet of the skill arrives (splash
+ *								and misses included), before the hit lands.
+ *
+ *	- damageEffectIdOnTarget:	Triggers on the target as soon as each damage packet of the skill arrives (splash
+ *								and misses included). An entry that is a list plays one of its effects, picked at random.
+ *
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
  *								Can be used to create casting effects.
  *
@@ -49,6 +55,10 @@
  *	- successEffectIdOnCasterByScreenDirection:
  *								12 effects; plays one on the caster when the skill succeeds, picked by where
  *								the target is on screen: 30 degree steps clockwise, the first centred straight up.
+ *
+ *	- successEffectIdOnTargetByScreenSide:
+ *								{ right, left }; plays one on the ground where the target stands when the skill
+ *								succeeds, picked by which half of the screen the target is in, seen from the caster.
  *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
@@ -203,7 +213,15 @@ SkillEffect[SK.HN_SPIRAL_PIERCE_MAX] = { effectId: 'ef_hn_spiral_pierce_max' }; 
 SkillEffect[SK.HN_METEOR_STORM_BUSTER] = { effectId: 'ef_hn_meteor_storm_buster' }; //Meteor Storm Buster
 SkillEffect[SK.HN_JUPITEL_THUNDER_STORM] = { effectId: 'ef_hn_jupitel_thunder_storm' }; //Jupitel Thunderstorm
 SkillEffect[SK.HN_JACK_FROST_NOVA] = { effectId: 'ef_hn_jack_frost_nova' }; //Jack Frost Nova
-SkillEffect[SK.HN_HELLS_DRIVE] = { effectId: 'ef_hn_hells_drive' }; //Hell's Drive
+SkillEffect[SK.HN_HELLS_DRIVE] = {
+	// One spot per row and column of a square over the splash area (3, 5, 7 or 9
+	// cells), 32 ms apart, when the use packet succeeds: floor layer plus a random blast
+	successEffectGridIds: ['ef_hn_hells_drive_bottom', ['ef_hn_hells_drive_00', 'ef_hn_hells_drive_01', 'ef_hn_hells_drive_02']],
+	successEffectGridSizeByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9],
+	successEffectGridStep: 32,
+	// While casting: the brown cast circle, not the element aura
+	castAuraEffectId: 1709
+}; //Hell's Drive
 SkillEffect[SK.HN_GROUND_GRAVITATION] = { effectId: 'ef_hn_ground_gravitation' }; //Ground Gravitation
 SkillEffect[SK.HN_NAPALM_VULCAN_STRIKE] = { effectId: 'ef_hn_napalm_vulcan_strike' }; //Napalm Vulcan Strike
 SkillEffect[SK.HN_BREAKINGLIMIT] = { effectId: 'ef_hn_breakinglimit' }; //Breaking Limit
@@ -1283,7 +1301,13 @@ SkillEffect[SK.DK_SERVANTWEAPON] = {
 SkillEffect[SK.DK_SERVANTWEAPON_ATK] = { effectId: 'ef_dk_servantweapon_atk' }; //Servant Weapon Attack
 SkillEffect[SK.DK_SERVANT_W_SIGN] = { effectId: 'ef_dk_servant_w_sign' }; //Servant Weapon Sign
 SkillEffect[SK.DK_SERVANT_W_PHANTOM] = { effectId: 'ef_dk_servant_w_phantom' }; //Servant Weapon Phantom
-SkillEffect[SK.DK_SERVANT_W_DEMOL] = { hitEffectId: 'ef_dk_servant_w_demol_hit' }; //Servant Weapon Demolition
+//Servant Weapon Demolition: for every damage packet the swords gather on the caster and one strikes
+//the target, leftdown or rightdown at random; the hit art plays when the damage lands.
+SkillEffect[SK.DK_SERVANT_W_DEMOL] = {
+	damageEffectIdOnCaster: 'ef_dk_servant_w_demol_collect',
+	damageEffectIdOnTarget: [['ef_dk_servant_w_demol_leftdown', 'ef_dk_servant_w_demol_rightdown']],
+	hitEffectId: 'ef_dk_servant_w_demol_hit'
+};
 SkillEffect[SK.DK_CHARGINGPIERCE] = {
 	effectIdOnCaster: 'ef_dk_chargingpierce_cast',
 	hitEffectId: 'ef_dk_chargingpierce_hit'
@@ -1658,7 +1682,15 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
 SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
-SkillEffect[6503 /* IG_RADIANT_SPEAR */] = { effectIdOnCaster: 'ef_ig_radiant_spear_cast' }; //Radiant Spear
+//Radiant Spear: when the use packet succeeds, one spear lands where the target stands.
+//A target on the right half of the screen (seen from the caster) gets leftdown, on the left half rightdown.
+SkillEffect[6503 /* IG_RADIANT_SPEAR */] = {
+	effectIdOnCaster: 'ef_ig_radiant_spear_cast',
+	successEffectIdOnTargetByScreenSide: {
+		right: 'ef_ig_radiant_spear_leftdown',
+		left: 'ef_ig_radiant_spear_rightdown'
+	}
+};
 SkillEffect[6504 /* IG_IMPERIAL_CROSS */] = { effectId: 'ef_ig_imperial_cross' }; //Imperial Cross
 SkillEffect[6505 /* IG_IMPERIAL_PRESSURE */] = {
 	effectId: 'ef_ig_imperial_pressure',
@@ -1725,7 +1757,18 @@ SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spray
 SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festival_of_ki_sul' }; //Marine Festival of Kisul
 SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul' }; //Sandy Festival of Kisul
 SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage' }; //Kisul Rampage
-SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = { effectId: 'ef_sh_colors_of_hyun_rok' }; //Colors of Hyunrok
+SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = {
+	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
+	successEffectIdOnCasterByLevel: [
+		'ef_sh_colors_of_hyun_rok_water',
+		'ef_sh_colors_of_hyun_rok_wind',
+		'ef_sh_colors_of_hyun_rok_earth',
+		'ef_sh_colors_of_hyun_rok_fire',
+		'ef_sh_colors_of_hyun_rok_darkness',
+		'ef_sh_colors_of_hyun_rok_saint',
+		'ef_sh_colors_of_hyun_rok_reset'
+	]
+}; //Colors of Hyunrok
 SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { effectId: 'ef_sh_hyun_roks_breeze' }; //Hyunrok Breeze
 SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon' }; //Hyunrok Cannon
 SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion

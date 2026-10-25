@@ -11,10 +11,7 @@
 import _vertexShader from './StrEffect.vs?raw';
 import _fragmentShader from './StrEffect.fs?raw';
 import WebGL from 'Utils/WebGL.js';
-import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
-
-const mat4 = glMatrix.mat4;
 
 /**
  * Look up table D3DX => OPENGL
@@ -32,9 +29,9 @@ let _program = null;
 let _buffer = null;
 
 /**
- * @var {float[16]} buffer
+ * @var {Float32Array} scratchpad for sprite offset
  */
-const _bufferData = new Float32Array(4 * 4);
+const _spriteOffset = new Float32Array(2);
 
 /**
  * The classes that share _program and _buffer: StrEffect and its subclasses
@@ -46,19 +43,14 @@ const _bufferData = new Float32Array(4 * 4);
 const _users = new Set();
 
 /**
- * @var mat4 matrix to generate rotation
+ * @var {Float32Array} scratchpad for corner X positions
  */
-const _matrix = mat4.create();
+const _cornerX = new Float32Array(4);
 
 /**
- * @var {Float32Array} sprite offset sent to the shader
+ * @var {Float32Array} scratchpad for corner Y positions
  */
-const _spriteOffset = new Float32Array(2);
-
-/**
- * @var {number} last angle
- */
-let _lastAngle = -1;
+const _cornerY = new Float32Array(4);
 
 /**
  * @var {mat4} model view of the frame being drawn, to aim effects at a target
@@ -467,7 +459,6 @@ class StrEffect {
 	 */
 	renderAnimation(gl, material, animat) {
 		const uniform = _program.uniform;
-		const attribute = _program.attribute;
 
 		// Hat effects: Scale with entity size
 		let sizeScale = 1.0;
@@ -475,33 +466,17 @@ class StrEffect {
 			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 		}
 
-		// Update geometries (apply size scaling only for attachments)
-		_bufferData[0] = animat.xy[0] * sizeScale;
-		_bufferData[1] = animat.xy[4] * sizeScale;
-		_bufferData[2] = 0; //anim.uv[0];
-		_bufferData[3] = 0; //anim.uv[1];
-
-		_bufferData[4] = animat.xy[1] * sizeScale;
-		_bufferData[5] = animat.xy[5] * sizeScale;
-		_bufferData[6] = 1; //anim.uv[2];
-		_bufferData[7] = 0; //anim.uv[3];
-
-		_bufferData[8] = animat.xy[3] * sizeScale;
-		_bufferData[9] = animat.xy[7] * sizeScale;
-		_bufferData[10] = 0; //anim.uv[4];
-		_bufferData[11] = 1; //anim.uv[5];
-
-		_bufferData[12] = animat.xy[2] * sizeScale;
-		_bufferData[13] = animat.xy[6] * sizeScale;
-		_bufferData[14] = 1; //anim.uv[6];
-		_bufferData[15] = 1; //anim.uv[7];
-
-		const angle = animat.angle - (this.aimAngle || 0);
-		if (angle !== _lastAngle) {
-			mat4.identity(_matrix);
-			mat4.rotateZ(_matrix, _matrix, (-angle / 180) * Math.PI);
-			_lastAngle = angle;
-		}
+		// TRIANGLE_STRIP: v0=(xy0,xy4) v1=(xy1,xy5) v2=(xy3,xy7) v3=(xy2,xy6)
+		_cornerX[0] = animat.xy[0] * sizeScale;
+		_cornerY[0] = animat.xy[4] * sizeScale;
+		_cornerX[1] = animat.xy[1] * sizeScale;
+		_cornerY[1] = animat.xy[5] * sizeScale;
+		_cornerX[2] = animat.xy[3] * sizeScale;
+		_cornerY[2] = animat.xy[7] * sizeScale;
+		_cornerX[3] = animat.xy[2] * sizeScale;
+		_cornerY[3] = animat.xy[6] * sizeScale;
+		gl.uniform4fv(uniform.uCornerX, _cornerX);
+		gl.uniform4fv(uniform.uCornerY, _cornerY);
 
 		const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
 
@@ -510,16 +485,7 @@ class StrEffect {
 		gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 		gl.uniform1f(uniform.uVerticalBase, verticalBase);
 		gl.uniform3fv(uniform.uSpritePosition, this.position);
-
-		gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix);
-
-		// Send new buffer
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
-
-		// Link attribute
-		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0 * 4);
-		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+		gl.uniform1f(uniform.uSpriteAngle, animat.angle - (this.aimAngle || 0));
 
 		// Send texture and data
 		gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
@@ -546,7 +512,7 @@ class StrEffect {
 		if (!_buffer) {
 			_buffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0]), gl.STATIC_DRAW);
 		}
 
 		if (!_program) {
@@ -611,6 +577,9 @@ class StrEffect {
 
 		gl.depthMask(false);
 		gl.useProgram(_program);
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 0, 0);
+
 		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 
@@ -624,7 +593,6 @@ class StrEffect {
 
 		// Enable all attributes
 		gl.enableVertexAttribArray(attribute.aPosition);
-		gl.enableVertexAttribArray(attribute.aTextureCoord);
 
 		gl.activeTexture(gl.TEXTURE0);
 	}
@@ -638,7 +606,6 @@ class StrEffect {
 		gl.depthMask(true);
 
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
-		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	}

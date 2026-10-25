@@ -90,7 +90,7 @@ function instances(calls) {
 	const data = upload[2];
 	const out = [];
 	for (let i = 0; i < upload[5] / 24; i++) {
-		out.push([data[i * 24 + 19], data[i * 24 + 20], data[i * 24 + 21]]);
+		out.push([data[i * 24 + 21], data[i * 24 + 20], data[i * 24 + 22]]);
 	}
 	return out;
 }
@@ -229,6 +229,18 @@ describe('SpriteBatch', () => {
 		expect(names(calls)).not.toContain('drawArraysInstanced');
 	});
 
+	it('gives the full plane depth to the sprites drawn writing depth', () => {
+		SpriteRenderer.beginBatch(gl);
+		SpriteRenderer.runWithDepth(true, true, false, () => draw(wolf, 0, false));
+		SpriteRenderer.runWithDepth(true, false, false, () => draw(wolf, 1, false));
+		calls.length = 0;
+		SpriteRenderer.endBatch();
+
+		const upload = calls.find(c => c[0] === 'bufferData')[2];
+		expect(upload[19]).toBe(1);
+		expect(upload[24 + 19]).toBe(0);
+	});
+
 	it('packs the frames of every sprite file side by side', () => {
 		SpriteRenderer.beginBatch(gl);
 		draw(wolf, 0, false);
@@ -266,6 +278,50 @@ describe('SpriteBatch', () => {
 
 		expect(huge.frames.map(f => f._atlas.layer).sort()).toEqual([0, 1, 2]);
 		expect(calls.filter(c => c[0] === 'drawArraysInstanced')).toEqual([['drawArraysInstanced', 1]]);
+	});
+
+	it('rebuilds its GPU objects and repacks after the context is restored', () => {
+		SpriteRenderer.beginBatch(gl);
+		draw(wolf, 0, false);
+		SpriteRenderer.endBatch();
+		const generation = wolf._atlasGeneration;
+		const palettes = SpriteAtlas.textures.palettes;
+
+		// Same context object, new GPU objects
+		SpriteBatch.contextRestored();
+		calls.length = 0;
+		SpriteRenderer.beginBatch(gl);
+		draw(wolf, 0, false);
+		SpriteRenderer.endBatch();
+
+		expect(names(calls)).toContain('createVertexArray');
+		expect(SpriteAtlas.textures.palettes).not.toBe(palettes);
+		expect(wolf._atlasGeneration).not.toBe(generation);
+
+		// Its vertex array reads a quad made on the restored context, not
+		// SpriteRenderer's, which still dates from before the loss
+		const quadData = calls.findIndex(c => c[0] === 'bufferData' && c[2].length === 16);
+		expect(quadData).toBeGreaterThan(-1);
+		const quad = calls[quadData - 1][2];
+		const vao = calls.findIndex(c => c[0] === 'bindVertexArray' && c[1]);
+		expect(calls.find((c, i) => i > vao && c[0] === 'bindBuffer')[2]).toBe(quad);
+		expect(calls.filter(c => c[0] === 'drawArraysInstanced')).toEqual([['drawArraysInstanced', 1]]);
+	});
+
+	it('deletes the old palette texture when the context changes', () => {
+		SpriteRenderer.beginBatch(gl);
+		draw(wolf, 0, false);
+		SpriteRenderer.endBatch();
+		const palettes = SpriteAtlas.textures.palettes;
+		const oldCalls = calls;
+
+		const next = fakeGL();
+		SpriteRenderer.init(next.gl);
+		SpriteRenderer.bind3DContext(next.gl, M, M, FOG);
+		SpriteRenderer.beginBatch(next.gl);
+		SpriteRenderer.endBatch();
+
+		expect(oldCalls.some(c => c[0] === 'deleteTexture' && c[1] === palettes)).toBe(true);
 	});
 
 	it('draws sprites one by one when batching is off', () => {

@@ -23,8 +23,9 @@ import Camera from 'Renderer/Camera.js';
 import Session from 'Engine/SessionStorage.js';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
 import MemoryManager from 'Core/MemoryManager.js';
-import FramePacer from 'Renderer/FramePacer.js';
 import PerfProbe from 'Core/PerfProbe.js';
+import SpriteBatch from 'Renderer/SpriteBatch.js';
+import FramePacer from 'Renderer/FramePacer.js';
 
 const { mat4 } = glMatrix;
 
@@ -148,9 +149,8 @@ class Renderer {
 			this.gl = WebGL.getContext(this.canvas, param);
 			this.isWebGL2 = WebGL.isWebGL2(this.gl);
 
-			if (PerfProbe.enabled) {
-				PerfProbe.attach(this.gl);
-			}
+			// Switches the probe on when the configuration asks for it (Core/PerfProbe.js)
+			PerfProbe.attach(this.gl);
 
 			if (typeof console !== 'undefined' && console.info) {
 				console.info('Renderer using WebGL ' + (this.isWebGL2 ? '2' : '1') + ' context');
@@ -236,6 +236,9 @@ class Renderer {
 
 		// Restart post process active modules
 		PostProcess.restartModules(gl);
+
+		// Sprite batch programs, buffers and atlas pages are rebuilt on next use
+		SpriteBatch.contextRestored();
 
 		// Trigger resize to reset viewport and framebuffers
 		this.resize();
@@ -340,8 +343,11 @@ class Renderer {
 			this._renderBound = this._render.bind(this);
 		}
 
-		// Every rAF, rendered or not, measures the display's refresh rate
-		FramePacer.sample(now);
+		// Every rAF, rendered or not, measures the display's refresh rate.
+		// The fallback timer is not a refresh, so it leaves the limit by time.
+		if (typeof time === 'number') {
+			FramePacer.sample(now);
+		}
 
 		// initialize lastFrameTime on first run
 		if (typeof this._lastFrameTime === 'undefined' || this._lastFrameTime === 0) {
@@ -474,6 +480,9 @@ class Renderer {
 				console.error(e);
 			}
 			Cursor.setSceneDriven(false);
+			if (PerfProbe.enabled) {
+				PerfProbe.stop();
+			}
 			return;
 		}
 		const pos = this.renderCallbacks.indexOf(fn);

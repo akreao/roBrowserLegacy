@@ -317,6 +317,7 @@ class GUIComponent {
 		this._setupMouseMode();
 
 		this._host.remove();
+		whenDrawn.suspend(this._host);
 	}
 
 	// ─── Lifecycle: append ─────────────────────────────────
@@ -345,6 +346,7 @@ class GUIComponent {
 		}
 
 		parent.appendChild(this._host);
+		whenDrawn.resume(this._host);
 		if (this._noCursorStyle) {
 			_trackNoCursorStyle(this._noCursorStyle);
 		}
@@ -425,6 +427,7 @@ class GUIComponent {
 			// Detach from DOM
 			this._host.remove();
 			UIScale.detach(this);
+			whenDrawn.suspend(this._host);
 			if (this._noCursorStyle) {
 				_untrackNoCursorStyle(this._noCursorStyle);
 			}
@@ -1199,10 +1202,18 @@ class GUIComponent {
 	 * Process legacy data-* attributes on a single DOM element.
 	 * Handles: data-background, data-hover, data-down, data-active, data-text, data-preload.
 	 * Static so it can be called from anywhere (e.g. dynamically created buttons).
+	 *
+	 * @param {HTMLElement} node
+	 * @param {object} [options]
+	 * @param {boolean} [options.text] - set the localized text
+	 * @param {boolean} [options.images] - fetch the images
+	 * @param {string} [options.deferredFrom] - the node's inline background
+	 *   when its images were deferred: a different one set since then by the
+	 *   window itself stays
 	 */
-	static processDataAttrs(node, { text = true, images = true } = {}) {
+	static processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
 		if (!_Client || !_DB) {
-			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images }));
+			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images, deferredFrom }));
 			return;
 		}
 		const background = node.dataset.background;
@@ -1254,6 +1265,9 @@ class GUIComponent {
 					}
 				}
 				node.classList.remove('no-texture');
+				// Fetched late, the window may have set its own background
+				// meanwhile (a mini layout, a selected tab): that one stays.
+				if (deferredFrom !== undefined && node.style.backgroundImage !== deferredFrom) return;
 				updateBg();
 			}, () => {
 				// Not every client's data has every window's textures (iRO's
@@ -1362,7 +1376,8 @@ class GUIComponent {
 			GUIComponent.processDataAttrs(node, { images: false });
 			const { background, hover, down, active, preload } = node.dataset;
 			if (background || hover || down || active || preload) {
-				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false }));
+				const deferredFrom = node.style.backgroundImage;
+				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false, deferredFrom }));
 			}
 		}
 	}

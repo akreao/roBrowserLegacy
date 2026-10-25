@@ -1796,6 +1796,9 @@ function onEntityUseSkillToAttack(pkt) {
 		}
 	}
 
+	// Effects the official client plays as each damage packet arrives
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
+
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
 		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
@@ -2005,7 +2008,7 @@ function onEntityCastCancel(pkt) {
 		entity.cast.clean();
 
 		// Cancel effects
-		EffectManager.remove(null, entity.GID, [12, 54, 55, 56, 57, 58, 59, 454, 60, 513, 831, 845]);
+		EffectManager.remove(null, entity.GID, [12, 1709, 54, 55, 56, 57, 58, 59, 454, 60, 513, 831, 845]);
 		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
@@ -2524,7 +2527,7 @@ function onEntityStatusChange(pkt) {
 
 	// Modify icon
 	if (entity === Session.Entity) {
-		StatusIcons.update(pkt.index, pkt.state, pkt.RemainMS);
+		StatusIcons.update(pkt.index, pkt.state, pkt.RemainMS, pkt.val ? pkt.val[0] : 0);
 	}
 }
 
