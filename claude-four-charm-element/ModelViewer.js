@@ -81384,7 +81384,7 @@ var init_Controls = __esmMin((() => {
 	}, 1);
 }));
 // src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$8, mat2$1, mat2d, mat3$6, mat4$26, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$9, mat2$1, mat2d, mat3$6, mat4$27, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -82262,13 +82262,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "vec3(" + a[0] + ", " + a[1] + ", " + a[2] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.vec3 = vec3$8;
-	vec4$8 = {};
+	vec4$9 = {};
 	/**
 	* Creates a new, empty vec4
 	*
 	* @returns {vec4} a new 4D vector
 	*/
-	vec4$8.create = function() {
+	vec4$9.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(4);
 		out[0] = 0;
 		out[1] = 0;
@@ -82282,7 +82282,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a vector to clone
 	* @returns {vec4} a new 4D vector
 	*/
-	vec4$8.clone = function(a) {
+	vec4$9.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(4);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -82299,7 +82299,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} w W component
 	* @returns {vec4} a new 4D vector
 	*/
-	vec4$8.fromValues = function(x, y, z, w) {
+	vec4$9.fromValues = function(x, y, z, w) {
 		var out = new GLMAT_ARRAY_TYPE(4);
 		out[0] = x;
 		out[1] = y;
@@ -82314,7 +82314,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a the source vector
 	* @returns {vec4} out
 	*/
-	vec4$8.copy = function(out, a) {
+	vec4$9.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -82331,7 +82331,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} w W component
 	* @returns {vec4} out
 	*/
-	vec4$8.set = function(out, x, y, z, w) {
+	vec4$9.set = function(out, x, y, z, w) {
 		out[0] = x;
 		out[1] = y;
 		out[2] = z;
@@ -82346,7 +82346,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$8.add = function(out, a, b) {
+	vec4$9.add = function(out, a, b) {
 		out[0] = a[0] + b[0];
 		out[1] = a[1] + b[1];
 		out[2] = a[2] + b[2];
@@ -82361,7 +82361,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$8.subtract = function(out, a, b) {
+	vec4$9.subtract = function(out, a, b) {
 		out[0] = a[0] - b[0];
 		out[1] = a[1] - b[1];
 		out[2] = a[2] - b[2];
@@ -82372,7 +82372,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.subtract}
 	* @function
 	*/
-	vec4$8.sub = vec4$8.subtract;
+	vec4$9.sub = vec4$9.subtract;
 	/**
 	* Multiplies two vec4's
 	*
@@ -82381,7 +82381,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$8.multiply = function(out, a, b) {
+	vec4$9.multiply = function(out, a, b) {
 		out[0] = a[0] * b[0];
 		out[1] = a[1] * b[1];
 		out[2] = a[2] * b[2];
@@ -82392,7 +82392,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.multiply}
 	* @function
 	*/
-	vec4$8.mul = vec4$8.multiply;
+	vec4$9.mul = vec4$9.multiply;
 	/**
 	* Divides two vec4's
 	*
@@ -82401,7 +82401,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$8.divide = function(out, a, b) {
+	vec4$9.divide = function(out, a, b) {
 		out[0] = a[0] / b[0];
 		out[1] = a[1] / b[1];
 		out[2] = a[2] / b[2];
@@ -82412,7 +82412,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.divide}
 	* @function
 	*/
-	vec4$8.div = vec4$8.divide;
+	vec4$9.div = vec4$9.divide;
 	/**
 	* Returns the minimum of two vec4's
 	*
@@ -82421,7 +82421,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$8.min = function(out, a, b) {
+	vec4$9.min = function(out, a, b) {
 		out[0] = Math.min(a[0], b[0]);
 		out[1] = Math.min(a[1], b[1]);
 		out[2] = Math.min(a[2], b[2]);
@@ -82436,7 +82436,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$8.max = function(out, a, b) {
+	vec4$9.max = function(out, a, b) {
 		out[0] = Math.max(a[0], b[0]);
 		out[1] = Math.max(a[1], b[1]);
 		out[2] = Math.max(a[2], b[2]);
@@ -82451,7 +82451,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} b amount to scale the vector by
 	* @returns {vec4} out
 	*/
-	vec4$8.scale = function(out, a, b) {
+	vec4$9.scale = function(out, a, b) {
 		out[0] = a[0] * b;
 		out[1] = a[1] * b;
 		out[2] = a[2] * b;
@@ -82467,7 +82467,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} scale the amount to scale b by before adding
 	* @returns {vec4} out
 	*/
-	vec4$8.scaleAndAdd = function(out, a, b, scale) {
+	vec4$9.scaleAndAdd = function(out, a, b, scale) {
 		out[0] = a[0] + b[0] * scale;
 		out[1] = a[1] + b[1] * scale;
 		out[2] = a[2] + b[2] * scale;
@@ -82481,7 +82481,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {Number} distance between a and b
 	*/
-	vec4$8.distance = function(a, b) {
+	vec4$9.distance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2], w = b[3] - a[3];
 		return Math.sqrt(x * x + y * y + z * z + w * w);
 	};
@@ -82489,7 +82489,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.distance}
 	* @function
 	*/
-	vec4$8.dist = vec4$8.distance;
+	vec4$9.dist = vec4$9.distance;
 	/**
 	* Calculates the squared euclidian distance between two vec4's
 	*
@@ -82497,7 +82497,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {Number} squared distance between a and b
 	*/
-	vec4$8.squaredDistance = function(a, b) {
+	vec4$9.squaredDistance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2], w = b[3] - a[3];
 		return x * x + y * y + z * z + w * w;
 	};
@@ -82505,14 +82505,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.squaredDistance}
 	* @function
 	*/
-	vec4$8.sqrDist = vec4$8.squaredDistance;
+	vec4$9.sqrDist = vec4$9.squaredDistance;
 	/**
 	* Calculates the length of a vec4
 	*
 	* @param {vec4} a vector to calculate length of
 	* @returns {Number} length of a
 	*/
-	vec4$8.length = function(a) {
+	vec4$9.length = function(a) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		return Math.sqrt(x * x + y * y + z * z + w * w);
 	};
@@ -82520,14 +82520,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.length}
 	* @function
 	*/
-	vec4$8.len = vec4$8.length;
+	vec4$9.len = vec4$9.length;
 	/**
 	* Calculates the squared length of a vec4
 	*
 	* @param {vec4} a vector to calculate squared length of
 	* @returns {Number} squared length of a
 	*/
-	vec4$8.squaredLength = function(a) {
+	vec4$9.squaredLength = function(a) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		return x * x + y * y + z * z + w * w;
 	};
@@ -82535,7 +82535,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.squaredLength}
 	* @function
 	*/
-	vec4$8.sqrLen = vec4$8.squaredLength;
+	vec4$9.sqrLen = vec4$9.squaredLength;
 	/**
 	* Negates the components of a vec4
 	*
@@ -82543,7 +82543,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a vector to negate
 	* @returns {vec4} out
 	*/
-	vec4$8.negate = function(out, a) {
+	vec4$9.negate = function(out, a) {
 		out[0] = -a[0];
 		out[1] = -a[1];
 		out[2] = -a[2];
@@ -82557,7 +82557,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a vector to normalize
 	* @returns {vec4} out
 	*/
-	vec4$8.normalize = function(out, a) {
+	vec4$9.normalize = function(out, a) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		var len = x * x + y * y + z * z + w * w;
 		if (len > 0) {
@@ -82576,7 +82576,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {Number} dot product of a and b
 	*/
-	vec4$8.dot = function(a, b) {
+	vec4$9.dot = function(a, b) {
 		return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
 	};
 	/**
@@ -82588,7 +82588,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} t interpolation amount between the two inputs
 	* @returns {vec4} out
 	*/
-	vec4$8.lerp = function(out, a, b, t) {
+	vec4$9.lerp = function(out, a, b, t) {
 		var ax = a[0], ay = a[1], az = a[2], aw = a[3];
 		out[0] = ax + t * (b[0] - ax);
 		out[1] = ay + t * (b[1] - ay);
@@ -82603,14 +82603,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
 	* @returns {vec4} out
 	*/
-	vec4$8.random = function(out, scale) {
+	vec4$9.random = function(out, scale) {
 		scale = scale || 1;
 		out[0] = GLMAT_RANDOM();
 		out[1] = GLMAT_RANDOM();
 		out[2] = GLMAT_RANDOM();
 		out[3] = GLMAT_RANDOM();
-		vec4$8.normalize(out, out);
-		vec4$8.scale(out, out, scale);
+		vec4$9.normalize(out, out);
+		vec4$9.scale(out, out, scale);
 		return out;
 	};
 	/**
@@ -82621,7 +82621,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} m matrix to transform with
 	* @returns {vec4} out
 	*/
-	vec4$8.transformMat4 = function(out, a, m) {
+	vec4$9.transformMat4 = function(out, a, m) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		out[0] = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
 		out[1] = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
@@ -82637,7 +82637,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {quat} q quaternion to transform with
 	* @returns {vec4} out
 	*/
-	vec4$8.transformQuat = function(out, a, q) {
+	vec4$9.transformQuat = function(out, a, q) {
 		var x = a[0], y = a[1], z = a[2], qx = q[0], qy = q[1], qz = q[2], qw = q[3], ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
 		out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
 		out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
@@ -82656,8 +82656,8 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Array} a
 	* @function
 	*/
-	vec4$8.forEach = (function() {
-		var vec = vec4$8.create();
+	vec4$9.forEach = (function() {
+		var vec = vec4$9.create();
 		return function(a, stride, offset, count, fn, arg) {
 			var i, l;
 			if (!stride) stride = 4;
@@ -82684,10 +82684,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} vec vector to represent as a string
 	* @returns {String} string representation of the vector
 	*/
-	vec4$8.str = function(a) {
+	vec4$9.str = function(a) {
 		return "vec4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.vec4 = vec4$8;
+	if (typeof exports$3 !== "undefined") exports$3.vec4 = vec4$9;
 	mat2$1 = {};
 	/**
 	* Creates a new identity mat2
@@ -83383,13 +83383,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "mat3(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.mat3 = mat3$6;
-	mat4$26 = {};
+	mat4$27 = {};
 	/**
 	* Creates a new identity mat4
 	*
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$26.create = function() {
+	mat4$27.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = 1;
 		out[1] = 0;
@@ -83415,7 +83415,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a matrix to clone
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$26.clone = function(a) {
+	mat4$27.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -83442,7 +83442,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.copy = function(out, a) {
+	mat4$27.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -83467,7 +83467,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} out the receiving matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.identity = function(out) {
+	mat4$27.identity = function(out) {
 		out[0] = 1;
 		out[1] = 0;
 		out[2] = 0;
@@ -83493,7 +83493,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.transpose = function(out, a) {
+	mat4$27.transpose = function(out, a) {
 		if (out === a) {
 			var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 			out[1] = a[4];
@@ -83535,7 +83535,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.invert = function(out, a) {
+	mat4$27.invert = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 		if (!det) return null;
 		det = 1 / det;
@@ -83564,7 +83564,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.adjoint = function(out, a) {
+	mat4$27.adjoint = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		out[0] = a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22);
 		out[1] = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
@@ -83590,7 +83590,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {Number} determinant of a
 	*/
-	mat4$26.determinant = function(a) {
+	mat4$27.determinant = function(a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31;
 		return b00 * (a22 * a33 - a23 * a32) - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	};
@@ -83602,7 +83602,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} b the second operand
 	* @returns {mat4} out
 	*/
-	mat4$26.multiply = function(out, a, b) {
+	mat4$27.multiply = function(out, a, b) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 		out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
@@ -83639,7 +83639,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link mat4.multiply}
 	* @function
 	*/
-	mat4$26.mul = mat4$26.multiply;
+	mat4$27.mul = mat4$27.multiply;
 	/**
 	* Translate a mat4 by the given vector
 	*
@@ -83648,7 +83648,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v vector to translate by
 	* @returns {mat4} out
 	*/
-	mat4$26.translate = function(out, a, v) {
+	mat4$27.translate = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2], a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23;
 		if (a === out) {
 			out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
@@ -83695,7 +83695,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v the vec3 to scale the matrix by
 	* @returns {mat4} out
 	**/
-	mat4$26.scale = function(out, a, v) {
+	mat4$27.scale = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2];
 		out[0] = a[0] * x;
 		out[1] = a[1] * x;
@@ -83724,7 +83724,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} axis the axis to rotate around
 	* @returns {mat4} out
 	*/
-	mat4$26.rotate = function(out, a, rad, axis) {
+	mat4$27.rotate = function(out, a, rad, axis) {
 		var x = axis[0], y = axis[1], z = axis[2], len = Math.sqrt(x * x + y * y + z * z), s, c, t, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 		if (Math.abs(len) < GLMAT_EPSILON) return null;
 		len = 1 / len;
@@ -83783,7 +83783,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$26.rotateX = function(out, a, rad) {
+	mat4$27.rotateX = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[0] = a[0];
@@ -83813,7 +83813,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$26.rotateY = function(out, a, rad) {
+	mat4$27.rotateY = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[4] = a[4];
@@ -83843,7 +83843,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$26.rotateZ = function(out, a, rad) {
+	mat4$27.rotateZ = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
 		if (a !== out) {
 			out[8] = a[8];
@@ -83880,7 +83880,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v Translation vector
 	* @returns {mat4} out
 	*/
-	mat4$26.fromRotationTranslation = function(out, q, v) {
+	mat4$27.fromRotationTranslation = function(out, q, v) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -83908,7 +83908,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	*
 	* @returns {mat4} out
 	*/
-	mat4$26.fromQuat = function(out, q) {
+	mat4$27.fromQuat = function(out, q) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -83940,7 +83940,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$26.frustum = function(out, left, right, bottom, top, near, far) {
+	mat4$27.frustum = function(out, left, right, bottom, top, near, far) {
 		var rl = 1 / (right - left), tb = 1 / (top - bottom), nf = 1 / (near - far);
 		out[0] = near * 2 * rl;
 		out[1] = 0;
@@ -83970,7 +83970,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$26.perspective = function(out, fovy, aspect, near, far) {
+	mat4$27.perspective = function(out, fovy, aspect, near, far) {
 		var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
 		out[0] = f / aspect;
 		out[1] = 0;
@@ -84002,7 +84002,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$26.ortho = function(out, left, right, bottom, top, near, far) {
+	mat4$27.ortho = function(out, left, right, bottom, top, near, far) {
 		var lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
 		out[0] = -2 * lr;
 		out[1] = 0;
@@ -84031,9 +84031,9 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} up vec3 pointing up
 	* @returns {mat4} out
 	*/
-	mat4$26.lookAt = function(out, eye, center, up) {
+	mat4$27.lookAt = function(out, eye, center, up) {
 		var x0, x1, x2, y0, y1, y2, z0, z1, z2, len, eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2], centerx = center[0], centery = center[1], centerz = center[2];
-		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$26.identity(out);
+		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$27.identity(out);
 		z0 = eyex - centerx;
 		z1 = eyey - centery;
 		z2 = eyez - centerz;
@@ -84093,10 +84093,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} mat matrix to represent as a string
 	* @returns {String} string representation of the matrix
 	*/
-	mat4$26.str = function(a) {
+	mat4$27.str = function(a) {
 		return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$26;
+	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$27;
 	quat$2 = {};
 	/**
 	* Creates a new identity quat
@@ -84182,7 +84182,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} a new quaternion
 	* @function
 	*/
-	quat$2.clone = vec4$8.clone;
+	quat$2.clone = vec4$9.clone;
 	/**
 	* Creates a new quat initialized with the given values
 	*
@@ -84193,7 +84193,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} a new quaternion
 	* @function
 	*/
-	quat$2.fromValues = vec4$8.fromValues;
+	quat$2.fromValues = vec4$9.fromValues;
 	/**
 	* Copy the values from one quat to another
 	*
@@ -84202,7 +84202,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.copy = vec4$8.copy;
+	quat$2.copy = vec4$9.copy;
 	/**
 	* Set the components of a quat to the given values
 	*
@@ -84214,7 +84214,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.set = vec4$8.set;
+	quat$2.set = vec4$9.set;
 	/**
 	* Set a quat to the identity quaternion
 	*
@@ -84255,7 +84255,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.add = vec4$8.add;
+	quat$2.add = vec4$9.add;
 	/**
 	* Multiplies two quat's
 	*
@@ -84286,7 +84286,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.scale = vec4$8.scale;
+	quat$2.scale = vec4$9.scale;
 	/**
 	* Rotates a quaternion by the given angle about the X axis
 	*
@@ -84363,7 +84363,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Number} dot product of a and b
 	* @function
 	*/
-	quat$2.dot = vec4$8.dot;
+	quat$2.dot = vec4$9.dot;
 	/**
 	* Performs a linear interpolation between two quat's
 	*
@@ -84374,7 +84374,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.lerp = vec4$8.lerp;
+	quat$2.lerp = vec4$9.lerp;
 	/**
 	* Performs a spherical linear interpolation between two quat
 	*
@@ -84446,7 +84446,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Number} length of a
 	* @function
 	*/
-	quat$2.length = vec4$8.length;
+	quat$2.length = vec4$9.length;
 	/**
 	* Alias for {@link quat.length}
 	* @function
@@ -84459,7 +84459,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Number} squared length of a
 	* @function
 	*/
-	quat$2.squaredLength = vec4$8.squaredLength;
+	quat$2.squaredLength = vec4$9.squaredLength;
 	/**
 	* Alias for {@link quat.squaredLength}
 	* @function
@@ -84473,7 +84473,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.normalize = vec4$8.normalize;
+	quat$2.normalize = vec4$9.normalize;
 	/**
 	* Creates a quaternion from the given 3x3 rotation matrix.
 	*
@@ -86267,7 +86267,7 @@ var init_VerticalFlip = __esmMin((() => {
 	};
 }));
 // src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$25, vec3$7, vec4$7, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$26, vec3$7, vec4$8, _from, _to, _unit, _matrix$9, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -86275,11 +86275,11 @@ var init_Altitude = __esmMin((() => {
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$25, vec3: vec3$7, vec4: vec4$7} = exports$3);
+	({mat4: mat4$26, vec3: vec3$7, vec4: vec4$8} = exports$3);
 	_from = vec3$7.create();
-	_to = vec4$7.create();
+	_to = vec4$8.create();
 	_unit = vec3$7.create();
-	_matrix$8 = mat4$25.create();
+	_matrix$9 = mat4$26.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -86376,18 +86376,18 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$25.invert(_matrix$8, modelView);
-			_from[0] = _matrix$8[12];
-			_from[1] = _matrix$8[13];
-			_from[2] = _matrix$8[14];
+			mat4$26.invert(_matrix$9, modelView);
+			_from[0] = _matrix$9[12];
+			_from[1] = _matrix$9[13];
+			_from[2] = _matrix$9[14];
 			_to[0] = Mouse.screen.x / Mouse.screen.width * 2 - 1;
 			_to[1] = -(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$25.multiply(_matrix$8, projection, modelView);
-			mat4$25.invert(_matrix$8, _matrix$8);
-			vec4$7.transformMat4(_to, _to, _matrix$8);
+			mat4$26.multiply(_matrix$9, projection, modelView);
+			mat4$26.invert(_matrix$9, _matrix$9);
+			vec4$8.transformMat4(_to, _to, _matrix$9);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
@@ -149128,6 +149128,20 @@ var init_StatusEffectTable = __esmMin((() => {
 			start: ["ef_ske_rising_moon_04"],
 			loop: ["ef_ske_rising_moon_05"]
 		},
+		[StatusConst_default.INTENSIVE_AIM_COUNT]: { stages: [
+			["ef_nw_intensive_aim_00"],
+			["ef_nw_intensive_aim_01"],
+			["ef_nw_intensive_aim_02"],
+			["ef_nw_intensive_aim_03"],
+			["ef_nw_intensive_aim_04"],
+			["ef_nw_intensive_aim_05"],
+			["ef_nw_intensive_aim_06"],
+			["ef_nw_intensive_aim_07"],
+			["ef_nw_intensive_aim_08"],
+			["ef_nw_intensive_aim_09"],
+			["ef_nw_intensive_aim_10", "ef_nw_intensive_aim_full"]
+		] },
+		[StatusConst_default.INTENSIVE_AIM]: { clears: [StatusConst_default.INTENSIVE_AIM_COUNT] },
 		[StatusConst_default.SKY_ENCHANT]: {
 			start: ["ef_ske_enchanting_sky"],
 			loop: ["ef_ske_enchanting_sky_loop"]
@@ -212577,14 +212591,14 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowLayer, 4, gl.FLOAT, false, STRIDE$1, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 2, gl.FLOAT, false, STRIDE$1, base + 80);
 }
-var mat4$24, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$30, _vao, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
+var mat4$25, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$30, _vao, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_SpriteAtlas();
 	init_SpriteBatch$2();
 	init_SpriteBatch$1();
-	mat4$24 = gl_matrix_default.mat4;
+	mat4$25 = gl_matrix_default.mat4;
 	FLOATS$1 = 24;
 	STRIDE$1 = 96;
 	SOURCE_OWN = 0;
@@ -212683,7 +212697,7 @@ var init_SpriteBatch = __esmMin((() => {
 		static setFrame(modelView, projection, fog, zoom) {
 			_modelView$2.set(modelView);
 			_projection.set(projection);
-			mat4$24.invert(_viewModel, _modelView$2);
+			mat4$25.invert(_viewModel, _modelView$2);
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
@@ -212935,9 +212949,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 	if (this.angle !== _angle) {
 		_angle = this.angle;
-		mat4$23.identity(_matrix$7);
-		if (_angle) mat4$23.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$7);
+		mat4$24.identity(_matrix$8);
+		if (_angle) mat4$24.rotateZ(_matrix$8, _matrix$8, -_angle / 180 * Math.PI);
+		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$8);
 	}
 	_offset[0] = this.offset[0] / 175 * this.xSize;
 	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
@@ -213110,7 +213124,7 @@ function syncAfterBatch() {
 	_texture$4 = null;
 	_groupId++;
 }
-var mat4$23, RenderCanvas2D, _program$29, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$4, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
+var mat4$24, RenderCanvas2D, _program$29, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$4, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$8, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -213119,7 +213133,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	init_SpriteBatch();
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
-	mat4$23 = gl_matrix_default.mat4;
+	mat4$24 = gl_matrix_default.mat4;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		const _cache = /* @__PURE__ */ new WeakMap();
 		const MAX_COLORS_PER_PALETTE = 8;
@@ -213205,7 +213219,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_fogBlack = /* @__PURE__ */ new Float32Array(3);
 	_fogToBlack = false;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
-	_matrix$7 = /* @__PURE__ */ new Float32Array(16);
+	_matrix$8 = /* @__PURE__ */ new Float32Array(16);
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
@@ -213329,7 +213343,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.useProgram(_program$29);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$23.invert(_matrix$7, modelView));
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$24.invert(_matrix$8, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -213645,14 +213659,14 @@ var init_OccluderFade$1 = __esmMin((() => {
 	OccluderFade_default = "// Fades world geometry lying between the camera and the followed entity\r\n// (third person camera). Included by the model fragment shaders.\r\n//\r\n// uOccluderFadeMode:\r\n//   0 - disabled\r\n//   1 - dither (screen-door, single opaque pass)\r\n//   2 - alpha, opaque pass: discard fragments inside the fade capsule\r\n//   3 - alpha, blend pass: draw only fragments inside the fade capsule, translucent\r\n//   4 - line of sight query: keep only fragments inside the (narrow) capsule,\r\n//       used with an occlusion query to detect geometry covering the entity\r\n\r\nuniform int   uOccluderFadeMode;\r\nuniform vec3  uOccluderFadeEye;\r\nuniform vec3  uOccluderFadeFocus;\r\nuniform float uOccluderFadeRadius;\r\nuniform float uOccluderFadeOpacity;\r\nuniform float uOccluderFadeStrength;\r\n\r\nconst float OCCLUDER_FADE_BAYER[16] = float[16](\r\n	 0.0,  8.0,  2.0, 10.0,\r\n	12.0,  4.0, 14.0,  6.0,\r\n	 3.0, 11.0,  1.0,  9.0,\r\n	15.0,  7.0, 13.0,  5.0\r\n);\r\n\r\n// The faded region is a cylinder of constant radius from the eye to the focus,\r\n// cut by a vertical plane through the focus (so a raised camera never fades\r\n// anything behind the player); it closes over this distance (cells) before it.\r\nconst float OCCLUDER_FADE_END = 0.5;\r\n\r\n// x: distance to the eye->focus axis,\r\n// y: signed horizontal distance past the focus, along the view direction\r\nvec2 occluderFadeCylinder(vec3 worldPos) {\r\n	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;\r\n	vec3 rel  = worldPos - uOccluderFadeEye;\r\n	float len  = max(length(axis), 0.01);\r\n	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);\r\n	// cut plane normal: horizontal view direction, tilting back to the view\r\n	// axis as the camera gets steep (a vertical plane is meaningless top-down)\r\n	vec3 level = vec3(axis.x, 0.0, axis.z);\r\n	float flatness = length(level) / len;\r\n	vec3 hdir  = level / max(length(level), 0.01);\r\n	vec3 cut   = normalize(mix(axis / len, hdir, smoothstep(0.3, 0.6, flatness)));\r\n	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, cut));\r\n}\r\n\r\n// 0.0 = untouched, 1.0 = fully inside the cylinder between eye and focus\r\nfloat occluderFadeAmount(vec3 worldPos) {\r\n	vec2 c = occluderFadeCylinder(worldPos);\r\n	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, c.x);\r\n	float along  = 1.0 - smoothstep(-OCCLUDER_FADE_END, 0.0, c.y);\r\n	return radial * along * uOccluderFadeStrength;\r\n}\r\n\r\n// Applies the fade to the fragment alpha. Returns false when the fragment must be discarded.\r\nbool occluderFade(vec3 worldPos, inout float alpha) {\r\n	if (uOccluderFadeMode == 0) {\r\n		return true;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 4) {\r\n		vec2 c = occluderFadeCylinder(worldPos);\r\n		// stop short of the focus so the floor under the entity does not count\r\n		return c.x < uOccluderFadeRadius && c.y < -0.5;\r\n	}\r\n\r\n	float fade = occluderFadeAmount(worldPos);\r\n	float visibility = 1.0 - fade * (1.0 - uOccluderFadeOpacity);\r\n\r\n	if (uOccluderFadeMode == 1) {\r\n		ivec2 p = ivec2(gl_FragCoord.xy) & 3;\r\n		float threshold = (OCCLUDER_FADE_BAYER[p.x + p.y * 4] + 0.5) / 16.0;\r\n		return visibility > threshold;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 2) {\r\n		return fade < 0.01;\r\n	}\r\n\r\n	if (fade < 0.01) {\r\n		return false;\r\n	}\r\n	alpha *= visibility;\r\n	return true;\r\n}\r\n";
 }));
 // src/Renderer/Map/OccluderFade.js
-var mat4$22, vec3$6, SHADER_INCLUDE, MODE$1, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
+var mat4$23, vec3$6, SHADER_INCLUDE, MODE$1, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
 var init_OccluderFade = __esmMin((() => {
 	init_OccluderFade$1();
 	init_Camera();
 	init_Graphics();
 	init_SpriteRenderer();
 	init_gl_matrix();
-	({mat4: mat4$22, vec3: vec3$6} = gl_matrix_default);
+	({mat4: mat4$23, vec3: vec3$6} = gl_matrix_default);
 	SHADER_INCLUDE = "// #include OccluderFade.glsl";
 	MODE$1 = {
 		OFF: 0,
@@ -213673,7 +213687,7 @@ var init_OccluderFade = __esmMin((() => {
 	QUERY_RADIUS = .7;
 	FADE_IN_MS = 150;
 	FADE_OUT_MS = 300;
-	_inverse = mat4$22.create();
+	_inverse = mat4$23.create();
 	_eye = vec3$6.create();
 	_queries = [null, null];
 	_queryPending = [false, false];
@@ -213735,7 +213749,7 @@ var init_OccluderFade = __esmMin((() => {
 		* @param {number} tick
 		*/
 		static beginFrame(gl, modelView, tick) {
-			mat4$22.invert(_inverse, modelView);
+			mat4$23.invert(_inverse, modelView);
 			_eye[0] = _inverse[12];
 			_eye[1] = _inverse[13];
 			_eye[2] = _inverse[14];
@@ -214226,7 +214240,7 @@ function add$3(gl, modelData) {
 	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
 		const instArray = modelData.instances[i];
-		const matrix = mat4$21.create();
+		const matrix = mat4$22.create();
 		for (let j = 0; j < 16; j++) matrix[j] = instArray[j];
 		instances.push(matrix);
 	}
@@ -214256,20 +214270,20 @@ function add$3(gl, modelData) {
 			_isStatic: !hasAnyAnimation,
 			_index: n,
 			_cache: {
-				local: mat4$21.create(),
-				final: mat4$21.create(),
+				local: mat4$22.create(),
+				final: mat4$22.create(),
 				instances: new Array(instances.length)
 			}
 		};
 		if (node._isStatic) {
-			const local = mat4$21.create();
-			mat4$21.identity(local);
-			mat4$21.translate(local, local, node.pos);
-			mat4$21.rotate(local, local, node.rotangle, node.rotaxis);
-			mat4$21.scale(local, local, node.scale);
+			const local = mat4$22.create();
+			mat4$22.identity(local);
+			mat4$22.translate(local, local, node.pos);
+			mat4$22.rotate(local, local, node.rotangle, node.rotaxis);
+			mat4$22.scale(local, local, node.scale);
 			node._staticLocalMatrix = local;
 		}
-		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$21.create();
+		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$22.create();
 		if (node.rotKeyframes) for (let rk = 0; rk < node.rotKeyframes.length; rk++) {
 			const kf = node.rotKeyframes[rk];
 			totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
@@ -214399,7 +214413,7 @@ function add$3(gl, modelData) {
 	};
 	for (let n = 0; n < nodes.length; n++) {
 		animModel._nodeMap[nodes[n].name] = nodes[n];
-		animModel._globalMatrices[n] = mat4$21.create();
+		animModel._globalMatrices[n] = mat4$22.create();
 	}
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, staticBuffer, gl.STATIC_DRAW);
@@ -214549,30 +214563,30 @@ function updateModelBuffer(gl, model, frame, force) {
 		const globalMatrix = globalMatrices[n];
 		if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
 			const parentIdx = nodeMap[node.parentname]._index;
-			mat4$21.copy(globalMatrix, globalMatrices[parentIdx]);
-		} else mat4$21.identity(globalMatrix);
-		if (node._isStatic) mat4$21.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
+			mat4$22.copy(globalMatrix, globalMatrices[parentIdx]);
+		} else mat4$22.identity(globalMatrix);
+		if (node._isStatic) mat4$22.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
 		else {
 			const animPos = getPositionAtFrame$2(node.posKeyframes, frame, _tempVec3);
-			mat4$21.translate(globalMatrix, globalMatrix, animPos || node.pos);
+			mat4$22.translate(globalMatrix, globalMatrix, animPos || node.pos);
 			const animRot = getRotationAtFrame$2(node.rotKeyframes, frame, _tempQuat);
 			if (animRot) {
-				mat4$21.fromQuat(_tempMat4, animRot);
-				mat4$21.multiply(globalMatrix, globalMatrix, _tempMat4);
-			} else mat4$21.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+				mat4$22.fromQuat(_tempMat4, animRot);
+				mat4$22.multiply(globalMatrix, globalMatrix, _tempMat4);
+			} else mat4$22.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
 			const animScale = getScaleAtFrame$2(node.scaleKeyFrames, frame, _tempVec3Scale);
-			mat4$21.scale(globalMatrix, globalMatrix, animScale || node.scale);
+			mat4$22.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 		const finalNodeMatrix = node._cache.final;
-		mat4$21.identity(finalNodeMatrix);
-		mat4$21.translate(finalNodeMatrix, finalNodeMatrix, [
+		mat4$22.identity(finalNodeMatrix);
+		mat4$22.translate(finalNodeMatrix, finalNodeMatrix, [
 			-box.center[0],
 			-box.max[1],
 			-box.center[2]
 		]);
-		mat4$21.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
-		if (!node.is_only) mat4$21.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
-		mat4$21.multiply(finalNodeMatrix, finalNodeMatrix, mat3$5.toMat4(node.mat3));
+		mat4$22.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
+		if (!node.is_only) mat4$22.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
+		mat4$22.multiply(finalNodeMatrix, finalNodeMatrix, mat3$5.toMat4(node.mat3));
 		node.finalMatrix = finalNodeMatrix;
 	}
 	const matrixData = model.matrixData;
@@ -214581,7 +214595,7 @@ function updateModelBuffer(gl, model, frame, force) {
 		const node = model.nodes[n];
 		for (let i = 0; i < numInstances; i++) {
 			const destMat = node._cache.instances[i];
-			mat4$21.multiply(destMat, model.instances[i], node.finalMatrix);
+			mat4$22.multiply(destMat, model.instances[i], node.finalMatrix);
 			const matrixIndex = n * numInstances + i;
 			matrixData.set(destMat, matrixIndex * 16);
 		}
@@ -214665,7 +214679,7 @@ function renderFaded(gl, modelView, projection, normalMat, fog, light) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$5, mat4$21, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _program$26, _animatedModels, AnimatedModels_default;
+var mat3$5, mat4$22, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _program$26, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -214675,13 +214689,13 @@ var init_AnimatedModels = __esmMin((() => {
 	init_AnimatedModels$1();
 	init_OccluderFade();
 	mat3$5 = gl_matrix_default.mat3;
-	mat4$21 = gl_matrix_default.mat4;
+	mat4$22 = gl_matrix_default.mat4;
 	vec3$5 = gl_matrix_default.vec3;
 	quat$1 = gl_matrix_default.quat;
 	_tempVec3 = vec3$5.create();
 	_tempVec3Scale = vec3$5.create();
 	_tempQuat = quat$1.create();
-	_tempMat4 = mat4$21.create();
+	_tempMat4 = mat4$22.create();
 	_program$26 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
@@ -218745,8 +218759,8 @@ function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 				bones = flattenPose(_r(type.parsed, idx, sampleT), type.boneCount);
 			}
 			seen[key] = bones;
-			mat4$20.multiply(_mv, modelView, inst.world);
-			mat4$20.toInverseMat3(_mv, _nmat);
+			mat4$21.multiply(_mv, modelView, inst.world);
+			mat4$21.toInverseMat3(_mv, _nmat);
 			mat3$4.transpose(_nmat, _nmat);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _mv);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _nmat);
@@ -218769,7 +218783,7 @@ function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 					x2: 0,
 					y2: 0
 				});
-				mat4$20.multiply(_mvp, projection, _mv);
+				mat4$21.multiply(_mvp, projection, _mv);
 				if (!computeBaseSphereRect(_mvp, projection, box)) inst.screenRect = null;
 			}
 			let alpha = 1;
@@ -219027,7 +219041,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach$1(insts[i]);
 	_poseCache = {};
 }
-var mat3$4, mat4$20, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$25, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$4, mat4$21, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$25, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -219045,7 +219059,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	init_GR2Model$1();
 	init_GR2Model();
 	mat3$4 = gl_matrix_default.mat3;
-	mat4$20 = gl_matrix_default.mat4;
+	mat4$21 = gl_matrix_default.mat4;
 	ALPHA_REF = 207 / 255;
 	_phaseDiffuse = new Float32Array([
 		128 / 255,
@@ -219107,8 +219121,8 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	_debugCell = false;
 	BASE_SPHERE_HALF_EXTENT = Math.sqrt(2);
 	_readyPromise = null;
-	_mv = mat4$20.create();
-	_mvp = mat4$20.create();
+	_mv = mat4$21.create();
+	_mvp = mat4$21.create();
 	_nmat = mat3$4.create();
 	_lightView = /* @__PURE__ */ new Float32Array(3);
 	_clip = /* @__PURE__ */ new Float32Array(4);
@@ -220480,8 +220494,16 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RL_SLUGSHOT] = { effectId: "ef_rl_slugshot" };
 	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = {};
 	SkillEffect[SkillConst_default.RL_R_TRIP_PLUSATK] = {};
-	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { effectId: "ef_nw_intensive_aim" };
-	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { effectId: "ef_nw_grenade_fragment" };
+	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { successEffectIdOnCaster: "ef_nw_intensive_aim_helix" };
+	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { successEffectIdOnCasterByLevel: [
+		"ef_nw_grenade_fragment_water",
+		"ef_nw_grenade_fragment_wind",
+		"ef_nw_grenade_fragment_earth",
+		"ef_nw_grenade_fragment_fire",
+		"ef_nw_grenade_fragment_darkness",
+		"ef_nw_grenade_fragment_saint",
+		"ef_nw_grenade_fragment_reset"
+	] };
 	SkillEffect[SkillConst_default.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: "ef_nw_the_vigilante_at_night" };
 	SkillEffect[SkillConst_default.NW_ONLY_ONE_BULLET] = {
 		effectId: "ef_nw_only_one_bullet",
@@ -220758,7 +220780,13 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: "ef_dk_vigor",
 		effectIdOnCaster: "ef_dk_vigor_cast"
 	};
-	SkillEffect[SkillConst_default.DK_STORMSLASH] = { hitEffectId: "ef_dk_stormslash_hit" };
+	SkillEffect[SkillConst_default.DK_STORMSLASH] = { successEffectIdOnCasterByLevel: [
+		"ef_dk_stormslash_1",
+		"ef_dk_stormslash_2",
+		"ef_dk_stormslash_3",
+		"ef_dk_stormslash_4",
+		"ef_dk_stormslash_5"
+	] };
 	SkillEffect[SkillConst_default.DK_DRAGONIC_BREATH] = {
 		effectId: "ef_dk_dragonic_breath",
 		hitEffectId: "ef_dk_dragonic_breath_hit"
@@ -221267,7 +221295,23 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WE_CALLALLFAMILY] = {};
 	SkillEffect[SkillConst_default.WE_ONEFOREVER] = {};
 	SkillEffect[SkillConst_default.WE_CHEERUP] = {};
-	SkillEffect[SkillConst_default.SH_CHUL_HO_SONIC_CLAW] = { effectId: "ef_sh_chul_ho_sonic_claw" };
+	SkillEffect[SkillConst_default.SH_CHUL_HO_SONIC_CLAW] = {
+		successEffectIdOnCaster: "ef_sh_chul_ho_sonic_claw",
+		successEffectIdOnCasterByScreenDirection: [
+			"ef_sh_chul_ho_sonic_claw_wave_12",
+			"ef_sh_chul_ho_sonic_claw_wave_1",
+			"ef_sh_chul_ho_sonic_claw_wave_1",
+			"ef_sh_chul_ho_sonic_claw_wave_3",
+			"ef_sh_chul_ho_sonic_claw_wave_5",
+			"ef_sh_chul_ho_sonic_claw_wave_5",
+			"ef_sh_chul_ho_sonic_claw_wave_6",
+			"ef_sh_chul_ho_sonic_claw_wave_7",
+			"ef_sh_chul_ho_sonic_claw_wave_7",
+			"ef_sh_chul_ho_sonic_claw_wave_9",
+			"ef_sh_chul_ho_sonic_claw_wave_11",
+			"ef_sh_chul_ho_sonic_claw_wave_11"
+		]
+	};
 	SkillEffect[SkillConst_default.SH_HOWLING_OF_CHUL_HO] = { effectId: "ef_sh_howling_of_chul_ho" };
 	SkillEffect[SkillConst_default.SH_HOGOGONG_STRIKE] = { effectId: "ef_sh_hogogong_strike" };
 	SkillEffect[SkillConst_default.SH_KI_SUL_WATER_SPRAYING] = { effectId: "ef_sh_ki_sul_water_spraying" };
@@ -253924,20 +253968,20 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var mat4$19, D3DBLEND, _program$24, _buffer$17, _bufferData, _users, _matrix$6, _spriteOffset, _lastAngle, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var mat4$20, D3DBLEND, _program$24, _buffer$17, _bufferData, _users, _matrix$7, _spriteOffset, _lastAngle, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
 	init_WebGL();
 	init_gl_matrix();
 	init_Client();
-	mat4$19 = gl_matrix_default.mat4;
+	mat4$20 = gl_matrix_default.mat4;
 	D3DBLEND = {};
 	_program$24 = null;
 	_buffer$17 = null;
 	_bufferData = /* @__PURE__ */ new Float32Array(16);
 	_users = /* @__PURE__ */ new Set();
-	_matrix$6 = mat4$19.create();
+	_matrix$7 = mat4$20.create();
 	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
 	_lastAngle = -1;
 	_modelView$1 = null;
@@ -254148,8 +254192,8 @@ var init_StrEffect = __esmMin((() => {
 			_bufferData[15] = 1;
 			const angle = animat.angle - (this.aimAngle || 0);
 			if (angle !== _lastAngle) {
-				mat4$19.identity(_matrix$6);
-				mat4$19.rotateZ(_matrix$6, _matrix$6, -angle / 180 * Math.PI);
+				mat4$20.identity(_matrix$7);
+				mat4$20.rotateZ(_matrix$7, _matrix$7, -angle / 180 * Math.PI);
 				_lastAngle = angle;
 			}
 			const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
@@ -254157,7 +254201,7 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
-			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$6);
+			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$7);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$17);
 			gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
@@ -269396,7 +269440,7 @@ function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 	}
 	return new Float32Array(mesh);
 }
-var _program$23, blendMode$3, mat4$18, _matrix$5, Cylinder;
+var _program$23, blendMode$3, mat4$19, _matrix$6, Cylinder;
 var init_Cylinder = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -269406,8 +269450,8 @@ var init_Cylinder = __esmMin((() => {
 	init_Cylinder$2();
 	init_Cylinder$1();
 	blendMode$3 = {};
-	mat4$18 = gl_matrix_default.mat4;
-	_matrix$5 = mat4$18.create();
+	mat4$19 = gl_matrix_default.mat4;
+	_matrix$6 = mat4$19.create();
 	Cylinder = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			const position = EF_Inst_Par.position;
@@ -269559,11 +269603,11 @@ var init_Cylinder = __esmMin((() => {
 				this.position[2]
 			];
 			if (this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera || this.fixedPerspective) {
-				mat4$18.identity(_matrix$5);
-				if (this.rotate) mat4$18.rotateY(_matrix$5, _matrix$5, tick / 4 / 180 * Math.PI);
-				if (this.angleX) mat4$18.rotateX(_matrix$5, _matrix$5, this.angleX / 180 * Math.PI);
-				if (this.angleY) mat4$18.rotateY(_matrix$5, _matrix$5, this.angleY / 180 * Math.PI);
-				if (this.angleZ) mat4$18.rotateZ(_matrix$5, _matrix$5, this.angleZ / 180 * Math.PI);
+				mat4$19.identity(_matrix$6);
+				if (this.rotate) mat4$19.rotateY(_matrix$6, _matrix$6, tick / 4 / 180 * Math.PI);
+				if (this.angleX) mat4$19.rotateX(_matrix$6, _matrix$6, this.angleX / 180 * Math.PI);
+				if (this.angleY) mat4$19.rotateY(_matrix$6, _matrix$6, this.angleY / 180 * Math.PI);
+				if (this.angleZ) mat4$19.rotateZ(_matrix$6, _matrix$6, this.angleZ / 180 * Math.PI);
 				if (this.rotateWithCamera || this.fixedPerspective) {
 					let magic = this.posY;
 					if (this.fixedPerspective) {
@@ -269572,21 +269616,21 @@ var init_Cylinder = __esmMin((() => {
 							currentPosition[2] += this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad);
 							magic = this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad);
 						}
-						mat4$18.rotateX(_matrix$5, _matrix$5, vcRad);
+						mat4$19.rotateX(_matrix$6, _matrix$6, vcRad);
 					}
 					const hcRad = Camera.angle[1] * Math.PI / 180;
 					if (this.posX || this.posY) {
 						currentPosition[0] += this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad);
 						currentPosition[1] += magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad);
 					}
-					mat4$18.rotateY(_matrix$5, _matrix$5, hcRad);
+					mat4$19.rotateY(_matrix$6, _matrix$6, hcRad);
 				} else {
 					currentPosition[0] += this.posX;
 					currentPosition[1] += this.posY;
 					currentPosition[2] += this.posZ;
 				}
 				gl.uniform1i(uniform.uRotate, true);
-				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$5);
+				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$6);
 			} else {
 				currentPosition[0] += this.posX;
 				currentPosition[1] += this.posY;
@@ -270256,13 +270300,13 @@ function getScaleAtFrame$1(keyframes, frame, animLen) {
 		prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
 	];
 }
-var vec3$4, mat3$3, mat4$17, Box, Node, RSM;
+var vec3$4, mat3$3, mat4$18, Box, Node, RSM;
 var init_Model = __esmMin((() => {
 	init_BinaryReader();
 	init_gl_matrix();
 	vec3$4 = gl_matrix_default.vec3;
 	mat3$3 = gl_matrix_default.mat3;
-	mat4$17 = gl_matrix_default.mat4;
+	mat4$18 = gl_matrix_default.mat4;
 	Box = class {
 		constructor() {
 			this.max = vec3$4.fromValues(-Infinity, -Infinity, -Infinity);
@@ -270459,7 +270503,7 @@ var init_Model = __esmMin((() => {
 				}
 			}
 			this.box = new RSM.Box();
-			this.matrix = mat4$17.create();
+			this.matrix = mat4$18.create();
 			this.textures = textures;
 			this.vertices = vertices;
 			this.tvertices = tvertices;
@@ -270479,19 +270523,19 @@ var init_Model = __esmMin((() => {
 			const v = vec3$4.create();
 			const box = this.box;
 			const nodes = this.main.nodes;
-			const matrix = mat4$17.create();
+			const matrix = mat4$18.create();
 			const vertices = this.vertices;
 			const max = Math.max, min = Math.min;
 			let x, y, z;
-			mat4$17.copy(this.matrix, _matrix);
-			if (this.baseMatrix) mat4$17.multiply(this.matrix, this.matrix, this.baseMatrix);
-			mat4$17.translate(this.matrix, this.matrix, this.pos);
-			if (!this.rotKeyframes.length) mat4$17.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
-			else mat4$17.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
-			mat4$17.scale(this.matrix, this.matrix, this.scale);
-			mat4$17.copy(matrix, this.matrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
+			mat4$18.copy(this.matrix, _matrix);
+			if (this.baseMatrix) mat4$18.multiply(this.matrix, this.matrix, this.baseMatrix);
+			mat4$18.translate(this.matrix, this.matrix, this.pos);
+			if (!this.rotKeyframes.length) mat4$18.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
+			else mat4$18.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
+			mat4$18.scale(this.matrix, this.matrix, this.scale);
+			mat4$18.copy(matrix, this.matrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
 			for (i = 0, count = vertices.length; i < count; ++i) {
 				x = vertices[i][0];
 				y = vertices[i][1];
@@ -270520,8 +270564,8 @@ var init_Model = __esmMin((() => {
 		* @param {mat4} instance_matrix
 		*/
 		compile(instance_matrix) {
-			const modelViewMat = mat4$17.create();
-			const normalMat = mat4$17.create();
+			const modelViewMat = mat4$18.create();
+			const normalMat = mat4$18.create();
 			const textures = this.textures;
 			const faces = this.faces;
 			const vertices = this.vertices;
@@ -270530,18 +270574,18 @@ var init_Model = __esmMin((() => {
 			const shadeGroup = new Array(32);
 			const shadeGroupUsed = new Array(32);
 			let i, x, y, z, count;
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
 				-this.main.box.center[0],
 				-this.main.box.max[1],
 				-this.main.box.center[2]
 			]);
-			mat4$17.multiply(matrix, matrix, this.matrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
-			mat4$17.multiply(modelViewMat, instance_matrix, matrix);
-			mat4$17.extractRotation(normalMat, modelViewMat);
+			mat4$18.multiply(matrix, matrix, this.matrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
+			mat4$18.multiply(modelViewMat, instance_matrix, matrix);
+			mat4$18.extractRotation(normalMat, modelViewMat);
 			count = vertices.length;
 			const vert = new Float32Array(count * 3);
 			for (i = 0; i < count; ++i) {
@@ -270581,8 +270625,8 @@ var init_Model = __esmMin((() => {
 		* @param {number} animLen - Total animation length
 		*/
 		compileAtFrame(instance_matrix, frame, animLen) {
-			const modelViewMat = mat4$17.create();
-			const normalMat = mat4$17.create();
+			const modelViewMat = mat4$18.create();
+			const normalMat = mat4$18.create();
 			const textures = this.textures;
 			const faces = this.faces;
 			const vertices = this.vertices;
@@ -270591,31 +270635,31 @@ var init_Model = __esmMin((() => {
 			const shadeGroup = new Array(32);
 			const shadeGroupUsed = new Array(32);
 			let i, x, y, z, count;
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
 				-this.main.box.center[0],
 				-this.main.box.max[1],
 				-this.main.box.center[2]
 			]);
-			const nodeMatrix = mat4$17.create();
-			mat4$17.identity(nodeMatrix);
-			if (this.baseMatrix) mat4$17.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
+			const nodeMatrix = mat4$18.create();
+			mat4$18.identity(nodeMatrix);
+			if (this.baseMatrix) mat4$18.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
 			const animPos = getPositionAtFrame$1(this.posKeyframes, frame, animLen);
-			if (animPos) mat4$17.translate(nodeMatrix, nodeMatrix, animPos);
-			else mat4$17.translate(nodeMatrix, nodeMatrix, this.pos);
+			if (animPos) mat4$18.translate(nodeMatrix, nodeMatrix, animPos);
+			else mat4$18.translate(nodeMatrix, nodeMatrix, this.pos);
 			const animRot = getRotationAtFrame$1(this.rotKeyframes, frame, animLen);
-			if (animRot) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, animRot);
-			else if (this.rotKeyframes && this.rotKeyframes.length > 0) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, this.rotKeyframes[0].q);
-			else mat4$17.rotate(nodeMatrix, nodeMatrix, this.rotangle, this.rotaxis);
+			if (animRot) mat4$18.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+			else if (this.rotKeyframes && this.rotKeyframes.length > 0) mat4$18.rotateQuat(nodeMatrix, nodeMatrix, this.rotKeyframes[0].q);
+			else mat4$18.rotate(nodeMatrix, nodeMatrix, this.rotangle, this.rotaxis);
 			const animScale = getScaleAtFrame$1(this.scaleKeyFrames, frame, animLen);
-			if (animScale) mat4$17.scale(nodeMatrix, nodeMatrix, animScale);
-			else mat4$17.scale(nodeMatrix, nodeMatrix, this.scale);
-			mat4$17.multiply(matrix, matrix, nodeMatrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
-			mat4$17.multiply(modelViewMat, instance_matrix, matrix);
-			mat4$17.extractRotation(normalMat, modelViewMat);
+			if (animScale) mat4$18.scale(nodeMatrix, nodeMatrix, animScale);
+			else mat4$18.scale(nodeMatrix, nodeMatrix, this.scale);
+			mat4$18.multiply(matrix, matrix, nodeMatrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
+			mat4$18.multiply(modelViewMat, instance_matrix, matrix);
+			mat4$18.extractRotation(normalMat, modelViewMat);
 			count = vertices.length;
 			const vert = new Float32Array(count * 3);
 			for (i = 0; i < count; ++i) {
@@ -271094,7 +271138,7 @@ var init_Model = __esmMin((() => {
 					1
 				];
 				node.box = new RSM.Box();
-				node.matrix = mat4$17.create();
+				node.matrix = mat4$18.create();
 				node.vertices = vertices;
 				node.tvertices = tvertices;
 				node.faces = faces;
@@ -271103,7 +271147,7 @@ var init_Model = __esmMin((() => {
 				node.scaleKeyFrames = scaleKeyFrames;
 				node.textureKeyFrameGroup = [];
 				node.absoluteTransform = true;
-				node.baseMatrix = mat4$17.create();
+				node.baseMatrix = mat4$18.create();
 				node.baseMatrix[0] = transform[0];
 				node.baseMatrix[1] = transform[1];
 				node.baseMatrix[2] = transform[2];
@@ -271142,26 +271186,26 @@ var init_Model = __esmMin((() => {
 		* @param {number} height
 		*/
 		createInstance(model, width, height) {
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
 				model.position[0] + width,
 				model.position[1],
 				model.position[2] + height
 			]);
-			mat4$17.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
-			mat4$17.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
-			mat4$17.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
-			mat4$17.scale(matrix, matrix, model.scale);
+			mat4$18.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
+			mat4$18.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
+			mat4$18.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
+			mat4$18.scale(matrix, matrix, model.scale);
 			if (this.main_node.main.version >= 2.2) {
-				mat4$17.scale(matrix, matrix, this.main_node.flip);
-				mat4$17.translate(matrix, matrix, this.main_node.offset);
-				mat4$17.translate(matrix, matrix, [
+				mat4$18.scale(matrix, matrix, this.main_node.flip);
+				mat4$18.translate(matrix, matrix, this.main_node.offset);
+				mat4$18.translate(matrix, matrix, [
 					0,
 					this.box.range[1],
 					0
 				]);
-				mat4$17.translate(matrix, matrix, this.box.offset);
+				mat4$18.translate(matrix, matrix, this.box.offset);
 			}
 			this.instances.push(matrix);
 		}
@@ -271171,11 +271215,11 @@ var init_Model = __esmMin((() => {
 		calcBoundingBox() {
 			let i, j;
 			const box = this.box;
-			const matrix = mat4$17.create();
+			const matrix = mat4$18.create();
 			const nodes = this.nodes;
 			const min = Math.min, max = Math.max;
 			const count = nodes.length;
-			mat4$17.identity(matrix);
+			mat4$18.identity(matrix);
 			this.main_node.calcBoundingBox(matrix);
 			for (i = 0; i < 3; ++i) {
 				for (j = 0; j < count; ++j) {
@@ -271495,8 +271539,8 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
 * Compile a node at a specific animation frame
 */
 function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = mat4$16.create();
-	const normalMat = mat4$16.create();
+	const modelViewMat = mat4$17.create();
+	const normalMat = mat4$17.create();
 	const textures = node.textures;
 	const faces = node.faces;
 	const vertices = node.vertices;
@@ -271505,30 +271549,30 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	const shadeGroup = new Array(32);
 	const shadeGroupUsed = new Array(32);
 	let i, x, y, z, count;
-	const matrix = mat4$16.create();
-	mat4$16.identity(matrix);
-	mat4$16.translate(matrix, matrix, [
+	const matrix = mat4$17.create();
+	mat4$17.identity(matrix);
+	mat4$17.translate(matrix, matrix, [
 		-node.main.box.center[0],
 		-node.main.box.max[1],
 		-node.main.box.center[2]
 	]);
-	const nodeMatrix = mat4$16.create();
-	mat4$16.identity(nodeMatrix);
+	const nodeMatrix = mat4$17.create();
+	mat4$17.identity(nodeMatrix);
 	const animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
-	if (animPos) mat4$16.translate(nodeMatrix, nodeMatrix, animPos);
-	else mat4$16.translate(nodeMatrix, nodeMatrix, node.pos);
+	if (animPos) mat4$17.translate(nodeMatrix, nodeMatrix, animPos);
+	else mat4$17.translate(nodeMatrix, nodeMatrix, node.pos);
 	const animRot = getRotationAtFrame(node.rotKeyframes, frame, animLen);
-	if (animRot) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, animRot);
-	else if (node.rotKeyframes && node.rotKeyframes.length > 0) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
-	else mat4$16.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
+	if (animRot) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+	else if (node.rotKeyframes && node.rotKeyframes.length > 0) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
+	else mat4$17.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
 	const animScale = getScaleAtFrame(node.scaleKeyFrames, frame, animLen);
-	if (animScale) mat4$16.scale(nodeMatrix, nodeMatrix, animScale);
-	else mat4$16.scale(nodeMatrix, nodeMatrix, node.scale);
-	mat4$16.multiply(matrix, matrix, nodeMatrix);
-	if (!node.is_only) mat4$16.translate(matrix, matrix, node.offset);
-	mat4$16.multiply(matrix, matrix, mat3$2.toMat4(node.mat3));
-	mat4$16.multiply(modelViewMat, instanceMatrix, matrix);
-	mat4$16.extractRotation(normalMat, modelViewMat);
+	if (animScale) mat4$17.scale(nodeMatrix, nodeMatrix, animScale);
+	else mat4$17.scale(nodeMatrix, nodeMatrix, node.scale);
+	mat4$17.multiply(matrix, matrix, nodeMatrix);
+	if (!node.is_only) mat4$17.translate(matrix, matrix, node.offset);
+	mat4$17.multiply(matrix, matrix, mat3$2.toMat4(node.mat3));
+	mat4$17.multiply(modelViewMat, instanceMatrix, matrix);
+	mat4$17.extractRotation(normalMat, modelViewMat);
 	count = vertices.length;
 	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
@@ -271650,7 +271694,7 @@ function initModel(gl, data) {
 		WebGL_default.texture(gl, data.infos[i].texture, onTextureLoaded, i);
 	}
 }
-var _program$21, _normalMat$1, mat4$16, mat3$2, quat, vec3$3, _light$1, RsmEffect;
+var _program$21, _normalMat$1, mat4$17, mat3$2, quat, vec3$3, _light$1, RsmEffect;
 var init_RsmEffect = __esmMin((() => {
 	init_RsmEffect$2();
 	init_RsmEffect$1();
@@ -271660,7 +271704,7 @@ var init_RsmEffect = __esmMin((() => {
 	init_Model();
 	_program$21 = null;
 	_normalMat$1 = /* @__PURE__ */ new Float32Array(9);
-	mat4$16 = gl_matrix_default.mat4;
+	mat4$17 = gl_matrix_default.mat4;
 	mat3$2 = gl_matrix_default.mat3;
 	quat = gl_matrix_default.quat;
 	vec3$3 = gl_matrix_default.vec3;
@@ -271795,7 +271839,7 @@ var init_RsmEffect = __esmMin((() => {
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			mat4$16.toInverseMat3(modelView, _normalMat$1);
+			mat4$17.toInverseMat3(modelView, _normalMat$1);
 			mat3$2.transpose(_normalMat$1, _normalMat$1);
 			const uniform = _program$21.uniform;
 			const attribute = _program$21.attribute;
@@ -272852,6 +272896,66 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/ScreenDirection.js
+/**
+* Project a cell position to screen pixels, y going down.
+*
+* @param {Array} position entity position [x, y, z]
+* @param {mat4} matrix projection * modelView
+* @param {number} width screen width
+* @param {number} height screen height
+* @return {Array} [x, y]
+*/
+function toScreen(position, matrix, width, height) {
+	_point[0] = position[0] + .5;
+	_point[1] = -position[2];
+	_point[2] = position[1] + .5;
+	_point[3] = 1;
+	vec4$7.transformMat4(_point, _point, matrix);
+	const w = _point[3] === 0 ? 1 : 1 / _point[3];
+	return [_point[0] * w * width / 2, -_point[1] * w * height / 2];
+}
+/**
+* On-screen angle from one position to another, in degrees, clockwise from
+* "right": 0 right, 90 down, 180 left, 270 up. 0 when both land on the same spot.
+*
+* @param {Array} from position [x, y, z]
+* @param {Array} to position [x, y, z]
+* @param {mat4} [matrix] projection * modelView, the current camera by default
+* @param {number} [width] screen width, the renderer's by default
+* @param {number} [height] screen height, the renderer's by default
+* @return {number}
+*/
+function screenAngle$1(from, to, matrix, width = Renderer.width, height = Renderer.height) {
+	if (!matrix) matrix = mat4$16.multiply(_matrix$5, Camera.projection, Camera.modelView);
+	const [x1, y1] = toScreen(from, matrix, width, height);
+	const [x2, y2] = toScreen(to, matrix, width, height);
+	const dx = x2 - x1;
+	const dy = y2 - y1;
+	const length = Math.hypot(dx, dy);
+	if (length === 0) return 0;
+	const angle = Math.acos(Math.max(-1, Math.min(1, dx / length))) * 180 / Math.PI;
+	return dy < 0 ? 360 - angle : angle;
+}
+/**
+* The official 12-way split of that angle: 30 degree sectors, sector 0
+* centred straight up (255 to 285 degrees), going clockwise.
+*
+* @param {number} angle from screenAngle
+* @return {number} 0 to 11
+*/
+function screenSector(angle) {
+	return Math.floor(Math.trunc(angle + 105) % 360 / 30);
+}
+var mat4$16, vec4$7, _matrix$5, _point;
+var init_ScreenDirection = __esmMin((() => {
+	init_gl_matrix();
+	init_Camera();
+	init_Renderer();
+	({mat4: mat4$16, vec4: vec4$7} = gl_matrix_default);
+	_matrix$5 = mat4$16.create();
+	_point = vec4$7.create();
+}));
 // src/Renderer/Effects/QuadHorn.vs?raw
 var QuadHorn_default$1;
 var init_QuadHorn$2 = __esmMin((() => {
@@ -273762,6 +273866,7 @@ var init_EffectManager = __esmMin((() => {
 	init_ThreeDEffect();
 	init_Entity$1();
 	init_EntityManager();
+	init_ScreenDirection();
 	init_Renderer();
 	init_Altitude();
 	init_SoundManager();
@@ -274020,7 +274125,8 @@ var init_EffectManager = __esmMin((() => {
 			Params.Inst.delayLateDelta = !isNaN(Params.effect.delayLateDelta) ? Params.effect.delayLateDelta * Params.Inst.duplicateID : 0;
 			Params.Inst.delayOffset = !isNaN(Params.effect.delayOffset) ? Params.effect.delayOffset + Params.Inst.delayOffsetDelta : 0;
 			Params.Inst.delayLate = !isNaN(Params.effect.delayLate) ? Params.effect.delayLate + Params.Inst.delayLateDelta : 0;
-			Params.Inst.startTick = Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
+			const delayStart = typeof Params.effect.delayStart === "function" ? Params.effect.delayStart(Params) : Params.effect.delayStart;
+			Params.Inst.startTick = Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : delayStart || 0);
 			Params.Inst.endTick = Params.Inst.duration > 0 ? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration : -1;
 			if (Params.effect.castLoop && Params.Init.castEndTick > 0) {
 				Params.Inst.repeatEnd = Params.Init.castEndTick;
@@ -274175,8 +274281,10 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} skill id
 		* @param {number} target aid
 		* @param {number} tick
+		* @param {number} srcAID caster aid
+		* @param {number} [level] skill level from the packet
 		*/
-		static spamSkillSuccess(skillId, destAID, tick, srcAID) {
+		static spamSkillSuccess(skillId, destAID, tick, srcAID, level) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			if (SkillEffect[skillId].successEffectId) {
@@ -274191,6 +274299,17 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.spam(EF_Init_Par);
 				});
 			}
+			const byLevel = SkillEffect[skillId].successEffectIdOnCasterByLevel;
+			if (byLevel && byLevel.length && level > 0) {
+				const effectId = byLevel[Math.min(level, byLevel.length) - 1];
+				if (effectId) EffectManager.spam({
+					effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					skillLevel: level
+				});
+			}
 			if (SkillEffect[skillId].successEffectIdOnCaster) {
 				effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster) ? SkillEffect[skillId].successEffectIdOnCaster : [SkillEffect[skillId].successEffectIdOnCaster];
 				effects.forEach((effectId) => {
@@ -274202,6 +274321,20 @@ var init_EffectManager = __esmMin((() => {
 					};
 					EffectManager.spam(EF_Init_Par);
 				});
+			}
+			const byDirection = SkillEffect[skillId].successEffectIdOnCasterByScreenDirection;
+			if (byDirection && srcAID && destAID) {
+				const srcEntity = EntityManager.get(srcAID);
+				const destEntity = EntityManager.get(destAID);
+				if (srcEntity && destEntity) {
+					const effectId = byDirection[screenSector(screenAngle$1(srcEntity.position, destEntity.position))];
+					if (effectId) EffectManager.spam({
+						effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
 			}
 		}
 		/**
@@ -283547,6 +283680,103 @@ var init_SkySunEffect = __esmMin((() => {
 		attachedEntity: false
 	};
 }));
+// src/DB/Effects/StormSlashEffect.js
+/**
+* The caster's motion speed in ACT units (one unit is 25 ms of frame delay).
+*
+* @param {object} entity caster
+* @return {number}
+*/
+function motionSpeed(entity) {
+	if (entity && entity.animation && entity.animation.speed > 0) return entity.animation.speed / 25;
+	const file = entity && entity.files && entity.files.body && entity.files.body.act;
+	const act = file ? Client.loadFile(file) : null;
+	if (act && act.actions && act.actions.length) {
+		const action = act.actions[entity.action * 8 % act.actions.length];
+		if (action && action.delay > 0) return action.delay / 25;
+	}
+	return DEFAULT_MOTION_SPEED;
+}
+/**
+* How long after the cast the stage art starts: motion speed x 50 + 30 ms,
+* counted in whole ticks, plus the tick the effect is created on.
+*
+* @param {number} speed motion speed in ACT units
+* @return {number} ms
+*/
+function startDelay(speed) {
+	const ms = Math.trunc(speed * 50 + 30);
+	return (Math.trunc(ms / 16) + 1) * TICK_MS;
+}
+/**
+* delayStart of a stage layer, worked out from its caster.
+*
+* @param {object} Params effect params
+* @return {number} ms
+*/
+function stageDelay(Params) {
+	return startDelay(motionSpeed(Params.Init.ownerEntity));
+}
+/**
+* The art for one stage.
+*
+* @param {number} stage 1 to 5
+* @return {object} STR layer
+*/
+function stageLayer(stage) {
+	return {
+		type: "STR",
+		file: "dragon_knight/dk_stormslash/stormslash/stormslash_" + stage,
+		min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_" + stage,
+		texturePath: "dragon_knight/dk_stormslash/stormslash/",
+		fallback: ["stormslash/stormslash/stormslash_" + stage],
+		yOffset: 8,
+		delayStart: stageDelay,
+		attachedEntity: true
+	};
+}
+/**
+* Sound layer for one stage: as many slash sounds as the stage number.
+*
+* @param {number} stage 1 to 5
+* @param {function} [random] returns a number in [0, 1)
+* @return {object} FUNC layer
+*/
+function soundLayer(stage, random = Math.random) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function StormSlashSounds(Params) {
+			const position = Params.Init.ownerEntity.position;
+			for (let i = 0; i < stage; ++i) {
+				const n = 1 + Math.floor(random() * 4);
+				Events.setTimeout(function() {
+					SoundManager.playPosition("effect/dk_stormslash" + n + ".wav", position);
+				}, i * SOUND_GAP_MS);
+			}
+		}
+	};
+}
+/**
+* EffectTable rows ef_dk_stormslash_1 to ef_dk_stormslash_5.
+*
+* @return {object}
+*/
+function stormSlashEffects() {
+	const rows = {};
+	for (let stage = 1; stage <= 5; ++stage) rows["ef_dk_stormslash_" + stage] = [stageLayer(stage), soundLayer(stage)];
+	return rows;
+}
+var TICK_MS, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
+var init_StormSlashEffect = __esmMin((() => {
+	init_Client();
+	init_SoundManager();
+	init_Events();
+	TICK_MS = 1e3 / 60;
+	SOUND_GAP_MS = 15 * TICK_MS;
+	DEFAULT_MOTION_SPEED = 4;
+	Array.from({ length: 5 }, (_, k) => "ef_dk_stormslash_" + (k + 1));
+}));
 // src/Renderer/Effects/WarlockSphere.vs?raw
 var WarlockSphere_default$1;
 var init_WarlockSphere$2 = __esmMin((() => {
@@ -284203,6 +284433,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SpiderWeb();
 	init_SpiritSphere();
 	init_SkySunEffect();
+	init_StormSlashEffect();
 	init_WarlockSphere();
 	init_CastCone();
 	init_Altitude();
@@ -292311,7 +292542,73 @@ var init_EffectTable = __esmMin((() => {
 			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/chul_ho_sonic_claw",
 			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/",
 			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/min_chul_ho_sonic_claw",
-			wav: "effect/spirit_handler/sh_chul_ho_sonic_claw"
+			wav: "effect/spirit_handler/sh_chul_ho_sonic_claw",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_12: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_12",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_12",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_1: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_1",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_1",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_3: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_3",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_3",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_5: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_5",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_5",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_6: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_6",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_6",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_7: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_7",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_7",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_9: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_9",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_9",
+			attachedEntity: true,
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_sonic_claw_wave_11: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_11",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_11",
+			attachedEntity: true,
+			yOffset: 10
 		}],
 		ef_sh_howling_of_chul_ho: [{
 			type: "STR",
@@ -299658,15 +299955,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "dragon_knight/dk_vigor/vigor_cast/min_vigor_cast",
 			fallback: ["vigor/vigor_cast/vigor_cast"]
 		}],
-		ef_dk_stormslash_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_stormslash/stormslash/stormslash_%d",
-			min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_%d",
-			rand: [1, 5],
-			texturePath: "dragon_knight/dk_stormslash/stormslash/",
-			fallback: ["stormslash/stormslash/stormslash_%d"],
-			wav: "effect/dk_stormslash1"
-		}],
+		...stormSlashEffects(),
 		ef_dk_dragonic_breath: [{
 			type: "STR",
 			file: "dragon_knight/dragonic_breath/dragonic_breath/dragonic_breath",
@@ -300838,18 +301127,216 @@ var init_EffectTable = __esmMin((() => {
 			},
 			{ wav: "effect/RL_C_MARKER" }
 		],
-		ef_nw_intensive_aim: [{
+		ef_nw_intensive_aim_00: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_00",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_00",
+			repeat: true,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_01: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_01",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_01",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_02: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_02",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_02",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_03: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_03",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_03",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_04: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_04",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_04",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_05: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_05",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_05",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_06: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_06",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_06",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_07: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_07",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_07",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_08: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_08",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_08",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_09: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_09",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_09",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_10: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_10",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_10",
+			wav: "effect/night_watch/nw_intensive_aim",
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_full: [{
 			type: "STR",
 			file: "night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full",
 			texturePath: "night_watch/nw_intensive_aim/intensive_aim_full/",
 			min: "night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full",
-			wav: "effect/night_watch/nw_intensive_aim"
+			repeat: true,
+			delayStart: 496,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
 		}],
-		ef_nw_grenade_fragment: [{
+		ef_nw_intensive_aim_helix: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim_helix/intensiveaim_helix",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim_helix/",
+			min: "night_watch/nw_intensive_aim/intensive_aim_helix/min_intensiveaim_helix",
+			wav: "effect/night_watch/nw_intensiveaim_helix",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_water: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_water/grenade_fragment_water",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_water/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_water/min_grenade_fragment_water",
+			wav: "effect/night_watch/nw_grenade_fragment_water",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_wind: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_wind/grenade_fragment_wind",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_wind/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_wind/min_grenade_fragment_wind",
+			wav: "effect/night_watch/nw_grenade_fragment_wind",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_earth: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_earth/grenade_fragment_earth",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_earth/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_earth/min_grenade_fragment_earth",
+			wav: "effect/night_watch/nw_grenade_fragment_earth",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_fire: [{
 			type: "STR",
 			file: "night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire",
 			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_fire/",
-			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire"
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire",
+			wav: "effect/night_watch/nw_grenade_fragment_fire",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_darkness: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_darkness/grenade_fragment_darkness",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_darkness/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_darkness/min_grenade_fragment_darkness",
+			wav: "effect/night_watch/nw_grenade_fragment_darkness",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_saint: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_saint/grenade_fragment_saint",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_saint/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_saint/min_grenade_fragment_saint",
+			wav: "effect/night_watch/nw_grenade_fragment_saint",
+			yOffset: 10,
+			attachedEntity: true
+		}],
+		ef_nw_grenade_fragment_reset: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_reset/grenade_fragment_reset",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_reset/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_reset/min_grenade_fragment_reset",
+			wav: "effect/night_watch/nw_grenade_fragment_reset",
+			yOffset: 10,
+			attachedEntity: true
 		}],
 		ef_nw_the_vigilante_at_night: [{
 			type: "STR",
@@ -322723,8 +323210,7 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	if (!skillEntry || !file) return false;
 	const wanted = keyOf(file);
 	for (const field in skillEntry) {
-		const value = skillEntry[field];
-		const names = Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [value];
+		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]);
 		for (const name of names) {
 			const effects = typeof name === "string" ? EffectTable[name] : null;
 			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
@@ -349092,11 +349578,21 @@ var init_Footprints = __esmMin((() => {
 }));
 // src/Engine/MapEngine/StatusEffects.js
 /**
+* Every effect a row's stages can show
+*
+* @param {object} row StatusEffectTable row
+* @return {Array<string>}
+*/
+function stageEffects(row) {
+	return [...new Set((row && row.stages ? row.stages : []).flat())];
+}
+/**
 * @param {number} AID actor id
 * @param {number} status status id (StatusConst)
 * @param {number} state 1 on, 0 off
+* @param {number} [value] the status's first value, which picks a stage
 */
-function updateStatusEffects(AID, status, state) {
+function updateStatusEffects(AID, status, state, value) {
 	const row = StatusEffectTable_default[status];
 	if (!row) return;
 	const loops = row.loop || [];
@@ -349112,7 +349608,17 @@ function updateStatusEffects(AID, status, state) {
 				persistent: true
 			});
 		});
-	} else if (state == 0) loops.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		if (row.stages) {
+			stageEffects(row).forEach((effectId) => EffectManager.remove(null, AID, effectId));
+			(row.stages[value] || []).forEach((effectId) => EffectManager.spam({
+				effectId,
+				ownerAID: AID
+			}));
+		}
+	} else if (state == 0) {
+		loops.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		(row.clears || []).forEach((other) => stageEffects(StatusEffectTable_default[other]).forEach((effectId) => EffectManager.remove(null, AID, effectId)));
+	}
 }
 var init_StatusEffects = __esmMin((() => {
 	init_StatusEffectTable();
@@ -350036,7 +350542,7 @@ function onEntityUseSkill(pkt) {
 			}
 		}
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
-		if (pkt.result == 1) EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID);
+		if (pkt.result == 1) EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 	}
 }
 /**
@@ -350652,7 +351158,7 @@ function onEntityStatusChange(pkt) {
 			updateEntityStyle(entity);
 		});
 	}
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state);
+	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : void 0);
 	processBlockStatus(entity, pkt);
 	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS);
 }
