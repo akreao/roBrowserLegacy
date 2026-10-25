@@ -14,6 +14,7 @@ const skillEffect = read('DB/Skills/SkillEffect.js');
 const effectTable = read('DB/Effects/EffectTable.js');
 
 const SKID = 6557;
+const CAST = 'ef_druid_typhoon_wing_cast';
 const BY_LEVEL = [...Array(5).fill('ef_druid_typhoon_wing_5x5'), 'ef_druid_typhoon_wing_7x7'];
 
 function entry(id) {
@@ -91,6 +92,27 @@ describe('Typhoon Wing', () => {
 		expect(spammed).toEqual([]);
 	});
 
+	it('casts with the green untinted cast circle (client effect 56) instead of the element aura', () => {
+		const start = skillEffect.indexOf('SkillEffect[SK.KR_TYPHOON_WING] =');
+		const row = skillEffect.slice(start, skillEffect.indexOf('\n', start));
+		expect(row).toContain(`castAuraEffectId: '${CAST}'`);
+		expect(row).not.toMatch(/hideCastAura|beginCastEffectId/);
+		const [circle, extra] = entry(CAST);
+		expect(extra).toBeUndefined();
+		expect(circle).toContain("type: 'FUNC'");
+		expect(circle).toContain('attachedEntity: true');
+		// castLoop: removed when the cast is cancelled (EffectManager.removeCastLoops)
+		expect(circle).toContain('castLoop: true');
+		expect(circle).toContain("wav: 'effect/ef_beginspell'");
+		expect(circle.replace(/\s+/g, ' ')).toContain(
+			"new CastCircle( Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 'magic_green.tga' )"
+		);
+		// the cast aura is replaced by castAuraEffectId and lasts the cast time
+		const entity = read('Engine/MapEngine/Entity.js');
+		expect(entity).toContain('EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;');
+		expect(entity).toContain('EffectManager.removeCastLoops(entity.GID);');
+	});
+
 	it('is not mapped again when the client EZ2 table loads', () => {
 		const db = read('DB/DBManager.js');
 		const start = db.indexOf('function loadBSONFile(');
@@ -126,8 +148,8 @@ describe('Typhoon Wing', () => {
 			SKID: { KR_TYPHOON_WING: SKID }
 		});
 		vm.runInContext(db.slice(start, end), context);
-		const SkillEffect = { [SKID]: { groundEffectIdByLevel: BY_LEVEL } };
+		const SkillEffect = { [SKID]: { castAuraEffectId: CAST, groundEffectIdByLevel: BY_LEVEL } };
 		context.mergeEz2Effects(EffectTable, SkillEffect);
-		expect({ ...SkillEffect[SKID] }).toEqual({ groundEffectIdByLevel: BY_LEVEL });
+		expect({ ...SkillEffect[SKID] }).toEqual({ castAuraEffectId: CAST, groundEffectIdByLevel: BY_LEVEL });
 	});
 });

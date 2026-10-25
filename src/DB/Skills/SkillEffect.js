@@ -1970,7 +1970,8 @@ SkillEffect[SK.KR_CHOP_CHOP] = { effectIdOnCaster: 'ef_druid_chop_chop', hitEffe
 SkillEffect[SK.KR_IRON_HOWLING] = { effectId: 'ef_druid_iron_howling' };
 SkillEffect[SK.KR_SHARPEN_GUST] = { effectIdOnCaster: 'ef_druid_sharpen_gust', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_SHARPEN_HAIL] = { effectId: ['ef_druid_sharpen_hail_shot', 'ef_druid_sharpen_hail'], hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.KR_TYPHOON_WING] = { groundEffectIdByLevel: ['ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_7x7'], hitEffectId: 'ef_druid_hit_raptor' };
+// Typhoon Wing: green cast circle while casting (no element aura), then one size at the cell by level
+SkillEffect[SK.KR_TYPHOON_WING] = { castAuraEffectId: 'ef_druid_typhoon_wing_cast', groundEffectIdByLevel: ['ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_7x7'], hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_FEATHER_SPRINKLE] = { effectIdOnCaster: 'ef_druid_feather_sprinkle', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_WIND_VEIL] = { effectId: 'ef_druid_wind_veil' };
 SkillEffect[SK.KR_ICE_PILLAR] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_pillar_start', hitEffectId: 'ef_druid_ice_hit' };
