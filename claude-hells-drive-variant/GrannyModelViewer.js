@@ -222998,7 +222998,13 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: "ef_ig_cross_rain",
 		effectIdOnCaster: "ef_ig_cross_rain_cast"
 	};
-	SkillEffect[6503] = { effectIdOnCaster: "ef_ig_radiant_spear_cast" };
+	SkillEffect[6503] = {
+		effectIdOnCaster: "ef_ig_radiant_spear_cast",
+		successEffectIdOnTargetByScreenSide: {
+			right: "ef_ig_radiant_spear_leftdown",
+			left: "ef_ig_radiant_spear_rightdown"
+		}
+	};
 	SkillEffect[6504] = { effectId: "ef_ig_imperial_cross" };
 	SkillEffect[6505] = {
 		effectId: "ef_ig_imperial_pressure",
@@ -223060,7 +223066,15 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: "ef_sh_marine_festival_of_ki_sul" };
 	SkillEffect[SkillConst_default.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: "ef_sh_sandy_festival_of_ki_sul" };
 	SkillEffect[SkillConst_default.SH_KI_SUL_RAMPAGE] = { effectId: "ef_sh_ki_sul_rampage" };
-	SkillEffect[SkillConst_default.SH_COLORS_OF_HYUN_ROK] = { effectId: "ef_sh_colors_of_hyun_rok" };
+	SkillEffect[SkillConst_default.SH_COLORS_OF_HYUN_ROK] = { successEffectIdOnCasterByLevel: [
+		"ef_sh_colors_of_hyun_rok_water",
+		"ef_sh_colors_of_hyun_rok_wind",
+		"ef_sh_colors_of_hyun_rok_earth",
+		"ef_sh_colors_of_hyun_rok_fire",
+		"ef_sh_colors_of_hyun_rok_darkness",
+		"ef_sh_colors_of_hyun_rok_saint",
+		"ef_sh_colors_of_hyun_rok_reset"
+	] };
 	SkillEffect[SkillConst_default.SH_HYUN_ROKS_BREEZE] = { effectId: "ef_sh_hyun_roks_breeze" };
 	SkillEffect[SkillConst_default.SH_HYUN_ROK_CANNON] = { effectId: "ef_sh_hyun_rok_cannon" };
 	SkillEffect[SkillConst_default.SH_TEMPORARY_COMMUNION] = { effectId: "ef_sh_temporary_communion" };
@@ -275238,6 +275252,17 @@ function screenAngle$1(from, to, matrix, width = Renderer.width, height = Render
 function screenSector(angle) {
 	return Math.floor(Math.trunc(angle + 105) % 360 / 30);
 }
+/**
+* The official two-way split of that angle: 'right' from 270 through 0 to 90
+* degrees, both ends included, 'left' strictly between 90 and 270. Straight
+* up, straight down and the same spot count as right.
+*
+* @param {number} angle from screenAngle
+* @return {string} 'right' or 'left'
+*/
+function screenSide(angle) {
+	return angle <= 90 || angle >= 270 ? "right" : "left";
+}
 var mat4$17, vec4$7, _matrix$5, _point;
 var init_ScreenDirection = __esmMin((() => {
 	init_gl_matrix();
@@ -276661,6 +276686,20 @@ var init_EffectManager = __esmMin((() => {
 						ownerAID: srcAID,
 						startTick: tick,
 						otherAID: destAID
+					});
+				}
+			}
+			const bySide = SkillEffect[skillId].successEffectIdOnTargetByScreenSide;
+			if (bySide && srcAID && destAID) {
+				const srcEntity = EntityManager.get(srcAID);
+				const destEntity = EntityManager.get(destAID);
+				if (srcEntity && destEntity) {
+					const effectId = bySide[screenSide(screenAngle$1(srcEntity.position, destEntity.position))];
+					if (effectId) EffectManager.spam({
+						effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
 					});
 				}
 			}
@@ -294632,12 +294671,68 @@ var init_EffectTable = __esmMin((() => {
 			min: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/min_ki_sul_rampage_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_sh_colors_of_hyun_rok: [{
+		ef_sh_colors_of_hyun_rok_water: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/colors_of_hyun_rok_water",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/min_colors_of_hyun_rok_water",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok",
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_sh_colors_of_hyun_rok_wind: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/colors_of_hyun_rok_wind",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/min_colors_of_hyun_rok_wind",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok",
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_sh_colors_of_hyun_rok_earth: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/colors_of_hyun_rok_earth",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/min_colors_of_hyun_rok_earth",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok",
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_sh_colors_of_hyun_rok_fire: [{
 			type: "STR",
 			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/colors_of_hyun_rok_fire",
 			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/",
 			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/min_colors_of_hyun_rok_fire",
-			wav: "effect/spirit_handler/sh_colors_of_hyun_rok"
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok",
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_sh_colors_of_hyun_rok_darkness: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/colors_of_hyun_rok_darkness",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/min_colors_of_hyun_rok_darkness",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok",
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_sh_colors_of_hyun_rok_saint: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/colors_of_hyun_rok_saint",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/min_colors_of_hyun_rok_saint",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok",
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_sh_colors_of_hyun_rok_reset: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/colors_of_hyun_rok_reset",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/min_colors_of_hyun_rok_reset",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok01",
+			yOffset: 7,
+			attachedEntity: true
 		}],
 		ef_sh_hyun_roks_breeze: [{
 			type: "STR",
@@ -300619,6 +300714,46 @@ var init_EffectTable = __esmMin((() => {
 			file: "imperial_guard/ig_radiant_spear/radiant_spear_cast/radiant_spear_cast",
 			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_cast/",
 			min: "imperial_guard/ig_radiant_spear/radiant_spear_cast/min_radiant_spear_cast"
+		}],
+		ef_ig_radiant_spear_leftdown: [{
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/radiant_spear_leftdown_bottom",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/min_radiant_spear_leftdown_bottom",
+			wav: "effect/lg_radiant_spear2",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}, {
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown/radiant_spear_leftdown",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown/min_radiant_spear_leftdown",
+			wav: "effect/lg_radiant_spear1",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
+		}],
+		ef_ig_radiant_spear_rightdown: [{
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/radiant_spear_rightdown_bottom",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/min_radiant_spear_rightdown_bottom",
+			wav: "effect/lg_radiant_spear2",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}, {
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown/radiant_spear_rightdown",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown/min_radiant_spear_rightdown",
+			wav: "effect/lg_radiant_spear1",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
 		}],
 		ef_ig_imperial_cross: [{
 			type: "STR",
