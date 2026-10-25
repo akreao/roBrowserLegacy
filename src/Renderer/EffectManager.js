@@ -899,8 +899,10 @@ class EffectManager {
 	 * @param {number} target aid
 	 * @param {Array} position
 	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} [level] skill level from the ground packet
 	 */
-	static spamSkill(skillId, destAID, position, tick, srcAID) {
+	static spamSkill(skillId, destAID, position, tick, srcAID, level) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -930,6 +932,24 @@ class EffectManager {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+
+		// One file at the cell, picked by skill level (index level - 1; a level
+		// past the end plays the last). Only from the ground packet, which
+		// carries the cell and the level. Typhoon Wing's size.
+		const groundByLevel = SkillEffect[skillId].groundEffectIdByLevel;
+		if (groundByLevel && groundByLevel.length && position && level > 0) {
+			const effectId = groundByLevel[Math.min(level, groundByLevel.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					position: position,
+					startTick: tick,
+					otherAID: srcAID,
+					skillLevel: level
+				});
+			}
 		}
 
 		// One look per spirit charm element, picked from the caster's charms

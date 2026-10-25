@@ -25508,20 +25508,41 @@ export default {
 			renderBeforeEntities: true
 		}
 	],
-	ef_druid_typhoon_wing: [
+	// Typhoon Wing: the official client plays one size at the cell, by level (SkillEffect groundEffectIdByLevel)
+	ef_druid_typhoon_wing_5x5: [
 		{
 			type: 'STR',
 			file: 'druid/kr_typhoon_wing/typhoon_wing_5x5/typhoon_wing_5x5',
 			texturePath: 'druid/kr_typhoon_wing/typhoon_wing_5x5/',
 			min: 'druid/kr_typhoon_wing/typhoon_wing_5x5/min_typhoon_wing_5x5',
-			wav: 'effect/druid/kr_typhoon_wing'
+			wav: 'effect/druid/kr_typhoon_wing',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_typhoon_wing/typhoon_wing_5x5_bottom/typhoon_wing_5x5_bottom',
 			texturePath: 'druid/kr_typhoon_wing/typhoon_wing_5x5_bottom/',
 			min: 'druid/kr_typhoon_wing/typhoon_wing_5x5_bottom/min_typhoon_wing_5x5_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
+		}
+	],
+	ef_druid_typhoon_wing_7x7: [
+		{
+			type: 'STR',
+			file: 'druid/kr_typhoon_wing/typhoon_wing_7x7/typhoon_wing_7x7',
+			texturePath: 'druid/kr_typhoon_wing/typhoon_wing_7x7/',
+			min: 'druid/kr_typhoon_wing/typhoon_wing_7x7/min_typhoon_wing_7x7',
+			wav: 'effect/druid/kr_typhoon_wing',
+			yOffset: 10
+		},
+		{
+			type: 'STR',
+			file: 'druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/typhoon_wing_7x7_bottom',
+			texturePath: 'druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/',
+			min: 'druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/min_typhoon_wing_7x7_bottom',
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_feather_sprinkle: [
