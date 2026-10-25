@@ -215666,7 +215666,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE$1, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE$1, base + 80);
 }
-var mat4$23, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$4, _program$32, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$1, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
+var mat4$23, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$4, _program$32, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -215726,7 +215726,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_upload = /* @__PURE__ */ new Float32Array(0);
 	_active$4 = false;
 	_queues = [new Queue(), new Queue()];
-	_modelView$1 = /* @__PURE__ */ new Float32Array(16);
+	_modelView$2 = /* @__PURE__ */ new Float32Array(16);
 	_viewModel = /* @__PURE__ */ new Float32Array(16);
 	_projection = /* @__PURE__ */ new Float32Array(16);
 	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
@@ -215771,9 +215771,9 @@ var init_SpriteBatch = __esmMin((() => {
 		* recorded after it.
 		*/
 		static setFrame(modelView, projection, fog, zoom) {
-			_modelView$1.set(modelView);
+			_modelView$2.set(modelView);
 			_projection.set(projection);
-			mat4$23.invert(_viewModel, _modelView$1);
+			mat4$23.invert(_viewModel, _modelView$2);
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
@@ -215915,7 +215915,7 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.useProgram(_program$32);
 			gl.bindVertexArray(_vao);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, _projection);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView$1);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView$2);
 			gl.uniformMatrix4fv(uniform.uViewModelMat, false, _viewModel);
 			gl.uniform1f(uniform.uCameraZoom, _frame.zoom);
 			gl.uniform1i(uniform.uFogUse, _frame.fogUse);
@@ -222346,7 +222346,7 @@ var init_Sounds = __esmMin((() => {
 * @return {number} ms
 */
 function waveDelay(ms) {
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$2;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$3;
 }
 /**
 * One EZ2 row of the skill, at PosY 10.
@@ -222407,9 +222407,9 @@ function isRepeatGroundPacket(skillId, srcAID, position, windowMs, now = Date.no
 	lastBlast.set(key, now);
 	return false;
 }
-var TICK_MS$2, FOLDER$1, SIZES, WAVE_DELAY_MS, lastBlast;
+var TICK_MS$3, FOLDER$1, SIZES, WAVE_DELAY_MS, lastBlast;
 var init_HastyFireInTheHoleEffect = __esmMin((() => {
-	TICK_MS$2 = 1e3 / 60;
+	TICK_MS$3 = 1e3 / 60;
 	FOLDER$1 = "night_watch/nw_hasty_fire_in_the_hole/";
 	SIZES = [
 		"5x5",
@@ -224822,11 +224822,13 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_ORB] = {
 		beginCastEffectId: "ef_druid_thunder_cast",
-		effectId: "ef_druid_thundering_orb_g",
+		effectId: ["ef_druid_thundering_orb_throw", "ef_druid_thundering_orb_g"],
+		groundRepeatWindowMs: 700,
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_ORB_S] = {
-		effectId: "ef_druid_thundering_orb_y",
+		effectId: ["ef_druid_thundering_orb_throw", "ef_druid_thundering_orb_y"],
+		groundRepeatWindowMs: 700,
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_CALL] = {
@@ -256268,7 +256270,7 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var D3DBLEND, _program$26, _buffer$18, _spriteOffset, _users, _cornerX, _cornerY, _modelView, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var D3DBLEND, _program$26, _buffer$18, _spriteOffset, _users, _cornerX, _cornerY, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
@@ -256281,7 +256283,7 @@ var init_StrEffect = __esmMin((() => {
 	_users = /* @__PURE__ */ new Set();
 	_cornerX = /* @__PURE__ */ new Float32Array(4);
 	_cornerY = /* @__PURE__ */ new Float32Array(4);
-	_modelView = null;
+	_modelView$1 = null;
 	AIM_PIVOT_X = 320;
 	AIM_PIVOT_Y = 240;
 	PIXEL_TO_WORLD_Z = 1 / 5;
@@ -256412,11 +256414,11 @@ var init_StrEffect = __esmMin((() => {
 		getAimAngle() {
 			const effect = this._Params?.effect;
 			const target = this._Params?.Inst?.otherPosition;
-			if (!effect?.rotateToTarget || !target || !this.position || !_modelView) return 0;
+			if (!effect?.rotateToTarget || !target || !this.position || !_modelView$1) return 0;
 			const x = target[0] - this.position[0];
 			const y = -(target[2] - this.position[2]);
 			const z = target[1] - this.position[1];
-			const m = _modelView;
+			const m = _modelView$1;
 			const viewX = m[0] * x + m[4] * y + m[8] * z;
 			const viewY = m[1] * x + m[5] * y + m[9] * z;
 			if (!viewX && !viewY) return 0;
@@ -256563,7 +256565,7 @@ var init_StrEffect = __esmMin((() => {
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			const uniform = _program$26.uniform;
 			const attribute = _program$26.attribute;
-			_modelView = modelView;
+			_modelView$1 = modelView;
 			gl.depthMask(false);
 			gl.useProgram(_program$26);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
@@ -272455,6 +272457,169 @@ var init_AreaSpawner = __esmMin((() => {
 	};
 	AreaSpawner.ready = true;
 }));
+// src/Renderer/Effects/BezierArcThrowSim.js
+/**
+* How much of the path is left, `elapsed` ms after the throw: 1 at the start,
+* one step less on the first tick. Done at 0 or below.
+*
+* @param {number} elapsed ms
+* @return {number}
+*/
+function pathLeft(elapsed) {
+	return 1 - STEP * (elapsed / TICK_MS$2 + 1);
+}
+/**
+* A world point moved `cells` up the screen.
+*
+* @param {number[]} point GL world
+* @param {number} cells
+* @param {Float32Array|number[]} modelView the camera's, column major
+* @return {number[]}
+*/
+function raiseOnScreen(point, cells, modelView) {
+	const ux = modelView[1];
+	const uy = modelView[5];
+	const uz = modelView[9];
+	const k = cells / (ux * ux + uy * uy + uz * uz || 1);
+	return [
+		point[0] + ux * k,
+		point[1] + uy * k,
+		point[2] + uz * k
+	];
+}
+/**
+* How far a world point is from the camera.
+*
+* @param {number[]} point GL world
+* @param {Float32Array|number[]} modelView
+* @return {number}
+*/
+function depth(point, modelView) {
+	return -(modelView[2] * point[0] + modelView[6] * point[1] + modelView[10] * point[2] + modelView[14]);
+}
+/**
+* The control point: the landing point plus the throw (landing point minus
+* start) turned about the vertical axis.
+*
+* @param {number[]} start GL world
+* @param {number[]} end GL world
+* @param {number} turn radians
+* @return {number[]}
+*/
+function controlPoint(start, end, turn) {
+	const dx = end[0] - start[0];
+	const dy = end[1] - start[1];
+	const dz = end[2] - start[2];
+	const c = Math.cos(turn);
+	const s = Math.sin(turn);
+	return [
+		end[0] + dx * c + dz * s,
+		end[1] + dy,
+		end[2] - dx * s + dz * c
+	];
+}
+/**
+* Where the thrown effect is.
+*
+* @param {number[]} start GL world
+* @param {number[]} control GL world
+* @param {number[]} end GL world
+* @param {number} left how much of the path is left, 1 to 0
+* @return {number[]}
+*/
+function pathPoint(start, control, end, left) {
+	const a = left * left;
+	const b = 2 * left * (1 - left);
+	const e = (1 - left) * (1 - left);
+	return [
+		a * start[0] + b * control[0] + e * end[0],
+		a * start[1] + b * control[1] + e * end[1],
+		a * start[2] + b * control[2] + e * end[2]
+	];
+}
+/**
+* The thrown effect's point for a frame.
+*
+* @param {number[]} from thrower's feet, GL world
+* @param {number[]} to landing point, GL world
+* @param {number} left how much of the path is left
+* @param {Float32Array|number[]} modelView
+* @return {number[]}
+*/
+function throwPoint(from, to, left, modelView) {
+	const start = raiseOnScreen(from, 2, modelView);
+	return pathPoint(start, controlPoint(start, to, depth(from, modelView) <= depth(to, modelView) ? TURN_NEAR : TURN_FAR), to, left);
+}
+/**
+* roBrowser position (x, y, height) to GL world.
+*
+* @param {number[]} position
+* @return {number[]}
+*/
+function toWorld(position) {
+	return [
+		position[0] + .5,
+		-position[2],
+		position[1] + .5
+	];
+}
+/**
+* GL world to roBrowser position (x, y, height).
+*
+* @param {number[]} point
+* @return {number[]}
+*/
+function fromWorld(point) {
+	return [
+		point[0] - .5,
+		point[2] - .5,
+		-point[1]
+	];
+}
+var TICK_MS$2, STEP, TURN_NEAR, TURN_FAR;
+var init_BezierArcThrowSim = __esmMin((() => {
+	TICK_MS$2 = 1e3 / 60;
+	STEP = .07;
+	TURN_NEAR = 4 * Math.PI / 3;
+	TURN_FAR = 2 * Math.PI / 3;
+}));
+// src/Renderer/Effects/BezierArcThrow.js
+var _modelView, BezierArcThrowStrEffect;
+var init_BezierArcThrow = __esmMin((() => {
+	init_StrEffect();
+	init_BezierArcThrowSim();
+	_modelView = null;
+	BezierArcThrowStrEffect = class extends StrEffect {
+		/**
+		* @param {string} filename
+		* @param {Array} position landing point
+		* @param {number} startTick
+		* @param {string} texturePath
+		* @param {Array} fallbacks
+		* @param {object} thrower entity it flies from
+		*/
+		constructor(filename, position, startTick, texturePath, fallbacks, thrower) {
+			super(filename, position, startTick, texturePath, fallbacks);
+			this.target = position.slice();
+			this.thrower = thrower;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const left = pathLeft(tick - this.startTick);
+			if (left <= 0 || !this.thrower?.position) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_modelView) return;
+			this.position = fromWorld(throwPoint(toWorld(this.thrower.position), toWorld(this.target), left, _modelView));
+			super.render(gl, tick);
+		}
+		static beforeRender(gl, modelView, projection, fog, tick) {
+			_modelView = modelView;
+			super.beforeRender(gl, modelView, projection, fog, tick);
+		}
+	};
+}));
 // src/Renderer/Effects/RsmEffect.vs?raw
 var RsmEffect_default$1;
 var init_RsmEffect$2 = __esmMin((() => {
@@ -276170,7 +276335,7 @@ function spamSTR(Params) {
 		filename: "data/texture/effect/" + pick(Params.effect.file) + ".str",
 		texturePath
 	});
-	const str = new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
+	const str = Params.effect.arcThrow ? new BezierArcThrowStrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks, Params.Init.ownerEntity) : new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
 	if (Params.effect.xOffset !== void 0 || Params.effect.yOffset !== void 0) str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
 	if (Params.Init.screenTurn) str.screenTurn = Params.Init.screenTurn;
 	EffectManager.add(str, Params);
@@ -276286,6 +276451,7 @@ var init_EffectManager = __esmMin((() => {
 	init_GroundScatter();
 	init_AreaSpawner();
 	init_StrEffect();
+	init_BezierArcThrow();
 	init_RsmEffect();
 	init_TwoDEffect();
 	init_ThreeDEffect();
@@ -305924,17 +306090,33 @@ var init_EffectTable = __esmMin((() => {
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
+		ef_druid_thundering_orb_throw: [{
+			type: "STR",
+			file: "druid/kr_thundering_orb/thundering_orb_orb/thundering_orb_small",
+			texturePath: "druid/kr_thundering_orb/thundering_orb_orb/",
+			min: "druid/kr_thundering_orb/thundering_orb_orb/min_thundering_orb_small",
+			xOffset: 0,
+			yOffset: 0,
+			arcThrow: true
+		}],
 		ef_druid_thundering_orb_g: [{
 			type: "STR",
 			file: "druid/kr_thundering_orb/thundering_orb_g/thundering_orb_g",
 			texturePath: "druid/kr_thundering_orb/thundering_orb_g/",
 			min: "druid/kr_thundering_orb/thundering_orb_g/min_thundering_orb_g",
-			wav: "effect/druid/kr_thundering_orb_g"
+			wav: "effect/druid/kr_thundering_orb_g",
+			delayWav: 19e3 / 60,
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: 19e3 / 60
 		}, {
 			type: "STR",
 			file: "druid/kr_thundering_orb/thundering_orb_g_bottom/thundering_orb_g_bottom",
 			texturePath: "druid/kr_thundering_orb/thundering_orb_g_bottom/",
 			min: "druid/kr_thundering_orb/thundering_orb_g_bottom/min_thundering_orb_g_bottom",
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: 19e3 / 60,
 			renderBeforeEntities: true
 		}],
 		ef_druid_thundering_orb_y: [{
@@ -305942,12 +306124,19 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/kr_thundering_orb/thundering_orb_y/thundering_orb_y",
 			texturePath: "druid/kr_thundering_orb/thundering_orb_y/",
 			min: "druid/kr_thundering_orb/thundering_orb_y/min_thundering_orb_y",
-			wav: "effect/druid/kr_thundering_orb_y"
+			wav: "effect/druid/kr_thundering_orb_y",
+			delayWav: 19e3 / 60,
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: 19e3 / 60
 		}, {
 			type: "STR",
 			file: "druid/kr_thundering_orb/thundering_orb_y_bottom/thundering_orb_y_bottom",
 			texturePath: "druid/kr_thundering_orb/thundering_orb_y_bottom/",
 			min: "druid/kr_thundering_orb/thundering_orb_y_bottom/min_thundering_orb_y_bottom",
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: 19e3 / 60,
 			renderBeforeEntities: true
 		}],
 		ef_druid_thundering_call_g_3x3: [{
