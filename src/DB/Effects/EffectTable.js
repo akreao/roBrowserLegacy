@@ -39,6 +39,7 @@ import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
+import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
@@ -21080,6 +21081,7 @@ export default {
 
 	// Servant Weapon: Demolition (DK_SERVANT_W_DEMOL): gather, strike and hit rows.
 	...servantDemolitionEffects(),
+	...hastyFireInTheHoleEffects(),
 
 	// Dragonic Breath (DK_DRAGONIC_BREATH), from the client's own effect folders.
 	ef_dk_dragonic_breath: [
@@ -23196,25 +23198,6 @@ export default {
 			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',
 			texturePath: 'night_watch/nw_mission_bombard/mission_bombard/',
 			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit'
-		}
-	],
-
-	// Hasty Fire in the Hole (NW_HASTY_FIRE_IN_THE_HOLE), from the client's own effect folders.
-	// A ground skill with a splash of 2 cells, which is the 5x5 art; the folder also has 7x7 and 9x9.
-	ef_nw_hasty_fire_in_the_hole: [
-		{
-			type: 'STR',
-			file: 'night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole/hasty_fire_in_the_hole_5x5',
-			texturePath: 'night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole/',
-			min: 'night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole/min_hasty_fire_in_the_hole_5x5',
-			wav: 'effect/night_watch/nw_hasty_fire_in_the_hole_0'
-		},
-		{
-			type: 'STR',
-			file: 'night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole_bottom/hasty_fire_in_the_hole_5x5',
-			texturePath: 'night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole_bottom/',
-			min: 'night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole_bottom/min_hasty_fire_in_the_hole_5x5',
-			renderBeforeEntities: true
 		}
 	],
 

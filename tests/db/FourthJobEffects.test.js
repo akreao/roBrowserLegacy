@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 // Fourth-job skills whose art the client's data has and the effect tables did
 // not use (tracking list: Flux159/ragnarokoffline.app#309). Hasty Fire in the
-// Hole had no effect at all; Enchanting Sky and Dark Dragon - Nightmare drew only
+// Hole had no effect at all (now HastyFireInTheHole.test.js); Enchanting Sky and Dark Dragon - Nightmare drew only
 // their sound.
 //
 // Read as text: the effect tables import the renderer, which does not load
@@ -30,18 +30,6 @@ function effect(id) {
 }
 
 describe('fourth-job effects mapped to the art the client has', () => {
-	it('draws Hasty Fire in the Hole where it lands, over and under the ground', () => {
-		expect(skillEffect).toMatch(
-			/SkillEffect\[SK\.NW_HASTY_FIRE_IN_THE_HOLE\] = \{ effectId: 'ef_nw_hasty_fire_in_the_hole' \};/
-		);
-		const [top, bottom] = effect('ef_nw_hasty_fire_in_the_hole');
-		// SplashArea 2 in skill_db.yml: the 5x5 art, not the 7x7 or 9x9 in the same folder.
-		expect(top.get('file')).toMatch(/hasty_fire_in_the_hole\/hasty_fire_in_the_hole_5x5$/);
-		expect(bottom.get('file')).toMatch(/hasty_fire_in_the_hole_bottom\/hasty_fire_in_the_hole_5x5$/);
-		expect(bottom.text).toMatch(/renderBeforeEntities: true/);
-		expect(top.get('wav')).toBe('effect/night_watch/nw_hasty_fire_in_the_hole_0');
-	});
-
 	it('draws Enchanting Sky and Dark Dragon - Nightmare, not just their sound', () => {
 		// Enchanting Sky is drawn by its status (EnchantingSky.test.js): a burst, then a loop.
 		expect(skillEffect).toMatch(/SkillEffect\[SK\.SS_ANKOKURYUUAKUMU\] = \{ effectId: 'ef_ss_ankokuryuuakumu' \}/);
@@ -59,7 +47,6 @@ describe('fourth-job effects mapped to the art the client has', () => {
 
 	it('gives every layer a file, its texture folder and a lighter version', () => {
 		for (const id of [
-			'ef_nw_hasty_fire_in_the_hole',
 			'ef_ske_enchanting_sky',
 			'ef_ske_enchanting_sky_loop',
 			'ef_ss_ankokuryuuakumu'
