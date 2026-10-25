@@ -10753,6 +10753,8 @@ export default {
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/',
 			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		}
 	],
@@ -10764,6 +10766,8 @@ export default {
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/chul_ho_battering_hit',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/',
 			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/min_chul_ho_battering_hit',
+			wav: 'effect/SPIRIT_HANDLER/SH_CHUL_HO_BATTERING_hit',
+			soundLoop: false,
 			yOffset: 5
 		}
 	],
@@ -10797,6 +10801,8 @@ export default {
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -10818,6 +10824,8 @@ export default {
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/hyun_rok_spirit_power_hit',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/min_hyun_rok_spirit_power_hit',
+			wav: 'effect/SPIRIT_HANDLER/SH_HYUN_ROK_SPIRIT_POWER_hit',
+			soundLoop: false,
 			yOffset: 5
 		}
 	],
@@ -13356,6 +13364,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/talisman_of_magician',
 			texturePath: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/',
 			min: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/min_talisman_of_magician',
+			wav: 'effect/SOUL_ASCETIC/soa_talisman',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -13363,6 +13373,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/talisman_of_magician_bottom',
 			texturePath: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/',
 			min: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/min_talisman_of_magician_bottom',
+			wav: 'effect/SOUL_ASCETIC/soa_talisman_of_magician_bottom',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 10
 		}
@@ -13387,6 +13399,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_five_elements/talisman_of_the_five_elements',
 			texturePath: 'soul_ascetic/soa_talisman_of_five_elements/',
 			min: 'soul_ascetic/soa_talisman_of_five_elements/min_talisman_of_the_five_elements',
+			wav: 'effect/SOUL_ASCETIC/soa_talisman_of_the_five_elements',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 10
 		}
@@ -13411,6 +13425,8 @@ export default {
 			file: 'soul_ascetic/soa_exorcism_of_malicious_soul/exorcism_of_malicuous_soul',
 			texturePath: 'soul_ascetic/soa_exorcism_of_malicious_soul/',
 			min: 'soul_ascetic/soa_exorcism_of_malicious_soul/min_exorcism_of_malicuous_soul',
+			wav: 'effect/SOUL_ASCETIC/soa_exorcism_of_malicuous_soul',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 13
 		}
@@ -13499,6 +13515,8 @@ export default {
 			file: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/circle_directions_elements',
 			texturePath: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/',
 			min: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/min_circle_directions_elements',
+			wav: 'effect/SOUL_ASCETIC/soa_circle_directions_elements',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 13
 		}
@@ -15601,6 +15619,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_kagenomai/kagenomai',
 			texturePath: 'shinkiro_shiranui/ss_kagenomai/',
 			min: 'shinkiro_shiranui/ss_kagenomai/min_kagenomai',
+			wav: 'effect/SHINKIRO_SHIRANUI/SS_KAGEGNOMAI',
+			soundLoop: false,
 			yOffset: 7
 		}
 	],
@@ -15619,6 +15639,8 @@ export default {
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen/new_kagegissen',
 			texturePath: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen/',
+			wav: 'effect/SHINKIRO_SHIRANUI/new_ss_kagegissen_ready',
+			soundLoop: false,
 			yOffset: 11
 		},
 		{
@@ -15813,6 +15835,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/',
 			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 8
 		}
 	],
@@ -15936,6 +15960,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_01/ankokuryuuakumu_01',
 			texturePath: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_01/',
 			min: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_01/min_ankokuryuuakumu_01',
+			wav: 'effect/SHINKIRO_SHIRANUI/SS_ANKOKURYUUAKUMU_1',
+			soundLoop: false,
 			attachedEntity: true,
 			yOffset: 5
 		}
@@ -17675,6 +17701,8 @@ export default {
 			file: 'elemental_master/em_psychic_stream/psychic_stream_cast/psychic_stream_cast',
 			texturePath: 'elemental_master/em_psychic_stream/psychic_stream_cast/',
 			min: 'elemental_master/em_psychic_stream/psychic_stream_cast/min_psychic_stream_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		}
 	],
@@ -17686,6 +17714,8 @@ export default {
 			file: 'elemental_master/em_psychic_stream/psychic_stream_hit/psychic_stream_hit',
 			texturePath: 'elemental_master/em_psychic_stream/psychic_stream_hit/',
 			min: 'elemental_master/em_psychic_stream/psychic_stream_hit/min_psychic_stream_hit',
+			wav: 'effect/EM_PSYCHIC_STREAM_hit',
+			soundLoop: false,
 			yOffset: 8
 		}
 	],
@@ -18030,6 +18060,8 @@ export default {
 			file: 'meister/mt_rush_strike/rush_strike_bottom/rush_strike_bottom',
 			texturePath: 'meister/mt_rush_strike/rush_strike_bottom/',
 			min: 'meister/mt_rush_strike/rush_strike_bottom/min_rush_strike_bottom',
+			wav: 'effect/MT_RUSH_STRIKE_2',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 11
 		}
@@ -18084,6 +18116,8 @@ export default {
 			file: 'meister/mt_energy_cannonade/energy_cannonade_cast/energy_cannonade_cast',
 			texturePath: 'meister/mt_energy_cannonade/energy_cannonade_cast/',
 			min: 'meister/mt_energy_cannonade/energy_cannonade_cast/min_energy_cannonade_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 11
 		},
@@ -18104,6 +18138,8 @@ export default {
 			file: 'meister/mt_energy_cannonade/energy_cannonade_hit/energy_cannonade_hit',
 			texturePath: 'meister/mt_energy_cannonade/energy_cannonade_hit/',
 			min: 'meister/mt_energy_cannonade/energy_cannonade_hit/min_energy_cannonade_hit',
+			wav: 'effect/MT_ENERGY_CANNONADE_HIT',
+			soundLoop: false,
 			yOffset: 5
 		}
 	],
@@ -19075,6 +19111,8 @@ export default {
 			file: 'biolo/bo_mystery_powder/mistery_powder_hit/mistery_powder_hit',
 			texturePath: 'biolo/bo_mystery_powder/mistery_powder_hit/',
 			min: 'biolo/bo_mystery_powder/mistery_powder_hit/min_mistery_powder_hit',
+			wav: 'effect/BO_MYSTERY_POWDER_hit',
+			soundLoop: false,
 			yOffset: 10
 		}
 	],
@@ -19086,6 +19124,8 @@ export default {
 			file: 'biolo/bo_dust_explosion/dust_explosion/dust_explosion',
 			texturePath: 'biolo/bo_dust_explosion/dust_explosion/',
 			min: 'biolo/bo_dust_explosion/dust_explosion/min_dust_explosion',
+			wav: 'effect/bo_explosive_powder',
+			soundLoop: false,
 			yOffset: 0
 		}
 	],
@@ -19316,6 +19356,8 @@ export default {
 			file: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/rebound_shield_cast',
 			texturePath: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/',
 			min: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/min_rebound_shield_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['rebound_shield/rebound_shield_cast/rebound_shield_cast'],
 			yOffset: 10
 		},
@@ -19336,6 +19378,8 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance/new_attack_stance',
 			texturePath: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance/',
+			wav: 'effect/IG_GUARD_STANCE',
+			soundLoop: false,
 			fallback: ['attack_stance/attack_stance/attack_stance'],
 			yOffset: 10
 		}
@@ -19390,6 +19434,8 @@ export default {
 			file: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/new_holy_shield',
 			texturePath: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/',
 			min: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/min_new_holy_shield',
+			wav: 'effect/IG_HOLY_SHIELD1',
+			soundLoop: false,
 			fallback: ['holy_shield/holy_shield/holy_shield'],
 			yOffset: 10
 		},
@@ -19410,6 +19456,8 @@ export default {
 			file: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/new_holy_shield_cast',
 			texturePath: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/',
 			min: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/min_new_holy_shield_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['holy_shield/holy_shield_cast/holy_shield_cast'],
 			yOffset: 10
 		},
@@ -19452,6 +19500,8 @@ export default {
 			file: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/grand_judgement_cast',
 			texturePath: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/',
 			min: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/min_grand_judgement_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['grand_judgement/grand_judgement_cast/grand_judgement_cast'],
 			yOffset: 10
 		},
@@ -19495,6 +19545,8 @@ export default {
 			file: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/new_judgement_cross_cast',
 			texturePath: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/',
 			min: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/min_new_judgement_cross_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['judgement_cross/judgement_cross_cast/judgement_cross_cast'],
 			yOffset: 10
 		},
@@ -19538,6 +19590,8 @@ export default {
 			file: 'shield_shooting/shield_shooting_cast/shield_shooting_cast',
 			texturePath: 'shield_shooting/shield_shooting_cast/',
 			min: 'shield_shooting/shield_shooting_cast/min_shield_shooting_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			yOffset: 9
 		}
 	],
@@ -19581,6 +19635,8 @@ export default {
 			file: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/overslash_cast',
 			texturePath: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/',
 			min: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/min_overslash_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['overslash/overslash_cast/overslash_cast'],
 			yOffset: 10
 		}
@@ -19629,6 +19685,8 @@ export default {
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/new_cross_rain_cast',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/min_new_cross_rain_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['crossrain/cross_rain_cast/cross_rain_cast'],
 			yOffset: 10
 		},
@@ -19650,6 +19708,8 @@ export default {
 			file: 'imperial_guard/ig_radiant_spear/radiant_spear_cast/radiant_spear_cast',
 			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_cast/',
 			min: 'imperial_guard/ig_radiant_spear/radiant_spear_cast/min_radiant_spear_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 11
 		}
 	],
@@ -19744,6 +19804,8 @@ export default {
 			file: 'imperial_guard/ig_imperial_pressure/imperal_pressure_cast/imperal_pressure_cast',
 			texturePath: 'imperial_guard/ig_imperial_pressure/imperal_pressure_cast/',
 			min: 'imperial_guard/ig_imperial_pressure/imperal_pressure_cast/min_imperal_pressure_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		}
 	],
@@ -20197,6 +20259,8 @@ export default {
 			file: 'inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/blazing_flame_blast_cast',
 			texturePath: 'inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/',
 			min: 'inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/min_blazing_flame_blast_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -20216,6 +20280,8 @@ export default {
 			file: 'inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/blazing_flame_blast_hit',
 			texturePath: 'inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/',
 			min: 'inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/min_blazing_flame_blast_hit',
+			wav: 'effect/IQ_BLAZING_FLAME_BLAST_hit',
+			soundLoop: false,
 			yOffset: 8
 		}
 	],
@@ -20953,6 +21019,8 @@ export default {
 			file: 'archmage/ag_energy_conversion/energy_conversion_cast/energy_conversion_cast',
 			texturePath: 'archmage/ag_energy_conversion/energy_conversion_cast/',
 			min: 'archmage/ag_energy_conversion/energy_conversion_cast/min_energy_conversion_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 11
 		},
 		{
@@ -21355,6 +21423,8 @@ export default {
 			file: 'cardinal/cd_divinus_flos/divinus_flos_cast/divinus_flos_cast',
 			texturePath: 'cardinal/cd_divinus_flos/divinus_flos_cast/',
 			min: 'cardinal/cd_divinus_flos/divinus_flos_cast/min_divinus_flos_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -21374,6 +21444,8 @@ export default {
 			file: 'cardinal/cd_divinus_flos/divinus_flos_hit/divinus_flos_hit',
 			texturePath: 'cardinal/cd_divinus_flos/divinus_flos_hit/',
 			min: 'cardinal/cd_divinus_flos/divinus_flos_hit/min_divinus_flos_hit',
+			wav: 'effect/CD_DIVINUS_FLOS_hit',
+			soundLoop: false,
 			yOffset: 6
 		}
 	],
@@ -21622,6 +21694,8 @@ export default {
 			file: 'dragon_knight/dk_vigor/vigor_cast/vigor_cast',
 			texturePath: 'dragon_knight/dk_vigor/vigor_cast/',
 			min: 'dragon_knight/dk_vigor/vigor_cast/min_vigor_cast',
+			wav: 'effect/DK_VIGOR',
+			soundLoop: false,
 			fallback: ['vigor/vigor_cast/vigor_cast'],
 			yOffset: 10
 		}
@@ -21649,6 +21723,8 @@ export default {
 			file: 'dragon_knight/dragonic_breath/dragonic_breath_bottom/dragonic_breath_bottom',
 			texturePath: 'dragon_knight/dragonic_breath/dragonic_breath_bottom/',
 			min: 'dragon_knight/dragonic_breath/dragonic_breath_bottom/min_dragonic_breath_bottom',
+			wav: 'effect/dk_dragonic_breath_bottom',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 10
 		}
@@ -21685,6 +21761,8 @@ export default {
 			file: 'dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/dragonic_pierce_cast',
 			texturePath: 'dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/',
 			min: 'dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/min_dragonic_pierce_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 5
 		}
 	],
@@ -21696,6 +21774,8 @@ export default {
 			file: 'dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/dragonic_pierce_hit',
 			texturePath: 'dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/',
 			min: 'dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/min_dragonic_pierce_hit',
+			wav: 'effect/DK_DRAGONIC_PIERCE_hit',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -21867,6 +21947,8 @@ export default {
 			file: 'shadow_cross/shc_impact_crater/impact_crater_hit/impact_crater_hit',
 			texturePath: 'shadow_cross/shc_impact_crater/impact_crater_hit/',
 			min: 'shadow_cross/shc_impact_crater/impact_crater_hit/min_impact_crater_hit',
+			wav: 'effect/SHC_IMPACT_CRATER',
+			soundLoop: false,
 			fallback: ['impact_crater/impact_crater_hit/impact_crater_hit'],
 			renderBeforeEntities: true,
 			yOffset: 5
@@ -21880,6 +21962,8 @@ export default {
 			file: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/enchanting_shadow',
 			texturePath: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/',
 			min: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/min_enchanting_shadow',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			fallback: ['enchanting_shadow/enchanting_shadow/new_enchanting_shadow'],
 			yOffset: 10
 		},
@@ -21995,7 +22079,9 @@ export default {
 			type: 'STR',
 			file: 'mysticsymphony/mysticsymphony_cast/mysticsymphony_cast',
 			texturePath: 'mysticsymphony/mysticsymphony_cast/',
-			min: 'mysticsymphony/mysticsymphony_cast/min_mysticsymphony_cast'
+			min: 'mysticsymphony/mysticsymphony_cast/min_mysticsymphony_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false
 		}
 	],
 
@@ -22018,6 +22104,8 @@ export default {
 			file: '4tr_kvasirsonata/kvasirsonata_cast/kvasirsonata_cast',
 			texturePath: '4tr_kvasirsonata/kvasirsonata_cast/',
 			min: '4tr_kvasirsonata/kvasirsonata_cast/min_kvasirsonata_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 9
 		},
 		{
@@ -22036,7 +22124,9 @@ export default {
 			type: 'STR',
 			file: 'roseblossom/roseblossom_cast/roseblossom_cast',
 			texturePath: 'roseblossom/roseblossom_cast/',
-			min: 'roseblossom/roseblossom_cast/min_roseblossom_cast'
+			min: 'roseblossom/roseblossom_cast/min_roseblossom_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false
 		},
 		{
 			type: 'STR',
@@ -22153,6 +22243,8 @@ export default {
 			file: 'gef_nocturn/gef_nocturn_cast/gef_nocturn_cast',
 			texturePath: 'gef_nocturn/gef_nocturn_cast/',
 			min: 'gef_nocturn/gef_nocturn_cast/min_gef_nocturn_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 9
 		},
 		{
@@ -22182,7 +22274,9 @@ export default {
 			type: 'STR',
 			file: 'roki_capriccio/roki_capriccio_cast/roki_capriccio_cast',
 			texturePath: 'roki_capriccio/roki_capriccio_cast/',
-			min: 'roki_capriccio/roki_capriccio_cast/min_roki_capriccio_cast'
+			min: 'roki_capriccio/roki_capriccio_cast/min_roki_capriccio_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false
 		},
 		{
 			type: 'STR',
@@ -22212,6 +22306,8 @@ export default {
 			file: 'ain_rhapsody/ain_rhapsody_cast/ain_rhapsody_cast',
 			texturePath: 'ain_rhapsody/ain_rhapsody_cast/',
 			min: 'ain_rhapsody/ain_rhapsody_cast/min_ain_rhapsody_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 9
 		}
 	],
@@ -22256,6 +22352,8 @@ export default {
 			file: 'jawaii_serenade/jawaii_serenade_cast/jawaii_serenade_cast',
 			texturePath: 'jawaii_serenade/jawaii_serenade_cast/',
 			min: 'jawaii_serenade/jawaii_serenade_cast/min_jawaii_serenade_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 9
 		},
 		{
@@ -22308,6 +22406,8 @@ export default {
 			file: 'pronmarch/pronmarch_cast/pronmarch_cast',
 			texturePath: 'pronmarch/pronmarch_cast/',
 			min: 'pronmarch/pronmarch_cast/min_pronmarch_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 9
 		},
 		{
@@ -22327,6 +22427,8 @@ export default {
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/rhythmical_wave',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/',
 			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/min_rhythmical_wave',
+			wav: 'effect/TR_RHYTHMICAL_WAVE1',
+			soundLoop: false,
 			yOffset: 11
 		},
 		{
@@ -22334,6 +22436,8 @@ export default {
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/rhythmical_wave_bottom',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/',
 			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/min_rhythmical_wave_bottom',
+			wav: 'effect/TR_RHYTHMICAL_WAVE2',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 11
 		}
@@ -22346,6 +22450,8 @@ export default {
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/rhythmical_wave_cast',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/',
 			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/min_rhythmical_wave_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 11
 		},
 		{
@@ -22365,6 +22471,8 @@ export default {
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/rhythmical_wave_hit',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/',
 			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/min_rhythmical_wave_hit',
+			wav: 'effect/TR_RHYTHMICAL_WAVE3',
+			soundLoop: false,
 			yOffset: 11
 		}
 	],
@@ -22722,6 +22830,8 @@ export default {
 			file: 'abyss_chaser/abc_abyss_flame/abyss_flame_cast/abyss_flame_cast',
 			texturePath: 'abyss_chaser/abc_abyss_flame/abyss_flame_cast/',
 			min: 'abyss_chaser/abc_abyss_flame/abyss_flame_cast/min_abyss_flame_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -22741,6 +22851,8 @@ export default {
 			file: 'abyss_chaser/abc_abyss_flame/abyss_flame_hit/abyss_flame_hit',
 			texturePath: 'abyss_chaser/abc_abyss_flame/abyss_flame_hit/',
 			min: 'abyss_chaser/abc_abyss_flame/abyss_flame_hit/min_abyss_flame_hit',
+			wav: 'effect/ABC_ABYSS_FLAME_hit',
+			soundLoop: false,
 			yOffset: 6
 		}
 	],
@@ -22828,6 +22940,8 @@ export default {
 			file: 'galestorm/galestorm_cast/galestorm_cast',
 			texturePath: 'galestorm/galestorm_cast/',
 			min: 'galestorm/galestorm_cast/min_galestorm_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false,
 			yOffset: 10
 		}
 	],
@@ -22978,7 +23092,9 @@ export default {
 			type: 'STR',
 			file: 'crescivebolt/crescivebolt_cast/crescivebolt_cast',
 			texturePath: 'crescivebolt/crescivebolt_cast/',
-			min: 'crescivebolt/crescivebolt_cast/min_crescivebolt_cast'
+			min: 'crescivebolt/crescivebolt_cast/min_crescivebolt_cast',
+			wav: 'effect/EF_BeginSpell',
+			soundLoop: false
 		}
 	],
 
@@ -23048,6 +23164,8 @@ export default {
 			file: 'windhawk/wh_wild_walk/wild_walk_cast/wild_walk_cast',
 			texturePath: 'windhawk/wh_wild_walk/wild_walk_cast/',
 			min: 'windhawk/wh_wild_walk/wild_walk_cast/min_wild_walk_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -23708,6 +23826,8 @@ export default {
 			file: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/only_one_bullet_hit',
 			texturePath: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/',
 			min: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/min_only_one_bullet_hit',
+			wav: 'effect/NIGHT_WATCH/nw_only_one_bullet_hit',
+			soundLoop: false,
 			yOffset: 5
 		}
 	],
@@ -23880,6 +24000,8 @@ export default {
 			file: 'night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_cast/',
 			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			yOffset: 11
 		}
@@ -23892,6 +24014,8 @@ export default {
 			file: 'night_watch/nw_wild_shot/wild_shot_hit/wild_shot_hit',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_hit/',
 			min: 'night_watch/nw_wild_shot/wild_shot_hit/min_wild_shot_hit',
+			wav: 'effect/NIGHT_WATCH/NW_MIDNIGHT_FALLEN_HIT',
+			soundLoop: false,
 			yOffset: 6
 		}
 	],
@@ -23919,6 +24043,8 @@ export default {
 			file: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom',
 			texturePath: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/',
 			min: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom',
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			renderBeforeEntities: true,
 			xOffset: 1,
 			yOffset: 11
@@ -26085,6 +26211,8 @@ export default {
 			file: 'druid/kr_chop_chop/chop_chop_sub/chop_chop_sub',
 			texturePath: 'druid/kr_chop_chop/chop_chop_sub/',
 			min: 'druid/kr_chop_chop/chop_chop_sub/min_chop_chop_sub',
+			wav: 'effect/DRUID/KR_CHOP_CHOP',
+			soundLoop: false,
 			yOffset: 7
 		}
 	],
@@ -26143,6 +26271,8 @@ export default {
 			file: 'druid/kr_sharpen_hail/sharpen_hail_shot/sharpen_hail_shot',
 			texturePath: 'druid/kr_sharpen_hail/sharpen_hail_shot/',
 			min: 'druid/kr_sharpen_hail/sharpen_hail_shot/min_sharpen_hail_shot',
+			wav: 'effect/DRUID/KR_SHARPEN_HAIL',
+			soundLoop: false,
 			yOffset: 15
 		},
 		{
@@ -26482,6 +26612,8 @@ export default {
 			file: 'druid/kr_ice_pillar/ice_pillar_loop/ice_pillar_loop',
 			texturePath: 'druid/kr_ice_pillar/ice_pillar_loop/',
 			min: 'druid/kr_ice_pillar/ice_pillar_loop/min_ice_pillar_loop',
+			wav: 'effect/DRUID/KR_ICE_PILLAR_LOOP',
+			soundLoop: false,
 			yOffset: 10
 		},
 		{
@@ -26947,6 +27079,8 @@ export default {
 			file: 'druid/at_aero_sync/aero_sync_sync/aero_sync_sync',
 			texturePath: 'druid/at_aero_sync/aero_sync_sync/',
 			min: 'druid/at_aero_sync/aero_sync_sync/min_aero_sync_sync',
+			wav: 'effect/DRUID/AT_AERO_SYNC',
+			soundLoop: false,
 			yOffset: 15
 		}
 	],
