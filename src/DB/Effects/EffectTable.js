@@ -43,6 +43,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
@@ -26081,6 +26082,94 @@ export default {
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
+		}
+	],
+	2367: [
+		{
+			// Night Watch, Soul Ascetic and Spirit Handler cast aura: the client's cast-aura ring in
+			// ring_yellow.tga, argument 0 (white, additive), twice (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						[0, 0]
+					),
+					Params
+				);
+			}
+		}
+	],
+	1556: [
+		{
+			// Soul of Heaven and Earth cast: the cast-aura ring in ring_blue.tga, arguments
+			// 20 and 21 (two blues, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_blue.tga',
+						[20, 21]
+					),
+					Params
+				);
+			}
+		}
+	],
+	1565: [
+		{
+			// Circle of Directions and Elementals cast: the cast-aura ring in ring_yellow.tga,
+			// argument 23 (light blue, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						[23, 23]
+					),
+					Params
+				);
+			}
+		}
+	],
+	1938: [
+		{
+			// Spark Blaster / Triple Laser cast: the cast-aura ring in
+			// new_battle_w/abr_battle_warior.tga, argument 0 (white, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_battle_w/abr_battle_warior.tga',
+						[0, 0]
+					),
+					Params
+				);
+			}
 		}
 	],
 	ef_cast_circle_red: [

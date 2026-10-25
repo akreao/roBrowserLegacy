@@ -1076,11 +1076,11 @@ SkillEffect[SK.NW_GRENADE_FRAGMENT] = {
 		'ef_nw_grenade_fragment_reset'
 	]
 }; //Grenade Fragment
-SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night' }; //The Vigilante at Night
-SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit' }; //Only One Bullet
-SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting' }; //Spiral Shooting
-SkillEffect[SK.NW_MAGAZINE_FOR_ONE] = { effectId: 'ef_nw_magazine_for_one' }; //Magazine for One
-SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire' }; //Wild Fire
+SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night', castAuraEffectId: 2367 }; //The Vigilante at Night
+SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit', castAuraEffectId: 2367 }; //Only One Bullet
+SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting', castAuraEffectId: 2367 }; //Spiral Shooting
+SkillEffect[SK.NW_MAGAZINE_FOR_ONE] = { effectId: 'ef_nw_magazine_for_one', castAuraEffectId: 2367 }; //Magazine for One
+SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire', castAuraEffectId: 2367 }; //Wild Fire
 SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade' }; //Basic Grenade
 SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; //Grenades Dropping
 SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
@@ -1168,14 +1168,14 @@ SkillEffect[SK.SOA_TALISMAN_OF_MAGICIAN] = { effectId: 'ef_soa_talisman_of_magic
 SkillEffect[SK.SOA_SOUL_GATHERING] = { effectId: 'ef_soa_soul_gathering', castAuraEffectId: 454 }; //Soul Gathering
 SkillEffect[SK.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: 'ef_soa_talisman_of_five_elements' }; //Talisman Of Five Elements
 SkillEffect[SK.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: 'ef_soa_talisman_of_soul_stealing', castAuraEffectId: 441 }; //Talisman Of Soul Stealing
-SkillEffect[SK.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: 'ef_soa_exorcism_of_malicious_soul' }; //Exorcism Of Malicious Soul
+SkillEffect[SK.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: 'ef_soa_exorcism_of_malicious_soul', castAuraEffectId: 2367 }; //Exorcism Of Malicious Soul
 SkillEffect[SK.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: 'ef_soa_talisman_of_blue_dragon', castAuraEffectId: 845 }; //Talisman Of Blue Dragon
 SkillEffect[SK.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: 'ef_soa_talisman_of_white_tiger', castAuraEffectId: 843 }; //Talisman Of White Tiger
 SkillEffect[SK.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: 'ef_soa_talisman_of_red_phoenix', castAuraEffectId: 840 }; //Talisman Of Red Phoenix
 SkillEffect[SK.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: 'ef_soa_talisman_of_black_tortoise' }; //Talisman Of Black Tortoise
 SkillEffect[SK.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: 'ef_soa_talisman_of_four_bearing_god' }; //Talisman Of Four Bearing God
-SkillEffect[SK.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: 'ef_soa_circle_of_directions_and_elementals' }; //Circle Of Directions And Elementals
-SkillEffect[SK.SOA_SOUL_OF_HEAVEN_AND_EARTH] = { effectId: 'ef_soa_soul_of_heaven_and_earth' }; //Soul Of Heaven And Earth
+SkillEffect[SK.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: 'ef_soa_circle_of_directions_and_elementals', castAuraEffectId: 1565 }; //Circle Of Directions And Elementals
+SkillEffect[SK.SOA_SOUL_OF_HEAVEN_AND_EARTH] = { effectId: 'ef_soa_soul_of_heaven_and_earth', castAuraEffectId: 1556 }; //Soul Of Heaven And Earth
 SkillEffect[SK.OB_ZANGETSU] = {}; //Distorted Crescent
 SkillEffect[SK.OB_OBOROGENSOU] = {}; //Moonlight Fantasy
 SkillEffect[SK.OB_OBOROGENSOU_TRANSITION_ATK] = {}; //Moonlight Fantasy Transition Attack
@@ -1366,8 +1366,8 @@ SkillEffect[SK.MT_SUMMON_ABR_INFINITY] = {
 	effectIdOnCaster: 'ef_mt_summon_abr_infinity_cast',
 	hitEffectId: 'ef_mt_summon_abr_infinity_hit'
 }; //ABR Infinity
-SkillEffect[SK.MT_SPARK_BLASTER] = { effectId: 'ef_mt_spark_blaster' }; //Spark Blaster
-SkillEffect[SK.MT_TRIPLE_LASER] = { effectId: 'ef_mt_triple_laser' }; //Triple Laser
+SkillEffect[SK.MT_SPARK_BLASTER] = { effectId: 'ef_mt_spark_blaster', castAuraEffectId: 1938 }; //Spark Blaster
+SkillEffect[SK.MT_TRIPLE_LASER] = { effectId: 'ef_mt_triple_laser', castAuraEffectId: 1938 }; //Triple Laser
 SkillEffect[SK.MT_MIGHTY_SMASH] = { effectId: 'ef_mt_mighty_smash' }; //Mighty Smash
 SkillEffect[6506 /* MT_RUSH_STRIKE */] = { effectId: 'ef_mt_rush_strike' }; //Rush Strike
 SkillEffect[6507 /* MT_POWERFUL_SWING */] = {
@@ -1789,8 +1789,8 @@ SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = {
 }; //Colors of Hyunrok
 SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { castAuraEffectId: 841 }; //Hyunrok Breeze
 SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon', castAuraEffectId: 841 }; //Hyunrok Cannon
-SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion
-SkillEffect[SK.SH_BLESSING_OF_MYSTICAL_CREATURES] = { effectId: 'ef_sh_blessing_of_mystical_creatures' }; //Blessing of Mystical Creatures
+SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion', castAuraEffectId: 2367 }; //Temporary Communion
+SkillEffect[SK.SH_BLESSING_OF_MYSTICAL_CREATURES] = { effectId: 'ef_sh_blessing_of_mystical_creatures', castAuraEffectId: 2367 }; //Blessing of Mystical Creatures
 SkillEffect[5506 /* SH_CHUL_HO_BATTERING */] = {
 	effectId: 'ef_sh_chul_ho_battering',
 	beginCastEffectId: 'ef_sh_chul_ho_battering_cast',
