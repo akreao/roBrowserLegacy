@@ -149128,6 +149128,20 @@ var init_StatusEffectTable = __esmMin((() => {
 			start: ["ef_ske_rising_moon_04"],
 			loop: ["ef_ske_rising_moon_05"]
 		},
+		[StatusConst_default.INTENSIVE_AIM_COUNT]: { stages: [
+			["ef_nw_intensive_aim_00"],
+			["ef_nw_intensive_aim_01"],
+			["ef_nw_intensive_aim_02"],
+			["ef_nw_intensive_aim_03"],
+			["ef_nw_intensive_aim_04"],
+			["ef_nw_intensive_aim_05"],
+			["ef_nw_intensive_aim_06"],
+			["ef_nw_intensive_aim_07"],
+			["ef_nw_intensive_aim_08"],
+			["ef_nw_intensive_aim_09"],
+			["ef_nw_intensive_aim_10", "ef_nw_intensive_aim_full"]
+		] },
+		[StatusConst_default.INTENSIVE_AIM]: { clears: [StatusConst_default.INTENSIVE_AIM_COUNT] },
 		[StatusConst_default.SKY_ENCHANT]: {
 			start: ["ef_ske_enchanting_sky"],
 			loop: ["ef_ske_enchanting_sky_loop"]
@@ -220473,7 +220487,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RL_SLUGSHOT] = { effectId: "ef_rl_slugshot" };
 	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = {};
 	SkillEffect[SkillConst_default.RL_R_TRIP_PLUSATK] = {};
-	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { effectId: "ef_nw_intensive_aim" };
+	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { successEffectIdOnCaster: "ef_nw_intensive_aim_helix" };
 	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { successEffectIdOnCasterByLevel: [
 		"ef_nw_grenade_fragment_water",
 		"ef_nw_grenade_fragment_wind",
@@ -220754,7 +220768,13 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: "ef_dk_vigor",
 		effectIdOnCaster: "ef_dk_vigor_cast"
 	};
-	SkillEffect[SkillConst_default.DK_STORMSLASH] = { hitEffectId: "ef_dk_stormslash_hit" };
+	SkillEffect[SkillConst_default.DK_STORMSLASH] = { successEffectIdOnCasterByLevel: [
+		"ef_dk_stormslash_1",
+		"ef_dk_stormslash_2",
+		"ef_dk_stormslash_3",
+		"ef_dk_stormslash_4",
+		"ef_dk_stormslash_5"
+	] };
 	SkillEffect[SkillConst_default.DK_DRAGONIC_BREATH] = {
 		effectId: "ef_dk_dragonic_breath",
 		hitEffectId: "ef_dk_dragonic_breath_hit"
@@ -274016,7 +274036,8 @@ var init_EffectManager = __esmMin((() => {
 			Params.Inst.delayLateDelta = !isNaN(Params.effect.delayLateDelta) ? Params.effect.delayLateDelta * Params.Inst.duplicateID : 0;
 			Params.Inst.delayOffset = !isNaN(Params.effect.delayOffset) ? Params.effect.delayOffset + Params.Inst.delayOffsetDelta : 0;
 			Params.Inst.delayLate = !isNaN(Params.effect.delayLate) ? Params.effect.delayLate + Params.Inst.delayLateDelta : 0;
-			Params.Inst.startTick = Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
+			const delayStart = typeof Params.effect.delayStart === "function" ? Params.effect.delayStart(Params) : Params.effect.delayStart;
+			Params.Inst.startTick = Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : delayStart || 0);
 			Params.Inst.endTick = Params.Inst.duration > 0 ? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration : -1;
 			if (Params.effect.castLoop && Params.Init.castEndTick > 0) {
 				Params.Inst.repeatEnd = Params.Init.castEndTick;
@@ -283545,6 +283566,103 @@ var init_SkySunEffect = __esmMin((() => {
 		attachedEntity: false
 	};
 }));
+// src/DB/Effects/StormSlashEffect.js
+/**
+* The caster's motion speed in ACT units (one unit is 25 ms of frame delay).
+*
+* @param {object} entity caster
+* @return {number}
+*/
+function motionSpeed(entity) {
+	if (entity && entity.animation && entity.animation.speed > 0) return entity.animation.speed / 25;
+	const file = entity && entity.files && entity.files.body && entity.files.body.act;
+	const act = file ? Client.loadFile(file) : null;
+	if (act && act.actions && act.actions.length) {
+		const action = act.actions[entity.action * 8 % act.actions.length];
+		if (action && action.delay > 0) return action.delay / 25;
+	}
+	return DEFAULT_MOTION_SPEED;
+}
+/**
+* How long after the cast the stage art starts: motion speed x 50 + 30 ms,
+* counted in whole ticks, plus the tick the effect is created on.
+*
+* @param {number} speed motion speed in ACT units
+* @return {number} ms
+*/
+function startDelay(speed) {
+	const ms = Math.trunc(speed * 50 + 30);
+	return (Math.trunc(ms / 16) + 1) * TICK_MS;
+}
+/**
+* delayStart of a stage layer, worked out from its caster.
+*
+* @param {object} Params effect params
+* @return {number} ms
+*/
+function stageDelay(Params) {
+	return startDelay(motionSpeed(Params.Init.ownerEntity));
+}
+/**
+* The art for one stage.
+*
+* @param {number} stage 1 to 5
+* @return {object} STR layer
+*/
+function stageLayer(stage) {
+	return {
+		type: "STR",
+		file: "dragon_knight/dk_stormslash/stormslash/stormslash_" + stage,
+		min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_" + stage,
+		texturePath: "dragon_knight/dk_stormslash/stormslash/",
+		fallback: ["stormslash/stormslash/stormslash_" + stage],
+		yOffset: 8,
+		delayStart: stageDelay,
+		attachedEntity: true
+	};
+}
+/**
+* Sound layer for one stage: as many slash sounds as the stage number.
+*
+* @param {number} stage 1 to 5
+* @param {function} [random] returns a number in [0, 1)
+* @return {object} FUNC layer
+*/
+function soundLayer(stage, random = Math.random) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function StormSlashSounds(Params) {
+			const position = Params.Init.ownerEntity.position;
+			for (let i = 0; i < stage; ++i) {
+				const n = 1 + Math.floor(random() * 4);
+				Events.setTimeout(function() {
+					SoundManager.playPosition("effect/dk_stormslash" + n + ".wav", position);
+				}, i * SOUND_GAP_MS);
+			}
+		}
+	};
+}
+/**
+* EffectTable rows ef_dk_stormslash_1 to ef_dk_stormslash_5.
+*
+* @return {object}
+*/
+function stormSlashEffects() {
+	const rows = {};
+	for (let stage = 1; stage <= 5; ++stage) rows["ef_dk_stormslash_" + stage] = [stageLayer(stage), soundLayer(stage)];
+	return rows;
+}
+var TICK_MS, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
+var init_StormSlashEffect = __esmMin((() => {
+	init_Client();
+	init_SoundManager();
+	init_Events();
+	TICK_MS = 1e3 / 60;
+	SOUND_GAP_MS = 15 * TICK_MS;
+	DEFAULT_MOTION_SPEED = 4;
+	Array.from({ length: 5 }, (_, k) => "ef_dk_stormslash_" + (k + 1));
+}));
 // src/Renderer/Effects/WarlockSphere.vs?raw
 var WarlockSphere_default$1;
 var init_WarlockSphere$2 = __esmMin((() => {
@@ -284201,6 +284319,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SpiderWeb();
 	init_SpiritSphere();
 	init_SkySunEffect();
+	init_StormSlashEffect();
 	init_WarlockSphere();
 	init_CastCone();
 	init_Altitude();
@@ -299589,15 +299708,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "dragon_knight/dk_vigor/vigor_cast/min_vigor_cast",
 			fallback: ["vigor/vigor_cast/vigor_cast"]
 		}],
-		ef_dk_stormslash_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_stormslash/stormslash/stormslash_%d",
-			min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_%d",
-			rand: [1, 5],
-			texturePath: "dragon_knight/dk_stormslash/stormslash/",
-			fallback: ["stormslash/stormslash/stormslash_%d"],
-			wav: "effect/dk_stormslash1"
-		}],
+		...stormSlashEffects(),
 		ef_dk_dragonic_breath: [{
 			type: "STR",
 			file: "dragon_knight/dragonic_breath/dragonic_breath/dragonic_breath",
@@ -300769,12 +300880,153 @@ var init_EffectTable = __esmMin((() => {
 			},
 			{ wav: "effect/RL_C_MARKER" }
 		],
-		ef_nw_intensive_aim: [{
+		ef_nw_intensive_aim_00: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_00",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_00",
+			repeat: true,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_01: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_01",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_01",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_02: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_02",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_02",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_03: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_03",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_03",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_04: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_04",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_04",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_05: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_05",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_05",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_06: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_06",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_06",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_07: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_07",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_07",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_08: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_08",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_08",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_09: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_09",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_09",
+			wav: "effect/night_watch/nw_intensive_aim",
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_10: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim/intensive_aim_10",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim/",
+			min: "night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_10",
+			wav: "effect/night_watch/nw_intensive_aim",
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_full: [{
 			type: "STR",
 			file: "night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full",
 			texturePath: "night_watch/nw_intensive_aim/intensive_aim_full/",
 			min: "night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full",
-			wav: "effect/night_watch/nw_intensive_aim"
+			repeat: true,
+			delayStart: 496,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}],
+		ef_nw_intensive_aim_helix: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim_helix/intensiveaim_helix",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim_helix/",
+			min: "night_watch/nw_intensive_aim/intensive_aim_helix/min_intensiveaim_helix",
+			wav: "effect/night_watch/nw_intensiveaim_helix",
+			yOffset: 10,
+			attachedEntity: true
 		}],
 		ef_nw_grenade_fragment_water: [{
 			type: "STR",
@@ -322711,8 +322963,7 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	if (!skillEntry || !file) return false;
 	const wanted = keyOf(file);
 	for (const field in skillEntry) {
-		const value = skillEntry[field];
-		const names = Array.isArray(value) ? value : [value];
+		const names = [skillEntry[field]].flat(Infinity);
 		for (const name of names) {
 			const effects = typeof name === "string" ? EffectTable[name] : null;
 			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
@@ -349080,11 +349331,21 @@ var init_Footprints = __esmMin((() => {
 }));
 // src/Engine/MapEngine/StatusEffects.js
 /**
+* Every effect a row's stages can show
+*
+* @param {object} row StatusEffectTable row
+* @return {Array<string>}
+*/
+function stageEffects(row) {
+	return [...new Set((row && row.stages ? row.stages : []).flat())];
+}
+/**
 * @param {number} AID actor id
 * @param {number} status status id (StatusConst)
 * @param {number} state 1 on, 0 off
+* @param {number} [value] the status's first value, which picks a stage
 */
-function updateStatusEffects(AID, status, state) {
+function updateStatusEffects(AID, status, state, value) {
 	const row = StatusEffectTable_default[status];
 	if (!row) return;
 	const loops = row.loop || [];
@@ -349100,7 +349361,17 @@ function updateStatusEffects(AID, status, state) {
 				persistent: true
 			});
 		});
-	} else if (state == 0) loops.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		if (row.stages) {
+			stageEffects(row).forEach((effectId) => EffectManager.remove(null, AID, effectId));
+			(row.stages[value] || []).forEach((effectId) => EffectManager.spam({
+				effectId,
+				ownerAID: AID
+			}));
+		}
+	} else if (state == 0) {
+		loops.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		(row.clears || []).forEach((other) => stageEffects(StatusEffectTable_default[other]).forEach((effectId) => EffectManager.remove(null, AID, effectId)));
+	}
 }
 var init_StatusEffects = __esmMin((() => {
 	init_StatusEffectTable();
@@ -350640,7 +350911,7 @@ function onEntityStatusChange(pkt) {
 			updateEntityStyle(entity);
 		});
 	}
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state);
+	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : void 0);
 	processBlockStatus(entity, pkt);
 	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS);
 }
