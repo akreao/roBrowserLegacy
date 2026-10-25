@@ -111,9 +111,15 @@ describe('Intensive Aim files', () => {
 		expect(line).toMatch(/= \{ successEffectIdOnCaster: 'ef_nw_intensive_aim_helix' \};/);
 	});
 
-	it('passes the status value on from the status packet', () => {
+	it('passes the status values on from the status packet', () => {
 		expect(read('Engine/MapEngine/Entity.js')).toContain(
-			'updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : undefined);'
+			'updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val);'
 		);
+	});
+
+	it('takes the stage from the first of the status values', () => {
+		EffectManager.spam.mockClear();
+		updateStatusEffects(7, StatusConst.INTENSIVE_AIM_COUNT, 1, [4, 0, 0]);
+		expect(EffectManager.spam).toHaveBeenCalledWith({ effectId: 'ef_nw_intensive_aim_04', ownerAID: 7 });
 	});
 });

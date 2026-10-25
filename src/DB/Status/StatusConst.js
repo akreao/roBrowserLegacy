@@ -1422,10 +1422,19 @@ export default {
 
 	MYSTERY_POWDER: 1665,
 
+	// Shown by the official client from a server status (EFST_GENDER_CHANGE)
+	GENDER_CHANGE: 1559,
+
 	// Druid shapeshift forms (EFST_WEREWOLF / EFST_WERERAPTOR)
 	WEREWOLF: 1675,
 	WERERAPTOR: 1680,
 
+	// Druid buffs (EFST ids of the official client)
+	WIND_VEIL: 1693,
+	THUNDERING_ROD: 1695,
+	THUNDERING_ROD_MAX: 1696,
+	GROUND_GROW: 1697,
+
 	//Technical - must be largest value
-	MAX: 1681
+	MAX: 1698
 };

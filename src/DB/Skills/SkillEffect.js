@@ -1143,7 +1143,9 @@ SkillEffect[SK.SS_HITOUAKUMU] = {
 	// When the use packet succeeds, at the caster: the floor burst, then all
 	// three blade files, 15-19 copies each fanned out all round
 	successEffectId: 'ef_ss_hitouakumu',
-	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02']
+	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02'],
+	// While casting: effect 812 (dark flash and caster strobe) instead of the element aura
+	castAuraEffectId: 812
 }; //Kunai - Nightmare
 SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
 SkillEffect[5499 /* SS_FOUR_CHARM */] = {
@@ -1693,7 +1695,7 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	effectIdOnCaster: 'ef_ig_overslash_cast',
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
-SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
+SkillEffect[SK.IG_CROSS_RAIN] = { effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain (the rain comes from its skill unit)
 //Radiant Spear: when the use packet succeeds, one spear lands where the target stands.
 //A target on the right half of the screen (seen from the caster) gets leftdown, on the left half rightdown.
 SkillEffect[6503 /* IG_RADIANT_SPEAR */] = {
@@ -2006,8 +2008,8 @@ SkillEffect[SK.AT_ALPHA_CLAW] = { effectIdOnCaster: 'ef_druid_alpha_claw', hitEf
 SkillEffect[SK.AT_SAVAGE_LUNGE] = { effectId: 'ef_druid_savage_lunge', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.AT_FRENZY_FANG] = { effectId: 'ef_druid_frenzy_fang', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.AT_PINION_SHOT] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectIdOnCaster: 'ef_druid_pinion_shot', hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.AT_QUILL_SPEAR] = { castAuraEffectId: 'ef_druid_cast_circle_green', successEffectIdOnCasterAimed: 'ef_druid_quill_spear_3x7', hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.AT_QUILL_SPEAR_S] = { successEffectIdOnCasterAimed: 'ef_druid_quill_spear_5x7', hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.AT_QUILL_SPEAR] = { castAuraEffectId: 'ef_druid_cast_circle_green', successEffectIdOnCasterAimed: 'ef_druid_quill_spear_3x7', successEffectIdOnCaster: 'ef_druid_quill_spear_line', hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.AT_QUILL_SPEAR_S] = { successEffectIdOnCasterAimed: 'ef_druid_quill_spear_5x7', successEffectIdOnCaster: 'ef_druid_quill_spear_line', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.AT_TEMPEST_FLAP] = { beginCastEffectIdInRaptorForm: 'ef_druid_tempest_flap_cast', effectId: 'ef_druid_tempest_flap', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.AT_AERO_SYNC] = { effectIdOnCaster: 'ef_druid_aero_sync_self', effectId: 'ef_druid_aero_sync' };
 SkillEffect[SK.AT_ZEPHYR_LINK] = { effectId: 'ef_druid_zephyr_link' };

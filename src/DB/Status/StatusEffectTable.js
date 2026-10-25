@@ -9,6 +9,13 @@
  *   effects. Each time the status starts with value N, every stage effect on the
  *   actor is removed and stages[N] is played. Ending the status leaves them.
  * clears: statuses whose stage effects are removed when this status ends.
+ * counted: { value, effects }: the status value at index `value` (0 val1,
+ *   1 val2, 2 val3) is a count N from 1; each start plays effects[N - 1] on the
+ *   actor until the status ends (earlier counts keep playing). Ending the
+ *   status removes them all.
+ * stop: effects also removed when the status ends.
+ * end: effects played once when the status ends.
+ * scale: size of every effect of the row (1 is the art's own size).
  *
  * Effect names are keys of DB/Effects/EffectTable.js.
  *
@@ -198,5 +205,64 @@ export default {
 	// Mystery Powder (BO_MYSTERY_POWDER)
 	[StatusConst.MYSTERY_POWDER]: {
 		loop: ['mistery_powder_loop_bottom', 'mistery_powder_loop']
+	},
+
+	// Gender change: drawn half again as large. When it ends the client stops
+	// the cast and the loop and plays gender_change once.
+	[StatusConst.GENDER_CHANGE]: {
+		start: ['gender_change_cast'],
+		loop: ['gender_change_loop'],
+		stop: ['gender_change_cast'],
+		end: ['gender_change'],
+		scale: 1.5
+	},
+
+	// Druid buffs. The client builds these row names at run time from hidden
+	// strings; decoded, they are the bson rows below.
+
+	// Wind Veil (KR_WIND_VEIL)
+	[StatusConst.WIND_VEIL]: {
+		loop: ['wild_veil', 'wild_veil_bottom']
+	},
+
+	// Ground Grow (DR_GROUND_GROW): the status's third value is the stack, 1 to
+	// 12; stack N plays ground_grow_<N-1> (two digits), stack 12 ground_grow_full.
+	[StatusConst.GROUND_GROW]: {
+		counted: {
+			value: 2,
+			effects: [
+				'ground_grow_00',
+				'ground_grow_01',
+				'ground_grow_02',
+				'ground_grow_03',
+				'ground_grow_04',
+				'ground_grow_05',
+				'ground_grow_06',
+				'ground_grow_07',
+				'ground_grow_08',
+				'ground_grow_09',
+				'ground_grow_10',
+				'ground_grow_full'
+			]
+		}
+	},
+
+	// Thundering Rod (DR_THUNDERING_ROD): third value 1 to 6 plays
+	// thundering_rod_<N-1>; the full rod is its own status.
+	[StatusConst.THUNDERING_ROD]: {
+		counted: {
+			value: 2,
+			effects: [
+				'thundering_rod_00',
+				'thundering_rod_01',
+				'thundering_rod_02',
+				'thundering_rod_03',
+				'thundering_rod_04',
+				'thundering_rod_05'
+			]
+		}
+	},
+	[StatusConst.THUNDERING_ROD_MAX]: {
+		loop: ['thundering_rod_full']
 	}
 };

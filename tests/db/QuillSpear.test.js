@@ -61,7 +61,9 @@ describe('Quill Spear', () => {
 		for (const [name, [size]] of Object.entries(SKILLS)) {
 			const row = skillRow(name);
 			expect(row).toContain(`successEffectIdOnCasterAimed: 'ef_druid_quill_spear_${size}'`);
-			expect(row).not.toMatch(/\b(effectId|effectIdOnCaster|successEffectId|successEffectIdOnCaster)\w*ByLevel|\b(effectId|effectIdOnCaster|successEffectId|successEffectIdOnCaster):/);
+			// The second part, effect 2442's streak lines, also on the caster (StreakLines.test.js)
+			expect(row).toContain("successEffectIdOnCaster: 'ef_druid_quill_spear_line'");
+			expect(row.replace("successEffectIdOnCaster: 'ef_druid_quill_spear_line'", '')).not.toMatch(/\b(effectId|effectIdOnCaster|successEffectId|successEffectIdOnCaster)\w*ByLevel|\b(effectId|effectIdOnCaster|successEffectId|successEffectIdOnCaster):/);
 			expect(row).toContain("hitEffectId: 'ef_druid_hit_raptor'");
 		}
 	});
