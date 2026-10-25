@@ -27,7 +27,7 @@ import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import { screenAngle, screenSector } from 'Renderer/Effects/ScreenDirection.js';
+import { screenAngle, screenSector, screenSide } from 'Renderer/Effects/ScreenDirection.js';
 import shuffledGrid from 'Renderer/Effects/ShuffledGrid.js';
 import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -1008,6 +1008,26 @@ class EffectManager {
 						ownerAID: srcAID,
 						startTick: tick,
 						otherAID: destAID
+					});
+				}
+			}
+		}
+
+		// One effect where the target stands (its rows are not attached, so it stays
+		// put), picked by which half of the screen the target is in, seen from the
+		// caster (ScreenDirection.screenSide). Radiant Spear's leftdown/rightdown spear.
+		const bySide = SkillEffect[skillId].successEffectIdOnTargetByScreenSide;
+		if (bySide && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				const effectId = bySide[screenSide(screenAngle(srcEntity.position, destEntity.position))];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
 					});
 				}
 			}

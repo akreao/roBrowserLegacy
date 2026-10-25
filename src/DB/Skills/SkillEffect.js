@@ -50,6 +50,10 @@
  *								12 effects; plays one on the caster when the skill succeeds, picked by where
  *								the target is on screen: 30 degree steps clockwise, the first centred straight up.
  *
+ *	- successEffectIdOnTargetByScreenSide:
+ *								{ right, left }; plays one on the ground where the target stands when the skill
+ *								succeeds, picked by which half of the screen the target is in, seen from the caster.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
@@ -1664,7 +1668,15 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
 SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
-SkillEffect[6503 /* IG_RADIANT_SPEAR */] = { effectIdOnCaster: 'ef_ig_radiant_spear_cast' }; //Radiant Spear
+//Radiant Spear: when the use packet succeeds, one spear lands where the target stands.
+//A target on the right half of the screen (seen from the caster) gets leftdown, on the left half rightdown.
+SkillEffect[6503 /* IG_RADIANT_SPEAR */] = {
+	effectIdOnCaster: 'ef_ig_radiant_spear_cast',
+	successEffectIdOnTargetByScreenSide: {
+		right: 'ef_ig_radiant_spear_leftdown',
+		left: 'ef_ig_radiant_spear_rightdown'
+	}
+};
 SkillEffect[6504 /* IG_IMPERIAL_CROSS */] = { effectId: 'ef_ig_imperial_cross' }; //Imperial Cross
 SkillEffect[6505 /* IG_IMPERIAL_PRESSURE */] = {
 	effectId: 'ef_ig_imperial_pressure',
@@ -1731,7 +1743,18 @@ SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spray
 SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festival_of_ki_sul' }; //Marine Festival of Kisul
 SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul' }; //Sandy Festival of Kisul
 SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage' }; //Kisul Rampage
-SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = { effectId: 'ef_sh_colors_of_hyun_rok' }; //Colors of Hyunrok
+SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = {
+	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
+	successEffectIdOnCasterByLevel: [
+		'ef_sh_colors_of_hyun_rok_water',
+		'ef_sh_colors_of_hyun_rok_wind',
+		'ef_sh_colors_of_hyun_rok_earth',
+		'ef_sh_colors_of_hyun_rok_fire',
+		'ef_sh_colors_of_hyun_rok_darkness',
+		'ef_sh_colors_of_hyun_rok_saint',
+		'ef_sh_colors_of_hyun_rok_reset'
+	]
+}; //Colors of Hyunrok
 SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { effectId: 'ef_sh_hyun_roks_breeze' }; //Hyunrok Breeze
 SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon' }; //Hyunrok Cannon
 SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion
