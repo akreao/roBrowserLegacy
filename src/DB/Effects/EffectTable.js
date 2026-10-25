@@ -43,6 +43,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -15166,7 +15167,37 @@ export default {
 		}
 	],
 
-	//812: [{}],	//EF_BLACKBODY	   Black expanding aura
+	812: [
+		{
+			//EF_BLACKBODY	   Black expanding aura
+			// Kunai - Nightmare's cast start (official client, 60 ticks a second): a level
+			// square of near-black fashasha.tga streaks one cell up, spreading fast for
+			// 10 ticks and then slowly, fading out from tick 30 to its end on tick 57.
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			color: [10, 10, 10],
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 10,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 30
+		},
+		{
+			// The caster strobes black and white on ticks 6 to 60, then recovers (CasterStrobe.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				startCasterStrobe(Params.Init.ownerEntity);
+			}
+		}
+	],
 
 	813: [
 		{

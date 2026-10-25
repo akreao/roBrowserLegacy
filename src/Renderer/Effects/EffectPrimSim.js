@@ -11,9 +11,10 @@
  * Supported primitives:
  *  - 'ring':   a flat textured band (an outer and an inner circle), growing outwards.
  *  - 'sphere': a textured sphere, growing and spinning around the vertical axis.
+ *  - 'quad':   a flat textured square lying level, centred on the position (official type 15).
  *
  * Effect description keys (all optional except prim and texture):
- *  - prim {string}          'ring' or 'sphere'
+ *  - prim {string}          'ring', 'sphere' or 'quad'
  *  - frames {number}        lifetime in ticks (default 100)
  *  - radius {number}        start radius (default 0)
  *  - radiusSpeed {number}   radius change per tick (default 0)
@@ -28,6 +29,14 @@
  *  - alphaSpeed {number}    alpha change per tick (default 0)
  *  - alphaMax {number}      alpha ceiling (default 254)
  *  - fadeOutFrame {number}  tick on which the fade to 0 starts (default none)
+ *  - color {Array}          tint, [r, g, b] out of 255 (default white)
+ *  - size {number}          quad half side, the square spans -size..+size (default 0)
+ *  - sizeSpeed {number}     size change per tick (default 0)
+ *  - sizeAccel {number}     change of sizeSpeed per tick (default 0)
+ *  - sizeChangeFrame {number}  tick on which sizeSpeed and sizeAccel are replaced (default none)
+ *  - sizeChangeSpeed {number}  sizeSpeed from that tick
+ *  - sizeChangeAccel {number}  sizeAccel from that tick
+ *  - height {number}        quad height above the ground (default 0)
  */
 
 /**
@@ -69,7 +78,13 @@ export function createPrimState(effect) {
 		alpha: num(effect.alpha, 254),
 		alphaSpeed: num(effect.alphaSpeed, 0),
 		alphaMax: num(effect.alphaMax, 254),
-		fadeOutFrame: num(effect.fadeOutFrame, -1)
+		fadeOutFrame: num(effect.fadeOutFrame, -1),
+		size: num(effect.size, 0),
+		sizeSpeed: num(effect.sizeSpeed, 0),
+		sizeAccel: num(effect.sizeAccel, 0),
+		sizeChangeFrame: num(effect.sizeChangeFrame, -1),
+		sizeChangeSpeed: num(effect.sizeChangeSpeed, 0),
+		sizeChangeAccel: num(effect.sizeChangeAccel, 0)
 	};
 }
 
@@ -90,6 +105,15 @@ export function stepPrim(state) {
 	state.radius += state.radiusSpeed;
 
 	state.yaw += state.spin;
+
+	// The quad's growth switches to new numbers once, on its change tick.
+	if (state.frame === state.sizeChangeFrame) {
+		state.sizeSpeed = state.sizeChangeSpeed;
+		state.sizeAccel = state.sizeChangeAccel;
+	}
+
+	state.sizeSpeed += state.sizeAccel;
+	state.size += state.sizeSpeed;
 
 	state.frame++;
 }
@@ -137,6 +161,10 @@ export function primVertexCount(effect) {
 
 	if (effect.prim === 'sphere') {
 		return segments * num(effect.bands, 5) * 6;
+	}
+
+	if (effect.prim === 'quad') {
+		return 6;
 	}
 
 	return segments * 6;
@@ -226,6 +254,29 @@ function buildSphere(out, effect, state, center) {
 }
 
 /**
+ * Build the quad: a level square spanning -size..+size on both ground axes,
+ * height units above the ground, the whole texture corner to corner.
+ *
+ * @param {Float32Array} out
+ * @param {object} effect description
+ * @param {object} state
+ * @param {Array} center position, in cells
+ */
+function buildQuad(out, effect, state, center) {
+	const s = state.size;
+	const up = num(effect.height, 0);
+	let o = 0;
+
+	o = vertex(out, o, center, s, s, up, 0, 0);
+	o = vertex(out, o, center, s, -s, up, 1, 0);
+	o = vertex(out, o, center, -s, s, up, 0, 1);
+
+	o = vertex(out, o, center, s, -s, up, 1, 0);
+	o = vertex(out, o, center, -s, -s, up, 1, 1);
+	vertex(out, o, center, -s, s, up, 0, 1);
+}
+
+/**
  * Fill a vertex buffer with the primitive's triangles in its current state
  *
  * @param {Float32Array} out, primVertexCount(effect) * 5 floats
@@ -236,6 +287,8 @@ function buildSphere(out, effect, state, center) {
 export function buildPrimGeometry(out, effect, state, center) {
 	if (effect.prim === 'sphere') {
 		buildSphere(out, effect, state, center);
+	} else if (effect.prim === 'quad') {
+		buildQuad(out, effect, state, center);
 	} else {
 		buildRing(out, effect, state, center);
 	}
