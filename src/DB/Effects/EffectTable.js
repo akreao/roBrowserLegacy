@@ -25641,19 +25641,43 @@ export default {
 			attachedEntity: true
 		}
 	],
+	// Thundering Orb (KR_THUNDERING_ORB green, _S yellow): from the ground packet
+	// the client throws the orb from above the caster onto the cell
+	// (Renderer/Effects/BezierArcThrow.js), the same orb for both skills, and
+	// plays the burst there 300 ms later (19 ticks). EZ2 rows of the same name
+	// (PosY 10). See SkillEffect.js.
+	ef_druid_thundering_orb_throw: [
+		{
+			type: 'STR',
+			file: 'druid/kr_thundering_orb/thundering_orb_orb/thundering_orb_small',
+			texturePath: 'druid/kr_thundering_orb/thundering_orb_orb/',
+			min: 'druid/kr_thundering_orb/thundering_orb_orb/min_thundering_orb_small',
+			// Art centre on the orb, as the client draws it
+			xOffset: 0,
+			yOffset: 0,
+			arcThrow: true
+		}
+	],
 	ef_druid_thundering_orb_g: [
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_orb/thundering_orb_g/thundering_orb_g',
 			texturePath: 'druid/kr_thundering_orb/thundering_orb_g/',
 			min: 'druid/kr_thundering_orb/thundering_orb_g/min_thundering_orb_g',
-			wav: 'effect/druid/kr_thundering_orb_g'
+			wav: 'effect/druid/kr_thundering_orb_g',
+			delayWav: (19 * 1000) / 60,
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: (19 * 1000) / 60
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_orb/thundering_orb_g_bottom/thundering_orb_g_bottom',
 			texturePath: 'druid/kr_thundering_orb/thundering_orb_g_bottom/',
 			min: 'druid/kr_thundering_orb/thundering_orb_g_bottom/min_thundering_orb_g_bottom',
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: (19 * 1000) / 60,
 			renderBeforeEntities: true
 		}
 	],
@@ -25663,13 +25687,20 @@ export default {
 			file: 'druid/kr_thundering_orb/thundering_orb_y/thundering_orb_y',
 			texturePath: 'druid/kr_thundering_orb/thundering_orb_y/',
 			min: 'druid/kr_thundering_orb/thundering_orb_y/min_thundering_orb_y',
-			wav: 'effect/druid/kr_thundering_orb_y'
+			wav: 'effect/druid/kr_thundering_orb_y',
+			delayWav: (19 * 1000) / 60,
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: (19 * 1000) / 60
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_orb/thundering_orb_y_bottom/thundering_orb_y_bottom',
 			texturePath: 'druid/kr_thundering_orb/thundering_orb_y_bottom/',
 			min: 'druid/kr_thundering_orb/thundering_orb_y_bottom/min_thundering_orb_y_bottom',
+			xOffset: 0,
+			yOffset: 10,
+			delayStart: (19 * 1000) / 60,
 			renderBeforeEntities: true
 		}
 	],

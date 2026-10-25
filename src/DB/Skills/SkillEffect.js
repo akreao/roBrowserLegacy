@@ -1978,8 +1978,9 @@ SkillEffect[SK.KR_ICE_SPLASH] = { beginCastEffectId: 'ef_druid_ice_cast', effect
 // Thundering Focus: one floor ring on the target when the use succeeds, the same at every level
 SkillEffect[SK.KR_THUNDERING_FOCUS] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectId: 'ef_druid_thundering_focus_g', hitEffectId: 'ef_druid_thunder_hit_g' };
 SkillEffect[SK.KR_THUNDERING_FOCUS_S] = { successEffectId: 'ef_druid_thundering_focus_y', hitEffectId: 'ef_druid_thunder_hit_y' };
-SkillEffect[SK.KR_THUNDERING_ORB] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: 'ef_druid_thundering_orb_g', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.KR_THUNDERING_ORB_S] = { effectId: 'ef_druid_thundering_orb_y', hitEffectId: 'ef_druid_thunder_hit_y' };
+// Thundering Orb: from the ground packet only, the orb flies to the cell, then the burst
+SkillEffect[SK.KR_THUNDERING_ORB] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: ['ef_druid_thundering_orb_throw', 'ef_druid_thundering_orb_g'], groundRepeatWindowMs: REPEAT_WINDOW_MS, hitEffectId: 'ef_druid_thunder_hit_g' };
+SkillEffect[SK.KR_THUNDERING_ORB_S] = { effectId: ['ef_druid_thundering_orb_throw', 'ef_druid_thundering_orb_y'], groundRepeatWindowMs: REPEAT_WINDOW_MS, hitEffectId: 'ef_druid_thunder_hit_y' };
 // Thundering Call: on the target when the use succeeds, 3x3 for level 1-6 and 5x5 from 7
 SkillEffect[SK.KR_THUNDERING_CALL] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_5x5'], hitEffectId: 'ef_druid_thunder_hit_g' };
 SkillEffect[SK.KR_THUNDERING_CALL_S] = { successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_5x5'], hitEffectId: 'ef_druid_thunder_hit_y' };
