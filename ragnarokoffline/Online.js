@@ -224983,19 +224983,16 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_wolf"
 	};
 	SkillEffect[SkillConst_default.DR_SHOOTING_FEATHER] = {
-		effectIdOnCaster: "ef_druid_shooting_feather",
-		effectId: "ef_druid_shooting_feather_hit",
-		hitEffectId: "ef_druid_hit_raptor"
+		successEffectIdOnCasterAimed: "ef_druid_shooting_feather",
+		damageEffectIdOnTargetTurned: "ef_druid_raptor_attack_00",
+		ez2NotPlayed: ["ef_druid_shooting_feather_hit"]
 	};
-	SkillEffect[SkillConst_default.DR_FLICKING_TONADO] = {
-		effectIdOnCaster: "ef_druid_flicking_tonado",
-		hitEffectId: "ef_druid_hit_raptor"
-	};
-	SkillEffect[SkillConst_default.DR_LOW_FLIGHT] = {
-		effectIdOnCaster: "ef_druid_low_flight_up",
-		effectId: "ef_druid_low_flight",
-		hitEffectId: "ef_druid_hit_raptor"
-	};
+	SkillEffect[SkillConst_default.DR_FLICKING_TONADO] = { successEffectId: "ef_druid_flicking_tonado" };
+	SkillEffect[SkillConst_default.DR_LOW_FLIGHT] = { successEffectIdOnTargetByAxis: {
+		vertical: "ef_druid_low_flight_up",
+		horizontal: "ef_druid_low_flight",
+		always: "ef_druid_low_flight_bottom"
+	} };
 	SkillEffect[SkillConst_default.DR_ICE_TOTEM] = {
 		beginCastEffectId: "ef_druid_ice_cast",
 		effectId: "ef_druid_ice_totem",
@@ -225008,12 +225005,13 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.DR_CUTTING_WIND] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
-		effectIdOnCaster: "ef_druid_cutting_wind",
+		successEffectIdOnCasterAimed: "ef_druid_cutting_wind",
 		hitEffectId: "ef_druid_cutting_wind_hit"
 	};
 	SkillEffect[SkillConst_default.DR_WIND_BOMB] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
-		effectId: "ef_druid_wind_bomb",
+		successEffectThrowAtTarget: "ef_druid_wind_bomb_throw",
+		successEffectId: "ef_druid_wind_bomb",
 		hitEffectId: "ef_druid_wind_bomb_hit"
 	};
 	SkillEffect[SkillConst_default.DR_EARTH_FLOWER] = {
@@ -225047,14 +225045,15 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.KR_SHARPEN_GUST] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
-		effectIdOnCaster: "ef_druid_sharpen_gust",
-		hitEffectId: "ef_druid_hit_raptor"
+		successEffectIdOnCasterAimed: "ef_druid_sharpen_gust",
+		damageEffectIdOnTargetTurned: "ef_druid_raptor_attack_01",
+		damageEffectGustSpray: "ef_druid_raptor_attack_02"
 	};
 	SkillEffect[SkillConst_default.KR_SHARPEN_HAIL] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
 		beginCastEffectId: "ef_druid_sharpen_hail",
-		effectId: "ef_druid_sharpen_hail_shot",
-		hitEffectId: "ef_druid_hit_raptor"
+		successEffectHailScatter: ["ef_druid_sharpen_hail_shot"],
+		damageEffectIdOnTargetTurned: "ef_druid_raptor_attack_01"
 	};
 	SkillEffect[SkillConst_default.KR_TYPHOON_WING] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
@@ -225069,8 +225068,8 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_FEATHER_SPRINKLE] = {
-		effectIdOnCaster: "ef_druid_feather_sprinkle",
-		hitEffectId: "ef_druid_hit_raptor"
+		successEffectIdOnCaster: "ef_druid_feather_sprinkle",
+		damageEffectIdOnTargetTurned: "ef_druid_raptor_attack_01"
 	};
 	SkillEffect[SkillConst_default.KR_WIND_VEIL] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
@@ -225178,8 +225177,8 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.AT_PINION_SHOT] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
-		effectIdOnCaster: "ef_druid_pinion_shot",
-		hitEffectId: "ef_druid_hit_raptor"
+		successEffectIdOnCasterAimed: "ef_druid_pinion_shot",
+		damageEffectIdOnTargetTurned: "ef_druid_raptor_attack_01"
 	};
 	SkillEffect[SkillConst_default.AT_QUILL_SPEAR] = {
 		castAuraEffectId: "ef_druid_cast_circle_green",
@@ -225194,8 +225193,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.AT_TEMPEST_FLAP] = {
 		beginCastEffectIdInRaptorForm: "ef_druid_tempest_flap_cast",
-		effectId: "ef_druid_tempest_flap",
-		hitEffectId: "ef_druid_hit_raptor"
+		successEffectId: "ef_druid_tempest_flap"
 	};
 	SkillEffect[SkillConst_default.AT_AERO_SYNC] = {
 		effectIdOnCaster: "ef_druid_aero_sync_self",
@@ -256491,6 +256489,44 @@ var init_StrEffect$1 = __esmMin((() => {
 	StrEffect_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform vec4 uSpriteColor;\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	// Drop a texture's black background, not a layer tinted black: a white\r\n	// shape coloured (0, 0, 0) is a shadow or a print, drawn by alpha blending.\r\n	vec4 texel = texture( uDiffuse, vTextureCoord.st );\r\n	if ( texel.a == 0.0 || (texel.r == 0.0 && texel.g == 0.0 && texel.b == 0.0) ) {\r\n		discard;\r\n	}\r\n	fragColor = texel * uSpriteColor;\r\n	if ( fragColor.a == 0.0 ) {\r\n		discard;\r\n	}\r\n\r\n	if ( uFogUse ) {\r\n		float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n		fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n	}\r\n}";
 }));
 // src/Renderer/Effects/StrEffect.js
+/**
+* Turn a frame's four corners as StrEffect.vs would (by the frame's own angle),
+* then mirror them, turn them by the aim and tilt them, in place. The shader
+* then draws them with no turn of its own.
+*
+* Corners are in STR pixels, y down the screen. Angles in degrees: `angle` is
+* the frame's, `aim` the effect's counter-clockwise turn, `tilt` a turn about
+* the screen's x axis (it shortens y by cos(tilt)).
+*
+* @param {number} angle
+* @param {number} aim
+* @param {boolean} flipX
+* @param {boolean} flipY
+* @param {number} tilt
+* @param {Float32Array|Array<number>} cornerX
+* @param {Float32Array|Array<number>} cornerY
+*/
+function transformCorners(angle, aim, flipX, flipY, tilt, cornerX, cornerY) {
+	const r1 = -angle / 180 * Math.PI;
+	const c1 = Math.cos(r1);
+	const s1 = Math.sin(r1);
+	const r2 = aim / 180 * Math.PI;
+	const c2 = Math.cos(r2);
+	const s2 = Math.sin(r2);
+	const squash = tilt ? Math.cos(tilt / 180 * Math.PI) : 1;
+	for (let i = 0; i < 4; i++) {
+		const px = cornerX[i];
+		const py = -cornerY[i];
+		let x = px * c1 - py * s1;
+		let y = px * s1 + py * c1;
+		if (flipX) x = -x;
+		if (flipY) y = -y;
+		const tx = x * c2 - y * s2;
+		const ty = (x * s2 + y * c2) * squash;
+		cornerX[i] = tx;
+		cornerY[i] = -ty;
+	}
+}
 function copyAnim(src) {
 	return {
 		type: src.type,
@@ -256763,14 +256799,15 @@ var init_StrEffect = __esmMin((() => {
 				out[1] = (animat.pos[1] - 320) * k - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 				return 0;
 			}
-			if (this.aimAngle) {
-				const rad = this.aimAngle / 180 * Math.PI;
+			if (this.aimAngle || this.flipX || this.flipY || this.tilt) {
+				const rad = (this.aimAngle || 0) / 180 * Math.PI;
 				const cos = Math.cos(rad);
 				const sin = Math.sin(rad);
-				const x = (animat.pos[0] - AIM_PIVOT_X) * k;
-				const y = (AIM_PIVOT_Y - animat.pos[1]) * k;
+				const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
+				const y = (AIM_PIVOT_Y - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+				const squash = this.tilt ? Math.cos(this.tilt / 180 * Math.PI) : 1;
 				out[0] = x * cos - y * sin + shiftX;
-				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) - shiftY;
+				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) * squash - shiftY;
 				return verticalBase;
 			}
 			out[0] = (animat.pos[0] - 320) * k + shiftX;
@@ -256797,6 +256834,11 @@ var init_StrEffect = __esmMin((() => {
 			_cornerY[2] = animat.xy[7] * cornerScale;
 			_cornerX[3] = animat.xy[2] * cornerScale;
 			_cornerY[3] = animat.xy[6] * cornerScale;
+			let spriteAngle = animat.angle - (this.aimAngle || 0);
+			if (this.flipX || this.flipY || this.tilt) {
+				transformCorners(animat.angle, this.aimAngle || 0, this.flipX, this.flipY, this.tilt, _cornerX, _cornerY);
+				spriteAngle = 0;
+			}
 			gl.uniform4fv(uniform.uCornerX, _cornerX);
 			gl.uniform4fv(uniform.uCornerY, _cornerY);
 			const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
@@ -256804,7 +256846,7 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
-			gl.uniform1f(uniform.uSpriteAngle, animat.angle - (this.aimAngle || 0));
+			gl.uniform1f(uniform.uSpriteAngle, spriteAngle);
 			gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 			gl.bindTexture(gl.TEXTURE_2D, material);
 			if (this.aimed) {
@@ -276674,6 +276716,276 @@ var init_WaterfallEffect = __esmMin((() => {
 	WaterfallEffect.renderBeforeEntities = false;
 	WaterfallEffect.needInit = true;
 }));
+// src/DB/Effects/StormSlashEffect.js
+/**
+* The caster's motion speed in ACT units (one unit is 25 ms of frame delay).
+*
+* @param {object} entity caster
+* @return {number}
+*/
+function motionSpeed(entity) {
+	if (entity && entity.animation && entity.animation.speed > 0) return entity.animation.speed / 25;
+	const file = entity && entity.files && entity.files.body && entity.files.body.act;
+	const act = file ? Client.loadFile(file) : null;
+	if (act && act.actions && act.actions.length) {
+		const action = act.actions[entity.action * 8 % act.actions.length];
+		if (action && action.delay > 0) return action.delay / 25;
+	}
+	return DEFAULT_MOTION_SPEED;
+}
+/**
+* How long after the cast the stage art starts: motion speed x 50 + 30 ms,
+* counted in whole ticks, plus the tick the effect is created on.
+*
+* @param {number} speed motion speed in ACT units
+* @return {number} ms
+*/
+function startDelay(speed) {
+	const ms = Math.trunc(speed * 50 + 30);
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$1;
+}
+/**
+* delayStart of a stage layer, worked out from its caster.
+*
+* @param {object} Params effect params
+* @return {number} ms
+*/
+function stageDelay(Params) {
+	return startDelay(motionSpeed(Params.Init.ownerEntity));
+}
+/**
+* The art for one stage.
+*
+* @param {number} stage 1 to 5
+* @return {object} STR layer
+*/
+function stageLayer(stage) {
+	return {
+		type: "STR",
+		file: "dragon_knight/dk_stormslash/stormslash/stormslash_" + stage,
+		min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_" + stage,
+		texturePath: "dragon_knight/dk_stormslash/stormslash/",
+		fallback: ["stormslash/stormslash/stormslash_" + stage],
+		yOffset: 8,
+		delayStart: stageDelay,
+		attachedEntity: true
+	};
+}
+/**
+* Sound layer for one stage: as many slash sounds as the stage number.
+*
+* @param {number} stage 1 to 5
+* @param {function} [random] returns a number in [0, 1)
+* @return {object} FUNC layer
+*/
+function soundLayer(stage, random = Math.random) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function StormSlashSounds(Params) {
+			const position = Params.Init.ownerEntity.position;
+			for (let i = 0; i < stage; ++i) {
+				const n = 1 + Math.floor(random() * 4);
+				Events.setTimeout(function() {
+					SoundManager.playPosition("effect/dk_stormslash" + n + ".wav", position);
+				}, i * SOUND_GAP_MS);
+			}
+		}
+	};
+}
+/**
+* EffectTable rows ef_dk_stormslash_1 to ef_dk_stormslash_5.
+*
+* @return {object}
+*/
+function stormSlashEffects() {
+	const rows = {};
+	for (let stage = 1; stage <= 5; ++stage) rows["ef_dk_stormslash_" + stage] = [stageLayer(stage), soundLayer(stage)];
+	return rows;
+}
+var TICK_MS$1, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
+var init_StormSlashEffect = __esmMin((() => {
+	init_Client();
+	init_SoundManager();
+	init_Events();
+	TICK_MS$1 = 1e3 / 60;
+	SOUND_GAP_MS = 15 * TICK_MS$1;
+	DEFAULT_MOTION_SPEED = 4;
+	Array.from({ length: 5 }, (_, k) => "ef_dk_stormslash_" + (k + 1));
+}));
+// src/Renderer/Effects/DruidWindSim.js
+/**
+* Renderer/Effects/DruidWindSim.js
+*
+* How the official client places the Druid wind skills' effects (kRO
+* 2026-02-11), without any WebGL, so it can be tested on its own. Angles are
+* the client's screen angle from one actor to another (degrees clockwise from
+* screen right, ScreenDirection.screenAngle); distances are its world units
+* (5 to a cell); delays are in ms.
+*
+*  - quadrant: which quarter of the screen the target is in, seen from the
+*    caster: 0 below (60-120 degrees), 1 left, 2 above, 3 right.
+*  - raptorHit: a Wereraptor attack hit on the target. The art points right;
+*    it is turned to the attack's angle, and mirrored (and turned back half a
+*    circle) when the target is left or above, so it stays upright.
+*  - lowFlight: Low Flight's swoop on the target, the up-down art for a target
+*    below or above, the sideways art for one left or right, mirrored to match.
+*  - hailShots: Sharpen Hail's shots, five waves 200 ms apart of five to seven
+*    shots each, scattered around the target.
+*  - gustSpray: Sharpen Gust's spray of attack_02 copies, a wedge three rows
+*    deep ahead of the caster toward the target.
+*/
+/** A turn on screen, kept in 0..359. */
+function wrap(degrees) {
+	return ((Math.trunc(degrees) + 360) % 360 + 360) % 360;
+}
+/**
+* Quarter of the screen for a screen angle.
+*
+* @param {number} angle degrees clockwise from screen right
+* @returns {number} 0 below, 1 left, 2 above, 3 right, -1 none
+*/
+function quadrant(angle) {
+	if (angle > 60 && angle <= 120) return 0;
+	if (angle > 120 && angle <= 240) return 1;
+	if (angle > 240 && angle <= 300) return 2;
+	if (angle > 300 && angle <= 360 || angle >= 0 && angle <= 60) return 3;
+	return -1;
+}
+/**
+* A Wereraptor attack hit on the target (attack_00, attack_01).
+*
+* @param {number} angle screen angle, caster to target
+* @returns {{flipX: boolean, screenTurn: number}|null} null when no quarter
+*/
+function raptorHit(angle) {
+	const q = quadrant(angle);
+	if (q < 0) return null;
+	const flipX = q === 1 || q === 2;
+	return {
+		flipX,
+		screenTurn: wrap(angle + (flipX ? -180 : 0))
+	};
+}
+/**
+* Low Flight's swoop on the target.
+*
+* @param {number} angle screen angle, caster to target
+* @returns {{art: string, flipX: boolean, flipY: boolean, screenTurn: number}|null}
+*   art is 'vertical' or 'horizontal'
+*/
+function lowFlight(angle) {
+	const q = quadrant(angle);
+	if (q < 0) return null;
+	if (q === 0 || q === 2) {
+		const below = q === 0;
+		return {
+			art: "vertical",
+			flipX: false,
+			flipY: below,
+			screenTurn: wrap(angle + (below ? -270 : -90))
+		};
+	}
+	const right = q === 3;
+	return {
+		art: "horizontal",
+		flipX: right,
+		flipY: false,
+		screenTurn: wrap(angle + (right ? 0 : -180))
+	};
+}
+/**
+* Sharpen Hail's shots around the target.
+*
+* @param {function} rand returns a non-negative integer, like C's rand()
+* @returns {Array<{dx: number, dy: number, delay: number}>} dx along the
+*   world's x, dy the height (negative is up), world units
+*/
+function hailShots(rand) {
+	const shots = [];
+	for (let wave = 0; wave < 5; wave++) {
+		const count = Math.max(5, rand() % 8);
+		for (let k = 0; k < count; k++) {
+			const delay = wave * 200 + Math.round(k * 200 / count);
+			const away = rand() % 2 === 1;
+			const b = rand() % 6;
+			const a = rand() % 6;
+			const sign = away ? -1 : 1;
+			shots.push({
+				dx: sign * a * 4,
+				dy: sign * b * 4,
+				delay
+			});
+		}
+	}
+	return shots;
+}
+/**
+* Sharpen Gust's attack_02 copies, ahead of the caster toward the target.
+*
+* @param {number[]} from caster's world position [x, height, z]
+* @param {number[]} to target's world position [x, height, z]
+* @param {function} rand returns a non-negative integer, like C's rand()
+* @returns {Array<{x: number, y: number, z: number, delay: number, scale: number}>}
+*/
+function gustSpray(from, to, rand) {
+	const dx = to[0] - from[0];
+	const dy = to[1] - from[1];
+	const dz = to[2] - from[2];
+	const length = Math.hypot(dx, dy, dz);
+	if (!length) return [];
+	const ax = dx / length * 35;
+	const ay = dy / length * 35;
+	const az = dz / length * 35;
+	const across = Math.hypot(az, ax) || 1;
+	const cx = -az / across * GUST_SPACING;
+	const cz = ax / across * GUST_SPACING;
+	const copies = [];
+	GUST_ROW_MS.forEach((rowMs, row) => {
+		const ahead = (row + 1) / GUST_ROW_MS.length;
+		const count = 1 + 2 * row;
+		for (let j = 0; j < count; j++) {
+			if (rand() % 2 !== 0) continue;
+			const jitter = GUST_JITTER[rand() % 3];
+			const side = j - row;
+			const delay = rand() % 101 + rowMs;
+			const scale = Math.max(7, rand() % 11) * .1;
+			copies.push({
+				x: from[0] + ax * (ahead + jitter) + cx * side,
+				y: from[1] + ay * (ahead + jitter),
+				z: from[2] + az * (ahead + jitter) + cz * side,
+				delay,
+				scale
+			});
+		}
+	});
+	return copies;
+}
+/**
+* Low Flight's start, ms: the caster's current motion played through
+* (frames x motion speed in 25 ms units), as the client counts it in 16 ms
+* steps.
+*
+* @param {number} frames frames in the caster's current action
+* @param {number} motionSpeed ACT units of 25 ms
+*/
+function lowFlightDelay(frames, motionSpeed) {
+	return Math.max(0, frames * motionSpeed * 16);
+}
+var GUST_SPACING, GUST_ROW_MS, GUST_JITTER;
+var init_DruidWindSim = __esmMin((() => {
+	GUST_SPACING = 7.5;
+	GUST_ROW_MS = [
+		150,
+		275,
+		400
+	];
+	GUST_JITTER = [
+		0,
+		.1,
+		-.1
+	];
+}));
 // src/Renderer/EffectManager.js
 /**
 * Create a new EF_Init_Par object and attach existing call params
@@ -276725,7 +277037,13 @@ function spamSTR(Params) {
 	});
 	const str = Params.effect.arcThrow ? new BezierArcThrowStrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks, Params.Init.ownerEntity) : new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
 	if (Params.effect.xOffset !== void 0 || Params.effect.yOffset !== void 0) str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
-	if (Params.Init.screenTurn) str.screenTurn = Params.Init.screenTurn;
+	if (Params.Init.screenTurn !== void 0 || Params.effect.turnOffset) {
+		const turn = (Params.Init.screenTurn || 0) + (Params.effect.turnOffset || 0);
+		if (turn % 360) str.screenTurn = turn;
+	}
+	if (Params.Init.flipX) str.flipX = true;
+	if (Params.Init.flipY) str.flipY = true;
+	if (Params.effect.tilt) str.tilt = Params.effect.tilt;
 	const scale = Params.Init.scale || Params.effect.scale;
 	if (scale > 0 && scale !== 1) str.scale = scale;
 	EffectManager.add(str, Params);
@@ -276826,6 +277144,31 @@ function cleanRepeat(name, AID, effectID) {
 		}
 	});
 }
+/**
+* @type {object} Effects namespace
+*/
+/** C's rand(): a non-negative integer. */
+function crand() {
+	return Math.floor(Math.random() * 32768);
+}
+/** World units (5 to a cell) of an entity's position: [x, height (negative up), z]. */
+function worldUnits(position) {
+	return [
+		position[0] * 5,
+		-position[2] * 5,
+		position[1] * 5
+	];
+}
+/** Frames in the entity's current action, from its body ACT (8 when unknown). */
+function actionFrames(entity) {
+	const file = entity && entity.files && entity.files.body && entity.files.body.act;
+	const act = file ? Client.loadFile(file) : null;
+	if (act && act.actions && act.actions.length) {
+		const action = act.actions[entity.action * 8 % act.actions.length];
+		if (action && action.animations && action.animations.length) return action.animations.length;
+	}
+	return 8;
+}
 var _gl, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
 var init_EffectManager = __esmMin((() => {
 	init_EffectTable();
@@ -276836,6 +277179,7 @@ var init_EffectManager = __esmMin((() => {
 	init_ItemEffect();
 	init_ProcessCommand();
 	init_Events();
+	init_Client();
 	init_Configs();
 	init_Cylinder();
 	init_EffectPrim();
@@ -276861,6 +277205,8 @@ var init_EffectManager = __esmMin((() => {
 	init_SessionStorage();
 	init_Graphics();
 	init_HastyFireInTheHoleEffect();
+	init_StormSlashEffect();
+	init_DruidWindSim();
 	_list$3 = {};
 	_uniqueId = 1;
 	targetableUnits = [SkillUnitConst_default.UNT_ICEWALL, SkillUnitConst_default.UNT_REVERBERATION];
@@ -277382,6 +277728,63 @@ var init_EffectManager = __esmMin((() => {
 					screenTurn: screenAngle$1(srcEntity.position, destEntity.position)
 				});
 			}
+			const thrown = SkillEffect[skillId].successEffectThrowAtTarget;
+			if (thrown && srcAID && destAID) {
+				const destEntity = EntityManager.get(destAID);
+				if (destEntity && EntityManager.get(srcAID)) EffectManager.spam({
+					effectId: thrown,
+					ownerAID: srcAID,
+					position: destEntity.position.slice(),
+					startTick: tick,
+					otherAID: destAID
+				});
+			}
+			const byAxis = SkillEffect[skillId].successEffectIdOnTargetByAxis;
+			if (byAxis && srcAID && destAID) {
+				const srcEntity = EntityManager.get(srcAID);
+				const destEntity = EntityManager.get(destAID);
+				const pick = srcEntity && destEntity ? lowFlight(screenAngle$1(srcEntity.position, destEntity.position)) : null;
+				if (pick) {
+					const start = (tick || Renderer.tick) + lowFlightDelay(actionFrames(srcEntity), motionSpeed(srcEntity));
+					const art = byAxis[pick.art];
+					if (art) EffectManager.spam({
+						effectId: art,
+						ownerAID: destAID,
+						startTick: start,
+						otherAID: srcAID,
+						screenTurn: pick.screenTurn,
+						flipX: pick.flipX,
+						flipY: pick.flipY
+					});
+					if (byAxis.always) EffectManager.spam({
+						effectId: byAxis.always,
+						ownerAID: destAID,
+						startTick: start,
+						otherAID: srcAID
+					});
+				}
+			}
+			const hail = SkillEffect[skillId].successEffectHailScatter;
+			const hailAt = hail && destAID ? EntityManager.get(destAID) : null;
+			if (hailAt) {
+				const start = tick || Renderer.tick;
+				const [x, y, z] = hailAt.position;
+				hailShots(crand).forEach((shot) => {
+					hail.forEach((effectId) => {
+						EffectManager.spam({
+							effectId,
+							ownerAID: destAID,
+							position: [
+								x + shot.dx / 5,
+								y,
+								z - shot.dy / 5
+							],
+							startTick: start + shot.delay,
+							otherAID: srcAID
+						});
+					});
+				});
+			}
 			const bySide = SkillEffect[skillId].successEffectIdOnTargetByScreenSide;
 			if (bySide && srcAID && destAID) {
 				const srcEntity = EntityManager.get(srcAID);
@@ -277471,6 +277874,42 @@ var init_EffectManager = __esmMin((() => {
 			};
 			play("damageEffectIdOnCaster", srcAID, destAID);
 			play("damageEffectIdOnTarget", destAID, srcAID);
+			const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
+			const destEntity = destAID ? EntityManager.get(destAID) : null;
+			if (!srcEntity || !destEntity) return;
+			const angle = screenAngle$1(srcEntity.position, destEntity.position);
+			const turned = skill.damageEffectIdOnTargetTurned;
+			const hit = turned ? raptorHit(angle) : null;
+			if (hit) (Array.isArray(turned) ? turned : [turned]).forEach((effectId) => {
+				EffectManager.spam({
+					effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					screenTurn: hit.screenTurn,
+					flipX: hit.flipX
+				});
+			});
+			const spray = skill.damageEffectGustSpray;
+			const sprayHit = spray ? raptorHit(angle) : null;
+			if (sprayHit) {
+				const start = tick || Renderer.tick;
+				gustSpray(worldUnits(srcEntity.position), worldUnits(destEntity.position), crand).forEach((copy) => {
+					EffectManager.spam({
+						effectId: spray,
+						ownerAID: destAID,
+						position: [
+							copy.x / 5,
+							copy.z / 5,
+							-copy.y / 5
+						],
+						startTick: start + copy.delay,
+						otherAID: srcAID,
+						scale: copy.scale,
+						flipX: sprayHit.flipX
+					});
+				});
+			}
 		}
 		/**
 		* Spam skill effect on hit with damage
@@ -286410,103 +286849,6 @@ var init_SkySunEffect = __esmMin((() => {
 		yOffset: 10,
 		attachedEntity: false
 	};
-}));
-// src/DB/Effects/StormSlashEffect.js
-/**
-* The caster's motion speed in ACT units (one unit is 25 ms of frame delay).
-*
-* @param {object} entity caster
-* @return {number}
-*/
-function motionSpeed(entity) {
-	if (entity && entity.animation && entity.animation.speed > 0) return entity.animation.speed / 25;
-	const file = entity && entity.files && entity.files.body && entity.files.body.act;
-	const act = file ? Client.loadFile(file) : null;
-	if (act && act.actions && act.actions.length) {
-		const action = act.actions[entity.action * 8 % act.actions.length];
-		if (action && action.delay > 0) return action.delay / 25;
-	}
-	return DEFAULT_MOTION_SPEED;
-}
-/**
-* How long after the cast the stage art starts: motion speed x 50 + 30 ms,
-* counted in whole ticks, plus the tick the effect is created on.
-*
-* @param {number} speed motion speed in ACT units
-* @return {number} ms
-*/
-function startDelay(speed) {
-	const ms = Math.trunc(speed * 50 + 30);
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$1;
-}
-/**
-* delayStart of a stage layer, worked out from its caster.
-*
-* @param {object} Params effect params
-* @return {number} ms
-*/
-function stageDelay(Params) {
-	return startDelay(motionSpeed(Params.Init.ownerEntity));
-}
-/**
-* The art for one stage.
-*
-* @param {number} stage 1 to 5
-* @return {object} STR layer
-*/
-function stageLayer(stage) {
-	return {
-		type: "STR",
-		file: "dragon_knight/dk_stormslash/stormslash/stormslash_" + stage,
-		min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_" + stage,
-		texturePath: "dragon_knight/dk_stormslash/stormslash/",
-		fallback: ["stormslash/stormslash/stormslash_" + stage],
-		yOffset: 8,
-		delayStart: stageDelay,
-		attachedEntity: true
-	};
-}
-/**
-* Sound layer for one stage: as many slash sounds as the stage number.
-*
-* @param {number} stage 1 to 5
-* @param {function} [random] returns a number in [0, 1)
-* @return {object} FUNC layer
-*/
-function soundLayer(stage, random = Math.random) {
-	return {
-		type: "FUNC",
-		attachedEntity: true,
-		func: function StormSlashSounds(Params) {
-			const position = Params.Init.ownerEntity.position;
-			for (let i = 0; i < stage; ++i) {
-				const n = 1 + Math.floor(random() * 4);
-				Events.setTimeout(function() {
-					SoundManager.playPosition("effect/dk_stormslash" + n + ".wav", position);
-				}, i * SOUND_GAP_MS);
-			}
-		}
-	};
-}
-/**
-* EffectTable rows ef_dk_stormslash_1 to ef_dk_stormslash_5.
-*
-* @return {object}
-*/
-function stormSlashEffects() {
-	const rows = {};
-	for (let stage = 1; stage <= 5; ++stage) rows["ef_dk_stormslash_" + stage] = [stageLayer(stage), soundLayer(stage)];
-	return rows;
-}
-var TICK_MS$1, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
-var init_StormSlashEffect = __esmMin((() => {
-	init_Client();
-	init_SoundManager();
-	init_Events();
-	TICK_MS$1 = 1e3 / 60;
-	SOUND_GAP_MS = 15 * TICK_MS$1;
-	DEFAULT_MOTION_SPEED = 4;
-	Array.from({ length: 5 }, (_, k) => "ef_dk_stormslash_" + (k + 1));
 }));
 // src/DB/Effects/ServantDemolitionEffect.js
 /**
@@ -308847,6 +309189,29 @@ var init_EffectTable = __esmMin((() => {
 			min: "druid/dr_hit/dr_hit_wereraptor/min_dr_hit_wereraptor",
 			yOffset: 5
 		}],
+		ef_druid_raptor_attack_00: [{
+			type: "STR",
+			file: "druid/wereraptor_attack/attack_00/attack_00",
+			texturePath: "druid/wereraptor_attack/attack_00/",
+			min: "druid/wereraptor_attack/attack_00/min_attack_00",
+			attachedEntity: true,
+			yOffset: 2
+		}],
+		ef_druid_raptor_attack_01: [{
+			type: "STR",
+			file: "druid/wereraptor_attack/attack_01/attack_01",
+			texturePath: "druid/wereraptor_attack/attack_01/",
+			min: "druid/wereraptor_attack/attack_01/min_attack_01",
+			attachedEntity: true,
+			yOffset: 5
+		}],
+		ef_druid_raptor_attack_02: [{
+			type: "STR",
+			file: "druid/wereraptor_attack/attack_02/attack_02",
+			texturePath: "druid/wereraptor_attack/attack_02/",
+			min: "druid/wereraptor_attack/attack_02/min_attack_02",
+			yOffset: 10
+		}],
 		ef_druid_ice_hit: [{
 			type: "STR",
 			file: "druid/dr_ice_hit/ice_hit/ice_hit",
@@ -308929,8 +309294,6 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/dr_shooting_feather/shooting_feather/",
 			min: "druid/dr_shooting_feather/shooting_feather/min_shooting_feather",
 			wav: "effect/druid/dr_shooting_feather",
-			rotateToTarget: true,
-			facing: 0,
 			yOffset: 10
 		}],
 		ef_druid_shooting_feather_hit: [{
@@ -308963,15 +309326,16 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/dr_low_flight/low_flight_horizon/",
 			min: "druid/dr_low_flight/low_flight_horizon/min_low_flight_horizon",
 			wav: "effect/druid/dr_low_flight",
-			rotateToTarget: true,
-			facing: 0,
+			attachedEntity: true,
 			yOffset: 8
-		}, {
+		}],
+		ef_druid_low_flight_bottom: [{
 			type: "STR",
 			file: "druid/dr_low_flight/low_flight_bottom/low_flight_bottom",
 			texturePath: "druid/dr_low_flight/low_flight_bottom/",
 			min: "druid/dr_low_flight/low_flight_bottom/min_low_flight_bottom",
 			renderBeforeEntities: true,
+			attachedEntity: true,
 			yOffset: 10
 		}],
 		ef_druid_low_flight_up: [{
@@ -308979,6 +309343,7 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/dr_low_flight/low_flight_vertical/low_flight_vertical",
 			texturePath: "druid/dr_low_flight/low_flight_vertical/",
 			min: "druid/dr_low_flight/low_flight_vertical/min_low_flight_vertical",
+			attachedEntity: true,
 			yOffset: 0
 		}],
 		ef_druid_ice_totem: [{
@@ -309003,8 +309368,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/dr_cutting_wind/cutting_wind/",
 			min: "druid/dr_cutting_wind/cutting_wind/min_cutting_wind",
 			wav: "effect/druid/dr_cutting_wind",
-			rotateToTarget: true,
-			facing: 180,
+			turnOffset: 180,
 			yOffset: 5
 		}],
 		ef_druid_cutting_wind_hit: [{
@@ -309020,13 +309384,19 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/dr_wind_bomb/wind_bomb_main/",
 			min: "druid/dr_wind_bomb/wind_bomb_main/min_wind_bomb_main",
 			wav: "effect/druid/dr_wind_bomb",
+			delayStart: 304,
+			delayWav: 304,
+			attachedEntity: true,
 			yOffset: 5
-		}, {
+		}],
+		ef_druid_wind_bomb_throw: [{
 			type: "STR",
 			file: "druid/dr_wind_bomb/wind_bomb_tornado/wind_bomb_tornado",
 			texturePath: "druid/dr_wind_bomb/wind_bomb_tornado/",
 			min: "druid/dr_wind_bomb/wind_bomb_tornado/min_wind_bomb_tornado",
-			yOffset: 0
+			xOffset: 0,
+			yOffset: 0,
+			arcThrow: true
 		}],
 		ef_druid_wind_bomb_hit: [{
 			type: "STR",
@@ -309120,8 +309490,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/kr_sharpen_gust/sharpen_gust/",
 			min: "druid/kr_sharpen_gust/sharpen_gust/min_sharpen_gust",
 			wav: "effect/druid/kr_sharpen_gust",
-			rotateToTarget: true,
-			facing: 0,
+			tilt: 30,
 			yOffset: 5
 		}, {
 			type: "STR",
@@ -309129,6 +309498,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/kr_sharpen_gust/sharpen_gust_bottom/",
 			min: "druid/kr_sharpen_gust/sharpen_gust_bottom/min_sharpen_gust_bottom",
 			renderBeforeEntities: true,
+			tilt: 30,
 			yOffset: 2
 		}],
 		ef_druid_sharpen_hail: [{
@@ -309642,8 +310012,6 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "druid/at_pinion_shot/pinion_shot/",
 			min: "druid/at_pinion_shot/pinion_shot/min_pinion_shot",
 			wav: "effect/druid/at_pinion_shot",
-			rotateToTarget: true,
-			facing: 0,
 			yOffset: 10
 		}],
 		ef_druid_quill_spear_3x7: [{
