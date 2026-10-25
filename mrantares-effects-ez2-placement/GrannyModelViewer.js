@@ -242222,10 +242222,10 @@ var init_StrEffect = __esmMin((() => {
 				const cos = Math.cos(rad);
 				const sin = Math.sin(rad);
 				const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
-				const y = (AIM_PIVOT_Y - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+				const y = (pivotY - animat.pos[1]) * k * (this.flipY ? -1 : 1);
 				const squash = this.tilt ? Math.cos(this.tilt / 180 * Math.PI) : 1;
 				out[0] = x * cos - y * sin + shiftX;
-				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) * squash - shiftY;
+				out[1] = -(x * sin + y * cos) * squash - shiftY;
 				return verticalBase;
 			}
 			out[0] = (animat.pos[0] - 320) * k + shiftX;
@@ -305675,8 +305675,8 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	for (const field in skillEntry) {
 		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]).flat(Infinity);
 		for (const name of names) {
-			const effects = typeof name === "string" ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
+			const effects = typeof name === "string" || typeof name === "number" ? EffectTable[name] : null;
+			if (Array.isArray(effects) && effects.some((effect) => effect && effect.type === "STR" && keyOf(effect.file) === wanted)) return true;
 		}
 	}
 	return false;
@@ -305745,9 +305745,18 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			}
 		}
 	}
-	const skidNames = Object.keys(SkillConst_default);
+	const siblingIds = {};
+	const skidNames = Object.keys(SkillConst_default).sort();
+	for (let i = 0; i < skidNames.length; i++) {
+		const prefix = skidNames[i] + "_";
+		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
+			const other = SkillConst_default[skidNames[j]];
+			if (skidNames[j].startsWith(prefix) && SkillEffect[other] && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
+		}
+	}
 	function siblingPlaysFile(skillId, file) {
-		return skidNames.some((name) => SkillConst_default[name] === skillId && skidNames.some((other) => other.startsWith(name + "_") && skillPlaysFile(SkillEffect[SkillConst_default[other]], EffectTable, file)));
+		const siblings = siblingIds[skillId];
+		return !!siblings && siblings.some((id) => skillPlaysFile(SkillEffect[id], EffectTable, file));
 	}
 	for (const effectName in Ez2streffect) {
 		const entry = Ez2streffect[effectName];
