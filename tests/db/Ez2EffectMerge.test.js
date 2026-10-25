@@ -105,6 +105,26 @@ describe('kRO effect table merged into skills', () => {
 		assert.equal(skills[6542].groundEffectId, 'cutting_wind_bottom_1');
 	});
 
+	it('adds one variant of an effect, and none when the skill plays one', () => {
+		const charms = {
+			cutting_wind_earth: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_earth\\cutting_wind_earth.str' },
+			cutting_wind_fire: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_fire\\cutting_wind_fire.str' },
+			cutting_wind_1: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_1.str' },
+			cutting_wind_2: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_2.str' },
+			cutting_wind_hit1: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_hit1.str' },
+			cutting_wind_hit2: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_hit2.str' }
+		};
+		const skills = merge(charms, {}, {});
+		assert.deepEqual([...skills[6542].effectId], ['cutting_wind_earth', 'cutting_wind_1', 'cutting_wind_hit1']);
+
+		const EffectTable = {
+			ef_cutting_wind: [{ type: 'STR', file: 'druid/dr_cutting_wind/cutting_wind_ice/cutting_wind_ice' }]
+		};
+		const handled = merge(charms, EffectTable, { 6542: { effectId: 'ef_cutting_wind' } });
+		assert.equal(handled[6542].effectId.includes('cutting_wind_earth'), false);
+		assert.equal(handled[6542].effectId.includes('cutting_wind_fire'), false);
+	});
+
 	it('does not attach endless loops to a skill', () => {
 		const EffectTable = {};
 		const skills = merge(
