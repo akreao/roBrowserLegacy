@@ -45,6 +45,8 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
+import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -10876,7 +10878,24 @@ export default {
 		}
 	],
 
-	//502: [{}],	//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+	502: [
+		{
+			//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+			// Spiral Pierce Max cast (official client): for the cast time, at most 141
+			// ticks, the caster flickers yellow (drawn adding light) and white each
+			// tick, with a glow copy round it (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502),
+					Params
+				);
+			}
+		}
+	],
 	//503: [{}],	//EF_SOULLINK	   Soul Link Word
 
 	504: [
@@ -16630,7 +16649,27 @@ export default {
 	//931: [{}],	//EF_LINKPARTICLE2	   (Nothing)
 	//932: [{}],	//EF_SOULLIGHT3	   Firefly
 	//933: [{}],	//EF_CHAREFFECT	   [Client Crash]
-	//934: [{}],	//EF_GUMGANG6	   White, castishly expanding cone
+	934: [
+		{
+			//EF_GUMGANG6	   White, castishly expanding cone
+			// Nightmare Erasion cast (official client): four rings of ring_white.tga
+			// opening out round the caster for 50 ticks (CastFunnelSim.js). The effect
+			// lives 300 ticks whatever the cast time, and a cancelled cast keeps it.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, 300, 'ring_white.tga'), Params);
+			}
+		},
+		{
+			// ...and the caster drawn adding light, with a glow copy, two ticks out of four on ticks 12 to 33.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 934), Params);
+			}
+		}
+	],
 	//935: [{}],	//EF_FIREBALL6	   Green magic projectile
 	//936: [{}],	//EF_GUMGANG7	   Red, castishly expanding cone
 	//937: [{}],	//EF_GUMGANG8	   Yellow, castishly expanding cone
@@ -26064,6 +26103,39 @@ export default {
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
+		}
+	],
+	// Shinkirou cast, with 1774 (official client): four rings of ring_black.tga opening
+	// out round the caster (CastFunnelSim.js), white split images of the caster sliding
+	// out for 30 ticks, and the caster red, drawn adding light, with a glow copy, to
+	// tick 30 (CasterMarks.js). For the cast time.
+	2373: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration / 16,
+						'ring_black.tga'
+					),
+					Params
+				);
+			}
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373),
+					Params
+				);
+			}
 		}
 	],
 	ef_cast_circle_red: [
