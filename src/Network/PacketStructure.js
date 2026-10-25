@@ -11002,6 +11002,13 @@ PACKET.ZC.SPIRITS_ATTRIBUTE = function PACKET_ZC_SPIRITS_ATTRIBUTE(fp, end) {
 };
 PACKET.ZC.SPIRITS_ATTRIBUTE.size = 10;
 
+// 0xb73
+PACKET.ZC.SOULENERGY = function PACKET_ZC_SOULENERGY(fp, end) {
+	this.AID = fp.readULong();
+	this.num = fp.readShort();
+};
+PACKET.ZC.SOULENERGY.size = 8;
+
 // 0x8d0
 PACKET.ZC.REQ_WEAR_EQUIP_ACK2 = function PACKET_ZC_REQ_WEAR_EQUIP_ACK2(fp, end) {
 	this.index = fp.readUShort();

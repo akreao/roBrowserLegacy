@@ -23,6 +23,7 @@ import PACKET from 'Network/PacketStructure.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import EffectManager from 'Renderer/EffectManager.js';
 import { CHARM_ORB_EFFECTS, ALL_CHARM_ORB_EFFECTS } from 'Renderer/Effects/EnergyOrbSim.js';
+import { SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS } from 'Renderer/Effects/SoulCollectSim.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -922,6 +923,35 @@ function onSpiritCharm(pkt) {
 }
 
 /**
+ * Soul energy (Soul Reaper, Soul Ascetic): as the official client does, keep
+ * one soul orb effect (1225) on the actor and update its count in place;
+ * hidden or cloaked actors show none.
+ *
+ * @param {object} pkt - PACKET.ZC.SOULENERGY
+ */
+function onSoulEnergy(pkt) {
+	const entity = EntityManager.get(pkt.AID);
+	if (!entity || !SOUL_ENERGY_JOBS.includes(entity.job)) {
+		return;
+	}
+	const hidden = StatusState.EffectState.HIDE | StatusState.EffectState.CLOAK;
+	if (entity._effectState & hidden) {
+		EffectManager.remove(null, pkt.AID, [SOUL_COLLECT_EFFECT]);
+		return;
+	}
+
+	if (entity.soulCollect && EffectManager.has(pkt.AID, SOUL_COLLECT_EFFECT)) {
+		entity.soulCollect.setCount(pkt.num);
+		return;
+	}
+	EffectManager.spam({
+		effectId: SOUL_COLLECT_EFFECT,
+		ownerAID: pkt.AID,
+		spiritNum: pkt.num
+	});
+}
+
+/**
  * Millennium Shield visual effect
  *
  * @param {object} pkt - PACKET.ZC.MILLENNIUMSHIELD
@@ -1018,6 +1048,7 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.SPIRITS, onSpiritSphere);
 	Network.hookPacket(PACKET.ZC.SPIRITS2, onSpiritSphere);
 	Network.hookPacket(PACKET.ZC.SPIRITS_ATTRIBUTE, onSpiritCharm);
+	Network.hookPacket(PACKET.ZC.SOULENERGY, onSoulEnergy);
 	Network.hookPacket(PACKET.ZC.MILLENNIUMSHIELD, onMillenniumShield);
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
 	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);
