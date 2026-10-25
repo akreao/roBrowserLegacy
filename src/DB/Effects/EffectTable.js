@@ -42,6 +42,7 @@ import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js'
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -13842,10 +13843,62 @@ export default {
 		}
 	],
 
-	//735: [{}],	//EF_CHOOKGI_FIRE	   (Nothing) - Used for elemental spheres (warlock)
-	//736: [{}],	//EF_CHOOKGI_WIND	   (Nothing) - Used for elemental spheres (warlock)
-	//737: [{}],	//EF_CHOOKGI_WATER	   (Nothing) - Used for elemental spheres (warlock)
-	//738: [{}],	//EF_CHOOKGI_GROUND	   (Nothing) - Used for elemental spheres (warlock)
+	735: [
+		{
+			//EF_CHOOKGI_FIRE	Spirit charm orbs, fire (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 735, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
+			}
+		}
+	],
+
+	736: [
+		{
+			//EF_CHOOKGI_WIND	Spirit charm orbs, wind (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 736, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
+			}
+		}
+	],
+
+	737: [
+		{
+			//EF_CHOOKGI_WATER	Spirit charm orbs, water (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 737, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
+			}
+		}
+	],
+
+	738: [
+		{
+			//EF_CHOOKGI_GROUND	Spirit charm orbs, earth (Kagerou/Oboro), one per charm from ZC_SPIRITS_ATTRIBUTE
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 738, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
+			}
+		}
+	],
+
 	//739: [{}],	//EF_MAGENTA_TRAP	   Old Magenta Trap
 	//740: [{}],	//EF_COBALT_TRAP	   Old Cobald Trap
 	//741: [{}],	//EF_MAIZE_TRAP	   Old Maize Trap

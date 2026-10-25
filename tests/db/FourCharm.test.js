@@ -127,7 +127,13 @@ describe('spirit charm packet', () => {
 		const start = code.indexOf('function onSpiritCharm(');
 		const fn = code.slice(start, code.indexOf('\n}\n', start) + 2);
 		const entity = {};
-		const context = vm.createContext({ EntityManager: { get: aid => (aid === 7 ? entity : null) } });
+		const context = vm.createContext({
+			EntityManager: { get: aid => (aid === 7 ? entity : null) },
+			EffectManager: { remove() {}, spam() {} },
+			StatusState: { EffectState: { HIDE: 2, CLOAK: 4 } },
+			CHARM_ORB_EFFECTS: {},
+			ALL_CHARM_ORB_EFFECTS: []
+		});
 		vm.runInContext(fn, context);
 		context.onSpiritCharm({ AID: 7, type: 2, num: 10 });
 		expect(entity.charmType).toBe(2);

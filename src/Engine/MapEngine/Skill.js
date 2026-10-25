@@ -14,6 +14,7 @@ import UIManager from 'UI/UIManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
+import StatusState from 'DB/Status/StatusState.js';
 import PathFinding from 'Utils/PathFinding.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
@@ -21,6 +22,7 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import EffectManager from 'Renderer/EffectManager.js';
+import { CHARM_ORB_EFFECTS, ALL_CHARM_ORB_EFFECTS } from 'Renderer/Effects/EnergyOrbSim.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -888,15 +890,34 @@ function onSpiritSphere(pkt) {
 
 /**
  * Spirit charms (Kagerou/Oboro and their 4th jobs).
- * Keeps the charm element on the entity; Four Colors Charm picks its look from it.
- * Like the official client, a packet with no charms left keeps the last element.
+ * Like the official client: every packet clears the charm orbs, then an actor
+ * that has charms and is not hidden or cloaked gets one orb per charm in its
+ * element's look (effects 735 to 738) and keeps the element, which Four Colors
+ * Charm picks its look from. A packet with no charms left keeps the last element.
  *
  * @param {object} pkt - PACKET.ZC.SPIRITS_ATTRIBUTE
  */
 function onSpiritCharm(pkt) {
+	EffectManager.remove(null, pkt.AID, ALL_CHARM_ORB_EFFECTS);
+
 	const entity = EntityManager.get(pkt.AID);
-	if (entity && pkt.num > 0) {
-		entity.charmType = pkt.type;
+	if (!entity || pkt.num <= 0) {
+		return;
+	}
+	const hidden = StatusState.EffectState.HIDE | StatusState.EffectState.CLOAK;
+	if (entity._effectState & hidden) {
+		return;
+	}
+
+	entity.charmType = pkt.type;
+
+	const effectId = CHARM_ORB_EFFECTS[pkt.type];
+	if (effectId) {
+		EffectManager.spam({
+			effectId,
+			ownerAID: pkt.AID,
+			spiritNum: pkt.num
+		});
 	}
 }
 
