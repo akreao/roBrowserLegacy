@@ -2524,7 +2524,7 @@ function onEntityStatusChange(pkt) {
 
 	// Modify icon
 	if (entity === Session.Entity) {
-		StatusIcons.update(pkt.index, pkt.state, pkt.RemainMS);
+		StatusIcons.update(pkt.index, pkt.state, pkt.RemainMS, pkt.val ? pkt.val[0] : 0);
 	}
 }
 

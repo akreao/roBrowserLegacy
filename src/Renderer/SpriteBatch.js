@@ -39,8 +39,8 @@ const mat4 = glMatrix.mat4;
  *  4- 7 offset xy, size xy (world units)
  *  8-11 color
  * 12-15 texture rectangle (u0, v0, u1, v1)
- * 16-19 angle, depth, shadow, atlas layer
- * 20-23 source (see below), palette row, padding
+ * 16-19 angle, depth, shadow, full plane depth (0 or 1: the depth mask)
+ * 20-23 source (see below), atlas layer, palette row, padding
  *
  * The source is where the sprite's pixels are: SOURCE_OWN its own texture
  * (the run's), SOURCE_INDEX or SOURCE_RGBA the atlas. The palette row is the
@@ -113,6 +113,7 @@ class Run {
 let _gl = null;
 let _program = null;
 let _vao = null;
+let _quad = null;
 let _instanceBuffer = null;
 let _upload = new Float32Array(0);
 let _active = false;
@@ -131,28 +132,36 @@ const _frame = { fogUse: false, fogNear: 0, fogFar: 0, zoom: 1 };
 const _glState = { depthTest: true, depthMask: true, blendOne: null };
 
 /**
- * Create the program and the vertex array
+ * Create the program, the quad and the vertex array. The batch keeps its own
+ * quad (the same one SpriteRenderer draws), so a context restore rebuilds it
+ * here whatever SpriteRenderer holds.
  *
  * @param {WebGL2RenderingContext} gl
- * @param {WebGLBuffer} quad - SpriteRenderer's quad: x, y, u, v per vertex
  */
-function init(gl, quad) {
+function init(gl) {
 	_gl = gl;
 	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+	_quad = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
+	gl.bufferData(
+		gl.ARRAY_BUFFER,
+		new Float32Array([-0.5, +0.5, 0.0, 0.0, +0.5, +0.5, 1.0, 0.0, -0.5, -0.5, 0.0, 1.0, +0.5, -0.5, 1.0, 1.0]),
+		gl.STATIC_DRAW
+	);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
 
 	const attribute = _program.attribute;
 	gl.bindVertexArray(_vao);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
 	gl.enableVertexAttribArray(attribute.aTextureCoord);
 	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
-	for (const name of ['aPositionZIndex', 'aOffsetSize', 'aColor', 'aUV', 'aAngleDepthShadowLayer', 'aSource']) {
+	for (const name of ['aPositionZIndex', 'aOffsetSize', 'aColor', 'aUV', 'aAngleDepthShadowCap', 'aSource']) {
 		gl.enableVertexAttribArray(attribute[name]);
 		gl.vertexAttribDivisor(attribute[name], 1);
 	}
@@ -176,8 +185,8 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aOffsetSize, 4, gl.FLOAT, false, STRIDE, base + 4 * 4);
 	gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, base + 8 * 4);
 	gl.vertexAttribPointer(attribute.aUV, 4, gl.FLOAT, false, STRIDE, base + 12 * 4);
-	gl.vertexAttribPointer(attribute.aAngleDepthShadowLayer, 4, gl.FLOAT, false, STRIDE, base + 16 * 4);
-	gl.vertexAttribPointer(attribute.aSource, 2, gl.FLOAT, false, STRIDE, base + 20 * 4);
+	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 16 * 4);
+	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 20 * 4);
 }
 
 /**
@@ -230,16 +239,15 @@ class SpriteBatch {
 	 * Start recording.
 	 *
 	 * @param {WebGL2RenderingContext} gl
-	 * @param {WebGLBuffer} quad - SpriteRenderer's quad buffer
 	 * @param {object} state - the GL state now: { depthTest, depthMask }
 	 * @returns {boolean} whether recording started
 	 */
-	static open(gl, quad, state) {
+	static open(gl, state) {
 		if (!SpriteBatch.enabled || _active || typeof gl.drawArraysInstanced !== 'function') {
 			return false;
 		}
 		if (!_program || _gl !== gl) {
-			init(gl, quad);
+			init(gl);
 		}
 		SpriteAtlas.init(gl);
 		SpriteAtlas.recyclePalettes();
@@ -295,6 +303,23 @@ class SpriteBatch {
 	}
 
 	/**
+	 * Forget every GPU object made on the lost context. The context object
+	 * stays the same after a restore, so the next open() would otherwise
+	 * keep using them. Call from Renderer.onContextRestored.
+	 */
+	static contextRestored() {
+		_gl = null;
+		_program = null;
+		_vao = null;
+		_quad = null;
+		_instanceBuffer = null;
+		_active = false;
+		_queues[QUEUE_SHADOW].clear();
+		_queues[QUEUE_MAIN].clear();
+		SpriteAtlas.contextRestored();
+	}
+
+	/**
 	 * Record one sprite. Returns the offset in the queue's data where the
 	 * caller writes the sprite's FLOATS values.
 	 *
@@ -304,7 +329,7 @@ class SpriteBatch {
 	 * @param {number} textSizeX - uTextSize, for its own texture and palette
 	 * @param {number} textSizeY
 	 * @param {boolean|null} blendOne - additive blend, or null for unchanged
-	 * @param {boolean} fogBlack
+	 * @param {boolean} fogBlack - fog towards black, as additive sprites do
 	 * @param {boolean} depthTest
 	 * @param {boolean} depthMask
 	 * @param {boolean} noCorrection - disable the depth correction
@@ -401,6 +426,7 @@ class SpriteBatch {
 		gl.uniform1i(uniform.uFogUse, _frame.fogUse);
 		gl.uniform1f(uniform.uFogNear, _frame.fogNear);
 		gl.uniform1f(uniform.uFogFar, _frame.fogFar);
+		gl.uniform3fv(uniform.uFogColor, _fogColor);
 		gl.uniform1i(uniform.uDiffuse, 0);
 		gl.uniform1i(uniform.uPalette, 1);
 		gl.uniform1i(uniform.uIndexAtlas, SpriteAtlas.UNIT_INDEX);
@@ -417,9 +443,8 @@ class SpriteBatch {
 		gl.bindTexture(gl.TEXTURE_2D, atlas.palettes);
 		gl.activeTexture(gl.TEXTURE0);
 
-		let fogBlack = null,
+		let fogBlack = false,
 			noCorrection = null,
-			fullPlane = null,
 			texture = null,
 			textSizeX = -1,
 			textSizeY = -1,
@@ -451,9 +476,6 @@ class SpriteBatch {
 				}
 				if (run.noCorrection !== noCorrection) {
 					gl.uniform1i(uniform.uDisableDepthCorrection, (noCorrection = run.noCorrection));
-				}
-				if (run.depthMask !== fullPlane) {
-					gl.uniform1i(uniform.uFullPlaneDepth, (fullPlane = run.depthMask));
 				}
 
 				// A run in the atlas binds nothing: the atlas is bound already

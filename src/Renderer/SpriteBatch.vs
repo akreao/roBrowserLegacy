@@ -10,10 +10,12 @@ in vec4 aPositionZIndex;  // xyz world position, w zIndex
 in vec4 aOffsetSize;      // xy offset, zw size (both in world units)
 in vec4 aColor;
 in vec4 aUV;              // xy top-left, zw bottom-right, in the texture
-in vec4 aAngleDepthShadowLayer; // angle (degrees), depth, shadow, atlas layer
-in vec2 aSource;          // where the pixels are, palette row (see SpriteBatch.js)
+in vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, full plane depth (0/1)
+in vec3 aSource;          // where the pixels are, atlas layer, palette row (see SpriteBatch.js)
 
 out vec2 vTextureCoord;
+out float vBillboardZ;     // depth candidates, see SpriteRenderer.vs
+out float vPlaneZ;
 flat out vec4 vUV;
 flat out vec4 vColor;
 flat out float vShadow;
@@ -25,7 +27,6 @@ uniform mat4 uProjectionMat;
 
 uniform float uCameraZoom;
 uniform bool  uDisableDepthCorrection;
-uniform bool  uFullPlaneDepth;
 
 // The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.
 mat4 Project( mat4 mat, vec3 pos) {
@@ -59,7 +60,7 @@ vec3 getCameraForward() {
 
 void main(void) {
     // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js
-    float angle = -aAngleDepthShadowLayer.x / 180.0 * 3.14159265358979;
+    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;
     float c = cos(angle);
     float s = sin(angle);
     vec2 scaled = aPosition * aOffsetSize.zw;
@@ -72,6 +73,9 @@ void main(void) {
     vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );
 
     gl_Position = uProjectionMat * viewPosition;
+
+    float billboardZ = gl_Position.z;
+    float planeZ     = billboardZ;
 
     vec3 cameraPos     = getCameraPosition();
     vec3 cameraForward = getCameraForward();
@@ -92,13 +96,21 @@ void main(void) {
         vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
         float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
 
-        gl_Position.z = uFullPlaneDepth ? correctedZBase : min(gl_Position.z, correctedZBase);
+        planeZ = correctedZBase;
+        if (aAngleDepthShadowCap.w > 0.5) {
+            billboardZ = planeZ;
+        }
     }
-    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowLayer.y) / max(uCameraZoom, 1.0);
+
+    // Min of both taken per fragment, see docs/reference/renderer/sprite-depth.md
+    float zOffset = (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);
+    vBillboardZ   = billboardZ - zOffset;
+    vPlaneZ       = planeZ - zOffset;
+    gl_Position.z = min(vBillboardZ, vPlaneZ);
 
     vTextureCoord = aTextureCoord;
     vUV     = aUV;
     vColor  = aColor;
-    vShadow = aAngleDepthShadowLayer.z;
-    vSource = vec3(aSource.x, aAngleDepthShadowLayer.w, aSource.y);
+    vShadow = aAngleDepthShadowCap.z;
+    vSource = aSource;
 }

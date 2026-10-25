@@ -6,12 +6,15 @@ import FramePacer from 'Renderer/FramePacer.js';
  * (plus a little timestamp jitter), and return the intervals between the
  * frames it let through after the refresh rate is known.
  */
-function run(hz, limit, { seconds = 2, jitter = 0.2 } = {}) {
+function run(hz, limit, { seconds = 2, jitter = 0.2, random = false, start = 1000 } = {}) {
 	const refresh = 1000 / hz;
 	const frames = [];
 	let last = 0;
+	let seed = 1;
 	for (let i = 0; i < hz * seconds; i++) {
-		const now = 1000 + i * refresh + (i % 2 ? jitter : -jitter);
+		seed = (seed * 16807) % 2147483647;
+		const offset = random ? (seed / 2147483647) * 2 - 1 : i % 2 ? 1 : -1;
+		const now = start + i * refresh + offset * jitter;
 		FramePacer.sample(now);
 		if (last === 0) {
 			last = now;
@@ -77,6 +80,30 @@ describe('FramePacer', () => {
 		}
 	});
 
+	it('keeps one pacing when the display sits at the edge of the slack', () => {
+		// 60.6 Hz for 60, 121.2 Hz for 60: measured either side of the 1%
+		for (const [hz, limit] of [
+			[60.6, 60],
+			[60.65, 60],
+			[121.2, 60],
+			[60.6, 30]
+		]) {
+			FramePacer.reset();
+			const intervals = run(hz, limit, { seconds: 10, jitter: 0.1, random: true });
+			const fps = 1000 / (intervals.reduce((a, b) => a + b, 0) / intervals.length);
+			expect(fps).toBeGreaterThan(limit * 0.99);
+			expect(fps).toBeLessThanOrEqual(limit * 1.01);
+		}
+	});
+
+	it('gives the lower count back when the display moves under the edge of the slack', () => {
+		// 60.65 Hz for 60 is past the edge: by time. Then 60.5 Hz is within
+		// the 1%: every refresh, evenly.
+		run(60.65, 60, { seconds: 5, jitter: 0.1, random: true });
+		const intervals = run(60.5, 60, { seconds: 10, jitter: 0.1, random: true, start: 6000 }).slice(120);
+		expect(refreshes(intervals, 60.5)).toEqual([1]);
+	});
+
 	it('measures the refresh interval from rAF timestamps', () => {
 		run(75, 60, { seconds: 1 });
 		expect(FramePacer.refreshInterval()).toBeCloseTo(1000 / 75, 0);
@@ -87,6 +114,20 @@ describe('FramePacer', () => {
 		expect(FramePacer.refreshInterval()).toBe(0);
 		expect(FramePacer.next(1010, 1000, 60)).toBe(-1);
 		expect(FramePacer.next(1020, 1000, 60)).toBeCloseTo(1020 - (20 % (1000 / 60)), 5);
+	});
+
+	it('reports the rate a limit gives on the display', () => {
+		expect(FramePacer.targetRate(60)).toBe(60); // refresh rate not known yet
+		expect(FramePacer.targetRate(-1)).toBe(0);
+		run(165, 60, { seconds: 1 });
+		expect(FramePacer.targetRate(60)).toBeCloseTo(55, 0); // 3 refreshes
+		expect(Math.abs(FramePacer.targetRate(-1) - 165)).toBeLessThan(2); // jitter
+		FramePacer.reset();
+		run(60, 120, { seconds: 1 });
+		expect(FramePacer.targetRate(120)).toBeCloseTo(60, 0); // display slower than the limit
+		FramePacer.reset();
+		run(75, 60, { seconds: 1 });
+		expect(FramePacer.targetRate(60)).toBe(60); // by time
 	});
 
 	it('ignores gaps that are not refreshes', () => {

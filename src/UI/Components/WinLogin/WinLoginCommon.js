@@ -129,6 +129,10 @@ export function createWinLogin({ name, htmlText, cssText }) {
 
 		Component.placeOnTop();
 
+		if (PerfProbe.enabled) {
+			PerfProbe.loginShown();
+		}
+
 		// A plugin may draw this screen instead
 		ScreenHooks.show('login', _screen, this._host);
 
