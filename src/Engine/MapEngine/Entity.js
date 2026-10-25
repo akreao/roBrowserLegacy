@@ -2519,7 +2519,7 @@ function onEntityStatusChange(pkt) {
 			break;
 	}
 
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state);
+	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : undefined);
 	processBlockStatus(entity, pkt);
 
 	// Modify icon
