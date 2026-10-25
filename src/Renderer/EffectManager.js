@@ -27,6 +27,7 @@ import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
+import { screenAngle, screenSector } from 'Renderer/Effects/ScreenDirection.js';
 import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
@@ -951,6 +952,26 @@ class EffectManager {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+
+		// One of 12 files on the caster, picked by which way the target lies on screen
+		// (ScreenDirection.screenSector). Chul Ho Sonic Claw's waves.
+		const byDirection = SkillEffect[skillId].successEffectIdOnCasterByScreenDirection;
+		if (byDirection && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				const angle = screenAngle(srcEntity.position, destEntity.position);
+				const effectId = byDirection[screenSector(angle)];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
+			}
 		}
 	}
 

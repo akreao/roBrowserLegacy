@@ -10382,14 +10382,112 @@ export default {
 		}
 	],
 
-	// Chulho Sonic Claw (SH_CHUL_HO_SONIC_CLAW), from the client's own effect folders.
+	// Chulho Sonic Claw (SH_CHUL_HO_SONIC_CLAW): the claw on the caster when the skill is used.
 	ef_sh_chul_ho_sonic_claw: [
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/chul_ho_sonic_claw',
 			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/',
 			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/min_chul_ho_sonic_claw',
-			wav: 'effect/spirit_handler/sh_chul_ho_sonic_claw'
+			wav: 'effect/spirit_handler/sh_chul_ho_sonic_claw',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 12 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_12: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_12',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_12',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 1 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_1: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_1',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_1',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 3 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_3: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_3',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_3',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 5 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_5: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_5',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_5',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 6 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_6: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_6',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_6',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 7 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_7: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_7',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_7',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 9 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_9: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_9',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_9',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 11 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_11: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_11',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_11',
+			attachedEntity: true,
+			yOffset: 10
 		}
 	],
 
