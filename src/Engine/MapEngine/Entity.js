@@ -1796,6 +1796,9 @@ function onEntityUseSkillToAttack(pkt) {
 		}
 	}
 
+	// Effects the official client plays as each damage packet arrives
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
+
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
 		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);

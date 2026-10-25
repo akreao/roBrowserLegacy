@@ -38,6 +38,7 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
+import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
@@ -20999,18 +21000,6 @@ export default {
 		}
 	],
 
-	// Servant Weapon Demolition (DK_SERVANT_W_DEMOL), from the client's own effect folders.
-	ef_dk_servant_w_demol_hit: [
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/servant_demolition_hit',
-			texturePath: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/',
-			min: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/min_servant_demolition_hit',
-			fallback: ['servant_demolition/servant_demolition_hit/servant_demolition_hit'],
-			wav: 'effect/dk_servant_w_demol'
-		}
-	],
-
 	// Charging Pierce (DK_CHARGINGPIERCE), from the client's own effect folders.
 	ef_dk_chargingpierce_cast: [
 		{
@@ -21134,6 +21123,9 @@ export default {
 
 	// Storm Slash (DK_STORMSLASH): one stage per skill level, ef_dk_stormslash_1 to _5.
 	...stormSlashEffects(),
+
+	// Servant Weapon: Demolition (DK_SERVANT_W_DEMOL): gather, strike and hit rows.
+	...servantDemolitionEffects(),
 
 	// Dragonic Breath (DK_DRAGONIC_BREATH), from the client's own effect folders.
 	ef_dk_dragonic_breath: [

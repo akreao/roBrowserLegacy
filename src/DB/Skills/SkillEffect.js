@@ -30,6 +30,12 @@
  *	- releaseEffectId: 			Triggers once when the skill is released on a target (after the cast, before the hit lands), even if the skill misses.
  *								Can be used for effects traveling from the caster toward the target.
  *
+ *	- damageEffectIdOnCaster:	Triggers on the caster as soon as each damage packet of the skill arrives (splash
+ *								and misses included), before the hit lands.
+ *
+ *	- damageEffectIdOnTarget:	Triggers on the target as soon as each damage packet of the skill arrives (splash
+ *								and misses included). An entry that is a list plays one of its effects, picked at random.
+ *
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
  *								Can be used to create casting effects.
  *
@@ -1295,7 +1301,13 @@ SkillEffect[SK.DK_SERVANTWEAPON] = {
 SkillEffect[SK.DK_SERVANTWEAPON_ATK] = { effectId: 'ef_dk_servantweapon_atk' }; //Servant Weapon Attack
 SkillEffect[SK.DK_SERVANT_W_SIGN] = { effectId: 'ef_dk_servant_w_sign' }; //Servant Weapon Sign
 SkillEffect[SK.DK_SERVANT_W_PHANTOM] = { effectId: 'ef_dk_servant_w_phantom' }; //Servant Weapon Phantom
-SkillEffect[SK.DK_SERVANT_W_DEMOL] = { hitEffectId: 'ef_dk_servant_w_demol_hit' }; //Servant Weapon Demolition
+//Servant Weapon Demolition: for every damage packet the swords gather on the caster and one strikes
+//the target, leftdown or rightdown at random; the hit art plays when the damage lands.
+SkillEffect[SK.DK_SERVANT_W_DEMOL] = {
+	damageEffectIdOnCaster: 'ef_dk_servant_w_demol_collect',
+	damageEffectIdOnTarget: [['ef_dk_servant_w_demol_leftdown', 'ef_dk_servant_w_demol_rightdown']],
+	hitEffectId: 'ef_dk_servant_w_demol_hit'
+};
 SkillEffect[SK.DK_CHARGINGPIERCE] = {
 	effectIdOnCaster: 'ef_dk_chargingpierce_cast',
 	hitEffectId: 'ef_dk_chargingpierce_hit'

@@ -1063,6 +1063,43 @@ class EffectManager {
 	}
 
 	/**
+	 * Spam skill effects as a damage packet arrives, before the hit lands
+	 * (damageEffectIdOnCaster, damageEffectIdOnTarget). Every damage packet
+	 * counts, splash and misses included.
+	 *
+	 * @param {number} skillId skill id
+	 * @param {number} destAID target aid
+	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {function} [random] returns a number in [0, 1)
+	 */
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random) {
+		const skill = SkillEffect[skillId];
+		if (!skill) {
+			return;
+		}
+
+		const play = (field, ownerAID, otherAID) => {
+			if (!skill[field] || !ownerAID) {
+				return;
+			}
+			(Array.isArray(skill[field]) ? skill[field] : [skill[field]]).forEach(entry => {
+				// A list plays one of its effects, picked at random (Demolition's two strikes)
+				const effectId = Array.isArray(entry) ? entry[Math.floor(random() * entry.length)] : entry;
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: ownerAID,
+					startTick: tick,
+					otherAID: otherAID
+				});
+			});
+		};
+
+		play('damageEffectIdOnCaster', srcAID, destAID);
+		play('damageEffectIdOnTarget', destAID, srcAID);
+	}
+
+	/**
 	 * Spam skill effect on hit with damage
 	 *
 	 * @param {number} skill id
