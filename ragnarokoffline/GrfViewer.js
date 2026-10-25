@@ -226016,17 +226016,27 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static enabled = false;
 		/**
+		* Switch the probe on if the configuration asks for it. Called before the
+		* login window and each map load, which come before the renderer's first
+		* attach(), so their marks are kept.
+		*
+		* @return {boolean} whether the probe is on
+		*/
+		static start() {
+			if (!PerfProbe.enabled && Configs.get("perfProbe", false)) {
+				PerfProbe.enabled = true;
+				PerfProbe.reset();
+			}
+			return PerfProbe.enabled;
+		}
+		/**
 		* Called by Renderer.init: switch the probe on if the configuration asks
 		* for it, and count draw calls on this context (once per context)
 		*
 		* @param {WebGLRenderingContext} gl
 		*/
 		static attach(gl) {
-			if (!PerfProbe.enabled) {
-				if (!Configs.get("perfProbe", false)) return;
-				PerfProbe.enabled = true;
-				PerfProbe.reset();
-			}
+			if (!PerfProbe.start()) return;
 			if (!gl || _gl$1 === gl) return;
 			_gl$1 = gl;
 			wrapContext(gl);
@@ -279928,7 +279938,7 @@ var init_MapRenderer = __esmMin((() => {
 			if (stripMapExtension(this.currentMap) !== stripMapExtension(mapname)) {
 				this.loading = true;
 				BGM.stop();
-				if (PerfProbe.enabled) PerfProbe.mapStart(mapname);
+				if (PerfProbe.start()) PerfProbe.mapStart(mapname);
 				this.currentMap = mapname;
 				const filename = mapname.replace(/\.gat$/i, ".rsw");
 				let faded = false;
@@ -373088,9 +373098,9 @@ function createWinLogin({ name, htmlText, cssText }) {
 		if (_preferences.ID.length) _inputPassword.focus();
 		else _inputUsername.focus();
 		Component.placeOnTop();
-		if (PerfProbe.enabled) PerfProbe.loginShown();
+		if (PerfProbe.start()) PerfProbe.loginShown();
 		ScreenHooks_default.show("login", _screen, this._host);
-		if (PerfProbe.enabled) PerfProbe.loginShown();
+		if (PerfProbe.start()) PerfProbe.loginShown();
 	};
 	Component.onRemove = function onRemove() {
 		ScreenHooks_default.hide("login");
