@@ -1510,8 +1510,10 @@ SkillEffect[SK.IQ_POWERFUL_FAITH] = { effectId: 'ef_iq_powerful_faith' }; //Powe
 SkillEffect[SK.IQ_FIRM_FAITH] = { effectId: 'ef_iq_firm_faith' }; //Firm Faith
 SkillEffect[SK.IQ_OLEUM_SANCTUM] = { effectId: 'ef_iq_oleum_sanctum', hitEffectId: 'ef_iq_oleum_sanctum_hit' }; //Oleum Sanctum
 SkillEffect[SK.IQ_SINCERE_FAITH] = { effectId: 'ef_iq_sincere_faith' }; //Sincere Faith
+// The official client plays the blaster once, from the use packet, on the
+// ground where the caster stands (effect 2094), not on each target hit.
 SkillEffect[SK.IQ_MASSIVE_F_BLASTER] = {
-	effectId: 'ef_iq_massive_f_blaster',
+	successEffectIdOnCaster: 'ef_iq_massive_f_blaster',
 	hitEffectId: 'ef_iq_massive_f_blaster_hit'
 }; //Massive Flame Blaster
 SkillEffect[SK.IQ_EXPOSION_BLASTER] = { effectId: 'ef_iq_exposion_blaster', hitEffectId: 'ef_iq_exposion_blaster_hit' }; //Explosion Blaster
