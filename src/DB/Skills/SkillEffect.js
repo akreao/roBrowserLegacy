@@ -1965,8 +1965,9 @@ SkillEffect[SK.KR_THUNDERING_FOCUS] = { beginCastEffectId: 'ef_druid_thunder_cas
 SkillEffect[SK.KR_THUNDERING_FOCUS_S] = { effectIdOnCaster: 'ef_druid_thundering_focus_y', hitEffectId: 'ef_druid_thunder_hit_y' };
 SkillEffect[SK.KR_THUNDERING_ORB] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: 'ef_druid_thundering_orb_g', hitEffectId: 'ef_druid_thunder_hit_g' };
 SkillEffect[SK.KR_THUNDERING_ORB_S] = { effectId: 'ef_druid_thundering_orb_y', hitEffectId: 'ef_druid_thunder_hit_y' };
-SkillEffect[SK.KR_THUNDERING_CALL] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: 'ef_druid_thundering_call_g', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.KR_THUNDERING_CALL_S] = { effectId: 'ef_druid_thundering_call_y', hitEffectId: 'ef_druid_thunder_hit_y' };
+// Thundering Call: on the target when the use succeeds, 3x3 for level 1-6 and 5x5 from 7
+SkillEffect[SK.KR_THUNDERING_CALL] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_5x5'], hitEffectId: 'ef_druid_thunder_hit_g' };
+SkillEffect[SK.KR_THUNDERING_CALL_S] = { successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_5x5'], hitEffectId: 'ef_druid_thunder_hit_y' };
 SkillEffect[SK.KR_EARTH_DRILL] = { effectId: 'ef_druid_earth_drill' };
 SkillEffect[SK.KR_EARTH_STAMP] = { effectId: 'ef_druid_earth_stamp' };
 SkillEffect[SK.KR_NATURE_PROTECTION] = { effectId: 'ef_druid_nature_protection' };

@@ -4919,6 +4919,21 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		}
 	}
 
+	// A skill's siblings: the skills named like it plus a suffix (KR_THUNDERING_CALL_S
+	// for KR_THUNDERING_CALL). The bson files a sibling's variant under the base
+	// skill's folder (thundering_call_y_3x3 sits in KR_THUNDERING_CALL), so it
+	// would land on the base skill too.
+	const skidNames = Object.keys(SKID);
+	function siblingPlaysFile(skillId, file) {
+		return skidNames.some(
+			name =>
+				SKID[name] === skillId &&
+				skidNames.some(
+					other => other.startsWith(name + '_') && skillPlaysFile(SkillEffect[SKID[other]], EffectTable, file)
+				)
+		);
+	}
+
 	// Phase 2: Inheritance and Assignments
 	for (const effectName in Ez2streffect) {
 		const entry = Ez2streffect[effectName];
@@ -4984,11 +4999,13 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		// from a skill's cast, nothing would ever stop them.
 		// Only one variant of an effect: the official client picks one by
 		// stage, element or direction, and all of them at once is a pile.
+		// Nor a file a sibling skill already draws.
 		const file = EffectTable[effectName][0].file;
 		if (
 			skillId &&
 			!entry.IsInfinite &&
 			!skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) &&
+			!siblingPlaysFile(skillId, file) &&
 			!statusPlaysFile(EffectTable, file) &&
 			!unitPlaysFile(EffectTable, file)
 		) {
