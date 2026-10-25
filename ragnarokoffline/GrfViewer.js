@@ -224955,7 +224955,14 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_TYPHOON_WING] = {
-		effectId: "ef_druid_typhoon_wing",
+		groundEffectIdByLevel: [
+			"ef_druid_typhoon_wing_5x5",
+			"ef_druid_typhoon_wing_5x5",
+			"ef_druid_typhoon_wing_5x5",
+			"ef_druid_typhoon_wing_5x5",
+			"ef_druid_typhoon_wing_5x5",
+			"ef_druid_typhoon_wing_7x7"
+		],
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_FEATHER_SPRINKLE] = {
@@ -276843,8 +276850,10 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} target aid
 		* @param {Array} position
 		* @param {number} tick
+		* @param {number} srcAID caster aid
+		* @param {number} [level] skill level from the ground packet
 		*/
-		static spamSkill(skillId, destAID, position, tick, srcAID) {
+		static spamSkill(skillId, destAID, position, tick, srcAID, level) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			const repeatWindowMs = SkillEffect[skillId].groundRepeatWindowMs;
@@ -276862,6 +276871,18 @@ var init_EffectManager = __esmMin((() => {
 						otherAID: srcAID
 					};
 					EffectManager.spam(EF_Init_Par);
+				});
+			}
+			const groundByLevel = SkillEffect[skillId].groundEffectIdByLevel;
+			if (groundByLevel && groundByLevel.length && position && level > 0) {
+				const effectId = groundByLevel[Math.min(level, groundByLevel.length) - 1];
+				if (effectId) EffectManager.spam({
+					effectId,
+					ownerAID: destAID,
+					position,
+					startTick: tick,
+					otherAID: srcAID,
+					skillLevel: level
 				});
 			}
 			if (SkillEffect[skillId].effectIdByCharmType && srcAID) {
@@ -305964,18 +305985,35 @@ var init_EffectTable = __esmMin((() => {
 			min: "druid/kr_sharpen_hail/sharpen_hail_shot_bottom/min_sharpen_hail_shot_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_druid_typhoon_wing: [{
+		ef_druid_typhoon_wing_5x5: [{
 			type: "STR",
 			file: "druid/kr_typhoon_wing/typhoon_wing_5x5/typhoon_wing_5x5",
 			texturePath: "druid/kr_typhoon_wing/typhoon_wing_5x5/",
 			min: "druid/kr_typhoon_wing/typhoon_wing_5x5/min_typhoon_wing_5x5",
-			wav: "effect/druid/kr_typhoon_wing"
+			wav: "effect/druid/kr_typhoon_wing",
+			yOffset: 10
 		}, {
 			type: "STR",
 			file: "druid/kr_typhoon_wing/typhoon_wing_5x5_bottom/typhoon_wing_5x5_bottom",
 			texturePath: "druid/kr_typhoon_wing/typhoon_wing_5x5_bottom/",
 			min: "druid/kr_typhoon_wing/typhoon_wing_5x5_bottom/min_typhoon_wing_5x5_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
+		}],
+		ef_druid_typhoon_wing_7x7: [{
+			type: "STR",
+			file: "druid/kr_typhoon_wing/typhoon_wing_7x7/typhoon_wing_7x7",
+			texturePath: "druid/kr_typhoon_wing/typhoon_wing_7x7/",
+			min: "druid/kr_typhoon_wing/typhoon_wing_7x7/min_typhoon_wing_7x7",
+			wav: "effect/druid/kr_typhoon_wing",
+			yOffset: 10
+		}, {
+			type: "STR",
+			file: "druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/typhoon_wing_7x7_bottom",
+			texturePath: "druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/",
+			min: "druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/min_typhoon_wing_7x7_bottom",
+			renderBeforeEntities: true,
+			yOffset: 10
 		}],
 		ef_druid_feather_sprinkle: [{
 			type: "STR",
@@ -358486,7 +358524,7 @@ function onSkillToGround(pkt) {
 	position[0] = pkt.xPos;
 	position[1] = pkt.yPos;
 	position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
-	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID);
+	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID, pkt.level);
 	switch (pkt.SKID) {
 		case SkillConst_default.MO_BODYRELOCATION: {
 			const entity = EntityManager.get(pkt.AID);
