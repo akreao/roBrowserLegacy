@@ -309238,7 +309238,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_nv_helpangel: [{
 			type: "STR",
 			file: "help_angel/help_angel/help_angel",
-			texturePath: "help_angel/help_angel/"
+			texturePath: "help_angel/help_angel/",
+			wav: "effect/priest_sanctuary"
 		}, {
 			type: "STR",
 			file: "help_angel/help_angel_bottom/help_angel_bottom",
