@@ -221214,7 +221214,26 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.HN_METEOR_STORM_BUSTER] = { effectId: "ef_hn_meteor_storm_buster" };
 	SkillEffect[SkillConst_default.HN_JUPITEL_THUNDER_STORM] = { effectId: "ef_hn_jupitel_thunder_storm" };
 	SkillEffect[SkillConst_default.HN_JACK_FROST_NOVA] = { effectId: "ef_hn_jack_frost_nova" };
-	SkillEffect[SkillConst_default.HN_HELLS_DRIVE] = { effectId: "ef_hn_hells_drive" };
+	SkillEffect[SkillConst_default.HN_HELLS_DRIVE] = {
+		successEffectGridIds: ["ef_hn_hells_drive_bottom", [
+			"ef_hn_hells_drive_00",
+			"ef_hn_hells_drive_01",
+			"ef_hn_hells_drive_02"
+		]],
+		successEffectGridSizeByLevel: [
+			3,
+			3,
+			3,
+			5,
+			5,
+			5,
+			7,
+			7,
+			7,
+			9
+		],
+		successEffectGridStep: 32
+	};
 	SkillEffect[SkillConst_default.HN_GROUND_GRAVITATION] = { effectId: "ef_hn_ground_gravitation" };
 	SkillEffect[SkillConst_default.HN_NAPALM_VULCAN_STRIKE] = { effectId: "ef_hn_napalm_vulcan_strike" };
 	SkillEffect[SkillConst_default.HN_BREAKINGLIMIT] = { effectId: "ef_hn_breakinglimit" };
@@ -275264,6 +275283,42 @@ var init_ScreenDirection = __esmMin((() => {
 	_matrix$5 = mat4$15.create();
 	_point = vec4$7.create();
 }));
+// src/Renderer/Effects/ShuffledGrid.js
+/**
+* Renderer/Effects/ShuffledGrid.js
+*
+* Spots the official client spreads some world-placed effect copies over
+* (Hell's Drive's blasts): an n x n grid one cell apart, centred on the
+* target, with one spot in each row and each column. The columns and the
+* rows are shuffled separately and paired in order.
+*/
+/**
+* The numbers 0 .. n - 1 in random order (uniform shuffle).
+*
+* @param {number} n
+* @param {function} random source of numbers in [0, 1)
+* @return {number[]}
+*/
+function shuffled(n, random) {
+	const list = Array.from({ length: n }, (_, i) => i);
+	for (let i = n - 1; i > 0; i--) {
+		const j = Math.floor(random() * (i + 1));
+		[list[i], list[j]] = [list[j], list[i]];
+	}
+	return list;
+}
+/**
+* @param {number} n grid size (spots per side, and number of spots)
+* @param {function} [random] source of numbers in [0, 1), Math.random by default
+* @return {number[][]} n [x, y] offsets in roBrowser cells, -floor(n / 2) .. +floor(n / 2)
+*/
+function shuffledGrid(n, random = Math.random) {
+	const half = Math.floor(n / 2);
+	const columns = shuffled(n, random);
+	const rows = shuffled(n, random);
+	return columns.map((column, k) => [column - half, rows[k] - half]);
+}
+var init_ShuffledGrid = __esmMin((() => {}));
 // src/Renderer/Effects/QuadHorn.vs?raw
 var QuadHorn_default$1;
 var init_QuadHorn$2 = __esmMin((() => {
@@ -276175,6 +276230,7 @@ var init_EffectManager = __esmMin((() => {
 	init_Entity$1();
 	init_EntityManager();
 	init_ScreenDirection();
+	init_ShuffledGrid();
 	init_Renderer();
 	init_Altitude();
 	init_SoundManager();
@@ -276657,6 +276713,32 @@ var init_EffectManager = __esmMin((() => {
 						otherAID: srcAID
 					});
 				}
+			}
+			const gridIds = SkillEffect[skillId].successEffectGridIds;
+			const gridSizes = SkillEffect[skillId].successEffectGridSizeByLevel;
+			const center = gridIds && level > 0 ? EntityManager.get(destAID) || EntityManager.get(srcAID) : null;
+			if (center && gridSizes && gridSizes.length) {
+				const size = gridSizes[Math.min(level, gridSizes.length) - 1];
+				const step = SkillEffect[skillId].successEffectGridStep || 0;
+				const start = tick || Renderer.tick;
+				const [x, y, z] = center.position;
+				shuffledGrid(size).forEach(([dx, dy], k) => {
+					gridIds.forEach((entry) => {
+						const effectId = Array.isArray(entry) ? entry[Math.floor(Math.random() * entry.length)] : entry;
+						EffectManager.spam({
+							effectId,
+							ownerAID: destAID,
+							position: [
+								x + dx,
+								y + dy,
+								z
+							],
+							startTick: start + step * k,
+							otherAID: srcAID,
+							skillLevel: level
+						});
+					});
+				});
 			}
 		}
 		/**
@@ -291263,11 +291345,33 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "hyper_novice/hn_jack_frost_nova/jack_frost_nova_end/",
 			wav: "effect/hyper_novice/hn_jack_frost_nova"
 		}],
-		ef_hn_hells_drive: [{
+		ef_hn_hells_drive_bottom: [{
 			type: "STR",
 			file: "hyper_novice/hn_hells_drive/hells_drive_bottom",
 			texturePath: "hyper_novice/hn_hells_drive/",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 0
+		}],
+		ef_hn_hells_drive_00: [{
+			type: "STR",
+			file: "hyper_novice/hn_hells_drive/hells_drive_00",
+			texturePath: "hyper_novice/hn_hells_drive/",
+			wav: "effect/hyper_novice/hn_hells_drive_00",
+			yOffset: 0
+		}],
+		ef_hn_hells_drive_01: [{
+			type: "STR",
+			file: "hyper_novice/hn_hells_drive/hells_drive_01",
+			texturePath: "hyper_novice/hn_hells_drive/",
+			wav: "effect/hyper_novice/hn_hells_drive_01",
+			yOffset: 0
+		}],
+		ef_hn_hells_drive_02: [{
+			type: "STR",
+			file: "hyper_novice/hn_hells_drive/hells_drive_02",
+			texturePath: "hyper_novice/hn_hells_drive/",
+			wav: "effect/hyper_novice/hn_hells_drive_02",
+			yOffset: 0
 		}],
 		ef_hn_ground_gravitation: [{
 			type: "STR",
