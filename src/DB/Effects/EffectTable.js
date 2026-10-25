@@ -47,6 +47,7 @@ import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
+import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
@@ -18255,6 +18256,17 @@ export default {
 		},
 		{
 			wav: 'effect/drop_purple'
+		}
+	],
+
+	1225: [
+		{
+			// Soul energy orbs (Soul Reaper, Soul Ascetic), one per soul from ZC_SOULENERGY, newest five shown
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new SoulCollect(Params.Init.ownerEntity, Params.Init.spiritNum, Params.Inst.startTick), Params);
+			}
 		}
 	],
 
