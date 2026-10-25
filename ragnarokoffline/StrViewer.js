@@ -146149,9 +146149,14 @@ var init_StatusConst = __esmMin((() => {
 		BLOCK_SEAL: 1454,
 		GROGGY: 1456,
 		MYSTERY_POWDER: 1665,
+		GENDER_CHANGE: 1559,
 		WEREWOLF: 1675,
 		WERERAPTOR: 1680,
-		MAX: 1681
+		WIND_VEIL: 1693,
+		THUNDERING_ROD: 1695,
+		THUNDERING_ROD_MAX: 1696,
+		GROUND_GROW: 1697,
+		MAX: 1698
 	};
 }));
 // src/DB/Status/StatusInfo.js
@@ -149452,7 +149457,44 @@ var init_StatusEffectTable = __esmMin((() => {
 			loop: ["npc_block_seal_loop_bottom", "npc_block_seal_loop"]
 		},
 		[StatusConst_default.GROGGY]: { loop: ["groggy_on_loop"] },
-		[StatusConst_default.MYSTERY_POWDER]: { loop: ["mistery_powder_loop_bottom", "mistery_powder_loop"] }
+		[StatusConst_default.MYSTERY_POWDER]: { loop: ["mistery_powder_loop_bottom", "mistery_powder_loop"] },
+		[StatusConst_default.GENDER_CHANGE]: {
+			start: ["gender_change_cast"],
+			loop: ["gender_change_loop"],
+			stop: ["gender_change_cast"],
+			end: ["gender_change"],
+			scale: 1.5
+		},
+		[StatusConst_default.WIND_VEIL]: { loop: ["wild_veil", "wild_veil_bottom"] },
+		[StatusConst_default.GROUND_GROW]: { counted: {
+			value: 2,
+			effects: [
+				"ground_grow_00",
+				"ground_grow_01",
+				"ground_grow_02",
+				"ground_grow_03",
+				"ground_grow_04",
+				"ground_grow_05",
+				"ground_grow_06",
+				"ground_grow_07",
+				"ground_grow_08",
+				"ground_grow_09",
+				"ground_grow_10",
+				"ground_grow_full"
+			]
+		} },
+		[StatusConst_default.THUNDERING_ROD]: { counted: {
+			value: 2,
+			effects: [
+				"thundering_rod_00",
+				"thundering_rod_01",
+				"thundering_rod_02",
+				"thundering_rod_03",
+				"thundering_rod_04",
+				"thundering_rod_05"
+			]
+		} },
+		[StatusConst_default.THUNDERING_ROD_MAX]: { loop: ["thundering_rod_full"] }
 	};
 }));
 // src/DB/Skills/SkillUnitConst.js
@@ -150942,12 +150984,17 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_MISSION_BOMBARD] = [
 		"mission_bombard",
 		"mission_bombard_fire",
-		"mission_bombard_fire_bottom"
+		"mission_bombard_fire_bottom",
+		"ef_nw_mission_bombard_field"
 	];
-	SkillUnit[SkillUnitConst_default.UNT_CROSS_RAIN] = ["new_cross_rain_bottom"];
+	SkillUnit[SkillUnitConst_default.UNT_CROSS_RAIN] = ["new_cross_rain_bottom", "ef_ig_cross_rain_field"];
+	SkillUnit[SkillUnitConst_default.UNT_KUNAIWAIKYOKU] = ["kunaiarea_01_start", "kunaiarea_01_loop"];
+	SkillUnit[SkillUnitConst_default.UNT_SHINKIROU] = ["shinkirou_idle_start", "shinkirou_idle_loop"];
 	SkillUnitEnd = {};
 	SkillUnitEnd[SkillUnitConst_default.UNT_JACK_FROST_NOVA] = ["jack_frost_nova_end"];
 	SkillUnitEnd[SkillUnitConst_default.UNT_TOTEM_OF_TUTELARY] = ["totem_of_tutelary_bottom_end", "totem_of_tutelary_end"];
+	SkillUnitEnd[SkillUnitConst_default.UNT_KUNAIWAIKYOKU] = ["kunaiarea_01_end"];
+	SkillUnitEnd[SkillUnitConst_default.UNT_SHINKIROU] = ["shinkirou_idle_end"];
 }));
 // src/DB/Status/StateIconMods.js
 /**
@@ -224617,10 +224664,7 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_ig_overslash_cast",
 		hitEffectId: "ef_ig_overslash_hit"
 	};
-	SkillEffect[SkillConst_default.IG_CROSS_RAIN] = {
-		effectId: "ef_ig_cross_rain",
-		effectIdOnCaster: "ef_ig_cross_rain_cast"
-	};
+	SkillEffect[SkillConst_default.IG_CROSS_RAIN] = { effectIdOnCaster: "ef_ig_cross_rain_cast" };
 	SkillEffect[6503] = {
 		effectIdOnCaster: "ef_ig_radiant_spear_cast",
 		successEffectIdOnTargetByScreenSide: {
@@ -256593,23 +256637,24 @@ var init_StrEffect = __esmMin((() => {
 			const shiftX = ez2 ? this.ez2Offset[0] * PIXEL_TO_WORLD_Z * 35 : 0;
 			const shiftY = ez2 ? this.ez2Offset[1] * PIXEL_TO_WORLD_Z * 35 : 0;
 			const verticalBase = ez2 ? 0 : .5;
+			const k = this.scale || 1;
 			if (this.ownerEntity) {
-				out[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-				out[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				out[0] = (animat.pos[0] - 320) * k + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				out[1] = (animat.pos[1] - 320) * k - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 				return 0;
 			}
 			if (this.aimAngle) {
 				const rad = this.aimAngle / 180 * Math.PI;
 				const cos = Math.cos(rad);
 				const sin = Math.sin(rad);
-				const x = animat.pos[0] - AIM_PIVOT_X;
-				const y = AIM_PIVOT_Y - animat.pos[1];
+				const x = (animat.pos[0] - AIM_PIVOT_X) * k;
+				const y = (AIM_PIVOT_Y - animat.pos[1]) * k;
 				out[0] = x * cos - y * sin + shiftX;
 				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) - shiftY;
 				return verticalBase;
 			}
-			out[0] = animat.pos[0] - 320 + shiftX;
-			out[1] = animat.pos[1] - pivotY - shiftY;
+			out[0] = (animat.pos[0] - 320) * k + shiftX;
+			out[1] = (animat.pos[1] - pivotY) * k - shiftY;
 			return verticalBase;
 		}
 		/**
@@ -256623,14 +256668,15 @@ var init_StrEffect = __esmMin((() => {
 			const uniform = _program$26.uniform;
 			let sizeScale = 1;
 			if (this.ownerEntity) sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
-			_cornerX[0] = animat.xy[0] * sizeScale;
-			_cornerY[0] = animat.xy[4] * sizeScale;
-			_cornerX[1] = animat.xy[1] * sizeScale;
-			_cornerY[1] = animat.xy[5] * sizeScale;
-			_cornerX[2] = animat.xy[3] * sizeScale;
-			_cornerY[2] = animat.xy[7] * sizeScale;
-			_cornerX[3] = animat.xy[2] * sizeScale;
-			_cornerY[3] = animat.xy[6] * sizeScale;
+			const cornerScale = sizeScale * (this.scale || 1);
+			_cornerX[0] = animat.xy[0] * cornerScale;
+			_cornerY[0] = animat.xy[4] * cornerScale;
+			_cornerX[1] = animat.xy[1] * cornerScale;
+			_cornerY[1] = animat.xy[5] * cornerScale;
+			_cornerX[2] = animat.xy[3] * cornerScale;
+			_cornerY[2] = animat.xy[7] * cornerScale;
+			_cornerX[3] = animat.xy[2] * cornerScale;
+			_cornerY[3] = animat.xy[6] * cornerScale;
 			gl.uniform4fv(uniform.uCornerX, _cornerX);
 			gl.uniform4fv(uniform.uCornerY, _cornerY);
 			const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
@@ -272557,8 +272603,11 @@ var init_GroundScatter = __esmMin((() => {}));
 * EffectTable fields (type 'AREA_SPAWN'):
 *	- spawnEffectId:	effect spammed at each point
 *	- interval:		ms between two spawns (the first one is at the start)
+*	- intervalByLevel:	ms between two spawns, by skill level (index 0 is level 1)
 *	- areaByLevel:		square width in cells, by skill level (index 0 is level 1)
 *	- area:			square width in cells when the level is unknown
+*	- count:		points per spawn, each picked on its own (default 1)
+*	- scaleRange:		[min, max] size of each spawned effect, picked in steps of 0.01
 *
 * This file is part of ROBrowser, (http://www.robrowser.com/).
 */
@@ -272576,6 +272625,32 @@ function spawnAreaWidth(effect, level, range) {
 	if (table && table.length && level > 0) return table[Math.min(level, table.length) - 1];
 	if (range > 0) return range * 2 + 1;
 	return effect.area || (table && table.length ? table[table.length - 1] : 1);
+}
+/**
+* Ms between two spawns. Uses the skill level when there is one.
+*
+* @param {object} effect - EffectTable entry
+* @param {number} [level] - skill level
+* @returns {number}
+*/
+function spawnInterval(effect, level) {
+	const table = effect.intervalByLevel;
+	if (table && table.length && level > 0) return table[Math.min(level, table.length) - 1];
+	return effect.interval > 0 ? effect.interval : 1e3;
+}
+/**
+* Size of one spawned effect, like the official client: a whole number of
+* hundredths, uniform over [min, max].
+*
+* @param {Array<number>} [range] - [min, max]
+* @param {number} random - a number in [0, 1)
+* @returns {number|undefined} undefined when the effect has no range
+*/
+function spawnScale(range, random) {
+	if (!range) return;
+	const steps = Math.round((range[1] - range[0]) * 100);
+	const pick = Math.min(Math.floor(random * (steps + 1)), steps);
+	return Math.round(range[0] * 100 + pick) / 100;
 }
 /**
 * Offset of a point from the centre along one axis, in cells.
@@ -272614,8 +272689,10 @@ var init_AreaSpawner = __esmMin((() => {
 		constructor(effect, EF_Inst_Par, EF_Init_Par, spawn, heightAt) {
 			this.position = EF_Inst_Par.position;
 			this.startTick = EF_Inst_Par.startTick;
-			this.interval = effect.interval > 0 ? effect.interval : 1e3;
+			this.interval = spawnInterval(effect, EF_Init_Par.skillLevel);
 			this.width = spawnAreaWidth(effect, EF_Init_Par.skillLevel, EF_Init_Par.unitRange);
+			this.count = effect.count > 0 ? effect.count : 1;
+			this.scaleRange = effect.scaleRange;
 			this.spawnEffectId = effect.spawnEffectId;
 			this.spawn = spawn;
 			this.heightAt = heightAt;
@@ -272626,14 +272703,17 @@ var init_AreaSpawner = __esmMin((() => {
 			const due = spawnsDue(this.startTick, this.interval, tick);
 			if (due - this.spawned > 1) this.spawned = due - 1;
 			while (this.spawned < due) {
-				const x = this.position[0] + spawnOffset(this.width, Math.random());
-				const y = this.position[1] + spawnOffset(this.width, Math.random());
-				const z = this.heightAt ? this.heightAt(x, y) : this.position[2];
-				this.spawn(this.spawnEffectId, [
-					x,
-					y,
-					z
-				], this.startTick + this.spawned * this.interval);
+				for (let i = 0; i < this.count; i++) {
+					const x = this.position[0] + spawnOffset(this.width, Math.random());
+					const y = this.position[1] + spawnOffset(this.width, Math.random());
+					const z = this.heightAt ? this.heightAt(x, y) : this.position[2];
+					const scale = spawnScale(this.scaleRange, Math.random());
+					this.spawn(this.spawnEffectId, [
+						x,
+						y,
+						z
+					], this.startTick + this.spawned * this.interval, scale);
+				}
 				this.spawned++;
 			}
 		}
@@ -276526,6 +276606,8 @@ function spamSTR(Params) {
 	const str = Params.effect.arcThrow ? new BezierArcThrowStrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks, Params.Init.ownerEntity) : new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
 	if (Params.effect.xOffset !== void 0 || Params.effect.yOffset !== void 0) str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
 	if (Params.Init.screenTurn) str.screenTurn = Params.Init.screenTurn;
+	const scale = Params.Init.scale || Params.effect.scale;
+	if (scale > 0 && scale !== 1) str.scale = scale;
 	EffectManager.add(str, Params);
 }
 /**
@@ -276928,12 +277010,12 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.add(new EffectPrim(Params.effect, Params.Inst, Params.Init), Params);
 					break;
 				case "AREA_SPAWN":
-					EffectManager.add(new AreaSpawner(Params.effect, Params.Inst, Params.Init, (effectId, position, startTick) => EffectManager.spam({
+					EffectManager.add(new AreaSpawner(Params.effect, Params.Inst, Params.Init, (effectId, position, startTick, scale) => EffectManager.spam(Object.assign({
 						effectId,
 						position,
 						startTick,
 						otherAID: Params.Init.otherAID
-					}), (x, y) => Altitude.getCellHeight(x, y)), Params);
+					}, scale && { scale })), (x, y) => Altitude.getCellHeight(x, y)), Params);
 					break;
 				case "2D":
 					EffectManager.add(new TwoDEffect(Params.effect, Params.Inst, Params.Init), Params);
@@ -302097,13 +302179,41 @@ var init_EffectTable = __esmMin((() => {
 			fallback: ["overslash/overslash_hit/overslash_hit"],
 			yOffset: 5
 		}],
-		ef_ig_cross_rain: [{
+		ef_ig_cross_rain_field: [{
+			type: "AREA_SPAWN",
+			spawnEffectId: "ef_ig_cross_rain_drop",
+			interval: 150,
+			intervalByLevel: [
+				150,
+				150,
+				400 / 3,
+				400 / 3,
+				400 / 3,
+				350 / 3,
+				350 / 3,
+				350 / 3,
+				100,
+				100
+			],
+			areaByLevel: [
+				3,
+				3,
+				3,
+				5,
+				5,
+				5,
+				7,
+				7,
+				7,
+				9
+			]
+		}],
+		ef_ig_cross_rain_drop: [{
 			type: "STR",
 			file: "imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/new_cross_rain",
 			texturePath: "imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/",
 			min: "imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain",
-			fallback: ["crossrain/cross_rain/cross_rain"],
-			wav: "effect/ig_cross_rain"
+			fallback: ["crossrain/cross_rain/cross_rain"]
 		}],
 		ef_ig_cross_rain_cast: [{
 			type: "STR",
@@ -305026,6 +305136,21 @@ var init_EffectTable = __esmMin((() => {
 			yOffset: 10
 		}],
 		ef_nw_mission_bombard_hit: [{
+			type: "STR",
+			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
+			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
+			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
+		}],
+		ef_nw_mission_bombard_field: [{
+			type: "AREA_SPAWN",
+			spawnEffectId: "ef_nw_mission_bombard_drop",
+			interval: 250,
+			count: 3,
+			areaByLevel: [9],
+			area: 9,
+			scaleRange: [.5, 1]
+		}],
+		ef_nw_mission_bombard_drop: [{
 			type: "STR",
 			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
 			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
@@ -327041,7 +327166,7 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	if (!skillEntry || !file) return false;
 	const wanted = keyOf(file);
 	for (const field in skillEntry) {
-		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]);
+		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]).flat(Infinity);
 		for (const name of names) {
 			const effects = typeof name === "string" ? EffectTable[name] : null;
 			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
@@ -353781,33 +353906,38 @@ function stageEffects(row) {
 * @param {number} AID actor id
 * @param {number} status status id (StatusConst)
 * @param {number} state 1 on, 0 off
-* @param {number} [value] the status's first value, which picks a stage
+* @param {number|Array<number>} [values] the status's values (val1, val2, val3), or only its first one
 */
-function updateStatusEffects(AID, status, state, value) {
+function updateStatusEffects(AID, status, state, values) {
 	const row = StatusEffectTable_default[status];
 	if (!row) return;
+	const vals = Array.isArray(values) ? values : [values];
+	const value = vals[0];
 	const loops = row.loop || [];
+	const counted = row.counted ? row.counted.effects : [];
+	const scale = row.scale;
+	const play = (effectId, persistent) => EffectManager.spam(Object.assign({
+		effectId,
+		ownerAID: AID
+	}, persistent && { persistent }, scale && { scale }));
 	if (state == 1) {
-		(row.start || []).forEach((effectId) => EffectManager.spam({
-			effectId,
-			ownerAID: AID
-		}));
+		(row.start || []).forEach((effectId) => play(effectId));
 		loops.forEach((effectId) => {
-			if (!EffectManager.has(AID, effectId)) EffectManager.spam({
-				effectId,
-				ownerAID: AID,
-				persistent: true
-			});
+			if (!EffectManager.has(AID, effectId)) play(effectId, true);
 		});
 		if (row.stages) {
 			stageEffects(row).forEach((effectId) => EffectManager.remove(null, AID, effectId));
-			(row.stages[value] || []).forEach((effectId) => EffectManager.spam({
-				effectId,
-				ownerAID: AID
-			}));
+			(row.stages[value] || []).forEach((effectId) => play(effectId));
+		}
+		if (row.counted) {
+			const effectId = counted[vals[row.counted.value] - 1];
+			if (effectId && !EffectManager.has(AID, effectId)) play(effectId, true);
 		}
 	} else if (state == 0) {
 		loops.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		counted.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		(row.stop || []).forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		(row.end || []).forEach((effectId) => play(effectId));
 		(row.clears || []).forEach((other) => stageEffects(StatusEffectTable_default[other]).forEach((effectId) => EffectManager.remove(null, AID, effectId)));
 	}
 }
@@ -355352,7 +355482,7 @@ function onEntityStatusChange(pkt) {
 			updateEntityStyle(entity);
 		});
 	}
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : void 0);
+	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val);
 	processBlockStatus(entity, pkt);
 	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS, pkt.val ? pkt.val[0] : 0);
 }
