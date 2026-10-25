@@ -256278,7 +256278,8 @@ var init_EffectPrim = __esmMin((() => {
 */
 /**
 * Width of the square, in cells.
-* Uses the skill level when the unit packet has one, else the unit range (2 * range + 1).
+* Uses the skill level when the unit packet has one, else the unit range (2 * range + 1),
+* else the level 1 size: a packet with neither is from a client too old for these units.
 *
 * @param {object} effect - EffectTable entry
 * @param {number} [level] - skill level
@@ -256289,7 +256290,7 @@ function spawnAreaWidth(effect, level, range) {
 	const table = effect.areaByLevel;
 	if (table && table.length && level > 0) return table[Math.min(level, table.length) - 1];
 	if (range > 0) return range * 2 + 1;
-	return effect.area || (table && table.length ? table[table.length - 1] : 1);
+	return effect.area || (table && table.length ? table[0] : 1);
 }
 /**
 * Ms between two spawns. Uses the skill level when there is one.
@@ -306948,7 +306949,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		const prefix = skidNames[i] + "_";
 		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
 			const other = SkillConst_default[skidNames[j]];
-			if (skidNames[j].startsWith(prefix) && SkillEffect[other] && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
+			if (skidNames[j].startsWith(prefix) && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
 		}
 	}
 	function siblingPlaysFile(skillId, file) {
