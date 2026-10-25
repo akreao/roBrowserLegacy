@@ -1,11 +1,11 @@
 /**
  * Renderer/Effects/EffectPrim.js
  *
- * Draws one primitive of the official client's effect system (ring, sphere),
+ * Draws one primitive of the official client's effect system (ring, sphere, quad),
  * stepped on the official 60 ticks a second clock. The motion and geometry are
  * in EffectPrimSim.js; this file only uploads and draws them.
  *
- * Effect table entry: { type: 'PRIM', prim: 'ring' | 'sphere', texture, frames, ... },
+ * Effect table entry: { type: 'PRIM', prim: 'ring' | 'sphere' | 'quad', texture, frames, ... },
  * see EffectPrimSim.js for the keys.
  */
 
@@ -34,7 +34,8 @@ class EffectPrim {
 		this.endTick = this.startTick + this.state.frames * PRIM_TICK_MS;
 		this.vertexCount = primVertexCount(effect);
 		this.vertices = new Float32Array(this.vertexCount * 5);
-		this.color = new Float32Array([1, 1, 1, 0]);
+		const color = effect.color || [255, 255, 255];
+		this.color = new Float32Array([color[0] / 255, color[1] / 255, color[2] / 255, 0]);
 		this.dirty = true;
 	}
 

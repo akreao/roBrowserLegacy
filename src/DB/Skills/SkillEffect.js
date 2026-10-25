@@ -1142,7 +1142,9 @@ SkillEffect[SK.SS_HITOUAKUMU] = {
 	// When the use packet succeeds, at the caster: the floor burst, then all
 	// three blade files, 15-19 copies each fanned out all round
 	successEffectId: 'ef_ss_hitouakumu',
-	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02']
+	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02'],
+	// While casting: effect 812 (dark flash and caster strobe) instead of the element aura
+	castAuraEffectId: 812
 }; //Kunai - Nightmare
 SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
 SkillEffect[5499 /* SS_FOUR_CHARM */] = {
