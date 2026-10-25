@@ -187,7 +187,7 @@ class MapRenderer {
 			this.loading = true;
 			BGM.stop();
 
-			if (PerfProbe.enabled) {
+			if (PerfProbe.start()) {
 				PerfProbe.mapStart(mapname);
 			}
 			this.currentMap = mapname;

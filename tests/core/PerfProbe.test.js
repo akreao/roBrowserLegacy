@@ -176,4 +176,27 @@ describe('PerfProbe', () => {
 		expect(PerfProbe.stats().marks.maps).toHaveLength(0);
 		expect(PerfProbe.stats().marks.login).toBe(marks.login);
 	});
+
+	it('keeps the login and first map marks, which come before the renderer attaches', async () => {
+		const PerfProbe = await load(true);
+		// As the login window and MapRenderer.setMap call it
+		if (PerfProbe.start()) {
+			PerfProbe.loginShown();
+		}
+		if (PerfProbe.start()) {
+			PerfProbe.mapStart('prontera.gat');
+		}
+		PerfProbe.attach(makeGl());
+		PerfProbe.mapReady();
+
+		const { marks } = PerfProbe.stats();
+		expect(marks.login).toBeTypeOf('number');
+		expect(marks.maps.map(m => m.map)).toEqual(['prontera.gat']);
+	});
+
+	it('stays off at the login window and map loads unless the configuration asks for it', async () => {
+		const PerfProbe = await load(false);
+		expect(PerfProbe.start()).toBe(false);
+		expect(PerfProbe.enabled).toBe(false);
+	});
 });
