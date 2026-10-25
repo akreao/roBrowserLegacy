@@ -222706,12 +222706,28 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AS_SPLASHER] = { effectId: 129 };
 	SkillEffect[SkillConst_default.NV_FIRSTAID] = { effectId: 309 };
 	SkillEffect[SkillConst_default.NV_TRICKDEAD] = {};
-	SkillEffect[SkillConst_default.HN_DOUBLEBOWLINGBASH] = { effectId: "ef_hn_doublebowlingbash" };
+	SkillEffect[SkillConst_default.HN_DOUBLEBOWLINGBASH] = {
+		effectId: "ef_hn_doublebowlingbash",
+		castAuraEffectId: 12
+	};
 	SkillEffect[SkillConst_default.HN_MEGA_SONIC_BLOW] = { effectId: "ef_hn_mega_sonic_blow" };
-	SkillEffect[SkillConst_default.HN_SHIELD_CHAIN_RUSH] = { effectId: "ef_hn_shield_chain_rush" };
+	SkillEffect[SkillConst_default.HN_SHIELD_CHAIN_RUSH] = {
+		effectId: "ef_hn_shield_chain_rush",
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.HN_SPIRAL_PIERCE_MAX] = { effectId: "ef_hn_spiral_pierce_max" };
-	SkillEffect[SkillConst_default.HN_METEOR_STORM_BUSTER] = { effectId: "ef_hn_meteor_storm_buster" };
-	SkillEffect[SkillConst_default.HN_JUPITEL_THUNDER_STORM] = { effectId: "ef_hn_jupitel_thunder_storm" };
+	SkillEffect[SkillConst_default.HN_METEOR_STORM_BUSTER] = {
+		effectId: "ef_hn_meteor_storm_buster",
+		castAuraEffectId: "ef_cast_circle_red"
+	};
+	SkillEffect[SkillConst_default.HN_JUPITEL_THUNDER_STORM] = {
+		effectId: "ef_hn_jupitel_thunder_storm",
+		castAuraEffectId: "ef_druid_cast_circle_yellow"
+	};
+	SkillEffect[SkillConst_default.HN_JACK_FROST_NOVA] = {
+		castAuraEffectId: 1449,
+		beginCastEffectId: 1446
+	};
 	SkillEffect[SkillConst_default.HN_HELLS_DRIVE] = {
 		successEffectGridIds: ["ef_hn_hells_drive_bottom", [
 			"ef_hn_hells_drive_00",
@@ -222733,7 +222749,11 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectGridStep: 32,
 		castAuraEffectId: 1709
 	};
-	SkillEffect[SkillConst_default.HN_NAPALM_VULCAN_STRIKE] = { effectId: "ef_hn_napalm_vulcan_strike" };
+	SkillEffect[SkillConst_default.HN_GROUND_GRAVITATION] = { castAuraEffectId: [9, 12] };
+	SkillEffect[SkillConst_default.HN_NAPALM_VULCAN_STRIKE] = {
+		effectId: "ef_hn_napalm_vulcan_strike",
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.HN_BREAKINGLIMIT] = { effectId: "ef_hn_breakinglimit" };
 	SkillEffect[SkillConst_default.HN_RULEBREAK] = { effectId: "ef_hn_rulebreak" };
 	SkillEffect[5505] = { effectId: "ef_hn_overcoming_crisis" };
@@ -223766,20 +223786,26 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NW_BASIC_GRENADE] = { effectId: "ef_nw_basic_grenade" };
 	SkillEffect[SkillConst_default.NW_GRENADES_DROPPING] = { effectId: "ef_nw_grenades_dropping" };
 	SkillEffect[SkillConst_default.NW_AUTO_FIRING_LAUNCHER] = { effectId: "ef_nw_auto_firing_launcher" };
-	SkillEffect[SkillConst_default.NW_HIDDEN_CARD] = { effectId: "ef_nw_hidden_card" };
-	SkillEffect[SkillConst_default.NW_MISSION_BOMBARD] = { hitEffectId: "ef_nw_mission_bombard_hit" };
+	SkillEffect[SkillConst_default.NW_HIDDEN_CARD] = {
+		effectId: "ef_nw_hidden_card",
+		castAuraEffectId: 840
+	};
+	SkillEffect[SkillConst_default.NW_MISSION_BOMBARD] = {
+		hitEffectId: "ef_nw_mission_bombard_hit",
+		castAuraEffectId: 840
+	};
 	SkillEffect[SkillConst_default.NW_HASTY_FIRE_IN_THE_HOLE] = {
 		effectId: "ef_nw_hasty_fire_in_the_hole",
 		groundRepeatWindowMs: 700
 	};
 	SkillEffect[5500] = {
 		effectId: "ef_nw_wild_shot",
-		effectIdOnCaster: "ef_nw_wild_shot_cast",
+		beginCastEffectId: "ef_nw_wild_shot_cast",
 		hitEffectId: "ef_nw_wild_shot_hit"
 	};
 	SkillEffect[5501] = {
 		effectId: "ef_nw_midnight_fallen",
-		effectIdOnCaster: "ef_nw_midnight_fallen_cast"
+		beginCastEffectId: "ef_nw_midnight_fallen_cast"
 	};
 	SkillEffect[SkillConst_default.KO_YAMIKUMO] = {};
 	SkillEffect[SkillConst_default.KO_JYUMONJIKIRI] = { effectId: "ef_ko_jyumonjikiri" };
@@ -223804,30 +223830,60 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SS_TOKEDASU] = { effectId: "ef_ss_tokedasu" };
 	SkillEffect[SkillConst_default.SS_SHIMIRU] = { effectId: "ef_ss_shimiru" };
 	SkillEffect[SkillConst_default.SS_AKUMUKESU] = { effectId: "ef_ss_akumukesu" };
+	SkillEffect[SkillConst_default.SS_SHINKIROU] = { beginCastEffectId: 1774 };
 	SkillEffect[SkillConst_default.SS_KAGEGARI] = { effectId: "ef_ss_kagegari" };
-	SkillEffect[SkillConst_default.SS_KAGENOMAI] = { effectId: "ef_ss_kagenomai" };
+	SkillEffect[SkillConst_default.SS_KAGENOMAI] = {
+		effectId: "ef_ss_kagenomai",
+		castAuraEffectId: 454
+	};
 	SkillEffect[SkillConst_default.SS_KAGEGISSEN] = {
 		effectId: "ef_ss_kagegissen",
-		hitEffectId: "ef_ss_kagegissen_hit"
+		hitEffectId: "ef_ss_kagegissen_hit",
+		castAuraEffectId: 454
 	};
-	SkillEffect[SkillConst_default.SS_FUUMASHOUAKU] = { effectId: "ef_ss_fuumashouaku" };
-	SkillEffect[SkillConst_default.SS_FUUMAKOUCHIKU] = { effectId: "ef_ss_fuumakouchiku" };
-	SkillEffect[SkillConst_default.SS_KUNAIWAIKYOKU] = { effectId: "ef_ss_kunaiwaikyoku" };
+	SkillEffect[SkillConst_default.SS_FUUMASHOUAKU] = {
+		effectId: "ef_ss_fuumashouaku",
+		castAuraEffectId: 454
+	};
+	SkillEffect[SkillConst_default.SS_FUUMAKOUCHIKU] = {
+		effectId: "ef_ss_fuumakouchiku",
+		castAuraEffectId: 454
+	};
+	SkillEffect[SkillConst_default.SS_KUNAIWAIKYOKU] = {
+		effectId: "ef_ss_kunaiwaikyoku",
+		castAuraEffectId: 454
+	};
 	SkillEffect[SkillConst_default.SS_KUNAIKAITEN] = { successEffectIdOnCaster: "ef_ss_kunaikaiten" };
-	SkillEffect[SkillConst_default.SS_KUNAIKUSSETSU] = { effectId: "ef_ss_kunaikussetsu" };
-	SkillEffect[SkillConst_default.SS_SEKIENHOU] = { effectId: "ef_ss_sekienhou" };
-	SkillEffect[SkillConst_default.SS_REIKETSUHOU] = { effectId: "ef_ss_reiketsuhou" };
+	SkillEffect[SkillConst_default.SS_KUNAIKUSSETSU] = {
+		effectId: "ef_ss_kunaikussetsu",
+		castAuraEffectId: 454
+	};
+	SkillEffect[SkillConst_default.SS_SEKIENHOU] = {
+		effectId: "ef_ss_sekienhou",
+		castAuraEffectId: "ef_cast_circle_red"
+	};
+	SkillEffect[SkillConst_default.SS_REIKETSUHOU] = {
+		effectId: "ef_ss_reiketsuhou",
+		castAuraEffectId: "ef_druid_cast_circle_blue"
+	};
 	SkillEffect[SkillConst_default.SS_RAIDENPOU] = {
 		effectId: "ef_ss_raidenpou",
-		effectIdOnCaster: "ef_ss_raidenpou_cast",
+		beginCastEffectId: "ef_ss_raidenpou_cast",
 		hitEffectId: "ef_ss_raidenpou_hit"
 	};
 	SkillEffect[SkillConst_default.SS_KINRYUUHOU] = {
 		effectId: "ef_ss_kinryuuhou",
-		hitEffectId: "ef_ss_kinryuuhou_hit"
+		hitEffectId: "ef_ss_kinryuuhou_hit",
+		castAuraEffectId: 58
 	};
-	SkillEffect[SkillConst_default.SS_ANTENPOU] = { effectId: "ef_ss_antenpou" };
-	SkillEffect[SkillConst_default.SS_KAGEAKUMU] = { effectId: "ef_ss_kageakumu" };
+	SkillEffect[SkillConst_default.SS_ANTENPOU] = {
+		effectId: "ef_ss_antenpou",
+		castAuraEffectId: "ef_cast_circle_violet"
+	};
+	SkillEffect[SkillConst_default.SS_KAGEAKUMU] = {
+		effectId: "ef_ss_kageakumu",
+		castAuraEffectId: 812
+	};
 	SkillEffect[SkillConst_default.SS_HITOUAKUMU] = {
 		successEffectId: "ef_ss_hitouakumu",
 		successEffectSpinSets: [
@@ -223837,7 +223893,10 @@ var init_SkillEffect = __esmMin((() => {
 		],
 		castAuraEffectId: 812
 	};
-	SkillEffect[SkillConst_default.SS_ANKOKURYUUAKUMU] = { effectId: "ef_ss_ankokuryuuakumu" };
+	SkillEffect[SkillConst_default.SS_ANKOKURYUUAKUMU] = {
+		effectId: "ef_ss_ankokuryuuakumu",
+		castAuraEffectId: 812
+	};
 	SkillEffect[5499] = { effectIdByCharmType: {
 		1: "ef_ss_four_charm_water",
 		2: "ef_ss_four_charm_earth",
@@ -223850,13 +223909,28 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_PROTECTION] = { effectId: "ef_soa_talisman_of_protection" };
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_WARRIOR] = { effectId: "ef_soa_talisman_of_warrior" };
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_MAGICIAN] = { effectId: "ef_soa_talisman_of_magician" };
-	SkillEffect[SkillConst_default.SOA_SOUL_GATHERING] = { effectId: "ef_soa_soul_gathering" };
+	SkillEffect[SkillConst_default.SOA_SOUL_GATHERING] = {
+		effectId: "ef_soa_soul_gathering",
+		castAuraEffectId: 454
+	};
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: "ef_soa_talisman_of_five_elements" };
-	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: "ef_soa_talisman_of_soul_stealing" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_SOUL_STEALING] = {
+		effectId: "ef_soa_talisman_of_soul_stealing",
+		castAuraEffectId: 441
+	};
 	SkillEffect[SkillConst_default.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: "ef_soa_exorcism_of_malicious_soul" };
-	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: "ef_soa_talisman_of_blue_dragon" };
-	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: "ef_soa_talisman_of_white_tiger" };
-	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: "ef_soa_talisman_of_red_phoenix" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_BLUE_DRAGON] = {
+		effectId: "ef_soa_talisman_of_blue_dragon",
+		castAuraEffectId: 845
+	};
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_WHITE_TIGER] = {
+		effectId: "ef_soa_talisman_of_white_tiger",
+		castAuraEffectId: 843
+	};
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_RED_PHOENIX] = {
+		effectId: "ef_soa_talisman_of_red_phoenix",
+		castAuraEffectId: 840
+	};
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: "ef_soa_talisman_of_black_tortoise" };
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: "ef_soa_talisman_of_four_bearing_god" };
 	SkillEffect[SkillConst_default.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: "ef_soa_circle_of_directions_and_elementals" };
@@ -223967,7 +224041,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.BO_HELLTREE] = { effectIdOnCaster: "ef_bo_helltree_cast" };
 	SkillEffect[5385] = { hitEffectId: "ef_bo_wooden_attack_hit" };
 	SkillEffect[SkillConst_default.BO_EXPLOSIVE_POWDER] = { effectId: "ef_bo_explosive_powder" };
-	SkillEffect[SkillConst_default.BO_MAYHEMIC_THORNS] = { effectId: "ef_bo_mayhemic_thorns" };
+	SkillEffect[SkillConst_default.BO_MAYHEMIC_THORNS] = {
+		effectId: "ef_bo_mayhemic_thorns",
+		beginCastEffectId: [2228, 2229]
+	};
 	SkillEffect[6509] = {
 		effectId: "ef_bo_mystery_powder",
 		hitEffectId: "ef_bo_mystery_powder_hit"
@@ -224054,7 +224131,8 @@ var init_SkillEffect = __esmMin((() => {
 	] };
 	SkillEffect[SkillConst_default.DK_DRAGONIC_BREATH] = {
 		effectId: "ef_dk_dragonic_breath",
-		hitEffectId: "ef_dk_dragonic_breath_hit"
+		hitEffectId: "ef_dk_dragonic_breath_hit",
+		castAuraEffectId: 12
 	};
 	SkillEffect[6502] = {
 		effectId: "ef_dk_dragonic_pierce",
@@ -224580,32 +224658,57 @@ var init_SkillEffect = __esmMin((() => {
 			"ef_sh_chul_ho_sonic_claw_wave_11"
 		]
 	};
-	SkillEffect[SkillConst_default.SH_HOWLING_OF_CHUL_HO] = { effectId: "ef_sh_howling_of_chul_ho" };
-	SkillEffect[SkillConst_default.SH_HOGOGONG_STRIKE] = { effectId: "ef_sh_hogogong_strike" };
-	SkillEffect[SkillConst_default.SH_KI_SUL_WATER_SPRAYING] = { effectId: "ef_sh_ki_sul_water_spraying" };
-	SkillEffect[SkillConst_default.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: "ef_sh_marine_festival_of_ki_sul" };
-	SkillEffect[SkillConst_default.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: "ef_sh_sandy_festival_of_ki_sul" };
-	SkillEffect[SkillConst_default.SH_KI_SUL_RAMPAGE] = { effectId: "ef_sh_ki_sul_rampage" };
-	SkillEffect[SkillConst_default.SH_COLORS_OF_HYUN_ROK] = { successEffectIdOnCasterByLevel: [
-		"ef_sh_colors_of_hyun_rok_water",
-		"ef_sh_colors_of_hyun_rok_wind",
-		"ef_sh_colors_of_hyun_rok_earth",
-		"ef_sh_colors_of_hyun_rok_fire",
-		"ef_sh_colors_of_hyun_rok_darkness",
-		"ef_sh_colors_of_hyun_rok_saint",
-		"ef_sh_colors_of_hyun_rok_reset"
-	] };
-	SkillEffect[SkillConst_default.SH_HYUN_ROK_CANNON] = { effectId: "ef_sh_hyun_rok_cannon" };
+	SkillEffect[SkillConst_default.SH_HOWLING_OF_CHUL_HO] = {
+		effectId: "ef_sh_howling_of_chul_ho",
+		castAuraEffectId: 840
+	};
+	SkillEffect[SkillConst_default.SH_HOGOGONG_STRIKE] = {
+		effectId: "ef_sh_hogogong_strike",
+		castAuraEffectId: 840
+	};
+	SkillEffect[SkillConst_default.SH_KI_SUL_WATER_SPRAYING] = {
+		effectId: "ef_sh_ki_sul_water_spraying",
+		castAuraEffectId: 58
+	};
+	SkillEffect[SkillConst_default.SH_MARINE_FESTIVAL_OF_KI_SUL] = {
+		effectId: "ef_sh_marine_festival_of_ki_sul",
+		castAuraEffectId: 845
+	};
+	SkillEffect[SkillConst_default.SH_SANDY_FESTIVAL_OF_KI_SUL] = {
+		effectId: "ef_sh_sandy_festival_of_ki_sul",
+		castAuraEffectId: 842
+	};
+	SkillEffect[SkillConst_default.SH_KI_SUL_RAMPAGE] = {
+		effectId: "ef_sh_ki_sul_rampage",
+		castAuraEffectId: 831
+	};
+	SkillEffect[SkillConst_default.SH_COLORS_OF_HYUN_ROK] = {
+		successEffectIdOnCasterByLevel: [
+			"ef_sh_colors_of_hyun_rok_water",
+			"ef_sh_colors_of_hyun_rok_wind",
+			"ef_sh_colors_of_hyun_rok_earth",
+			"ef_sh_colors_of_hyun_rok_fire",
+			"ef_sh_colors_of_hyun_rok_darkness",
+			"ef_sh_colors_of_hyun_rok_saint",
+			"ef_sh_colors_of_hyun_rok_reset"
+		],
+		castAuraEffectId: 58
+	};
+	SkillEffect[SkillConst_default.SH_HYUN_ROKS_BREEZE] = { castAuraEffectId: 841 };
+	SkillEffect[SkillConst_default.SH_HYUN_ROK_CANNON] = {
+		effectId: "ef_sh_hyun_rok_cannon",
+		castAuraEffectId: 841
+	};
 	SkillEffect[SkillConst_default.SH_TEMPORARY_COMMUNION] = { effectId: "ef_sh_temporary_communion" };
 	SkillEffect[SkillConst_default.SH_BLESSING_OF_MYSTICAL_CREATURES] = { effectId: "ef_sh_blessing_of_mystical_creatures" };
 	SkillEffect[5506] = {
 		effectId: "ef_sh_chul_ho_battering",
-		effectIdOnCaster: "ef_sh_chul_ho_battering_cast",
+		beginCastEffectId: "ef_sh_chul_ho_battering_cast",
 		hitEffectId: "ef_sh_chul_ho_battering_hit"
 	};
 	SkillEffect[5507] = {
 		effectId: "ef_sh_hyun_rok_spirit_power",
-		effectIdOnCaster: "ef_sh_hyun_rok_spirit_power_cast",
+		beginCastEffectId: "ef_sh_hyun_rok_spirit_power_cast",
 		hitEffectId: "ef_sh_hyun_rok_spirit_power_hit"
 	};
 	SkillEffect[SkillConst_default.HLIF_HEAL] = SkillEffect[SkillConst_default.AL_HEAL];
@@ -296351,6 +296454,8 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_sh_chul_ho_battering_cast: [{
 			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
 			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast",
 			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/",
 			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast",
@@ -296380,12 +296485,16 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_sh_hyun_rok_spirit_power_cast: [{
 			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
 			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast",
 			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/",
 			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast",
 			yOffset: 10
 		}, {
 			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
 			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom",
 			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/",
 			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom",
@@ -299722,6 +299831,38 @@ var init_EffectTable = __esmMin((() => {
 				this.add(Spheres, Params);
 			}
 		}],
+		840: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 3 }), Params);
+			}
+		}],
+		841: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 4 }), Params);
+			}
+		}],
+		842: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 5 }), Params);
+			}
+		}],
+		843: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 6 }), Params);
+			}
+		}],
 		845: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -299955,6 +300096,8 @@ var init_EffectTable = __esmMin((() => {
 		],
 		ef_ss_raidenpou_cast: [{
 			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
 			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast",
 			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/",
 			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast",
@@ -301513,6 +301656,32 @@ var init_EffectTable = __esmMin((() => {
 			func: function(Params) {
 				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_earthdrive/ring_brown.tga"), Params);
 			}
+		}],
+		1449: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_jackfrost/ring_ice.tga", 2), Params);
+			}
+		}],
+		1446: [{
+			type: "STR",
+			file: "new_jackfrost/new_jackfrost_cast/new_jackfrost_cast",
+			texturePath: "new_jackfrost/new_jackfrost_cast/",
+			min: "new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast",
+			castLoop: true,
+			attachedEntity: true
+		}],
+		1774: [{
+			type: "STR",
+			file: "mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom",
+			texturePath: "mystery_illusion/mystery_illusion_cast_bottom/",
+			min: "mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom",
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
 		}],
 		1869: [
 			{
@@ -305445,6 +305614,8 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_nw_wild_shot_cast: [{
 			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
 			file: "night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast",
 			texturePath: "night_watch/nw_wild_shot/wild_shot_cast/",
 			min: "night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast",
@@ -305470,6 +305641,8 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_nw_midnight_fallen_cast: [{
 			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
 			file: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom",
 			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/",
 			min: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom",
@@ -306993,6 +307166,41 @@ var init_EffectTable = __esmMin((() => {
 			min: "druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/min_typhoon_wing_7x7_bottom",
 			renderBeforeEntities: true,
 			yOffset: 10
+		}],
+		2228: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
+			castLoop: true,
+			attachedEntity: true
+		}],
+		2229: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast_bottom/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom",
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}],
+		ef_cast_circle_red: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", 1), Params);
+			}
+		}],
+		ef_cast_circle_violet: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "magic_violet.tga"), Params);
+			}
 		}],
 		ef_druid_cast_circle_green: [{
 			type: "FUNC",
@@ -354257,7 +354465,11 @@ function hasElementCastAura(skillId) {
 }
 var NO_ELEMENT_AURA_RANGES;
 var init_CastAuraRule = __esmMin((() => {
-	NO_ELEMENT_AURA_RANGES = [[6525, 6606]];
+	NO_ELEMENT_AURA_RANGES = [
+		[5401, 5507],
+		[6001, 6006],
+		[6525, 6606]
+	];
 }));
 // src/DB/Skills/SkillAction.js
 var SkillAction, makeAttackSkillAction, makeGenericSkillAction, makeSliceAttackAction;
@@ -356310,8 +356522,13 @@ function onEntityCastSkill(pkt) {
 				break;
 			case 9: EF_Init_Par.effectId = EffectConst_default.EF_DARKCASTING;
 		}
-		if (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].castAuraEffectId) EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;
-		EffectManager.spam(EF_Init_Par);
+		if (castSkill && castSkill.castAuraEffectId) [castSkill.castAuraEffectId].flat().forEach((effectId) => {
+			EffectManager.spam({
+				...EF_Init_Par,
+				effectId
+			});
+		});
+		else EffectManager.spam(EF_Init_Par);
 	}
 }
 /**
@@ -356336,6 +356553,10 @@ function onEntityCastCancel(pkt) {
 			60,
 			513,
 			831,
+			840,
+			841,
+			842,
+			843,
 			845
 		]);
 		EffectManager.removeCastLoops(entity.GID);
