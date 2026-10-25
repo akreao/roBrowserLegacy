@@ -13849,7 +13849,10 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				this.add(new EnergyOrb(Params.Init.ownerEntity, 735, Params.Init.spiritNum, Params.Inst.startTick), Params);
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 735, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
 			}
 		}
 	],
@@ -13860,7 +13863,10 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				this.add(new EnergyOrb(Params.Init.ownerEntity, 736, Params.Init.spiritNum, Params.Inst.startTick), Params);
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 736, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
 			}
 		}
 	],
@@ -13871,7 +13877,10 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				this.add(new EnergyOrb(Params.Init.ownerEntity, 737, Params.Init.spiritNum, Params.Inst.startTick), Params);
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 737, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
 			}
 		}
 	],
@@ -13882,7 +13891,10 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				this.add(new EnergyOrb(Params.Init.ownerEntity, 738, Params.Init.spiritNum, Params.Inst.startTick), Params);
+				this.add(
+					new EnergyOrb(Params.Init.ownerEntity, 738, Params.Init.spiritNum, Params.Inst.startTick),
+					Params
+				);
 			}
 		}
 	],
