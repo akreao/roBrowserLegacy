@@ -50,6 +50,10 @@
  *								12 effects; plays one on the caster when the skill succeeds, picked by where
  *								the target is on screen: 30 degree steps clockwise, the first centred straight up.
  *
+ *	- successEffectIdOnTargetByScreenSide:
+ *								{ right, left }; plays one on the ground where the target stands when the skill
+ *								succeeds, picked by which half of the screen the target is in, seen from the caster.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
@@ -1658,7 +1662,15 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
 SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
-SkillEffect[6503 /* IG_RADIANT_SPEAR */] = { effectIdOnCaster: 'ef_ig_radiant_spear_cast' }; //Radiant Spear
+//Radiant Spear: when the use packet succeeds, one spear lands where the target stands.
+//A target on the right half of the screen (seen from the caster) gets leftdown, on the left half rightdown.
+SkillEffect[6503 /* IG_RADIANT_SPEAR */] = {
+	effectIdOnCaster: 'ef_ig_radiant_spear_cast',
+	successEffectIdOnTargetByScreenSide: {
+		right: 'ef_ig_radiant_spear_leftdown',
+		left: 'ef_ig_radiant_spear_rightdown'
+	}
+};
 SkillEffect[6504 /* IG_IMPERIAL_CROSS */] = { effectId: 'ef_ig_imperial_cross' }; //Imperial Cross
 SkillEffect[6505 /* IG_IMPERIAL_PRESSURE */] = {
 	effectId: 'ef_ig_imperial_pressure',

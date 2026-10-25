@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('Renderer/Camera.js', () => ({ default: {} }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 800, height: 600 } }));
 
-const { screenAngle, screenSector } = await import('Renderer/Effects/ScreenDirection.js');
+const { screenAngle, screenSector, screenSide } = await import('Renderer/Effects/ScreenDirection.js');
 
 // A camera straight above the map: map x goes right, map y goes up the screen.
 // Column-major: clip x = world x, clip y = world z (map y).
@@ -34,5 +34,13 @@ describe('on-screen direction between two entities', () => {
 		expect(screenSector(255)).toBe(0);
 		expect(screenSector(359.9)).toBe(3);
 		expect(screenSector(360)).toBe(3);
+	});
+
+	it('splits into two halves, 90 and 270 degrees counting as right', () => {
+		expect([0, 45, 89.9, 90, 270, 270.1, 359.9].map(screenSide)).toEqual(Array(7).fill('right'));
+		expect([90.1, 135, 180, 225, 269.9].map(screenSide)).toEqual(Array(5).fill('left'));
+		expect(screenSide(angle([110, 95, 0]))).toBe('right');
+		expect(screenSide(angle([90, 95, 0]))).toBe('left');
+		expect(screenSide(angle([100, 100, 0]))).toBe('right');
 	});
 });

@@ -4,7 +4,8 @@
  * Which way one entity lies from another as seen on screen. Some official
  * skill effects come in one STR per direction (Chul Ho Sonic Claw's waves)
  * and the client picks the file from this on-screen angle, so turning the
- * camera changes the variant.
+ * camera changes the variant. Radiant Spear only asks which half of the
+ * screen the target is in (screenSide).
  */
 import glMatrix from 'Utils/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -72,4 +73,16 @@ export function screenSector(angle) {
 	return Math.floor((Math.trunc(angle + 105) % 360) / 30);
 }
 
-export default { screenAngle, screenSector };
+/**
+ * The official two-way split of that angle: 'right' from 270 through 0 to 90
+ * degrees, both ends included, 'left' strictly between 90 and 270. Straight
+ * up, straight down and the same spot count as right.
+ *
+ * @param {number} angle from screenAngle
+ * @return {string} 'right' or 'left'
+ */
+export function screenSide(angle) {
+	return angle <= 90 || angle >= 270 ? 'right' : 'left';
+}
+
+export default { screenAngle, screenSector, screenSide };

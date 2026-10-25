@@ -19042,6 +19042,57 @@ export default {
 		}
 	],
 
+	// Radiant Spear's spear for a target on the right half of the screen: floor ring
+	// first, then the spear, on the ground where the target stood.
+	ef_ig_radiant_spear_leftdown: [
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/radiant_spear_leftdown_bottom',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/min_radiant_spear_leftdown_bottom',
+			wav: 'effect/lg_radiant_spear2',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		},
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown/radiant_spear_leftdown',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_leftdown/min_radiant_spear_leftdown',
+			wav: 'effect/lg_radiant_spear1',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
+		}
+	],
+
+	// Radiant Spear's spear for a target on the left half of the screen.
+	ef_ig_radiant_spear_rightdown: [
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/radiant_spear_rightdown_bottom',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/min_radiant_spear_rightdown_bottom',
+			wav: 'effect/lg_radiant_spear2',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		},
+		{
+			type: 'STR',
+			file: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown/radiant_spear_rightdown',
+			texturePath: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown/',
+			min: 'imperial_guard/ig_radiant_spear/radiant_spear_rightdown/min_radiant_spear_rightdown',
+			wav: 'effect/lg_radiant_spear1',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
+		}
+	],
+
 	// Imperial Cross (IG_IMPERIAL_CROSS), from the client's own effect folders.
 	ef_ig_imperial_cross: [
 		{
