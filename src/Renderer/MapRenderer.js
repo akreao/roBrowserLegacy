@@ -125,6 +125,11 @@ class MapRenderer {
 	static _loadRequest = 0;
 
 	/**
+	 * @var {Array<function>} worker results of the map load in progress, held until the fade is over
+	 */
+	static _fadeQueue = [];
+
+	/**
 	 * @var {Float32Array} diffuse Modified diffuse color
 	 */
 	static diffuse = null;
@@ -162,8 +167,8 @@ class MapRenderer {
 		// Support for instance map
 		// Is it always 3 digits ?
 		mapname = mapname
-			.replace(/^(\d{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
-			.replace(/^\d{3}#/, ''); // 003#prontera -> prontera
+			.replace(/^(\w{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
+			.replace(/^\w{3}#/, ''); // 003#prontera -> prontera
 
 		const loadId = ++this._loadId;
 
@@ -194,14 +199,16 @@ class MapRenderer {
 			// loading image, rather than after the fade. What it sends back
 			// waits until the fade is done and the old map is freed, and is
 			// dropped if the load is cancelled meanwhile (loadStep, loadEvent).
+			// A cancelled load queues nothing more, and cancelLoad empties the queue.
 			let faded = false;
 			const waiting = [];
+			this._fadeQueue = waiting;
 			const afterFade =
 				fn =>
 				(...args) => {
 					if (faded) {
 						fn(...args);
-					} else {
+					} else if (loadId === MapRenderer._loadId) {
 						waiting.push(() => fn(...args));
 					}
 				};
@@ -222,7 +229,7 @@ class MapRenderer {
 			Thread.send('MAP_REPLACE_MODELS', MapHooks.modelNames());
 			MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, afterFade(loadStep(loadId, onMapComplete)));
 
-			Background.setLoading(function () {
+			Background.setLoading(() => {
 				// Cancelled while the loading screen was coming up
 				if (loadId !== MapRenderer._loadId) {
 					waiting.length = 0;
@@ -267,7 +274,10 @@ class MapRenderer {
 	static cancelLoad() {
 		this._loadId++;
 		this._loadRequest = 0;
+		this._fadeQueue.length = 0;
 		this.loading = false;
+		_revealing = false;
+		_nextMap = null;
 	}
 
 	/**
@@ -774,22 +784,21 @@ function onMapComplete(success, error) {
 	Sky.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
 
+	if (PerfProbe.enabled) {
+		PerfProbe.mapReady();
+	}
+
 	Renderer.show();
 	Renderer.render(MapRenderer.onRender);
 
 	// Display game
 	Background.remove(() => {
-		_revealing = false;
-
-		// Cancelled during the fade: a map asked for meanwhile is dropped with it
+		// Cancelled during the fade: cancelLoad has already let go of it
 		if (loadId !== MapRenderer._loadId) {
-			_nextMap = null;
 			return;
 		}
 
-		if (PerfProbe.enabled) {
-			PerfProbe.mapReady();
-		}
+		_revealing = false;
 
 		Mouse.intersect = true;
 

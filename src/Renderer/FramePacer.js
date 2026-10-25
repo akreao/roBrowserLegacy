@@ -8,7 +8,7 @@
  * between 13.3 and 26.7 ms. That reads as stutter, though the average is 60.
  *
  * A limit is a ceiling: players set one for heat and power, so it is never
- * exceeded. The refresh interval is measured from the rAF timestamps, and when
+ * exceeded by more than the 1% that lets a 60.0x Hz display count as 60. The refresh interval is measured from the rAF timestamps, and when
  * a whole number of refreshes per frame gives a rate at or under the limit and
  * within 10% of it, every frame lasts that many refreshes: 60 on 60 or 120 Hz
  * is an even 60, 60 on 165 Hz an even 55, 30 on 60 Hz an even 30. When none
@@ -37,11 +37,23 @@ const MIN_SAMPLES = 8;
  */
 const MAX_INTERVAL = 100;
 
+/**
+ * Share of the rate below the edge of the 1% slack where the last refreshes
+ * per frame are kept
+ */
+const EDGE_BAND = 0.0015;
+
 const _intervals = new Float32Array(SAMPLES);
 const _sorted = new Float32Array(SAMPLES);
 let _count = 0;
 let _next = 0;
 let _lastTick = 0;
+
+/**
+ * Refreshes per frame that next() last chose, and for which limit
+ */
+let _frames = 0;
+let _framesLimit = 0;
 
 class FramePacer {
 	/**
@@ -89,12 +101,24 @@ class FramePacer {
 	 * the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
 	 * display count as 60 or 120.
 	 *
+	 * Near the edge of the slack the last count chosen is kept: a display
+	 * measured either side of it (60.6 Hz for 60) would otherwise switch on
+	 * every few frames between pacing and the time limiter, and stutter. The
+	 * band is 0.15% below the edge, wider than the estimate wanders with
+	 * 0.1 ms of timestamp jitter (about 0.1%), so a display that really moves
+	 * under the edge (60.5 Hz) gets the lower count back.
+	 *
 	 * @param {number} limit fps
 	 * @param {number} refresh refresh interval (ms)
 	 * @return {number} 1 or more
 	 */
 	static refreshesPerFrame(limit, refresh) {
-		return Math.max(1, Math.ceil(1000 / refresh / (limit * 1.01)));
+		const display = 1000 / refresh;
+		const frames = Math.max(1, Math.ceil(display / (limit * 1.01)));
+		if (limit === _framesLimit && _frames === frames + 1 && display / frames > limit * 1.01 * (1 - EDGE_BAND)) {
+			return _frames;
+		}
+		return frames;
 	}
 
 	/**
@@ -122,6 +146,11 @@ class FramePacer {
 		const elapsed = now - last;
 		const refresh = FramePacer.refreshInterval();
 
+		if (refresh) {
+			_frames = FramePacer.refreshesPerFrame(limit, refresh);
+			_framesLimit = limit;
+		}
+
 		if (!refresh || !FramePacer.canPace(limit, refresh)) {
 			// By time, as before: keep to the interval grid, so the rate
 			// does not drift below the limit (nor above it)
@@ -130,8 +159,31 @@ class FramePacer {
 		}
 
 		// Half a refresh of tolerance absorbs rAF timestamp jitter
-		const frames = FramePacer.refreshesPerFrame(limit, refresh);
-		return elapsed < (frames - 0.5) * refresh ? -1 : now;
+		return elapsed < (_frames - 0.5) * refresh ? -1 : now;
+	}
+
+	/**
+	 * The frame rate a limit is expected to give on this display: the display's
+	 * own rate with no limit or a limit above it, the evenly paced rate when
+	 * frames can be paced, otherwise the limit. With the refresh rate not known
+	 * yet, the limit (0 when there is none).
+	 *
+	 * @param {number} limit fps, or 0 or less for none
+	 * @return {number} fps
+	 */
+	static targetRate(limit) {
+		const refresh = FramePacer.refreshInterval();
+		if (!refresh) {
+			return limit > 0 ? limit : 0;
+		}
+		const display = 1000 / refresh;
+		if (limit <= 0) {
+			return display;
+		}
+		if (!FramePacer.canPace(limit, refresh)) {
+			return Math.min(limit, display);
+		}
+		return display / FramePacer.refreshesPerFrame(limit, refresh);
 	}
 
 	/**
@@ -141,6 +193,8 @@ class FramePacer {
 		_count = 0;
 		_next = 0;
 		_lastTick = 0;
+		_frames = 0;
+		_framesLimit = 0;
 	}
 }
 

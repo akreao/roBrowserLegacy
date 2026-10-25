@@ -4,40 +4,24 @@
  * Opt-in performance probe: frame time, draw calls per frame, map load time
  * and startup-to-login time, with a small on-screen overlay.
  *
- * Off unless the page opts in, with `localStorage.roPerf = '1'` or `?perf=1`
- * in the URL. Off, every hook below is one boolean test and nothing else: the
- * WebGL context is not wrapped, no overlay is made, and `window.roPerf` does
- * not exist.
+ * Off unless the configuration asks for it with `perfProbe: true` (ROConfig).
+ * Off, every hook below is one boolean test and nothing else: the WebGL
+ * context is not wrapped and no overlay is made.
  *
- * On, `window.roPerf` gives:
- *   stats()        frame statistics since the last reset(), plus the marks
- *   reset()        start a new measurement window
- *   slowFrames()   frames over 33 ms since the reset, also marked in Chrome
- *                  traces as 'roPerf slow frame' measures
- *   marks          { login, maps: [{ map, loadMs, firstFrameMs }] }
- *   overlay(bool)  show or hide the overlay (shown by default)
+ * On, the `/perf` chat command (Controls/ProcessCommand.js) reads it:
+ *   /perf              frame statistics since the last reset, plus the marks
+ *                      (summary in the chat, the whole object in the console)
+ *   /perf reset        start a new measurement window
+ *   /perf slow         frames over 33 ms since the reset (console.table)
+ *   /perf overlay on|off
+ * The first 1000 slow frames of a window are also performance.measure entries
+ * named 'roPerf slow frame', so a Chrome trace or
+ * performance.getEntriesByName() finds them.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-/**
- * Whether the page asked for the probe
- *
- * @return {boolean}
- */
-function readEnabled() {
-	try {
-		if (typeof window === 'undefined') {
-			return false;
-		}
-		if (/[?&]perf=1(&|$)/.test(window.location.search)) {
-			return true;
-		}
-		return window.localStorage.getItem('roPerf') === '1';
-	} catch (_e) {
-		return false;
-	}
-}
+import Configs from 'Core/Configs.js';
 
 /**
  * Frames kept per window, as a ring: the statistics cover the last this many
@@ -76,12 +60,14 @@ let _totalVertices = 0;
 let _gl = null;
 let _overlay = null;
 let _overlayTimer = 0;
+let _overlayWanted = true; // shown by default, until /perf overlay off
 
 let _mapStart = 0;
 let _mapName = '';
 let _mapReady = 0;
 
 const _slow = [];
+let _slowTotal = 0; // slow frames since the reset, including those past MAX_SLOW
 
 const _marks = {
 	login: null,
@@ -135,15 +121,18 @@ function summarize(values, count) {
  * @param {number} draws draw calls in this frame
  */
 function logSlow(interval, work, draws) {
-	const start = _frameTime - interval;
-	if (_slow.length < MAX_SLOW) {
-		_slow.push({
-			at: Math.round(start),
-			frameMs: Math.round(interval * 10) / 10,
-			workMs: Math.round(work * 10) / 10,
-			draws
-		});
+	_slowTotal++;
+	// Past the cap, neither the log nor the browser's User Timing buffer grows
+	if (_slow.length >= MAX_SLOW) {
+		return;
 	}
+	const start = _frameTime - interval;
+	_slow.push({
+		at: Math.round(start),
+		frameMs: Math.round(interval * 10) / 10,
+		workMs: Math.round(work * 10) / 10,
+		draws
+	});
 	try {
 		performance.measure('roPerf slow frame', { start, end: performance.now() });
 	} catch (_e) {
@@ -163,12 +152,16 @@ function wrapContext(gl) {
 			continue;
 		}
 		// drawArrays(mode, first, count); drawElements(mode, count, ...);
-		// drawRangeElements(mode, start, end, count, ...)
+		// drawRangeElements(mode, start, end, count, ...);
+		// drawArraysInstanced(mode, first, count, instances);
+		// drawElementsInstanced(mode, count, type, offset, instances)
 		const countArg =
 			name === 'drawArrays' || name === 'drawArraysInstanced' ? 2 : name === 'drawRangeElements' ? 3 : 1;
+		const instanceArg = name === 'drawArraysInstanced' ? 3 : name === 'drawElementsInstanced' ? 4 : -1;
 		gl[name] = function () {
 			_frameDraws++;
-			_frameVertices += arguments[countArg] | 0;
+			const instances = instanceArg < 0 ? 1 : arguments[instanceArg] | 0;
+			_frameVertices += (arguments[countArg] | 0) * instances;
 			return original.apply(gl, arguments);
 		};
 	}
@@ -228,22 +221,31 @@ function updateOverlay() {
 
 class PerfProbe {
 	/**
-	 * @type {boolean} decided once, at load
+	 * @type {boolean} set by the first attach() when the configuration has
+	 * `perfProbe: true`
 	 */
-	static enabled = readEnabled();
+	static enabled = false;
 
 	/**
-	 * Count draw calls on this context (once per context)
+	 * Called by Renderer.init: switch the probe on if the configuration asks
+	 * for it, and count draw calls on this context (once per context)
 	 *
 	 * @param {WebGLRenderingContext} gl
 	 */
 	static attach(gl) {
-		if (!PerfProbe.enabled || !gl || _gl === gl) {
+		if (!PerfProbe.enabled) {
+			if (!Configs.get('perfProbe', false)) {
+				return;
+			}
+			PerfProbe.enabled = true;
+			PerfProbe.reset();
+		}
+		if (!gl || _gl === gl) {
 			return;
 		}
 		_gl = gl;
 		wrapContext(gl);
-		if (!_overlay) {
+		if (!_overlay && _overlayWanted) {
 			makeOverlay();
 		}
 	}
@@ -302,6 +304,15 @@ class PerfProbe {
 	}
 
 	/**
+	 * Called by Renderer.stop: the pause until the loop starts again is not a
+	 * frame, so the first frame after it only sets the clock
+	 */
+	static stop() {
+		_lastFrameStart = 0;
+		_pending = 0;
+	}
+
+	/**
 	 * A map finished loading and is about to be drawn
 	 */
 	static mapReady() {
@@ -326,7 +337,8 @@ class PerfProbe {
 	}
 
 	/**
-	 * Start a new measurement window
+	 * Start a new measurement window: frames, slow frames and map marks.
+	 * The login mark is kept, since it is the startup time and happens once.
 	 */
 	static reset() {
 		_total = 0;
@@ -334,7 +346,15 @@ class PerfProbe {
 		_lastFrameStart = 0;
 		_totalVertices = 0;
 		_slow.length = 0;
+		_slowTotal = 0;
+		_marks.maps.length = 0;
+		_mapReady = 0;
 		_windowStart = performance.now();
+		try {
+			performance.clearMeasures('roPerf slow frame');
+		} catch (_e) {
+			// no User Timing
+		}
 	}
 
 	/**
@@ -347,7 +367,9 @@ class PerfProbe {
 		const kept = Math.min(_total, MAX_FRAMES);
 		const draws = summarize(_draws, kept);
 		let hitches = 0;
+		let drawing = 0; // ms between frames, without map loads and other pauses
 		for (let i = 0; i < kept; ++i) {
+			drawing += _interval[i];
 			if (_interval[i] > HITCH_MS) {
 				hitches++;
 			}
@@ -357,20 +379,24 @@ class PerfProbe {
 			frames: _total,
 			kept,
 			seconds: Math.round(seconds * 10) / 10,
-			fps: Math.round((_total / Math.max(seconds, 0.001)) * 10) / 10,
+			drawingSeconds: Math.round(drawing / 100) / 10,
+			// From the kept frames' intervals, so map loads and pauses do not lower it
+			fps: kept ? Math.round(((kept * 1000) / Math.max(drawing, 0.001)) * 10) / 10 : 0,
 			frameMs: summarize(_interval, kept),
 			workMs: summarize(_work, kept),
 			drawCalls: draws,
 			verticesPerFrame: _total ? Math.round(_totalVertices / _total) : 0,
 			hitches,
+			slowFrames: _slowTotal,
 			heapMB: memory ? Math.round(memory.usedJSHeapSize / 1048576) : null,
 			marks: JSON.parse(JSON.stringify(_marks))
 		};
 	}
 
 	/**
-	 * Frames slower than 33 ms since the last reset: when the gap started
-	 * (performance.now() time), its length, and the frame's work and draws
+	 * The first 1000 frames slower than 33 ms since the last reset: when the
+	 * gap started (performance.now() time), its length, and the frame's work
+	 * and draws. stats().slowFrames counts them all.
 	 *
 	 * @return {Array}
 	 */
@@ -384,6 +410,7 @@ class PerfProbe {
 	 * @param {boolean} show
 	 */
 	static overlay(show) {
+		_overlayWanted = !!show;
 		if (show && !_overlay && _gl) {
 			makeOverlay();
 		} else if (!show && _overlay) {
@@ -392,19 +419,6 @@ class PerfProbe {
 			_overlay = null;
 		}
 	}
-}
-
-if (PerfProbe.enabled) {
-	PerfProbe.reset();
-	window.roPerf = {
-		stats: PerfProbe.stats,
-		reset: PerfProbe.reset,
-		slowFrames: PerfProbe.slowFrames,
-		overlay: PerfProbe.overlay,
-		get marks() {
-			return JSON.parse(JSON.stringify(_marks));
-		}
-	};
 }
 
 /**

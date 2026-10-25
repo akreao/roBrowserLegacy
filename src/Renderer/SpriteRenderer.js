@@ -200,8 +200,10 @@ function RecordCanvas3D(isBlendModeOne) {
 	data[o++] = this.angle;
 	data[o++] = this.depth;
 	data[o++] = this.shadow;
-	data[o++] = layer;
+	// The full plane depth where depth is written, as in RenderCanvas3D
+	data[o++] = _depthMask ? 1 : 0;
 	data[o++] = source;
+	data[o++] = layer;
 	data[o] = paletteRow;
 }
 
@@ -825,7 +827,7 @@ class SpriteRenderer {
 	 * @param {WebGL2RenderingContext} gl
 	 */
 	static beginBatch(gl) {
-		if (SpriteBatch.open(gl, _buffer, { depthTest: _depthTest, depthMask: _depthMask })) {
+		if (SpriteBatch.open(gl, { depthTest: _depthTest, depthMask: _depthMask })) {
 			_blendOne = null;
 		}
 	}
