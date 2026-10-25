@@ -169275,6 +169275,12 @@ var init_PacketStructure = __esmMin((() => {
 		this.leftDamage = fp.readLong();
 	};
 	PACKET.ZC.NOTIFY_ACT3.size = 34;
+	PACKET.ZC.SPIRITS_ATTRIBUTE = function PACKET_ZC_SPIRITS_ATTRIBUTE(fp, end) {
+		this.AID = fp.readULong();
+		this.type = fp.readShort();
+		this.num = fp.readShort();
+	};
+	PACKET.ZC.SPIRITS_ATTRIBUTE.size = 10;
 	PACKET.ZC.REQ_WEAR_EQUIP_ACK2 = function PACKET_ZC_REQ_WEAR_EQUIP_ACK2(fp, end) {
 		this.index = fp.readUShort();
 		this.wearLocation = fp.readUShort();
@@ -207281,6 +207287,7 @@ var init_PacketRegister = __esmMin((() => {
 		2245: PACKET.CH.PINCODE_REQUEST,
 		2247: PACKET.ZC.SKILL_ENTRY3,
 		2248: PACKET.ZC.NOTIFY_ACT3,
+		2255: PACKET.ZC.SPIRITS_ATTRIBUTE,
 		2256: PACKET.ZC.REQ_WEAR_EQUIP_ACK2,
 		2257: PACKET.ZC.REQ_TAKEOFF_EQUIP_ACK2,
 		2258: PACKET.ZC.FASTMOVE,
@@ -220608,7 +220615,12 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SS_KAGEAKUMU] = { effectId: "ef_ss_kageakumu" };
 	SkillEffect[SkillConst_default.SS_HITOUAKUMU] = { effectId: "ef_ss_hitouakumu" };
 	SkillEffect[SkillConst_default.SS_ANKOKURYUUAKUMU] = { effectId: "ef_ss_ankokuryuuakumu" };
-	SkillEffect[5499] = { effectId: "ef_ss_four_charm" };
+	SkillEffect[5499] = { effectIdByCharmType: {
+		1: "ef_ss_four_charm_water",
+		2: "ef_ss_four_charm_earth",
+		3: "ef_ss_four_charm_fire",
+		4: "ef_ss_four_charm_wind"
+	} };
 	SkillEffect[SkillConst_default.KG_KAGEHUMI] = {};
 	SkillEffect[SkillConst_default.KG_KYOMU] = {};
 	SkillEffect[SkillConst_default.KG_KAGEMUSYA] = {};
@@ -274274,6 +274286,17 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.spam(EF_Init_Par);
 				});
 			}
+			if (SkillEffect[skillId].effectIdByCharmType && srcAID) {
+				const caster = EntityManager.get(srcAID);
+				const effectId = caster && SkillEffect[skillId].effectIdByCharmType[caster.charmType];
+				if (effectId) EffectManager.spam({
+					effectId,
+					ownerAID: srcAID,
+					position,
+					startTick: tick,
+					otherAID: srcAID
+				});
+			}
 			if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
 				effects = Array.isArray(SkillEffect[skillId].effectIdOnCaster) ? SkillEffect[skillId].effectIdOnCaster : [SkillEffect[skillId].effectIdOnCaster];
 				effects.forEach((effectId) => {
@@ -296297,18 +296320,85 @@ var init_EffectTable = __esmMin((() => {
 				attachedEntity: true
 			}
 		],
-		ef_ss_four_charm: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice",
-			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice/",
-			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice",
-			wav: "effect/shinkiro_shiranui/ss_four_charm"
-		}, {
+		ef_ss_four_charm_water: [{
 			type: "STR",
 			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/four_charm_ice_bottom",
 			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/",
 			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/min_four_charm_ice_bottom",
-			renderBeforeEntities: true
+			wav: "effect/shinkiro_shiranui/ss_four_charm_water",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice",
+			wav: "effect/shinkiro_shiranui/ss_four_charm",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
+		}],
+		ef_ss_four_charm_earth: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_earth_bottom/four_charm_earth_bottom",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_earth_bottom/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_earth_bottom/min_four_charm_earth_bottom",
+			wav: "effect/shinkiro_shiranui/ss_four_charm_earth",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_earth/four_charm_earth",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_earth/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_earth/min_four_charm_earth",
+			wav: "effect/shinkiro_shiranui/ss_four_charm",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
+		}],
+		ef_ss_four_charm_fire: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_fire_bottom/four_charm_fire_bottom",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_fire_bottom/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_fire_bottom/min_four_charm_fire_bottom",
+			wav: "effect/shinkiro_shiranui/ss_four_charm_fire",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_fire/four_charm_fire",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_fire/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_fire/min_four_charm_fire",
+			wav: "effect/shinkiro_shiranui/ss_four_charm",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
+		}],
+		ef_ss_four_charm_wind: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_wind_bottom/four_charm_wind_bottom",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_wind_bottom/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_wind_bottom/min_four_charm_wind_bottom",
+			wav: "effect/shinkiro_shiranui/ss_four_charm_wind",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_wind/four_charm_wind",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_wind/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_wind/min_four_charm_wind",
+			wav: "effect/shinkiro_shiranui/ss_four_charm",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
 		}],
 		861: [{ wav: "effect/¼øÈ¯ÇÏ´ÂÀÚ¿¬ÀÇ¼Ò¸®" }],
 		862: [
@@ -323156,7 +323246,7 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	if (!skillEntry || !file) return false;
 	const wanted = keyOf(file);
 	for (const field in skillEntry) {
-		const names = [skillEntry[field]].flat(Infinity);
+		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]);
 		for (const name of names) {
 			const effects = typeof name === "string" ? EffectTable[name] : null;
 			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
@@ -355350,6 +355440,17 @@ function onSpiritSphere(pkt) {
 	}
 }
 /**
+* Spirit charms (Kagerou/Oboro and their 4th jobs).
+* Keeps the charm element on the entity; Four Colors Charm picks its look from it.
+* Like the official client, a packet with no charms left keeps the last element.
+*
+* @param {object} pkt - PACKET.ZC.SPIRITS_ATTRIBUTE
+*/
+function onSpiritCharm(pkt) {
+	const entity = EntityManager.get(pkt.AID);
+	if (entity && pkt.num > 0) entity.charmType = pkt.type;
+}
+/**
 * Millennium Shield visual effect
 *
 * @param {object} pkt - PACKET.ZC.MILLENNIUMSHIELD
@@ -355431,6 +355532,7 @@ function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.REPAIRITEMLIST2, onRepairList);
 	Network.hookPacket(PACKET.ZC.SPIRITS, onSpiritSphere);
 	Network.hookPacket(PACKET.ZC.SPIRITS2, onSpiritSphere);
+	Network.hookPacket(PACKET.ZC.SPIRITS_ATTRIBUTE, onSpiritCharm);
 	Network.hookPacket(PACKET.ZC.MILLENNIUMSHIELD, onMillenniumShield);
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
 	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);
