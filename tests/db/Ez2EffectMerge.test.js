@@ -48,7 +48,7 @@ describe('kRO effect table merged into skills', () => {
 
 	it('does not add a file a status already plays', () => {
 		const moon = {
-			ske_rising_moon_01: { FilePath: 'SKY_EMPEROR\\SKE_RISING_MOON\\ske_rising_moon_01.str', IsFloor: true, IsInfinite: true }
+			ske_rising_moon_01: { FilePath: 'SKY_EMPEROR\\SKE_RISING_MOON\\ske_rising_moon_01.str', IsFloor: true }
 		};
 		const EffectTable = {
 			ef_ske_rising_moon_01: [{ type: 'STR', file: 'sky_emperor/ske_rising_moon/ske_rising_moon_01' }]
@@ -78,5 +78,45 @@ describe('kRO effect table merged into skills', () => {
 		assert.equal(EffectTable.cutting_wind[0].yOffset, 10);
 		assert.equal(EffectTable.cutting_wind_bottom[0].xOffset, -5);
 		assert.equal(EffectTable.cutting_wind_bottom[0].yOffset, 12);
+	});
+
+	it('does not add a file the skill plays from an older folder', () => {
+		const EffectTable = {
+			ef_cutting_wind: [{ type: 'STR', file: 'cutting_wind/cutting_wind/cutting_wind' }]
+		};
+		const skills = merge(records, EffectTable, { 6542: { effectIdOnCaster: 'ef_cutting_wind' } });
+		assert.equal(skills[6542].effectId, undefined);
+		assert.equal(skills[6542].hitEffectId, 'cutting_wind_hit');
+	});
+
+	it('keeps a floor layer that shares its file name with the top layer', () => {
+		const skills = merge(
+			{
+				cutting_wind_1: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind\\cutting_wind_7x7.str' },
+				cutting_wind_bottom_1: {
+					FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_bottom\\cutting_wind_7x7.str',
+					IsFloor: true
+				}
+			},
+			{},
+			{}
+		);
+		assert.equal(skills[6542].effectId, 'cutting_wind_1');
+		assert.equal(skills[6542].groundEffectId, 'cutting_wind_bottom_1');
+	});
+
+	it('does not attach endless loops to a skill', () => {
+		const EffectTable = {};
+		const skills = merge(
+			{
+				cutting_wind_start: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_start.str' },
+				cutting_wind_loop: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_loop.str', IsInfinite: true }
+			},
+			EffectTable,
+			{}
+		);
+		assert.equal(skills[6542].effectId, 'cutting_wind_start');
+		// Still in the effect table, for a status or a hand-written row to use
+		assert.equal(EffectTable.cutting_wind_loop[0].repeat, true);
 	});
 });
