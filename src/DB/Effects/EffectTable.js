@@ -15479,14 +15479,48 @@ export default {
 		}
 	],
 
-	// Kunai - Rotation (SS_KUNAIKAITEN), from the client's own effect folders.
+	// Kunai - Rotation (SS_KUNAIKAITEN), as the official client plays it on a
+	// successful use: the EZ2 rows kunaikaiten_bottom, _00, _01 and _02 (_02 is
+	// _00's file again), PosY 10, left where the caster stood, four times 480 ms
+	// apart. The client's round delay replaces _02's own 320 ms start delay.
 	ef_ss_kunaikaiten: [
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/kunaikaiten_bottom',
 			texturePath: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/',
 			min: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/min_kunaikaiten_bottom',
-			renderBeforeEntities: true
+			wav: 'effect/shinkiro_shiranui/ss_kagegissen',
+			renderBeforeEntities: true,
+			yOffset: 10,
+			duplicate: 4,
+			timeBetweenDupli: 480
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/kunaikaiten_00',
+			texturePath: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/',
+			min: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/min_kunaikaiten_00',
+			yOffset: 10,
+			duplicate: 4,
+			timeBetweenDupli: 480
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_01/kunaikaiten_01',
+			texturePath: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_01/',
+			min: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_01/min_kunaikaiten_01',
+			yOffset: 10,
+			duplicate: 4,
+			timeBetweenDupli: 480
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/kunaikaiten_00',
+			texturePath: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/',
+			min: 'shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/min_kunaikaiten_00',
+			yOffset: 10,
+			duplicate: 4,
+			timeBetweenDupli: 480
 		}
 	],
 
