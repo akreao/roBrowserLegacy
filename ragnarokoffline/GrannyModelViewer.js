@@ -224908,14 +224908,38 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NV_HELPANGEL] = { effectId: "ef_nv_helpangel" };
 	SkillEffect[SkillConst_default.DR_WEREWOLF] = { effectId: "ef_druid_werewolf" };
 	SkillEffect[SkillConst_default.DR_WERERAPTOR] = { effectId: "ef_druid_wereraptor" };
-	SkillEffect[SkillConst_default.DR_ENRAGE_WOLF] = { effectId: "ef_druid_enrage_wolf" };
-	SkillEffect[SkillConst_default.DR_ENRAGE_RAPTOR] = { effectId: "ef_druid_enrage_raptor" };
-	SkillEffect[SkillConst_default.DR_BLOOD_HOWLING] = { effectId: "ef_druid_blood_howling" };
-	SkillEffect[SkillConst_default.DR_PREENING] = { effectId: "ef_druid_preening" };
-	SkillEffect[SkillConst_default.DR_TRUTH_OF_ICE] = { effectId: "ef_druid_truth_of_ice" };
-	SkillEffect[SkillConst_default.DR_TRUTH_OF_WIND] = { effectId: "ef_druid_truth_of_wind" };
-	SkillEffect[SkillConst_default.DR_TRUTH_OF_EARTH] = { effectId: "ef_druid_truth_of_earth" };
-	SkillEffect[SkillConst_default.DR_NATURE_SHIELD] = { effectId: "ef_druid_nature_shield" };
+	SkillEffect[SkillConst_default.DR_ENRAGE_WOLF] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
+		effectId: "ef_druid_enrage_wolf"
+	};
+	SkillEffect[SkillConst_default.DR_ENRAGE_RAPTOR] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
+		effectId: "ef_druid_enrage_raptor"
+	};
+	SkillEffect[SkillConst_default.DR_BLOOD_HOWLING] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
+		effectId: "ef_druid_blood_howling"
+	};
+	SkillEffect[SkillConst_default.DR_PREENING] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
+		effectId: "ef_druid_preening"
+	};
+	SkillEffect[SkillConst_default.DR_TRUTH_OF_ICE] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
+		effectId: "ef_druid_truth_of_ice"
+	};
+	SkillEffect[SkillConst_default.DR_TRUTH_OF_WIND] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
+		effectId: "ef_druid_truth_of_wind"
+	};
+	SkillEffect[SkillConst_default.DR_TRUTH_OF_EARTH] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectId: "ef_druid_truth_of_earth"
+	};
+	SkillEffect[SkillConst_default.DR_NATURE_SHIELD] = {
+		castAuraEffectId: 12,
+		effectId: "ef_druid_nature_shield"
+	};
 	SkillEffect[SkillConst_default.DR_NOMERCY_CLAW] = {
 		effectIdOnCaster: "ef_druid_nomercy_claw",
 		hitEffectId: "ef_druid_hit_wolf"
@@ -224954,15 +224978,23 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_ice_hit"
 	};
 	SkillEffect[SkillConst_default.DR_CUTTING_WIND] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
 		effectIdOnCaster: "ef_druid_cutting_wind",
 		hitEffectId: "ef_druid_cutting_wind_hit"
 	};
 	SkillEffect[SkillConst_default.DR_WIND_BOMB] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
 		effectId: "ef_druid_wind_bomb",
 		hitEffectId: "ef_druid_wind_bomb_hit"
 	};
-	SkillEffect[SkillConst_default.DR_EARTH_FLOWER] = { effectId: "ef_druid_earth_flower" };
-	SkillEffect[SkillConst_default.DR_AROUND_FLOWER] = { effectIdOnCaster: "ef_druid_around_flower" };
+	SkillEffect[SkillConst_default.DR_EARTH_FLOWER] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectId: "ef_druid_earth_flower"
+	};
+	SkillEffect[SkillConst_default.DR_AROUND_FLOWER] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectIdOnCaster: "ef_druid_around_flower"
+	};
 	SkillEffect[SkillConst_default.KR_NASTY_SLASH] = {
 		effectId: "ef_druid_nasty_slash",
 		hitEffectId: "ef_druid_hit_wolf"
@@ -224972,6 +225004,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_wolf"
 	};
 	SkillEffect[SkillConst_default.KR_CLAW_WAVE] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
 		effectId: "ef_druid_claw_wave",
 		hitEffectId: "ef_druid_hit_wolf"
 	};
@@ -224979,17 +225012,23 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_druid_chop_chop",
 		hitEffectId: "ef_druid_chop_chop_hit"
 	};
-	SkillEffect[SkillConst_default.KR_IRON_HOWLING] = { effectId: "ef_druid_iron_howling" };
+	SkillEffect[SkillConst_default.KR_IRON_HOWLING] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
+		effectId: "ef_druid_iron_howling"
+	};
 	SkillEffect[SkillConst_default.KR_SHARPEN_GUST] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
 		effectIdOnCaster: "ef_druid_sharpen_gust",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_SHARPEN_HAIL] = {
-		effectId: ["ef_druid_sharpen_hail_shot", "ef_druid_sharpen_hail"],
+		castAuraEffectId: "ef_druid_cast_circle_green",
+		beginCastEffectId: "ef_druid_sharpen_hail",
+		effectId: "ef_druid_sharpen_hail_shot",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_TYPHOON_WING] = {
-		castAuraEffectId: "ef_druid_typhoon_wing_cast",
+		castAuraEffectId: "ef_druid_cast_circle_green",
 		groundEffectIdByLevel: [
 			"ef_druid_typhoon_wing_5x5",
 			"ef_druid_typhoon_wing_5x5",
@@ -225004,7 +225043,10 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_druid_feather_sprinkle",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
-	SkillEffect[SkillConst_default.KR_WIND_VEIL] = { effectId: "ef_druid_wind_veil" };
+	SkillEffect[SkillConst_default.KR_WIND_VEIL] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
+		effectId: "ef_druid_wind_veil"
+	};
 	SkillEffect[SkillConst_default.KR_ICE_PILLAR] = {
 		beginCastEffectId: "ef_druid_ice_cast",
 		effectId: "ef_druid_ice_pillar_start",
@@ -225021,6 +225063,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_FOCUS_S] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		successEffectId: "ef_druid_thundering_focus_y",
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
@@ -225031,6 +225074,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_ORB_S] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		effectId: ["ef_druid_thundering_orb_throw", "ef_druid_thundering_orb_y"],
 		groundRepeatWindowMs: 700,
 		hitEffectId: "ef_druid_thunder_hit_y"
@@ -225049,6 +225093,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_CALL_S] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		successEffectIdOnTargetByLevel: [
 			"ef_druid_thundering_call_y_3x3",
 			"ef_druid_thundering_call_y_3x3",
@@ -225060,12 +225105,24 @@ var init_SkillEffect = __esmMin((() => {
 		],
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
-	SkillEffect[SkillConst_default.KR_EARTH_DRILL] = { effectId: "ef_druid_earth_drill" };
-	SkillEffect[SkillConst_default.KR_EARTH_STAMP] = { effectId: "ef_druid_earth_stamp" };
+	SkillEffect[SkillConst_default.KR_EARTH_DRILL] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectId: "ef_druid_earth_drill"
+	};
+	SkillEffect[SkillConst_default.KR_EARTH_STAMP] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectId: "ef_druid_earth_stamp"
+	};
 	SkillEffect[SkillConst_default.KR_NATURE_PROTECTION] = { effectId: "ef_druid_nature_protection" };
 	SkillEffect[SkillConst_default.KR_GROUND_BLOOM] = { effectIdOnCaster: "ef_druid_ground_bloom" };
-	SkillEffect[SkillConst_default.AT_PULSE_OF_MADNESS] = { effectId: "ef_druid_pulse_of_madness" };
-	SkillEffect[SkillConst_default.AT_ALPHA_PHASE] = { effectId: "ef_druid_alpha_phase" };
+	SkillEffect[SkillConst_default.AT_PULSE_OF_MADNESS] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
+		effectId: "ef_druid_pulse_of_madness"
+	};
+	SkillEffect[SkillConst_default.AT_ALPHA_PHASE] = {
+		castAuraEffectId: "ef_druid_cast_circle_blue",
+		effectId: "ef_druid_alpha_phase"
+	};
 	SkillEffect[SkillConst_default.AT_APEX_PHASE] = { effectId: "ef_druid_apex_phase" };
 	SkillEffect[SkillConst_default.AT_FLIP_FLAP] = { effectId: "ef_druid_flip_flap" };
 	SkillEffect[SkillConst_default.AT_FLIP_FLAP_TARGET] = { effectId: "ef_druid_flip_flap" };
@@ -225091,10 +225148,12 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_wolf"
 	};
 	SkillEffect[SkillConst_default.AT_PINION_SHOT] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
 		effectIdOnCaster: "ef_druid_pinion_shot",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_QUILL_SPEAR] = {
+		castAuraEffectId: "ef_druid_cast_circle_green",
 		successEffectIdOnCasterAimed: "ef_druid_quill_spear_3x7",
 		successEffectIdOnCaster: "ef_druid_quill_spear_line",
 		hitEffectId: "ef_druid_hit_raptor"
@@ -225105,7 +225164,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_TEMPEST_FLAP] = {
-		effectIdOnCaster: "ef_druid_tempest_flap_cast",
+		beginCastEffectIdInRaptorForm: "ef_druid_tempest_flap_cast",
 		effectId: "ef_druid_tempest_flap",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
@@ -225120,6 +225179,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_ice_hit"
 	};
 	SkillEffect[SkillConst_default.AT_GLACIER_NOVA] = {
+		beginCastEffectId: "ef_druid_ice_cast",
 		effectId: "ef_druid_glacier_nova",
 		hitEffectId: "ef_druid_ice_hit"
 	};
@@ -225129,10 +225189,12 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_ice_hit"
 	};
 	SkillEffect[SkillConst_default.AT_GLACIER_STOMP] = {
+		beginCastEffectId: "ef_druid_ice_cast",
 		effectIdOnCaster: "ef_druid_glacier_stomp",
 		hitEffectId: "ef_druid_ice_hit"
 	};
 	SkillEffect[SkillConst_default.AT_CHILLING_BLAST] = {
+		beginCastEffectId: "ef_druid_ice_cast",
 		effectIdOnCaster: "ef_druid_chilling_blast",
 		hitEffectId: "ef_druid_ice_hit"
 	};
@@ -225142,25 +225204,41 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.AT_ROARING_PIERCER_S] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		effectIdOnCaster: "ef_druid_roaring_piercer_y",
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
 	SkillEffect[SkillConst_default.AT_ROARING_CHARGE] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		effectIdOnCaster: "ef_druid_roaring_charge",
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.AT_ROARING_CHARGE_S] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		effectIdOnCaster: "ef_druid_roaring_charge_s",
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
 	SkillEffect[SkillConst_default.AT_FURIOS_STORM] = {
+		beginCastEffectId: "ef_druid_thunder_cast",
 		effectIdOnCaster: "ef_druid_furios_storm",
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
-	SkillEffect[SkillConst_default.AT_TERRA_WAVE] = { effectId: "ef_druid_terra_wave" };
-	SkillEffect[SkillConst_default.AT_TERRA_HARVEST] = { effectId: "ef_druid_terra_harvest" };
-	SkillEffect[SkillConst_default.AT_SOLID_STOMP] = { effectIdOnCaster: "ef_druid_solid_stomp" };
-	SkillEffect[SkillConst_default.AT_GRAVITY_HOLE] = { effectIdOnCaster: "ef_druid_gravity_hole" };
+	SkillEffect[SkillConst_default.AT_TERRA_WAVE] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectId: "ef_druid_terra_wave"
+	};
+	SkillEffect[SkillConst_default.AT_TERRA_HARVEST] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectId: "ef_druid_terra_harvest"
+	};
+	SkillEffect[SkillConst_default.AT_SOLID_STOMP] = {
+		castAuraEffectId: "ef_druid_cast_circle_yellow",
+		effectIdOnCaster: "ef_druid_solid_stomp"
+	};
+	SkillEffect[SkillConst_default.AT_GRAVITY_HOLE] = {
+		castAuraEffectId: 12,
+		effectIdOnCaster: "ef_druid_gravity_hole"
+	};
 }));
 // src/DB/Items/ItemEffect.js
 var ItemEffect;
@@ -276723,6 +276801,7 @@ var _gl, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
 var init_EffectManager = __esmMin((() => {
 	init_EffectTable();
 	init_SkillEffect();
+	init_JobConst();
 	init_SkillUnit();
 	init_SkillUnitConst();
 	init_ItemEffect();
@@ -277478,6 +277557,16 @@ var init_EffectManager = __esmMin((() => {
 						castEndTick
 					};
 					EffectManager.spam(EF_Init_Par);
+				});
+			}
+			if (SkillEffect[skillId].beginCastEffectIdInRaptorForm) {
+				const caster = EntityManager.get(destAID);
+				if (caster && caster.job_transform === JobConst_default.WERERAPTOR) EffectManager.spam({
+					effectId: SkillEffect[skillId].beginCastEffectIdInRaptorForm,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					castEndTick
 				});
 			}
 			if (SkillEffect[skillId].beginCastTargetEffectId && srcAID && EntityManager.get(srcAID)) {
@@ -287089,14 +287178,15 @@ function circleFrames(castTime) {
 * @param {number} b band index
 * @param {number} t
 * @param {number} frames
+* @param {boolean} [tinted] the tinted circle (effects 54, 55, 57)
 * @return {number}
 */
-function bandAlpha(b, t, frames) {
+function bandAlpha(b, t, frames, tinted = false) {
 	const band = BANDS[b];
 	const fadeFrom = frames - FADE;
 	if (!band.pulse) return Math.max(0, band.alpha - 5 * Math.max(0, t - fadeFrom + 1));
-	const up = Math.min(100, band.alpha + 8 * Math.min(t, fadeFrom - 1, 19));
-	return Math.max(0, up - 3 * Math.max(0, t - fadeFrom + 1));
+	const up = Math.min(tinted ? 60 : 100, band.alpha + 8 * Math.min(t, fadeFrom - 1, 19));
+	return Math.max(0, up - (tinted ? 2 : 3) * Math.max(0, t - fadeFrom + 1));
 }
 /**
 * Height of point `j` of band `b` on tick `t`, in world units.
@@ -287104,13 +287194,14 @@ function bandAlpha(b, t, frames) {
 * @param {number} b
 * @param {number} j 0 to 20
 * @param {number} t
+* @param {boolean} [tinted] the tinted circle: no band pulses
 * @return {number}
 */
-function pointHeight(b, j, t) {
+function pointHeight(b, j, t, tinted = false) {
 	const band = BANDS[b];
 	const full = band.height * Math.sin(9 * j * DEG$1);
 	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$1));
-	if (!band.pulse || t === 91) return Math.max(0, full);
+	if (!band.pulse || tinted || t === 91) return Math.max(0, full);
 	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$1);
 }
 /**
@@ -287133,9 +287224,10 @@ function vertex$1(out, i, center, x, y, up, u, v) {
 * @param {number} b band index
 * @param {number} t tick, 1 on the first
 * @param {Array} center position, in cells
+* @param {boolean} tinted
 * @return {number} next float
 */
-function buildBand(out, o, b, t, center) {
+function buildBand(out, o, b, t, center, tinted) {
 	const band = BANDS[b];
 	const step = Math.floor(band.arc / 20);
 	const turn = (band.turn + band.spin * t) % 360;
@@ -287147,7 +287239,7 @@ function buildBand(out, o, b, t, center) {
 		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$1;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
-		const h = pointHeight(b, j, t);
+		const h = pointHeight(b, j, t, tinted);
 		const point = {
 			fx: band.foot * cos,
 			fy: band.foot * sin,
@@ -287175,19 +287267,20 @@ function buildBand(out, o, b, t, center) {
 * @param {Float32Array} out CIRCLE_VERTICES * 5 floats
 * @param {number} t tick, 1 on the first
 * @param {Array} center position, in cells
+* @param {boolean} [tinted] the tinted circle (effects 54, 55, 57)
 * @return {number[]} first vertex of each band, then the total
 */
-function buildCircle(out, t, center) {
+function buildCircle(out, t, center, tinted = false) {
 	const starts = [];
 	let o = 0;
 	for (let b = 0; b < BANDS.length; b++) {
 		starts.push(o / 5);
-		o = buildBand(out, o, b, t, center);
+		o = buildBand(out, o, b, t, center, tinted);
 	}
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$1, FADE, BANDS, CIRCLE_VERTICES;
+var DEG$1, FADE, BANDS, TINT_MODES, CIRCLE_VERTICES;
 var init_CastCircleSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DEG$1 = Math.PI / 180;
@@ -287231,6 +287324,32 @@ var init_CastCircleSim = __esmMin((() => {
 			pulse: true
 		}
 	];
+	TINT_MODES = {
+		0: {
+			color: [
+				255,
+				255,
+				255
+			],
+			additive: false
+		},
+		1: {
+			color: [
+				255,
+				175,
+				175
+			],
+			additive: true
+		},
+		2: {
+			color: [
+				195,
+				195,
+				255
+			],
+			additive: false
+		}
+	};
 	CIRCLE_VERTICES = BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 }));
 // src/Renderer/Effects/CastCircle.js
@@ -287263,20 +287382,24 @@ var init_CastCircle = __esmMin((() => {
 		* @param {number} startTick
 		* @param {number} castTime cast time, ms
 		* @param {string} texture file under data/texture/effect/
+		* @param {number} [mode] the tinted circle's mode (TINT_MODES); leave out for the untinted circle
 		*/
-		constructor(position, startTick, castTime, texture) {
+		constructor(position, startTick, castTime, texture, mode) {
 			this.position = position;
 			this.startTick = startTick || 0;
 			this.frames = circleFrames(castTime);
 			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
 			this.texture = texture;
 			this.vertices = new Float32Array(CIRCLE_VERTICES * 5);
+			this.tinted = mode in TINT_MODES;
+			const tint = this.tinted ? TINT_MODES[mode] : TINT_MODES[0];
 			this.color = new Float32Array([
-				1,
-				1,
-				1,
+				tint.color[0] / 255,
+				tint.color[1] / 255,
+				tint.color[2] / 255,
 				1
 			]);
+			this.additive = tint.additive;
 		}
 		init(gl) {
 			this.buffer = gl.createBuffer();
@@ -287299,7 +287422,7 @@ var init_CastCircle = __esmMin((() => {
 			const texture = _textures$4.get(this.texture);
 			if (!texture) return;
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
-			const starts = buildCircle(this.vertices, t, this.position);
+			const starts = buildCircle(this.vertices, t, this.position, this.tinted);
 			const attribute = _program$4.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
@@ -287308,13 +287431,15 @@ var init_CastCircle = __esmMin((() => {
 				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 				gl.bindTexture(gl.TEXTURE_2D, texture);
+				if (self.additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 				for (let b = 0; b < BANDS.length; b++) {
-					const alpha = bandAlpha(b, t, self.frames);
+					const alpha = bandAlpha(b, t, self.frames, self.tinted);
 					if (alpha <= 0) continue;
 					self.color[3] = alpha / 255;
 					gl.uniform4fv(_program$4.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, starts[b], starts[b + 1] - starts[b]);
 				}
+				if (self.additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			});
 		}
 		static init(gl) {
@@ -307027,13 +307152,31 @@ var init_EffectTable = __esmMin((() => {
 			renderBeforeEntities: true,
 			yOffset: 10
 		}],
-		ef_druid_typhoon_wing_cast: [{
+		ef_druid_cast_circle_green: [{
 			type: "FUNC",
 			attachedEntity: true,
 			castLoop: true,
 			wav: "effect/ef_beginspell",
 			func: function(Params) {
 				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "magic_green.tga"), Params);
+			}
+		}],
+		ef_druid_cast_circle_blue: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_blue.tga", 2), Params);
+			}
+		}],
+		ef_druid_cast_circle_yellow: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", 0), Params);
 			}
 		}],
 		ef_druid_feather_sprinkle: [{
@@ -353367,6 +353510,20 @@ var init_NPC = __esmMin((() => {
 		NpcBox_default.remove();
 	};
 }));
+// src/DB/Skills/CastAuraRule.js
+/**
+* Does the client play the element cast aura for this skill?
+*
+* @param {number} skillId
+* @return {boolean}
+*/
+function hasElementCastAura(skillId) {
+	return !NO_ELEMENT_AURA_RANGES.some(([first, last]) => skillId >= first && skillId <= last);
+}
+var NO_ELEMENT_AURA_RANGES;
+var init_CastAuraRule = __esmMin((() => {
+	NO_ELEMENT_AURA_RANGES = [[6525, 6606]];
+}));
 // src/DB/Skills/SkillAction.js
 var SkillAction, makeAttackSkillAction, makeGenericSkillAction, makeSliceAttackAction;
 var init_SkillAction = __esmMin((() => {
@@ -355379,7 +355536,8 @@ function onEntityCastSkill(pkt) {
 			EffectManager.spam(EF_Init_Par);
 		}
 	}
-	hideCastAura = pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura;
+	const castSkill = pkt.SKID in SkillEffect ? SkillEffect[pkt.SKID] : null;
+	hideCastAura = castSkill && castSkill.hideCastAura || !hasElementCastAura(pkt.SKID) && !(castSkill && castSkill.castAuraEffectId);
 	if (pkt.delayTime && !hideCastAura) {
 		const EF_Init_Par = {
 			effectId: EffectConst_default.EF_BEGINSPELL,
@@ -356250,6 +356408,7 @@ var init_Entity = __esmMin((() => {
 	init_StatusState();
 	init_Emotions();
 	init_SkillEffect();
+	init_CastAuraRule();
 	init_SkillAction();
 	init_EffectConst();
 	init_PetMessageConst();
