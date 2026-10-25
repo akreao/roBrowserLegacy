@@ -45,8 +45,8 @@ describe('cone cast auras (831, 840-845)', () => {
 	});
 
 	it('is blue for 831 and turquoise for 845', () => {
-		expect(VARIANTS[0]).toEqual({ rgb: [0, 0, 255], gain: 3 });
-		expect(VARIANTS[8]).toEqual({ rgb: [0, 255, 255], gain: 2 });
+		expect(VARIANTS[0]).toEqual({ rgb: [0, 0, 255], gain: 3, additive: true });
+		expect(VARIANTS[8]).toEqual({ rgb: [0, 255, 255], gain: 2, additive: true });
 	});
 
 	it('stands its bands on a small circle around the caster and leans them out', () => {

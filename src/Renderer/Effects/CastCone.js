@@ -1,9 +1,11 @@
 /**
  * Renderer/Effects/CastCone.js
  *
- * Draws the official client's cone cast auras (EF_BEGINSPELL_N2 831 and
- * EF_BEGINSPELL_N3..N8 840-845): bands of bubbles leaning out around the
- * caster, in the cone's colour, and for 831 two blue squares on the ground.
+ * Draws the official client's cone cast auras (EF_BEGINSPELL_N2 831,
+ * EF_BEGINSPELL_N3..N8 840-845 and 2368): bands of bubbles leaning out around
+ * the caster, in the cone's colour, and for 831 two blue squares on the ground.
+ * With `pulse: true` it draws EF_BEGINSPELL_N1 830 instead: two crowns of the
+ * same bands, pulsing out of step.
  * The motion and geometry are in CastConeSim.js; this file only draws them.
  *
  * Effect table entry:
@@ -22,6 +24,10 @@ import {
 	CONE_TICK_MS,
 	VARIANTS,
 	GROUND,
+	STRIPS,
+	MIN_FRAMES,
+	PULSE_MIN_FRAMES,
+	PULSE_CROWNS,
 	CONE_VERTICES,
 	GROUND_VERTICES,
 	BUBBLE_FRAMES,
@@ -30,8 +36,13 @@ import {
 	groundAlpha,
 	bubbleFrame,
 	buildCone,
-	buildGround
+	buildGround,
+	pulseBands,
+	buildPulse
 } from './CastConeSim.js';
+
+/** Vertices of one band. */
+const BAND_VERTICES = STRIPS * 6;
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 
@@ -70,12 +81,13 @@ class CastCone {
 	 * @param {vec3} position caster position (kept by reference, so it follows)
 	 * @param {number} startTick
 	 * @param {number} castTime cast time, ms
-	 * @param {{variant: number, ground: boolean}} options
+	 * @param {{variant: number, ground: boolean, pulse: boolean}} options
 	 */
 	constructor(position, startTick, castTime, options = {}) {
 		this.position = position;
 		this.startTick = startTick || 0;
-		this.frames = coneFrames(castTime);
+		this.pulse = !!options.pulse;
+		this.frames = coneFrames(castTime, this.pulse ? PULSE_MIN_FRAMES : MIN_FRAMES);
 		this.endTick = this.startTick + this.frames * CONE_TICK_MS;
 		this.variant = VARIANTS[options.variant] || VARIANTS[0];
 		this.ground = !!options.ground;
@@ -89,7 +101,7 @@ class CastCone {
 		for (let i = 0; i < BUBBLE_FRAMES; i++) {
 			loadTexture(gl, bubbleName(i));
 		}
-		if (this.ground) {
+		if (this.ground && !this.pulse) {
 			loadTexture(gl, GROUND.texture);
 		}
 		this.ready = true;
@@ -103,22 +115,42 @@ class CastCone {
 		}
 	}
 
-	pass(gl, data, count, texture, rgb, alpha) {
-		if (!texture || alpha <= 0) {
-			return;
-		}
+	upload(gl, data) {
 		const attribute = _program.attribute;
-		this.color[0] = rgb[0] / 255;
-		this.color[1] = rgb[1] / 255;
-		this.color[2] = rgb[2] / 255;
-		this.color[3] = Math.min(255, alpha) / 255;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
+	}
+
+	/**
+	 * Draw `count` uploaded vertices from `first`, additive or with normal alpha blending.
+	 */
+	draw(gl, first, count, texture, rgb, alpha, additive) {
+		if (!texture || alpha <= 0) {
+			return;
+		}
+		this.color[0] = rgb[0] / 255;
+		this.color[1] = rgb[1] / 255;
+		this.color[2] = rgb[2] / 255;
+		this.color[3] = Math.min(255, alpha) / 255;
 		gl.uniform4fv(_program.uniform.uColor, this.color);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.drawArrays(gl.TRIANGLES, 0, count);
+		if (!additive) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		gl.drawArrays(gl.TRIANGLES, first, count);
+		if (!additive) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		}
+	}
+
+	pass(gl, data, count, texture, rgb, alpha, additive) {
+		if (!texture || alpha <= 0) {
+			return;
+		}
+		this.upload(gl, data);
+		this.draw(gl, 0, count, texture, rgb, alpha, additive);
 	}
 
 	render(gl, tick) {
@@ -135,6 +167,29 @@ class CastCone {
 		const self = this;
 
 		SpriteRenderer.runWithDepth(true, false, false, function () {
+			const texture = _textures.get(bubbleName(bubbleFrame(t)));
+
+			if (self.pulse) {
+				// 830: each band has its own alpha, so each is drawn on its own.
+				for (const crown of PULSE_CROWNS) {
+					const states = pulseBands(t, self.frames, crown.alpha);
+					buildPulse(self.cone, t, self.position, states);
+					self.upload(gl, self.cone);
+					for (let b = 0; b < states.length; b++) {
+						self.draw(
+							gl,
+							b * BAND_VERTICES,
+							BAND_VERTICES,
+							texture,
+							crown.rgb,
+							states[b].alpha,
+							crown.additive
+						);
+					}
+				}
+				return;
+			}
+
 			if (self.ground) {
 				buildGround(self.squares, t, self.position);
 				self.pass(
@@ -143,15 +198,24 @@ class CastCone {
 					GROUND_VERTICES,
 					_textures.get(GROUND.texture),
 					GROUND.rgb,
-					groundAlpha(t, self.frames)
+					groundAlpha(t, self.frames),
+					true
 				);
 			}
 
 			const alpha = bandAlpha(t, self.frames);
-			const texture = _textures.get(bubbleName(bubbleFrame(t)));
 			buildCone(self.cone, t, self.position);
-			self.pass(gl, self.cone, CONE_VERTICES, texture, [255, 255, 255], alpha);
-			self.pass(gl, self.cone, CONE_VERTICES, texture, self.variant.rgb, alpha * self.variant.gain);
+			// The white pass is blended normally; the colour pass adds light, except 2368's black.
+			self.pass(gl, self.cone, CONE_VERTICES, texture, [255, 255, 255], alpha, false);
+			self.pass(
+				gl,
+				self.cone,
+				CONE_VERTICES,
+				texture,
+				self.variant.rgb,
+				alpha * self.variant.gain,
+				self.variant.additive
+			);
 		});
 	}
 
@@ -194,7 +258,7 @@ class CastCone {
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive, as the client draws them
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive unless a pass says otherwise
 	}
 
 	static afterRender(gl) {
