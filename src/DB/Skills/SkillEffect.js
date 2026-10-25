@@ -1138,7 +1138,12 @@ SkillEffect[SK.SS_RAIDENPOU] = {
 SkillEffect[SK.SS_KINRYUUHOU] = { effectId: 'ef_ss_kinryuuhou', hitEffectId: 'ef_ss_kinryuuhou_hit' }; //Golden Dragon Cannon
 SkillEffect[SK.SS_ANTENPOU] = { effectId: 'ef_ss_antenpou' }; //Darkening Cannon
 SkillEffect[SK.SS_KAGEAKUMU] = { effectId: 'ef_ss_kageakumu' }; //Shadow - Nightmare
-SkillEffect[SK.SS_HITOUAKUMU] = { effectId: 'ef_ss_hitouakumu' }; //Kunai - Nightmare
+SkillEffect[SK.SS_HITOUAKUMU] = {
+	// When the use packet succeeds, at the caster: the floor burst, then all
+	// three blade files, 15-19 copies each fanned out all round
+	successEffectId: 'ef_ss_hitouakumu',
+	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02']
+}; //Kunai - Nightmare
 SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
 SkillEffect[5499 /* SS_FOUR_CHARM */] = {
 	effectIdByCharmType: {

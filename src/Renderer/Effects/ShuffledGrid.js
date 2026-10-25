@@ -14,7 +14,7 @@
  * @param {function} random source of numbers in [0, 1)
  * @return {number[]}
  */
-function shuffled(n, random) {
+export function shuffled(n, random) {
 	const list = Array.from({ length: n }, (_, i) => i);
 	for (let i = n - 1; i > 0; i--) {
 		const j = Math.floor(random() * (i + 1));
