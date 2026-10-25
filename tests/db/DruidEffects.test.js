@@ -65,6 +65,7 @@ describe('Druid line', () => {
 		for (const [, id] of effectTable.matchAll(/\n\t(ef_druid_\w+): \[/g)) {
 			for (const layer of effect(id)) {
 				const file = layer.get('file');
+				if (!file) continue; // drawn by code (FUNC), no STR
 				expect(layer.get('texturePath'), `${id} ${file}`).toBe(file.slice(0, file.lastIndexOf('/') + 1));
 			}
 		}

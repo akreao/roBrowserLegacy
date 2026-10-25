@@ -43,6 +43,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import StreakLines from 'Renderer/Effects/StreakLines.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -26299,6 +26300,28 @@ export default {
 			wav: 'effect/druid/at_quill_spear',
 			yOffset: 5,
 			attachedEntity: true
+		}
+	],
+	// Quill Spear's second part (official effect 2442): eight sets of streak
+	// lines (prim type 56, StreakLinesSim.js) laid along the caster-to-target
+	// line once, at the caster's spot, for 300 ticks. Nothing without a target.
+	ef_druid_quill_spear_line: [
+		{
+			type: 'FUNC',
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!caster || !target || target === caster) {
+					return;
+				}
+				this.add(
+					new StreakLines(caster.position, target.position, Params.Inst.startTick, {
+						black: 'druid/at_quill_spear/quill_spear_line/line_black.tga',
+						color: 'druid/at_quill_spear/quill_spear_line/line_color.tga'
+					}),
+					Params
+				);
+			}
 		}
 	],
 	ef_druid_tempest_flap: [
