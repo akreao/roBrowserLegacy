@@ -275027,6 +275027,22 @@ function getRandomIntInclusive(min, max) {
 	max = Math.floor(max);
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
+/**
+* Alpha of a 2D effect at a time
+*
+* @param {object} fx alphaMax, fadeIn, fadeOut, fadeInMs, fadeOutStartMs
+* @param {number} start ms since the effect started
+* @param {number} duration ms
+* @return {number} alpha, 0..1
+*/
+function twoDAlpha(fx, start, duration) {
+	let alpha = fx.alphaMax;
+	if (fx.fadeInMs && start < fx.fadeInMs) alpha = start * fx.alphaMax / fx.fadeInMs;
+	else if (fx.fadeOutStartMs >= 0 && start > fx.fadeOutStartMs) alpha = (duration - start) * fx.alphaMax / Math.max(duration - fx.fadeOutStartMs, 1);
+	else if (fx.fadeIn && start < duration / 4) alpha = start * fx.alphaMax / (duration / 4);
+	else if (fx.fadeOut && start > duration / 2 + duration / 4) alpha = (duration - start) * fx.alphaMax / (duration / 4);
+	return Math.min(Math.max(alpha, 0), 1);
+}
 var blendMode$2, shadow_index, TwoDEffect;
 var init_TwoDEffect = __esmMin((() => {
 	init_WebGL();
@@ -275048,6 +275064,8 @@ var init_TwoDEffect = __esmMin((() => {
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
 			this.fadeOut = effect.fadeOut ? true : false;
 			this.fadeIn = effect.fadeIn ? true : false;
+			this.fadeInMs = effect.fadeInMs > 0 ? effect.fadeInMs : 0;
+			this.fadeOutStartMs = effect.fadeOutStartMs >= 0 ? effect.fadeOutStartMs : -1;
 			this.overlay = effect.overlay ? true : false;
 			this.alphaMax = !isNaN(effect.alphaMax) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
 			this.shadowTexture = effect.shadowTexture ? true : false;
@@ -275361,11 +275379,7 @@ var init_TwoDEffect = __esmMin((() => {
 			} else currentOffsetY = this.offsetyStart;
 			SpriteRenderer.offset[0] = currentOffsetX;
 			SpriteRenderer.offset[1] = currentOffsetY;
-			let alpha = this.alphaMax;
-			if (this.fadeIn && start < duration / 4) alpha = start * this.alphaMax / (duration / 4);
-			else if (this.fadeOut && start > duration / 2 + duration / 4) alpha = (duration - start) * this.alphaMax / (duration / 4);
-			if (alpha < 0) alpha = 0;
-			else if (alpha > 1) alpha = 1;
+			const alpha = twoDAlpha(this, start, duration);
 			SpriteRenderer.color[3] = alpha;
 			SpriteRenderer.color[0] = this.red;
 			SpriteRenderer.color[1] = this.green;
@@ -295299,13 +295313,18 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		309: [{
 			type: "2D",
-			alphaMax: .2,
+			alphaMax: 80 / 255,
 			blendMode: 2,
 			file: "effect/pikapika2.bmp",
-			fadeOut: true,
-			duration: 1e3,
-			size: 100,
-			posz: 2,
+			red: 150 / 255,
+			green: 150 / 255,
+			blue: 250 / 255,
+			angleRand: [0, 359],
+			fadeInMs: 20 * (1e3 / 60),
+			fadeOutStartMs: 100 * (1e3 / 60),
+			duration: 3e3,
+			size: 140,
+			posz: 2.4,
 			wav: "_heal_effect"
 		}],
 		ef_hn_doublebowlingbash: [{
