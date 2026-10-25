@@ -46,6 +46,7 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
+import RotateLine from 'Renderer/Effects/RotateLine.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -16720,6 +16721,22 @@ export default {
 			type: 'STR',
 			file: 'vash00',
 			attachedEntity: true
+		}
+	],
+
+	986: [
+		{
+			//EF_ROTATE_LINE_GRAY	   Gray ribbons spiralling around the caster (Huuma / Kunai cast)
+			// The official client's CRotateLineEffect: four cloud11.tga ribbons for the cast time (RotateLineSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 986),
+					Params
+				);
+			}
 		}
 	],
 
