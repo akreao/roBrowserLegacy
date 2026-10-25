@@ -912,8 +912,10 @@ class EffectManager {
 	 * @param {number} skill id
 	 * @param {number} target aid
 	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} [level] skill level from the packet
 	 */
-	static spamSkillSuccess(skillId, destAID, tick, srcAID) {
+	static spamSkillSuccess(skillId, destAID, tick, srcAID, level) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -934,6 +936,22 @@ class EffectManager {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+
+		// One file on the caster, picked by skill level (index level - 1; a
+		// level past the end plays the last). Grenade Fragment's element.
+		const byLevel = SkillEffect[skillId].successEffectIdOnCasterByLevel;
+		if (byLevel && byLevel.length && level > 0) {
+			const effectId = byLevel[Math.min(level, byLevel.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					skillLevel: level
+				});
+			}
 		}
 
 		if (SkillEffect[skillId].successEffectIdOnCaster) {

@@ -1584,7 +1584,7 @@ function onEntityUseSkill(pkt) {
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
 		if (pkt.result == 1) {
-			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID);
+			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 		}
 	}
 }

@@ -22686,13 +22686,83 @@ export default {
 		}
 	],
 
-	// Grenade Fragment (NW_GRENADE_FRAGMENT), from the client's own effect folders.
-	ef_nw_grenade_fragment: [
+	// Grenade Fragment (NW_GRENADE_FRAGMENT): one file per skill level, from the
+	// EZ2 rows of the same name (PosY 10). See SkillEffect.js.
+	ef_nw_grenade_fragment_water: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_water/grenade_fragment_water',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_water/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_water/min_grenade_fragment_water',
+			wav: 'effect/night_watch/nw_grenade_fragment_water',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_wind: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_wind/grenade_fragment_wind',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_wind/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_wind/min_grenade_fragment_wind',
+			wav: 'effect/night_watch/nw_grenade_fragment_wind',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_earth: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_earth/grenade_fragment_earth',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_earth/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_earth/min_grenade_fragment_earth',
+			wav: 'effect/night_watch/nw_grenade_fragment_earth',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_fire: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire',
 			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/',
-			min: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire'
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire',
+			wav: 'effect/night_watch/nw_grenade_fragment_fire',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_darkness: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_darkness/grenade_fragment_darkness',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_darkness/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_darkness/min_grenade_fragment_darkness',
+			wav: 'effect/night_watch/nw_grenade_fragment_darkness',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_saint: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_saint/grenade_fragment_saint',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_saint/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_saint/min_grenade_fragment_saint',
+			wav: 'effect/night_watch/nw_grenade_fragment_saint',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_reset: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_reset/grenade_fragment_reset',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_reset/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_reset/min_grenade_fragment_reset',
+			wav: 'effect/night_watch/nw_grenade_fragment_reset',
+			yOffset: 10,
+			attachedEntity: true
 		}
 	],
 

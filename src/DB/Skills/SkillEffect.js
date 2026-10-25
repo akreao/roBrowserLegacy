@@ -1036,7 +1036,18 @@ SkillEffect[SK.RL_SLUGSHOT] = { effectId: 'ef_rl_slugshot' }; //Slug Shot
 SkillEffect[SK.RL_HAMMER_OF_GOD] = {}; //Hammer of God
 SkillEffect[SK.RL_R_TRIP_PLUSATK] = {}; //Round Trip Plus Attack
 SkillEffect[SK.NW_INTENSIVE_AIM] = { successEffectIdOnCaster: 'ef_nw_intensive_aim_helix' }; //Intensive Aim: the helix on the caster per use; the gauge is drawn by the Intensive Aim Count status (StatusEffectTable.js)
-SkillEffect[SK.NW_GRENADE_FRAGMENT] = { effectId: 'ef_nw_grenade_fragment' }; //Grenade Fragment
+SkillEffect[SK.NW_GRENADE_FRAGMENT] = {
+	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
+	successEffectIdOnCasterByLevel: [
+		'ef_nw_grenade_fragment_water',
+		'ef_nw_grenade_fragment_wind',
+		'ef_nw_grenade_fragment_earth',
+		'ef_nw_grenade_fragment_fire',
+		'ef_nw_grenade_fragment_darkness',
+		'ef_nw_grenade_fragment_saint',
+		'ef_nw_grenade_fragment_reset'
+	]
+}; //Grenade Fragment
 SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night' }; //The Vigilante at Night
 SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit' }; //Only One Bullet
 SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting' }; //Spiral Shooting
