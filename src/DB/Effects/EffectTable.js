@@ -16529,7 +16529,53 @@ export default {
 		}
 	],
 
-	//911: [{}],	//EF_GREENCASTING	   Green castish animation [S]
+	911: [
+		{
+			// EF_GREENCASTING (Totem of Tutelary cast): the cast-aura ring in ring_white.tga,
+			// argument 15 (green (100, 255, 100), additive), twice (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_white.tga',
+						[15, 15]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	2369: [
+		{
+			// Breaking Limit, Rule Break and Talisman of Four Bearing God cast: the colour-cycling
+			// ring (client primitive 139) in ring_white.tga, argument 0, twice: blue, red, green and
+			// pale yellow, 25 ticks each (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_white.tga',
+						[0, 0],
+						true
+					),
+					Params
+				);
+			}
+		}
+	],
 	//912: [{}],	//EF_WALLOFTHORN	   Wall of Thorns unit (green fog cloud)
 	//913: [{}],	//EF_FIREBALL5	   Magic projectiles
 	//914: [{}],	//EF_THROWITEM11	   (Nothing)

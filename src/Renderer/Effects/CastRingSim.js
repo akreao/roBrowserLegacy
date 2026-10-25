@@ -5,7 +5,9 @@
  * WebGL, so it can be tested on its own. The 4th-job cast effects 2367
  * (ring_yellow), 1556 (ring_blue), 1565 (ring_yellow) and 1938
  * (new_battle_w/abr_battle_warior) each draw two of these rings, built with
- * sizes 45 and 25 (effect-port/rings.md).
+ * sizes 45 and 25 (effect-port/rings.md). 911 (ring_white, 15) uses the same
+ * ring; 2369 (ring_white) uses its colour-cycling twin, the client's primitive
+ * 139 (effect-port/white-rings.md).
  *
  * As the official client builds it:
  *
@@ -20,7 +22,9 @@
  *  - A strip's length is the band's length (20, 19, 18, 17) give or take 30%,
  *    a hump across the circle that breathes slowly.
  *  - Casts shorter than 61 ticks start every band at alpha 0, 5 ticks apart.
- *  - Coloured and blended by the ring's mode, picked by its argument.
+ *  - Coloured and blended by the ring's mode, picked by its argument. The
+ *    colour-cycling twin starts in mode 4 whatever its argument and steps to
+ *    the next of modes 4, 6, 7, 8 (blue, red, green, pale yellow) every 25 ticks.
  *  - The effect lasts the cast time, but at least 56 ticks.
  *
  * Units are the client's: world units (5 to a cell), ticks (60 a second), degrees.
@@ -97,6 +101,7 @@ const ARG_MODE = {
 export const RING_MODES = {
 	4: { color: [100, 100, 255], additive: true },
 	5: { color: [255, 255, 255], additive: true },
+	6: { color: [255, 100, 100], additive: true },
 	7: { color: [100, 255, 100], additive: true },
 	8: { color: [255, 255, 170], additive: true },
 	10: { color: [255, 89, 182], additive: true },
@@ -118,6 +123,10 @@ export const RING_MODES = {
 	50: { color: [255, 198, 91], additive: true }
 };
 
+/** The colour-cycling ring's modes, in order, and how many ticks it holds each. */
+export const CYCLE_MODES = [4, 6, 7, 8];
+export const CYCLE_TICKS = 25;
+
 /**
  * @param {number} arg the ring's argument
  * @return {number} its mode
@@ -127,11 +136,19 @@ export function ringMode(arg) {
 }
 
 /**
+ * @param {number} mode
+ * @return {{color: number[], additive: boolean}}
+ */
+export function modeTint(mode) {
+	return RING_MODES[mode] || RING_MODES[5];
+}
+
+/**
  * @param {number} arg
  * @return {{color: number[], additive: boolean}}
  */
 export function ringTint(arg) {
-	return RING_MODES[ringMode(arg)] || RING_MODES[5];
+	return modeTint(ringMode(arg));
 }
 
 /**
@@ -167,14 +184,17 @@ export function ringFrames(castTime) {
  * @param {number} size 45 or 25
  * @param {number} arg the ring's argument
  * @param {number} frames the effect's lifetime, ticks
+ * @param {boolean} [cycle] the colour-cycling twin (primitive 139)
  * @return {object}
  */
-export function createRing(size, arg, frames) {
+export function createRing(size, arg, frames, cycle = false) {
 	const short = frames < SHORT_LIFE;
 	const lengths = bandLengths(arg);
 	return {
 		arg,
 		frames,
+		cycle,
+		mode: cycle ? CYCLE_MODES[0] : ringMode(arg),
 		bands: BAND_START.map((start, b) => ({
 			start,
 			length: lengths[b],
@@ -210,6 +230,10 @@ export function stepRing(ring) {
 	for (let b = 0; b < ring.bands.length; b++) {
 		const band = ring.bands[b];
 		band.counter++;
+		// The twin's bands each set the ring's mode as their counter passes a step.
+		if (ring.cycle && band.counter >= 0 && band.counter % CYCLE_TICKS === 0) {
+			ring.mode = CYCLE_MODES[(band.counter / CYCLE_TICKS) % CYCLE_MODES.length];
+		}
 		if (band.counter <= 0) {
 			continue;
 		}

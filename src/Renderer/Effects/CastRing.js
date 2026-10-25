@@ -4,7 +4,8 @@
  * Draws the official client's cast-aura ring effect: two rings of four leaning
  * bands round the caster (sizes 45 and 25), each coloured by its argument.
  * Effects 2367 (ring_yellow.tga, 0), 1556 (ring_blue.tga, 20 and 21), 1565
- * (ring_yellow.tga, 23) and 1938 (new_battle_w/abr_battle_warior.tga, 0).
+ * (ring_yellow.tga, 23) and 1938 (new_battle_w/abr_battle_warior.tga, 0);
+ * 911 (ring_white.tga, 15); 2369 (ring_white.tga, 0, colour cycling).
  * The motion and geometry are in CastRingSim.js; this file only draws them.
  *
  * Effect table entry:
@@ -24,7 +25,7 @@ import {
 	RING_VERTICES,
 	STRIPS,
 	ringFrames,
-	ringTint,
+	modeTint,
 	createRing,
 	stepRing,
 	buildRing
@@ -68,24 +69,21 @@ class CastRing {
 	 * @param {number} castTime cast time, ms
 	 * @param {string} texture file under data/texture/effect/
 	 * @param {number[]} args the size-45 ring's argument, then the size-25 ring's
+	 * @param {boolean} [cycle] build the colour-cycling twin (client primitive 139)
 	 */
-	constructor(position, startTick, castTime, texture, args) {
+	constructor(position, startTick, castTime, texture, args, cycle = false) {
 		this.position = position;
 		this.startTick = startTick || 0;
 		this.frames = ringFrames(castTime);
 		this.endTick = this.startTick + this.frames * RING_TICK_MS;
 		this.texture = texture;
 		this.ticks = 0;
-		this.rings = SIZES.map((size, i) => {
-			const tint = ringTint(args[i]);
-			return {
-				sim: createRing(size, args[i], this.frames),
-				vertices: new Float32Array(RING_VERTICES * 5),
-				color: new Float32Array([tint.color[0] / 255, tint.color[1] / 255, tint.color[2] / 255, 1]),
-				additive: tint.additive,
-				buffer: null
-			};
-		});
+		this.rings = SIZES.map((size, i) => ({
+			sim: createRing(size, args[i], this.frames, cycle),
+			vertices: new Float32Array(RING_VERTICES * 5),
+			color: new Float32Array(4),
+			buffer: null
+		}));
 	}
 
 	init(gl) {
@@ -140,7 +138,11 @@ class CastRing {
 				gl.bufferData(gl.ARRAY_BUFFER, ring.vertices, gl.DYNAMIC_DRAW);
 				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
-				gl.blendFunc(gl.SRC_ALPHA, ring.additive ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+				const tint = modeTint(ring.sim.mode);
+				ring.color[0] = tint.color[0] / 255;
+				ring.color[1] = tint.color[1] / 255;
+				ring.color[2] = tint.color[2] / 255;
+				gl.blendFunc(gl.SRC_ALPHA, tint.additive ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
 
 				ring.sim.bands.forEach((band, b) => {
 					const alpha = Math.min(255, band.alpha);
