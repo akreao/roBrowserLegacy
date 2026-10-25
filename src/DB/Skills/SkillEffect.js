@@ -1199,7 +1199,12 @@ SkillEffect[SK.SHC_DANCING_KNIFE] = { effectIdOnCaster: 'ef_shc_dancing_knife_ca
 SkillEffect[SK.SHC_SAVAGE_IMPACT] = { effectId: 'ef_shc_savage_impact', hitEffectId: 'ef_shc_savage_impact_hit' }; //Savage Impact
 SkillEffect[SK.SHC_ETERNAL_SLASH] = { effectId: 'ef_shc_eternal_slash', hitEffectId: 'ef_shc_eternal_slash_hit' }; //Eternal Slash
 SkillEffect[SK.SHC_POTENT_VENOM] = { effectId: 'ef_shc_potent_venom' }; //Potent Venom
-SkillEffect[SK.SHC_SHADOW_STAB] = { effectId: 'ef_shc_shadow_stab' }; //Shadow Stab
+// Shadow Stab: the stab on the caster when the use packet succeeds, the hit on
+// the target with each hit (the official client's skill action; see EffectTable).
+SkillEffect[SK.SHC_SHADOW_STAB] = {
+	successEffectIdOnCaster: 'ef_shc_shadow_stab',
+	hitEffectId: 'ef_shc_shadow_stab_hit'
+};
 SkillEffect[SK.SHC_IMPACT_CRATER] = { effectId: 'ef_shc_impact_crater', hitEffectId: 'ef_shc_impact_crater_hit' }; //Impact Crater
 SkillEffect[SK.SHC_ENCHANTING_SHADOW] = { effectId: 'ef_shc_enchanting_shadow' }; //Enchanting Shadow
 SkillEffect[SK.SHC_FATAL_SHADOW_CROW] = {
