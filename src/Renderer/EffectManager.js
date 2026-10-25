@@ -22,6 +22,7 @@ import EffectPrim from 'Renderer/Effects/EffectPrim.js';
 import groundScatter from 'Renderer/Effects/GroundScatter.js';
 import AreaSpawner from 'Renderer/Effects/AreaSpawner.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
+import BezierArcThrowStrEffect from 'Renderer/Effects/BezierArcThrow.js';
 import RsmEffect from 'Renderer/Effects/RsmEffect.js';
 import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
@@ -121,13 +122,23 @@ function spamSTR(Params) {
 		fallbacks.unshift({ filename: 'data/texture/effect/' + pick(Params.effect.file) + '.str', texturePath });
 	}
 
-	const str = new StrEffect(
-		'data/texture/effect/' + filename + '.str',
-		Params.Inst.position,
-		Params.Inst.startTick,
-		texturePath,
-		fallbacks
-	);
+	// Thrown from the owner onto the position (Thundering Orb's orb)
+	const str = Params.effect.arcThrow
+		? new BezierArcThrowStrEffect(
+				'data/texture/effect/' + filename + '.str',
+				Params.Inst.position,
+				Params.Inst.startTick,
+				texturePath,
+				fallbacks,
+				Params.Init.ownerEntity
+			)
+		: new StrEffect(
+				'data/texture/effect/' + filename + '.str',
+				Params.Inst.position,
+				Params.Inst.startTick,
+				texturePath,
+				fallbacks
+			);
 
 	// A row from the client's EZ2 table carries its PosX/PosY: placed as the
 	// client places those effects (StrEffect.layout).
