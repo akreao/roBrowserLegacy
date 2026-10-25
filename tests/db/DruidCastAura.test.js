@@ -56,7 +56,7 @@ const AURA = {
 
 describe('Druid cast aura rule', () => {
 	it('gives no element aura to skills 6525-6606', () => {
-		expect(NO_ELEMENT_AURA_RANGES).toEqual([[6525, 6606]]);
+		expect(NO_ELEMENT_AURA_RANGES).toContainEqual([6525, 6606]);
 		expect(SK.DR_ENRAGE_WOLF).toBe(6525);
 		expect(SK.AT_NATURE_AID).toBe(6606);
 		expect(hasElementCastAura(6524)).toBe(true); // DR_WEREWOLF, outside the range

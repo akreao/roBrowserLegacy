@@ -208,12 +208,13 @@ SkillEffect[SK.AS_SPLASHER] = { effectId: 129 }; //Venom Splasher
 // 1st Class Quest
 SkillEffect[SK.NV_FIRSTAID] = { effectId: 309 }; //First Aid
 SkillEffect[SK.NV_TRICKDEAD] = {}; //Play Dead
-SkillEffect[SK.HN_DOUBLEBOWLINGBASH] = { effectId: 'ef_hn_doublebowlingbash' }; //Double Bowling Bash
+SkillEffect[SK.HN_DOUBLEBOWLINGBASH] = { effectId: 'ef_hn_doublebowlingbash', castAuraEffectId: 12 }; //Double Bowling Bash
 SkillEffect[SK.HN_MEGA_SONIC_BLOW] = { effectId: 'ef_hn_mega_sonic_blow' }; //Mega Sonic Blow
-SkillEffect[SK.HN_SHIELD_CHAIN_RUSH] = { effectId: 'ef_hn_shield_chain_rush' }; //Shield Chain Rush
+SkillEffect[SK.HN_SHIELD_CHAIN_RUSH] = { effectId: 'ef_hn_shield_chain_rush', castAuraEffectId: 58 }; //Shield Chain Rush
 SkillEffect[SK.HN_SPIRAL_PIERCE_MAX] = { effectId: 'ef_hn_spiral_pierce_max' }; //Spiral Pierce Max
-SkillEffect[SK.HN_METEOR_STORM_BUSTER] = { effectId: 'ef_hn_meteor_storm_buster' }; //Meteor Storm Buster
-SkillEffect[SK.HN_JUPITEL_THUNDER_STORM] = { effectId: 'ef_hn_jupitel_thunder_storm' }; //Jupitel Thunderstorm
+SkillEffect[SK.HN_METEOR_STORM_BUSTER] = { effectId: 'ef_hn_meteor_storm_buster', castAuraEffectId: 'ef_cast_circle_red' }; //Meteor Storm Buster
+SkillEffect[SK.HN_JUPITEL_THUNDER_STORM] = { effectId: 'ef_hn_jupitel_thunder_storm', castAuraEffectId: 'ef_druid_cast_circle_yellow' }; //Jupitel Thunderstorm
+SkillEffect[SK.HN_JACK_FROST_NOVA] = { castAuraEffectId: 1449, beginCastEffectId: 1446 }; //Jack Frost Nova: ice cast circle and new_jackfrost_cast while casting
 SkillEffect[SK.HN_HELLS_DRIVE] = {
 	// One spot per row and column of a square over the splash area (3, 5, 7 or 9
 	// cells), 32 ms apart, when the use packet succeeds: floor layer plus a random blast
@@ -223,7 +224,8 @@ SkillEffect[SK.HN_HELLS_DRIVE] = {
 	// While casting: the brown cast circle, not the element aura
 	castAuraEffectId: 1709
 }; //Hell's Drive
-SkillEffect[SK.HN_NAPALM_VULCAN_STRIKE] = { effectId: 'ef_hn_napalm_vulcan_strike' }; //Napalm Vulcan Strike
+SkillEffect[SK.HN_GROUND_GRAVITATION] = { castAuraEffectId: [9, 12] }; //Ground Gravitation: effects 9 and 12 while casting
+SkillEffect[SK.HN_NAPALM_VULCAN_STRIKE] = { effectId: 'ef_hn_napalm_vulcan_strike', castAuraEffectId: 58 }; //Napalm Vulcan Strike
 SkillEffect[SK.HN_BREAKINGLIMIT] = { effectId: 'ef_hn_breakinglimit' }; //Breaking Limit
 SkillEffect[SK.HN_RULEBREAK] = { effectId: 'ef_hn_rulebreak' }; //Rule Break
 SkillEffect[5505 /* HN_OVERCOMING_CRISIS */] = { effectId: 'ef_hn_overcoming_crisis' }; //Overcoming Crisis
@@ -1082,20 +1084,20 @@ SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire' }; //Wild Fire
 SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade' }; //Basic Grenade
 SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; //Grenades Dropping
 SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
-SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card' }; //Hidden Card
-SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit' }; //Mission Bombard (the bomb and its fire come from its skill unit)
+SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card', castAuraEffectId: 840 }; //Hidden Card
+SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit', castAuraEffectId: 840 }; //Mission Bombard (the bomb and its fire come from its skill unit)
 SkillEffect[SK.NW_HASTY_FIRE_IN_THE_HOLE] = {
 	effectId: 'ef_nw_hasty_fire_in_the_hole', // 5x5, 7x7 and 9x9 in turn
 	groundRepeatWindowMs: REPEAT_WINDOW_MS
 }; //Hasty Fire in the Hole
 SkillEffect[5500 /* NW_WILD_SHOT */] = {
 	effectId: 'ef_nw_wild_shot',
-	effectIdOnCaster: 'ef_nw_wild_shot_cast',
+	beginCastEffectId: 'ef_nw_wild_shot_cast',
 	hitEffectId: 'ef_nw_wild_shot_hit'
 }; //Wild Shot
 SkillEffect[5501 /* NW_MIDNIGHT_FALLEN */] = {
 	effectId: 'ef_nw_midnight_fallen',
-	effectIdOnCaster: 'ef_nw_midnight_fallen_cast'
+	beginCastEffectId: 'ef_nw_midnight_fallen_cast'
 }; //Midnight Fallen
 // Kagerou & Oboro
 SkillEffect[SK.KO_YAMIKUMO] = {}; //Shadow Hiding
@@ -1121,24 +1123,25 @@ SkillEffect[SK.KO_IZAYOI] = {}; //16th Night
 SkillEffect[SK.SS_TOKEDASU] = { effectId: 'ef_ss_tokedasu' }; //Melt Away
 SkillEffect[SK.SS_SHIMIRU] = { effectId: 'ef_ss_shimiru' }; //Infiltrate
 SkillEffect[SK.SS_AKUMUKESU] = { effectId: 'ef_ss_akumukesu' }; //Nightmare Erasion
+SkillEffect[SK.SS_SHINKIROU] = { beginCastEffectId: 1774 }; //Shinkirou: mystery_illusion_cast_bottom while casting
 SkillEffect[SK.SS_KAGEGARI] = { effectId: 'ef_ss_kagegari' }; //Shadow Hunting
-SkillEffect[SK.SS_KAGENOMAI] = { effectId: 'ef_ss_kagenomai' }; //Shadow Dance
-SkillEffect[SK.SS_KAGEGISSEN] = { effectId: 'ef_ss_kagegissen', hitEffectId: 'ef_ss_kagegissen_hit' }; //Shadow Flash
-SkillEffect[SK.SS_FUUMASHOUAKU] = { effectId: 'ef_ss_fuumashouaku' }; //Huuma Shuriken - Grasp
-SkillEffect[SK.SS_FUUMAKOUCHIKU] = { effectId: 'ef_ss_fuumakouchiku' }; //Huuma Shuriken - Construct
-SkillEffect[SK.SS_KUNAIWAIKYOKU] = { effectId: 'ef_ss_kunaiwaikyoku' }; //Kunai - Distortion
+SkillEffect[SK.SS_KAGENOMAI] = { effectId: 'ef_ss_kagenomai', castAuraEffectId: 454 }; //Shadow Dance
+SkillEffect[SK.SS_KAGEGISSEN] = { effectId: 'ef_ss_kagegissen', hitEffectId: 'ef_ss_kagegissen_hit', castAuraEffectId: 454 }; //Shadow Flash
+SkillEffect[SK.SS_FUUMASHOUAKU] = { effectId: 'ef_ss_fuumashouaku', castAuraEffectId: 454 }; //Huuma Shuriken - Grasp
+SkillEffect[SK.SS_FUUMAKOUCHIKU] = { effectId: 'ef_ss_fuumakouchiku', castAuraEffectId: 454 }; //Huuma Shuriken - Construct
+SkillEffect[SK.SS_KUNAIWAIKYOKU] = { effectId: 'ef_ss_kunaiwaikyoku', castAuraEffectId: 454 }; //Kunai - Distortion
 SkillEffect[SK.SS_KUNAIKAITEN] = { successEffectIdOnCaster: 'ef_ss_kunaikaiten' }; //Kunai - Rotation
-SkillEffect[SK.SS_KUNAIKUSSETSU] = { effectId: 'ef_ss_kunaikussetsu' }; //Kunai - Refraction
-SkillEffect[SK.SS_SEKIENHOU] = { effectId: 'ef_ss_sekienhou' }; //Red Flame Cannon
-SkillEffect[SK.SS_REIKETSUHOU] = { effectId: 'ef_ss_reiketsuhou' }; //Cold Blooded Cannon
+SkillEffect[SK.SS_KUNAIKUSSETSU] = { effectId: 'ef_ss_kunaikussetsu', castAuraEffectId: 454 }; //Kunai - Refraction
+SkillEffect[SK.SS_SEKIENHOU] = { effectId: 'ef_ss_sekienhou', castAuraEffectId: 'ef_cast_circle_red' }; //Red Flame Cannon
+SkillEffect[SK.SS_REIKETSUHOU] = { effectId: 'ef_ss_reiketsuhou', castAuraEffectId: 'ef_druid_cast_circle_blue' }; //Cold Blooded Cannon
 SkillEffect[SK.SS_RAIDENPOU] = {
 	effectId: 'ef_ss_raidenpou',
-	effectIdOnCaster: 'ef_ss_raidenpou_cast',
+	beginCastEffectId: 'ef_ss_raidenpou_cast',
 	hitEffectId: 'ef_ss_raidenpou_hit'
 }; //Thundering Cannon
-SkillEffect[SK.SS_KINRYUUHOU] = { effectId: 'ef_ss_kinryuuhou', hitEffectId: 'ef_ss_kinryuuhou_hit' }; //Golden Dragon Cannon
-SkillEffect[SK.SS_ANTENPOU] = { effectId: 'ef_ss_antenpou' }; //Darkening Cannon
-SkillEffect[SK.SS_KAGEAKUMU] = { effectId: 'ef_ss_kageakumu' }; //Shadow - Nightmare
+SkillEffect[SK.SS_KINRYUUHOU] = { effectId: 'ef_ss_kinryuuhou', hitEffectId: 'ef_ss_kinryuuhou_hit', castAuraEffectId: 58 }; //Golden Dragon Cannon
+SkillEffect[SK.SS_ANTENPOU] = { effectId: 'ef_ss_antenpou', castAuraEffectId: 'ef_cast_circle_violet' }; //Darkening Cannon
+SkillEffect[SK.SS_KAGEAKUMU] = { effectId: 'ef_ss_kageakumu', castAuraEffectId: 812 }; //Shadow - Nightmare
 SkillEffect[SK.SS_HITOUAKUMU] = {
 	// When the use packet succeeds, at the caster: the floor burst, then all
 	// three blade files, 15-19 copies each fanned out all round
@@ -1147,7 +1150,7 @@ SkillEffect[SK.SS_HITOUAKUMU] = {
 	// While casting: effect 812 (dark flash and caster strobe) instead of the element aura
 	castAuraEffectId: 812
 }; //Kunai - Nightmare
-SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
+SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu', castAuraEffectId: 812 }; //Dark Dragon - Nightmare
 SkillEffect[5499 /* SS_FOUR_CHARM */] = {
 	effectIdByCharmType: {
 		1: 'ef_ss_four_charm_water',
@@ -1162,13 +1165,13 @@ SkillEffect[SK.KG_KAGEMUSYA] = {}; //Shadow Warrior
 SkillEffect[SK.SOA_TALISMAN_OF_PROTECTION] = { effectId: 'ef_soa_talisman_of_protection' }; //Talisman Of Protection
 SkillEffect[SK.SOA_TALISMAN_OF_WARRIOR] = { effectId: 'ef_soa_talisman_of_warrior' }; //Talisman Of Warrior
 SkillEffect[SK.SOA_TALISMAN_OF_MAGICIAN] = { effectId: 'ef_soa_talisman_of_magician' }; //Talisman Of Magician
-SkillEffect[SK.SOA_SOUL_GATHERING] = { effectId: 'ef_soa_soul_gathering' }; //Soul Gathering
+SkillEffect[SK.SOA_SOUL_GATHERING] = { effectId: 'ef_soa_soul_gathering', castAuraEffectId: 454 }; //Soul Gathering
 SkillEffect[SK.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: 'ef_soa_talisman_of_five_elements' }; //Talisman Of Five Elements
-SkillEffect[SK.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: 'ef_soa_talisman_of_soul_stealing' }; //Talisman Of Soul Stealing
+SkillEffect[SK.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: 'ef_soa_talisman_of_soul_stealing', castAuraEffectId: 441 }; //Talisman Of Soul Stealing
 SkillEffect[SK.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: 'ef_soa_exorcism_of_malicious_soul' }; //Exorcism Of Malicious Soul
-SkillEffect[SK.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: 'ef_soa_talisman_of_blue_dragon' }; //Talisman Of Blue Dragon
-SkillEffect[SK.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: 'ef_soa_talisman_of_white_tiger' }; //Talisman Of White Tiger
-SkillEffect[SK.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: 'ef_soa_talisman_of_red_phoenix' }; //Talisman Of Red Phoenix
+SkillEffect[SK.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: 'ef_soa_talisman_of_blue_dragon', castAuraEffectId: 845 }; //Talisman Of Blue Dragon
+SkillEffect[SK.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: 'ef_soa_talisman_of_white_tiger', castAuraEffectId: 843 }; //Talisman Of White Tiger
+SkillEffect[SK.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: 'ef_soa_talisman_of_red_phoenix', castAuraEffectId: 840 }; //Talisman Of Red Phoenix
 SkillEffect[SK.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: 'ef_soa_talisman_of_black_tortoise' }; //Talisman Of Black Tortoise
 SkillEffect[SK.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: 'ef_soa_talisman_of_four_bearing_god' }; //Talisman Of Four Bearing God
 SkillEffect[SK.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: 'ef_soa_circle_of_directions_and_elementals' }; //Circle Of Directions And Elementals
@@ -1257,7 +1260,7 @@ SkillEffect[SK.BO_RESEARCHREPORT] = { effectId: 'ef_bo_researchreport', effectId
 SkillEffect[SK.BO_HELLTREE] = { effectIdOnCaster: 'ef_bo_helltree_cast' }; //Hell Tree
 SkillEffect[5385 /* BO_WOODEN_ATTACK */] = { hitEffectId: 'ef_bo_wooden_attack_hit' }; //Wooden Attack
 SkillEffect[SK.BO_EXPLOSIVE_POWDER] = { effectId: 'ef_bo_explosive_powder' }; //Explosive Powder
-SkillEffect[SK.BO_MAYHEMIC_THORNS] = { effectId: 'ef_bo_mayhemic_thorns' }; //Mayhemic Thorns
+SkillEffect[SK.BO_MAYHEMIC_THORNS] = { effectId: 'ef_bo_mayhemic_thorns', beginCastEffectId: [2228, 2229] }; //Mayhemic Thorns
 SkillEffect[6509 /* BO_MYSTERY_POWDER */] = {
 	effectId: 'ef_bo_mystery_powder',
 	hitEffectId: 'ef_bo_mystery_powder_hit'
@@ -1341,7 +1344,7 @@ SkillEffect[SK.DK_STORMSLASH] = {
 		'ef_dk_stormslash_5'
 	]
 }; //Storm Slash
-SkillEffect[SK.DK_DRAGONIC_BREATH] = { effectId: 'ef_dk_dragonic_breath', hitEffectId: 'ef_dk_dragonic_breath_hit' }; //Dragonic Breath
+SkillEffect[SK.DK_DRAGONIC_BREATH] = { effectId: 'ef_dk_dragonic_breath', hitEffectId: 'ef_dk_dragonic_breath_hit', castAuraEffectId: 12 }; //Dragonic Breath
 SkillEffect[6502 /* DK_DRAGONIC_PIERCE */] = {
 	effectId: 'ef_dk_dragonic_pierce',
 	effectIdOnCaster: 'ef_dk_dragonic_pierce_cast',
@@ -1765,12 +1768,12 @@ SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] = {
 		'ef_sh_chul_ho_sonic_claw_wave_11'
 	]
 };
-SkillEffect[SK.SH_HOWLING_OF_CHUL_HO] = { effectId: 'ef_sh_howling_of_chul_ho' }; //Howling of Chulho
-SkillEffect[SK.SH_HOGOGONG_STRIKE] = { effectId: 'ef_sh_hogogong_strike' }; //Hogogong Strike
-SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spraying' }; //Kisul Water Spraying
-SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festival_of_ki_sul' }; //Marine Festival of Kisul
-SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul' }; //Sandy Festival of Kisul
-SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage' }; //Kisul Rampage
+SkillEffect[SK.SH_HOWLING_OF_CHUL_HO] = { effectId: 'ef_sh_howling_of_chul_ho', castAuraEffectId: 840 }; //Howling of Chulho
+SkillEffect[SK.SH_HOGOGONG_STRIKE] = { effectId: 'ef_sh_hogogong_strike', castAuraEffectId: 840 }; //Hogogong Strike
+SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spraying', castAuraEffectId: 58 }; //Kisul Water Spraying
+SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festival_of_ki_sul', castAuraEffectId: 845 }; //Marine Festival of Kisul
+SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul', castAuraEffectId: 842 }; //Sandy Festival of Kisul
+SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage', castAuraEffectId: 831 }; //Kisul Rampage
 SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = {
 	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
 	successEffectIdOnCasterByLevel: [
@@ -1781,19 +1784,21 @@ SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = {
 		'ef_sh_colors_of_hyun_rok_darkness',
 		'ef_sh_colors_of_hyun_rok_saint',
 		'ef_sh_colors_of_hyun_rok_reset'
-	]
+	],
+	castAuraEffectId: 58
 }; //Colors of Hyunrok
-SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon' }; //Hyunrok Cannon
+SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { castAuraEffectId: 841 }; //Hyunrok Breeze
+SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon', castAuraEffectId: 841 }; //Hyunrok Cannon
 SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion
 SkillEffect[SK.SH_BLESSING_OF_MYSTICAL_CREATURES] = { effectId: 'ef_sh_blessing_of_mystical_creatures' }; //Blessing of Mystical Creatures
 SkillEffect[5506 /* SH_CHUL_HO_BATTERING */] = {
 	effectId: 'ef_sh_chul_ho_battering',
-	effectIdOnCaster: 'ef_sh_chul_ho_battering_cast',
+	beginCastEffectId: 'ef_sh_chul_ho_battering_cast',
 	hitEffectId: 'ef_sh_chul_ho_battering_hit'
 }; //Chulho Battering
 SkillEffect[5507 /* SH_HYUN_ROK_SPIRIT_POWER */] = {
 	effectId: 'ef_sh_hyun_rok_spirit_power',
-	effectIdOnCaster: 'ef_sh_hyun_rok_spirit_power_cast',
+	beginCastEffectId: 'ef_sh_hyun_rok_spirit_power_cast',
 	hitEffectId: 'ef_sh_hyun_rok_spirit_power_hit'
 }; //Hyunrok Spirit Power
 // Homunculus S
