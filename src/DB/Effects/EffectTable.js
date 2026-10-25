@@ -40,6 +40,7 @@ import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
+import CastCircle from 'Renderer/Effects/CastCircle.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -17834,6 +17835,27 @@ export default {
 			attachedEntity: true,
 			repeat: true,
 			renderBeforeEntities: true
+		}
+	],
+
+	1709: [
+		{
+			// Hell's Drive cast aura: the client's untinted cast circle in
+			// new_earthdrive/ring_brown.tga, white, for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_earthdrive/ring_brown.tga'
+					),
+					Params
+				);
+			}
 		}
 	],
 
