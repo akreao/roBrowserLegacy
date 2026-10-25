@@ -98,9 +98,9 @@ describe('Druid cast aura rule', () => {
 		}
 	});
 
-	it('plays Sharpen Hail\'s sharpen_hail rows at cast start, and only the shot on damage', () => {
+	it('plays Sharpen Hail\'s sharpen_hail rows at cast start, and the shots from the use packet', () => {
 		expect(field('KR_SHARPEN_HAIL', 'beginCastEffectId')).toBe('ef_druid_sharpen_hail');
-		expect(row('KR_SHARPEN_HAIL')).toContain("effectId: 'ef_druid_sharpen_hail_shot'");
+		expect(row('KR_SHARPEN_HAIL')).toContain("successEffectHailScatter: ['ef_druid_sharpen_hail_shot']");
 	});
 
 	it('plays Tempest Flap\'s cast row at cast start, only in Wereraptor form', () => {
