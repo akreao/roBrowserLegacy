@@ -6570,7 +6570,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_doublebowlingbash/double_bowlingbash',
 			texturePath: 'hyper_novice/hn_doublebowlingbash/',
-			wav: 'effect/hyper_novice/hn_double_bowlingbash'
+			wav: 'effect/hyper_novice/hn_double_bowlingbash',
+			yOffset: 10
 		}
 	],
 
@@ -6580,7 +6581,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_mega_sonic_blow/mega_sonic_blow',
 			texturePath: 'hyper_novice/hn_mega_sonic_blow/',
-			wav: 'effect/hyper_novice/hn_mega_sonic_blow'
+			wav: 'effect/hyper_novice/hn_mega_sonic_blow',
+			yOffset: 13
 		}
 	],
 
@@ -6590,7 +6592,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_shield_chain_rush/shield_chain_rush',
 			texturePath: 'hyper_novice/hn_shield_chain_rush/',
-			wav: 'effect/hyper_novice/hn_shield_chain_rush'
+			wav: 'effect/hyper_novice/hn_shield_chain_rush',
+			yOffset: 10
 		}
 	],
 
@@ -6600,7 +6603,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_spiral_pierce_max/spiral_pierce_max',
 			texturePath: 'hyper_novice/hn_spiral_pierce_max/',
-			wav: 'effect/hyper_novice/hn_spiral_pierce_max'
+			wav: 'effect/hyper_novice/hn_spiral_pierce_max',
+			yOffset: 5
 		}
 	],
 
@@ -6610,13 +6614,15 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_meteor_storm_buster/meteor_storm_buster',
 			texturePath: 'hyper_novice/hn_meteor_storm_buster/',
-			wav: 'effect/hyper_novice/hn_meteor_storm_buster'
+			wav: 'effect/hyper_novice/hn_meteor_storm_buster',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'hyper_novice/hn_meteor_storm_buster/meteor_storm_buster_bottom',
 			texturePath: 'hyper_novice/hn_meteor_storm_buster/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -6675,7 +6681,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_napalm_vulcan_strike/napalm_vulcan_strike',
 			texturePath: 'hyper_novice/hn_napalm_vulcan_strike/',
-			wav: 'effect/hyper_novice/hn_napalm_vulcan_strike'
+			wav: 'effect/hyper_novice/hn_napalm_vulcan_strike',
+			yOffset: 12
 		}
 	],
 
@@ -6685,7 +6692,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_breakinglimit/breakinglimit/breakinglimit',
 			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit/',
-			wav: 'effect/hyper_novice/hn_breakinglimit'
+			wav: 'effect/hyper_novice/hn_breakinglimit',
+			yOffset: 12
 		}
 	],
 
@@ -6695,7 +6703,8 @@ export default {
 			type: 'STR',
 			file: 'hyper_novice/hn_rulebreak/rulebreak/rulebreak',
 			texturePath: 'hyper_novice/hn_rulebreak/rulebreak/',
-			wav: 'effect/hyper_novice/hn_rulebreak'
+			wav: 'effect/hyper_novice/hn_rulebreak',
+			yOffset: 12
 		}
 	],
 
@@ -6706,14 +6715,16 @@ export default {
 			file: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis/overcoming_crisis',
 			texturePath: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis/',
 			min: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis/min_overcoming_crisis',
-			wav: 'effect/hyper_novice/hn_overcoming_crisis'
+			wav: 'effect/hyper_novice/hn_overcoming_crisis',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/overcoming_crisis_bottom',
 			texturePath: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/',
 			min: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/min_overcoming_crisis_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -10503,7 +10514,8 @@ export default {
 			file: 'spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/howling_of_chul_ho',
 			texturePath: 'spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/',
 			min: 'spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/min_howling_of_chul_ho',
-			wav: 'effect/spirit_handler/sh_howling_of_chul_ho'
+			wav: 'effect/spirit_handler/sh_howling_of_chul_ho',
+			yOffset: 10
 		}
 	],
 
@@ -10514,7 +10526,8 @@ export default {
 			file: 'spirit_handler/sh_hogogong_strike/hogogong_strike',
 			texturePath: 'spirit_handler/sh_hogogong_strike/',
 			min: 'spirit_handler/sh_hogogong_strike/min_hogogong_strike',
-			wav: 'effect/spirit_handler/sh_hogogong_strike'
+			wav: 'effect/spirit_handler/sh_hogogong_strike',
+			yOffset: 10
 		}
 	],
 
@@ -10525,7 +10538,8 @@ export default {
 			file: 'spirit_handler/sh_ki_sul_water_spraying/ki_sul_water_spraying',
 			texturePath: 'spirit_handler/sh_ki_sul_water_spraying/',
 			min: 'spirit_handler/sh_ki_sul_water_spraying/min_ki_sul_water_spraying',
-			wav: 'effect/spirit_handler/sh_ki_sul_water_spraying'
+			wav: 'effect/spirit_handler/sh_ki_sul_water_spraying',
+			yOffset: 10
 		}
 	],
 
@@ -10536,14 +10550,16 @@ export default {
 			file: 'spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/marine_festival_of_ki_sul',
 			texturePath: 'spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/',
 			min: 'spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/min_marine_festival_of_ki_sul',
-			wav: 'effect/spirit_handler/sh_marine_festival_of_ki_sul'
+			wav: 'effect/spirit_handler/sh_marine_festival_of_ki_sul',
+			yOffset: 9
 		},
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/marine_festival_of_ki_sul_bottom',
 			texturePath: 'spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/',
 			min: 'spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/min_marine_festival_of_ki_sul_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 9
 		}
 	],
 
@@ -10554,14 +10570,16 @@ export default {
 			file: 'spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/sandy_festival_of_ki_sul',
 			texturePath: 'spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/',
 			min: 'spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/min_sandy_festival_of_ki_sul',
-			wav: 'effect/spirit_handler/sh_sandy_festival_of_ki_sul'
+			wav: 'effect/spirit_handler/sh_sandy_festival_of_ki_sul',
+			yOffset: 9
 		},
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/sandy_festival_of_ki_sul_bottom',
 			texturePath: 'spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/',
 			min: 'spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/min_sandy_festival_of_ki_sul_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 9
 		}
 	],
 
@@ -10572,14 +10590,16 @@ export default {
 			file: 'spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/ki_sul_rampage',
 			texturePath: 'spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/',
 			min: 'spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/min_ki_sul_rampage',
-			wav: 'effect/spirit_handler/sh_ki_sul_rampage'
+			wav: 'effect/spirit_handler/sh_ki_sul_rampage',
+			yOffset: 12
 		},
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/ki_sul_rampage_bottom',
 			texturePath: 'spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/',
 			min: 'spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/min_ki_sul_rampage_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 12
 		}
 	],
 
@@ -10669,7 +10689,8 @@ export default {
 			file: 'spirit_handler/skid_sh_hyun_rok_cannon/hyun_rok_cannon',
 			texturePath: 'spirit_handler/skid_sh_hyun_rok_cannon/',
 			min: 'spirit_handler/skid_sh_hyun_rok_cannon/min_hyun_rok_cannon',
-			wav: 'effect/spirit_handler/sh_hyun_rok_cannon'
+			wav: 'effect/spirit_handler/sh_hyun_rok_cannon',
+			yOffset: 5
 		}
 	],
 
@@ -10680,7 +10701,8 @@ export default {
 			file: 'spirit_handler/sh_temporary_communion/temporary_communion/temporary_communion',
 			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion/',
 			min: 'spirit_handler/sh_temporary_communion/temporary_communion/min_temporary_communion',
-			wav: 'effect/spirit_handler/sh_temporary_communion'
+			wav: 'effect/spirit_handler/sh_temporary_communion',
+			yOffset: 10
 		}
 	],
 
@@ -10691,7 +10713,8 @@ export default {
 			file: 'spirit_handler/sh_blessing_of_mystical_creatures/blessing_of_mystical_creatures',
 			texturePath: 'spirit_handler/sh_blessing_of_mystical_creatures/',
 			min: 'spirit_handler/sh_blessing_of_mystical_creatures/min_blessing_of_mystical_creatures',
-			wav: 'effect/spirit_handler/sh_blessing_of_mystical_creatures'
+			wav: 'effect/spirit_handler/sh_blessing_of_mystical_creatures',
+			yOffset: 10
 		}
 	],
 
@@ -10702,14 +10725,16 @@ export default {
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering/chul_ho_battering',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering/',
 			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering/min_chul_ho_battering',
-			wav: 'effect/spirit_handler/sh_chul_ho_battering'
+			wav: 'effect/spirit_handler/sh_chul_ho_battering',
+			yOffset: 11
 		},
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/chul_ho_battering_bottom',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/',
 			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/min_chul_ho_battering_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -10719,7 +10744,8 @@ export default {
 			type: 'STR',
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/',
-			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast'
+			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast',
+			yOffset: 10
 		}
 	],
 
@@ -10729,7 +10755,8 @@ export default {
 			type: 'STR',
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/chul_ho_battering_hit',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/',
-			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/min_chul_ho_battering_hit'
+			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/min_chul_ho_battering_hit',
+			yOffset: 5
 		}
 	],
 
@@ -10740,14 +10767,16 @@ export default {
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/hyun_rok_spirit_power',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/min_hyun_rok_spirit_power',
-			wav: 'effect/spirit_handler/sh_hyun_rok_spirit_power'
+			wav: 'effect/spirit_handler/sh_hyun_rok_spirit_power',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/hyun_rok_spirit_power_bottom',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/min_hyun_rok_spirit_power_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -10757,14 +10786,16 @@ export default {
 			type: 'STR',
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/',
-			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast'
+			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -10774,7 +10805,8 @@ export default {
 			type: 'STR',
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/hyun_rok_spirit_power_hit',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/',
-			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/min_hyun_rok_spirit_power_hit'
+			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/min_hyun_rok_spirit_power_hit',
+			yOffset: 5
 		}
 	],
 
@@ -13271,7 +13303,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_protection/talisman_of_protection',
 			texturePath: 'soul_ascetic/soa_talisman_of_protection/',
 			min: 'soul_ascetic/soa_talisman_of_protection/min_talisman_of_protection',
-			wav: 'effect/soul_ascetic/soa_talisman_of_protection'
+			wav: 'effect/soul_ascetic/soa_talisman_of_protection',
+			yOffset: 10
 		}
 	],
 
@@ -13282,7 +13315,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_warrior/talisman_of_warrior',
 			texturePath: 'soul_ascetic/soa_talisman_of_warrior/',
 			min: 'soul_ascetic/soa_talisman_of_warrior/min_talisman_of_warrior',
-			wav: 'effect/soul_ascetic/soa_talisman_of_warrior'
+			wav: 'effect/soul_ascetic/soa_talisman_of_warrior',
+			yOffset: 10
 		}
 	],
 
@@ -13292,14 +13326,16 @@ export default {
 			type: 'STR',
 			file: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/talisman_of_magician',
 			texturePath: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/',
-			min: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/min_talisman_of_magician'
+			min: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician/min_talisman_of_magician',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/talisman_of_magician_bottom',
 			texturePath: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/',
 			min: 'soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/min_talisman_of_magician_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -13310,7 +13346,8 @@ export default {
 			file: 'soul_ascetic/soa_soul_gathering/soul_gathering',
 			texturePath: 'soul_ascetic/soa_soul_gathering/',
 			min: 'soul_ascetic/soa_soul_gathering/min_soul_gathering',
-			wav: 'effect/soul_ascetic/soa_soul_gathering'
+			wav: 'effect/soul_ascetic/soa_soul_gathering',
+			yOffset: 13
 		}
 	],
 
@@ -13320,7 +13357,9 @@ export default {
 			type: 'STR',
 			file: 'soul_ascetic/soa_talisman_of_five_elements/talisman_of_the_five_elements',
 			texturePath: 'soul_ascetic/soa_talisman_of_five_elements/',
-			min: 'soul_ascetic/soa_talisman_of_five_elements/min_talisman_of_the_five_elements'
+			min: 'soul_ascetic/soa_talisman_of_five_elements/min_talisman_of_the_five_elements',
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -13331,7 +13370,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_soul_stealing/talisman_of_soul_stealing',
 			texturePath: 'soul_ascetic/soa_talisman_of_soul_stealing/',
 			min: 'soul_ascetic/soa_talisman_of_soul_stealing/min_talisman_of_soul_stealing',
-			wav: 'effect/soul_ascetic/soa_talisman_of_soul_stealing'
+			wav: 'effect/soul_ascetic/soa_talisman_of_soul_stealing',
+			yOffset: 10
 		}
 	],
 
@@ -13341,7 +13381,9 @@ export default {
 			type: 'STR',
 			file: 'soul_ascetic/soa_exorcism_of_malicious_soul/exorcism_of_malicuous_soul',
 			texturePath: 'soul_ascetic/soa_exorcism_of_malicious_soul/',
-			min: 'soul_ascetic/soa_exorcism_of_malicious_soul/min_exorcism_of_malicuous_soul'
+			min: 'soul_ascetic/soa_exorcism_of_malicious_soul/min_exorcism_of_malicuous_soul',
+			renderBeforeEntities: true,
+			yOffset: 13
 		}
 	],
 
@@ -13352,7 +13394,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_blue_dragon/talisman_of_blue_dragon',
 			texturePath: 'soul_ascetic/soa_talisman_of_blue_dragon/',
 			min: 'soul_ascetic/soa_talisman_of_blue_dragon/min_talisman_of_blue_dragon',
-			wav: 'effect/soul_ascetic/soa_talisman_of_blue_dragon'
+			wav: 'effect/soul_ascetic/soa_talisman_of_blue_dragon',
+			yOffset: 13
 		}
 	],
 
@@ -13363,7 +13406,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_white_tiger/talisman_of_white_tiger',
 			texturePath: 'soul_ascetic/soa_talisman_of_white_tiger/',
 			min: 'soul_ascetic/soa_talisman_of_white_tiger/min_talisman_of_white_tiger',
-			wav: 'effect/soul_ascetic/soa_talisman_of_white_tiger'
+			wav: 'effect/soul_ascetic/soa_talisman_of_white_tiger',
+			yOffset: 13
 		}
 	],
 
@@ -13374,14 +13418,16 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix/talisman_of_red_phoenix',
 			texturePath: 'soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix/',
 			min: 'soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix/min_talisman_of_red_phoenix',
-			wav: 'effect/soul_ascetic/soa_talisman_of_red_phoenix'
+			wav: 'effect/soul_ascetic/soa_talisman_of_red_phoenix',
+			yOffset: 13
 		},
 		{
 			type: 'STR',
 			file: 'soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix_bottom/talisman_of_red_phoenix_bottom',
 			texturePath: 'soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix_bottom/',
 			min: 'soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix_bottom/min_talisman_of_red_phoenix_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 13
 		}
 	],
 
@@ -13392,14 +13438,16 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise/talisman_of_black_tortoise',
 			texturePath: 'soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise/',
 			min: 'soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise/min_talisman_of_black_tortoise',
-			wav: 'effect/soul_ascetic/soa_talisman_of_black_tortoise'
+			wav: 'effect/soul_ascetic/soa_talisman_of_black_tortoise',
+			yOffset: 13
 		},
 		{
 			type: 'STR',
 			file: 'soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise_bottom/talisman_of_black_tortoise_bottom',
 			texturePath: 'soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise_bottom/',
 			min: 'soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise_bottom/min_talisman_of_black_tortoise_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 13
 		}
 	],
 
@@ -13410,7 +13458,8 @@ export default {
 			file: 'soul_ascetic/soa_talisman_of_four_bearing_god/talisman_of_four_bearing_god',
 			texturePath: 'soul_ascetic/soa_talisman_of_four_bearing_god/',
 			min: 'soul_ascetic/soa_talisman_of_four_bearing_god/min_talisman_of_four_bearing_god',
-			wav: 'effect/soul_ascetic/soa_talisman_of_four_bearing_god'
+			wav: 'effect/soul_ascetic/soa_talisman_of_four_bearing_god',
+			yOffset: 13
 		}
 	],
 
@@ -13420,7 +13469,9 @@ export default {
 			type: 'STR',
 			file: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/circle_directions_elements',
 			texturePath: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/',
-			min: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/min_circle_directions_elements'
+			min: 'soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/min_circle_directions_elements',
+			renderBeforeEntities: true,
+			yOffset: 13
 		}
 	],
 
@@ -13431,7 +13482,9 @@ export default {
 			file: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/soul_of_heaven_and_earth',
 			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/',
 			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth',
-			wav: 'effect/soul_ascetic/soa_soul_of_heaven_and_earth'
+			wav: 'effect/soul_ascetic/soa_soul_of_heaven_and_earth',
+			renderBeforeEntities: true,
+			yOffset: 13
 		}
 	],
 
@@ -15365,7 +15418,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_tokedasu/tokedasu/tokedasu',
 			texturePath: 'shinkiro_shiranui/ss_tokedasu/tokedasu/',
 			min: 'shinkiro_shiranui/ss_tokedasu/tokedasu/min_tokedasu',
-			wav: 'effect/shinkiro_shiranui/ss_tokedasu'
+			wav: 'effect/shinkiro_shiranui/ss_tokedasu',
+			yOffset: 10
 		}
 	],
 
@@ -15384,7 +15438,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_akumukesu/akumukesu',
 			texturePath: 'shinkiro_shiranui/ss_akumukesu/',
 			min: 'shinkiro_shiranui/ss_akumukesu/min_akumukesu',
-			wav: 'effect/shinkiro_shiranui/ss_akumukesu'
+			wav: 'effect/shinkiro_shiranui/ss_akumukesu',
+			yOffset: 10
 		}
 	],
 
@@ -15395,7 +15450,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_kagegari/kagegari',
 			texturePath: 'shinkiro_shiranui/ss_kagegari/',
 			min: 'shinkiro_shiranui/ss_kagegari/min_kagegari',
-			wav: 'effect/shinkiro_shiranui/ss_kagegari'
+			wav: 'effect/shinkiro_shiranui/ss_kagegari',
+			yOffset: 7
 		}
 	],
 
@@ -15405,7 +15461,8 @@ export default {
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kagenomai/kagenomai',
 			texturePath: 'shinkiro_shiranui/ss_kagenomai/',
-			min: 'shinkiro_shiranui/ss_kagenomai/min_kagenomai'
+			min: 'shinkiro_shiranui/ss_kagenomai/min_kagenomai',
+			yOffset: 7
 		}
 	],
 
@@ -15416,18 +15473,21 @@ export default {
 			file: 'shinkiro_shiranui/ss_kagegissen/kagegissen',
 			texturePath: 'shinkiro_shiranui/ss_kagegissen/',
 			min: 'shinkiro_shiranui/ss_kagegissen/min_kagegissen',
-			wav: 'effect/shinkiro_shiranui/ss_kagegissen'
+			wav: 'effect/shinkiro_shiranui/ss_kagegissen',
+			yOffset: 7
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen/new_kagegissen',
-			texturePath: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen/'
+			texturePath: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen/',
+			yOffset: 11
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/new_kagegissen_bottom',
 			texturePath: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -15436,7 +15496,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/new_kagegissen_hit',
-			texturePath: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/'
+			texturePath: 'shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/',
+			yOffset: 7
 		}
 	],
 
@@ -15458,13 +15519,15 @@ export default {
 			file: 'shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/fuumakouchiku',
 			texturePath: 'shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/',
 			min: 'shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/min_fuumakouchiku',
-			wav: 'effect/shinkiro_shiranui/ss_fuumakouchiku'
+			wav: 'effect/shinkiro_shiranui/ss_fuumakouchiku',
+			yOffset: 7
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/new_fuumakouchiku',
 			texturePath: 'shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/',
-			min: 'shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/min_new_fuumakouchiku'
+			min: 'shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/min_new_fuumakouchiku',
+			yOffset: 7
 		}
 	],
 
@@ -15475,7 +15538,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_kunaiwaikyoku/kunaiwaikyoku',
 			texturePath: 'shinkiro_shiranui/ss_kunaiwaikyoku/',
 			min: 'shinkiro_shiranui/ss_kunaiwaikyoku/min_kunaiwaikyoku',
-			wav: 'effect/shinkiro_shiranui/ss_kunaiwaikyoku'
+			wav: 'effect/shinkiro_shiranui/ss_kunaiwaikyoku',
+			yOffset: 5
 		}
 	],
 
@@ -15531,13 +15595,15 @@ export default {
 			file: 'shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/kunaikussetsu',
 			texturePath: 'shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/',
 			min: 'shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/min_kunaikussetsu',
-			wav: 'effect/shinkiro_shiranui/ss_kunaikussetsu'
+			wav: 'effect/shinkiro_shiranui/ss_kunaikussetsu',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/kunaikussetsu_bottom',
 			texturePath: 'shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -15548,7 +15614,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_sekienhou/sekienhou',
 			texturePath: 'shinkiro_shiranui/ss_sekienhou/',
 			min: 'shinkiro_shiranui/ss_sekienhou/min_sekienhou',
-			wav: 'effect/shinkiro_shiranui/ss_sekienhou'
+			wav: 'effect/shinkiro_shiranui/ss_sekienhou',
+			yOffset: 5
 		}
 	],
 
@@ -15559,14 +15626,16 @@ export default {
 			file: 'shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/reiketsuhou',
 			texturePath: 'shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/',
 			min: 'shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/min_reiketsuhou',
-			wav: 'effect/shinkiro_shiranui/ss_reiketsuhou'
+			wav: 'effect/shinkiro_shiranui/ss_reiketsuhou',
+			yOffset: 5
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/reiketsuhou_bottom',
 			texturePath: 'shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/',
 			min: 'shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/min_reiketsuhou_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 5
 		}
 	],
 
@@ -15577,19 +15646,22 @@ export default {
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou/new_raidenpou',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou/',
 			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou/min_new_raidenpou',
-			wav: 'effect/shinkiro_shiranui/ss_raidenpou'
+			wav: 'effect/shinkiro_shiranui/ss_raidenpou',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_raidenpou/raidenpou',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/',
-			min: 'shinkiro_shiranui/ss_raidenpou/min_raidenpou'
+			min: 'shinkiro_shiranui/ss_raidenpou/min_raidenpou',
+			yOffset: 5
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/new_raidenpou_bottom',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -15599,7 +15671,8 @@ export default {
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/',
-			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast'
+			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast',
+			yOffset: 8
 		}
 	],
 
@@ -15609,7 +15682,8 @@ export default {
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/new_raidenpou_hit',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/',
-			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/min_new_raidenpou_hit'
+			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/min_new_raidenpou_hit',
+			yOffset: 10
 		}
 	],
 
@@ -15620,7 +15694,8 @@ export default {
 			file: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/kinryuuhou',
 			texturePath: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/',
 			min: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/min_kinryuuhou',
-			wav: 'effect/shinkiro_shiranui/ss_kinryuuhou'
+			wav: 'effect/shinkiro_shiranui/ss_kinryuuhou',
+			yOffset: 5
 		}
 	],
 
@@ -15630,7 +15705,8 @@ export default {
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/kinryuuhou_hit',
 			texturePath: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/',
-			min: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/min_kinryuuhou_hit'
+			min: 'shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/min_kinryuuhou_hit',
+			yOffset: 5
 		}
 	],
 
@@ -15641,7 +15717,9 @@ export default {
 			file: 'shinkiro_shiranui/ss_antenpou/antenpou',
 			texturePath: 'shinkiro_shiranui/ss_antenpou/',
 			min: 'shinkiro_shiranui/ss_antenpou/min_antenpou',
-			wav: 'effect/shinkiro_shiranui/ss_antenpou'
+			wav: 'effect/shinkiro_shiranui/ss_antenpou',
+			renderBeforeEntities: true,
+			yOffset: 5
 		}
 	],
 
@@ -15651,7 +15729,8 @@ export default {
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_kageakumu/kageakumu',
 			texturePath: 'shinkiro_shiranui/ss_kageakumu/',
-			min: 'shinkiro_shiranui/ss_kageakumu/min_kageakumu'
+			min: 'shinkiro_shiranui/ss_kageakumu/min_kageakumu',
+			yOffset: 10
 		}
 	],
 
@@ -15707,14 +15786,17 @@ export default {
 			file: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_00/ankokuryuuakumu_00',
 			texturePath: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_00/',
 			min: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_00/min_ankokuryuuakumu_00',
-			attachedEntity: true
+			attachedEntity: true,
+			renderBeforeEntities: true,
+			yOffset: 5
 		},
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_01/ankokuryuuakumu_01',
 			texturePath: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_01/',
 			min: 'shinkiro_shiranui/ss_ankokuryuuakumu/ankokuryuuakumu_01/min_ankokuryuuakumu_01',
-			attachedEntity: true
+			attachedEntity: true,
+			yOffset: 5
 		}
 	],
 
@@ -23145,7 +23227,8 @@ export default {
 			file: 'night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/the_vigilante_at_night_bottom',
 			texturePath: 'night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/',
 			min: 'night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/min_the_vigilante_at_night_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -23156,7 +23239,8 @@ export default {
 			file: 'night_watch/nw_only_one_bullet/only_one_bullet/only_one_bullet',
 			texturePath: 'night_watch/nw_only_one_bullet/only_one_bullet/',
 			min: 'night_watch/nw_only_one_bullet/only_one_bullet/min_only_one_bullet',
-			wav: 'effect/night_watch/nw_only_one_bullet'
+			wav: 'effect/night_watch/nw_only_one_bullet',
+			yOffset: 10
 		}
 	],
 
@@ -23166,7 +23250,8 @@ export default {
 			type: 'STR',
 			file: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/only_one_bullet_hit',
 			texturePath: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/',
-			min: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/min_only_one_bullet_hit'
+			min: 'night_watch/nw_only_one_bullet/only_one_bullet_hit/min_only_one_bullet_hit',
+			yOffset: 5
 		}
 	],
 
@@ -23177,7 +23262,8 @@ export default {
 			file: 'night_watch/nw_spiral_shooting/spiral_shooting',
 			texturePath: 'night_watch/nw_spiral_shooting/',
 			min: 'night_watch/nw_spiral_shooting/min_spiral_shooting',
-			wav: 'effect/night_watch/nw_spiral_shooting'
+			wav: 'effect/night_watch/nw_spiral_shooting',
+			yOffset: 10
 		}
 	],
 
@@ -23188,7 +23274,8 @@ export default {
 			file: 'night_watch/nw_magazine_for_one/magazine_for_one',
 			texturePath: 'night_watch/nw_magazine_for_one/',
 			min: 'night_watch/nw_magazine_for_one/min_magazine_for_one',
-			wav: 'effect/night_watch/nw_magazine_for_one'
+			wav: 'effect/night_watch/nw_magazine_for_one',
+			yOffset: 10
 		}
 	],
 
@@ -23199,14 +23286,16 @@ export default {
 			file: 'night_watch/nw_wild_fire/wild_fire/wild_fire',
 			texturePath: 'night_watch/nw_wild_fire/wild_fire/',
 			min: 'night_watch/nw_wild_fire/wild_fire/min_wild_fire',
-			wav: 'effect/night_watch/nw_wild_fire'
+			wav: 'effect/night_watch/nw_wild_fire',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'night_watch/nw_wild_fire/wild_fire_bottom/wild_fire_bottom',
 			texturePath: 'night_watch/nw_wild_fire/wild_fire_bottom/',
 			min: 'night_watch/nw_wild_fire/wild_fire_bottom/min_wild_fire_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -23217,14 +23306,16 @@ export default {
 			file: 'night_watch/nw_basic_grenade/basic_grenade/basic_grenade',
 			texturePath: 'night_watch/nw_basic_grenade/basic_grenade/',
 			min: 'night_watch/nw_basic_grenade/basic_grenade/min_basic_grenade',
-			wav: 'effect/night_watch/nw_basic_grenade'
+			wav: 'effect/night_watch/nw_basic_grenade',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'night_watch/nw_basic_grenade/basic_grenade_bottom/basic_grenade_bottom',
 			texturePath: 'night_watch/nw_basic_grenade/basic_grenade_bottom/',
 			min: 'night_watch/nw_basic_grenade/basic_grenade_bottom/min_basic_grenade_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -23252,14 +23343,16 @@ export default {
 			file: 'night_watch/nw_auto_firing_launcher/auto_firing_launcher/auto_firing_launcher',
 			texturePath: 'night_watch/nw_auto_firing_launcher/auto_firing_launcher/',
 			min: 'night_watch/nw_auto_firing_launcher/auto_firing_launcher/min_auto_firing_launcher',
-			wav: 'effect/night_watch/nw_auto_firing_launcher'
+			wav: 'effect/night_watch/nw_auto_firing_launcher',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/auto_firing_launcher_bottom',
 			texturePath: 'night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/',
 			min: 'night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/min_auto_firing_launcher_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -23270,7 +23363,8 @@ export default {
 			file: 'night_watch/nw_hidden_card/hidden_card/hiddencard',
 			texturePath: 'night_watch/nw_hidden_card/hidden_card/',
 			min: 'night_watch/nw_hidden_card/hidden_card/min_hiddencard',
-			wav: 'effect/night_watch/nw_hidden_card'
+			wav: 'effect/night_watch/nw_hidden_card',
+			yOffset: 10
 		}
 	],
 
@@ -23290,7 +23384,8 @@ export default {
 			type: 'STR',
 			file: 'night_watch/nw_wild_shot/wild_shot/wild_shot',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot/',
-			min: 'night_watch/nw_wild_shot/wild_shot/min_wild_shot'
+			min: 'night_watch/nw_wild_shot/wild_shot/min_wild_shot',
+			yOffset: 5
 		}
 	],
 
@@ -23300,7 +23395,9 @@ export default {
 			type: 'STR',
 			file: 'night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_cast/',
-			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast'
+			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast',
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -23310,7 +23407,8 @@ export default {
 			type: 'STR',
 			file: 'night_watch/nw_wild_shot/wild_shot_hit/wild_shot_hit',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_hit/',
-			min: 'night_watch/nw_wild_shot/wild_shot_hit/min_wild_shot_hit'
+			min: 'night_watch/nw_wild_shot/wild_shot_hit/min_wild_shot_hit',
+			yOffset: 6
 		}
 	],
 
@@ -23321,8 +23419,10 @@ export default {
 			file: 'night_watch/nw_midnight_fallen/midnight_fallen_bottom/midnight_fallen_bottom',
 			texturePath: 'night_watch/nw_midnight_fallen/midnight_fallen_bottom/',
 			min: 'night_watch/nw_midnight_fallen/midnight_fallen_bottom/min_midnight_fallen_bottom',
+			wav: 'effect/night_watch/nw_midnight_fallen',
 			renderBeforeEntities: true,
-			wav: 'effect/night_watch/nw_midnight_fallen'
+			xOffset: 1,
+			yOffset: 11
 		}
 	],
 
@@ -23333,7 +23433,9 @@ export default {
 			file: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom',
 			texturePath: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/',
 			min: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 11
 		}
 	],
 
