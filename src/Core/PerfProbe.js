@@ -227,18 +227,29 @@ class PerfProbe {
 	static enabled = false;
 
 	/**
+	 * Switch the probe on if the configuration asks for it. Called before the
+	 * login window and each map load, which come before the renderer's first
+	 * attach(), so their marks are kept.
+	 *
+	 * @return {boolean} whether the probe is on
+	 */
+	static start() {
+		if (!PerfProbe.enabled && Configs.get('perfProbe', false)) {
+			PerfProbe.enabled = true;
+			PerfProbe.reset();
+		}
+		return PerfProbe.enabled;
+	}
+
+	/**
 	 * Called by Renderer.init: switch the probe on if the configuration asks
 	 * for it, and count draw calls on this context (once per context)
 	 *
 	 * @param {WebGLRenderingContext} gl
 	 */
 	static attach(gl) {
-		if (!PerfProbe.enabled) {
-			if (!Configs.get('perfProbe', false)) {
-				return;
-			}
-			PerfProbe.enabled = true;
-			PerfProbe.reset();
+		if (!PerfProbe.start()) {
+			return;
 		}
 		if (!gl || _gl === gl) {
 			return;

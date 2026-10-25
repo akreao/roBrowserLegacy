@@ -30,7 +30,14 @@ const mocks = vi.hoisted(() => ({
 	damage: { free: vi.fn(), init: vi.fn() },
 	joystickUI: { onRestore: vi.fn() },
 	signboards: { free: vi.fn() },
-	perfProbe: { enabled: false, mapStart: vi.fn(), mapReady: vi.fn() }
+	perfProbe: {
+		enabled: false,
+		start() {
+			return this.enabled;
+		},
+		mapStart: vi.fn(),
+		mapReady: vi.fn()
+	}
 }));
 
 vi.mock('Core/Thread.js', () => ({ default: mocks.thread }));
