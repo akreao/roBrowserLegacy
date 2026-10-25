@@ -1142,7 +1142,9 @@ SkillEffect[SK.SS_HITOUAKUMU] = {
 	// When the use packet succeeds, at the caster: the floor burst, then all
 	// three blade files, 15-19 copies each fanned out all round
 	successEffectId: 'ef_ss_hitouakumu',
-	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02']
+	successEffectSpinSets: ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02'],
+	// While casting: effect 812 (dark flash and caster strobe) instead of the element aura
+	castAuraEffectId: 812
 }; //Kunai - Nightmare
 SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
 SkillEffect[5499 /* SS_FOUR_CHARM */] = {
@@ -1692,7 +1694,7 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	effectIdOnCaster: 'ef_ig_overslash_cast',
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
-SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
+SkillEffect[SK.IG_CROSS_RAIN] = { effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain (the rain comes from its skill unit)
 //Radiant Spear: when the use packet succeeds, one spear lands where the target stands.
 //A target on the right half of the screen (seen from the caster) gets leftdown, on the left half rightdown.
 SkillEffect[6503 /* IG_RADIANT_SPEAR */] = {
@@ -1970,7 +1972,8 @@ SkillEffect[SK.KR_CHOP_CHOP] = { effectIdOnCaster: 'ef_druid_chop_chop', hitEffe
 SkillEffect[SK.KR_IRON_HOWLING] = { effectId: 'ef_druid_iron_howling' };
 SkillEffect[SK.KR_SHARPEN_GUST] = { effectIdOnCaster: 'ef_druid_sharpen_gust', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_SHARPEN_HAIL] = { effectId: ['ef_druid_sharpen_hail_shot', 'ef_druid_sharpen_hail'], hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.KR_TYPHOON_WING] = { groundEffectIdByLevel: ['ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_7x7'], hitEffectId: 'ef_druid_hit_raptor' };
+// Typhoon Wing: green cast circle while casting (no element aura), then one size at the cell by level
+SkillEffect[SK.KR_TYPHOON_WING] = { castAuraEffectId: 'ef_druid_typhoon_wing_cast', groundEffectIdByLevel: ['ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_7x7'], hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_FEATHER_SPRINKLE] = { effectIdOnCaster: 'ef_druid_feather_sprinkle', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_WIND_VEIL] = { effectId: 'ef_druid_wind_veil' };
 SkillEffect[SK.KR_ICE_PILLAR] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_pillar_start', hitEffectId: 'ef_druid_ice_hit' };

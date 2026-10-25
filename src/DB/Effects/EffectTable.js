@@ -44,6 +44,7 @@ import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
+import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -15167,7 +15168,37 @@ export default {
 		}
 	],
 
-	//812: [{}],	//EF_BLACKBODY	   Black expanding aura
+	812: [
+		{
+			//EF_BLACKBODY	   Black expanding aura
+			// Kunai - Nightmare's cast start (official client, 60 ticks a second): a level
+			// square of near-black fashasha.tga streaks one cell up, spreading fast for
+			// 10 ticks and then slowly, fading out from tick 30 to its end on tick 57.
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			color: [10, 10, 10],
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 10,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 30
+		},
+		{
+			// The caster strobes black and white on ticks 6 to 60, then recovers (CasterStrobe.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				startCasterStrobe(Params.Init.ownerEntity);
+			}
+		}
+	],
 
 	813: [
 		{
@@ -19299,15 +19330,27 @@ export default {
 		}
 	],
 
-	// Cross Rain (IG_CROSS_RAIN), from the client's own effect folders.
-	ef_ig_cross_rain: [
+	// Cross Rain's unit (official effect 2462): every 9 - level / 3 ticks a
+	// spear of rain lands at a random point of a square around the unit, 3 cells
+	// wide at levels 1-3, 5 at 4-6, 7 at 7-9, 9 at 10.
+	ef_ig_cross_rain_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ig_cross_rain_drop',
+			interval: 150,
+			intervalByLevel: [150, 150, 400 / 3, 400 / 3, 400 / 3, 350 / 3, 350 / 3, 350 / 3, 100, 100],
+			areaByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9]
+		}
+	],
+
+	// One drop of Cross Rain's unit (no sound)
+	ef_ig_cross_rain_drop: [
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/new_cross_rain',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain',
-			fallback: ['crossrain/cross_rain/cross_rain'],
-			wav: 'effect/ig_cross_rain'
+			fallback: ['crossrain/cross_rain/cross_rain']
 		}
 	],
 
@@ -23524,6 +23567,31 @@ export default {
 		}
 	],
 
+	// Mission Bombard's unit (official effect 2354): while the unit stands,
+	// every 15 ticks (250 ms) three blasts land at random points of a 9x9
+	// square around it, each drawn at a random size from 0.5 to 1.
+	ef_nw_mission_bombard_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_nw_mission_bombard_drop',
+			interval: 250,
+			count: 3,
+			areaByLevel: [9],
+			area: 9,
+			scaleRange: [0.5, 1]
+		}
+	],
+
+	// One blast of Mission Bombard's unit (no sound)
+	ef_nw_mission_bombard_drop: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',
+			texturePath: 'night_watch/nw_mission_bombard/mission_bombard/',
+			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit'
+		}
+	],
+
 	// Wild Shot (NW_WILD_SHOT), from the client's own effect folders.
 	ef_nw_wild_shot: [
 		{
@@ -25849,6 +25917,27 @@ export default {
 			min: 'druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/min_typhoon_wing_7x7_bottom',
 			renderBeforeEntities: true,
 			yOffset: 10
+		}
+	],
+	// Typhoon Wing cast: the official client draws the untinted cast circle in
+	// magic_green.tga (its effect 56) for the cast time, instead of an element aura
+	ef_druid_typhoon_wing_cast: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'magic_green.tga'
+					),
+					Params
+				);
+			}
 		}
 	],
 	ef_druid_feather_sprinkle: [

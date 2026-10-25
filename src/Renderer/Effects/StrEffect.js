@@ -429,12 +429,14 @@ class StrEffect {
 		const shiftX = ez2 ? this.ez2Offset[0] * PIXEL_TO_WORLD_Z * 35 : 0;
 		const shiftY = ez2 ? this.ez2Offset[1] * PIXEL_TO_WORLD_Z * 35 : 0;
 		const verticalBase = ez2 ? 0.0 : 0.5;
+		// Drawn larger or smaller about the art's anchor (the client's STR scale)
+		const k = this.scale || 1;
 
 		if (this.ownerEntity) {
 			// Attachment: center at (320,320), apply offsets, scale with entity
-			out[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			out[0] = (animat.pos[0] - 320) * k + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 			// flip Y offset only
-			out[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			out[1] = (animat.pos[1] - 320) * k - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 			return 0.0;
 		}
 
@@ -443,15 +445,15 @@ class StrEffect {
 			const rad = (this.aimAngle / 180) * Math.PI;
 			const cos = Math.cos(rad);
 			const sin = Math.sin(rad);
-			const x = animat.pos[0] - AIM_PIVOT_X;
-			const y = AIM_PIVOT_Y - animat.pos[1];
+			const x = (animat.pos[0] - AIM_PIVOT_X) * k;
+			const y = (AIM_PIVOT_Y - animat.pos[1]) * k;
 			out[0] = x * cos - y * sin + shiftX;
 			out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) - shiftY;
 			return verticalBase;
 		}
 
-		out[0] = animat.pos[0] - 320 + shiftX;
-		out[1] = animat.pos[1] - pivotY - shiftY;
+		out[0] = (animat.pos[0] - 320) * k + shiftX;
+		out[1] = (animat.pos[1] - pivotY) * k - shiftY;
 		return verticalBase;
 	}
 
@@ -470,16 +472,17 @@ class StrEffect {
 		if (this.ownerEntity) {
 			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 		}
+		const cornerScale = sizeScale * (this.scale || 1);
 
 		// TRIANGLE_STRIP: v0=(xy0,xy4) v1=(xy1,xy5) v2=(xy3,xy7) v3=(xy2,xy6)
-		_cornerX[0] = animat.xy[0] * sizeScale;
-		_cornerY[0] = animat.xy[4] * sizeScale;
-		_cornerX[1] = animat.xy[1] * sizeScale;
-		_cornerY[1] = animat.xy[5] * sizeScale;
-		_cornerX[2] = animat.xy[3] * sizeScale;
-		_cornerY[2] = animat.xy[7] * sizeScale;
-		_cornerX[3] = animat.xy[2] * sizeScale;
-		_cornerY[3] = animat.xy[6] * sizeScale;
+		_cornerX[0] = animat.xy[0] * cornerScale;
+		_cornerY[0] = animat.xy[4] * cornerScale;
+		_cornerX[1] = animat.xy[1] * cornerScale;
+		_cornerY[1] = animat.xy[5] * cornerScale;
+		_cornerX[2] = animat.xy[3] * cornerScale;
+		_cornerY[2] = animat.xy[7] * cornerScale;
+		_cornerX[3] = animat.xy[2] * cornerScale;
+		_cornerY[3] = animat.xy[6] * cornerScale;
 		gl.uniform4fv(uniform.uCornerX, _cornerX);
 		gl.uniform4fv(uniform.uCornerY, _cornerY);
 
