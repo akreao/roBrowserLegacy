@@ -80302,6 +80302,38 @@ var init_SessionStorage = __esmMin((() => {
 		}
 	};
 }));
+// src/Loaders/wasm/targa.js
+var TARGA_WASM_BASE64, base64ToUint8Array$2, _wasmInstance$2, _wasmFailed$2, getTargaWasm;
+var init_targa = __esmMin((() => {
+	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
+	base64ToUint8Array$2 = (base64) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
+		return bytes;
+	};
+	_wasmInstance$2 = null;
+	_wasmFailed$2 = false;
+	getTargaWasm = () => {
+		if (_wasmInstance$2) return _wasmInstance$2;
+		if (_wasmFailed$2) return null;
+		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+			_wasmFailed$2 = true;
+			return null;
+		}
+		try {
+			const wasmBytes = base64ToUint8Array$2(TARGA_WASM_BASE64);
+			const module = new WebAssembly.Module(wasmBytes);
+			_wasmInstance$2 = new WebAssembly.Instance(module);
+			return _wasmInstance$2;
+		} catch (e) {
+			_wasmFailed$2 = true;
+			console.warn("Loaders/wasm/targa - Failed to instantiate WASM module:", e);
+			return null;
+		}
+	};
+}));
 // src/Loaders/Targa.js
 /**
 * Check the header of TGA file to detect errors
@@ -80335,6 +80367,7 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
 		count = (c & 127) + 1;
 		if (c & 128) {
 			for (i = 0; i < pixelSize; ++i) pixels[i] = data[offset++];
+			if (pos + count * pixelSize > outputSize) throw new RangeError("Targa: RLE packet exceeds image size");
 			for (i = 0; i < count; ++i) {
 				output.set(pixels, pos);
 				pos += pixelSize;
@@ -80348,6 +80381,7 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
 }
 var Targa;
 var init_Targa = __esmMin((() => {
+	init_targa();
 	Targa = class Targa {
 		constructor() {}
 		/**
@@ -80428,8 +80462,35 @@ var init_Targa = __esmMin((() => {
 			const pixelSize = this.header.pixelDepth >> 3;
 			const imageSize = this.header.width * this.header.height;
 			const pixelTotal = imageSize * pixelSize;
-			if (this.header.hasEncoding) this.imageData = decodeRLE(data, offset, pixelSize, pixelTotal);
+			if (this.header.hasEncoding) this.imageData = this.decodeRLEData(data, offset, pixelSize, pixelTotal);
 			else this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
+		}
+		/**
+		* Decode RLE data using WASM if available, otherwise JS fallback
+		*/
+		decodeRLEData(data, offset, pixelSize, outputSize) {
+			const wasm = getTargaWasm();
+			if (wasm && wasm.exports.decodeRLE) {
+				const memory = wasm.exports.memory;
+				const srcPtr = 0;
+				const maxNeeded = outputSize + Math.ceil(outputSize / pixelSize);
+				const srcBytes = Math.min(Math.max(0, data.length - offset), maxNeeded);
+				const dstPtr = srcBytes + 3 & -4;
+				const totalBytesNeeded = dstPtr + outputSize;
+				if (memory.buffer.byteLength < totalBytesNeeded) try {
+					memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					return decodeRLE(data, offset, pixelSize, outputSize);
+				}
+				new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset, offset + srcBytes));
+				const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
+				if (bytesWritten < 0) throw new RangeError("Targa: RLE packet exceeds image size");
+				if (bytesWritten >= outputSize) return new Uint8Array(new Uint8Array(memory.buffer, dstPtr, outputSize));
+				const out = new Uint8Array(outputSize);
+				out.set(new Uint8Array(memory.buffer, dstPtr, bytesWritten));
+				return out;
+			}
+			return decodeRLE(data, offset, pixelSize, outputSize);
 		}
 		/**
 		* Return a ImageData object from a TGA file
@@ -80849,6 +80910,18 @@ function onIntersect(entries) {
 	}
 }
 /**
+* The host and the elements under it, in its light and shadow DOM, that
+* still wait to be drawn.
+*
+* @param {Element} host
+* @returns {Element[]}
+*/
+function pendingWithin(host) {
+	const elements = [host, ...host.querySelectorAll("*")];
+	if (host.shadowRoot) elements.push(...host.shadowRoot.querySelectorAll("*"));
+	return elements.filter((element) => _pending$5.has(element));
+}
+/**
 * @param {Element} element
 * @param {function} callback
 */
@@ -80870,6 +80943,26 @@ var _pending$5, _observer;
 var init_WhenDrawn = __esmMin((() => {
 	_pending$5 = /* @__PURE__ */ new WeakMap();
 	_observer = null;
+	/**
+	* Stop watching what waits under a window taken off the page, so the
+	* observer does not hold on to a window that is never shown again. The
+	* callbacks stay with their elements and are freed with them.
+	*
+	* @param {Element} host
+	*/
+	whenDrawn.suspend = function suspend(host) {
+		if (!_observer || !host) return;
+		for (const element of pendingWithin(host)) _observer.unobserve(element);
+	};
+	/**
+	* Watch again what waits under a window put back on the page.
+	*
+	* @param {Element} host
+	*/
+	whenDrawn.resume = function resume(host) {
+		if (!_observer || !host) return;
+		for (const element of pendingWithin(host)) _observer.observe(element);
+	};
 }));
 // src/Preferences/Graphics.js
 var defaultGraphicsSettings, cleanDefaults, GraphicsSettings;
@@ -80936,10 +81029,76 @@ var init_Graphics = __esmMin((() => {
 	GraphicsSettings = Preferences.get("Graphics", defaultGraphicsSettings, 1.1);
 	GraphicsSettings.defaults = cleanDefaults;
 }));
+// src/Loaders/wasm/paletteConvert.js
+var PALETTE_CONVERT_WASM_BASE64, base64ToUint8Array$1, _wasmInstance$1, _wasmFailed$1, getPaletteConvertWasm;
+var init_paletteConvert = __esmMin((() => {
+	PALETTE_CONVERT_WASM_BASE64 = "AGFzbQEAAAABCQFgBX9/f39/AAMCAQAFAwEAAQcXAgZtZW1vcnkCAApjb252ZXJ0UGFsAAAKdwF1AQV/IANBAnQhCUEAIQUCQANAIAUgBE8NASABIAUgA2xqIQcgAiAEIAVrQQFrIAlsaiEIQQAhBgJAA0AgBiADTw0BIAggBkECdGogACAHIAZqLQAAQQJ0aigCADYCACAGQQFqIQYMAAsLIAVBAWohBQwACwsL";
+	base64ToUint8Array$1 = (base64) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
+		return bytes;
+	};
+	_wasmInstance$1 = null;
+	_wasmFailed$1 = false;
+	getPaletteConvertWasm = () => {
+		if (_wasmInstance$1) return _wasmInstance$1;
+		if (_wasmFailed$1) return null;
+		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+			_wasmFailed$1 = true;
+			return null;
+		}
+		try {
+			const wasmBytes = base64ToUint8Array$1(PALETTE_CONVERT_WASM_BASE64);
+			const module = new WebAssembly.Module(wasmBytes);
+			_wasmInstance$1 = new WebAssembly.Instance(module);
+			return _wasmInstance$1;
+		} catch (e) {
+			_wasmFailed$1 = true;
+			console.warn("Loaders/wasm/paletteConvert - Failed to instantiate WASM module:", e);
+			return null;
+		}
+	};
+}));
+// src/Loaders/wasm/spriteCompile.js
+var SPRITE_COMPILE_WASM_BASE64, base64ToUint8Array, _wasmInstance, _wasmFailed, getSpriteCompileWasm;
+var init_spriteCompile = __esmMin((() => {
+	SPRITE_COMPILE_WASM_BASE64 = "AGFzbQEAAAABJgRgCX9/f39/f39/fwBgB39/f39/f38AYAR/f39/AGAFf39/f38AAwUEAAECAwUDAQABB0wFBm1lbW9yeQIACmNvbXBpbGVQYWwAAAtjb21waWxlUmdiYQABEWZyYW1lUmdiYVRvQ2FudmFzAAIQZnJhbWVQYWxUb0NhbnZhcwADCqcEBIQBAQV/QQAhCQJAA0AgCSAETw0BIAEgCSADbGohCyACIAkgCGogBWwgB2pqIQxBACEKAkADQCAKIANPDQEgCyAKai0AACENIAAgDUECdGooAgBB/4F8RgRAIAwgCmpBADoAAAUgDCAKaiANOgAACyAKQQFqIQoMAAsLIAlBAWohCQwACwsLsQEBCX8gAkECdCEJQQAhBwJAA0AgByADTw0BIAAgAyAHa0EBayAJbGohCiABIAcgBmogBGwgBWpBAnRqIQtBACEIAkADQCAIIAJPDQEgCiAIQQJ0aiEMIAsgCEECdGohDSAMLQAAIQ4gDkUEQCANQQA2AgAFIA5BGHQgDC0AAUEQdHIgDC0AAkEIdCAMLQADcnIhDyANIA82AgALIAhBAWohCAwACwsgB0EBaiEHDAALCwuhAQEHfyACQQJ0IQZBACEEAkADQCAEIANPDQEgACAEIAZsaiEHIAEgAyAEa0EBayAGbGohCEEAIQUCQANAIAUgAk8NASAHIAVBAnRqKAIAIQkgCUH/AXFBGHQgCUGA/gNxQQh0ciAJQYCA/AdxQQh2IAlBgICAeHFBGHZyciEKIAggBUECdGogCjYCACAFQQFqIQUMAAsLIARBAWohBAwACwsLSQEEfyADIARsIQZBACEFAkADQCAFIAZPDQEgASAFai0AACEHIAAgB0ECdGooAgAhCCACIAVBAnRqIAg2AgAgBUEBaiEFDAALCws=";
+	base64ToUint8Array = (base64) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
+		return bytes;
+	};
+	_wasmInstance = null;
+	_wasmFailed = false;
+	getSpriteCompileWasm = () => {
+		if (_wasmInstance) return _wasmInstance;
+		if (_wasmFailed) return null;
+		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+			_wasmFailed = true;
+			return null;
+		}
+		try {
+			const wasmBytes = base64ToUint8Array(SPRITE_COMPILE_WASM_BASE64);
+			const module = new WebAssembly.Module(wasmBytes);
+			_wasmInstance = new WebAssembly.Instance(module);
+			return _wasmInstance;
+		} catch (e) {
+			_wasmFailed = true;
+			console.warn("Loaders/wasm/spriteCompile - Failed to instantiate WASM module:", e);
+			return null;
+		}
+	};
+}));
 // src/Loaders/Sprite.js
 var SPR;
 var init_Sprite = __esmMin((() => {
 	init_BinaryReader();
+	init_paletteConvert();
+	init_spriteCompile();
 	SPR = class SPR {
 		constructor(data) {
 			if (data) this.load(data);
@@ -80960,6 +81119,7 @@ var init_Sprite = __esmMin((() => {
 		rgba_count = 0;
 		rgba_index = 0;
 		palette = null;
+		_pal32Canvas = null;
 		frames = null;
 		/**
 		* Load a Sprite data
@@ -80967,6 +81127,7 @@ var init_Sprite = __esmMin((() => {
 		* @param {ArrayBuffer} data - file content
 		*/
 		load(data) {
+			this._pal32Canvas = null;
 			this.fp = new BinaryReader(data);
 			this.header = this.fp.readBinaryString(2);
 			this.version = this.fp.readUByte() / 10 + this.fp.readUByte();
@@ -81084,22 +81245,42 @@ var init_Sprite = __esmMin((() => {
 		switchToRGBA() {
 			const frames = this.frames, pal = this.palette;
 			const pal32 = this.convert32bPal(pal, false);
-			for (let i = 0; i < this.indexed_count; ++i) {
+			const wasmInstance = getPaletteConvertWasm();
+			if (wasmInstance) {
+				const memory = wasmInstance.exports.memory;
+				const convertPal = wasmInstance.exports.convertPal;
+				const palPtr = 0;
+				const srcPtr = 1024;
+				new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+				for (let i = 0; i < this.indexed_count; ++i) {
+					const frame = frames[i];
+					if (frame.type !== SPR.TYPE_PAL) continue;
+					const width = frame.width, height = frame.height;
+					const pixelCount = width * height;
+					if (pixelCount <= 0) {
+						frame.data = /* @__PURE__ */ new Uint8Array(0);
+						frame.type = SPR.TYPE_RGBA;
+						continue;
+					}
+					const dstPtr = srcPtr + pixelCount;
+					const totalBytesNeeded = dstPtr + pixelCount * 4;
+					if (memory.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+						new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					}
+					new Uint8Array(memory.buffer, srcPtr, pixelCount).set(frame.data);
+					convertPal(palPtr, srcPtr, dstPtr, width, height);
+					frame.data = new Uint8Array(new Uint8Array(memory.buffer, dstPtr, pixelCount * 4));
+					frame.type = SPR.TYPE_RGBA;
+				}
+			} else for (let i = 0; i < this.indexed_count; ++i) {
 				const frame = frames[i];
 				if (frame.type !== SPR.TYPE_PAL) continue;
 				const width = frame.width, height = frame.height;
 				const data = frame.data;
 				const out = new Uint8Array(width * height * 4);
 				const out32 = new Uint32Array(out.buffer);
-				/**
-				* OLD LOGIC:
-				* - READ: Accessed data[x + y * width] every iteration (redundant multiplication).
-				* - WRITE: Performed 4 separate byte assignments (out[ idx2 + 3 ] = pal[ idx1 + 0 ]...out[ idx2 + 1 ] = pal[ idx1 + 2 ]).
-				* NEW LOGIC:
-				* - READ: Pre-calculates row offsets per line to minimize arithmetic overhead.
-				* - WRITE: Uses a single 32-bit integer assignment to write all 4 channels (RGBA) at once.
-				* COORDINATES: Vertical flip logic (height - y - 1) is maintained for correct visual orientation.
-				*/
 				for (let y = 0; y < height; ++y) {
 					const srcRowStart = y * width;
 					const dstRowStart = (height - y - 1) * width;
@@ -81136,30 +81317,71 @@ var init_Sprite = __esmMin((() => {
 			const width = canvas.width = frame.width;
 			const height = canvas.height = frame.height;
 			const imageData = ctx.createImageData(width, height);
-			const data32 = new Uint32Array(imageData.data.buffer);
+			const wasmInstance = getSpriteCompileWasm();
 			if (frame.type === SPR.TYPE_RGBA) {
-				const frameData32 = new Uint32Array(frame.data.buffer);
-				for (let y = 0; y < height; ++y) {
-					const srcRow = y * width;
-					const dstRow = (height - y - 1) * width;
-					for (let x = 0; x < width; ++x) {
-						const pixel = frameData32[srcRow + x];
-						/**
-						* OLD LOGIC: Manual assignments for each channel (ImageData.data[j+0] = ...).
-						* NEW LOGIC: Reads the source pixel as a 32-bit integer and performs bitwise operations
-						* WHY: The source RGBA order in .spr files might not match the Canvas [R,G,B,A] layout.
-						* Manipulating the full 32-bit word with shifts and masks is faster than 4 separate array writes.
-						*/
-						data32[dstRow + x] = (pixel & 255) << 24 | (pixel & 65280) << 8 | (pixel & 16711680) >> 8 | (pixel & 4278190080) >> 24;
+				const pixelCount = width * height;
+				const srcBytes = pixelCount * 4;
+				const dstBytes = pixelCount * 4;
+				if (wasmInstance && wasmInstance.exports.frameRgbaToCanvas) {
+					const memory = wasmInstance.exports.memory;
+					const srcPtr = 1024;
+					const dstPtr = srcPtr + srcBytes;
+					const totalBytesNeeded = dstPtr + dstBytes;
+					if (memory.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+					}
+					const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
+					new Uint8Array(memory.buffer, srcPtr, srcBytes).set(frameBytes);
+					wasmInstance.exports.frameRgbaToCanvas(srcPtr, dstPtr, width, height);
+					new Uint8Array(imageData.data.buffer).set(new Uint8Array(memory.buffer, dstPtr, dstBytes));
+				} else {
+					const data32 = new Uint32Array(imageData.data.buffer);
+					let frameData32;
+					if ((frame.data.byteOffset & 3) === 0) frameData32 = new Uint32Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+					else {
+						frameData32 = new Uint32Array(pixelCount);
+						new Uint8Array(frameData32.buffer).set(new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount * 4));
+					}
+					for (let y = 0; y < height; ++y) {
+						const srcRow = y * width;
+						const dstRow = (height - y - 1) * width;
+						for (let x = 0; x < width; ++x) {
+							const pixel = frameData32[srcRow + x];
+							data32[dstRow + x] = (pixel & 255) << 24 | (pixel & 65280) << 8 | (pixel & 16711680) >> 8 | (pixel & 4278190080) >>> 24;
+						}
 					}
 				}
 			} else {
-				const pal32 = this.convert32bPal(this.palette, true);
-				for (let y = 0; y < height; ++y) {
-					const rowStart = y * width;
-					for (let x = 0; x < width; ++x) {
-						const idx = frame.data[rowStart + x];
-						data32[rowStart + x] = pal32[idx];
+				if (!this._pal32Canvas && this.palette) this._pal32Canvas = this.convert32bPal(this.palette, true);
+				const pal32 = this._pal32Canvas || this.convert32bPal(this.palette, true);
+				const pixelCount = width * height;
+				const srcBytes = pixelCount;
+				const dstBytes = pixelCount * 4;
+				if (wasmInstance && wasmInstance.exports.framePalToCanvas) {
+					const memory = wasmInstance.exports.memory;
+					const palPtr = 0;
+					const srcPtr = 1024;
+					const dstPtr = srcPtr + srcBytes;
+					const totalBytesNeeded = dstPtr + dstBytes;
+					if (memory.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+					}
+					new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
+					new Uint8Array(memory.buffer, srcPtr, srcBytes).set(frameBytes);
+					wasmInstance.exports.framePalToCanvas(palPtr, srcPtr, dstPtr, width, height);
+					new Uint8Array(imageData.data.buffer).set(new Uint8Array(memory.buffer, dstPtr, dstBytes));
+				} else {
+					const data32 = new Uint32Array(imageData.data.buffer);
+					const frameIndices = new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+					for (let y = 0; y < height; ++y) {
+						const rowStart = y * width;
+						for (let x = 0; x < width; ++x) {
+							const idx = frameIndices[rowStart + x];
+							data32[rowStart + x] = pal32[idx];
+						}
 					}
 				}
 			}
@@ -81177,6 +81399,18 @@ var init_Sprite = __esmMin((() => {
 			let data, width, height, gl_width, gl_height, start_x, start_y;
 			let out;
 			const output = new Array(count);
+			let pal32 = null;
+			const MAGENTA = 4294902015;
+			const wasmInstance = getSpriteCompileWasm();
+			let wasmMem = null;
+			let wasmPalPtr = 0;
+			let wasmSrcPtr = 0;
+			let wasmPalInitialized = false;
+			if (wasmInstance) {
+				wasmMem = wasmInstance.exports.memory;
+				wasmPalPtr = 0;
+				wasmSrcPtr = 1024;
+			}
 			for (i = 0; i < count; ++i) {
 				frame = frames[i];
 				data = frame.data;
@@ -81187,18 +81421,51 @@ var init_Sprite = __esmMin((() => {
 				start_x = Math.floor((gl_width - width) * .5);
 				start_y = Math.floor((gl_height - height) * .5);
 				if (frame.type === SPR.TYPE_PAL) {
-					const pal32 = this.convert32bPal(this.palette, true);
-					const MAGENTA = 4294902015;
-					out = new Uint8Array(gl_width * gl_height);
-					for (let y = 0; y < height; ++y) {
-						const srcRow = y * width;
-						const dstRow = (y + start_y) * gl_width + start_x;
-						for (let x = 0; x < width; ++x) {
-							const idx = data[srcRow + x];
-							if (pal32[idx] === MAGENTA) out[dstRow + x] = 0;
-							else out[dstRow + x] = idx;
+					if (!pal32) pal32 = this.convert32bPal(this.palette, true);
+					if (width <= 0 || height <= 0) out = new Uint8Array(gl_width * gl_height);
+					else if (wasmInstance) {
+						const srcBytes = width * height;
+						const dstBytes = gl_width * gl_height;
+						const dstPtr = wasmSrcPtr + srcBytes;
+						const totalBytesNeeded = dstPtr + dstBytes;
+						if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+							const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
+							wasmMem.grow(additionalPages);
+						}
+						if (!wasmPalInitialized) {
+							new Uint32Array(wasmMem.buffer, wasmPalPtr, 256).set(pal32);
+							wasmPalInitialized = true;
+						}
+						new Uint8Array(wasmMem.buffer, dstPtr, dstBytes).fill(0);
+						new Uint8Array(wasmMem.buffer, wasmSrcPtr, srcBytes).set(data);
+						wasmInstance.exports.compilePal(wasmPalPtr, wasmSrcPtr, dstPtr, width, height, gl_width, gl_height, start_x, start_y);
+						out = new Uint8Array(new Uint8Array(wasmMem.buffer, dstPtr, dstBytes));
+					} else {
+						out = new Uint8Array(gl_width * gl_height);
+						for (let y = 0; y < height; ++y) {
+							const srcRow = y * width;
+							const dstRow = (y + start_y) * gl_width + start_x;
+							for (let x = 0; x < width; ++x) {
+								const idx = data[srcRow + x];
+								if (pal32[idx] === MAGENTA) out[dstRow + x] = 0;
+								else out[dstRow + x] = idx;
+							}
 						}
 					}
+				} else if (width <= 0 || height <= 0) out = new Uint8Array(gl_width * gl_height * 4);
+				else if (wasmInstance) {
+					const srcBytes = width * height * 4;
+					const dstBytes = gl_width * gl_height * 4;
+					const dstPtr = wasmSrcPtr + srcBytes;
+					const totalBytesNeeded = dstPtr + dstBytes;
+					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
+						wasmMem.grow(additionalPages);
+					}
+					new Uint8Array(wasmMem.buffer, dstPtr, dstBytes).fill(0);
+					new Uint8Array(wasmMem.buffer, wasmSrcPtr, srcBytes).set(data);
+					wasmInstance.exports.compileRgba(wasmSrcPtr, dstPtr, width, height, gl_width, start_x, start_y);
+					out = new Uint8Array(new Uint8Array(wasmMem.buffer, dstPtr, dstBytes));
 				} else {
 					out = new Uint8Array(gl_width * gl_height * 4);
 					const out32 = new Uint32Array(out.buffer);
@@ -81406,7 +81673,7 @@ var init_Controls = __esmMin((() => {
 	}, 1);
 }));
 // src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$9, mat2$1, mat2d, mat3$5, mat4$26, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$9, mat2$1, mat2d, mat3$5, mat4$25, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -83405,13 +83672,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "mat3(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.mat3 = mat3$5;
-	mat4$26 = {};
+	mat4$25 = {};
 	/**
 	* Creates a new identity mat4
 	*
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$26.create = function() {
+	mat4$25.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = 1;
 		out[1] = 0;
@@ -83437,7 +83704,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a matrix to clone
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$26.clone = function(a) {
+	mat4$25.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -83464,7 +83731,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.copy = function(out, a) {
+	mat4$25.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -83489,7 +83756,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} out the receiving matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.identity = function(out) {
+	mat4$25.identity = function(out) {
 		out[0] = 1;
 		out[1] = 0;
 		out[2] = 0;
@@ -83515,7 +83782,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.transpose = function(out, a) {
+	mat4$25.transpose = function(out, a) {
 		if (out === a) {
 			var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 			out[1] = a[4];
@@ -83557,7 +83824,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.invert = function(out, a) {
+	mat4$25.invert = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 		if (!det) return null;
 		det = 1 / det;
@@ -83586,7 +83853,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$26.adjoint = function(out, a) {
+	mat4$25.adjoint = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		out[0] = a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22);
 		out[1] = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
@@ -83612,7 +83879,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {Number} determinant of a
 	*/
-	mat4$26.determinant = function(a) {
+	mat4$25.determinant = function(a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31;
 		return b00 * (a22 * a33 - a23 * a32) - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	};
@@ -83624,7 +83891,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} b the second operand
 	* @returns {mat4} out
 	*/
-	mat4$26.multiply = function(out, a, b) {
+	mat4$25.multiply = function(out, a, b) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 		out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
@@ -83661,7 +83928,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link mat4.multiply}
 	* @function
 	*/
-	mat4$26.mul = mat4$26.multiply;
+	mat4$25.mul = mat4$25.multiply;
 	/**
 	* Translate a mat4 by the given vector
 	*
@@ -83670,7 +83937,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v vector to translate by
 	* @returns {mat4} out
 	*/
-	mat4$26.translate = function(out, a, v) {
+	mat4$25.translate = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2], a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23;
 		if (a === out) {
 			out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
@@ -83717,7 +83984,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v the vec3 to scale the matrix by
 	* @returns {mat4} out
 	**/
-	mat4$26.scale = function(out, a, v) {
+	mat4$25.scale = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2];
 		out[0] = a[0] * x;
 		out[1] = a[1] * x;
@@ -83746,7 +84013,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} axis the axis to rotate around
 	* @returns {mat4} out
 	*/
-	mat4$26.rotate = function(out, a, rad, axis) {
+	mat4$25.rotate = function(out, a, rad, axis) {
 		var x = axis[0], y = axis[1], z = axis[2], len = Math.sqrt(x * x + y * y + z * z), s, c, t, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 		if (Math.abs(len) < GLMAT_EPSILON) return null;
 		len = 1 / len;
@@ -83805,7 +84072,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$26.rotateX = function(out, a, rad) {
+	mat4$25.rotateX = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[0] = a[0];
@@ -83835,7 +84102,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$26.rotateY = function(out, a, rad) {
+	mat4$25.rotateY = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[4] = a[4];
@@ -83865,7 +84132,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$26.rotateZ = function(out, a, rad) {
+	mat4$25.rotateZ = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
 		if (a !== out) {
 			out[8] = a[8];
@@ -83902,7 +84169,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v Translation vector
 	* @returns {mat4} out
 	*/
-	mat4$26.fromRotationTranslation = function(out, q, v) {
+	mat4$25.fromRotationTranslation = function(out, q, v) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -83930,7 +84197,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	*
 	* @returns {mat4} out
 	*/
-	mat4$26.fromQuat = function(out, q) {
+	mat4$25.fromQuat = function(out, q) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -83962,7 +84229,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$26.frustum = function(out, left, right, bottom, top, near, far) {
+	mat4$25.frustum = function(out, left, right, bottom, top, near, far) {
 		var rl = 1 / (right - left), tb = 1 / (top - bottom), nf = 1 / (near - far);
 		out[0] = near * 2 * rl;
 		out[1] = 0;
@@ -83992,7 +84259,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$26.perspective = function(out, fovy, aspect, near, far) {
+	mat4$25.perspective = function(out, fovy, aspect, near, far) {
 		var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
 		out[0] = f / aspect;
 		out[1] = 0;
@@ -84024,7 +84291,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$26.ortho = function(out, left, right, bottom, top, near, far) {
+	mat4$25.ortho = function(out, left, right, bottom, top, near, far) {
 		var lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
 		out[0] = -2 * lr;
 		out[1] = 0;
@@ -84053,9 +84320,9 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} up vec3 pointing up
 	* @returns {mat4} out
 	*/
-	mat4$26.lookAt = function(out, eye, center, up) {
+	mat4$25.lookAt = function(out, eye, center, up) {
 		var x0, x1, x2, y0, y1, y2, z0, z1, z2, len, eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2], centerx = center[0], centery = center[1], centerz = center[2];
-		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$26.identity(out);
+		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$25.identity(out);
 		z0 = eyex - centerx;
 		z1 = eyey - centery;
 		z2 = eyez - centerz;
@@ -84115,10 +84382,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} mat matrix to represent as a string
 	* @returns {String} string representation of the matrix
 	*/
-	mat4$26.str = function(a) {
+	mat4$25.str = function(a) {
 		return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$26;
+	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$25;
 	quat$2 = {};
 	/**
 	* Creates a new identity quat
@@ -86289,7 +86556,7 @@ var init_VerticalFlip = __esmMin((() => {
 	};
 }));
 // src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$25, vec3$7, vec4$8, _from, _to, _unit, _matrix$9, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$24, vec3$7, vec4$8, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -86297,11 +86564,11 @@ var init_Altitude = __esmMin((() => {
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$25, vec3: vec3$7, vec4: vec4$8} = exports$3);
+	({mat4: mat4$24, vec3: vec3$7, vec4: vec4$8} = exports$3);
 	_from = vec3$7.create();
 	_to = vec4$8.create();
 	_unit = vec3$7.create();
-	_matrix$9 = mat4$25.create();
+	_matrix$8 = mat4$24.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -86398,18 +86665,18 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$25.invert(_matrix$9, modelView);
-			_from[0] = _matrix$9[12];
-			_from[1] = _matrix$9[13];
-			_from[2] = _matrix$9[14];
+			mat4$24.invert(_matrix$8, modelView);
+			_from[0] = _matrix$8[12];
+			_from[1] = _matrix$8[13];
+			_from[2] = _matrix$8[14];
 			_to[0] = Mouse.screen.x / Mouse.screen.width * 2 - 1;
 			_to[1] = -(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$25.multiply(_matrix$9, projection, modelView);
-			mat4$25.invert(_matrix$9, _matrix$9);
-			vec4$8.transformMat4(_to, _to, _matrix$9);
+			mat4$24.multiply(_matrix$8, projection, modelView);
+			mat4$24.invert(_matrix$8, _matrix$8);
+			vec4$8.transformMat4(_to, _to, _matrix$8);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
@@ -149170,6 +149437,60 @@ var init_StatusEffectTable = __esmMin((() => {
 		}
 	};
 }));
+// src/DB/Status/StateIconMods.js
+/**
+* Every file to read: the client's three and the mods', each as
+* { name: what it is mounted as, path, stage, mod }. In order: the client's
+* names, the mods' names, the client's pictures and tooltips (read together),
+* then the mods' pictures and tooltips. A mod's names come before every other
+* table, so a mod's rows can use them.
+*
+* @param {string} dirPath - the client's stateicon directory, ending in '/'
+* @param {function} get - Configs.get
+* @return {Array}
+*/
+function stateIconFiles(dirPath, get) {
+	const files = [];
+	for (const [stage, key] of STAGES) {
+		files.push({
+			name: stage + ".lub",
+			path: dirPath + stage + ".lub",
+			stage,
+			mod: false
+		});
+		const list = get(key, []);
+		(Array.isArray(list) ? list : []).filter((path) => typeof path === "string").forEach((path, i) => files.push({
+			name: `mod-${stage}-${i}.lub`,
+			path,
+			stage,
+			mod: true
+		}));
+	}
+	const rank = (f) => f.stage === "efstids" ? f.mod ? 1 : 0 : f.mod ? 3 : 2;
+	return files.sort((a, b) => rank(a) - rank(b));
+}
+var STAGES, BEFORE_MOD_NAMES, AFTER_MOD_NAMES, BEFORE_MOD_ROWS;
+var init_StateIconMods = __esmMin((() => {
+	STAGES = [
+		["efstids", "customEfstIds"],
+		["stateiconimginfo", "customStateIconImgInfo"],
+		["stateiconinfo", "customStateIconInfo"]
+	];
+	BEFORE_MOD_NAMES = "__MOD_EFST_SAVE = EFST_IDs; EFST_IDs = {}";
+	AFTER_MOD_NAMES = `
+if type(EFST_IDs) == "table" and type(__EFST_IDS_ORIGINAL) == "table" then
+	for k, v in pairs(EFST_IDs) do
+		if type(k) == "string" and type(v) == "number" and v >= 20000 and v <= 22999 then
+			local ok, known = pcall(function() return __EFST_IDS_ORIGINAL[k] end)
+			if ok and known == nil then
+				rawset(__EFST_IDS_ORIGINAL, k, v)
+			end
+		end
+	end
+end
+EFST_IDs = __MOD_EFST_SAVE`;
+	BEFORE_MOD_ROWS = "StateIconImgList = nil; StateIconList = nil";
+}));
 // src/Vendors/xmlparse.js
 /**
 * Vendors/xmlparse.js
@@ -210705,6 +211026,1326 @@ end
 		LUA
 	};
 }));
+// src/Core/LuaModuleLoader.js
+var DEFAULT_SEARCH_PATHS, OPTIONAL_RUNTIME_PATTERNS, _bufferCache, _inflight, _failureReasons, _vfsGeneration, _remoteGeneration, _lastClientLoadFile, _vmState, _config$1, LUA_BOOTSTRAP_SCRIPT, LuaModuleLoader;
+var init_LuaModuleLoader = __esmMin((() => {
+	init_Client();
+	init_Configs();
+	init_MemoryManager();
+	init_CodepageManager();
+	DEFAULT_SEARCH_PATHS = Object.freeze([
+		"./?.lua",
+		"./?.lub",
+		"./?/init.lua",
+		"./?/init.lub",
+		"AI/?.lua",
+		"AI/?.lub",
+		"AI/USER_AI/?.lua",
+		"AI/USER_AI/?.lub",
+		"System/?.lub",
+		"System/?.lua",
+		"SystemEN/?.lub",
+		"SystemEN/?.lua",
+		"data/luafiles514/lua files/?.lub",
+		"data/luafiles514/lua files/?.lua"
+	]);
+	OPTIONAL_RUNTIME_PATTERNS = Object.freeze(["Timeouts", "AggressiveRelogPath"]);
+	_bufferCache = /* @__PURE__ */ new Map();
+	_inflight = /* @__PURE__ */ new Map();
+	_failureReasons = /* @__PURE__ */ new Map();
+	_vfsGeneration = 0;
+	_remoteGeneration = 0;
+	_lastClientLoadFile = Client.loadFile;
+	_vmState = /* @__PURE__ */ new WeakMap();
+	_config$1 = {
+		searchPaths: [...DEFAULT_SEARCH_PATHS],
+		vfsLoader: null,
+		urlFetcher: null,
+		remoteBaseUrl: ""
+	};
+	LUA_BOOTSTRAP_SCRIPT = `
+do
+	local _raw_loadfile = _G.__ro_orig_loadfile or loadfile
+	local _raw_dofile = _G.__ro_orig_dofile or dofile
+	local _raw_pcall = _G.__ro_orig_pcall or pcall
+	local _raw_xpcall = _G.__ro_orig_xpcall or xpcall
+
+	_G.__ro_orig_loadfile = _raw_loadfile
+	_G.__ro_orig_dofile = _raw_dofile
+	_G.__ro_orig_pcall = _raw_pcall
+	_G.__ro_orig_xpcall = _raw_xpcall
+
+	package = package or {}
+	package.loaded = package.loaded or {}
+	package.preload = package.preload or {}
+	package.loaders = package.loaders or {}
+	package.searchers = package.loaders
+
+	local _sentinel = {}
+
+	local function pack_vararg(...)
+		return { n = select('#', ...), ... }
+	end
+
+	-- Coroutine-safe pcall so yielding a JS Promise inside an async thread works across pcall
+	pcall = function(fn, ...)
+		if coroutine.running() == nil then
+			return _raw_pcall(fn, ...)
+		end
+		if type(fn) ~= 'function' then
+			local mt = getmetatable(fn)
+			if not (mt and mt.__call) then
+				return _raw_pcall(fn, ...)
+			end
+			local callable = fn
+			fn = function(...)
+				return callable(...)
+			end
+		end
+		local co = coroutine.create(fn)
+		local args = pack_vararg(...)
+		while true do
+			local res = pack_vararg(coroutine.resume(co, unpack(args, 1, args.n)))
+			if not res[1] then
+				return false, res[2]
+			end
+			if coroutine.status(co) == 'dead' then
+				return unpack(res, 1, res.n)
+			end
+			args = pack_vararg(coroutine.yield(unpack(res, 2, res.n)))
+		end
+	end
+
+	xpcall = function(fn, errhandler)
+		if coroutine.running() == nil then
+			return _raw_xpcall(fn, errhandler)
+		end
+		local res = pack_vararg(pcall(fn))
+		if res[1] then
+			return unpack(res, 1, res.n)
+		end
+		if type(errhandler) == 'function' then
+			local ok, transformed = pcall(errhandler, res[2])
+			if ok then
+				return false, transformed
+			end
+			return false, transformed
+		end
+		return false, res[2]
+	end
+
+	-- Searcher 1: package.preload
+	local function preload_searcher(modname)
+		if type(package.preload) ~= 'table' then
+			return "\\n\\t'package.preload' must be a table"
+		end
+		local loader = package.preload[modname]
+		if loader == nil then
+			return "\\n\\tno field package.preload['" .. tostring(modname) .. "']"
+		end
+		return loader
+	end
+
+	-- Searcher 2: roBrowserLegacy VFS / MemoryManager / Remote URL / MEMFS searcher
+	local function vfs_searcher(modname)
+		local is_async = coroutine.running() ~= nil
+		local search_path = type(package.path) == 'string' and package.path or ''
+		local resolved = __ro_resolve_module(modname, search_path, is_async)
+		if (not resolved or not resolved.found) and is_async and (not resolved or resolved.needsAsync ~= false) then
+			local promise = __ro_fetch_module_async(modname, search_path)
+			if promise ~= nil then
+				coroutine.yield(promise)
+			end
+			resolved = __ro_resolve_module(modname, search_path, false)
+		end
+
+		if not resolved or not resolved.found then
+			if resolved and type(resolved.triedMessage) == 'string' and resolved.triedMessage ~= '' then
+				return resolved.triedMessage
+			end
+			return "\\n\\tno file '" .. tostring(modname) .. "'"
+		end
+
+		local chunk, load_err = _raw_loadfile(resolved.memfsPath)
+		if not chunk then
+			error(
+				"error loading module '" ..
+					tostring(modname) ..
+					"' from file '" ..
+					tostring(resolved.candidate or resolved.memfsPath) ..
+					"':\\n\\t" ..
+					tostring(load_err),
+				3
+			)
+		end
+		return chunk
+	end
+
+	-- Install searchers (replacing native filesystem .lua and .so/.dll C loaders on first init)
+	local existing_custom = {}
+	if _G.__ro_loaders_initialized then
+		for i = 3, #package.loaders do
+			if type(package.loaders[i]) == 'function' then
+				table.insert(existing_custom, package.loaders[i])
+			end
+		end
+	end
+	_G.__ro_loaders_initialized = true
+	for i = #package.loaders, 1, -1 do
+		package.loaders[i] = nil
+	end
+	package.loaders[1] = preload_searcher
+	package.loaders[2] = vfs_searcher
+	for i = 1, #existing_custom do
+		package.loaders[i + 2] = existing_custom[i]
+	end
+	package.searchers = package.loaders
+
+	-- Standard Lua 5.1 require() with circular-dependency detection and VFS/async support
+	require = function(modname)
+		if type(modname) ~= 'string' and type(modname) ~= 'number' then
+			error("bad argument #1 to 'require' (string expected, got " .. type(modname) .. ")", 2)
+		end
+		modname = tostring(modname)
+
+		local current = package.loaded[modname]
+		if current == _sentinel then
+			error("loop or previous error loading module '" .. modname .. "'", 2)
+		end
+		if current ~= nil and current ~= false then
+			return current
+		end
+
+		local searchers = package.loaders or package.searchers
+		if type(searchers) ~= 'table' then
+			error("'package.loaders' must be a table", 2)
+		end
+
+		local errors = {}
+		local loader = nil
+		for i = 1, #searchers do
+			local searcher = searchers[i]
+			if type(searcher) == 'function' then
+				local res = searcher(modname)
+				if type(res) == 'function' then
+					loader = res
+					break
+				elseif type(res) == 'string' then
+					table.insert(errors, res)
+				end
+			end
+		end
+
+		if loader == nil then
+			error("module '" .. modname .. "' not found:" .. table.concat(errors), 2)
+		end
+
+		package.loaded[modname] = _sentinel
+		local ok, result = pcall(loader, modname)
+		if not ok then
+			if package.loaded[modname] == _sentinel then
+				package.loaded[modname] = nil
+			end
+			error(result, 2)
+		end
+
+		if result ~= nil then
+			package.loaded[modname] = result
+		elseif package.loaded[modname] == nil or package.loaded[modname] == _sentinel then
+			package.loaded[modname] = true
+		end
+
+		return package.loaded[modname]
+	end
+
+	-- VFS-aware loadfile()
+	loadfile = function(filename)
+		if filename == nil then
+			return _raw_loadfile()
+		end
+		filename = tostring(filename)
+		local is_async = coroutine.running() ~= nil
+		local search_path = type(package.path) == 'string' and package.path or ''
+		local resolved = __ro_resolve_file(filename, search_path, is_async)
+		if (not resolved or not resolved.found) and is_async and (not resolved or resolved.needsAsync ~= false) then
+			local promise = __ro_fetch_file_async(filename, search_path)
+			if promise ~= nil then
+				coroutine.yield(promise)
+			end
+			resolved = __ro_resolve_file(filename, search_path, false)
+		end
+		if resolved and resolved.found then
+			return _raw_loadfile(resolved.memfsPath)
+		end
+		return _raw_loadfile(filename)
+	end
+
+	-- VFS-aware dofile()
+	dofile = function(filename)
+		local chunk, err = loadfile(filename)
+		if not chunk then
+			error(err, 2)
+		end
+		return chunk()
+	end
+end
+`;
+	LuaModuleLoader = class LuaModuleLoader {
+		/**
+		* Default search path templates.
+		*
+		* @type {ReadonlyArray<string>}
+		*/
+		static DEFAULT_SEARCH_PATHS = DEFAULT_SEARCH_PATHS;
+		/**
+		* Configure global module resolution behavior.
+		*
+		* @param {object} [options={}]
+		* @param {string|string[]} [options.searchPaths] - Replace global search paths
+		* @param {string|string[]} [options.prependSearchPaths] - Prepend search paths to existing list
+		* @param {string|string[]} [options.appendSearchPaths] - Append search paths to existing list
+		* @param {Function|null} [options.vfsLoader] - Custom VFS loader `(filename) => Promise<Uint8Array|ArrayBuffer|string>`
+		* @param {Function|null} [options.urlFetcher] - Custom URL fetcher `(url) => Promise<Uint8Array|ArrayBuffer|string>`
+		* @param {string} [options.remoteBaseUrl] - Optional remote base URL for fallback HTTP resolution
+		*/
+		static configure(options = {}) {
+			if (options.searchPaths !== void 0) _config$1.searchPaths = LuaModuleLoader.parseSearchPathsInput(options.searchPaths);
+			if (options.prependSearchPaths !== void 0) {
+				const prepended = LuaModuleLoader.parseSearchPathsInput(options.prependSearchPaths);
+				_config$1.searchPaths = LuaModuleLoader.dedupeArray([...prepended, ..._config$1.searchPaths]);
+			}
+			if (options.appendSearchPaths !== void 0) {
+				const appended = LuaModuleLoader.parseSearchPathsInput(options.appendSearchPaths);
+				_config$1.searchPaths = LuaModuleLoader.dedupeArray([..._config$1.searchPaths, ...appended]);
+			}
+			if (options.vfsLoader !== void 0) {
+				_config$1.vfsLoader = options.vfsLoader;
+				_vfsGeneration++;
+				for (const key of _failureReasons.keys()) if (!LuaModuleLoader.isRemoteUrl(key)) _failureReasons.delete(key);
+				for (const key of _inflight.keys()) if (!LuaModuleLoader.isRemoteUrl(key)) _inflight.delete(key);
+			}
+			if (options.urlFetcher !== void 0) {
+				_config$1.urlFetcher = options.urlFetcher;
+				_remoteGeneration++;
+				for (const key of _failureReasons.keys()) if (LuaModuleLoader.isRemoteUrl(key)) _failureReasons.delete(key);
+				for (const key of _inflight.keys()) if (LuaModuleLoader.isRemoteUrl(key)) _inflight.delete(key);
+			}
+			if (options.remoteBaseUrl !== void 0) {
+				_config$1.remoteBaseUrl = options.remoteBaseUrl || "";
+				_remoteGeneration++;
+				for (const key of _failureReasons.keys()) if (LuaModuleLoader.isRemoteUrl(key)) _failureReasons.delete(key);
+			}
+		}
+		/**
+		* Reset global configuration to defaults.
+		*/
+		static resetConfig() {
+			_config$1.searchPaths = [...DEFAULT_SEARCH_PATHS];
+			_config$1.vfsLoader = null;
+			_config$1.urlFetcher = null;
+			_config$1.remoteBaseUrl = "";
+			_vfsGeneration++;
+			_remoteGeneration++;
+			_inflight.clear();
+			_failureReasons.clear();
+		}
+		/**
+		* Clear internal module buffer, in-flight, and negative-lookup caches.
+		* Increments the VFS and remote cache generation tokens so any pending in-flight requests
+		* from a previous client/archive or remote session cannot repopulate the cache.
+		*/
+		static clearCache() {
+			_vfsGeneration++;
+			_remoteGeneration++;
+			_bufferCache.clear();
+			_inflight.clear();
+			_failureReasons.clear();
+			_lastClientLoadFile = Client.loadFile;
+		}
+		/**
+		* Invalidate negative lookup cache and drop stale in-flight VFS requests
+		* if `Client.loadFile` reference has changed. Increments `_vfsGeneration` so
+		* an older in-flight VFS request's late failure cannot repopulate negative cache entries.
+		*/
+		static syncClientLoaderState() {
+			if (Client.loadFile !== _lastClientLoadFile) {
+				_lastClientLoadFile = Client.loadFile;
+				_vfsGeneration++;
+				for (const key of _failureReasons.keys()) if (!LuaModuleLoader.isRemoteUrl(key)) _failureReasons.delete(key);
+				for (const key of _inflight.keys()) if (!LuaModuleLoader.isRemoteUrl(key)) _inflight.delete(key);
+			}
+		}
+		static toLocalUint8Array(input) {
+			if (input instanceof Uint8Array) return input;
+			if (ArrayBuffer.isView(input)) {
+				const view = new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+				const copy = new Uint8Array(view.length);
+				copy.set(view);
+				return copy;
+			}
+			if (input instanceof ArrayBuffer || Object.prototype.toString.call(input) === "[object ArrayBuffer]" || input && typeof input === "object" && typeof input.byteLength === "number" && typeof input.slice === "function") {
+				const view = new Uint8Array(input);
+				const copy = new Uint8Array(view.length);
+				copy.set(view);
+				return copy;
+			}
+			return null;
+		}
+		/**
+		* Decode a string value passed from Wasmoon Lua into JavaScript.
+		* In roBrowserLegacy's custom Wasmoon build, non-empty Lua strings arrive in JS callbacks
+		* as `Uint8Array` views into Wasm memory (`HEAPU8`).
+		*
+		* @param {Uint8Array|ArrayBuffer|string|number|null|undefined} value
+		* @returns {string}
+		*/
+		static decodeLuaString(value) {
+			if (typeof value === "string") return value;
+			if (value === null || value === void 0) return "";
+			const bytes = LuaModuleLoader.toLocalUint8Array(value);
+			if (bytes) return CodepageManager.decode(bytes, "utf-8");
+			return String(value);
+		}
+		/**
+		* Convert raw file content (`Uint8Array`, `ArrayBuffer`, view, or `string`) to a `Uint8Array`.
+		* Strips a 3-byte UTF-8 BOM (`0xEF 0xBB 0xBF`) if present on text scripts while preserving
+		* binary `.lub` bytecode (`\x1bLua...`) and non-UTF-8 (EUC-KR / Windows-1252) byte sequences.
+		*
+		* @param {Uint8Array|ArrayBuffer|ArrayBufferView|string} data
+		* @returns {Uint8Array}
+		*/
+		static normalizeBuffer(data) {
+			let bytes = LuaModuleLoader.toLocalUint8Array(data);
+			if (bytes) bytes = new Uint8Array(bytes);
+			else if (typeof data === "string") bytes = CodepageManager.encode(data, "utf-8");
+			else throw new Error(`Unsupported Lua module data type: ${typeof data}`);
+			if (bytes.length >= 3 && bytes[0] === 239 && bytes[1] === 187 && bytes[2] === 191) return bytes.subarray(3);
+			return bytes;
+		}
+		/**
+		* Check whether a buffer contains compiled Lua 5.1 binary bytecode (`\x1bLua`).
+		*
+		* @param {Uint8Array} bytes
+		* @returns {boolean}
+		*/
+		static isBinaryLub(bytes) {
+			const buf = LuaModuleLoader.toLocalUint8Array(bytes);
+			return Boolean(buf && buf.length >= 4 && buf[0] === 27 && buf[1] === 76 && buf[2] === 117 && buf[3] === 97);
+		}
+		/**
+		* Check if a target string is an HTTP(S) URL.
+		*
+		* @param {string} target
+		* @returns {boolean}
+		*/
+		static isRemoteUrl(target) {
+			return typeof target === "string" && /^https?:\/\//i.test(target.trim());
+		}
+		/**
+		* Deduplicate an array while preserving order.
+		*
+		* @template T
+		* @param {T[]} items
+		* @returns {T[]}
+		*/
+		static dedupeArray(items) {
+			const seen = /* @__PURE__ */ new Set();
+			const out = [];
+			for (const item of items) if (item && !seen.has(item)) {
+				seen.add(item);
+				out.push(item);
+			}
+			return out;
+		}
+		/**
+		* Parse search paths from a semicolon-delimited string or string array.
+		*
+		* @param {string|string[]} input
+		* @returns {string[]}
+		*/
+		static parseSearchPathsInput(input) {
+			if (!input) return [];
+			if (Array.isArray(input)) {
+				const expanded = [];
+				for (const entry of input) if (typeof entry === "string") for (const part of entry.split(";")) {
+					const trimmed = part.trim();
+					if (trimmed) expanded.push(trimmed);
+				}
+				return LuaModuleLoader.dedupeArray(expanded);
+			}
+			if (typeof input === "string") return LuaModuleLoader.dedupeArray(input.split(";").map((part) => part.trim()).filter(Boolean));
+			return [];
+		}
+		/**
+		* Format an array of search path templates into a Lua `package.path` string.
+		*
+		* @param {string[]} searchPaths
+		* @returns {string}
+		*/
+		static formatPackagePath(searchPaths) {
+			return LuaModuleLoader.parseSearchPathsInput(searchPaths).join(";");
+		}
+		/**
+		* Resolve effective search paths for a Lua VM.
+		* Distinguishes an omitted `overrideSearchPaths` (`undefined`/`null`) from an
+		* explicitly empty path (`''` or `[]`), which returns `[]` to disable path-template lookups.
+		*
+		* @param {object} [lua] - Wasmoon Lua instance
+		* @param {string|string[]|null} [overrideSearchPaths] - Explicit search paths override
+		* @returns {string[]}
+		*/
+		static getSearchPaths(lua = null, overrideSearchPaths = void 0) {
+			if (overrideSearchPaths !== void 0 && overrideSearchPaths !== null) return LuaModuleLoader.parseSearchPathsInput(overrideSearchPaths);
+			const configPaths = Configs.get("luaSearchPaths", null);
+			const fromConfigs = configPaths ? LuaModuleLoader.parseSearchPathsInput(configPaths) : [];
+			if (lua && _vmState.has(lua)) {
+				const state = _vmState.get(lua);
+				if (state && Array.isArray(state.searchPaths)) return LuaModuleLoader.dedupeArray([...fromConfigs, ...state.searchPaths]);
+			}
+			if (fromConfigs.length > 0) return LuaModuleLoader.dedupeArray([...fromConfigs, ..._config$1.searchPaths]);
+			return [..._config$1.searchPaths];
+		}
+		/**
+		* Read the live `package.path` from a Lua VM (or format an explicit override if provided).
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string|string[]} [overrideSearchPaths]
+		* @returns {string}
+		*/
+		static getCurrentPackagePath(lua, overrideSearchPaths = void 0) {
+			if (overrideSearchPaths !== void 0 && overrideSearchPaths !== null) return LuaModuleLoader.formatPackagePath(overrideSearchPaths);
+			if (lua && typeof lua.doStringSync === "function") {
+				const raw = lua.doStringSync("return (type(package) == \"table\" and type(package.path) == \"string\") and package.path or \"\"");
+				return LuaModuleLoader.decodeLuaString(raw);
+			}
+			return LuaModuleLoader.formatPackagePath(LuaModuleLoader.getSearchPaths(lua));
+		}
+		/**
+		* Normalize a VFS path (converting backslashes to forward slashes, collapsing duplicate
+		* slashes, and stripping leading `./` or `/`).
+		*
+		* @param {string} rawPath
+		* @returns {string}
+		*/
+		static normalizeVfsPath(rawPath) {
+			if (typeof rawPath !== "string") return "";
+			const trimmed = rawPath.trim();
+			if (!trimmed) return "";
+			if (LuaModuleLoader.isRemoteUrl(trimmed)) return trimmed;
+			return trimmed.replace(/\\/g, "/").replace(/\/+/g, "/").replace(/^(?:\.\/)+/, "").replace(/^\/+/, "");
+		}
+		/**
+		* Convert a canonical candidate path or remote URL into an Emscripten `MEMFS` path.
+		* Always returns an absolute POSIX path starting with `/`.
+		*
+		* @param {string} candidate
+		* @returns {string}
+		*/
+		static toMemfsPath(candidate) {
+			if (LuaModuleLoader.isRemoteUrl(candidate)) return `/__remote__/${candidate.trim().replace(/^https?:\/\//i, (match) => `${match.slice(0, -3).toLowerCase()}/`).replace(/[?#*:<>|"\\]/g, "_").replace(/\/+/g, "/")}`;
+			return `/${LuaModuleLoader.normalizeVfsPath(candidate)}`;
+		}
+		/**
+		* Translate a Lua module identifier (e.g., `"module.submodule"`, `"AI\\Const.lua"`,
+		* `"./AI/Util"`, or `"https://example.com/script.lua"`) into an ordered list of
+		* candidate VFS paths and/or remote URLs according to configured search paths.
+		*
+		* @param {string} modname - Module name passed to `require()`
+		* @param {string|string[]} [searchPaths] - Search path templates (`package.path`)
+		* @param {object} [lua] - Optional Lua VM instance for VM-scoped default search paths
+		* @returns {string[]} Ordered list of unique candidate paths/URLs
+		*/
+		static resolveCandidates(modname, searchPaths = void 0, lua = null) {
+			const raw = LuaModuleLoader.decodeLuaString(modname).trim();
+			if (!raw) return [];
+			const candidates = [];
+			if (LuaModuleLoader.isRemoteUrl(raw)) {
+				candidates.push(raw);
+				const withoutQuery = raw.split(/[?#]/)[0];
+				if (!/\.(lua|lub)$/i.test(withoutQuery) && raw === withoutQuery) {
+					candidates.push(`${raw}.lua`);
+					candidates.push(`${raw}.lub`);
+				}
+				return LuaModuleLoader.dedupeArray(candidates);
+			}
+			const templates = LuaModuleLoader.getSearchPaths(lua, searchPaths);
+			if (templates.length === 0) return [];
+			const normalized = LuaModuleLoader.normalizeVfsPath(raw);
+			if (!normalized) return [];
+			const extMatch = normalized.match(/\.(lua|lub)$/i);
+			const hasExplicitExt = Boolean(extMatch);
+			const explicitExt = hasExplicitExt ? extMatch[0].toLowerCase() : null;
+			const baseWithoutExt = hasExplicitExt ? normalized.slice(0, -extMatch[0].length) : normalized;
+			const dottedAsSlash = baseWithoutExt.replace(/\./g, "/").replace(/\/+/g, "/");
+			if (hasExplicitExt) {
+				candidates.push(normalized);
+				if (dottedAsSlash !== baseWithoutExt) candidates.push(`${dottedAsSlash}${explicitExt}`);
+				for (const tpl of templates) if (tpl.toLowerCase().endsWith(explicitExt)) {
+					candidates.push(LuaModuleLoader.applyTemplate(tpl, baseWithoutExt));
+					if (dottedAsSlash !== baseWithoutExt) candidates.push(LuaModuleLoader.applyTemplate(tpl, dottedAsSlash));
+				}
+			}
+			for (const tpl of templates) {
+				candidates.push(LuaModuleLoader.applyTemplate(tpl, dottedAsSlash));
+				if (baseWithoutExt !== dottedAsSlash && baseWithoutExt.includes("/")) candidates.push(LuaModuleLoader.applyTemplate(tpl, baseWithoutExt));
+			}
+			const remoteBase = _config$1.remoteBaseUrl || Configs.get("luaRemoteBaseUrl", "");
+			if (remoteBase && LuaModuleLoader.isRemoteUrl(remoteBase)) {
+				const baseClean = remoteBase.replace(/\/+$/, "");
+				if (hasExplicitExt) candidates.push(`${baseClean}/${normalized}`);
+				else {
+					candidates.push(`${baseClean}/${dottedAsSlash}.lua`);
+					candidates.push(`${baseClean}/${dottedAsSlash}.lub`);
+				}
+			}
+			return LuaModuleLoader.dedupeArray(candidates);
+		}
+		/**
+		* Resolve candidate paths for direct file operations (`loadfile` / `dofile`).
+		* Prioritizes the exact normalized file path before falling back to search paths.
+		*
+		* @param {string} filename
+		* @param {string|string[]} [searchPaths]
+		* @param {object} [lua]
+		* @returns {string[]}
+		*/
+		static resolveFileCandidates(filename, searchPaths = void 0, lua = null) {
+			const raw = LuaModuleLoader.decodeLuaString(filename).trim();
+			if (!raw) return [];
+			if (LuaModuleLoader.isRemoteUrl(raw)) return [raw];
+			const normalized = LuaModuleLoader.normalizeVfsPath(raw);
+			const candidates = [normalized];
+			if (!/\.(lua|lub)$/i.test(normalized)) {
+				candidates.push(`${normalized}.lua`);
+				candidates.push(`${normalized}.lub`);
+			}
+			const moduleCandidates = LuaModuleLoader.resolveCandidates(normalized, searchPaths, lua);
+			return LuaModuleLoader.dedupeArray([...candidates, ...moduleCandidates]);
+		}
+		/**
+		* Apply a single Lua `package.path` template (e.g. `"AI/?.lua"` or `"https://host/?.lua"`)
+		* to a normalized module path.
+		*
+		* @param {string} template
+		* @param {string} modPath
+		* @returns {string}
+		*/
+		static applyTemplate(template, modPath) {
+			const replaced = template.replace(/\?/g, modPath);
+			if (LuaModuleLoader.isRemoteUrl(replaced)) return replaced.replace(/^(https?:\/\/)(.*)$/i, (_, proto, rest) => `${proto}${rest.replace(/\/+/g, "/")}`);
+			return LuaModuleLoader.normalizeVfsPath(replaced);
+		}
+		/**
+		* Check if a file exists at `memfsPath` inside a Wasmoon Lua VM's Emscripten `MEMFS`.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string} memfsPath
+		* @returns {boolean}
+		*/
+		static hasMemfsFile(lua, memfsPath) {
+			const fs = lua && lua.luaApi && lua.luaApi.module && lua.luaApi.module.FS;
+			if (!fs || !memfsPath) return false;
+			try {
+				const stat = fs.stat(memfsPath);
+				return Boolean(stat && fs.isFile(stat.mode));
+			} catch (_err) {
+				return false;
+			}
+		}
+		/**
+		* Mount a `Uint8Array` buffer into a Wasmoon Lua VM's Emscripten `MEMFS`,
+		* creating parent directories as needed.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string} memfsPath - Target path in MEMFS
+		* @param {Uint8Array|ArrayBuffer|string} data - Raw file content
+		* @returns {string} Normalized MEMFS path
+		*/
+		static mountBuffer(lua, memfsPath, data) {
+			const fs = lua && lua.luaApi && lua.luaApi.module && lua.luaApi.module.FS;
+			if (!fs) throw new Error("Invalid Wasmoon Lua instance: missing Emscripten FS");
+			const bytes = LuaModuleLoader.normalizeBuffer(data);
+			const cleanPath = "/" + memfsPath.replace(/\\/g, "/").replace(/^(?:\.\/)+/, "").replace(/^\/+/, "");
+			const lastSlash = cleanPath.lastIndexOf("/");
+			if (lastSlash > 0) {
+				const dirSegments = cleanPath.slice(1, lastSlash).split("/").filter(Boolean);
+				let currentDir = "";
+				for (const segment of dirSegments) {
+					currentDir += `/${segment}`;
+					try {
+						fs.mkdir(currentDir);
+					} catch (_err) {}
+				}
+			}
+			fs.writeFile(cleanPath, bytes);
+			const normalizedCandidate = LuaModuleLoader.normalizeVfsPath(cleanPath);
+			if (normalizedCandidate) _failureReasons.delete(normalizedCandidate);
+			return cleanPath;
+		}
+		/**
+		* Register a module/file buffer directly in the shared cache (and optionally mount into a VM).
+		*
+		* @param {string} candidatePath - VFS path or URL
+		* @param {Uint8Array|ArrayBuffer|string} data - Module content (`.lua` source or `.lub` bytecode)
+		* @param {object} [lua] - Optional Lua VM to immediately mount into
+		* @returns {Uint8Array}
+		*/
+		static registerModuleBuffer(candidatePath, data, lua = null) {
+			const canonical = LuaModuleLoader.isRemoteUrl(candidatePath) ? candidatePath.trim() : LuaModuleLoader.normalizeVfsPath(candidatePath);
+			const bytes = LuaModuleLoader.normalizeBuffer(data);
+			_bufferCache.set(canonical, bytes);
+			_failureReasons.delete(canonical);
+			if (lua) {
+				const memfsPath = LuaModuleLoader.toMemfsPath(canonical);
+				LuaModuleLoader.mountBuffer(lua, memfsPath, bytes);
+			}
+			return bytes;
+		}
+		/**
+		* Check whether a candidate has already been probed and confirmed missing
+		* in the current archive generation.
+		*
+		* @param {object|null} lua - Wasmoon Lua instance
+		* @param {string} candidate - Canonical candidate path or URL
+		* @returns {boolean}
+		*/
+		static isKnownMissing(lua, candidate) {
+			LuaModuleLoader.syncClientLoaderState();
+			if (LuaModuleLoader.isRemoteUrl(candidate)) return false;
+			if (!_failureReasons.has(candidate)) return false;
+			const memfsPath = LuaModuleLoader.toMemfsPath(candidate);
+			if (lua && LuaModuleLoader.hasMemfsFile(lua, memfsPath) || _bufferCache.has(candidate)) {
+				_failureReasons.delete(candidate);
+				return false;
+			}
+			if (MemoryManager.exist(candidate) && MemoryManager.get(candidate) !== null && MemoryManager.get(candidate) !== void 0) {
+				_failureReasons.delete(candidate);
+				return false;
+			}
+			return true;
+		}
+		/**
+		* Attempt to resolve a single candidate synchronously from:
+		* 1. The Lua VM's Emscripten `MEMFS`
+		* 2. `LuaModuleLoader`'s shared `_bufferCache`
+		* 3. `MemoryManager` (if already loaded into roBrowserLegacy's asset memory cache)
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string} candidate - Candidate VFS path or remote URL
+		* @returns {{ found: boolean, memfsPath?: string, candidate: string, source?: string }}
+		*/
+		static resolveCandidateSync(lua, candidate) {
+			const memfsPath = LuaModuleLoader.toMemfsPath(candidate);
+			if (LuaModuleLoader.hasMemfsFile(lua, memfsPath)) return {
+				found: true,
+				memfsPath,
+				candidate,
+				source: "memfs"
+			};
+			if (!LuaModuleLoader.isRemoteUrl(candidate)) {
+				const relDotPath = `./${candidate}`;
+				if (LuaModuleLoader.hasMemfsFile(lua, relDotPath)) return {
+					found: true,
+					memfsPath: relDotPath,
+					candidate,
+					source: "memfs"
+				};
+			}
+			if (_bufferCache.has(candidate)) {
+				const cachedBytes = _bufferCache.get(candidate);
+				return {
+					found: true,
+					memfsPath: LuaModuleLoader.mountBuffer(lua, memfsPath, cachedBytes),
+					candidate,
+					source: "cache"
+				};
+			}
+			if (!LuaModuleLoader.isRemoteUrl(candidate) && MemoryManager.exist(candidate)) {
+				const memData = MemoryManager.get(candidate);
+				if (memData !== null && memData !== void 0) {
+					const bytes = LuaModuleLoader.normalizeBuffer(memData);
+					_bufferCache.set(candidate, bytes);
+					_failureReasons.delete(candidate);
+					return {
+						found: true,
+						memfsPath: LuaModuleLoader.mountBuffer(lua, memfsPath, bytes),
+						candidate,
+						source: "memory"
+					};
+				}
+			}
+			return {
+				found: false,
+				candidate
+			};
+		}
+		/**
+		* Format a standard Lua `package.loaders` diagnostic message for a list of tried candidates.
+		*
+		* @param {string[]} candidates
+		* @returns {string}
+		*/
+		static formatTriedMessage(candidates) {
+			if (!candidates || candidates.length === 0) return "\n	no file ''";
+			return candidates.map((candidate) => {
+				const reason = _failureReasons.get(candidate);
+				if (reason && LuaModuleLoader.isRemoteUrl(candidate)) return `\n\tno file '${candidate}' (${reason})`;
+				return `\n\tno file '${candidate}'`;
+			}).join("");
+		}
+		/**
+		* Synchronously resolve a module name across all configured candidate paths.
+		* When `options.asyncMode` is `true`, stops at the first uncached candidate that
+		* has not yet been checked asynchronously so a lower-priority cached candidate
+		* never overrides a higher-priority uncached `package.path` entry.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string|Uint8Array} modname - Module name
+		* @param {string|Uint8Array} [searchPathStr] - Current `package.path` from Lua
+		* @param {object} [options={}]
+		* @param {boolean} [options.asyncMode=false] - Whether caller can yield to fetch unchecked candidates
+		* @returns {{ found: boolean, needsAsync?: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }}
+		*/
+		static resolveModuleSync(lua, modname, searchPathStr = void 0, options = {}) {
+			const decodedMod = LuaModuleLoader.decodeLuaString(modname);
+			const decodedSearch = searchPathStr === void 0 || searchPathStr === null ? void 0 : LuaModuleLoader.decodeLuaString(searchPathStr);
+			const candidates = LuaModuleLoader.resolveCandidates(decodedMod, decodedSearch, lua);
+			const asyncMode = Boolean(options && options.asyncMode);
+			for (const candidate of candidates) {
+				const res = LuaModuleLoader.resolveCandidateSync(lua, candidate);
+				if (res.found) return {
+					found: true,
+					needsAsync: false,
+					memfsPath: res.memfsPath,
+					candidate: res.candidate,
+					source: res.source,
+					candidates
+				};
+				if (asyncMode && !LuaModuleLoader.isKnownMissing(lua, candidate)) return {
+					found: false,
+					needsAsync: true,
+					candidates,
+					triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+				};
+			}
+			return {
+				found: false,
+				needsAsync: false,
+				candidates,
+				triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+			};
+		}
+		/**
+		* Synchronously resolve a direct file path (`loadfile` / `dofile`).
+		* When `options.asyncMode` is `true`, stops at the first uncached candidate that
+		* has not yet been checked asynchronously.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string|Uint8Array} filename - File path or URL
+		* @param {string|Uint8Array} [searchPathStr] - Current `package.path` from Lua
+		* @param {object} [options={}]
+		* @param {boolean} [options.asyncMode=false] - Whether caller can yield to fetch unchecked candidates
+		* @returns {{ found: boolean, needsAsync?: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }}
+		*/
+		static resolveFileSync(lua, filename, searchPathStr = void 0, options = {}) {
+			const decodedFile = LuaModuleLoader.decodeLuaString(filename);
+			const decodedSearch = searchPathStr === void 0 || searchPathStr === null ? void 0 : LuaModuleLoader.decodeLuaString(searchPathStr);
+			const candidates = LuaModuleLoader.resolveFileCandidates(decodedFile, decodedSearch, lua);
+			const asyncMode = Boolean(options && options.asyncMode);
+			for (const candidate of candidates) {
+				const res = LuaModuleLoader.resolveCandidateSync(lua, candidate);
+				if (res.found) return {
+					found: true,
+					needsAsync: false,
+					memfsPath: res.memfsPath,
+					candidate: res.candidate,
+					source: res.source,
+					candidates
+				};
+				if (asyncMode && !LuaModuleLoader.isKnownMissing(lua, candidate)) return {
+					found: false,
+					needsAsync: true,
+					candidates,
+					triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+				};
+			}
+			return {
+				found: false,
+				needsAsync: false,
+				candidates,
+				triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+			};
+		}
+		/**
+		* Load a VFS candidate asynchronously through `Client.loadFile` (or configured `vfsLoader`).
+		*
+		* @param {string} candidate - Normalized VFS path
+		* @param {object} [options={}]
+		* @returns {Promise<Uint8Array>}
+		*/
+		static loadVfsCandidate(candidate, options = {}) {
+			LuaModuleLoader.syncClientLoaderState();
+			if (_bufferCache.has(candidate)) return Promise.resolve(_bufferCache.get(candidate));
+			if (_inflight.has(candidate)) return _inflight.get(candidate);
+			if (!options.vfsLoader && LuaModuleLoader.isKnownMissing(null, candidate)) return Promise.reject(new Error(_failureReasons.get(candidate)));
+			const vfsLoader = options.vfsLoader || _config$1.vfsLoader;
+			const generation = _vfsGeneration;
+			const promise = new Promise((resolve, reject) => {
+				if (typeof vfsLoader === "function") {
+					Promise.resolve().then(() => vfsLoader(candidate)).then((data) => {
+						if (data === null || data === void 0) throw new Error(`VFS file not found: ${candidate}`);
+						const bytes = LuaModuleLoader.normalizeBuffer(data);
+						if (_vfsGeneration === generation) {
+							_bufferCache.set(candidate, bytes);
+							_failureReasons.delete(candidate);
+						}
+						resolve(bytes);
+					}).catch((err) => {
+						const msg = err && err.message || String(err || "VFS load failed");
+						if (_vfsGeneration === generation) _failureReasons.set(candidate, msg);
+						reject(new Error(msg));
+					});
+					return;
+				}
+				if (MemoryManager.exist(candidate)) {
+					const existing = MemoryManager.get(candidate);
+					if (existing !== null && existing !== void 0) {
+						const bytes = LuaModuleLoader.normalizeBuffer(existing);
+						if (_vfsGeneration === generation) {
+							_bufferCache.set(candidate, bytes);
+							_failureReasons.delete(candidate);
+						}
+						resolve(bytes);
+						return;
+					}
+				}
+				let settled = false;
+				const onSuccess = (data) => {
+					if (settled) return;
+					settled = true;
+					try {
+						if (_vfsGeneration !== generation) MemoryManager.remove(null, candidate);
+						if (data === null || data === void 0) {
+							const msg = `Empty VFS response for "${candidate}"`;
+							if (_vfsGeneration === generation) _failureReasons.set(candidate, msg);
+							reject(new Error(msg));
+							return;
+						}
+						const bytes = LuaModuleLoader.normalizeBuffer(data);
+						if (_vfsGeneration === generation) {
+							_bufferCache.set(candidate, bytes);
+							_failureReasons.delete(candidate);
+						}
+						resolve(bytes);
+					} catch (err) {
+						const msg = err && err.message || String(err);
+						if (_vfsGeneration === generation) _failureReasons.set(candidate, msg);
+						reject(err);
+					}
+				};
+				const onError = (err) => {
+					if (settled) return;
+					settled = true;
+					const msg = err && err.message || String(err || `File not found in VFS: ${candidate}`);
+					if (_vfsGeneration === generation) _failureReasons.set(candidate, msg);
+					reject(new Error(msg));
+				};
+				try {
+					Client.loadFile(candidate, onSuccess, onError);
+				} catch (err) {
+					onError(err);
+				}
+			}).finally(() => {
+				if (_inflight.get(candidate) === promise) _inflight.delete(candidate);
+			});
+			_inflight.set(candidate, promise);
+			return promise;
+		}
+		/**
+		* Fetch a remote HTTP(S) URL candidate asynchronously using `fetch` (or configured `urlFetcher`).
+		* Validates HTTP status and rejects HTML error pages (e.g. SPA fallback index.html).
+		*
+		* @param {string} url - Remote HTTP(S) URL
+		* @param {object} [options={}]
+		* @returns {Promise<Uint8Array>}
+		*/
+		static fetchUrlCandidate(url, options = {}) {
+			if (_bufferCache.has(url)) return Promise.resolve(_bufferCache.get(url));
+			if (_inflight.has(url)) return _inflight.get(url);
+			const urlFetcher = options.urlFetcher || _config$1.urlFetcher;
+			const generation = _remoteGeneration;
+			const promise = Promise.resolve().then(async () => {
+				let rawData;
+				if (typeof urlFetcher === "function") {
+					rawData = await urlFetcher(url);
+					if (rawData === null || rawData === void 0) throw new Error(`Empty response from URL: ${url}`);
+				} else {
+					if (typeof fetch !== "function") throw new Error(`Global fetch is not available to load URL: ${url}`);
+					const response = await fetch(url, {
+						method: "GET",
+						headers: { Accept: "application/octet-stream, text/plain, */*" }
+					});
+					if (!response || !response.ok) {
+						const status = response ? `${response.status} ${response.statusText}`.trim() : "Network error";
+						throw new Error(`HTTP ${status}`);
+					}
+					rawData = await response.arrayBuffer();
+				}
+				const bytes = LuaModuleLoader.normalizeBuffer(rawData);
+				if (!LuaModuleLoader.isBinaryLub(bytes) && bytes.length > 0) {
+					const preview = CodepageManager.decode(bytes.subarray(0, Math.min(bytes.length, 256)), "utf-8").trimStart().toLowerCase();
+					if (preview.startsWith("<!doctype html") || preview.startsWith("<html")) throw new Error("Server returned HTML page instead of Lua/LUB module");
+				}
+				if (_remoteGeneration === generation) {
+					_bufferCache.set(url, bytes);
+					_failureReasons.delete(url);
+				}
+				return bytes;
+			}).catch((err) => {
+				const msg = err && err.message || String(err || "Remote fetch failed");
+				if (_remoteGeneration === generation) _failureReasons.set(url, msg);
+				throw new Error(msg);
+			}).finally(() => {
+				if (_inflight.get(url) === promise) _inflight.delete(url);
+			});
+			_inflight.set(url, promise);
+			return promise;
+		}
+		/**
+		* Load a single candidate from either a remote URL or VFS.
+		*
+		* @param {string} candidate
+		* @param {object} [options={}]
+		* @returns {Promise<Uint8Array>}
+		*/
+		static loadCandidateData(candidate, options = {}) {
+			if (LuaModuleLoader.isRemoteUrl(candidate)) return LuaModuleLoader.fetchUrlCandidate(candidate, options);
+			return LuaModuleLoader.loadVfsCandidate(candidate, options);
+		}
+		/**
+		* Asynchronously resolve and mount a module (or direct file) across its candidate list
+		* in strict search-path order (checking each candidate synchronously first, then asynchronously
+		* before advancing to the next candidate), and recursively preload any static dependencies
+		* discovered in `.lua` source text.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string|Uint8Array} target - Module name or file path
+		* @param {string|Uint8Array} [searchPathStr] - Lua `package.path` string
+		* @param {object} [options={}]
+		* @param {boolean} [options.isFile=false] - Whether `target` is a direct file (`loadfile`/`dofile`)
+		* @param {boolean} [options.preloadNested=true] - Whether to recursively preload static dependencies
+		* @param {Set<string>} [options.visited] - Internal cycle-prevention set for nested preloading
+		* @returns {Promise<{ found: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }>}
+		*/
+		static async fetchModuleAsync(lua, target, searchPathStr = void 0, options = {}) {
+			const decodedTarget = LuaModuleLoader.decodeLuaString(target);
+			const decodedSearch = searchPathStr === void 0 || searchPathStr === null ? void 0 : LuaModuleLoader.decodeLuaString(searchPathStr);
+			const isFile = Boolean(options.isFile);
+			const preloadNested = options.preloadNested !== false;
+			const visited = options.visited || /* @__PURE__ */ new Set();
+			const candidates = isFile ? LuaModuleLoader.resolveFileCandidates(decodedTarget, decodedSearch, lua) : LuaModuleLoader.resolveCandidates(decodedTarget, decodedSearch, lua);
+			for (const candidate of candidates) {
+				const syncRes = LuaModuleLoader.resolveCandidateSync(lua, candidate);
+				if (syncRes.found) {
+					if (preloadNested && !visited.has(candidate)) {
+						visited.add(candidate);
+						let cachedBytes = _bufferCache.get(candidate);
+						if (!cachedBytes && lua?.luaApi?.module?.FS && syncRes.memfsPath) try {
+							cachedBytes = lua.luaApi.module.FS.readFile(syncRes.memfsPath);
+						} catch (_err) {
+							cachedBytes = null;
+						}
+						if (cachedBytes && !LuaModuleLoader.isBinaryLub(cachedBytes)) await LuaModuleLoader.preloadDependenciesFromBuffer(lua, cachedBytes, decodedSearch, {
+							...options,
+							visited
+						});
+					}
+					return {
+						found: true,
+						memfsPath: syncRes.memfsPath,
+						candidate: syncRes.candidate,
+						source: syncRes.source,
+						candidates
+					};
+				}
+				if (!options.vfsLoader && !LuaModuleLoader.isRemoteUrl(candidate) && LuaModuleLoader.isKnownMissing(lua, candidate)) continue;
+				try {
+					const bytes = await LuaModuleLoader.loadCandidateData(candidate, options);
+					const memfsPath = LuaModuleLoader.toMemfsPath(candidate);
+					const mountedPath = LuaModuleLoader.mountBuffer(lua, memfsPath, bytes);
+					if (Configs.get("debugAI", false)) console.log(`[LuaModuleLoader] Loaded "${candidate}" -> "${mountedPath}"`);
+					if (preloadNested && !visited.has(candidate)) {
+						visited.add(candidate);
+						if (!LuaModuleLoader.isBinaryLub(bytes)) await LuaModuleLoader.preloadDependenciesFromBuffer(lua, bytes, decodedSearch, {
+							...options,
+							visited
+						});
+					}
+					return {
+						found: true,
+						memfsPath: mountedPath,
+						candidate,
+						source: LuaModuleLoader.isRemoteUrl(candidate) ? "remote" : "vfs",
+						candidates
+					};
+				} catch (_err) {}
+			}
+			return {
+				found: false,
+				candidates,
+				triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+			};
+		}
+		/**
+		* Strip Lua block and single-line comments and extract static `require`, `dofile`,
+		* and `loadfile` string targets from Lua source code.
+		*
+		* @param {string} sourceText - Lua source code
+		* @returns {Array<{ type: 'require'|'dofile'|'loadfile', target: string }>}
+		*/
+		static extractDependencies(sourceText) {
+			if (typeof sourceText !== "string" || !sourceText) return [];
+			const withoutComments = sourceText.replace(/--\[(=*)\[[\s\S]*?\]\1\]/g, "").replace(/--[^\r\n]*/g, "");
+			const dependencies = [];
+			const seen = /* @__PURE__ */ new Set();
+			const addDep = (fnType, rawTarget) => {
+				const target = (rawTarget || "").trim();
+				if (!target) return;
+				if (OPTIONAL_RUNTIME_PATTERNS.some((opt) => target.includes(opt))) return;
+				const key = `${fnType}:${target}`;
+				if (!seen.has(key)) {
+					seen.add(key);
+					dependencies.push({
+						type: fnType,
+						target
+					});
+				}
+			};
+			const directPattern = /\b(require|dofile|loadfile)\s*(?:\(\s*(['"])([^'"\r\n]+)\2\s*\)|(['"])([^'"\r\n]+)\4|\(\s*\[\[([^\]]+)\]\s*\]\s*\)|\[\[([^\]]+)\]\])/g;
+			let match;
+			while ((match = directPattern.exec(withoutComments)) !== null) {
+				const fnType = match[1];
+				addDep(fnType, match[3] || match[5] || match[6] || match[7]);
+			}
+			const pcallPattern = /\bpcall\s*\(\s*(require|dofile|loadfile)\s*,\s*(['"])([^'"\r\n]+)\2\s*\)/g;
+			while ((match = pcallPattern.exec(withoutComments)) !== null) {
+				const fnType = match[1];
+				const target = match[3];
+				addDep(fnType, target);
+			}
+			return dependencies;
+		}
+		/**
+		* Recursively preload static dependencies discovered inside a `.lua` buffer.
+		* Missing optional/conditional dependencies do not reject preloading so that
+		* runtime `pcall(require, ...)` or conditional branches behave identically to standard Lua.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {Uint8Array} bytes - Raw `.lua` file buffer
+		* @param {string} [searchPathStr] - Lua `package.path` string
+		* @param {object} [options={}]
+		* @returns {Promise<void>}
+		*/
+		static async preloadDependenciesFromBuffer(lua, bytes, searchPathStr = void 0, options = {}) {
+			if (!bytes || LuaModuleLoader.isBinaryLub(bytes)) return;
+			const sourceText = CodepageManager.decode(bytes, "utf-8");
+			const deps = LuaModuleLoader.extractDependencies(sourceText);
+			if (deps.length === 0) return;
+			await Promise.all(deps.map((dep) => LuaModuleLoader.fetchModuleAsync(lua, dep.target, searchPathStr, {
+				...options,
+				isFile: dep.type === "dofile" || dep.type === "loadfile",
+				preloadNested: true
+			}).catch(() => null)));
+		}
+		/**
+		* Preload all static `require`, `dofile`, and `loadfile` dependencies referenced in a Lua script string.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string} luaCode - Lua source code string
+		* @param {object} [options={}]
+		* @returns {Promise<void>}
+		*/
+		static async preloadFromCode(lua, luaCode, options = {}) {
+			LuaModuleLoader.ensureSetup(lua, options);
+			const searchPathStr = LuaModuleLoader.getCurrentPackagePath(lua, options.searchPaths);
+			const bytes = LuaModuleLoader.normalizeBuffer(luaCode);
+			await LuaModuleLoader.preloadDependenciesFromBuffer(lua, bytes, searchPathStr, {
+				...options,
+				visited: /* @__PURE__ */ new Set()
+			});
+		}
+		/**
+		* Preload one or more module names or file paths (and their nested dependencies) into a Lua VM.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string|string[]} targets - Module name(s) or file path(s)
+		* @param {object} [options={}]
+		* @param {boolean} [options.isFile=false] - Treat targets as file paths
+		* @param {boolean} [options.strict=false] - Throw if any top-level target cannot be resolved
+		* @returns {Promise<Array<object>>}
+		*/
+		static async preload(lua, targets, options = {}) {
+			LuaModuleLoader.ensureSetup(lua, options);
+			const list = Array.isArray(targets) ? targets : [targets];
+			const searchPathStr = LuaModuleLoader.getCurrentPackagePath(lua, options.searchPaths);
+			const visited = /* @__PURE__ */ new Set();
+			const results = [];
+			for (const target of list) {
+				const res = await LuaModuleLoader.fetchModuleAsync(lua, target, searchPathStr, {
+					...options,
+					visited
+				});
+				if (!res.found && options.strict) {
+					const err = /* @__PURE__ */ new Error(`Failed to preload Lua resource "${target}":${res.triedMessage || ""}`);
+					err.code = "LUA_FILE_NOT_FOUND";
+					throw err;
+				}
+				results.push(res);
+			}
+			return results;
+		}
+		/**
+		* Set up a Wasmoon `Lua` instance with `LuaModuleLoader`'s `require()`, `package.loaders`,
+		* `package.searchers`, `package.path`, `loadfile()`, and `dofile()` pipeline.
+		*
+		* Safe and idempotent to call multiple times on the same VM (updates search paths if provided).
+		*
+		* @param {object} lua - Wasmoon `Lua` instance
+		* @param {object} [options={}]
+		* @param {string|string[]} [options.searchPaths] - VM-specific search paths
+		* @returns {object} The configured `lua` instance
+		*/
+		static setup(lua, options = {}) {
+			if (!lua || !lua.ctx || typeof lua.doStringSync !== "function") throw new Error("LuaModuleLoader.setup() requires a valid Wasmoon Lua instance");
+			const existingState = _vmState.get(lua);
+			const hasExplicitSearchPaths = options.searchPaths !== void 0 && options.searchPaths !== null;
+			const searchPaths = hasExplicitSearchPaths ? LuaModuleLoader.parseSearchPathsInput(options.searchPaths) : existingState && Array.isArray(existingState.searchPaths) ? existingState.searchPaths : LuaModuleLoader.getSearchPaths();
+			const configuredPackagePath = LuaModuleLoader.formatPackagePath(searchPaths);
+			_vmState.set(lua, {
+				initialized: true,
+				searchPaths,
+				configuredPackagePath,
+				options
+			});
+			const ctx = lua.ctx;
+			ctx.__ro_resolve_module = (modname, searchPath, isAsync) => {
+				return LuaModuleLoader.resolveModuleSync(lua, modname, searchPath, { asyncMode: Boolean(isAsync) });
+			};
+			ctx.__ro_fetch_module_async = (modname, searchPath) => {
+				const syncCheck = LuaModuleLoader.resolveModuleSync(lua, modname, searchPath, { asyncMode: true });
+				if (syncCheck.found || syncCheck.needsAsync === false) return null;
+				return LuaModuleLoader.fetchModuleAsync(lua, modname, searchPath, options).then(() => true);
+			};
+			ctx.__ro_resolve_file = (filename, searchPath, isAsync) => {
+				return LuaModuleLoader.resolveFileSync(lua, filename, searchPath, { asyncMode: Boolean(isAsync) });
+			};
+			ctx.__ro_fetch_file_async = (filename, searchPath) => {
+				const syncCheck = LuaModuleLoader.resolveFileSync(lua, filename, searchPath, { asyncMode: true });
+				if (syncCheck.found || syncCheck.needsAsync === false) return null;
+				return LuaModuleLoader.fetchModuleAsync(lua, filename, searchPath, {
+					...options,
+					isFile: true
+				}).then(() => true);
+			};
+			if (!existingState || !existingState.initialized || hasExplicitSearchPaths) {
+				ctx.__ro_initial_package_path = configuredPackagePath;
+				lua.doStringSync(`
+				package = package or {}
+				package.path = __ro_initial_package_path
+				__ro_initial_package_path = nil
+			`);
+			}
+			if (!existingState || !existingState.initialized) lua.doStringSync(LUA_BOOTSTRAP_SCRIPT);
+			return lua;
+		}
+		/**
+		* Ensure `LuaModuleLoader.setup(lua)` has been called on the given VM without overwriting
+		* any runtime changes a Lua script may have made to `package.path`.
+		*
+		* @param {object} lua
+		* @param {object} [options={}]
+		*/
+		static ensureSetup(lua, options = {}) {
+			const existingState = _vmState.get(lua);
+			if (!existingState || !existingState.initialized) {
+				LuaModuleLoader.setup(lua, options);
+				return;
+			}
+			if (options.searchPaths !== void 0 && options.searchPaths !== null) {
+				const requestedPath = LuaModuleLoader.formatPackagePath(options.searchPaths);
+				if (existingState.configuredPackagePath !== requestedPath) LuaModuleLoader.setup(lua, options);
+			}
+		}
+		/**
+		* Asynchronously preload and `require(modname)` in a Lua VM, returning the module export.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string} modname - Module name to require
+		* @param {object} [options={}]
+		* @returns {Promise<any>}
+		*/
+		static async requireAsync(lua, modname, options = {}) {
+			LuaModuleLoader.ensureSetup(lua, options);
+			const currentPackagePath = LuaModuleLoader.getCurrentPackagePath(lua);
+			await LuaModuleLoader.fetchModuleAsync(lua, modname, currentPackagePath, options);
+			lua.ctx.__ro_req_target = modname;
+			try {
+				return await lua.doString("local m = __ro_req_target; __ro_req_target = nil; return require(m)");
+			} finally {
+				lua.ctx.__ro_req_target = void 0;
+			}
+		}
+		/**
+		* Asynchronously preload a file (and its dependencies) from VFS or URL and execute it in a Lua VM.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string} filename - File path or URL
+		* @param {object} [options={}]
+		* @returns {Promise<any>}
+		*/
+		static async doFileAsync(lua, filename, options = {}) {
+			LuaModuleLoader.ensureSetup(lua, options);
+			const currentPackagePath = LuaModuleLoader.getCurrentPackagePath(lua);
+			const resolved = await LuaModuleLoader.fetchModuleAsync(lua, filename, currentPackagePath, {
+				...options,
+				isFile: true,
+				preloadNested: true
+			});
+			if (!resolved.found) {
+				const err = /* @__PURE__ */ new Error(`Cannot open file '${filename}':${resolved.triedMessage || " file not found"}`);
+				err.code = "LUA_FILE_NOT_FOUND";
+				throw err;
+			}
+			lua.ctx.__ro_dofile_target = resolved.memfsPath;
+			try {
+				return await lua.doString("local f = __ro_dofile_target; __ro_dofile_target = nil; return dofile(f)");
+			} finally {
+				lua.ctx.__ro_dofile_target = void 0;
+			}
+		}
+		/**
+		* Preload a list of files (and all nested `require`/`dofile`/`loadfile` dependencies)
+		* and execute them sequentially in the given Lua VM.
+		* Preserves any runtime modifications made to `package.path` by earlier files in `fileList`.
+		*
+		* @param {object} lua - Wasmoon Lua instance
+		* @param {string[]} fileList - Ordered list of files to preload and execute
+		* @param {object} [options={}]
+		* @returns {Promise<void>}
+		*/
+		static async loadAndExecuteFiles(lua, fileList, options = {}) {
+			LuaModuleLoader.ensureSetup(lua, options);
+			const runtimeOptions = { ...options };
+			delete runtimeOptions.searchPaths;
+			await LuaModuleLoader.preload(lua, fileList, {
+				...runtimeOptions,
+				isFile: true,
+				strict: true
+			});
+			for (const file of fileList) await LuaModuleLoader.doFileAsync(lua, file, runtimeOptions);
+		}
+	};
+}));
 // src/Core/Events.js
 var _events, _tick$1, _uid, Events;
 var init_Events = __esmMin((() => {
@@ -210780,12 +212421,21 @@ function render$16() {
 	if (Background._progress > -1) Background.setPercent(Background._progress);
 }
 /**
+* Length of each half of a transition. 0 reads as the default, so 1 ms is the
+* shortest a configuration can ask for: an instant transition.
+*
+* @returns {number} milliseconds
+*/
+function getTransitionDuration() {
+	return Configs.get("transitionDuration") ? Configs.get("transitionDuration") : 500;
+}
+/**
 * Play with the overlay
 *
 * @param {function} callback once the overlay hide the window
 */
 function transition(callback) {
-	const transitionDuration = Configs.get("transitionDuration") ? Configs.get("transitionDuration") : 500;
+	const transitionDuration = getTransitionDuration();
 	if (Background._overlayAnim) Background._overlayAnim.stop();
 	let duration = transitionDuration;
 	if (_overlay$2.parentNode) {
@@ -210815,7 +212465,7 @@ var init_Background = __esmMin((() => {
 		position: "absolute",
 		top: "0",
 		left: "0",
-		zIndex: "1000",
+		zIndex: "1010",
 		backgroundColor: "black",
 		opacity: "0"
 	});
@@ -211009,12 +212659,17 @@ var init_Background = __esmMin((() => {
 		*/
 		static remove(callback) {
 			Background._imageId++;
-			const removal = {};
+			if (!_container.parentNode && getTransitionDuration() <= 1) {
+				if (callback) callback();
+				return;
+			}
+			const removal = { zIndex: [_container.style.zIndex, _canvas.style.zIndex] };
 			Background._removal = removal;
-			_container.style.zIndex = "998";
-			_canvas.style.zIndex = "999";
+			_container.style.zIndex = "1008";
+			_canvas.style.zIndex = "1009";
 			transition(() => {
-				if (Background._removal === removal) {
+				if (Background._removal !== removal) [_container.style.zIndex, _canvas.style.zIndex] = removal.zIndex;
+				else {
 					Background._removal = null;
 					_container.style.zIndex = "0";
 					_canvas.style.zIndex = "0";
@@ -212481,6 +214136,7 @@ var init_SpriteAtlas = __esmMin((() => {
 				_index$2.destroy();
 				_rgba.destroy();
 			}
+			if (_palettes) _gl$5.deleteTexture(_palettes);
 			_gl$5 = gl;
 			_generation++;
 			_index$2 = new ArrayAtlas(gl, false, 2048, 2, 16);
@@ -212496,6 +214152,17 @@ var init_SpriteAtlas = __esmMin((() => {
 			gl.activeTexture(gl.TEXTURE0);
 			_paletteRows = /* @__PURE__ */ new WeakMap();
 			_paletteNext = 0;
+		}
+		/**
+		* Forget the textures of a lost context, which the restored context
+		* object still matches. The next init() creates them again, and the
+		* new generation makes every sprite file pack itself again.
+		*/
+		static contextRestored() {
+			_gl$5 = null;
+			_index$2 = null;
+			_rgba = null;
+			_palettes = null;
 		}
 		/**
 		* @returns {object} { index, rgba, palettes, indexSize } the textures to bind
@@ -212555,28 +214222,49 @@ var init_SpriteAtlas = __esmMin((() => {
 // src/Renderer/SpriteBatch.vs?raw
 var SpriteBatch_default$1;
 var init_SpriteBatch$2 = __esmMin((() => {
-	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowLayer; // angle (degrees), depth, shadow, atlas layer\r\nin vec2 aSource;          // where the pixels are, palette row (see SpriteBatch.js)\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\nflat out vec3 vSource;    // source, atlas layer, palette row\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uFullPlaneDepth;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowLayer.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = uFullPlaneDepth ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowLayer.y) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowLayer.z;\r\n    vSource = vec3(aSource.x, aAngleDepthShadowLayer.w, aSource.y);\r\n}";
+	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, full plane depth (0/1)\r\nin vec3 aSource;          // where the pixels are, atlas layer, palette row (see SpriteBatch.js)\r\n\r\nout vec2 vTextureCoord;\r\nout float vBillboardZ;     // depth candidates, see SpriteRenderer.vs\r\nout float vPlaneZ;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\nflat out vec3 vSource;    // source, atlas layer, palette row\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    float billboardZ = gl_Position.z;\r\n    float planeZ     = billboardZ;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        planeZ = correctedZBase;\r\n        if (aAngleDepthShadowCap.w > 0.5) {\r\n            billboardZ = planeZ;\r\n        }\r\n    }\r\n\r\n    // Min of both taken per fragment, see docs/reference/renderer/sprite-depth.md\r\n    float zOffset = (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);\r\n    vBillboardZ   = billboardZ - zOffset;\r\n    vPlaneZ       = planeZ - zOffset;\r\n    gl_Position.z = min(vBillboardZ, vPlaneZ);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowCap.z;\r\n    vSource = aSource;\r\n}";
 }));
 // src/Renderer/SpriteBatch.fs?raw
 var SpriteBatch_default;
 var init_SpriteBatch$1 = __esmMin((() => {
-	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\nprecision highp sampler2DArray;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nflat in vec3 vSource;   // source, atlas layer, palette row (see SpriteBatch.js)\r\nout vec4 fragColor;\r\n\r\n// The sprite's own texture and palette (source 0, palette row -2)\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\nuniform vec2 uTextSize;\r\n\r\n// The shared atlas (SpriteAtlas.js)\r\nuniform sampler2DArray uIndexAtlas;\r\nuniform sampler2DArray uRGBAAtlas;\r\nuniform sampler2D uPaletteAtlas;\r\nuniform vec2 uIndexAtlasSize;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(vec2 uv, vec2 size, vec2 origin) {\r\n    ivec2 texel = ivec2(origin + clamp(floor(uv * size), vec2(0.0), size - 1.0));\r\n    if (vSource.x > 0.5) {\r\n        return texelFetch(uIndexAtlas, ivec3(texel, int(vSource.y + 0.5)), 0).x;\r\n    }\r\n    return texelFetch(uDiffuse, texel, 0).x;\r\n}\r\n\r\n// A palette colour; index is the texel's value, k / 255. On its own texture,\r\n// texture(LUT, vec2(index, 1.0)) reads colour k, except for 255: 1.0 wraps\r\n// around (palette textures REPEAT) and reads colour 0. The atlas does the same.\r\nvec4 lookup(float index) {\r\n    if (vSource.z > -0.5) {\r\n        int k = int(index * 255.0 + 0.5);\r\n        return vec4(texelFetch(uPaletteAtlas, ivec2(k == 255 ? 0 : k, int(vSource.z + 0.5)), 0).rgb, 1.0);\r\n    }\r\n    return vec4(texture(uPalette, vec2(index, 1.0)).rgb, 1.0);\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates.\r\nvec4 bilinearSample(vec2 uv) {\r\n    vec2 atlasSize = vSource.x > 0.5 ? uIndexAtlasSize : uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(uv, size, origin);\r\n    float trLUT = fetchIndex(uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : lookup(tlLUT);\r\n    vec4 tr = trLUT == 0.0 ? transparent : lookup(trLUT);\r\n    vec4 bl = blLUT == 0.0 ? transparent : lookup(blLUT);\r\n    vec4 br = brLUT == 0.0 ? transparent : lookup(brLUT);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (abs(vSource.z + 1.0) > 0.5) { // a palette: not -1\r\n        textureSample = bilinearSample( vTextureCoord );\r\n    }\r\n    else if (vSource.x > 1.5) {\r\n        textureSample = texture( uRGBAAtlas, vec3(toTexture(vTextureCoord.st), vSource.y) );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}\r\n";
+	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\nprecision highp sampler2DArray;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nin float vBillboardZ;\r\nin float vPlaneZ;\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nflat in vec3 vSource;   // source, atlas layer, palette row (see SpriteBatch.js)\r\nout vec4 fragColor;\r\n\r\n// The sprite's own texture and palette (source 0, palette row -2)\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\nuniform vec2 uTextSize;\r\n\r\n// The shared atlas (SpriteAtlas.js)\r\nuniform sampler2DArray uIndexAtlas;\r\nuniform sampler2DArray uRGBAAtlas;\r\nuniform sampler2D uPaletteAtlas;\r\nuniform vec2 uIndexAtlasSize;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(vec2 uv, vec2 size, vec2 origin) {\r\n    ivec2 texel = ivec2(origin + clamp(floor(uv * size), vec2(0.0), size - 1.0));\r\n    if (vSource.x > 0.5) {\r\n        return texelFetch(uIndexAtlas, ivec3(texel, int(vSource.y + 0.5)), 0).x;\r\n    }\r\n    return texelFetch(uDiffuse, texel, 0).x;\r\n}\r\n\r\n// A palette colour; index is the texel's value, k / 255. On its own texture,\r\n// texture(LUT, vec2(index, 1.0)) reads colour k, except for 255: 1.0 wraps\r\n// around (palette textures REPEAT) and reads colour 0. The atlas does the same.\r\nvec4 lookup(float index) {\r\n    if (vSource.z > -0.5) {\r\n        int k = int(index * 255.0 + 0.5);\r\n        return vec4(texelFetch(uPaletteAtlas, ivec2(k == 255 ? 0 : k, int(vSource.z + 0.5)), 0).rgb, 1.0);\r\n    }\r\n    return vec4(texture(uPalette, vec2(index, 1.0)).rgb, 1.0);\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates.\r\nvec4 bilinearSample(vec2 uv) {\r\n    vec2 atlasSize = vSource.x > 0.5 ? uIndexAtlasSize : uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(uv, size, origin);\r\n    float trLUT = fetchIndex(uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : lookup(tlLUT);\r\n    vec4 tr = trLUT == 0.0 ? transparent : lookup(trLUT);\r\n    vec4 bl = blLUT == 0.0 ? transparent : lookup(blLUT);\r\n    vec4 br = brLUT == 0.0 ? transparent : lookup(brLUT);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (abs(vSource.z + 1.0) > 0.5) { // a palette: not -1\r\n        textureSample = bilinearSample( vTextureCoord );\r\n    }\r\n    else if (vSource.x > 1.5) {\r\n        textureSample = texture( uRGBAAtlas, vec3(toTexture(vTextureCoord.st), vSource.y) );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Clip-space depth back to window depth, fogged at the same depth\r\n    float fragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;\r\n    gl_FragDepth    = fragDepth;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = fragDepth / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}\r\n";
 }));
 // src/Renderer/SpriteBatch.js
 /**
-* Create the program and the vertex array
+* Create the program, the quad and the vertex array. The batch keeps its own
+* quad (the same one SpriteRenderer draws), so a context restore rebuilds it
+* here whatever SpriteRenderer holds.
 *
 * @param {WebGL2RenderingContext} gl
-* @param {WebGLBuffer} quad - SpriteRenderer's quad: x, y, u, v per vertex
 */
-function init$13(gl, quad) {
+function init$13(gl) {
 	_gl$4 = gl;
 	_program$30 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
+	_quad = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+		-.5,
+		.5,
+		0,
+		0,
+		.5,
+		.5,
+		1,
+		0,
+		-.5,
+		-.5,
+		0,
+		1,
+		.5,
+		-.5,
+		1,
+		1
+	]), gl.STATIC_DRAW);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
 	const attribute = _program$30.attribute;
 	gl.bindVertexArray(_vao);
-	gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
 	gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -212587,7 +214275,7 @@ function init$13(gl, quad) {
 		"aOffsetSize",
 		"aColor",
 		"aUV",
-		"aAngleDepthShadowLayer",
+		"aAngleDepthShadowCap",
 		"aSource"
 	]) {
 		gl.enableVertexAttribArray(attribute[name]);
@@ -212610,17 +214298,17 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aOffsetSize, 4, gl.FLOAT, false, STRIDE$1, base + 16);
 	gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE$1, base + 32);
 	gl.vertexAttribPointer(attribute.aUV, 4, gl.FLOAT, false, STRIDE$1, base + 48);
-	gl.vertexAttribPointer(attribute.aAngleDepthShadowLayer, 4, gl.FLOAT, false, STRIDE$1, base + 64);
-	gl.vertexAttribPointer(attribute.aSource, 2, gl.FLOAT, false, STRIDE$1, base + 80);
+	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE$1, base + 64);
+	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE$1, base + 80);
 }
-var mat4$24, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$30, _vao, _instanceBuffer, _upload, _active$4, _queues, _modelView$1, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
+var mat4$23, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$30, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$1, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_SpriteAtlas();
 	init_SpriteBatch$2();
 	init_SpriteBatch$1();
-	mat4$24 = gl_matrix_default.mat4;
+	mat4$23 = gl_matrix_default.mat4;
 	FLOATS$1 = 24;
 	STRIDE$1 = 96;
 	SOURCE_OWN = 0;
@@ -212668,6 +214356,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_gl$4 = null;
 	_program$30 = null;
 	_vao = null;
+	_quad = null;
 	_instanceBuffer = null;
 	_upload = /* @__PURE__ */ new Float32Array(0);
 	_active$4 = false;
@@ -212719,7 +214408,7 @@ var init_SpriteBatch = __esmMin((() => {
 		static setFrame(modelView, projection, fog, zoom) {
 			_modelView$1.set(modelView);
 			_projection.set(projection);
-			mat4$24.invert(_viewModel, _modelView$1);
+			mat4$23.invert(_viewModel, _modelView$1);
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
@@ -212730,13 +214419,12 @@ var init_SpriteBatch = __esmMin((() => {
 		* Start recording.
 		*
 		* @param {WebGL2RenderingContext} gl
-		* @param {WebGLBuffer} quad - SpriteRenderer's quad buffer
 		* @param {object} state - the GL state now: { depthTest, depthMask }
 		* @returns {boolean} whether recording started
 		*/
-		static open(gl, quad, state) {
+		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$4 || typeof gl.drawArraysInstanced !== "function") return false;
-			if (!_program$30 || _gl$4 !== gl) init$13(gl, quad);
+			if (!_program$30 || _gl$4 !== gl) init$13(gl);
 			SpriteAtlas.init(gl);
 			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
@@ -212784,6 +214472,22 @@ var init_SpriteBatch = __esmMin((() => {
 			return SpriteAtlas.paletteRow(texture, data);
 		}
 		/**
+		* Forget every GPU object made on the lost context. The context object
+		* stays the same after a restore, so the next open() would otherwise
+		* keep using them. Call from Renderer.onContextRestored.
+		*/
+		static contextRestored() {
+			_gl$4 = null;
+			_program$30 = null;
+			_vao = null;
+			_quad = null;
+			_instanceBuffer = null;
+			_active$4 = false;
+			_queues[QUEUE_SHADOW].clear();
+			_queues[QUEUE_MAIN].clear();
+			SpriteAtlas.contextRestored();
+		}
+		/**
 		* Record one sprite. Returns the offset in the queue's data where the
 		* caller writes the sprite's FLOATS values.
 		*
@@ -212793,7 +214497,7 @@ var init_SpriteBatch = __esmMin((() => {
 		* @param {number} textSizeX - uTextSize, for its own texture and palette
 		* @param {number} textSizeY
 		* @param {boolean|null} blendOne - additive blend, or null for unchanged
-		* @param {boolean} fogBlack
+		* @param {boolean} fogBlack - fog towards black, as additive sprites do
 		* @param {boolean} depthTest
 		* @param {boolean} depthMask
 		* @param {boolean} noCorrection - disable the depth correction
@@ -212852,6 +214556,7 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.uniform1i(uniform.uFogUse, _frame.fogUse);
 			gl.uniform1f(uniform.uFogNear, _frame.fogNear);
 			gl.uniform1f(uniform.uFogFar, _frame.fogFar);
+			gl.uniform3fv(uniform.uFogColor, _fogColor$1);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.uniform1i(uniform.uPalette, 1);
 			gl.uniform1i(uniform.uIndexAtlas, SpriteAtlas.UNIT_INDEX);
@@ -212866,7 +214571,7 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_PALETTES);
 			gl.bindTexture(gl.TEXTURE_2D, atlas.palettes);
 			gl.activeTexture(gl.TEXTURE0);
-			let fogBlack = null, noCorrection = null, fullPlane = null, texture = null, textSizeX = -1, textSizeY = -1, palette = null, draws = 0;
+			let fogBlack = false, noCorrection = null, texture = null, textSizeX = -1, textSizeY = -1, palette = null, draws = 0;
 			const play = (queue, base) => {
 				for (let r = 0; r < queue.runCount; r++) {
 					const run = queue.runs[r];
@@ -212885,7 +214590,6 @@ var init_SpriteBatch = __esmMin((() => {
 						gl.uniform3fv(uniform.uFogColor, fogBlack ? _fogBlack$1 : _fogColor$1);
 					}
 					if (run.noCorrection !== noCorrection) gl.uniform1i(uniform.uDisableDepthCorrection, noCorrection = run.noCorrection);
-					if (run.depthMask !== fullPlane) gl.uniform1i(uniform.uFullPlaneDepth, fullPlane = run.depthMask);
 					if (run.palette !== null && run.palette !== palette) {
 						gl.activeTexture(gl.TEXTURE1);
 						gl.bindTexture(gl.TEXTURE_2D, palette = run.palette);
@@ -212922,12 +214626,12 @@ var init_SpriteBatch = __esmMin((() => {
 // src/Renderer/SpriteRenderer.vs?raw
 var SpriteRenderer_default$1;
 var init_SpriteRenderer$2 = __esmMin((() => {
-	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uFullPlaneDepth;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // A pass that writes depth takes the vertical plane depth for the whole quad, so\r\n        // the part of the sprite below the water surface sorts behind the (later drawn)\r\n        // water pass. A pass that only tests depth keeps the nearer of the two: on the\r\n        // vertical plane, anything drawn below the feet (a magic circle, a shadow, a\r\n        // spread cape) lies under the ground and the ground would cut it off.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = uFullPlaneDepth ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
+	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\nout float vBillboardZ;\r\nout float vPlaneZ;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uFullPlaneDepth;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    float billboardZ = gl_Position.z;\r\n    float planeZ     = billboardZ;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // A pass that writes depth takes the vertical plane depth for the whole quad, so\r\n        // the part of the sprite below the water surface sorts behind the (later drawn)\r\n        // water pass. A pass that only tests depth keeps the nearer of the two: on the\r\n        // vertical plane, anything drawn below the feet (a magic circle, a shadow, a\r\n        // spread cape) lies under the ground and the ground would cut it off.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        planeZ = correctedZBase;\r\n        if (uFullPlaneDepth) {\r\n            billboardZ = planeZ;\r\n        }\r\n    }\r\n\r\n    // Min of both taken per fragment, see docs/reference/renderer/sprite-depth.md\r\n    float zOffset = (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n    vBillboardZ   = billboardZ - zOffset;\r\n    vPlaneZ       = planeZ - zOffset;\r\n    gl_Position.z = min(vBillboardZ, vPlaneZ);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
 }));
 // src/Renderer/SpriteRenderer.fs?raw
 var SpriteRenderer_default;
 var init_SpriteRenderer$1 = __esmMin((() => {
-	SpriteRenderer_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\nuniform vec4 uSpriteRendererColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform float uShadow;\r\nuniform vec2 uTextSize;\r\nuniform bool uIsRGBA;\r\n\r\n// With palette we don't have a good result because of the gl.NEAREST, so smooth it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 TextInterval = 1.0 / uTextSize;\r\n\r\n    float tlLUT = texture(indexT, uv ).x;\r\n    float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;\r\n    float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;\r\n    float brLUT = texture(indexT, uv + TextInterval).x;\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * uTextSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (uSpriteRendererColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, vTextureCoord.st );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= uShadow;\r\n    fragColor   = textureSample * uSpriteRendererColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+	SpriteRenderer_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin float vBillboardZ;\r\nin float vPlaneZ;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\nuniform vec4 uSpriteRendererColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform float uShadow;\r\nuniform vec2 uTextSize;\r\nuniform bool uIsRGBA;\r\n\r\n// With palette we don't have a good result because of the gl.NEAREST, so smooth it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 TextInterval = 1.0 / uTextSize;\r\n\r\n    float tlLUT = texture(indexT, uv ).x;\r\n    float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;\r\n    float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;\r\n    float brLUT = texture(indexT, uv + TextInterval).x;\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * uTextSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (uSpriteRendererColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, vTextureCoord.st );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Clip-space depth back to window depth, fogged at the same depth\r\n    float fragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;\r\n    gl_FragDepth    = fragDepth;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= uShadow;\r\n    fragColor   = textureSample * uSpriteRendererColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = fragDepth / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/SpriteRenderer.js
 /**
@@ -212971,9 +214675,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 	if (this.angle !== _angle) {
 		_angle = this.angle;
-		mat4$23.identity(_matrix$8);
-		if (_angle) mat4$23.rotateZ(_matrix$8, _matrix$8, -_angle / 180 * Math.PI);
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$8);
+		mat4$22.identity(_matrix$7);
+		if (_angle) mat4$22.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
+		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$7);
 	}
 	_offset[0] = this.offset[0] / 175 * this.xSize;
 	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
@@ -213047,8 +214751,9 @@ function RecordCanvas3D(isBlendModeOne) {
 	data[o++] = this.angle;
 	data[o++] = this.depth;
 	data[o++] = this.shadow;
-	data[o++] = layer;
+	data[o++] = _depthMask ? 1 : 0;
 	data[o++] = source;
+	data[o++] = layer;
 	data[o] = paletteRow;
 }
 /**
@@ -213146,7 +214851,7 @@ function syncAfterBatch() {
 	_texture$4 = null;
 	_groupId++;
 }
-var mat4$23, RenderCanvas2D, _program$29, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$4, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$8, _size$7, _offset, SpriteRenderer;
+var mat4$22, RenderCanvas2D, _program$29, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$4, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -213155,7 +214860,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	init_SpriteBatch();
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
-	mat4$23 = gl_matrix_default.mat4;
+	mat4$22 = gl_matrix_default.mat4;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		const _cache = /* @__PURE__ */ new WeakMap();
 		const MAX_COLORS_PER_PALETTE = 8;
@@ -213241,7 +214946,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_fogBlack = /* @__PURE__ */ new Float32Array(3);
 	_fogToBlack = false;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
-	_matrix$8 = /* @__PURE__ */ new Float32Array(16);
+	_matrix$7 = /* @__PURE__ */ new Float32Array(16);
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
@@ -213365,7 +215070,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.useProgram(_program$29);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$23.invert(_matrix$8, modelView));
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$7, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -213468,7 +215173,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {WebGL2RenderingContext} gl
 		*/
 		static beginBatch(gl) {
-			if (SpriteBatch.open(gl, _buffer$20, {
+			if (SpriteBatch.open(gl, {
 				depthTest: _depthTest,
 				depthMask: _depthMask
 			})) _blendOne = null;
@@ -213681,14 +215386,14 @@ var init_OccluderFade$1 = __esmMin((() => {
 	OccluderFade_default = "// Fades world geometry lying between the camera and the followed entity\r\n// (third person camera). Included by the model fragment shaders.\r\n//\r\n// uOccluderFadeMode:\r\n//   0 - disabled\r\n//   1 - dither (screen-door, single opaque pass)\r\n//   2 - alpha, opaque pass: discard fragments inside the fade capsule\r\n//   3 - alpha, blend pass: draw only fragments inside the fade capsule, translucent\r\n//   4 - line of sight query: keep only fragments inside the (narrow) capsule,\r\n//       used with an occlusion query to detect geometry covering the entity\r\n\r\nuniform int   uOccluderFadeMode;\r\nuniform vec3  uOccluderFadeEye;\r\nuniform vec3  uOccluderFadeFocus;\r\nuniform float uOccluderFadeRadius;\r\nuniform float uOccluderFadeOpacity;\r\nuniform float uOccluderFadeStrength;\r\n\r\nconst float OCCLUDER_FADE_BAYER[16] = float[16](\r\n	 0.0,  8.0,  2.0, 10.0,\r\n	12.0,  4.0, 14.0,  6.0,\r\n	 3.0, 11.0,  1.0,  9.0,\r\n	15.0,  7.0, 13.0,  5.0\r\n);\r\n\r\n// The faded region is a cylinder of constant radius from the eye to the focus,\r\n// cut by a vertical plane through the focus (so a raised camera never fades\r\n// anything behind the player); it closes over this distance (cells) before it.\r\nconst float OCCLUDER_FADE_END = 0.5;\r\n\r\n// x: distance to the eye->focus axis,\r\n// y: signed horizontal distance past the focus, along the view direction\r\nvec2 occluderFadeCylinder(vec3 worldPos) {\r\n	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;\r\n	vec3 rel  = worldPos - uOccluderFadeEye;\r\n	float len  = max(length(axis), 0.01);\r\n	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);\r\n	// cut plane normal: horizontal view direction, tilting back to the view\r\n	// axis as the camera gets steep (a vertical plane is meaningless top-down)\r\n	vec3 level = vec3(axis.x, 0.0, axis.z);\r\n	float flatness = length(level) / len;\r\n	vec3 hdir  = level / max(length(level), 0.01);\r\n	vec3 cut   = normalize(mix(axis / len, hdir, smoothstep(0.3, 0.6, flatness)));\r\n	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, cut));\r\n}\r\n\r\n// 0.0 = untouched, 1.0 = fully inside the cylinder between eye and focus\r\nfloat occluderFadeAmount(vec3 worldPos) {\r\n	vec2 c = occluderFadeCylinder(worldPos);\r\n	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, c.x);\r\n	float along  = 1.0 - smoothstep(-OCCLUDER_FADE_END, 0.0, c.y);\r\n	return radial * along * uOccluderFadeStrength;\r\n}\r\n\r\n// Applies the fade to the fragment alpha. Returns false when the fragment must be discarded.\r\nbool occluderFade(vec3 worldPos, inout float alpha) {\r\n	if (uOccluderFadeMode == 0) {\r\n		return true;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 4) {\r\n		vec2 c = occluderFadeCylinder(worldPos);\r\n		// stop short of the focus so the floor under the entity does not count\r\n		return c.x < uOccluderFadeRadius && c.y < -0.5;\r\n	}\r\n\r\n	float fade = occluderFadeAmount(worldPos);\r\n	float visibility = 1.0 - fade * (1.0 - uOccluderFadeOpacity);\r\n\r\n	if (uOccluderFadeMode == 1) {\r\n		ivec2 p = ivec2(gl_FragCoord.xy) & 3;\r\n		float threshold = (OCCLUDER_FADE_BAYER[p.x + p.y * 4] + 0.5) / 16.0;\r\n		return visibility > threshold;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 2) {\r\n		return fade < 0.01;\r\n	}\r\n\r\n	if (fade < 0.01) {\r\n		return false;\r\n	}\r\n	alpha *= visibility;\r\n	return true;\r\n}\r\n";
 }));
 // src/Renderer/Map/OccluderFade.js
-var mat4$22, vec3$6, SHADER_INCLUDE, MODE$1, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
+var mat4$21, vec3$6, SHADER_INCLUDE, MODE$1, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
 var init_OccluderFade = __esmMin((() => {
 	init_OccluderFade$1();
 	init_Camera();
 	init_Graphics();
 	init_SpriteRenderer();
 	init_gl_matrix();
-	({mat4: mat4$22, vec3: vec3$6} = gl_matrix_default);
+	({mat4: mat4$21, vec3: vec3$6} = gl_matrix_default);
 	SHADER_INCLUDE = "// #include OccluderFade.glsl";
 	MODE$1 = {
 		OFF: 0,
@@ -213709,7 +215414,7 @@ var init_OccluderFade = __esmMin((() => {
 	QUERY_RADIUS = .7;
 	FADE_IN_MS = 150;
 	FADE_OUT_MS = 300;
-	_inverse = mat4$22.create();
+	_inverse = mat4$21.create();
 	_eye = vec3$6.create();
 	_queries = [null, null];
 	_queryPending = [false, false];
@@ -213771,7 +215476,7 @@ var init_OccluderFade = __esmMin((() => {
 		* @param {number} tick
 		*/
 		static beginFrame(gl, modelView, tick) {
-			mat4$22.invert(_inverse, modelView);
+			mat4$21.invert(_inverse, modelView);
 			_eye[0] = _inverse[12];
 			_eye[1] = _inverse[13];
 			_eye[2] = _inverse[14];
@@ -214262,7 +215967,7 @@ function add$3(gl, modelData) {
 	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
 		const instArray = modelData.instances[i];
-		const matrix = mat4$21.create();
+		const matrix = mat4$20.create();
 		for (let j = 0; j < 16; j++) matrix[j] = instArray[j];
 		instances.push(matrix);
 	}
@@ -214292,20 +215997,20 @@ function add$3(gl, modelData) {
 			_isStatic: !hasAnyAnimation,
 			_index: n,
 			_cache: {
-				local: mat4$21.create(),
-				final: mat4$21.create(),
+				local: mat4$20.create(),
+				final: mat4$20.create(),
 				instances: new Array(instances.length)
 			}
 		};
 		if (node._isStatic) {
-			const local = mat4$21.create();
-			mat4$21.identity(local);
-			mat4$21.translate(local, local, node.pos);
-			mat4$21.rotate(local, local, node.rotangle, node.rotaxis);
-			mat4$21.scale(local, local, node.scale);
+			const local = mat4$20.create();
+			mat4$20.identity(local);
+			mat4$20.translate(local, local, node.pos);
+			mat4$20.rotate(local, local, node.rotangle, node.rotaxis);
+			mat4$20.scale(local, local, node.scale);
 			node._staticLocalMatrix = local;
 		}
-		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$21.create();
+		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$20.create();
 		if (node.rotKeyframes) for (let rk = 0; rk < node.rotKeyframes.length; rk++) {
 			const kf = node.rotKeyframes[rk];
 			totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
@@ -214321,6 +216026,11 @@ function add$3(gl, modelData) {
 			totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
 			kf._vec = vec3$5.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
 		}
+		const suffixMat = mat4$20.create();
+		mat4$20.identity(suffixMat);
+		if (!node.is_only) mat4$20.translate(suffixMat, suffixMat, node.offset);
+		mat4$20.multiply(suffixMat, suffixMat, mat3$4.toMat4(node.mat3, _tempMat4Node));
+		node._cachedSuffix = suffixMat;
 		nodes.push(node);
 	}
 	let animLen = modelData.animLen || 0;
@@ -214433,9 +216143,16 @@ function add$3(gl, modelData) {
 		_nodeMap: {},
 		_globalMatrices: new Array(nodes.length)
 	};
+	animModel._boxMat = mat4$20.create();
+	mat4$20.identity(animModel._boxMat);
+	mat4$20.translate(animModel._boxMat, animModel._boxMat, [
+		-animModel.box.center[0],
+		-animModel.box.max[1],
+		-animModel.box.center[2]
+	]);
 	for (let n = 0; n < nodes.length; n++) {
 		animModel._nodeMap[nodes[n].name] = nodes[n];
-		animModel._globalMatrices[n] = mat4$21.create();
+		animModel._globalMatrices[n] = mat4$20.create();
 	}
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, staticBuffer, gl.STATIC_DRAW);
@@ -214577,7 +216294,7 @@ function updateModelBuffer(gl, model, frame, force) {
 	if (model.staticModel && model.lastAnimFrame !== -1 && !force) return;
 	model.lastAnimFrame = currentAnimFrame;
 	model.lastFrame = frame;
-	const box = model.box;
+	model.box;
 	const nodeMap = model._nodeMap;
 	const globalMatrices = model._globalMatrices;
 	for (let n = 0; n < model.nodes.length; n++) {
@@ -214585,30 +216302,24 @@ function updateModelBuffer(gl, model, frame, force) {
 		const globalMatrix = globalMatrices[n];
 		if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
 			const parentIdx = nodeMap[node.parentname]._index;
-			mat4$21.copy(globalMatrix, globalMatrices[parentIdx]);
-		} else mat4$21.identity(globalMatrix);
-		if (node._isStatic) mat4$21.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
+			mat4$20.copy(globalMatrix, globalMatrices[parentIdx]);
+		} else mat4$20.identity(globalMatrix);
+		if (node._isStatic) mat4$20.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
 		else {
 			const animPos = getPositionAtFrame$2(node.posKeyframes, frame, _tempVec3);
-			mat4$21.translate(globalMatrix, globalMatrix, animPos || node.pos);
+			mat4$20.translate(globalMatrix, globalMatrix, animPos || node.pos);
 			const animRot = getRotationAtFrame$2(node.rotKeyframes, frame, _tempQuat);
 			if (animRot) {
-				mat4$21.fromQuat(_tempMat4, animRot);
-				mat4$21.multiply(globalMatrix, globalMatrix, _tempMat4);
-			} else mat4$21.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+				mat4$20.fromQuat(_tempMat4, animRot);
+				mat4$20.multiply(globalMatrix, globalMatrix, _tempMat4);
+			} else mat4$20.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
 			const animScale = getScaleAtFrame$2(node.scaleKeyFrames, frame, _tempVec3Scale);
-			mat4$21.scale(globalMatrix, globalMatrix, animScale || node.scale);
+			mat4$20.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 		const finalNodeMatrix = node._cache.final;
-		mat4$21.identity(finalNodeMatrix);
-		mat4$21.translate(finalNodeMatrix, finalNodeMatrix, [
-			-box.center[0],
-			-box.max[1],
-			-box.center[2]
-		]);
-		mat4$21.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
-		if (!node.is_only) mat4$21.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
-		mat4$21.multiply(finalNodeMatrix, finalNodeMatrix, mat3$4.toMat4(node.mat3));
+		mat4$20.copy(finalNodeMatrix, model._boxMat);
+		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
+		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, node._cachedSuffix);
 		node.finalMatrix = finalNodeMatrix;
 	}
 	const matrixData = model.matrixData;
@@ -214617,7 +216328,7 @@ function updateModelBuffer(gl, model, frame, force) {
 		const node = model.nodes[n];
 		for (let i = 0; i < numInstances; i++) {
 			const destMat = node._cache.instances[i];
-			mat4$21.multiply(destMat, model.instances[i], node.finalMatrix);
+			mat4$20.multiply(destMat, model.instances[i], node.finalMatrix);
 			const matrixIndex = n * numInstances + i;
 			matrixData.set(destMat, matrixIndex * 16);
 		}
@@ -214701,7 +216412,7 @@ function renderFaded(gl, modelView, projection, normalMat, fog, light) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$4, mat4$21, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _program$26, _animatedModels, AnimatedModels_default;
+var mat3$4, mat4$20, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$26, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -214711,13 +216422,14 @@ var init_AnimatedModels = __esmMin((() => {
 	init_AnimatedModels$1();
 	init_OccluderFade();
 	mat3$4 = gl_matrix_default.mat3;
-	mat4$21 = gl_matrix_default.mat4;
+	mat4$20 = gl_matrix_default.mat4;
 	vec3$5 = gl_matrix_default.vec3;
 	quat$1 = gl_matrix_default.quat;
 	_tempVec3 = vec3$5.create();
 	_tempVec3Scale = vec3$5.create();
 	_tempQuat = quat$1.create();
-	_tempMat4 = mat4$21.create();
+	_tempMat4 = mat4$20.create();
+	_tempMat4Node = mat4$20.create();
 	_program$26 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
@@ -218781,8 +220493,8 @@ function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 				bones = flattenPose(_r(type.parsed, idx, sampleT), type.boneCount);
 			}
 			seen[key] = bones;
-			mat4$20.multiply(_mv, modelView, inst.world);
-			mat4$20.toInverseMat3(_mv, _nmat);
+			mat4$19.multiply(_mv, modelView, inst.world);
+			mat4$19.toInverseMat3(_mv, _nmat);
 			mat3$3.transpose(_nmat, _nmat);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _mv);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _nmat);
@@ -218805,7 +220517,7 @@ function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 					x2: 0,
 					y2: 0
 				});
-				mat4$20.multiply(_mvp, projection, _mv);
+				mat4$19.multiply(_mvp, projection, _mv);
 				if (!computeBaseSphereRect(_mvp, projection, box)) inst.screenRect = null;
 			}
 			let alpha = 1;
@@ -219063,7 +220775,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach$1(insts[i]);
 	_poseCache = {};
 }
-var mat3$3, mat4$20, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$25, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$3, mat4$19, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$25, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -219081,7 +220793,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	init_GR2Model$1();
 	init_GR2Model();
 	mat3$3 = gl_matrix_default.mat3;
-	mat4$20 = gl_matrix_default.mat4;
+	mat4$19 = gl_matrix_default.mat4;
 	ALPHA_REF = 207 / 255;
 	_phaseDiffuse = new Float32Array([
 		128 / 255,
@@ -219143,8 +220855,8 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	_debugCell = false;
 	BASE_SPHERE_HALF_EXTENT = Math.sqrt(2);
 	_readyPromise = null;
-	_mv = mat4$20.create();
-	_mvp = mat4$20.create();
+	_mv = mat4$19.create();
+	_mvp = mat4$19.create();
 	_nmat = mat3$3.create();
 	_lightView = /* @__PURE__ */ new Float32Array(3);
 	_clip = /* @__PURE__ */ new Float32Array(4);
@@ -224111,6 +225823,323 @@ var init_Emotions = __esmMin((() => {
 		order
 	};
 }));
+// src/Core/PerfProbe.js
+/**
+* Percentile of a sorted array
+*
+* @param {Float32Array|Array} sorted ascending
+* @param {number} p 0..100
+* @return {number}
+*/
+function percentile(sorted, p) {
+	if (!sorted.length) return 0;
+	const index = Math.min(sorted.length - 1, Math.ceil(p / 100 * sorted.length) - 1);
+	return sorted[Math.max(0, index)];
+}
+/**
+* avg / p50 / p95 / p99 / max of the first `count` values
+*
+* @param {Float32Array|Uint32Array} values
+* @param {number} count
+* @return {object}
+*/
+function summarize(values, count) {
+	const sorted = Float64Array.from(values.subarray(0, count)).sort();
+	let sum = 0;
+	for (let i = 0; i < count; ++i) sum += sorted[i];
+	const round = (v) => Math.round(v * 100) / 100;
+	return {
+		avg: round(count ? sum / count : 0),
+		p50: round(percentile(sorted, 50)),
+		p95: round(percentile(sorted, 95)),
+		p99: round(percentile(sorted, 99)),
+		max: round(count ? sorted[count - 1] : 0)
+	};
+}
+/**
+* Record a slow frame: the gap since the previous frame started, up to the
+* end of this frame's work
+*
+* @param {number} interval ms since the previous frame started
+* @param {number} work ms spent in this frame
+* @param {number} draws draw calls in this frame
+*/
+function logSlow(interval, work, draws) {
+	_slowTotal++;
+	if (_slow.length >= MAX_SLOW) return;
+	const start = _frameTime$1 - interval;
+	_slow.push({
+		at: Math.round(start),
+		frameMs: Math.round(interval * 10) / 10,
+		workMs: Math.round(work * 10) / 10,
+		draws
+	});
+	try {
+		performance.measure("roPerf slow frame", {
+			start,
+			end: performance.now()
+		});
+	} catch (_e) {}
+}
+/**
+* Wrap the context's draw calls to count them
+*
+* @param {WebGLRenderingContext} gl
+*/
+function wrapContext(gl) {
+	for (const name of DRAW_CALLS) {
+		const original = gl[name];
+		if (typeof original !== "function") continue;
+		const countArg = name === "drawArrays" || name === "drawArraysInstanced" ? 2 : name === "drawRangeElements" ? 3 : 1;
+		const instanceArg = name === "drawArraysInstanced" ? 3 : name === "drawElementsInstanced" ? 4 : -1;
+		gl[name] = function() {
+			_frameDraws++;
+			const instances = instanceArg < 0 ? 1 : arguments[instanceArg] | 0;
+			_frameVertices += (arguments[countArg] | 0) * instances;
+			return original.apply(gl, arguments);
+		};
+	}
+}
+/**
+* Build the overlay element
+*/
+function makeOverlay() {
+	_overlay$1 = document.createElement("div");
+	_overlay$1.id = "roPerfOverlay";
+	_overlay$1.style.cssText = "position:fixed;top:4px;right:4px;z-index:100000;pointer-events:none;font:11px/1.3 monospace;color:#cfc;background:rgba(0,0,0,0.6);padding:3px 6px;white-space:pre;";
+	document.body.appendChild(_overlay$1);
+	_overlayTimer = setInterval(updateOverlay, 500);
+}
+/**
+* Refresh the overlay from the last second of frames
+*/
+function updateOverlay() {
+	if (!_overlay$1) return;
+	const now = performance.now();
+	let frames = 0;
+	let work = 0;
+	let worst = 0;
+	let draws = 0;
+	let elapsed = 0;
+	for (let k = _total - 1; k >= Math.max(0, _total - MAX_FRAMES) && elapsed < 1e3; --k) {
+		const i = k % MAX_FRAMES;
+		frames++;
+		elapsed += _interval[i];
+		work += _work[i];
+		draws += _draws[i];
+		worst = Math.max(worst, _interval[i]);
+	}
+	const last = _marks.maps[_marks.maps.length - 1];
+	_overlay$1.textContent = (frames ? Math.round(frames * 1e3 / Math.max(elapsed, 1)) : 0) + " fps  " + (frames ? (elapsed / frames).toFixed(1) : "-") + " ms (max " + worst.toFixed(0) + ")\nwork " + (frames ? (work / frames).toFixed(1) : "-") + " ms  draws " + (frames ? Math.round(draws / frames) : 0) + "\n" + (last ? last.map + " load " + Math.round(last.loadMs) + " ms" : "") + (_marks.login !== null ? "  login " + Math.round(_marks.login) + " ms" : "") + (now - _lastFrameStart > 1e3 ? "\n(no frames)" : "");
+}
+var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$4, _windowStart, _frameStart, _frameTime$1, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay$1, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady$1, _slow, _slowTotal, _marks, PerfProbe;
+var init_PerfProbe = __esmMin((() => {
+	init_Configs();
+	MAX_FRAMES = 36e3;
+	HITCH_MS = 50;
+	SLOW_MS = 33;
+	MAX_SLOW = 1e3;
+	DRAW_CALLS = [
+		"drawArrays",
+		"drawElements",
+		"drawArraysInstanced",
+		"drawElementsInstanced",
+		"drawRangeElements"
+	];
+	_interval = new Float32Array(MAX_FRAMES);
+	_work = new Float32Array(MAX_FRAMES);
+	_draws = new Uint32Array(MAX_FRAMES);
+	_total = 0;
+	_pending$4 = 0;
+	_windowStart = 0;
+	_frameStart = 0;
+	_frameTime$1 = 0;
+	_lastFrameStart = 0;
+	_frameDraws = 0;
+	_frameVertices = 0;
+	_totalVertices = 0;
+	_gl$1 = null;
+	_overlay$1 = null;
+	_overlayTimer = 0;
+	_overlayWanted = true;
+	_mapStart = 0;
+	_mapName$6 = "";
+	_mapReady$1 = 0;
+	_slow = [];
+	_slowTotal = 0;
+	_marks = {
+		login: null,
+		maps: []
+	};
+	PerfProbe = class PerfProbe {
+		/**
+		* @type {boolean} set by the first attach() when the configuration has
+		* `perfProbe: true`
+		*/
+		static enabled = false;
+		/**
+		* Called by Renderer.init: switch the probe on if the configuration asks
+		* for it, and count draw calls on this context (once per context)
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static attach(gl) {
+			if (!PerfProbe.enabled) {
+				if (!Configs.get("perfProbe", false)) return;
+				PerfProbe.enabled = true;
+				PerfProbe.reset();
+			}
+			if (!gl || _gl$1 === gl) return;
+			_gl$1 = gl;
+			wrapContext(gl);
+			if (!_overlay$1 && _overlayWanted) makeOverlay();
+		}
+		/**
+		* Called by the render loop before a frame's work
+		*
+		* @param {number} now rAF timestamp
+		*/
+		static frameStart(now) {
+			_frameStart = performance.now();
+			_frameTime$1 = now;
+			_pending$4 = _lastFrameStart ? now - _lastFrameStart : 0;
+			_lastFrameStart = now;
+			_frameDraws = 0;
+			_frameVertices = 0;
+		}
+		/**
+		* Called by the render loop after a frame's work
+		*/
+		static frameEnd() {
+			if (!_frameStart) return;
+			if (_pending$4 > 0) {
+				const i = _total % MAX_FRAMES;
+				_interval[i] = _pending$4;
+				_work[i] = performance.now() - _frameStart;
+				_draws[i] = _frameDraws;
+				_totalVertices += _frameVertices;
+				if (_pending$4 > SLOW_MS) logSlow(_pending$4, _work[i], _frameDraws);
+				_total++;
+				_pending$4 = 0;
+			}
+			if (_mapReady$1) {
+				const map = _marks.maps[_marks.maps.length - 1];
+				map.firstFrameMs = Math.round((performance.now() - _mapStart) * 10) / 10;
+				_mapReady$1 = 0;
+			}
+		}
+		/**
+		* A map started loading
+		*
+		* @param {string} name
+		*/
+		static mapStart(name) {
+			_mapStart = performance.now();
+			_mapName$6 = name;
+			_lastFrameStart = 0;
+		}
+		/**
+		* Called by Renderer.stop: the pause until the loop starts again is not a
+		* frame, so the first frame after it only sets the clock
+		*/
+		static stop() {
+			_lastFrameStart = 0;
+			_pending$4 = 0;
+		}
+		/**
+		* A map finished loading and is about to be drawn
+		*/
+		static mapReady() {
+			if (!_mapStart) return;
+			_marks.maps.push({
+				map: _mapName$6,
+				loadMs: Math.round((performance.now() - _mapStart) * 10) / 10,
+				firstFrameMs: null
+			});
+			_mapReady$1 = 1;
+		}
+		/**
+		* The login window was shown; the first time is the startup time
+		*/
+		static loginShown() {
+			if (_marks.login === null) _marks.login = Math.round(performance.now());
+		}
+		/**
+		* Start a new measurement window: frames, slow frames and map marks.
+		* The login mark is kept, since it is the startup time and happens once.
+		*/
+		static reset() {
+			_total = 0;
+			_pending$4 = 0;
+			_lastFrameStart = 0;
+			_totalVertices = 0;
+			_slow.length = 0;
+			_slowTotal = 0;
+			_marks.maps.length = 0;
+			_mapReady$1 = 0;
+			_windowStart = performance.now();
+			try {
+				performance.clearMeasures("roPerf slow frame");
+			} catch (_e) {}
+		}
+		/**
+		* Frame statistics since the last reset
+		*
+		* @return {object}
+		*/
+		static stats() {
+			const seconds = (performance.now() - _windowStart) / 1e3;
+			const kept = Math.min(_total, MAX_FRAMES);
+			const draws = summarize(_draws, kept);
+			let hitches = 0;
+			let drawing = 0;
+			for (let i = 0; i < kept; ++i) {
+				drawing += _interval[i];
+				if (_interval[i] > HITCH_MS) hitches++;
+			}
+			const memory = performance.memory;
+			return {
+				frames: _total,
+				kept,
+				seconds: Math.round(seconds * 10) / 10,
+				drawingSeconds: Math.round(drawing / 100) / 10,
+				fps: kept ? Math.round(kept * 1e3 / Math.max(drawing, .001) * 10) / 10 : 0,
+				frameMs: summarize(_interval, kept),
+				workMs: summarize(_work, kept),
+				drawCalls: draws,
+				verticesPerFrame: _total ? Math.round(_totalVertices / _total) : 0,
+				hitches,
+				slowFrames: _slowTotal,
+				heapMB: memory ? Math.round(memory.usedJSHeapSize / 1048576) : null,
+				marks: JSON.parse(JSON.stringify(_marks))
+			};
+		}
+		/**
+		* The first 1000 frames slower than 33 ms since the last reset: when the
+		* gap started (performance.now() time), its length, and the frame's work
+		* and draws. stats().slowFrames counts them all.
+		*
+		* @return {Array}
+		*/
+		static slowFrames() {
+			return _slow.slice();
+		}
+		/**
+		* Show or hide the overlay
+		*
+		* @param {boolean} show
+		*/
+		static overlay(show) {
+			_overlayWanted = !!show;
+			if (show && !_overlay$1 && _gl$1) makeOverlay();
+			else if (!show && _overlay$1) {
+				clearInterval(_overlayTimer);
+				_overlay$1.remove();
+				_overlay$1 = null;
+			}
+		}
+	};
+}));
 // src/DB/Status/StatusState.js
 var StatusState_default;
 var init_StatusState = __esmMin((() => {
@@ -226662,7 +228691,7 @@ function onResize$8(event) {
 	event.stopPropagation();
 	stopResize();
 	const startY = event.clientY;
-	const startRows = _preferences$42.height;
+	const startRows = _preferences$43.height;
 	const scale = ChatBoxSettings.scale || 1;
 	const move = (moveEvent) => {
 		if (ChatBoxSettings._host.style.display === "none") {
@@ -226697,8 +228726,8 @@ function resize$5(rows) {
 	list.style.height = `${rows * 20 + 3}px`;
 	ChatBoxSettings._host.style.height = `${rows * 20 + 40}px`;
 	list._roScrollbarRestart?.();
-	_preferences$42.height = rows;
-	_preferences$42.save();
+	_preferences$43.height = rows;
+	_preferences$43.save();
 }
 function updateAllCheckbox() {
 	const root = ChatBoxSettings.getRoot();
@@ -226713,7 +228742,7 @@ function fitWindowWidth() {
 	host.style.width = `${Math.max(280, ...Array.from(labels, (label) => label.offsetWidth + 67))}px`;
 	host.style.display = display;
 }
-var ChatBoxSettings, stopResize, _preferences$42, ChatBoxSettings_default;
+var ChatBoxSettings, stopResize, _preferences$43, ChatBoxSettings_default;
 var init_ChatBoxSettings = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -226736,7 +228765,7 @@ var init_ChatBoxSettings = __esmMin((() => {
 	ChatBoxSettings.isOpen = false;
 	ChatBoxSettings.tabOption = [];
 	ChatBoxSettings.activeTab = 0;
-	_preferences$42 = Preferences.get("ChatBoxSettings", {
+	_preferences$43 = Preferences.get("ChatBoxSettings", {
 		x: 480,
 		y: 200,
 		width: 7,
@@ -226776,10 +228805,10 @@ var init_ChatBoxSettings = __esmMin((() => {
 	*/
 	ChatBoxSettings.onAppend = function onAppend() {
 		fitWindowWidth();
-		resize$5(_preferences$42.height);
+		resize$5(_preferences$43.height);
 		const rect = this._host.getBoundingClientRect();
-		this._host.style.top = Math.max(0, Math.min(_preferences$42.y, Renderer.height - rect.height)) + "px";
-		this._host.style.left = Math.max(0, Math.min(_preferences$42.x, Renderer.width - rect.width)) + "px";
+		this._host.style.top = Math.max(0, Math.min(_preferences$43.y, Renderer.height - rect.height)) + "px";
+		this._host.style.left = Math.max(0, Math.min(_preferences$43.x, Renderer.width - rect.width)) + "px";
 		this._host.style.display = "none";
 	};
 	/**
@@ -226812,9 +228841,9 @@ var init_ChatBoxSettings = __esmMin((() => {
 	};
 	ChatBoxSettings.onRemove = function onRemove() {
 		stopResize();
-		_preferences$42.y = parseInt(this._host.style.top, 10) || 0;
-		_preferences$42.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$42.save();
+		_preferences$43.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences$43.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$43.save();
 	};
 	ChatBoxSettings.mouseMode = GUIComponent.MouseMode.STOP;
 	ChatBoxSettings_default = UIManager.addComponent(ChatBoxSettings);
@@ -228942,6 +230971,7 @@ function createWorldMapView(map, imgData) {
 		}
 		let className = "section";
 		if (currentMap == section.id) className += " currentmap";
+		if (_partyMembersByMap[section.id]) className += " membersonmap";
 		if (sectionType === 1) {
 			const posKey = section.left + "_" + section.top;
 			if (renderedDungeonPos.has(posKey)) className += " is-dungeon-stacked";
@@ -229019,6 +231049,17 @@ function setAirplanePosition(airplane) {
 	el.style.transform = "rotate(75deg)";
 }
 /**
+* Mark the built sections that have party members on them
+*/
+function showPartyMembers() {
+	const root = WorldMap.getRoot();
+	root.querySelectorAll(".worldmap .section").forEach((el) => el.classList.remove("membersonmap"));
+	for (const mapId of Object.keys(_partyMembersByMap)) {
+		const el = root.querySelector(".worldmap .section#" + CSS.escape(mapId));
+		if (el) el.classList.add("membersonmap");
+	}
+}
+/**
 * Toggle all maps
 */
 function onToggleMaps() {
@@ -229061,7 +231102,7 @@ function stopPropagation$12(event) {
 function onClose$8() {
 	WorldMap._host.style.display = "none";
 }
-var WorldMap, _preferences$41, _partyMembersByMap, _hoveredSection, C_TITLEBARHEIGHT, C_BASEWIDTH, C_BASEHEIGHT, C_ASPECTX, C_ASPECTY, WorldMap_default;
+var WorldMap, _preferences$42, _partyMembersByMap, _hoveredSection, C_TITLEBARHEIGHT, C_BASEWIDTH, C_BASEHEIGHT, C_ASPECTX, C_ASPECTY, WorldMap_default;
 var init_WorldMap = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -229079,7 +231120,7 @@ var init_WorldMap = __esmMin((() => {
 	init_Navigation();
 	WorldMap = new GUIComponent("WorldMap", WorldMap_default$1);
 	WorldMap.render = () => WorldMap_default$2;
-	_preferences$41 = Preferences.get("WorldMap", {
+	_preferences$42 = Preferences.get("WorldMap", {
 		x: 0,
 		y: 0,
 		width: window.innerWidth,
@@ -229119,7 +231160,7 @@ var init_WorldMap = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	WorldMap.onAppend = function onAppend() {
-		if (!_preferences$41.show) this._host.style.display = "none";
+		if (!_preferences$42.show) this._host.style.display = "none";
 		this.settings = {
 			episode: 98,
 			add: [],
@@ -229142,12 +231183,12 @@ var init_WorldMap = __esmMin((() => {
 		this._host.style.left = "0px";
 	};
 	WorldMap.onRemove = function onRemove() {
-		_preferences$41.show = this._host.style.display !== "none";
-		_preferences$41.y = 0;
-		_preferences$41.x = 0;
-		_preferences$41.width = 0;
-		_preferences$41.height = 0;
-		_preferences$41.save();
+		_preferences$42.show = this._host.style.display !== "none";
+		_preferences$42.y = 0;
+		_preferences$42.x = 0;
+		_preferences$42.width = 0;
+		_preferences$42.height = 0;
+		_preferences$42.save();
 	};
 	/**
 	* Show/Hide UI
@@ -229208,12 +231249,20 @@ var init_WorldMap = __esmMin((() => {
 				});
 			}
 		});
-		const root = WorldMap.getRoot();
-		root.querySelectorAll(".worldmap .section").forEach((el) => el.classList.remove("membersonmap"));
-		for (const mapId of Object.keys(_partyMembersByMap)) {
-			const el = root.querySelector(".worldmap .section#" + CSS.escape(mapId));
-			if (el) el.classList.add("membersonmap");
+		showPartyMembers();
+	};
+	/**
+	* Forget a member who left the party, or the whole party when it is us
+	*
+	* @param {number} AID
+	*/
+	WorldMap.removePartyMember = function removePartyMember(AID) {
+		if (AID === SessionStorage_default.AID) _partyMembersByMap = {};
+		else for (const mapId of Object.keys(_partyMembersByMap)) {
+			_partyMembersByMap[mapId] = _partyMembersByMap[mapId].filter((member) => member.AID !== AID);
+			if (!_partyMembersByMap[mapId].length) delete _partyMembersByMap[mapId];
 		}
+		showPartyMembers();
 	};
 	WorldMap.mouseMode = GUIComponent.MouseMode.STOP;
 	WorldMap_default = UIManager.addComponent(WorldMap);
@@ -230138,9 +232187,9 @@ function onClickClose$2(e) {
 	e.stopImmediatePropagation();
 	Rodex.openType = 0;
 	Rodex.closeRodexBox();
-	_preferences$40.y = parseInt(Rodex._host.style.top, 10);
-	_preferences$40.x = parseInt(Rodex._host.style.left, 10);
-	_preferences$40.save();
+	_preferences$41.y = parseInt(Rodex._host.style.top, 10);
+	_preferences$41.x = parseInt(Rodex._host.style.left, 10);
+	_preferences$41.save();
 	Rodex._host.style.display = "none";
 }
 function onClickRefresh(e) {
@@ -230236,7 +232285,7 @@ function onClickReplyMail(e) {
 	const sender = e.currentTarget.getAttribute("sender");
 	Rodex.requestOpenWriteRodex(sender);
 }
-var Rodex, _preferences$40, Rodex_default;
+var Rodex, _preferences$41, Rodex_default;
 var init_Rodex$1 = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -230297,7 +232346,7 @@ var init_Rodex$1 = __esmMin((() => {
 		if (zeny) return "basic_interface/rodexsystem/renewal/icon_zeny.bmp";
 		return "";
 	};
-	_preferences$40 = Preferences.get("Rodex", {
+	_preferences$41 = Preferences.get("Rodex", {
 		x: 350,
 		y: 350,
 		show: false
@@ -230329,8 +232378,8 @@ var init_Rodex$1 = __esmMin((() => {
 	*/
 	Rodex.onAppend = function OnAppend() {
 		const root = _root$20();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$40.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$40.x), Renderer.width - this._host.offsetWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$41.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$41.x), Renderer.width - this._host.offsetWidth)}px`;
 		root.querySelector(".search").value = "";
 		Rodex.openType = 0;
 		root.querySelectorAll(".nav-item.active").forEach((el) => el.classList.remove("active"));
@@ -230343,10 +232392,10 @@ var init_Rodex$1 = __esmMin((() => {
 	*/
 	Rodex.onRemove = function OnRemove() {
 		this.list.length = 0;
-		_preferences$40.show = this._host.style.display !== "none";
-		_preferences$40.y = parseInt(this._host.style.top, 10);
-		_preferences$40.x = parseInt(this._host.style.left, 10);
-		_preferences$40.save();
+		_preferences$41.show = this._host.style.display !== "none";
+		_preferences$41.y = parseInt(this._host.style.top, 10);
+		_preferences$41.x = parseInt(this._host.style.left, 10);
+		_preferences$41.save();
 		Rodex.openType = 0;
 	};
 	/**
@@ -233109,10 +235158,10 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 				const removeOpt = root.querySelector(".removeOption");
 				const cartBtn = root.querySelector(".cartitems");
 				if (_lastState & HasAttachmentState || _hasCart) {
-					if (removeOpt) removeOpt.style.display = "";
+					if (removeOpt) removeOpt.style.display = "block";
 				} else if (removeOpt) removeOpt.style.display = "none";
 				if (_lastState & HasCartState || _hasCart) {
-					if (cartBtn) cartBtn.style.display = "";
+					if (cartBtn) cartBtn.style.display = "block";
 				} else if (cartBtn) cartBtn.style.display = "none";
 			}
 		}
@@ -233429,7 +235478,7 @@ var init_EquipmentV0$2 = __esmMin((() => {
 // src/UI/Components/Equipment/EquipmentV0/EquipmentV0.css?raw
 var EquipmentV0_default$1;
 var init_EquipmentV0$1 = __esmMin((() => {
-	EquipmentV0_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV0 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV0 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV0 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV0 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV0 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV0 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV0 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV0 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV0 .panel {\r\n	background-color: white;\r\n}\r\n#EquipmentV0.equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV0 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV0 .col1,\r\n#EquipmentV0 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV0 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV0 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV0 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV0 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV0 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV0 .col3 .item button,\r\n#EquipmentV0 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV0 .col1 .item button,\r\n#EquipmentV0 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV0 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV0 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV0 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV0 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV0 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV0 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV0 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV0 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV0 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV0 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV0 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n}\r\n#EquipmentV0 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV0 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV0 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV0 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n";
+	EquipmentV0_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV0 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV0 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV0 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV0 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV0 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV0 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV0 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV0 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV0 .panel {\r\n	background-color: white;\r\n}\r\n#EquipmentV0.equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV0 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV0 .col1,\r\n#EquipmentV0 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV0 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV0 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV0 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV0 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV0 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV0 .col3 .item button,\r\n#EquipmentV0 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV0 .col1 .item button,\r\n#EquipmentV0 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV0 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV0 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV0 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV0 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV0 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV0 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV0 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV0 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV0 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 30px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV0 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV0 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n}\r\n#EquipmentV0 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV0 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV0 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV0 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n";
 }));
 // src/UI/Components/Equipment/EquipmentV0/EquipmentV0.js
 var EquipmentV0_default;
@@ -233453,7 +235502,7 @@ var init_EquipmentV1$2 = __esmMin((() => {
 // src/UI/Components/Equipment/EquipmentV1/EquipmentV1.css?raw
 var EquipmentV1_default$1;
 var init_EquipmentV1$1 = __esmMin((() => {
-	EquipmentV1_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV1 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV1 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV1 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV1 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV1 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV1 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV1 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV1 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV1 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n#EquipmentV1 .tab a {\r\n	width: 60px;\r\n	height: 100%;\r\n	color: #42454a;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: inline-block;\r\n	vertical-align: bottom;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n}\r\n#EquipmentV1 .tab a.selected {\r\n	color: #000;\r\n	font-weight: bold;\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV1 .tab a.selected:after {\r\n	content: '';\r\n	display: block;\r\n	height: 1px;\r\n	width: 1px;\r\n	position: absolute;\r\n	bottom: -1px;\r\n	left: -1px;\r\n}\r\n\r\n#EquipmentV1 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n}\r\n#EquipmentV1 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV1 table.content {\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV1 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV1 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV1 .col1,\r\n#EquipmentV1 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV1 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV1 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV1 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV1 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV1 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV1 .col3 .item button,\r\n#EquipmentV1 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV1 .col1 .item button,\r\n#EquipmentV1 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV1 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV1 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV1 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV1 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV1 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV1 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV1 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV1 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV1 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV1 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV1 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n}\r\n#EquipmentV1 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV1 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV1 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV1 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n";
+	EquipmentV1_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV1 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV1 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV1 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV1 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV1 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV1 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV1 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV1 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV1 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n#EquipmentV1 .tab a {\r\n	width: 60px;\r\n	height: 100%;\r\n	color: #42454a;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: inline-block;\r\n	vertical-align: bottom;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n}\r\n#EquipmentV1 .tab a.selected {\r\n	color: #000;\r\n	font-weight: bold;\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV1 .tab a.selected:after {\r\n	content: '';\r\n	display: block;\r\n	height: 1px;\r\n	width: 1px;\r\n	position: absolute;\r\n	bottom: -1px;\r\n	left: -1px;\r\n}\r\n\r\n#EquipmentV1 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n}\r\n#EquipmentV1 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV1 table.content {\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV1 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV1 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV1 .col1,\r\n#EquipmentV1 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV1 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV1 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV1 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV1 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV1 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV1 .col3 .item button,\r\n#EquipmentV1 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV1 .col1 .item button,\r\n#EquipmentV1 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV1 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV1 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV1 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV1 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV1 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV1 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV1 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV1 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV1 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 30px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV1 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV1 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n}\r\n#EquipmentV1 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV1 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV1 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV1 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n";
 }));
 // src/UI/Components/Equipment/EquipmentV1/EquipmentV1.js
 var EquipmentV1_default;
@@ -233475,7 +235524,7 @@ var init_EquipmentV2$2 = __esmMin((() => {
 // src/UI/Components/Equipment/EquipmentV2/EquipmentV2.css?raw
 var EquipmentV2_default$1;
 var init_EquipmentV2$1 = __esmMin((() => {
-	EquipmentV2_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV2 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV2 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV2 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV2 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV2 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV2 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV2 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV2 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV2 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n#EquipmentV2 .tab a {\r\n	width: 60px;\r\n	height: 100%;\r\n	color: #42454a;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: inline-block;\r\n	vertical-align: bottom;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n}\r\n#EquipmentV2 .tab a.selected {\r\n	color: #000;\r\n	font-weight: bold;\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV2 .tab a.selected:after {\r\n	content: '';\r\n	display: block;\r\n	height: 1px;\r\n	width: 1px;\r\n	position: absolute;\r\n	bottom: -1px;\r\n	left: -1px;\r\n}\r\n\r\n#EquipmentV2 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n}\r\n#EquipmentV2 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV2 table.content {\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV2 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV2 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV2 .col1,\r\n#EquipmentV2 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV2 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV2 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV2 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV2 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV2 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV2 .col3 .item button,\r\n#EquipmentV2 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV2 .col1 .item button,\r\n#EquipmentV2 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV2 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV2 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV2 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV2 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV2 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV2 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV2 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV2 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV2 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV2 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV2 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n}\r\n#EquipmentV2 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV2 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV2 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV2 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n";
+	EquipmentV2_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV2 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV2 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV2 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV2 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV2 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV2 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV2 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV2 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV2 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n#EquipmentV2 .tab a {\r\n	width: 60px;\r\n	height: 100%;\r\n	color: #42454a;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: inline-block;\r\n	vertical-align: bottom;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n}\r\n#EquipmentV2 .tab a.selected {\r\n	color: #000;\r\n	font-weight: bold;\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV2 .tab a.selected:after {\r\n	content: '';\r\n	display: block;\r\n	height: 1px;\r\n	width: 1px;\r\n	position: absolute;\r\n	bottom: -1px;\r\n	left: -1px;\r\n}\r\n\r\n#EquipmentV2 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n}\r\n#EquipmentV2 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV2 table.content {\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV2 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV2 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV2 .col1,\r\n#EquipmentV2 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV2 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV2 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV2 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV2 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV2 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV2 .col3 .item button,\r\n#EquipmentV2 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV2 .col1 .item button,\r\n#EquipmentV2 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV2 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV2 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV2 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV2 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV2 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV2 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV2 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV2 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV2 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 30px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV2 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV2 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n}\r\n#EquipmentV2 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV2 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV2 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV2 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n";
 }));
 // src/UI/Components/Equipment/EquipmentV2/EquipmentV2.js
 var EquipmentV2_default;
@@ -233497,7 +235546,7 @@ var init_EquipmentV3$2 = __esmMin((() => {
 // src/UI/Components/Equipment/EquipmentV3/EquipmentV3.css?raw
 var EquipmentV3_default$1;
 var init_EquipmentV3$1 = __esmMin((() => {
-	EquipmentV3_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV3 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV3 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV3 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV3 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV3 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV3 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV3 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV3 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV3 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n#EquipmentV3 .tab a {\r\n	width: 60px;\r\n	height: 100%;\r\n	color: #42454a;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: inline-block;\r\n	vertical-align: bottom;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n}\r\n#EquipmentV3 .tab a.selected {\r\n	color: #000;\r\n	font-weight: bold;\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV3 .tab a.selected:after {\r\n	content: '';\r\n	display: block;\r\n	height: 1px;\r\n	width: 1px;\r\n	position: absolute;\r\n	bottom: -1px;\r\n	left: -1px;\r\n}\r\n\r\n#EquipmentV3 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n	height: 150px;\r\n}\r\n#EquipmentV3 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV3 table.content {\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV3 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV3 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV3 .col1,\r\n#EquipmentV3 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV3 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV3 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV3 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV3 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV3 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV3 .col3 .item button,\r\n#EquipmentV3 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV3 .col1 .item button,\r\n#EquipmentV3 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV3 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV3 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV3 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV3 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV3 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV3 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV3 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV3 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV3 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV3 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV3 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n	background-position: 0px -130px;\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n#EquipmentV3 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV3 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV3 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV3 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#EquipmentV3 .footer .switch_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n#EquipmentV3 .footer .remove_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#EquipmentV3 .item .grade {\r\n	position: relative;\r\n	width: 12px;\r\n	height: 12px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	pointer-events: none;\r\n	z-index: 2;\r\n	top: 5px;\r\n}\r\n\r\n#EquipmentV3 #title .title-list {\r\n	height: 125px;\r\n	width: 280px;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	padding: 8px 8px;\r\n	border: 1px solid #c0c0c0;\r\n	background-color: #f8f8f8;\r\n}\r\n\r\n#EquipmentV3 .title-option {\r\n	padding: 1px;\r\n	margin: 1px 0;\r\n	cursor: pointer;\r\n	background-color: transparent;\r\n	border: 1px solid transparent;\r\n	white-space: nowrap;\r\n	width: 100%;\r\n}\r\n\r\n#EquipmentV3 .title-option.selected {\r\n	background-color: #e0e0e0;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV3 .title-option:hover {\r\n	background-color: #e0e0e0;\r\n}\r\n";
+	EquipmentV3_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV3 {\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV3 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV3 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV3 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV3 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV3 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV3 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV3 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV3 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n#EquipmentV3 .tab a {\r\n	width: 60px;\r\n	height: 100%;\r\n	color: #42454a;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: inline-block;\r\n	vertical-align: bottom;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n}\r\n#EquipmentV3 .tab a.selected {\r\n	color: #000;\r\n	font-weight: bold;\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV3 .tab a.selected:after {\r\n	content: '';\r\n	display: block;\r\n	height: 1px;\r\n	width: 1px;\r\n	position: absolute;\r\n	bottom: -1px;\r\n	left: -1px;\r\n}\r\n\r\n#EquipmentV3 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n	height: 150px;\r\n}\r\n#EquipmentV3 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV3 table.content {\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV3 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV3 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV3 .col1,\r\n#EquipmentV3 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV3 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV3 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV3 .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n#EquipmentV3 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV3 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV3 .col3 .item button,\r\n#EquipmentV3 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV3 .col1 .item button,\r\n#EquipmentV3 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV3 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV3 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV3 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV3 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV3 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV3 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV3 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV3 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV3 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 30px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV3 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV3 .footer {\r\n	height: 20px;\r\n	border-bottom: 1px solid #c0c0c0;\r\n	background-position: 0px -130px;\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n#EquipmentV3 .footer .left {\r\n	float: left;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV3 .footer .right {\r\n	float: right;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV3 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV3 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#EquipmentV3 .footer .switch_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n#EquipmentV3 .footer .remove_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#EquipmentV3 .item .grade {\r\n	position: relative;\r\n	width: 12px;\r\n	height: 12px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	pointer-events: none;\r\n	z-index: 2;\r\n	top: 5px;\r\n}\r\n\r\n#EquipmentV3 #title .title-list {\r\n	height: 125px;\r\n	width: 280px;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	padding: 8px 8px;\r\n	border: 1px solid #c0c0c0;\r\n	background-color: #f8f8f8;\r\n}\r\n\r\n#EquipmentV3 .title-option {\r\n	padding: 1px;\r\n	margin: 1px 0;\r\n	cursor: pointer;\r\n	background-color: transparent;\r\n	border: 1px solid transparent;\r\n	white-space: nowrap;\r\n	width: 100%;\r\n}\r\n\r\n#EquipmentV3 .title-option.selected {\r\n	background-color: #e0e0e0;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV3 .title-option:hover {\r\n	background-color: #e0e0e0;\r\n}\r\n";
 }));
 // src/UI/Components/Equipment/EquipmentV3/EquipmentV3.js
 var EquipmentV3_default;
@@ -233522,7 +235571,7 @@ var init_EquipmentV4$2 = __esmMin((() => {
 // src/UI/Components/Equipment/EquipmentV4/EquipmentV4.css?raw
 var EquipmentV4_default$1;
 var init_EquipmentV4$1 = __esmMin((() => {
-	EquipmentV4_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV4 {\r\n	font-size: 11px;\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV4 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV4 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV4 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV4 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n}\r\n\r\n#EquipmentV4 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV4 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV4 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV4 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n/* Equal-width tabs center short labels and truncate long ones at the end. */\r\n#EquipmentV4 .tab-manager > .tab {\r\n	flex: 0 1 65px;\r\n	min-width: 0;\r\n	height: 100%;\r\n}\r\n#EquipmentV4 .tab a {\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0 2px;\r\n	color: #000;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	line-height: 13px;\r\n}\r\n#EquipmentV4 .tab a span {\r\n	display: block;\r\n	min-width: 0;\r\n	text-align: left;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n#EquipmentV4 .tab a.selected {\r\n	height: calc(100% + 1px);\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV4 .tab a span.truncated {\r\n	margin-right: auto;\r\n}\r\n#EquipmentV4 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n	height: 150px;\r\n}\r\n#EquipmentV4 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV4 table.content {\r\n	display: block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV4 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV4 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV4 .col1,\r\n#EquipmentV4 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV4 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV4 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV4 .overlay {\r\n	position: fixed;\r\n	inset: auto;\r\n	display: none;\r\n	margin: 0;\r\n	border: none;\r\n	width: max-content;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	padding: 3px 5px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	font-size: 12px;\r\n	font-weight: normal;\r\n	line-height: 1.2;\r\n	text-shadow: 1px 1px black;\r\n	transform-origin: top left;\r\n	pointer-events: none;\r\n}\r\n\r\n#EquipmentV4 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV4 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV4 .col3 .item button,\r\n#EquipmentV4 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV4 .col1 .item button,\r\n#EquipmentV4 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV4 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV4 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV4 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV4 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV4 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV4 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV4 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV4 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV4 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV4 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV4 .footer {\r\n	height: 20px;\r\n	box-sizing: border-box;\r\n	border-bottom: 1px solid #c0c0c0;\r\n	background-position: 0px -130px;\r\n	position: relative;\r\n	top: 0;\r\n}\r\n#EquipmentV4 .footer .left {\r\n	float: left;\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 3px;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV4 .footer .right {\r\n	float: right;\r\n	display: flex;\r\n	gap: 3px;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 0;\r\n}\r\n#EquipmentV4 .footer .left label {\r\n	padding-top: 2px;\r\n}\r\n#EquipmentV4 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV4 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n	flex-shrink: 0;\r\n}\r\n#EquipmentV4 .footer .show_costume {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n	flex-shrink: 0;\r\n}\r\n\r\n#EquipmentV4 .footer .switch_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: 0;\r\n}\r\n#EquipmentV4 .footer .remove_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: 0;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#EquipmentV4 #damageskin .damageskin-selector {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 280px;\r\n	margin: 0 auto;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-option {\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n\r\n	width: 64px;\r\n	height: 92px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	margin-top: 3px;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-option span {\r\n	position: relative;\r\n	top: -9px;\r\n	font-weight: bold;\r\n	text-align: center;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-option .icon {\r\n	width: 36px;\r\n	height: 36px;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-wrapper {\r\n	width: 64px;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n	gap: 0;\r\n	padding: 0;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-wrapper > div:first-child {\r\n	margin-top: 8px;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-wrapper .label {\r\n	margin-top: 6px;\r\n	text-align: center;\r\n}\r\n\r\n#EquipmentV4 .motion-check {\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n	cursor: pointer;\r\n	width: 10px;\r\n	height: 12px;\r\n	margin-right: 4px;\r\n}\r\n\r\n#EquipmentV4 .item .grade {\r\n	position: relative;\r\n	width: 12px;\r\n	height: 12px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	pointer-events: none;\r\n	z-index: 2;\r\n	top: 5px;\r\n}\r\n\r\n#EquipmentV4 #title .title-list {\r\n	height: 125px;\r\n	width: 280px;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	padding: 8px 8px;\r\n	border: 1px solid #c0c0c0;\r\n	background-color: #f8f8f8;\r\n}\r\n\r\n#EquipmentV4 .title-option {\r\n	padding: 1px;\r\n	margin: 1px 0;\r\n	cursor: pointer;\r\n	background-color: transparent;\r\n	border: 1px solid transparent;\r\n	white-space: nowrap;\r\n	width: 100%;\r\n}\r\n\r\n#EquipmentV4 .title-option.selected {\r\n	background-color: #e0e0e0;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV4 .title-option:hover {\r\n	background-color: #e0e0e0;\r\n}\r\n";
+	EquipmentV4_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n#EquipmentV4 {\r\n	font-size: 11px;\r\n	position: relative;\r\n	width: 280px;\r\n}\r\n\r\n#EquipmentV4 .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV4 .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#EquipmentV4 .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#EquipmentV4 .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n}\r\n\r\n#EquipmentV4 .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#EquipmentV4 .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#EquipmentV4 .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#EquipmentV4 .tab-manager {\r\n	position: relative;\r\n	width: inherit;\r\n	background-color: white;\r\n	height: 15px;\r\n	display: flex;\r\n}\r\n\r\n/* Equal-width tabs center short labels and truncate long ones at the end. */\r\n#EquipmentV4 .tab-manager > .tab {\r\n	flex: 0 1 65px;\r\n	min-width: 0;\r\n	height: 100%;\r\n}\r\n#EquipmentV4 .tab a {\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0 2px;\r\n	color: #000;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n	border: 1px solid #c9c3ba;\r\n	border-bottom: none;\r\n	text-decoration: none;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	border-radius: 3px 3px 0 0;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	line-height: 13px;\r\n}\r\n#EquipmentV4 .tab a span {\r\n	display: block;\r\n	min-width: 0;\r\n	text-align: left;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n#EquipmentV4 .tab a.selected {\r\n	height: calc(100% + 1px);\r\n	border-bottom: 1px solid white;\r\n	position: relative;\r\n	z-index: 100;\r\n	background-color: white;\r\n}\r\n#EquipmentV4 .tab a span.truncated {\r\n	margin-right: auto;\r\n}\r\n#EquipmentV4 .panel {\r\n	background-color: white;\r\n	border-top: 1px solid gray;\r\n	height: 150px;\r\n}\r\n#EquipmentV4 .equipmentV0 .panel {\r\n	background-color: inherit;\r\n}\r\n#EquipmentV4 table.content {\r\n	display: block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV4 table.content.hide {\r\n	display: none;\r\n}\r\n#EquipmentV4 .content {\r\n	display: inline-block;\r\n	width: 280px;\r\n	height: 130px;\r\n	border-spacing: 0;\r\n}\r\n#EquipmentV4 .col1,\r\n#EquipmentV4 .col3 {\r\n	width: 115px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV4 .col1 {\r\n	background-position: 5% 50%;\r\n	min-width: 110px;\r\n}\r\n#EquipmentV4 .col3 {\r\n	background-position: 95% 50%;\r\n	min-width: 110px;\r\n}\r\n\r\n#EquipmentV4 .overlay {\r\n	position: fixed;\r\n	inset: auto;\r\n	display: none;\r\n	margin: 0;\r\n	border: none;\r\n	width: max-content;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	padding: 3px 5px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	font-size: 12px;\r\n	font-weight: normal;\r\n	line-height: 1.2;\r\n	text-shadow: 1px 1px black;\r\n	transform-origin: top left;\r\n	pointer-events: none;\r\n}\r\n\r\n#EquipmentV4 .item button {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n}\r\n#EquipmentV4 .item span {\r\n	width: 80px;\r\n	height: 24px;\r\n	display: inline-block;\r\n	line-height: 12px;\r\n	word-break: break-all;\r\n	overflow: hidden;\r\n	text-shadow: 1px 1px white;\r\n}\r\n\r\n#EquipmentV4 .col3 .item button,\r\n#EquipmentV4 .col3 .item span {\r\n	float: right;\r\n}\r\n#EquipmentV4 .col1 .item button,\r\n#EquipmentV4 .col1 .item span {\r\n	float: left;\r\n}\r\n#EquipmentV4 .col1 .item {\r\n	padding-left: 4px;\r\n}\r\n#EquipmentV4 .col3 .item {\r\n	padding-right: 4px;\r\n}\r\n#EquipmentV4 .col1 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#EquipmentV4 .col3 .item .itemName {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#EquipmentV4 .ammo_container {\r\n	position: relative;\r\n}\r\n#EquipmentV4 .ammo {\r\n	position: absolute;\r\n	top: 30px;\r\n}\r\n#EquipmentV4 .ammo .item {\r\n	text-align: center;\r\n}\r\n#EquipmentV4 .ammo .item span {\r\n	width: 45px;\r\n}\r\n#EquipmentV4 .cartitems {\r\n	position: absolute;\r\n	top: 65px;\r\n	left: 14px;\r\n	width: 30px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n#EquipmentV4 .removeOption {\r\n	position: absolute;\r\n	top: 90px;\r\n	left: 12px;\r\n	width: 36px;\r\n	height: 36px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	display: none;\r\n}\r\n\r\n#EquipmentV4 .footer {\r\n	height: 20px;\r\n	box-sizing: border-box;\r\n	border-bottom: 1px solid #c0c0c0;\r\n	background-position: 0px -130px;\r\n	position: relative;\r\n	top: 0;\r\n}\r\n#EquipmentV4 .footer .left {\r\n	float: left;\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 3px;\r\n	text-align: left;\r\n	margin-left: 5px;\r\n	margin-top: 3px;\r\n}\r\n#EquipmentV4 .footer .right {\r\n	float: right;\r\n	display: flex;\r\n	gap: 3px;\r\n	text-align: right;\r\n	margin-right: 5px;\r\n	margin-top: 0;\r\n}\r\n#EquipmentV4 .footer .left label {\r\n	padding-top: 2px;\r\n}\r\n#EquipmentV4 .footer .view_status {\r\n	width: 9px;\r\n	height: 14px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#EquipmentV4 .footer .show_equip {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n	flex-shrink: 0;\r\n}\r\n#EquipmentV4 .footer .show_costume {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n	flex-shrink: 0;\r\n}\r\n\r\n#EquipmentV4 .footer .switch_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: 0;\r\n}\r\n#EquipmentV4 .footer .remove_equip {\r\n	width: 40px;\r\n	height: 20px;\r\n	border: none;\r\n	position: relative;\r\n	top: 0;\r\n}\r\n\r\n#lvlup_base {\r\n	z-index: 51;\r\n	position: absolute;\r\n	left: 0px;\r\n	bottom: 0px;\r\n	width: 43px;\r\n	height: 43px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#EquipmentV4 #damageskin .damageskin-selector {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 280px;\r\n	margin: 0 auto;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-option {\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n\r\n	width: 64px;\r\n	height: 92px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	margin-top: 3px;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-option span {\r\n	position: relative;\r\n	top: -9px;\r\n	font-weight: bold;\r\n	text-align: center;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-option .icon {\r\n	width: 36px;\r\n	height: 36px;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-wrapper {\r\n	width: 64px;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n	gap: 0;\r\n	padding: 0;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-wrapper > div:first-child {\r\n	margin-top: 8px;\r\n}\r\n\r\n#EquipmentV4 #damageskin .skin-wrapper .label {\r\n	margin-top: 6px;\r\n	text-align: center;\r\n}\r\n\r\n#EquipmentV4 .motion-check {\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n	cursor: pointer;\r\n	width: 10px;\r\n	height: 12px;\r\n	margin-right: 4px;\r\n}\r\n\r\n#EquipmentV4 .item .grade {\r\n	position: relative;\r\n	width: 12px;\r\n	height: 12px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	pointer-events: none;\r\n	z-index: 2;\r\n	top: 5px;\r\n}\r\n\r\n#EquipmentV4 #title .title-list {\r\n	height: 125px;\r\n	width: 280px;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	padding: 8px 8px;\r\n	border: 1px solid #c0c0c0;\r\n	background-color: #f8f8f8;\r\n}\r\n\r\n#EquipmentV4 .title-option {\r\n	padding: 1px;\r\n	margin: 1px 0;\r\n	cursor: pointer;\r\n	background-color: transparent;\r\n	border: 1px solid transparent;\r\n	white-space: nowrap;\r\n	width: 100%;\r\n}\r\n\r\n#EquipmentV4 .title-option.selected {\r\n	background-color: #e0e0e0;\r\n	font-weight: bold;\r\n}\r\n\r\n#EquipmentV4 .title-option:hover {\r\n	background-color: #e0e0e0;\r\n}\r\n";
 }));
 // src/UI/Components/Equipment/EquipmentV4/EquipmentV4.js
 var EquipmentV4_default;
@@ -233792,7 +235841,7 @@ function onItemUsed$1(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 }
-var CartItems, _realSize$1, _preferences$39, CartItems_default;
+var CartItems, _realSize$1, _preferences$40, CartItems_default;
 var init_CartItems = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -233822,7 +235871,7 @@ var init_CartItems = __esmMin((() => {
 	*/
 	CartItems.list = [];
 	_realSize$1 = 0;
-	_preferences$39 = Preferences.get("CartItems", {
+	_preferences$40 = Preferences.get("CartItems", {
 		x: 200,
 		y: 200,
 		width: 7,
@@ -233884,12 +235933,12 @@ var init_CartItems = __esmMin((() => {
 	*/
 	CartItems.onAppend = function OnAppend() {
 		if (SessionStorage_default.Entity.hasCart === false) this._host.style.display = "none";
-		if (!_preferences$39.show) this._host.style.display = "none";
-		this.resize(_preferences$39.width, _preferences$39.height);
+		if (!_preferences$40.show) this._host.style.display = "none";
+		this.resize(_preferences$40.width, _preferences$40.height);
 		const hostRect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$39.y), Renderer.height - hostRect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$39.x), Renderer.width - hostRect.width)}px`;
-		_realSize$1 = _preferences$39.reduce ? 0 : hostRect.height;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$40.y), Renderer.height - hostRect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$40.x), Renderer.width - hostRect.width)}px`;
+		_realSize$1 = _preferences$40.reduce ? 0 : hostRect.height;
 		const miniBtn = this.getRoot().querySelector(".titlebar .mini");
 		if (miniBtn) miniBtn.dispatchEvent(new Event("mousedown"));
 	};
@@ -233901,14 +235950,14 @@ var init_CartItems = __esmMin((() => {
 		if (content) content.innerHTML = "";
 		this.list.length = 0;
 		document.querySelectorAll(".ItemInfo").forEach((el) => el.remove());
-		_preferences$39.show = this._host.style.display !== "none";
-		_preferences$39.reduce = !!_realSize$1;
-		_preferences$39.y = parseInt(this._host.style.top, 10);
-		_preferences$39.x = parseInt(this._host.style.left, 10);
+		_preferences$40.show = this._host.style.display !== "none";
+		_preferences$40.reduce = !!_realSize$1;
+		_preferences$40.y = parseInt(this._host.style.top, 10);
+		_preferences$40.x = parseInt(this._host.style.left, 10);
 		const hostRect = this._host.getBoundingClientRect();
-		_preferences$39.width = Math.floor((hostRect.width - 25) / 32);
-		_preferences$39.height = Math.floor((hostRect.height - 20) / 32);
-		_preferences$39.save();
+		_preferences$40.width = Math.floor((hostRect.width - 25) / 32);
+		_preferences$40.height = Math.floor((hostRect.height - 20) / 32);
+		_preferences$40.save();
 	};
 	/**
 	* Process shortcut
@@ -236270,7 +238319,7 @@ function reqCloseBank() {
 	pkt.AID = SessionStorage_default.AID;
 	Network.sendPacket(pkt);
 }
-var Bank, maxInt, _preferences$38, Bank_default;
+var Bank, maxInt, _preferences$39, Bank_default;
 var init_Bank$1 = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -236293,7 +238342,7 @@ var init_Bank$1 = __esmMin((() => {
 	*/
 	Bank.render = () => Bank_default$2;
 	maxInt = 2147483647;
-	_preferences$38 = Preferences.get("Bank", {
+	_preferences$39 = Preferences.get("Bank", {
 		x: 230,
 		y: 295
 	}, 2);
@@ -236358,8 +238407,8 @@ var init_Bank$1 = __esmMin((() => {
 	*/
 	Bank.onAppend = function onAppend() {
 		const root = this.getRoot();
-		this._host.style.top = Math.min(Math.max(0, _preferences$38.y), Renderer.height - this._host.offsetHeight) + "px";
-		this._host.style.left = Math.min(Math.max(0, _preferences$38.x), Renderer.width - this._host.offsetWidth) + "px";
+		this._host.style.top = Math.min(Math.max(0, _preferences$39.y), Renderer.height - this._host.offsetHeight) + "px";
+		this._host.style.left = Math.min(Math.max(0, _preferences$39.x), Renderer.width - this._host.offsetWidth) + "px";
 		const input = root.querySelector(".depo");
 		input.value = "";
 		input.focus();
@@ -236410,9 +238459,9 @@ var init_Bank$1 = __esmMin((() => {
 	* Remove Bank from window
 	*/
 	Bank.onRemove = function onRemove() {
-		_preferences$38.y = parseInt(this._host.style.top, 10);
-		_preferences$38.x = parseInt(this._host.style.left, 10);
-		_preferences$38.save();
+		_preferences$39.y = parseInt(this._host.style.top, 10);
+		_preferences$39.x = parseInt(this._host.style.left, 10);
+		_preferences$39.save();
 		const error = this.getRoot().querySelector(".errorupdate");
 		if (error) error.textContent = "";
 	};
@@ -236618,7 +238667,7 @@ function onToggleBGM() {
 	if (Audio_default.BGM.play) BGM.play(BGM.filename);
 	else BGM.stop();
 }
-var SoundOption, _preferences$37, SoundOption_default;
+var SoundOption, _preferences$38, SoundOption_default;
 var init_SoundOption = __esmMin((() => {
 	init_Preferences$1();
 	init_Audio();
@@ -236631,7 +238680,7 @@ var init_SoundOption = __esmMin((() => {
 	init_SoundOption$1();
 	SoundOption = new GUIComponent("SoundOption", SoundOption_default$1);
 	SoundOption.render = () => SoundOption_default$2;
-	_preferences$37 = Preferences.get("SoundOption", {
+	_preferences$38 = Preferences.get("SoundOption", {
 		x: 300,
 		y: 300
 	}, 1);
@@ -236656,8 +238705,8 @@ var init_SoundOption = __esmMin((() => {
 		this.draggable(".titlebar");
 	};
 	SoundOption.onAppend = function onAppend() {
-		this._host.style.top = _preferences$37.y + "px";
-		this._host.style.left = _preferences$37.x + "px";
+		this._host.style.top = _preferences$38.y + "px";
+		this._host.style.left = _preferences$38.x + "px";
 		const root = this.getRoot();
 		const soundSlider = root.querySelector(".sound");
 		if (soundSlider) soundSlider.value = Audio_default.Sound.volume * 100;
@@ -236669,16 +238718,146 @@ var init_SoundOption = __esmMin((() => {
 		if (bgmState) bgmState.checked = Audio_default.BGM.play;
 	};
 	SoundOption.onRemove = function onRemove() {
-		_preferences$37.x = parseInt(this._host.style.left, 10);
-		_preferences$37.y = parseInt(this._host.style.top, 10);
-		_preferences$37.save();
+		_preferences$38.x = parseInt(this._host.style.left, 10);
+		_preferences$38.y = parseInt(this._host.style.top, 10);
+		_preferences$38.save();
 	};
 	SoundOption_default = UIManager.addComponent(SoundOption);
+}));
+// src/Renderer/FramePacer.js
+var SAMPLES, MIN_SAMPLES, MAX_INTERVAL, _intervals, _sorted, _count, _next$1, _lastTick, _frames, _framesLimit, FramePacer;
+var init_FramePacer = __esmMin((() => {
+	SAMPLES = 31;
+	MIN_SAMPLES = 8;
+	MAX_INTERVAL = 100;
+	_intervals = new Float32Array(SAMPLES);
+	_sorted = new Float32Array(SAMPLES);
+	_count = 0;
+	_next$1 = 0;
+	_lastTick = 0;
+	_frames = 0;
+	_framesLimit = 0;
+	FramePacer = class FramePacer {
+		/**
+		* Record a rAF callback, rendered or not
+		*
+		* @param {number} now rAF timestamp (ms)
+		*/
+		static sample(now) {
+			const interval = now - _lastTick;
+			_lastTick = now;
+			if (interval <= 0 || interval > MAX_INTERVAL) return;
+			_intervals[_next$1] = interval;
+			_next$1 = (_next$1 + 1) % SAMPLES;
+			_count = Math.min(_count + 1, SAMPLES);
+		}
+		/**
+		* Measured refresh interval: the mean of the middle half of the recent
+		* rAF intervals (robust to a stall, and to timestamps that jitter either
+		* side of the refresh, where a median picks one side), or 0 while there
+		* are too few
+		*
+		* @return {number} ms
+		*/
+		static refreshInterval() {
+			if (_count < MIN_SAMPLES) return 0;
+			const sorted = _sorted.subarray(0, _count);
+			sorted.set(_intervals.subarray(0, _count));
+			sorted.sort();
+			const from = _count >> 2;
+			const to = _count - from;
+			let sum = 0;
+			for (let i = from; i < to; ++i) sum += sorted[i];
+			return sum / (to - from);
+		}
+		/**
+		* How many refreshes each frame lasts, for a limit: the fewest that keep
+		* the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
+		* display count as 60 or 120.
+		*
+		* Near the edge of the slack the last count chosen is kept: a display
+		* measured either side of it (60.6 Hz for 60) would otherwise switch on
+		* every few frames between pacing and the time limiter, and stutter. The
+		* band is 0.15% below the edge, wider than the estimate wanders with
+		* 0.1 ms of timestamp jitter (about 0.1%), so a display that really moves
+		* under the edge (60.5 Hz) gets the lower count back.
+		*
+		* @param {number} limit fps
+		* @param {number} refresh refresh interval (ms)
+		* @return {number} 1 or more
+		*/
+		static refreshesPerFrame(limit, refresh) {
+			const display = 1e3 / refresh;
+			const frames = Math.max(1, Math.ceil(display / (limit * 1.01)));
+			if (limit === _framesLimit && _frames === frames + 1 && display / frames > limit * 1.01 * .9985) return _frames;
+			return frames;
+		}
+		/**
+		* Whether frames can be paced evenly under a limit: the rate a whole
+		* number of refreshes gives is the display's own, or within 10% of it
+		*
+		* @param {number} limit fps
+		* @param {number} refresh refresh interval (ms)
+		* @return {boolean}
+		*/
+		static canPace(limit, refresh) {
+			const frames = FramePacer.refreshesPerFrame(limit, refresh);
+			return frames === 1 || 1e3 / refresh / frames >= limit * .9;
+		}
+		/**
+		* Whether a frame is due, and from when the next one counts
+		*
+		* @param {number} now rAF timestamp (ms)
+		* @param {number} last value returned for the previous frame
+		* @param {number} limit fps, above 0
+		* @return {number} the new `last` when a frame is due, or -1 to skip
+		*/
+		static next(now, last, limit) {
+			const elapsed = now - last;
+			const refresh = FramePacer.refreshInterval();
+			if (refresh) {
+				_frames = FramePacer.refreshesPerFrame(limit, refresh);
+				_framesLimit = limit;
+			}
+			if (!refresh || !FramePacer.canPace(limit, refresh)) {
+				const interval = 1e3 / limit;
+				return elapsed < interval ? -1 : now - elapsed % interval;
+			}
+			return elapsed < (_frames - .5) * refresh ? -1 : now;
+		}
+		/**
+		* The frame rate a limit is expected to give on this display: the display's
+		* own rate with no limit or a limit above it, the evenly paced rate when
+		* frames can be paced, otherwise the limit. With the refresh rate not known
+		* yet, the limit (0 when there is none).
+		*
+		* @param {number} limit fps, or 0 or less for none
+		* @return {number} fps
+		*/
+		static targetRate(limit) {
+			const refresh = FramePacer.refreshInterval();
+			if (!refresh) return limit > 0 ? limit : 0;
+			const display = 1e3 / refresh;
+			if (limit <= 0) return display;
+			if (!FramePacer.canPace(limit, refresh)) return Math.min(limit, display);
+			return display / FramePacer.refreshesPerFrame(limit, refresh);
+		}
+		/**
+		* Forget the measured refresh rate (for tests, or a display change)
+		*/
+		static reset() {
+			_count = 0;
+			_next$1 = 0;
+			_lastTick = 0;
+			_frames = 0;
+			_framesLimit = 0;
+		}
+	};
 }));
 // src/UI/Components/FPS/FPS.html?raw
 var FPS_default$2;
 var init_FPS$2 = __esmMin((() => {
-	FPS_default$2 = "<div id=\"FPS\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\"><span id=\"fpsCounter\">--</span> FPS</div>\r\n	</div>\r\n</div>\r\n";
+	FPS_default$2 = "<div id=\"FPS\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\"><span id=\"fpsCounter\">--</span> FPS</div>\r\n		<div class=\"left fps-low\"><span id=\"fpsLowCounter\">--</span> lowest</div>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/FPS/FPS.css?raw
 var FPS_default$1;
@@ -236686,10 +238865,11 @@ var init_FPS$1 = __esmMin((() => {
 	FPS_default$1 = ":host {\r\n	top: 100px;\r\n	left: 100px;\r\n	width: 80px;\r\n	height: 20px;\r\n}\r\n\r\n#FPS {\r\n	position: absolute;\r\n	background: white;\r\n	border-radius: 2px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n#FPS .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#FPS .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n";
 }));
 // src/UI/Components/FPS/FPS.js
-var FPS, _maxFPSRegistered, _tickFn, _preferences$36, FPS_default;
+var FPS, _maxFPSRegistered, _minFPSRegistered, _tickFn, _preferences$37, FPS_default;
 var init_FPS = __esmMin((() => {
 	init_Preferences$1();
 	init_Renderer();
+	init_FramePacer();
 	init_UIManager();
 	init_GUIComponent();
 	init_Elements();
@@ -236698,8 +238878,9 @@ var init_FPS = __esmMin((() => {
 	FPS = new GUIComponent("FPS", FPS_default$1);
 	FPS.render = () => FPS_default$2;
 	_maxFPSRegistered = 0;
+	_minFPSRegistered = Infinity;
 	_tickFn = null;
-	_preferences$36 = Preferences.get("FPS", {
+	_preferences$37 = Preferences.get("FPS", {
 		show: false,
 		x: 100,
 		y: 100
@@ -236723,13 +238904,18 @@ var init_FPS = __esmMin((() => {
 	* When appended to DOM
 	*/
 	FPS.onAppend = function onAppend() {
-		this._host.style.top = _preferences$36.y + "px";
-		this._host.style.left = _preferences$36.x + "px";
-		this._host.style.display = _preferences$36.show ? "" : "none";
+		this._host.style.top = _preferences$37.y + "px";
+		this._host.style.left = _preferences$37.x + "px";
+		this._host.style.display = _preferences$37.show ? "" : "none";
 		const root = this.getRoot();
 		const fpsEl = root.querySelector("#fpsCounter");
 		const fpsRoot = root.querySelector("#FPS");
+		const fpsLowEl = root.querySelector("#fpsLowCounter");
+		_minFPSRegistered = Infinity;
+		_maxFPSRegistered = 0;
+		fpsLowEl.textContent = "--";
 		let startTime = 0;
+		let lastResetTime = 0;
 		let frame = 0;
 		let lastValue = null;
 		let lastClass = null;
@@ -236745,6 +238931,12 @@ var init_FPS = __esmMin((() => {
 			return "fps-bad";
 		}
 		function tick(time) {
+			if (startTime === 0) {
+				lastResetTime = time;
+				startTime = time;
+				frame = 0;
+				return;
+			}
 			frame++;
 			if (time - startTime < 1e3) return;
 			const value = +(frame / ((time - startTime) / 1e3)).toFixed(1);
@@ -236753,7 +238945,13 @@ var init_FPS = __esmMin((() => {
 				lastValue = value;
 			}
 			if (_maxFPSRegistered < value) _maxFPSRegistered = value;
-			const cls = getFPSClass(value, Renderer.frameLimit > 0 ? Renderer.frameLimit : _maxFPSRegistered);
+			if (time - lastResetTime > 5e3) {
+				if (value < _minFPSRegistered) {
+					_minFPSRegistered = value;
+					fpsLowEl.textContent = value;
+				}
+			}
+			const cls = getFPSClass(value, FramePacer.targetRate(Renderer.frameLimit) || _maxFPSRegistered);
 			if (cls !== lastClass) {
 				fpsRoot.style.color = FPS_COLORS[cls] || FPS_COLORS["fps-good"];
 				lastClass = cls;
@@ -236773,21 +238971,21 @@ var init_FPS = __esmMin((() => {
 			Renderer.stop(_tickFn);
 			_tickFn = null;
 		}
-		_preferences$36.x = parseInt(this._host.style.left, 10);
-		_preferences$36.y = parseInt(this._host.style.top, 10);
-		_preferences$36.show = this._host.style.display !== "none";
-		_preferences$36.save();
+		_preferences$37.x = parseInt(this._host.style.left, 10);
+		_preferences$37.y = parseInt(this._host.style.top, 10);
+		_preferences$37.show = this._host.style.display !== "none";
+		_preferences$37.save();
 	};
 	/**
 	* Show/Hide UI
 	*/
 	FPS.toggle = function toggle(isVisible) {
-		_preferences$36.x = parseInt(this._host.style.left, 10);
-		_preferences$36.y = parseInt(this._host.style.top, 10);
+		_preferences$37.x = parseInt(this._host.style.left, 10);
+		_preferences$37.y = parseInt(this._host.style.top, 10);
 		if (typeof isVisible === "boolean") this._host.style.display = isVisible ? "" : "none";
 		else this._host.style.display = this._host.style.display === "none" ? "" : "none";
-		_preferences$36.show = this._host.style.display !== "none";
-		_preferences$36.save();
+		_preferences$37.show = this._host.style.display !== "none";
+		_preferences$37.save();
 		if (this._host.style.display !== "none") this.focus();
 	};
 	FPS_default = UIManager.addComponent(FPS);
@@ -237073,7 +239271,7 @@ function onResetToDefaults() {
 	GraphicsSettings.save();
 	GraphicsOption.onAppend();
 }
-var GraphicsOption, _preferences$35, GraphicsOption_default;
+var GraphicsOption, _preferences$36, GraphicsOption_default;
 var init_GraphicsOption = __esmMin((() => {
 	init_FPS();
 	init_Configs();
@@ -237089,7 +239287,7 @@ var init_GraphicsOption = __esmMin((() => {
 	init_MemoryManager();
 	init_ChatBox();
 	GraphicsOption = new GUIComponent("GraphicsOption", GraphicsOption_default$1);
-	_preferences$35 = Preferences.get("GraphicsOption", {
+	_preferences$36 = Preferences.get("GraphicsOption", {
 		x: 300,
 		y: 300
 	}, 1.1);
@@ -237160,8 +239358,8 @@ var init_GraphicsOption = __esmMin((() => {
 	* When append the element to html
 	*/
 	GraphicsOption.onAppend = function onAppend() {
-		this._host.style.top = `${_preferences$35.y}px`;
-		this._host.style.left = `${_preferences$35.x}px`;
+		this._host.style.top = `${_preferences$36.y}px`;
+		this._host.style.left = `${_preferences$36.x}px`;
 		const root = this.getRoot();
 		root.querySelector(".details").value = GraphicsSettings.quality;
 		root.querySelector(".screensize").value = GraphicsSettings.screensize;
@@ -237197,9 +239395,9 @@ var init_GraphicsOption = __esmMin((() => {
 	* Once remove, save preferences
 	*/
 	GraphicsOption.onRemove = function onRemove() {
-		_preferences$35.x = parseInt(this._host.style.left, 10);
-		_preferences$35.y = parseInt(this._host.style.top, 10);
-		_preferences$35.save();
+		_preferences$36.x = parseInt(this._host.style.left, 10);
+		_preferences$36.y = parseInt(this._host.style.top, 10);
+		_preferences$36.save();
 	};
 	GraphicsOption.needFocus = true;
 	GraphicsOption.mouseMode = GUIComponent.MouseMode.STOP;
@@ -237821,6 +240019,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 		}
 		root.querySelectorAll(".upgradable").forEach((el) => el.classList.remove("upgradable"));
 		const entity = SessionStorage_default.Entity;
+		const previousJobId = skillJobId;
 		skillJobId = entity ? entity._job || entity.job : 0;
 		skillPosition = getSkillPosition(skillJobId);
 		skillDependencyTree.length = 0;
@@ -237846,16 +240045,32 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 		skillPosition.forEach((items, list) => {
 			Component.prepareSkillTree(items, list);
 		});
-		if (hasTabs) for (let i = 2; i <= 4; i++) {
-			const miniRows = root.querySelectorAll(`#minitab${i} tr`);
-			const bigSkills = root.querySelectorAll(`#positionSkills${i} .skill`);
-			const tabminil = root.querySelector(`#tabminil${i}`);
-			if (tabminil) tabminil.style.display = miniRows.length > 0 ? "" : "none";
-			const tabl = root.querySelector(`#tabl${i}`);
-			if (tabl) tabl.style.display = bigSkills.length > 0 ? "" : "none";
+		if (hasTabs) {
+			for (let i = 2; i <= 4; i++) {
+				const miniRows = root.querySelectorAll(`#minitab${i} tr`);
+				const bigSkills = root.querySelectorAll(`#positionSkills${i} .skill`);
+				const tabminil = root.querySelector(`#tabminil${i}`);
+				if (tabminil) tabminil.style.display = miniRows.length > 0 ? "" : "none";
+				const tabl = root.querySelector(`#tabl${i}`);
+				if (tabl) tabl.style.display = bigSkills.length > 0 ? "" : "none";
+			}
+			if (skillJobId !== previousJobId) selectCurrentJobTab(root);
 		}
 		onResetChoice(this);
 	};
+	/**
+	* Check the highest job tab that has skills (2nd-4th), else the 1st,
+	* in whichever view (mini or big) is shown
+	*/
+	function selectCurrentJobTab(root) {
+		let tab = 1;
+		for (let i = 4; i >= 2; i--) if (root.querySelectorAll(`#positionSkills${i} .skill`).length > 0) {
+			tab = i;
+			break;
+		}
+		const radio = root.querySelector(_preferences.mini ? `#tab-${tab}-mini` : `#tab-${tab}`);
+		if (radio) radio.checked = true;
+	}
 	function createSkillDependencyTree() {
 		skillPosition.forEach((items, list) => {
 			Object.entries(items).forEach(([skid, pos]) => {
@@ -238818,8 +241033,8 @@ function onResize$6(event) {
 		h = Math.min(Math.max(h, 1), _rowCount);
 		if (h === lastHeight) return;
 		host.style.height = `${h * 34}px`;
-		_preferences$34.size = h;
-		_preferences$34.save();
+		_preferences$35.size = h;
+		_preferences$35.save();
 		lastHeight = h;
 	}
 	const _Interval = setInterval(resizing, 30);
@@ -238984,8 +241199,8 @@ function clickElement(index) {
 */
 function onClose$7() {
 	ShortCut._host.style.height = "0px";
-	_preferences$34.size = 0;
-	_preferences$34.save();
+	_preferences$35.size = 0;
+	_preferences$35.save();
 }
 /**
 * Hook Inventory, get informations when there is a change
@@ -239160,7 +241375,7 @@ function haveHotkeysChanged(currentData) {
 	if (!_lastServerHotkeys) return true;
 	return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
 }
-var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$34, ShortCut_default;
+var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$35, ShortCut_default;
 var init_ShortCut = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -239193,7 +241408,7 @@ var init_ShortCut = __esmMin((() => {
 	_rowCount = 0;
 	_lastServerHotkeys = null;
 	_activeAnimations = /* @__PURE__ */ new Map();
-	_preferences$34 = Preferences.get("ShortCut", {
+	_preferences$35 = Preferences.get("ShortCut", {
 		x: 480,
 		y: 0,
 		size: 1,
@@ -239259,14 +241474,14 @@ var init_ShortCut = __esmMin((() => {
 	* Append to body
 	*/
 	ShortCut.onAppend = function onAppend() {
-		this._host.style.height = `${34 * _preferences$34.size}px`;
+		this._host.style.height = `${34 * _preferences$35.size}px`;
 		const rect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$34.y), Renderer.height - rect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$34.x), Renderer.width - rect.width)}px`;
-		this.magnet.TOP = _preferences$34.magnet_top;
-		this.magnet.BOTTOM = _preferences$34.magnet_bottom;
-		this.magnet.LEFT = _preferences$34.magnet_left;
-		this.magnet.RIGHT = _preferences$34.magnet_right;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$35.y), Renderer.height - rect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$35.x), Renderer.width - rect.width)}px`;
+		this.magnet.TOP = _preferences$35.magnet_top;
+		this.magnet.BOTTOM = _preferences$35.magnet_bottom;
+		this.magnet.LEFT = _preferences$35.magnet_left;
+		this.magnet.RIGHT = _preferences$35.magnet_right;
 		Controller$4.onUpdateSkill = onUpdateSkill;
 		updateEmptySlotTooltips();
 	};
@@ -239278,14 +241493,14 @@ var init_ShortCut = __esmMin((() => {
 		if (tooltip) tooltip.classList.remove("show");
 		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
 		_activeAnimations.clear();
-		_preferences$34.y = parseInt(this._host.style.top, 10);
-		_preferences$34.x = parseInt(this._host.style.left, 10);
-		_preferences$34.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
-		_preferences$34.magnet_top = this.magnet.TOP;
-		_preferences$34.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$34.magnet_left = this.magnet.LEFT;
-		_preferences$34.magnet_right = this.magnet.RIGHT;
-		_preferences$34.save();
+		_preferences$35.y = parseInt(this._host.style.top, 10);
+		_preferences$35.x = parseInt(this._host.style.left, 10);
+		_preferences$35.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
+		_preferences$35.magnet_top = this.magnet.TOP;
+		_preferences$35.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$35.magnet_left = this.magnet.LEFT;
+		_preferences$35.magnet_right = this.magnet.RIGHT;
+		_preferences$35.save();
 	};
 	/**
 	* Request to clean the list
@@ -239310,9 +241525,9 @@ var init_ShortCut = __esmMin((() => {
 				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
 				break;
 			case "EXTEND":
-				_preferences$34.size = (_preferences$34.size + 1) % (_rowCount + 1);
-				_preferences$34.save();
-				this._host.style.height = `${_preferences$34.size * 34}px`;
+				_preferences$35.size = (_preferences$35.size + 1) % (_rowCount + 1);
+				_preferences$35.save();
+				this._host.style.height = `${_preferences$35.size * 34}px`;
 		}
 	};
 	ShortCut.useSkill = function useSkill(id, level) {
@@ -241570,7 +243785,7 @@ function getFocusEntity$1() {
 * be cast on them (Heal not on the dead, Resurrection only on them).
 */
 function getFocusForSkill() {
-	if (_open$3 && !_pending$4 && _highlight !== -1 && _entries[_highlight]) {
+	if (_open$3 && !_pending$3 && _highlight !== -1 && _entries[_highlight]) {
 		const entry = _entries[_highlight];
 		if (!judge(entry, skillContext()).ok) return null;
 		setFocus$1(entry);
@@ -241645,7 +243860,7 @@ function castOn(entity) {
 * @param {string} name skill name, shown above the radial
 */
 function openPending(index, name) {
-	_pending$4 = {
+	_pending$3 = {
 		index,
 		name: name || ""
 	};
@@ -241654,10 +243869,10 @@ function openPending(index, name) {
 	_picked = -1;
 }
 function isPending() {
-	return _pending$4 !== null;
+	return _pending$3 !== null;
 }
 function pendingIndex() {
-	return _pending$4 ? _pending$4.index : -1;
+	return _pending$3 ? _pending$3.index : -1;
 }
 /**
 * Drop the pending skill and close the radial.
@@ -241665,8 +243880,8 @@ function pendingIndex() {
 * @param {boolean} [cancelSkill] also take the skill off the cursor
 */
 function cancelPending(cancelSkill) {
-	if (!_pending$4) return;
-	_pending$4 = null;
+	if (!_pending$3) return;
+	_pending$3 = null;
 	closeRadial();
 	if (cancelSkill && SkillTargetSelection_default.getFlag()) SkillTargetSelection_default.remove();
 }
@@ -241675,7 +243890,7 @@ function cancelPending(cancelSkill) {
 * yourself.
 */
 function castPendingOnSelf() {
-	_pending$4 = null;
+	_pending$3 = null;
 	closeRadial();
 	return castOn(SessionStorage_default.Entity);
 }
@@ -241700,7 +243915,7 @@ function segmentAt(x, y, count) {
 function pick(index) {
 	_picked = index;
 	const entry = _entries[index];
-	if (_pending$4 || !entry || !entry.selectable || entry.key === _focusKey) return;
+	if (_pending$3 || !entry || !entry.selectable || entry.key === _focusKey) return;
 	setFocus$1(entry);
 	rumble(RUMBLE_FOCUS);
 }
@@ -241711,7 +243926,7 @@ function pick(index) {
 * @return {boolean} whether it was open
 */
 function dismiss() {
-	if (!_open$3 || _pending$4) return false;
+	if (!_open$3 || _pending$3) return false;
 	closeRadial();
 	_waitRest = true;
 	return true;
@@ -241724,11 +243939,11 @@ function dismiss() {
 * @return {boolean} whether a skill was pending (A is taken either way)
 */
 function confirmPending() {
-	if (!_pending$4) return false;
+	if (!_pending$3) return false;
 	const entry = _highlight !== -1 ? _entries[_highlight] : null;
 	if (!entry || !judge(entry, skillContext()).ok) return true;
 	setFocus$1(entry);
-	_pending$4 = null;
+	_pending$3 = null;
 	closeRadial();
 	castOn(entry.entity);
 	return true;
@@ -241740,7 +243955,7 @@ function confirmPending() {
 * again.
 */
 function ownsStick() {
-	return _pending$4 !== null || JoystickTargetCategory_default.isSupport();
+	return _pending$3 !== null || JoystickTargetCategory_default.isSupport();
 }
 /**
 * One frame (JoystickCursorMotion), before aim and cursor get the stick.
@@ -241752,11 +243967,11 @@ function ownsStick() {
 * @return {boolean} true when Support took the right stick this frame
 */
 function update$2(x, y, magnitude, deadzone) {
-	if (_pending$4 && !SkillTargetSelection_default.getFlag()) {
-		_pending$4 = null;
+	if (_pending$3 && !SkillTargetSelection_default.getFlag()) {
+		_pending$3 = null;
 		closeRadial();
 	}
-	if (!SessionStorage_default.Entity || !JoystickTargetCategory_default.isSupport() && !_pending$4) {
+	if (!SessionStorage_default.Entity || !JoystickTargetCategory_default.isSupport() && !_pending$3) {
 		closeRadial();
 		release$1();
 		return false;
@@ -241770,7 +243985,7 @@ function update$2(x, y, magnitude, deadzone) {
 	if (pickedKey !== null) _picked = _entries.findIndex((entry) => entry.key === pickedKey);
 	if (owns) {
 		if (_highlight === -1 && highlightKey !== null) {
-			_highlight = _pending$4 ? 0 : -1;
+			_highlight = _pending$3 ? 0 : -1;
 			_picked = -1;
 		}
 		const atRest = magnitude <= Math.max(deadzone, RELEASE_MAX);
@@ -241787,42 +244002,42 @@ function update$2(x, y, magnitude, deadzone) {
 			if (_picked !== _highlight && now - _highlightAt >= SETTLE_MS) pick(_highlight);
 		} else if (atRest) {
 			_pushed = false;
-			if (_pending$4) _highlight = _picked !== -1 ? _picked : 0;
+			if (_pending$3) _highlight = _picked !== -1 ? _picked : 0;
 			else closeRadial();
 		}
-	} else if (!_pending$4) closeRadial();
+	} else if (!_pending$3) closeRadial();
 	draw();
 	return owns;
 }
 function getContext() {
 	const scene = Renderer.canvas;
 	if (!scene || !scene.parentNode) return null;
-	if (!_overlay$1) {
-		_overlay$1 = document.createElement("canvas");
-		_overlay$1.className = "joystick-support";
-		_overlay$1.style.position = "absolute";
-		_overlay$1.style.top = "0px";
-		_overlay$1.style.left = "0px";
-		_overlay$1.style.zIndex = 3;
-		_overlay$1.style.pointerEvents = "none";
-		scene.parentNode.insertBefore(_overlay$1, scene.nextSibling);
-		_supportCtx = _overlay$1.getContext("2d");
+	if (!_overlay) {
+		_overlay = document.createElement("canvas");
+		_overlay.className = "joystick-support";
+		_overlay.style.position = "absolute";
+		_overlay.style.top = "0px";
+		_overlay.style.left = "0px";
+		_overlay.style.zIndex = 3;
+		_overlay.style.pointerEvents = "none";
+		scene.parentNode.insertBefore(_overlay, scene.nextSibling);
+		_supportCtx = _overlay.getContext("2d");
 	}
 	const dpr = window.devicePixelRatio || 1;
 	const width = Math.round(Renderer.width * dpr);
 	const height = Math.round(Renderer.height * dpr);
-	if (_overlay$1.width !== width || _overlay$1.height !== height) {
-		_overlay$1.width = width;
-		_overlay$1.height = height;
-		_overlay$1.style.width = Renderer.width + "px";
-		_overlay$1.style.height = Renderer.height + "px";
+	if (_overlay.width !== width || _overlay.height !== height) {
+		_overlay.width = width;
+		_overlay.height = height;
+		_overlay.style.width = Renderer.width + "px";
+		_overlay.style.height = Renderer.height + "px";
 	}
 	return _supportCtx;
 }
 function clearOverlay() {
 	if (_drawn && _supportCtx) {
 		_supportCtx.setTransform(1, 0, 0, 1, 0, 0);
-		_supportCtx.clearRect(0, 0, _overlay$1.width, _overlay$1.height);
+		_supportCtx.clearRect(0, 0, _overlay.width, _overlay.height);
 		_drawn = false;
 	}
 }
@@ -241840,8 +244055,8 @@ function dispose$4() {
 	cancelPending(false);
 	closeRadial();
 	clearFocus();
-	if (_overlay$1 && _overlay$1.parentNode) _overlay$1.parentNode.removeChild(_overlay$1);
-	_overlay$1 = null;
+	if (_overlay && _overlay.parentNode) _overlay.parentNode.removeChild(_overlay);
+	_overlay = null;
 	_supportCtx = null;
 	_portraits.clear();
 }
@@ -241870,7 +244085,7 @@ function drawRadial(ctx) {
 	const cy = Math.max(feet[1], Math.min(feet[1] + BELOW_FEET$1 + reach, Renderer.height - reach - LABEL_ROOM));
 	const step = Math.PI * 2 / count;
 	const gap = GAP_DEG * Math.PI / 180;
-	const skill = _pending$4 ? skillContext() : null;
+	const skill = _pending$3 ? skillContext() : null;
 	for (let i = 0; i < count; i++) {
 		const entry = _entries[i];
 		const verdict = judge(entry, skill);
@@ -241918,7 +244133,7 @@ function drawRadial(ctx) {
 		if (reason) label += " - " + reason;
 		drawLabel(ctx, label, cx, cy + outer + POP_OUT + 14);
 	}
-	if (_pending$4 && _pending$4.name) drawLabel(ctx, _pending$4.name, cx, cy - outer - POP_OUT - 8);
+	if (_pending$3 && _pending$3.name) drawLabel(ctx, _pending$3.name, cx, cy - outer - POP_OUT - 8);
 	_drawn = true;
 }
 /**
@@ -242128,7 +244343,7 @@ function opaqueBounds(ctx, side) {
 		right
 	};
 }
-var SELECT_MIN, RELEASE_MAX, SETTLE_MS, R_INNER, R_OUTER_MIN, R_OUTER_PER_ENTRY, POP_OUT, GAP_DEG, ICON_SIZE, BELOW_FEET$1, LABEL_ROOM, HP_GOOD, HP_LOW, COLOR_GOOD, COLOR_MID, COLOR_LOW, FOCUS_RING, SP_BACK, SP_FILL, SP_COST, SP_SHORT, FAR_OUTLINE, RUMBLE_FOCUS, RUMBLE_CAST, REVIVE_SKILLS, PORTRAIT_BOX, PORTRAIT_RETRY_MS, _overlay$1, _supportCtx, _drawn, _focusKey, _open$3, _highlight, _highlightAt, _picked, _pushed, _waitRest, _entries, _pending$4, _portraits, _jobIcons, HEADGEAR, _scratch, _scratchCtx, JoystickSupportMode_default;
+var SELECT_MIN, RELEASE_MAX, SETTLE_MS, R_INNER, R_OUTER_MIN, R_OUTER_PER_ENTRY, POP_OUT, GAP_DEG, ICON_SIZE, BELOW_FEET$1, LABEL_ROOM, HP_GOOD, HP_LOW, COLOR_GOOD, COLOR_MID, COLOR_LOW, FOCUS_RING, SP_BACK, SP_FILL, SP_COST, SP_SHORT, FAR_OUTLINE, RUMBLE_FOCUS, RUMBLE_CAST, REVIVE_SKILLS, PORTRAIT_BOX, PORTRAIT_RETRY_MS, _overlay, _supportCtx, _drawn, _focusKey, _open$3, _highlight, _highlightAt, _picked, _pushed, _waitRest, _entries, _pending$3, _portraits, _jobIcons, HEADGEAR, _scratch, _scratchCtx, JoystickSupportMode_default;
 var init_JoystickSupportMode = __esmMin((() => {
 	init_SessionStorage();
 	init_EntityManager();
@@ -242180,7 +244395,7 @@ var init_JoystickSupportMode = __esmMin((() => {
 	REVIVE_SKILLS = [SkillConst_default.ALL_RESURRECTION];
 	PORTRAIT_BOX = 96;
 	PORTRAIT_RETRY_MS = 500;
-	_overlay$1 = null;
+	_overlay = null;
 	_supportCtx = null;
 	_drawn = false;
 	_focusKey = null;
@@ -242191,7 +244406,7 @@ var init_JoystickSupportMode = __esmMin((() => {
 	_pushed = false;
 	_waitRest = false;
 	_entries = [];
-	_pending$4 = null;
+	_pending$3 = null;
 	_portraits = /* @__PURE__ */ new Map();
 	_jobIcons = /* @__PURE__ */ new Map();
 	HEADGEAR = [
@@ -244935,9 +247150,9 @@ function stepSlider(el, sign) {
 	if (next === from) return false;
 	el.value = String(next);
 	fire(el, "input");
-	clearTimeout(_pending$3.get(el));
-	_pending$3.set(el, setTimeout(() => {
-		_pending$3.delete(el);
+	clearTimeout(_pending$2.get(el));
+	_pending$2.set(el, setTimeout(() => {
+		_pending$2.delete(el);
 		fire(el, "change");
 	}, CHANGE_AFTER_MS));
 	return true;
@@ -244976,11 +247191,11 @@ function step(el, direction) {
 * Send now a slider's change that waits for its steps to stop (menus end).
 */
 function flush() {
-	_pending$3.forEach((timer, el) => {
+	_pending$2.forEach((timer, el) => {
 		clearTimeout(timer);
 		fire(el, "change");
 	});
-	_pending$3.clear();
+	_pending$2.clear();
 }
 /**
 * Hints for the hint bar.
@@ -244991,12 +247206,12 @@ function flush() {
 function hints$1(el) {
 	return handles(el) ? [["◀▶", "Change"]] : [];
 }
-var STEPS, CHANGE_AFTER_MS, SLIDER, _pending$3, JoystickValueInput_default;
+var STEPS, CHANGE_AFTER_MS, SLIDER, _pending$2, JoystickValueInput_default;
 var init_JoystickValueInput = __esmMin((() => {
 	STEPS = 20;
 	CHANGE_AFTER_MS = 250;
 	SLIDER = "input[type=\"range\"]";
-	_pending$3 = /* @__PURE__ */ new Map();
+	_pending$2 = /* @__PURE__ */ new Map();
 	JoystickValueInput_default = {
 		handles,
 		isSlider,
@@ -246392,7 +248607,7 @@ function windowGone() {
 	}
 	const opened = wins.find((win) => win.profile.takesFocus && JoystickFocusScan_default.focusables(win).length);
 	if (opened && focusWindow(opened)) return;
-	if (_frameTime$1 < _followUntil) {
+	if (_frameTime < _followUntil) {
 		JoystickFocusOverlay_default.hideRing();
 		return;
 	}
@@ -246527,7 +248742,7 @@ function activate() {
 	if (!_el || !_win) return;
 	parkCursor();
 	const profile = _win.profile;
-	_followUntil = _frameTime$1 + FOLLOW_MS;
+	_followUntil = _frameTime + FOLLOW_MS;
 	if (!(profile.primary && profile.primary(_el, _win))) pressGeneric(_el);
 	_hintsAt = -Infinity;
 }
@@ -246644,7 +248859,7 @@ function switchTab(delta) {
 	_tabFocus = {
 		host: _win.host,
 		before,
-		until: _frameTime$1 + TAB_FOCUS_MS
+		until: _frameTime + TAB_FOCUS_MS
 	};
 }
 /**
@@ -246908,7 +249123,7 @@ function focusComponent(component) {
 */
 function frame$1(gp, now) {
 	const time = typeof now === "number" ? now : performance.now();
-	_frameTime$1 = time;
+	_frameTime = time;
 	const down = readButtons(gp);
 	const events = track(down, time);
 	noteActivity(gp, down, time);
@@ -247005,7 +249220,7 @@ function dispose$1() {
 	_afterRelease = [];
 	_pickSlot = null;
 }
-var BTN, DPAD, MODIFIERS, HOLD_MS, TAP_MS, REPEAT_DELAY_MS, REPEAT_EVERY_MS, SCAN_EVERY_MS, FOLLOW_MS, TAB_FOCUS_MS, HINTS_EVERY_MS, MOUSE_MOVE_PX, ACTIVITY_AXIS, CLOSE, _active$3, _auto, _win, _el, _key, _ordinal, _detached, _visited, _lastKey, _down, _downAt, _used, _claimed, _armed, _repeatButton, _repeatAt, _viewHoldFired, _viewArmed, _xHoldFired, _xTaken, _dialogs, _known, _followUntil, _scanAt, _frameTime$1, _hintsAt, _lostAt, _skillWait, _tabFocus, _afterRelease, _pickSlot, _lastPadAt, _lastMouseAt, _mouseX, _mouseY, _listening, JoystickUIFocus_default;
+var BTN, DPAD, MODIFIERS, HOLD_MS, TAP_MS, REPEAT_DELAY_MS, REPEAT_EVERY_MS, SCAN_EVERY_MS, FOLLOW_MS, TAB_FOCUS_MS, HINTS_EVERY_MS, MOUSE_MOVE_PX, ACTIVITY_AXIS, CLOSE, _active$3, _auto, _win, _el, _key, _ordinal, _detached, _visited, _lastKey, _down, _downAt, _used, _claimed, _armed, _repeatButton, _repeatAt, _viewHoldFired, _viewArmed, _xHoldFired, _xTaken, _dialogs, _known, _followUntil, _scanAt, _frameTime, _hintsAt, _lostAt, _skillWait, _tabFocus, _afterRelease, _pickSlot, _lastPadAt, _lastMouseAt, _mouseX, _mouseY, _listening, JoystickUIFocus_default;
 var init_JoystickUIFocus = __esmMin((() => {
 	init_Controls();
 	init_MouseEventHandler();
@@ -247081,7 +249296,7 @@ var init_JoystickUIFocus = __esmMin((() => {
 	_known = /* @__PURE__ */ new Set();
 	_followUntil = -Infinity;
 	_scanAt = -Infinity;
-	_frameTime$1 = 0;
+	_frameTime = 0;
 	_hintsAt = -Infinity;
 	_lostAt = -Infinity;
 	_skillWait = false;
@@ -248653,7 +250868,7 @@ function onUpdateUIFocus() {
 	Controls_default.joyUIFocus = !!this.checked;
 	Controls_default.save();
 }
-var JOY_RANGES, JOY_CHECKBOXES, ShortCutOption, ShortCuts$1, ShortCutsTemp, _preferences$33, MAPPING_ROLES, ShortCutOption_default;
+var JOY_RANGES, JOY_CHECKBOXES, ShortCutOption, ShortCuts$1, ShortCutsTemp, _preferences$34, MAPPING_ROLES, ShortCutOption_default;
 var init_ShortCutOption = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Preferences$1();
@@ -248691,7 +250906,7 @@ var init_ShortCutOption = __esmMin((() => {
 	ShortCuts$1 = ShortCutControls_default.ShortCuts;
 	ShortCutsTemp = {};
 	ShortCutOption.isCapturing = false;
-	_preferences$33 = Preferences.get("ShortCutOption", {
+	_preferences$34 = Preferences.get("ShortCutOption", {
 		x: 300,
 		y: 300
 	}, 1);
@@ -248819,8 +251034,8 @@ var init_ShortCutOption = __esmMin((() => {
 		const cycleMode = this.getRoot().querySelector(".joyCycleMode");
 		if (cycleMode) cycleMode.value = String(shownCategory());
 		reflectGamepadSettings(this.getRoot());
-		this._host.style.left = _preferences$33.x + "px";
-		this._host.style.top = _preferences$33.y + "px";
+		this._host.style.left = _preferences$34.x + "px";
+		this._host.style.top = _preferences$34.y + "px";
 		this._host.style.zIndex = 100;
 	};
 	/**
@@ -248829,9 +251044,9 @@ var init_ShortCutOption = __esmMin((() => {
 	ShortCutOption.onRemove = function() {
 		JoystickButtonMap_default.cancelCapture();
 		JoystickStickFilter_default.cancelCalibration();
-		_preferences$33.x = parseInt(this._host.style.left, 10);
-		_preferences$33.y = parseInt(this._host.style.top, 10);
-		_preferences$33.save();
+		_preferences$34.x = parseInt(this._host.style.left, 10);
+		_preferences$34.y = parseInt(this._host.style.top, 10);
+		_preferences$34.save();
 	};
 	/**
 	* Process key
@@ -249152,7 +251367,7 @@ function onClickAttendance(e) {
 	const _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 	Network.sendPacket(_pkt);
 }
-var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$32, CheckAttendance_default;
+var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$33, CheckAttendance_default;
 var init_CheckAttendance = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -249166,7 +251381,7 @@ var init_CheckAttendance = __esmMin((() => {
 	init_Elements();
 	CheckAttendance = new GUIComponent("CheckAttendance", CheckAttendance_default$1);
 	CheckAttendance.render = () => CheckAttendance_default$2;
-	_preferences$32 = Preferences.get("CheckAttendance", {
+	_preferences$33 = Preferences.get("CheckAttendance", {
 		x: 200,
 		y: 200
 	}, 1);
@@ -249191,10 +251406,10 @@ var init_CheckAttendance = __esmMin((() => {
 	*/
 	CheckAttendance.onAppend = function onAppend() {
 		Object.assign(this._host.style, {
-			top: `${Math.min(Math.max(0, _preferences$32.y), Renderer.height - this._host.getBoundingClientRect().height)}px`,
-			left: `${Math.min(Math.max(0, _preferences$32.x), Renderer.width - this._host.getBoundingClientRect().width)}px`
+			top: `${Math.min(Math.max(0, _preferences$33.y), Renderer.height - this._host.getBoundingClientRect().height)}px`,
+			left: `${Math.min(Math.max(0, _preferences$33.x), Renderer.width - this._host.getBoundingClientRect().width)}px`
 		});
-		if (!_preferences$32.show) this._host.style.display = "none";
+		if (!_preferences$33.show) this._host.style.display = "none";
 		if (_checkAttendanceData >= 0 && _CheckAttendanceInfo.Config) {
 			CheckAttendance.updateUI();
 			this.focus();
@@ -250176,14 +252391,14 @@ function isInCooldown(quest) {
 	if (quest.end_time > epoch_seconds) return true;
 	return false;
 }
-var _preferences$31, QuestWindow, QuestWindow_default;
+var _preferences$32, QuestWindow, QuestWindow_default;
 var init_QuestWindow = __esmMin((() => {
 	init_Preferences$1();
 	init_UIManager();
 	init_GUIComponent();
 	init_QuestWindow$2();
 	init_QuestWindow$1();
-	_preferences$31 = Preferences.get("Quest", {
+	_preferences$32 = Preferences.get("Quest", {
 		x: 200,
 		y: 200,
 		show: false,
@@ -250203,7 +252418,7 @@ var init_QuestWindow = __esmMin((() => {
 	* Once append to the DOM, start to position the UI
 	*/
 	QuestWindow.onAppend = function onAppend() {
-		if (!_preferences$31.showwindow) this.ui.hide();
+		if (!_preferences$32.showwindow) this.ui.hide();
 	};
 	/**
 	* Clean up UI
@@ -250358,7 +252573,7 @@ var init_Achievement$2 = __esmMin((() => {
 	Achievement_default$1 = ":host {\r\n	width: 750px;\r\n	height: 468px;\r\n	top: 100px;\r\n	left: 100px;\r\n	position: absolute;\r\n	color: #666;\r\n	font-family: inherit;\r\n	font-size: 11px;\r\n}\r\n\r\n/* Background layers */\r\n.bg-summary {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 649px;\r\n	height: 405px;\r\n	pointer-events: none;\r\n	background-size: 100% 100%;\r\n}\r\n\r\n.bg-list {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 649px;\r\n	height: 405px;\r\n	background-size: 100% 100%;\r\n	pointer-events: none;\r\n	display: none;\r\n}\r\n\r\n/* Titlebar */\r\n.titlebar {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 18px;\r\n}\r\n\r\n.titlebar .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 20px;\r\n	color: #000;\r\n	font-weight: bold;\r\n}\r\n\r\n.titlebar {\r\n	width: 750px;\r\n	height: 17px;\r\n}\r\n.titlebar .corner {\r\n	position: absolute;\r\n	width: 12px;\r\n	height: 17px;\r\n}\r\n.titlebar .corner.left {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n.titlebar .corner.right {\r\n	top: 0px;\r\n	right: 0px;\r\n}\r\n.titlebar .center {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 12px;\r\n	width: 726px;\r\n	height: 17px;\r\n}\r\n.titlebar .title {\r\n	position: absolute;\r\n	top: 2px;\r\n	left: 16px;\r\n	font-size: 13px;\r\n}\r\n.titlebar .btn-left {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 4px;\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background: none;\r\n}\r\n.titlebar .btn-right {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 2px;\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background: none;\r\n}\r\n\r\n/* Header Area */\r\n.header {\r\n	position: absolute;\r\n	top: 17px;\r\n	left: 0;\r\n	width: 750px;\r\n	height: 46px;\r\n}\r\n\r\n.header .rank-badge {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 5px;\r\n	width: 35px;\r\n	height: 35px;\r\n	text-align: center;\r\n	line-height: 40px;\r\n	font-weight: bold;\r\n	color: #7b4f2c;\r\n}\r\n\r\n.header .overall-points {\r\n	position: absolute;\r\n	top: 10px;\r\n	left: 325px;\r\n	width: 100px;\r\n	text-align: center;\r\n	font-weight: bold;\r\n	color: #000;\r\n}\r\n\r\n.header .rank-progress {\r\n	position: absolute;\r\n	top: 15px;\r\n	left: 45px;\r\n	width: 80px;\r\n}\r\n\r\n.header .rank-progress .progress-text {\r\n	text-align: right;\r\n	font-size: 10px;\r\n	margin-bottom: 1px;\r\n	color: #000;\r\n}\r\n\r\n.header .rank-progress .bar-bg {\r\n	width: 100%;\r\n	height: 7px;\r\n	background: #fff;\r\n	border: 1px solid #97b2dd;\r\n}\r\n\r\n.header .rank-progress .bar-fill {\r\n	height: 100%;\r\n	background: #5b85d9;\r\n}\r\n\r\n.header .cat-progress .cat-image {\r\n	position: absolute;\r\n	top: -13px;\r\n	left: -40px;\r\n	width: 39px;\r\n	height: 40px;\r\n}\r\n\r\n.js-cat-name {\r\n	color: #3030a4;\r\n}\r\n\r\n.header .cat-progress {\r\n	position: absolute;\r\n	top: 15px;\r\n	right: 15px;\r\n	width: 140px;\r\n}\r\n\r\n.header .cat-progress .cat-text {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	font-weight: bold;\r\n	font-size: 9px;\r\n	color: #000;\r\n	margin-bottom: 2px;\r\n}\r\n\r\n.header .cat-progress .bar-bg {\r\n	width: 100%;\r\n	height: 7px;\r\n	background: #fff;\r\n	border: 1px solid #97b2dd;\r\n}\r\n\r\n.header .cat-progress .bar-fill {\r\n	height: 100%;\r\n	background: #5b85d9;\r\n}\r\n\r\n.header .filter-group {\r\n	position: absolute;\r\n	top: 10px;\r\n	left: 160px;\r\n}\r\n\r\n.header .filter-group > div {\r\n	margin-bottom: 3px;\r\n	cursor: pointer;\r\n}\r\n\r\n.header .filter-group ui-image {\r\n	vertical-align: middle;\r\n	margin-right: 5px;\r\n}\r\n\r\n.header .filter-group .radio-container {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 2px;\r\n}\r\n\r\n.header .filter-group .radio-container .radio {\r\n	width: 12px;\r\n	height: 12px;\r\n}\r\n\r\n.header .filter-group .radio-container ui-image {\r\n	width: 12px;\r\n	height: 12px;\r\n}\r\n\r\n/* Tabs Sidebar */\r\n.sidebar {\r\n	position: absolute;\r\n	top: 60px;\r\n	left: 0;\r\n	width: 100px;\r\n	height: 405px;\r\n}\r\n\r\n.sidebar .major-tab {\r\n	position: relative;\r\n	height: 34px;\r\n	line-height: 40px;\r\n	text-align: left;\r\n	padding-left: 15px;\r\n	color: #6268b0;\r\n	border-bottom: 1px solid #aaa;\r\n}\r\n\r\n.sidebar .major-tab.active {\r\n	color: #3030a4;\r\n	font-weight: bold;\r\n}\r\n\r\n/* Background for specific tabs using the tab bg */\r\n.sidebar .tab-bg {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100px;\r\n	height: 40px;\r\n	z-index: -1;\r\n}\r\n\r\n.sidebar .minor-tabs {\r\n	background: #f9f9f9;\r\n	padding-bottom: 5px;\r\n	max-height: 75px; /* approx 3 tabs (25px each) */\r\n	overflow-y: auto;\r\n}\r\n\r\n.sidebar .minor-tab {\r\n	padding: 5px 0 5px 25px;\r\n	cursor: pointer;\r\n	color: #6d74be;\r\n	border-bottom: 1px dashed #bebebe;\r\n	font-size: 9px;\r\n}\r\n\r\n.sidebar .minor-tab:hover,\r\n.sidebar .minor-tab.active {\r\n	color: #3030a4;\r\n	background: #eef3fb;\r\n}\r\n\r\n/* Main Area - Overview Pane */\r\n.pane-overview {\r\n	position: absolute;\r\n	top: 60px;\r\n	left: 100px;\r\n	width: 648px;\r\n	height: 405px;\r\n	background-color: #fff;\r\n}\r\n\r\n.pane-overview .category-total {\r\n	position: absolute;\r\n	top: 37px;\r\n	left: 45px;\r\n	width: 555px;\r\n}\r\n\r\n.pane-overview .category-total .category-total-text .name {\r\n	margin-left: 35px;\r\n	margin-top: -10px;\r\n	margin-bottom: 12px;\r\n}\r\n\r\n.pane-overview .category-general {\r\n	position: absolute;\r\n	top: 110px;\r\n	left: 44px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-adventure {\r\n	position: absolute;\r\n	top: 110px;\r\n	left: 349px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-battle {\r\n	position: absolute;\r\n	top: 160px;\r\n	left: 44px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-quest {\r\n	position: absolute;\r\n	top: 160px;\r\n	left: 349px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-memorial {\r\n	position: absolute;\r\n	top: 210px;\r\n	left: 44px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-feat {\r\n	position: absolute;\r\n	top: 210px;\r\n	left: 349px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-gauge .name {\r\n	font-weight: bold;\r\n	margin-bottom: 2px;\r\n	float: left;\r\n}\r\n\r\n.name {\r\n	margin-left: 35px;\r\n}\r\n\r\n.pane-overview .category-gauge .progress-text {\r\n	float: right;\r\n	color: #912c2c;\r\n	font-size: 10px;\r\n}\r\n\r\n.pane-overview .category-gauge .bar-bg {\r\n	clear: both;\r\n	width: 100%;\r\n	height: 9px;\r\n	background: #fff;\r\n	border: 1px solid #97b2dd;\r\n}\r\n\r\n.pane-overview .category-gauge .bar-fill {\r\n	height: 100%;\r\n	background: #8aaaff;\r\n}\r\n\r\n/* Recent completed achievements in Overview */\r\n.pane-overview .recent-achievements {\r\n	position: absolute;\r\n	top: 295px;\r\n	left: 10px;\r\n	width: 625px;\r\n}\r\n\r\n.pane-overview .recent-title {\r\n	color: #2e519c;\r\n	margin-bottom: 5px;\r\n}\r\n\r\n.pane-overview .recent-items {\r\n	display: flex;\r\n	flex-direction: row;\r\n	gap: 5px;\r\n}\r\n\r\n/* Main Area - List/Detail Pane */\r\n.pane-listd {\r\n	position: absolute;\r\n	top: 60px;\r\n	left: 100px;\r\n	width: 648px;\r\n	height: 403px;\r\n	display: none;\r\n	background-color: #fff;\r\n}\r\n\r\n.ach-list-container {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 319px;\r\n	height: 403px;\r\n	overflow-y: scroll;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.ach-list {\r\n	width: 309px;\r\n}\r\n\r\n.ach-item {\r\n	height: 81px;\r\n	position: relative;\r\n	cursor: pointer;\r\n	width: 309px;\r\n}\r\n\r\n.ach-item-overview {\r\n	border: 1px solid #dae0ef;\r\n}\r\n\r\n.ach-item.selected {\r\n	background: rgba(200, 220, 255, 0.4);\r\n}\r\n\r\n.ach-item .icon {\r\n	position: absolute;\r\n	top: 4px;\r\n	left: 10px;\r\n	width: 38px;\r\n	height: 32px;\r\n}\r\n\r\n.ach-item .title {\r\n	position: absolute;\r\n	top: 15px;\r\n	left: 60px;\r\n	color: #2e519c;\r\n	width: 150px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.ach-item .desc {\r\n	position: absolute;\r\n	top: 55px;\r\n	left: 10px;\r\n	color: #002d8d;\r\n	font-size: 9px;\r\n	width: 140px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.ach-item .reward-icon {\r\n	position: absolute;\r\n	top: 10px;\r\n	right: 40px;\r\n	width: 20px;\r\n	height: 30px;\r\n	text-align: center;\r\n}\r\n\r\n.ach-item .reward-pts {\r\n	position: absolute;\r\n	top: 7px;\r\n	right: 15px;\r\n	width: 30px;\r\n	height: 23px;\r\n	font-weight: bold;\r\n	color: #555;\r\n	font-size: 10px;\r\n	text-align: center;\r\n	line-height: 23px;\r\n}\r\n\r\n.ach-item .date-completed {\r\n	position: absolute;\r\n	top: 50px;\r\n	right: 10px;\r\n	color: #8b3737;\r\n	font-size: 7px;\r\n	width: 30px;\r\n	height: 23px;\r\n	text-align: center;\r\n	line-height: 23px;\r\n}\r\n\r\n/* Overlay */\r\n.overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n/* Detail view (right side) */\r\n.detail-view {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0px;\r\n	width: 328px;\r\n	height: 405px;\r\n	overflow-y: auto;\r\n	background-size: 100% 100%;\r\n	padding-left: 12px;\r\n	font-size: 10px;\r\n}\r\n\r\n.detail-view .d-title {\r\n	font-weight: bold;\r\n	color: #2e519c;\r\n	height: 35px;\r\n	line-height: 35px;\r\n	align-items: center;\r\n	display: flex;\r\n}\r\n\r\n.detail-view .d-stamp {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 10px;\r\n	width: 64px;\r\n	height: 54px;\r\n}\r\n\r\n.detail-view .d-desc {\r\n	color: #6699ff;\r\n	height: 57px;\r\n	width: 200px;\r\n}\r\n\r\n.detail-view .d-goals {\r\n	padding-left: 10px;\r\n	padding-top: 10px;\r\n	height: 190px;\r\n	color: #2e519c;\r\n}\r\n\r\n.detail-view .d-goal-item {\r\n	margin-bottom: 4px;\r\n}\r\n\r\n.detail-view .d-goal-item::before {\r\n	content: '◆';\r\n	color: #2e519c;\r\n	margin-right: 5px;\r\n}\r\n\r\n/* Reward Area */\r\n.d-reward {\r\n	display: flex;\r\n	flex-direction: row;\r\n	gap: 5px;\r\n	width: 100%;\r\n	height: 80px;\r\n	margin-left: -10px;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.d-rewards-slot {\r\n	width: 62px;\r\n	height: 62px;\r\n	position: relative;\r\n}\r\n\r\n.d-reward-item {\r\n	position: absolute;\r\n	top: 19px;\r\n	left: 19px;\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	pointer-events: none;\r\n}\r\n\r\n.detail-view .d-claim-btn {\r\n	position: absolute;\r\n	bottom: 10px;\r\n	left: 90px;\r\n	width: 148px;\r\n	height: 20px;\r\n	text-align: center;\r\n}\r\n\r\n/* Scrollbar area */\r\n.scrollbar {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 2px;\r\n	width: 15px;\r\n	height: 320px;\r\n}\r\n";
 }));
 // src/UI/Components/Achievement/Achievement.js
-var _preferences$30, MAJOR_CATEGORIES, AchievementComponent, Achievement, Achievement_default;
+var _preferences$31, MAJOR_CATEGORIES, AchievementComponent, Achievement, Achievement_default;
 var init_Achievement$1 = __esmMin((() => {
 	init_GUIComponent();
 	init_UIManager();
@@ -250372,7 +252587,7 @@ var init_Achievement$1 = __esmMin((() => {
 	init_ItemInfo();
 	init_Achievement$3();
 	init_Achievement$2();
-	_preferences$30 = Preferences.get("Achievement", {
+	_preferences$31 = Preferences.get("Achievement", {
 		x: 100,
 		y: 100
 	}, 1);
@@ -250515,15 +252730,15 @@ var init_Achievement$1 = __esmMin((() => {
 			this._host.style.display = "none";
 		}
 		onAppend() {
-			this._host.style.left = `${_preferences$30.x}px`;
-			this._host.style.top = `${_preferences$30.y}px`;
+			this._host.style.left = `${_preferences$31.x}px`;
+			this._host.style.top = `${_preferences$31.y}px`;
 			this._fixPositionOverflow();
 			this.updateHeaderAndView();
 		}
 		onRemove() {
-			_preferences$30.x = parseInt(this._host.style.left, 10);
-			_preferences$30.y = parseInt(this._host.style.top, 10);
-			_preferences$30.save();
+			_preferences$31.x = parseInt(this._host.style.left, 10);
+			_preferences$31.y = parseInt(this._host.style.top, 10);
+			_preferences$31.save();
 		}
 		toggle() {
 			if (this.__active && this._host.style.display !== "none") this._host.style.display = "none";
@@ -251280,7 +253495,7 @@ function clearHighlights() {
 		el.dataset.highlight = "false";
 	});
 }
-var Reputation, _preferences$29, bg, bg_highlight, indicator_empty, indicator_blue, indicator_red, Reputation_default;
+var Reputation, _preferences$30, bg, bg_highlight, indicator_empty, indicator_blue, indicator_red, Reputation_default;
 var init_Reputation = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -251293,7 +253508,7 @@ var init_Reputation = __esmMin((() => {
 	init_Reputation$2();
 	init_Reputation$1();
 	Reputation = new GUIComponent("Reputation", Reputation_default$1);
-	_preferences$29 = Preferences.get("Reputation", {
+	_preferences$30 = Preferences.get("Reputation", {
 		x: 400,
 		y: 200,
 		show: true
@@ -251376,8 +253591,8 @@ var init_Reputation = __esmMin((() => {
 	* binding group selector events and rendering the default view.
 	*/
 	Reputation.onAppend = function onAppend() {
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$29.y), window.innerHeight - (this._host.offsetHeight || 0))}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$29.x), window.innerWidth - (this._host.offsetWidth || 0))}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$30.y), window.innerHeight - (this._host.offsetHeight || 0))}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$30.x), window.innerWidth - (this._host.offsetWidth || 0))}px`;
 		buildGroupSelector();
 		bindGroupSelector();
 		bindSearch();
@@ -251388,10 +253603,10 @@ var init_Reputation = __esmMin((() => {
 	* Once remove from body, save user preferences
 	*/
 	Reputation.onRemove = function onRemove() {
-		_preferences$29.show = this._host.style.display !== "none";
-		_preferences$29.y = parseInt(this._host.style.top, 10);
-		_preferences$29.x = parseInt(this._host.style.left, 10);
-		_preferences$29.save();
+		_preferences$30.show = this._host.style.display !== "none";
+		_preferences$30.y = parseInt(this._host.style.top, 10);
+		_preferences$30.x = parseInt(this._host.style.left, 10);
+		_preferences$30.save();
 	};
 	/**
 	* Request to toggle open/close reputation
@@ -253890,7 +256105,7 @@ var init_EnchantGrade = __esmMin((() => {
 // src/Renderer/Effects/StrEffect.vs?raw
 var StrEffect_default$1;
 var init_StrEffect$2 = __esmMin((() => {
-	StrEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform mat4 uSpriteAngle;\r\nuniform vec3 uSpritePosition;\r\nuniform vec2 uSpriteOffset;\r\nuniform float uVerticalBase;\r\n\r\nconst float pixelRatio = 1.0 / 35.0;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n	// xyz = x(-z)y + middle of cell (0.5)\r\n	float x =  pos.x + 0.5;\r\n	float y = -pos.z;\r\n	float z =  pos.y + 0.5;\r\n\r\n	// Matrix translation\r\n	mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n	mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n	mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;\r\n	mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n	// Spherical billboard\r\n	mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n	mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n	mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n	return mat;\r\n}\r\n\r\nvoid main(void) {\r\n	vTextureCoord = aTextureCoord;\r\n\r\n	// Calculate position base on angle and sprite offset/size\r\n	vec4 position = uSpriteAngle * vec4( aPosition.x * pixelRatio, -aPosition.y * pixelRatio, 0.0, 1.0 );\r\n	position.x   += uSpriteOffset.x * pixelRatio;\r\n	position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;\r\n\r\n	// Project to camera plane\r\n	gl_Position    = uProjectionMat * Project(uModelViewMat, uSpritePosition) * position;\r\n	gl_Position.z -= 0.1;\r\n}";
+	StrEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uSpriteAngle;\r\nuniform vec4 uCornerX;\r\nuniform vec4 uCornerY;\r\nuniform vec3 uSpritePosition;\r\nuniform vec2 uSpriteOffset;\r\nuniform float uVerticalBase;\r\n\r\nconst float pixelRatio = 1.0 / 35.0;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n	// xyz = x(-z)y + middle of cell (0.5)\r\n	float x =  pos.x + 0.5;\r\n	float y = -pos.z;\r\n	float z =  pos.y + 0.5;\r\n\r\n	// Matrix translation\r\n	mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n	mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n	mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;\r\n	mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n	// Spherical billboard\r\n	mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n	mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n	mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n	return mat;\r\n}\r\n\r\nvoid main(void) {\r\n	vTextureCoord = aPosition;\r\n\r\n	int corner = int(aPosition.x + aPosition.y * 2.0);\r\n	float r = radians(-uSpriteAngle);\r\n	vec2 p = vec2(uCornerX[corner] * pixelRatio, -uCornerY[corner] * pixelRatio);\r\n	vec4 position = vec4(p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r), 0.0, 1.0);\r\n	position.x   += uSpriteOffset.x * pixelRatio;\r\n	position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;\r\n\r\n	// Project to camera plane\r\n	gl_Position    = uProjectionMat * Project(uModelViewMat, uSpritePosition) * position;\r\n	gl_Position.z -= 0.1;\r\n}";
 }));
 // src/Renderer/Effects/StrEffect.fs?raw
 var StrEffect_default;
@@ -253990,22 +256205,19 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var mat4$19, D3DBLEND, _program$24, _buffer$17, _bufferData, _users, _matrix$7, _spriteOffset, _lastAngle, _modelView, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var D3DBLEND, _program$24, _buffer$17, _spriteOffset, _users, _cornerX, _cornerY, _modelView, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
 	init_WebGL();
-	init_gl_matrix();
 	init_Client();
-	mat4$19 = gl_matrix_default.mat4;
 	D3DBLEND = {};
 	_program$24 = null;
 	_buffer$17 = null;
-	_bufferData = /* @__PURE__ */ new Float32Array(16);
-	_users = /* @__PURE__ */ new Set();
-	_matrix$7 = mat4$19.create();
 	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
-	_lastAngle = -1;
+	_users = /* @__PURE__ */ new Set();
+	_cornerX = /* @__PURE__ */ new Float32Array(4);
+	_cornerY = /* @__PURE__ */ new Float32Array(4);
 	_modelView = null;
 	AIM_PIVOT_X = 320;
 	AIM_PIVOT_Y = 240;
@@ -254193,41 +256405,24 @@ var init_StrEffect = __esmMin((() => {
 		*/
 		renderAnimation(gl, material, animat) {
 			const uniform = _program$24.uniform;
-			const attribute = _program$24.attribute;
 			let sizeScale = 1;
 			if (this.ownerEntity) sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
-			_bufferData[0] = animat.xy[0] * sizeScale;
-			_bufferData[1] = animat.xy[4] * sizeScale;
-			_bufferData[2] = 0;
-			_bufferData[3] = 0;
-			_bufferData[4] = animat.xy[1] * sizeScale;
-			_bufferData[5] = animat.xy[5] * sizeScale;
-			_bufferData[6] = 1;
-			_bufferData[7] = 0;
-			_bufferData[8] = animat.xy[3] * sizeScale;
-			_bufferData[9] = animat.xy[7] * sizeScale;
-			_bufferData[10] = 0;
-			_bufferData[11] = 1;
-			_bufferData[12] = animat.xy[2] * sizeScale;
-			_bufferData[13] = animat.xy[6] * sizeScale;
-			_bufferData[14] = 1;
-			_bufferData[15] = 1;
-			const angle = animat.angle - (this.aimAngle || 0);
-			if (angle !== _lastAngle) {
-				mat4$19.identity(_matrix$7);
-				mat4$19.rotateZ(_matrix$7, _matrix$7, -angle / 180 * Math.PI);
-				_lastAngle = angle;
-			}
+			_cornerX[0] = animat.xy[0] * sizeScale;
+			_cornerY[0] = animat.xy[4] * sizeScale;
+			_cornerX[1] = animat.xy[1] * sizeScale;
+			_cornerY[1] = animat.xy[5] * sizeScale;
+			_cornerX[2] = animat.xy[3] * sizeScale;
+			_cornerY[2] = animat.xy[7] * sizeScale;
+			_cornerX[3] = animat.xy[2] * sizeScale;
+			_cornerY[3] = animat.xy[6] * sizeScale;
+			gl.uniform4fv(uniform.uCornerX, _cornerX);
+			gl.uniform4fv(uniform.uCornerY, _cornerY);
 			const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
 			gl.uniform4fv(uniform.uSpriteColor, animat.color);
 			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
-			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$7);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$17);
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
-			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
+			gl.uniform1f(uniform.uSpriteAngle, animat.angle - (this.aimAngle || 0));
 			gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 			gl.bindTexture(gl.TEXTURE_2D, material);
 			if (this.aimAngle) {
@@ -254245,7 +256440,16 @@ var init_StrEffect = __esmMin((() => {
 			if (!_buffer$17) {
 				_buffer$17 = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$17);
-				gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+					0,
+					0,
+					1,
+					0,
+					0,
+					1,
+					1,
+					1
+				]), gl.STATIC_DRAW);
 			}
 			if (!_program$24) _program$24 = WebGL_default.createShaderProgram(gl, StrEffect_default$1, StrEffect_default);
 			D3DBLEND[1] = gl.ZERO;
@@ -254297,6 +256501,8 @@ var init_StrEffect = __esmMin((() => {
 			_modelView = modelView;
 			gl.depthMask(false);
 			gl.useProgram(_program$24);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$17);
+			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 0, 0);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1f(uniform.uFogNear, fog.near * 100);
@@ -254304,7 +256510,6 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.activeTexture(gl.TEXTURE0);
 		}
 		/**
@@ -254315,7 +256520,6 @@ var init_StrEffect = __esmMin((() => {
 		static afterRender(gl) {
 			gl.depthMask(true);
 			gl.disableVertexAttribArray(_program$24.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$24.attribute.aTextureCoord);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -256201,7 +258405,8 @@ function createInventory(config) {
 	Component.newItems = [];
 	Component.equippedItems = [];
 	if (equipSwitch) Component.equipswitchlist = [];
-	let _realSize = 0;
+	let _reduced = false;
+	let _height = 0;
 	let lockOverlayTimeout;
 	const prefDefaults = {
 		x: 0,
@@ -256379,16 +258584,7 @@ function createInventory(config) {
 		this.magnet.BOTTOM = _preferences.magnet_bottom;
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
-		if (extraRows) {
-			_realSize = 0;
-			const panel = root.querySelector(".panel");
-			if (panel) panel.style.display = "flex";
-			if (_preferences.reduce) onToggleReduction();
-		} else {
-			_realSize = _preferences.reduce ? 0 : this._host.offsetHeight;
-			const miniBtnAppend = root.querySelector(".titlebar .mini");
-			if (miniBtnAppend) miniBtnAppend.dispatchEvent(new Event("mousedown"));
-		}
+		if (root.querySelector(".titlebar .mini")) setReduced(!!_preferences.reduce);
 	};
 	/**
 	* Remove Inventory from window (and so clean up items)
@@ -256401,12 +258597,12 @@ function createInventory(config) {
 		Component.newItems.length = 0;
 		document.querySelectorAll(".ItemInfo").forEach((el) => el.remove());
 		_preferences.show = this._host.style.display !== "none";
-		_preferences.reduce = !!_realSize;
+		_preferences.reduce = _reduced;
 		_preferences.y = parseInt(this._host.style.top, 10);
 		_preferences.x = parseInt(this._host.style.left, 10);
 		_preferences.width = Math.floor((this._host.offsetWidth - 25) / 32);
-		if (resizableHeight) _preferences.height = Math.floor((this._host.offsetHeight - 20) / 32);
-		else if (extraRows) _preferences.height = _realSize || parseInt(this._host.style.height, 10) || defaultHeight;
+		if (resizableHeight) _preferences.height = _height;
+		else if (extraRows) _preferences.height = _height || defaultHeight;
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
@@ -256476,15 +258672,15 @@ function createInventory(config) {
 		const content = Component.getRoot().querySelector(".container .content");
 		if (content) content.style.width = `${width * 32}px`;
 		if (resizableHeight) {
-			height = Math.min(Math.max(height, 2), 5);
+			_height = Math.min(Math.max(height, 2), 5);
 			this._host.style.width = `${59 + width * 32}px`;
-			this._host.style.height = `${62 + height * 32}px`;
+			this._host.style.height = expandedHeight();
 		} else {
 			this._host.style.width = `${55 + width * 32}px`;
 			if (extraRows) {
-				const currentHeight = height ?? (parseInt(this._host.style.height, 10) || defaultHeight);
-				const rows = Math.min(Math.max(Math.round((currentHeight - defaultHeight) / 32), 0), extraRows);
-				this._host.style.height = `${defaultHeight + rows * 32}px`;
+				const rows = Math.min(Math.max(Math.round(((height ?? (_height || defaultHeight)) - defaultHeight) / 32), 0), extraRows);
+				_height = defaultHeight + rows * 32;
+				if (!_reduced) this._host.style.height = expandedHeight();
 			}
 		}
 		this.updateScroll();
@@ -256703,14 +258899,12 @@ function createInventory(config) {
 		const item = this.getItemByIndex(index);
 		const root = Component.getRoot();
 		if (!item || count <= 0) return null;
-		if (item.count) {
+		if (item.count > count) {
 			item.count -= count;
-			if (item.count > 0) {
-				const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
-				if (countEl) countEl.textContent = item.count;
-				this.onUpdateItem(item.ITID, item.count);
-				return item;
-			}
+			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+			if (countEl) countEl.textContent = item.count;
+			this.onUpdateItem(item.ITID, item.count);
+			return item;
 		}
 		this.list.splice(this.list.indexOf(item), 1);
 		const el = root.querySelector(`.item[data-index="${item.index}"]`);
@@ -256872,16 +259066,28 @@ function createInventory(config) {
 	* Hide/show inventory's content
 	*/
 	function onToggleReduction() {
+		setReduced(!_reduced);
+	}
+	/**
+	* Collapse the window to its titlebar, or give it back its full height
+	*
+	* @param {boolean} reduced
+	*/
+	function setReduced(reduced) {
 		const panel = Component.getRoot().querySelector(".panel");
-		if (_realSize) {
-			if (panel) panel.style.display = "flex";
-			Component._host.style.height = `${_realSize}px`;
-			_realSize = 0;
-		} else {
-			_realSize = extraRows ? parseInt(Component._host.style.height, 10) : Component._host.offsetHeight;
-			Component._host.style.height = "17px";
-			if (panel) panel.style.display = "none";
-		}
+		_reduced = reduced;
+		if (panel) panel.style.display = reduced ? "none" : "flex";
+		Component._host.style.height = reduced ? "17px" : expandedHeight();
+	}
+	/**
+	* Full height of the window: V0 sizes it from its rows, a window with extra
+	* rows from the height chosen (pixels), the others from their CSS
+	*
+	* @returns {string}
+	*/
+	function expandedHeight() {
+		if (resizableHeight) return `${62 + _height * 32}px`;
+		return extraRows ? `${_height || defaultHeight}px` : "";
 	}
 	/**
 	* Update tab, reset inventory content
@@ -257769,18 +259975,18 @@ function onDrop$9(event) {
 			Mail.parseMailWinopen(1);
 			if (data.from == "Inventory") InventoryController.removeItem(item.index, parseInt(count, 10));
 			Mail.parseMailSetattach(item.index, parseInt(count, 10));
-			_preferences$28.item_add_email = item;
-			_preferences$28.item_add_email.count = parseInt(count, 10);
-			_preferences$28.save();
+			_preferences$29.item_add_email = item;
+			_preferences$29.item_add_email.count = parseInt(count, 10);
+			_preferences$29.save();
 		};
 		return;
 	}
 	if (data.from == "Inventory") InventoryController.removeItem(item.index, 1);
 	Mail.parseMailWinopen(1);
 	Mail.parseMailSetattach(item.index, 1);
-	_preferences$28.item_add_email = item;
-	_preferences$28.item_add_email.count = 1;
-	_preferences$28.save();
+	_preferences$29.item_add_email = item;
+	_preferences$29.item_add_email.count = 1;
+	_preferences$29.save();
 }
 /**
 * Show item name when mouse is over
@@ -257892,7 +260098,7 @@ function onDropText$2(event) {
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
 }
-var Mail, _preferences$28, Mail_default;
+var Mail, _preferences$29, Mail_default;
 var init_Mail$1 = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -257924,7 +260130,7 @@ var init_Mail$1 = __esmMin((() => {
 	* know which page is current
 	*/
 	Mail.page = 0;
-	_preferences$28 = Preferences.get("Mail", {
+	_preferences$29 = Preferences.get("Mail", {
 		x: 0,
 		y: 172,
 		width: 7,
@@ -258002,8 +260208,8 @@ var init_Mail$1 = __esmMin((() => {
 		onWindowMailbox();
 		const hostHeight = this._host.offsetHeight || 0;
 		const hostWidth = this._host.offsetWidth || 0;
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$28.y), Renderer.height - hostHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$28.x), Renderer.width - hostWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$29.y), Renderer.height - hostHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$29.x), Renderer.width - hostWidth)}px`;
 		this.draggable(".titlebar");
 	};
 	/**
@@ -258011,7 +260217,7 @@ var init_Mail$1 = __esmMin((() => {
 	*/
 	Mail.addItemSub = function AddItemSub(Index) {
 		const root = _root$10();
-		const item = _preferences$28.item_add_email;
+		const item = _preferences$29.item_add_email;
 		if (item.index !== Index) return false;
 		if (item.WearState && item.type !== ItemType_default.AMMO && item.type !== ItemType_default.CARD) return false;
 		const it = DB.getItemInfo(item.ITID);
@@ -258046,15 +260252,15 @@ var init_Mail$1 = __esmMin((() => {
 	*/
 	Mail.onRemove = function OnRemove() {
 		this.list.length = 0;
-		_preferences$28.show = this._host.style.display !== "none";
-		_preferences$28.reduce = false;
-		_preferences$28.y = parseInt(this._host.style.top, 10) || 0;
-		_preferences$28.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$28.magnet_top = this.magnet.TOP;
-		_preferences$28.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$28.magnet_left = this.magnet.LEFT;
-		_preferences$28.magnet_right = this.magnet.RIGHT;
-		_preferences$28.save();
+		_preferences$29.show = this._host.style.display !== "none";
+		_preferences$29.reduce = false;
+		_preferences$29.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences$29.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$29.magnet_top = this.magnet.TOP;
+		_preferences$29.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$29.magnet_left = this.magnet.LEFT;
+		_preferences$29.magnet_right = this.magnet.RIGHT;
+		_preferences$29.save();
 	};
 	/**
 	* Extend Mail window size
@@ -258104,7 +260310,7 @@ var init_Mail$1 = __esmMin((() => {
 	* Search in a list for an item by its index
 	*/
 	Mail.getItemByIndex = function getItemByIndex(index) {
-		const list = _preferences$28.item_add_email;
+		const list = _preferences$29.item_add_email;
 		if (list.index == index) return list;
 		return null;
 	};
@@ -259952,7 +262158,7 @@ function initResizable(instance) {
 		window.addEventListener("mouseup", stopResize);
 	});
 }
-var WhisperBox, _preferences$27;
+var WhisperBox, _preferences$28;
 var init_WhisperBox = __esmMin((() => {
 	init_DBManager();
 	init_UIManager();
@@ -259989,7 +262195,7 @@ var init_WhisperBox = __esmMin((() => {
 		open1to1Friend: true,
 		alarm1to1: true
 	}, 1);
-	_preferences$27 = WhisperBox.preferences;
+	_preferences$28 = WhisperBox.preferences;
 	WhisperBox.mouseMode = GUIComponent.MouseMode.STOP;
 	WhisperBox.captureKeyEvents = true;
 	/**
@@ -260022,7 +262228,7 @@ var init_WhisperBox = __esmMin((() => {
 			this.instances[nickname].focus();
 			return this.instances[nickname];
 		}
-		if (_preferences$27.alarm1to1 && bHasMessage) SoundManager.play("¹öÆ°¼Ò¸®.wav");
+		if (_preferences$28.alarm1to1 && bHasMessage) SoundManager.play("¹öÆ°¼Ò¸®.wav");
 		const instance = this.clone(nickname);
 		instance.nickname = nickname;
 		instance.name = `WhisperBox:${nickname}`;
@@ -260121,8 +262327,8 @@ var init_WhisperBox = __esmMin((() => {
 		const offset = this._spawnCounter % 10 * 20;
 		this._spawnCounter++;
 		const scale = instance.scale;
-		instance._host.style.top = `${Math.min(Math.max(0, _preferences$27.y + offset), Renderer.height - 156 * scale)}px`;
-		instance._host.style.left = `${Math.min(Math.max(0, _preferences$27.x + offset), Renderer.width - 280 * scale)}px`;
+		instance._host.style.top = `${Math.min(Math.max(0, _preferences$28.y + offset), Renderer.height - 156 * scale)}px`;
+		instance._host.style.left = `${Math.min(Math.max(0, _preferences$28.x + offset), Renderer.width - 280 * scale)}px`;
 		this.instances[nickname] = instance;
 		return instance;
 	};
@@ -260546,8 +262752,8 @@ function onChangeTargetMessage(type) {
 }
 function setChatFontScale(scale) {
 	return function setChatFontScaleClosure() {
-		_preferences$26.fontScale = clampChatFontScale(scale);
-		_preferences$26.save();
+		_preferences$27.fontScale = clampChatFontScale(scale);
+		_preferences$27.save();
 		ChatBox.applyFontScale();
 	};
 }
@@ -260610,7 +262816,7 @@ function makeResizableDiv() {
 		window.addEventListener("mouseup", stopResize);
 	});
 }
-var MAX_MSG, MAX_LENGTH, MAGIC_NUMBER, _historyMessage, _historyNickName, _heightIndex, _messageBuffer, _messageFrame, _messageGeneration, _preferences$26, ChatBox, views, captionWidths, keptLogs, lastRowWidth, ITEM_LINK, ChatBox_default;
+var MAX_MSG, MAX_LENGTH, MAGIC_NUMBER, _historyMessage, _historyNickName, _heightIndex, _messageBuffer, _messageFrame, _messageGeneration, _preferences$27, ChatBox, views, captionWidths, keptLogs, lastRowWidth, ITEM_LINK, ChatBox_default;
 var init_ChatBox = __esmMin((() => {
 	init_DBManager();
 	init_Renderer();
@@ -260649,7 +262855,7 @@ var init_ChatBox = __esmMin((() => {
 	_messageBuffer = [];
 	_messageFrame = null;
 	_messageGeneration = 0;
-	_preferences$26 = Preferences.get("ChatBox", {
+	_preferences$27 = Preferences.get("ChatBox", {
 		x: 0,
 		y: Infinity,
 		height: 2,
@@ -260756,16 +262962,16 @@ var init_ChatBox = __esmMin((() => {
 	ChatBox.init = function init() {
 		const root = _root$9();
 		if (!ContextMenu_default.__loaded) ContextMenu_default.prepare();
-		_heightIndex = _preferences$26.height - 1;
+		_heightIndex = _preferences$27.height - 1;
 		ChatBox.updateHeight();
 		ChatBox.applyFontScale();
 		const hostRect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$26.y - hostRect.height), Renderer.height - hostRect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$26.x), Renderer.width - hostRect.width)}px`;
-		this.magnet.TOP = _preferences$26.magnet_top;
-		this.magnet.BOTTOM = _preferences$26.magnet_bottom;
-		this.magnet.LEFT = _preferences$26.magnet_left;
-		this.magnet.RIGHT = _preferences$26.magnet_right;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$27.y - hostRect.height), Renderer.height - hostRect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$27.x), Renderer.width - hostRect.width)}px`;
+		this.magnet.TOP = _preferences$27.magnet_top;
+		this.magnet.BOTTOM = _preferences$27.magnet_bottom;
+		this.magnet.LEFT = _preferences$27.magnet_left;
+		this.magnet.RIGHT = _preferences$27.magnet_right;
 		this.canStartDrag = () => !this.tabStore.locked;
 		this.draggable(".input");
 		this.draggable(".battlemode");
@@ -261008,7 +263214,7 @@ var init_ChatBox = __esmMin((() => {
 			ChatBox.toggleChatBattleOption();
 		});
 		ChatBoxSettings_default.append();
-		this.tabStore = ChatTabStore.fromSaved(_preferences$26);
+		this.tabStore = ChatTabStore.fromSaved(_preferences$27);
 		if (!this.tabStore.count) {
 			const firstTab = this.tabStore.create({
 				name: DB.getMessage(1291),
@@ -261203,15 +263409,15 @@ var init_ChatBox = __esmMin((() => {
 		for (const view of views.values()) view.floating?.cancelInteraction();
 		flushMessageBuffer();
 		cancelMessageDelivery();
-		_preferences$26.y = (parseInt(this._host.style.top, 10) || 0) + this._host.getBoundingClientRect().height;
-		_preferences$26.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$26.height = _heightIndex;
-		_preferences$26.magnet_top = this.magnet.TOP;
-		_preferences$26.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$26.magnet_left = this.magnet.LEFT;
-		_preferences$26.magnet_right = this.magnet.RIGHT;
-		_preferences$26.layout = this.tabStore.toSnapshot();
-		_preferences$26.save();
+		_preferences$27.y = (parseInt(this._host.style.top, 10) || 0) + this._host.getBoundingClientRect().height;
+		_preferences$27.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$27.height = _heightIndex;
+		_preferences$27.magnet_top = this.magnet.TOP;
+		_preferences$27.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$27.magnet_left = this.magnet.LEFT;
+		_preferences$27.magnet_right = this.magnet.RIGHT;
+		_preferences$27.layout = this.tabStore.toSnapshot();
+		_preferences$27.save();
 		ChatBoxSettings_default.ui.hide();
 		ChatBoxSettings_default.activeTab = null;
 		resetInput(_root$9());
@@ -261597,14 +263803,14 @@ var init_ChatBox = __esmMin((() => {
 	};
 	ChatBox.applyFontScale = function applyFontScale() {
 		const root = _root$9();
-		const scale = clampChatFontScale(_preferences$26.fontScale || 1);
+		const scale = clampChatFontScale(_preferences$27.fontScale || 1);
 		const baseFont = 12;
 		const baseLineHeight = 14;
 		const baseInputLineHeight = 18;
 		const fontSize = Math.max(10, Math.round(baseFont * scale));
 		const lineHeight = Math.max(12, Math.round(baseLineHeight * scale));
 		const inputLineHeight = Math.max(14, Math.round(baseInputLineHeight * scale));
-		_preferences$26.fontScale = scale;
+		_preferences$27.fontScale = scale;
 		(/* @__PURE__ */ new Set([...root.querySelectorAll(".content"), ...Array.from(views.values(), (view) => view.log)])).forEach((el) => {
 			el.style.fontSize = `${fontSize}px`;
 			el.style.lineHeight = `${lineHeight}px`;
@@ -261704,7 +263910,7 @@ function onClose$5(e) {
 	} catch (_error) {}
 	_BOOK_INFORMATION["book_open"] = false;
 	_BOOK_INFORMATION.save();
-	if (_preferences$25.show) MakeReadBook.onRemove();
+	if (_preferences$26.show) MakeReadBook.onRemove();
 }
 function page() {
 	const root = MakeReadBook.getRoot();
@@ -261724,7 +263930,7 @@ function adjustButtons() {
 	const prevBtn = root.querySelector(".previous_btn");
 	if (prevBtn) prevBtn.disabled = _BOOK_INFORMATION["pagesize"] <= 1 || _BOOK_INFORMATION["page"] == 0;
 }
-var sleepNow, MakeReadBook, _BOOK_INFORMATION, _preferences$25, MakeReadBook_default;
+var sleepNow, MakeReadBook, _BOOK_INFORMATION, _preferences$26, MakeReadBook_default;
 var init_MakeReadBook = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -261756,7 +263962,7 @@ var init_MakeReadBook = __esmMin((() => {
 	* Store MakeReadBook items
 	*/
 	MakeReadBook.list = [];
-	_preferences$25 = Preferences.get("MakeReadBook", {
+	_preferences$26 = Preferences.get("MakeReadBook", {
 		x: 0,
 		y: 172,
 		width: 7,
@@ -261897,7 +264103,7 @@ var init_MakeReadBook = __esmMin((() => {
 		});
 	};
 	MakeReadBook.highlighter = async function highlighter() {
-		if (_preferences$25.show) onClose$5();
+		if (_preferences$26.show) onClose$5();
 		let index = _BOOK_INFORMATION["bookmark_activated"] ? _BOOK_INFORMATION["bookmark_activated_page"] : 0;
 		let newText = "";
 		for (; index < _BOOK_INFORMATION["contents"].length; index++) newText = newText + "\n" + _BOOK_INFORMATION["contents"][index];
@@ -261908,12 +264114,12 @@ var init_MakeReadBook = __esmMin((() => {
 	*/
 	MakeReadBook.onAppend = function OnAppend() {
 		this._host.style.display = "";
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$25.y), Renderer.height - 455)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$25.x), Renderer.width - 555)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$26.y), Renderer.height - 455)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$26.x), Renderer.width - 555)}px`;
 		_BOOK_INFORMATION["book_open"] = true;
 		_BOOK_INFORMATION.save();
-		_preferences$25.show = true;
-		_preferences$25.save();
+		_preferences$26.show = true;
+		_preferences$26.save();
 		const root = MakeReadBook.getRoot();
 		this.draggable(root.querySelector(".titlebar"));
 	};
@@ -261922,19 +264128,19 @@ var init_MakeReadBook = __esmMin((() => {
 	*/
 	MakeReadBook.onRemove = function OnRemove() {
 		try {
-			if (_preferences$25.show) this._host.style.display = "none";
-			_preferences$25.show = this._host.style.display !== "none";
-			_preferences$25.reduce = false;
-			_preferences$25.y = parseInt(this._host.style.top, 10) || 0;
-			_preferences$25.x = parseInt(this._host.style.left, 10) || 0;
-			_preferences$25.magnet_top = this.magnet.TOP;
-			_preferences$25.magnet_bottom = this.magnet.BOTTOM;
-			_preferences$25.magnet_left = this.magnet.LEFT;
-			_preferences$25.magnet_right = this.magnet.RIGHT;
-			_preferences$25.save();
+			if (_preferences$26.show) this._host.style.display = "none";
+			_preferences$26.show = this._host.style.display !== "none";
+			_preferences$26.reduce = false;
+			_preferences$26.y = parseInt(this._host.style.top, 10) || 0;
+			_preferences$26.x = parseInt(this._host.style.left, 10) || 0;
+			_preferences$26.magnet_top = this.magnet.TOP;
+			_preferences$26.magnet_bottom = this.magnet.BOTTOM;
+			_preferences$26.magnet_left = this.magnet.LEFT;
+			_preferences$26.magnet_right = this.magnet.RIGHT;
+			_preferences$26.save();
 		} catch (_error) {
-			_preferences$25.show = false;
-			_preferences$25.save();
+			_preferences$26.show = false;
+			_preferences$26.save();
 		}
 	};
 	/**
@@ -263334,7 +265540,7 @@ function parseChatSetup() {
 	this.requestRoom();
 	this.hide();
 }
-var ChatRoomCreate, _preferences$24, ChatRoomCreate_default;
+var ChatRoomCreate, _preferences$25, ChatRoomCreate_default;
 var init_ChatRoomCreate = __esmMin((() => {
 	init_DBManager();
 	init_KeyEventHandler();
@@ -263370,7 +265576,7 @@ var init_ChatRoomCreate = __esmMin((() => {
 	* @var {string} password
 	*/
 	ChatRoomCreate.password = "";
-	_preferences$24 = Preferences.get("ChatRoomCreate", {
+	_preferences$25 = Preferences.get("ChatRoomCreate", {
 		x: 480,
 		y: 200,
 		show: false
@@ -263404,18 +265610,18 @@ var init_ChatRoomCreate = __esmMin((() => {
 	* Once append to body
 	*/
 	ChatRoomCreate.onAppend = function onAppend() {
-		if (!_preferences$24.show) this._host.style.display = "none";
-		this._host.style.top = Math.min(Math.max(0, _preferences$24.y), Renderer.height - this._host.offsetHeight) + "px";
-		this._host.style.left = Math.min(Math.max(0, _preferences$24.x), Renderer.width - this._host.offsetWidth) + "px";
+		if (!_preferences$25.show) this._host.style.display = "none";
+		this._host.style.top = Math.min(Math.max(0, _preferences$25.y), Renderer.height - this._host.offsetHeight) + "px";
+		this._host.style.left = Math.min(Math.max(0, _preferences$25.x), Renderer.width - this._host.offsetWidth) + "px";
 	};
 	/**
 	* Once removed from DOM, save preferences
 	*/
 	ChatRoomCreate.onRemove = function onRemove() {
-		_preferences$24.show = this._host.style.display !== "none";
-		_preferences$24.y = parseInt(this._host.style.top, 10);
-		_preferences$24.x = parseInt(this._host.style.left, 10);
-		_preferences$24.save();
+		_preferences$25.show = this._host.style.display !== "none";
+		_preferences$25.y = parseInt(this._host.style.top, 10);
+		_preferences$25.x = parseInt(this._host.style.left, 10);
+		_preferences$25.save();
 		ChatRoomCreate.editMode = false;
 	};
 	/**
@@ -263425,7 +265631,7 @@ var init_ChatRoomCreate = __esmMin((() => {
 		this._host.style.display = "";
 		this.getRoot().querySelector(".title").focus();
 		this._fixPositionOverflow();
-		_preferences$24.show = true;
+		_preferences$25.show = true;
 	};
 	/**
 	* Hide the setup ui
@@ -263434,7 +265640,7 @@ var init_ChatRoomCreate = __esmMin((() => {
 		this._host.style.display = "none";
 		this.getRoot().querySelector(".setup").reset();
 		ChatRoomCreate.editMode = false;
-		_preferences$24.show = false;
+		_preferences$25.show = false;
 	};
 	/**
 	* Pre-fill form with values (used by ChatRoom.openRoomSettings)
@@ -263640,7 +265846,7 @@ function resize$2(width, height) {
 		if (inner) ChatRoom._host.style.height = inner.offsetHeight + "px";
 	}
 }
-var ChatRoom, _gridWidth, _gridHeight, _preferences$23, ChatRoom_default;
+var ChatRoom, _gridWidth, _gridHeight, _preferences$24, ChatRoom_default;
 var init_ChatRoom$1 = __esmMin((() => {
 	init_Preferences$1();
 	init_Renderer();
@@ -263697,7 +265903,7 @@ var init_ChatRoom$1 = __esmMin((() => {
 	ChatRoom.isOpen = false;
 	_gridWidth = 7;
 	_gridHeight = 3;
-	_preferences$23 = Preferences.get("ChatRoom", {
+	_preferences$24 = Preferences.get("ChatRoom", {
 		x: 480,
 		y: 200,
 		width: 7,
@@ -263726,11 +265932,11 @@ var init_ChatRoom$1 = __esmMin((() => {
 	ChatRoom.onAppend = function onAppend() {
 		const root = this.getRoot();
 		this.isOpen = true;
-		_gridWidth = _preferences$23.width;
-		_gridHeight = _preferences$23.height;
+		_gridWidth = _preferences$24.width;
+		_gridHeight = _preferences$24.height;
 		resize$2(_gridWidth, _gridHeight);
-		this._host.style.top = Math.min(Math.max(0, _preferences$23.y), Renderer.height - this._host.getBoundingClientRect().height) + "px";
-		this._host.style.left = Math.min(Math.max(0, _preferences$23.x), Renderer.width - this._host.getBoundingClientRect().width) + "px";
+		this._host.style.top = Math.min(Math.max(0, _preferences$24.y), Renderer.height - this._host.getBoundingClientRect().height) + "px";
+		this._host.style.left = Math.min(Math.max(0, _preferences$24.x), Renderer.width - this._host.getBoundingClientRect().width) + "px";
 		root.querySelector(".sendmsg").focus();
 		this.updateChat();
 	};
@@ -263747,11 +265953,11 @@ var init_ChatRoom$1 = __esmMin((() => {
 		this.isOpen = false;
 		const messages = this.getRoot().querySelector(".messages");
 		if (messages) messages.innerHTML = "";
-		_preferences$23.y = parseInt(this._host.style.top, 10);
-		_preferences$23.x = parseInt(this._host.style.left, 10);
-		_preferences$23.width = _gridWidth;
-		_preferences$23.height = _gridHeight;
-		_preferences$23.save();
+		_preferences$24.y = parseInt(this._host.style.top, 10);
+		_preferences$24.x = parseInt(this._host.style.left, 10);
+		_preferences$24.width = _gridWidth;
+		_preferences$24.height = _gridHeight;
+		_preferences$24.save();
 		this.exitRoom();
 	};
 	/**
@@ -263961,6 +266167,7 @@ function onPartyMemberLeave(pkt) {
 	}
 	if (SessionStorage_default.AID === pkt.AID) SessionStorage_default.hasParty = false;
 	controller.removePartyMember(pkt.AID, pkt.characterName);
+	WorldMap_default.removePartyMember(pkt.AID);
 }
 /**
 * Display entity life
@@ -266033,8 +268240,8 @@ var init_AIDriver = __esmMin((() => {
 	init_PacketVerManager();
 	init_SkillInfo();
 	init_EntityManager();
-	init_Client();
 	init_Configs();
+	init_LuaModuleLoader();
 	init_UIManager();
 	init_CodepageManager();
 	msg = {};
@@ -266287,120 +268494,74 @@ var init_AIDriver = __esmMin((() => {
 			addCTX(AIDriver.MER_AI, false);
 		}
 		static initAI = async (onEnd) => {
-			let loadedFiles = {};
-			let loadPromises = [];
 			AIDriver.ready = false;
-			function preloadFiles(fileList, lua) {
-				const ctx = lua.ctx;
-				function customRequire(modulePath, isJS = false) {
-					return new Promise((resolve, reject) => {
-						let filename;
-						if (!isJS) filename = CodepageManager.decode(modulePath);
-						else filename = modulePath;
-						filename = filename.replaceAll("\\\\", "/").replaceAll("\\", "/").replace("./", "").replace("pcall", "").replace("function", "").replace(".lua", "").trim();
-						if (filename.endsWith("end")) filename = filename.replace("end", "").trim();
-						filename = filename + ".lua";
-						if (filename.includes("Timeouts") || filename.includes("AggressiveRelogPath") || filename.startsWith("--")) {
-							resolve();
-							return;
-						}
-						if (loadedFiles[filename]) {
-							resolve();
-							return;
-						}
-						loadedFiles[filename] = filename;
-						Client.loadFile(filename, function(file) {
-							try {
-								if (Configs.get("debugAI", false)) console.log(`Loading file "${filename}"...`);
-								const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-								const str = CodepageManager.decode(buffer);
-								const nestedPromises = [];
-								for (const line of str.split("\n")) if (line.includes("dofile")) {
-									const nestedPromise = customRequire(line.replace("dofile", "").replaceAll("(", "").replaceAll(")", "").replace(/['"]/g, "").trim(), true);
-									nestedPromises.push(nestedPromise);
-								}
-								Promise.all(nestedPromises).then(() => {
-									lua.mountFile("./" + filename, buffer);
-									resolve();
-								}).catch(reject);
-							} catch (error) {
-								console.error("[require] : ", error);
-								reject(error);
-							}
-						}, reject);
-					});
-				}
-				ctx.require = customRequire;
-				for (const filename of fileList) if (!loadedFiles[filename]) {
-					loadedFiles[filename] = filename;
-					const promise = new Promise((resolve, reject) => {
-						Client.loadFile(filename, function(file) {
-							try {
-								if (Configs.get("debugAI", false)) console.log("Loading file \"" + filename + "\"...");
-								const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-								const text = CodepageManager.decode(buffer);
-								const nestedPromises = [];
-								for (const line of text.split("\n")) if (line.includes("dofile")) {
-									const nestedPromise = customRequire(line.replace("dofile", "").replaceAll("(", "").replaceAll(")", "").replace(/['"]/g, "").trim(), true);
-									nestedPromises.push(nestedPromise);
-								}
-								Promise.all(nestedPromises).then(() => {
-									lua.mountFile("./" + filename, buffer);
-									resolve();
-								}).catch(reject);
-							} catch (error) {
-								console.error("[prepareAIFiles] : ", error);
-								reject(error);
-							}
-						}, reject);
-					});
-					loadPromises.push(promise);
-				}
-			}
-			async function doFiles(fileList, lua) {
-				await Promise.all(loadPromises);
-				for (const key in fileList) await lua.doFileSync(fileList[key]);
-			}
+			const defaultAISearchPaths = [
+				"./?.lua",
+				"./?.lub",
+				"AI/?.lua",
+				"AI/?.lub",
+				"AI/USER_AI/?.lua",
+				"AI/USER_AI/?.lub",
+				...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+			];
+			const customAISearchPaths = [
+				"./?.lua",
+				"./?.lub",
+				"AI/USER_AI/?.lua",
+				"AI/USER_AI/?.lub",
+				"AI/?.lua",
+				"AI/?.lub",
+				...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+			];
 			try {
 				AIDriver.HO_AI = DB.getHOAI_VM();
 				AIDriver.MER_AI = DB.getMERAI_VM();
 				AIDriver.default_HO_AI = DB.getDefaultHOAI_VM();
 				AIDriver.default_MER_AI = DB.getDefaultMERAI_VM();
+				LuaModuleLoader.setup(AIDriver.default_HO_AI, { searchPaths: defaultAISearchPaths });
+				LuaModuleLoader.setup(AIDriver.default_MER_AI, { searchPaths: defaultAISearchPaths });
+				LuaModuleLoader.setup(AIDriver.HO_AI, { searchPaths: customAISearchPaths });
+				LuaModuleLoader.setup(AIDriver.MER_AI, { searchPaths: customAISearchPaths });
 				AIDriver.addCTX();
 				console.log("Loading Default HOAI...");
-				let files = [
+				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_HO_AI, [
 					"AI/Util.lua",
 					"AI/Const.lua",
 					"AI/AI.lua"
-				];
-				let AI_M = "AI/AI_M.lua";
-				preloadFiles(files, AIDriver.default_HO_AI);
-				await doFiles(files, AIDriver.default_HO_AI);
+				], { searchPaths: defaultAISearchPaths });
 				console.log("Loading Default MERAI...");
-				loadedFiles = {};
-				loadPromises = [];
-				files.pop();
-				files.push(AI_M);
-				preloadFiles(files, AIDriver.default_MER_AI);
-				await doFiles(files, AIDriver.default_MER_AI);
-				files = [
-					"AI/USER_AI/Util.lua",
-					"AI/USER_AI/Const.lua",
-					"AI/USER_AI/AI.lua"
-				];
-				AI_M = "AI/USER_AI/AI_M.lua";
-				console.log("Loading Custom HOAI...");
-				preloadFiles(files, AIDriver.HO_AI);
-				await doFiles(files, AIDriver.HO_AI);
-				console.log("Loading Custom MERAI...");
-				loadedFiles = {};
-				loadPromises = [];
-				files.pop();
-				files.push(AI_M);
-				preloadFiles(files, AIDriver.MER_AI);
-				await doFiles(files, AIDriver.MER_AI);
+				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_MER_AI, [
+					"AI/Util.lua",
+					"AI/Const.lua",
+					"AI/AI_M.lua"
+				], { searchPaths: defaultAISearchPaths });
+				try {
+					console.log("Loading Custom HOAI...");
+					await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, [
+						"AI/USER_AI/Util.lua",
+						"AI/USER_AI/Const.lua",
+						"AI/USER_AI/AI.lua"
+					], { searchPaths: customAISearchPaths });
+				} catch (customHoError) {
+					if (customHoError && customHoError.code === "LUA_FILE_NOT_FOUND") console.warn("[AIDriver] Custom HO USER_AI files not available, falling back to default HO AI:", customHoError.message || customHoError);
+					else console.error("[AIDriver] Custom HO USER_AI failed to initialize, falling back to default HO AI:", customHoError.message || customHoError);
+					AIDriver.HO_AI = AIDriver.default_HO_AI;
+				}
+				try {
+					console.log("Loading Custom MERAI...");
+					await LuaModuleLoader.loadAndExecuteFiles(AIDriver.MER_AI, [
+						"AI/USER_AI/Util.lua",
+						"AI/USER_AI/Const.lua",
+						"AI/USER_AI/AI_M.lua"
+					], { searchPaths: customAISearchPaths });
+				} catch (customMerError) {
+					if (customMerError && customMerError.code === "LUA_FILE_NOT_FOUND") console.warn("[AIDriver] Custom MER USER_AI files not available, falling back to default MER AI:", customMerError.message || customMerError);
+					else console.error("[AIDriver] Custom MER USER_AI failed to initialize, falling back to default MER AI:", customMerError.message || customMerError);
+					AIDriver.MER_AI = AIDriver.default_MER_AI;
+				}
 			} catch (error) {
-				console.warn("[AIDriver] AI files not available, skipping AI initialization:", error.message || error);
+				if (error && error.code === "LUA_FILE_NOT_FOUND") console.warn("[AIDriver] AI files not available, skipping AI initialization:", error.message || error);
+				else console.error("[AIDriver] Failed to initialize AI:", error.message || error);
 				if (typeof onEnd === "function") onEnd();
 				return;
 			}
@@ -266439,7 +268600,7 @@ var init_HomunInformations$1 = __esmMin((() => {
 * Checks if homun should be fed or not
 */
 function autoFeedCheck() {
-	if (_preferences$22.autoFeed != 1) return;
+	if (_preferences$23.autoFeed != 1) return;
 	const player = SessionStorage_default.Entity;
 	if (!player) return;
 	if (player.life.hp <= 0) return;
@@ -266454,11 +268615,11 @@ function autoFeedCheck() {
 * Toggle AutoFeed
 */
 function homunToggleAutoFeed() {
-	HomunInformations.setFeedConfig(_preferences$22.autoFeed == 1 ? 0 : 1);
+	HomunInformations.setFeedConfig(_preferences$23.autoFeed == 1 ? 0 : 1);
 	if (PacketVerManager_default.value < 20170920) return;
-	HomunInformations.onConfigUpdate(3, _preferences$22.autoFeed ? 1 : 0);
+	HomunInformations.onConfigUpdate(3, _preferences$23.autoFeed ? 1 : 0);
 }
-var autoFeedInterval, autoFeedIntervalMs, autoFeedPercent, HomunInformations, _preferences$22, HomunInformations_default;
+var autoFeedInterval, autoFeedIntervalMs, autoFeedPercent, HomunInformations, _preferences$23, HomunInformations_default;
 var init_HomunInformations = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -266481,7 +268642,7 @@ var init_HomunInformations = __esmMin((() => {
 	HomunInformations = new GUIComponent("HomunInformations", HomunInformations_default$1);
 	HomunInformations.render = () => HomunInformations_default$2;
 	HomunInformations.captureKeyEvents = true;
-	_preferences$22 = Preferences.get("HomunInformations", {
+	_preferences$23 = Preferences.get("HomunInformations", {
 		x: 100,
 		y: 200,
 		show: false,
@@ -266521,7 +268682,7 @@ var init_HomunInformations = __esmMin((() => {
 		if (autoFeedBtn) autoFeedBtn.addEventListener("click", () => {
 			homunToggleAutoFeed();
 		});
-		if (!_preferences$22.show) this._host.style.display = "none";
+		if (!_preferences$23.show) this._host.style.display = "none";
 		const skillBtn = root.querySelector(".skill");
 		if (skillBtn) skillBtn.addEventListener("mousedown", () => {
 			SkillListMH_default.homunculus.toggle();
@@ -266531,7 +268692,7 @@ var init_HomunInformations = __esmMin((() => {
 	};
 	HomunInformations.onAppend = function onAppend() {
 		const root = HomunInformations.getRoot();
-		Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$22.autoFeed ? "1" : "0"}.bmp`, (data) => {
+		Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$23.autoFeed ? "1" : "0"}.bmp`, (data) => {
 			const el = root.querySelector(".homun_auto_feed");
 			if (el) el.style.backgroundImage = `url(${data})`;
 		});
@@ -266542,8 +268703,8 @@ var init_HomunInformations = __esmMin((() => {
 				if (feeding) feeding.style.display = "none";
 			}
 		}
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$22.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$22.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$23.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$23.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	};
 	HomunInformations.startAutoFeed = function startAutoFeed() {
 		window.clearInterval(autoFeedInterval);
@@ -266557,10 +268718,10 @@ var init_HomunInformations = __esmMin((() => {
 	* Once remove from body, save user preferences
 	*/
 	HomunInformations.onRemove = function onRemove() {
-		_preferences$22.show = this._host.style.display !== "none";
-		_preferences$22.y = parseInt(this._host.style.top, 10);
-		_preferences$22.x = parseInt(this._host.style.left, 10);
-		_preferences$22.save();
+		_preferences$23.show = this._host.style.display !== "none";
+		_preferences$23.y = parseInt(this._host.style.top, 10);
+		_preferences$23.x = parseInt(this._host.style.left, 10);
+		_preferences$23.save();
 		HomunInformations.stopAutoFeed();
 		this.stopAI();
 	};
@@ -266617,11 +268778,13 @@ var init_HomunInformations = __esmMin((() => {
 	* @param {object} homunculus info
 	*/
 	HomunInformations.setInformations = function setInformations(info) {
-		const root = HomunInformations.getRoot();
+		if (!info) return;
 		if (!this.__loaded) {
 			this.append();
 			this._host.style.display = "none";
 		}
+		const root = HomunInformations.getRoot();
+		if (!root) return;
 		if (info.szName) {
 			const nameInput = root.querySelector(".name");
 			if (nameInput) nameInput.value = info.szName;
@@ -266801,10 +268964,10 @@ var init_HomunInformations = __esmMin((() => {
 		this.startAI();
 	};
 	HomunInformations.setFeedConfig = function setFeedConfig(flag) {
-		_preferences$22.autoFeed = flag;
-		_preferences$22.save();
+		_preferences$23.autoFeed = flag;
+		_preferences$23.save();
 		const root = HomunInformations.getRoot();
-		if (root) Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$22.autoFeed ? "1" : "0"}.bmp`, (data) => {
+		if (root) Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$23.autoFeed ? "1" : "0"}.bmp`, (data) => {
 			const el = root.querySelector(".homun_auto_feed");
 			if (el) el.style.backgroundImage = `url(${data})`;
 		});
@@ -266833,7 +268996,7 @@ var init_MercenaryInformations$1 = __esmMin((() => {
 	MercenaryInformations_default$1 = ":host {\r\n	width: 280px;\r\n	height: 190px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n#MercenaryInformations {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 190px;\r\n	font-size: 12px;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n\r\n#MercenaryInformations .content {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#MercenaryInformations .content .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#MercenaryInformations .content .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 50px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#MercenaryInformations .content .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#MercenaryInformations .content .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#MercenaryInformations .content .clear {\r\n	clear: both;\r\n}\r\n\r\n#MercenaryInformations .content {\r\n	background-repeat: no-repeat;\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n#MercenaryInformations .title_name {\r\n	position: absolute;\r\n	top: 25px;\r\n	left: 100px;\r\n}\r\n#MercenaryInformations .name {\r\n	position: absolute;\r\n	top: 25px;\r\n	left: 140px;\r\n	border: none;\r\n	background-color: #eee;\r\n	margin: 0px;\r\n	width: 85px;\r\n	color: black;\r\n}\r\n\r\n#MercenaryInformations .title_level {\r\n	position: absolute;\r\n	top: 47px;\r\n	left: 100px;\r\n}\r\n#MercenaryInformations .level {\r\n	position: absolute;\r\n	top: 47px;\r\n	left: 140px;\r\n}\r\n\r\n#MercenaryInformations .skill {\r\n	position: absolute;\r\n	top: 45px;\r\n	right: 5px;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n#MercenaryInformations .dismiss {\r\n	position: absolute;\r\n	top: 45px;\r\n	right: 50px;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n#MercenaryInformations .stats {\r\n	position: absolute;\r\n	top: 20px;\r\n	width: 80px;\r\n	height: 160px;\r\n}\r\n#MercenaryInformations .stats .atk {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .Matk {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .hit {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .critical {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .def {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .Mdef {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .flee {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations .stats .aspd {\r\n	margin-top: 4px;\r\n	height: 14px;\r\n	text-align: right;\r\n}\r\n\r\n#MercenaryInformations .hp {\r\n	position: absolute;\r\n	top: 70px;\r\n	left: 140px;\r\n}\r\n#MercenaryInformations .sp {\r\n	position: absolute;\r\n	top: 85px;\r\n	left: 140px;\r\n}\r\n\r\n#MercenaryInformations .hp_bar {\r\n	position: absolute;\r\n	top: 73px;\r\n	left: 118px;\r\n	height: 8px;\r\n}\r\n#MercenaryInformations .hp_bar div {\r\n	width: 4px;\r\n	height: 8px;\r\n	float: left;\r\n}\r\n#MercenaryInformations div.hp_bar_perc {\r\n	text-align: center;\r\n	width: 80px;\r\n	position: absolute;\r\n	top: -2px;\r\n}\r\n#MercenaryInformations .hp_perc {\r\n	position: absolute;\r\n	top: 50px;\r\n	right: 20px;\r\n}\r\n\r\n#MercenaryInformations .hp2 {\r\n	position: absolute;\r\n	top: 70px;\r\n	left: 210px;\r\n}\r\n#MercenaryInformations .sp2 {\r\n	position: absolute;\r\n	top: 85px;\r\n	left: 210px;\r\n}\r\n\r\n#MercenaryInformations .sp_bar {\r\n	position: absolute;\r\n	top: 88px;\r\n	left: 118px;\r\n	height: 8px;\r\n}\r\n#MercenaryInformations .sp_bar div {\r\n	width: 4px;\r\n	height: 8px;\r\n	float: left;\r\n}\r\n#MercenaryInformations div.sp_bar_perc {\r\n	text-align: center;\r\n	width: 80px;\r\n	position: absolute;\r\n	top: -2px;\r\n}\r\n#MercenaryInformations .sp_perc {\r\n	position: absolute;\r\n	top: 50px;\r\n	right: 20px;\r\n}\r\n\r\n#MercenaryInformations .block2 {\r\n	position: absolute;\r\n	top: 105px;\r\n	left: 100px;\r\n	width: 170px;\r\n	height: 70px;\r\n}\r\n\r\n#MercenaryInformations .block2 .title_timeleft {\r\n	width: 100%;\r\n}\r\n#MercenaryInformations .block2 .timeleft {\r\n	width: 50px;\r\n	float: right;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations canvas.life.title_timeleft {\r\n	position: relative;\r\n	top: -3px;\r\n}\r\n\r\n#MercenaryInformations .block2 .title_kills {\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 27px;\r\n}\r\n#MercenaryInformations .block2 .kills {\r\n	width: 50px;\r\n	float: right;\r\n	text-align: right;\r\n}\r\n#MercenaryInformations canvas.life.title_kills {\r\n	position: relative;\r\n	top: 10px;\r\n}\r\n\r\n#MercenaryInformations .block2 .title_faith {\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 55px;\r\n}\r\n#MercenaryInformations .block2 .faith {\r\n	width: 50px;\r\n	float: right;\r\n	text-align: right;\r\n}\r\n";
 }));
 // src/UI/Components/MercenaryInformations/MercenaryInformations.js
-var MercenaryInformations, _preferences$21, MercenaryInformations_default;
+var MercenaryInformations, _preferences$22, MercenaryInformations_default;
 var init_MercenaryInformations = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -266851,7 +269014,7 @@ var init_MercenaryInformations = __esmMin((() => {
 	init_MercenaryInformations$1();
 	MercenaryInformations = new GUIComponent("MercenaryInformations", MercenaryInformations_default$1);
 	MercenaryInformations.render = () => MercenaryInformations_default$2;
-	_preferences$21 = Preferences.get("MercenaryInformations", {
+	_preferences$22 = Preferences.get("MercenaryInformations", {
 		x: 100,
 		y: 100,
 		show: false,
@@ -266880,7 +269043,7 @@ var init_MercenaryInformations = __esmMin((() => {
 		if (dismissBtn) dismissBtn.addEventListener("click", () => {
 			MercenaryInformations.reqDeleteMercenary();
 		});
-		if (!_preferences$21.show) this._host.style.display = "none";
+		if (!_preferences$22.show) this._host.style.display = "none";
 		const skillBtn = root.querySelector(".skill");
 		if (skillBtn) skillBtn.addEventListener("mousedown", () => {
 			SkillListMH_default.mercenary.toggle();
@@ -266892,18 +269055,18 @@ var init_MercenaryInformations = __esmMin((() => {
 	* Once append to body
 	*/
 	MercenaryInformations.onAppend = function onAppend() {
-		if (!_preferences$21.show) this._host.style.display = "none";
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$21.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$21.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+		if (!_preferences$22.show) this._host.style.display = "none";
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$22.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$22.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	};
 	/**
 	* Once remove from body
 	*/
 	MercenaryInformations.onRemove = function onRemove() {
-		_preferences$21.show = this._host.style.display !== "none";
-		_preferences$21.y = parseInt(this._host.style.top, 10);
-		_preferences$21.x = parseInt(this._host.style.left, 10);
-		_preferences$21.save();
+		_preferences$22.show = this._host.style.display !== "none";
+		_preferences$22.y = parseInt(this._host.style.top, 10);
+		_preferences$22.x = parseInt(this._host.style.left, 10);
+		_preferences$22.save();
 		this.stopAI();
 	};
 	/**
@@ -267000,7 +269163,13 @@ var init_MercenaryInformations = __esmMin((() => {
 	* Update UI with mercenary data
 	*/
 	MercenaryInformations.setInformations = function setInformations(info) {
+		if (!info) return;
+		if (!this.__loaded) {
+			this.append();
+			this._host.style.display = "none";
+		}
 		const root = MercenaryInformations.getRoot();
+		if (!root) return;
 		const nameEl = root.querySelector(".name");
 		if (nameEl) nameEl.textContent = info.name || "";
 		const levelEl = root.querySelector(".level");
@@ -267126,7 +269295,7 @@ var init_CaptchaUpload$1 = __esmMin((() => {
 	CaptchaUpload_default$1 = ":host {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 200px;\r\n}\r\n\r\n#CaptchaUpload {\r\n	width: 100%;\r\n	height: 100%;\r\n	background-color: #ffffff;\r\n	font-size: 12px;\r\n	border-radius: 3px;\r\n}\r\n\r\n#CaptchaUpload .clear {\r\n	clear: both;\r\n}\r\n\r\n#CaptchaUpload .titlebar {\r\n	width: 280px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n\r\n#CaptchaUpload .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n#CaptchaUpload .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#CaptchaUpload .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n\r\n#CaptchaUpload .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n\r\n#CaptchaUpload .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#CaptchaUpload .container {\r\n	padding: 10px;\r\n	text-align: center;\r\n}\r\n\r\n#CaptchaUpload .btn {\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	margin-left: 5px;\r\n}\r\n\r\n/* Custom File Input Styles */\r\n#CaptchaUpload .custom_file_input {\r\n	margin-bottom: 10px;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n#CaptchaUpload .captcha_file_text {\r\n	width: 170px;\r\n	border: 1px solid #7f9db9;\r\n	background-color: #fff;\r\n	color: #000;\r\n	height: 14px;\r\n}\r\n\r\n#CaptchaUpload .btn_browse {\r\n	width: 18px;\r\n	height: 18px;\r\n	cursor: pointer;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#CaptchaUpload .btn_browse:active {\r\n	border-color: #696969 #fff #fff #696969;\r\n}\r\n\r\n#CaptchaUpload .preview_box {\r\n	width: 220px;\r\n	height: 90px;\r\n	border: 1px solid #999;\r\n	margin: 0 auto 10px auto;\r\n	background-color: transparent;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n}\r\n\r\n#CaptchaUpload .preview_box img {\r\n	max-width: 100%;\r\n	max-height: 100%;\r\n}\r\n\r\n#CaptchaUpload input[type='text'].answer_input {\r\n	width: 150px;\r\n	margin-right: 5px;\r\n	border: 1px solid #7f9db9;\r\n}\r\n\r\n#CaptchaUpload .controls {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n";
 }));
 // src/UI/Components/Captcha/CaptchaUpload.js
-var CaptchaUpload, _preferences$20, CaptchaUpload_default;
+var CaptchaUpload, _preferences$21, CaptchaUpload_default;
 var init_CaptchaUpload = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -267137,7 +269306,7 @@ var init_CaptchaUpload = __esmMin((() => {
 	init_CaptchaUpload$2();
 	init_CaptchaUpload$1();
 	CaptchaUpload = new GUIComponent("CaptchaUpload", CaptchaUpload_default$1);
-	_preferences$20 = Preferences.get("CaptchaUpload", {
+	_preferences$21 = Preferences.get("CaptchaUpload", {
 		x: 230,
 		y: 295
 	}, 2);
@@ -267208,16 +269377,16 @@ var init_CaptchaUpload = __esmMin((() => {
 	* Append to DOM
 	*/
 	CaptchaUpload.onAppend = function onAppend() {
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$20.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$20.x), Renderer.width - this._host.offsetWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$21.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$21.x), Renderer.width - this._host.offsetWidth)}px`;
 	};
 	/**
 	* Remove data from UI
 	*/
 	CaptchaUpload.onRemove = function onRemove() {
-		_preferences$20.y = parseInt(this._host.style.top, 10);
-		_preferences$20.x = parseInt(this._host.style.left, 10);
-		_preferences$20.save();
+		_preferences$21.y = parseInt(this._host.style.top, 10);
+		_preferences$21.x = parseInt(this._host.style.left, 10);
+		_preferences$21.save();
 		const root = this.getRoot();
 		const previewBox = root.querySelector(".preview_box");
 		if (previewBox) previewBox.innerHTML = "";
@@ -267252,7 +269421,7 @@ var init_CaptchaSelector$1 = __esmMin((() => {
 	CaptchaSelector_default$1 = ":host {\r\n	position: absolute;\r\n	width: 210px;\r\n	height: 310px;\r\n	z-index: 50;\r\n}\r\n\r\n#CaptchaSelector {\r\n	width: 100%;\r\n	height: 100%;\r\n	background-color: #ffffff;\r\n	font-size: 12px;\r\n}\r\n\r\n#CaptchaSelector .clear {\r\n	clear: both;\r\n}\r\n\r\n#CaptchaSelector .titlebar {\r\n	width: 210px;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n\r\n#CaptchaSelector .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n#CaptchaSelector .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	display: inline-block;\r\n	width: 32px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#CaptchaSelector .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n\r\n#CaptchaSelector .titlebar .right,\r\n#CaptchaSelector .character_info .close-character {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n\r\n#CaptchaSelector .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#CaptchaSelector .container {\r\n	height: 293px;\r\n}\r\n\r\n#CaptchaSelector .options {\r\n	height: 22px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n#CaptchaSelector .player_list {\r\n	height: 247px;\r\n	overflow-y: auto;\r\n	list-style: none;\r\n	margin: 0px 10px;\r\n	padding: 0;\r\n}\r\n\r\n#CaptchaSelector .player_list li {\r\n	width: 190px;\r\n	height: 24px;\r\n	margin: 2px 0;\r\n	background-color: #e5e5e5;\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 5px;\r\n}\r\n\r\n#CaptchaSelector .footer {\r\n	display: flex;\r\n	justify-content: end;\r\n	align-items: center;\r\n	height: 24px;\r\n}\r\n\r\n#CaptchaSelector .range_val {\r\n	appearance: none;\r\n	width: 20px;\r\n	border: 1px solid;\r\n	margin-left: 3px;\r\n}\r\n\r\n#CaptchaSelector .range_val::-webkit-inner-spin-button,\r\n#CaptchaSelector .range_val::-webkit-outer-spin-button {\r\n	-webkit-appearance: none;\r\n	margin: 0;\r\n	border: 1px solid;\r\n	margin-left: 3px;\r\n}\r\n\r\n#CaptchaSelector .btn_active,\r\n#CaptchaSelector .footer .btn {\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\n\r\n#CaptchaSelector .btn_active {\r\n	margin-left: 15px;\r\n}\r\n\r\n#CaptchaSelector .footer .btn {\r\n	margin-right: 10px;\r\n}\r\n\r\n#CaptchaSelector .character_info {\r\n	position: absolute;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 200px;\r\n	height: 35px;\r\n	background-color: #ffffff;\r\n	border-radius: 3px;\r\n	display: none;\r\n}\r\n\r\n#CaptchaSelector li a {\r\n	text-decoration: underline;\r\n	color: black;\r\n}\r\n\r\n#CaptchaSelector .player_list li .remove {\r\n	width: 11px;\r\n	height: 11px;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n";
 }));
 // src/UI/Components/Captcha/CaptchaSelector.js
-var CaptchaSelector, _preferences$19, _aidList, _aidInformation, _range, _active$2, CaptchaSelector_default;
+var CaptchaSelector, _preferences$20, _aidList, _aidInformation, _range, _active$2, CaptchaSelector_default;
 var init_CaptchaSelector = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -267266,7 +269435,7 @@ var init_CaptchaSelector = __esmMin((() => {
 	init_CaptchaSelector$2();
 	init_CaptchaSelector$1();
 	CaptchaSelector = new GUIComponent("CaptchaSelector", CaptchaSelector_default$1);
-	_preferences$19 = Preferences.get("CaptchaSelector", {
+	_preferences$20 = Preferences.get("CaptchaSelector", {
 		x: 230,
 		y: 295
 	}, 2);
@@ -267329,16 +269498,16 @@ var init_CaptchaSelector = __esmMin((() => {
 	* Append to DOM
 	*/
 	CaptchaSelector.onAppend = function onAppend() {
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$19.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$19.x), Renderer.width - this._host.offsetWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$20.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$20.x), Renderer.width - this._host.offsetWidth)}px`;
 	};
 	/**
 	* Remove data from UI
 	*/
 	CaptchaSelector.onRemove = function onRemove() {
-		_preferences$19.y = parseInt(this._host.style.top, 10);
-		_preferences$19.x = parseInt(this._host.style.left, 10);
-		_preferences$19.save();
+		_preferences$20.y = parseInt(this._host.style.top, 10);
+		_preferences$20.x = parseInt(this._host.style.left, 10);
+		_preferences$20.save();
 		const charInfo = this.getRoot().querySelector(".character_info");
 		if (charInfo) charInfo.style.display = "none";
 		this.cleanUIList();
@@ -267472,7 +269641,7 @@ function renderLayer$2(layer, spr, pal, sizeScale, pos, alpha) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.render(false);
 }
-var RAG_TICK_MS$2, FADEOUT_TAIL_MS$3, EMIT_STOP_BEFORE_END_MS$2, FLAKE_LIFE_MS, FLAKE_FADEIN_MS, FLAKE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$2, SPAWN_HEIGHT_MIN_CELLS$2, FALL_SPEED_CELLS_PER_MS, SPR_PATH, _instance$4, _mapName$6, _isStopping$2, SnowWeatherEffect;
+var RAG_TICK_MS$2, FADEOUT_TAIL_MS$3, EMIT_STOP_BEFORE_END_MS$2, FLAKE_LIFE_MS, FLAKE_FADEIN_MS, FLAKE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$2, SPAWN_HEIGHT_MIN_CELLS$2, FALL_SPEED_CELLS_PER_MS, SPR_PATH, _instance$4, _mapName$5, _isStopping$2, SnowWeatherEffect;
 var init_SnowWeather = __esmMin((() => {
 	init_Client();
 	init_Renderer();
@@ -267491,7 +269660,7 @@ var init_SnowWeather = __esmMin((() => {
 	FALL_SPEED_CELLS_PER_MS = .1 / RAG_TICK_MS$2;
 	SPR_PATH = "data/sprite/ÀÌÆÑÆ®/ef_snow";
 	_instance$4 = null;
-	_mapName$6 = "";
+	_mapName$5 = "";
 	_isStopping$2 = false;
 	SnowWeatherEffect = class SnowWeatherEffect {
 		constructor(Params) {
@@ -267539,9 +269708,9 @@ var init_SnowWeather = __esmMin((() => {
 		static startOrRestart(Params) {
 			const now = Params.Inst.startTick || Renderer.tick;
 			const currentMap = MapRenderer.currentMap;
-			if (_mapName$6 !== currentMap) {
+			if (_mapName$5 !== currentMap) {
 				_instance$4 = null;
-				_mapName$6 = currentMap;
+				_mapName$5 = currentMap;
 			}
 			_isStopping$2 = false;
 			if (_instance$4 && !_instance$4.needCleanUp) {
@@ -267552,12 +269721,12 @@ var init_SnowWeather = __esmMin((() => {
 				return _instance$4;
 			}
 			_instance$4 = new SnowWeatherEffect(Params);
-			_mapName$6 = currentMap;
+			_mapName$5 = currentMap;
 			return _instance$4;
 		}
 		static renderAll(gl, modelView, projection, fog, tick) {
 			if (!_instance$4) return;
-			if (_mapName$6 !== MapRenderer.currentMap) {
+			if (_mapName$5 !== MapRenderer.currentMap) {
 				_instance$4 = null;
 				return;
 			}
@@ -267709,7 +269878,7 @@ function renderLayer$1(layer, spr, pal, sizeScale, pos, alpha) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.render(false);
 }
-var RAG_TICK_MS$1, FADEOUT_TAIL_MS$2, EMIT_INTERVAL_MS, EMIT_STOP_BEFORE_END_MS$1, LEAVE_LIFE_MS, LEAVE_FADEIN_MS, LEAVE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$1, SPAWN_HEIGHT_MIN_CELLS$1, EF_MAPLE, PATH_SAKURA, PATH_MAPLE, _instance$3, _mapName$5, _isStopping$1, SakuraWeatherEffect;
+var RAG_TICK_MS$1, FADEOUT_TAIL_MS$2, EMIT_INTERVAL_MS, EMIT_STOP_BEFORE_END_MS$1, LEAVE_LIFE_MS, LEAVE_FADEIN_MS, LEAVE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$1, SPAWN_HEIGHT_MIN_CELLS$1, EF_MAPLE, PATH_SAKURA, PATH_MAPLE, _instance$3, _mapName$4, _isStopping$1, SakuraWeatherEffect;
 var init_SakuraWeatherEffect = __esmMin((() => {
 	init_Client();
 	init_Renderer();
@@ -267730,7 +269899,7 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 	PATH_SAKURA = "data/sprite/ÀÌÆÑÆ®/sakura01";
 	PATH_MAPLE = "data/sprite/ÀÌÆÑÆ®/´ÜÇ³";
 	_instance$3 = null;
-	_mapName$5 = "";
+	_mapName$4 = "";
 	_isStopping$1 = false;
 	SakuraWeatherEffect = class SakuraWeatherEffect {
 		constructor(Params) {
@@ -267769,9 +269938,9 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 		static startOrRestart(Params) {
 			const now = Params.Inst.startTick || Renderer.tick;
 			const currentMap = MapRenderer.currentMap;
-			if (_mapName$5 !== currentMap) {
+			if (_mapName$4 !== currentMap) {
 				_instance$3 = null;
-				_mapName$5 = currentMap;
+				_mapName$4 = currentMap;
 			}
 			_isStopping$1 = false;
 			if (_instance$3 && !_instance$3.needCleanUp) {
@@ -267786,12 +269955,12 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 				}
 			}
 			_instance$3 = new SakuraWeatherEffect(Params);
-			_mapName$5 = currentMap;
+			_mapName$4 = currentMap;
 			return _instance$3;
 		}
 		static renderAll(gl, modelView, projection, fog, tick) {
 			if (!_instance$3) return;
-			if (_mapName$5 !== MapRenderer.currentMap) {
+			if (_mapName$4 !== MapRenderer.currentMap) {
 				_instance$3 = null;
 				return;
 			}
@@ -267912,14 +270081,14 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 	};
 }));
 // src/Renderer/Effects/PokJukWeatherEffect.js
-var _instance$2, _mapName$4, _whiteTexture, EXPLOSION_ALTITUDE, PARTICLE_SIZE$1, FIRE_LIFE_MS, EXPLOSION_LIFE_MS, PokJukWeatherEffect;
+var _instance$2, _mapName$3, _whiteTexture, EXPLOSION_ALTITUDE, PARTICLE_SIZE$1, FIRE_LIFE_MS, EXPLOSION_LIFE_MS, PokJukWeatherEffect;
 var init_PokJukWeatherEffect = __esmMin((() => {
 	init_MapRenderer();
 	init_SpriteRenderer();
 	init_SessionStorage();
 	init_SoundManager();
 	_instance$2 = null;
-	_mapName$4 = "";
+	_mapName$3 = "";
 	_whiteTexture = null;
 	EXPLOSION_ALTITUDE = 8;
 	PARTICLE_SIZE$1 = 6;
@@ -267935,7 +270104,7 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 		}
 		static renderAll(gl, modelView, projection, fog, tick) {
 			if (!_instance$2) return;
-			if (_mapName$4 !== MapRenderer.currentMap) {
+			if (_mapName$3 !== MapRenderer.currentMap) {
 				_instance$2 = null;
 				return;
 			}
@@ -267948,9 +270117,9 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 		}
 		static startOrRestart(Params) {
 			const currentMap = MapRenderer.currentMap;
-			if (_mapName$4 !== currentMap || !_instance$2) {
+			if (_mapName$3 !== currentMap || !_instance$2) {
 				_instance$2 = new PokJukWeatherEffect(Params);
-				_mapName$4 = currentMap;
+				_mapName$3 = currentMap;
 			}
 			return _instance$2;
 		}
@@ -268144,12 +270313,12 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 		}
 		static stop() {
 			_instance$2 = null;
-			_mapName$4 = "";
+			_mapName$3 = "";
 		}
 	};
 }));
 // src/Renderer/Effects/CloudWeatherEffect.js
-var FADEOUT_TAIL_MS$1, _instance$1, _mapName$3, PROFILE_MAP, CloudWeatherEffect;
+var FADEOUT_TAIL_MS$1, _instance$1, _mapName$2, PROFILE_MAP, CloudWeatherEffect;
 var init_CloudWeatherEffect = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -268160,7 +270329,7 @@ var init_CloudWeatherEffect = __esmMin((() => {
 	init_gl_matrix();
 	FADEOUT_TAIL_MS$1 = 2e3;
 	_instance$1 = null;
-	_mapName$3 = "";
+	_mapName$2 = "";
 	PROFILE_MAP = {
 		229: {
 			maxClouds: 40,
@@ -268304,22 +270473,22 @@ var init_CloudWeatherEffect = __esmMin((() => {
 		static startOrRestart(Params) {
 			const now = Params.Inst.startTick || Renderer.tick;
 			const currentMap = MapRenderer.currentMap;
-			if (_mapName$3 !== currentMap) {
+			if (_mapName$2 !== currentMap) {
 				_instance$1 = null;
-				_mapName$3 = currentMap;
+				_mapName$2 = currentMap;
 			}
 			if (_instance$1 && !_instance$1.needCleanUp) {
 				if (_instance$1.endTick > 0) _instance$1.endTick = -1;
 				return _instance$1;
 			}
 			_instance$1 = new CloudWeatherEffect(Params);
-			_mapName$3 = currentMap;
+			_mapName$2 = currentMap;
 			_instance$1.init(now);
 			return _instance$1;
 		}
 		static renderAll(gl, modelView, projection, fog, tick) {
 			if (!_instance$1) return;
-			if (_mapName$3 !== MapRenderer.currentMap) {
+			if (_mapName$2 !== MapRenderer.currentMap) {
 				_instance$1 = null;
 				return;
 			}
@@ -268571,6 +270740,7 @@ var init_ProcessCommand = __esmMin((() => {
 	init_Camera$1();
 	init_Renderer();
 	init_Configs();
+	init_PerfProbe();
 	init_EffectConst();
 	init_StatusState();
 	init_EntityManager();
@@ -269404,6 +271574,40 @@ var init_ProcessCommand = __esmMin((() => {
 			this.addText("Unknown weather. Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 		}
 	};
+	if (Configs.get("perfProbe")) CommandStore.perf = {
+		description: "Performance probe. Usage: /perf [reset|slow|overlay on|off]",
+		callback: function(text) {
+			const args = text.trim().split(/\s+/).slice(1);
+			const mode = (args[0] || "").toLowerCase();
+			if (!PerfProbe.enabled) {
+				this.addText("The performance probe is not running.", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (!mode || mode === "stats") {
+				const stats = PerfProbe.stats();
+				console.log("[PerfProbe] stats", stats);
+				this.addText(`${stats.fps} fps over ${stats.drawingSeconds} s of drawing: frame p50 ${stats.frameMs.p50} / p99 ${stats.frameMs.p99} ms, work ${stats.workMs.avg} ms, ${stats.drawCalls.avg} draws, ${stats.hitches} hitches`, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (mode === "reset") {
+				PerfProbe.reset();
+				this.addText("Performance probe reset.", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (mode === "slow") {
+				const slow = PerfProbe.slowFrames();
+				const total = PerfProbe.stats().slowFrames;
+				console.table(slow);
+				this.addText(total > slow.length ? `${total} frames over 33 ms since the last reset; the first ${slow.length} are listed.` : `${slow.length} frames over 33 ms since the last reset.`, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (mode === "overlay") {
+				PerfProbe.overlay((args[1] || "on").toLowerCase() !== "off");
+				return;
+			}
+			this.addText("Usage: /perf [reset|slow|overlay on|off]", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+		}
+	};
 	loadAliases();
 	ProcessCommand_default = {
 		processCommand,
@@ -270189,7 +272393,7 @@ var init_AreaSpawner = __esmMin((() => {
 // src/Renderer/Effects/RsmEffect.vs?raw
 var RsmEffect_default$1;
 var init_RsmEffect$2 = __esmMin((() => {
-	RsmEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec3 aVertexNormal;\r\nin vec2 aTextureCoord;\r\nin float aAlpha;\r\n\r\nout vec2 vTextureCoord;\r\nout float vLightWeighting;\r\nout float vAlpha;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform vec3 uLightDirection;\r\nuniform mat3 uNormalMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\n\r\nvoid main(void) {\r\n\r\n	vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n	position += vec4(aPosition.x * uSize, aPosition.y * -uSize, aPosition.z * uSize, 0.0);\r\n\r\n	gl_Position	 = uProjectionMat * uModelViewMat * position;\r\n\r\n	vTextureCoord   = aTextureCoord;\r\n	vAlpha		  = aAlpha;\r\n\r\n	vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);\r\n	vec3 dirVector   = normalize(lDirection.xyz);\r\n	float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );\r\n	vLightWeighting  = max( dotProduct, 0.5 );\r\n}";
+	RsmEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec3 aVertexNormal;\r\nin vec2 aTextureCoord;\r\nin float aAlpha;\r\n\r\nout vec2 vTextureCoord;\r\nout float vLightWeighting;\r\nout float vAlpha;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uModelMat;\r\nuniform mat3 uNodeNormalMat;\r\nuniform float uApplyNodeNormal;\r\n\r\nuniform vec3 uLightDirection;\r\nuniform mat3 uNormalMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\n\r\nvoid main(void) {\r\n\r\n	vec4 position  = vec4(uPosition.x + 0.55, -uPosition.z - 0.5, uPosition.y, 1.0);\r\n	vec3 wp = (uModelMat * vec4(aPosition, 1.0)).xyz;  \r\n	position += vec4(wp.x * uSize, wp.y * -uSize, wp.z * uSize, 0.0);\r\n\r\n	gl_Position	 = uProjectionMat * uModelViewMat * position;\r\n\r\n	vTextureCoord   = aTextureCoord;\r\n	vAlpha		  = aAlpha;\r\n\r\n	vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);\r\n	vec3 dirVector   = normalize(lDirection.xyz);\r\n	vec3 worldNormal = uApplyNodeNormal > 0.5 ? (uNodeNormalMat * aVertexNormal) : aVertexNormal;\r\n	vec3 viewNormal  = uNormalMat * worldNormal;\r\n	float dotProduct = dot( viewNormal, dirVector );\r\n	vLightWeighting  = max( dotProduct, 0.5 );\r\n}";
 }));
 // src/Renderer/Effects/RsmEffect.fs?raw
 var RsmEffect_default;
@@ -271309,25 +273513,40 @@ var init_Model = __esmMin((() => {
 }));
 // src/Renderer/Effects/RsmEffect.js
 /**
+* Create a per-effect scratchpad context to avoid shared mutable state
+* across effect instances.
+*/
+function createScratch() {
+	return {
+		matrix: mat4$16.create(),
+		nodeMatrix: mat4$16.create(),
+		mat4Node: mat4$16.create(),
+		quat: quat.create(),
+		vec3Pos: vec3$3.create(),
+		vec3Scale: vec3$3.create(),
+		vec3BoxCenter: vec3$3.create(),
+		normalMat: mat4$16.create(),
+		tempVec: vec3$3.create()
+	};
+}
+/**
 * Interpolate between two quaternions using SLERP
 */
-function slerpQuat(q1, q2, t) {
-	const out = quat.create();
-	quat.slerp(out, q1, q2, t);
-	return out;
+function slerpQuat(ctx, q1, q2, t) {
+	quat.slerp(ctx.quat, q1, q2, t);
+	return ctx.quat;
 }
 /**
 * Interpolate between two vec3 using linear interpolation
 */
-function lerpVec3(v1, v2, t) {
-	const out = vec3$3.create();
-	vec3$3.lerp(out, v1, v2, t);
-	return out;
+function lerpVec3(ctx, v1, v2, t) {
+	vec3$3.lerp(ctx.vec3Scale, v1, v2, t);
+	return ctx.vec3Scale;
 }
 /**
 * Get rotation at a specific frame from keyframes
 */
-function getRotationAtFrame(rotKeyframes, frame, animLen) {
+function getRotationAtFrame(ctx, rotKeyframes, frame, animLen) {
 	if (!rotKeyframes || rotKeyframes.length === 0) return null;
 	if (rotKeyframes.length === 1) return rotKeyframes[0].q;
 	let prevIdx = 0;
@@ -271350,18 +273569,19 @@ function getRotationAtFrame(rotKeyframes, frame, animLen) {
 	if (frame < prevFrame) frame += animLen;
 	let t = nextFrame - prevFrame > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
 	t = Math.max(0, Math.min(1, t));
-	return slerpQuat(rotKeyframes[prevIdx].q, rotKeyframes[nextIdx].q, t);
+	return slerpQuat(ctx, rotKeyframes[prevIdx].q, rotKeyframes[nextIdx].q, t);
 }
 /**
 * Get position at a specific frame from keyframes
 */
-function getPositionAtFrame(posKeyframes, frame, animLen) {
+function getPositionAtFrame(ctx, posKeyframes, frame, animLen) {
 	if (!posKeyframes || posKeyframes.length === 0) return null;
-	if (posKeyframes.length === 1) return [
-		posKeyframes[0].px,
-		posKeyframes[0].py,
-		posKeyframes[0].pz
-	];
+	if (posKeyframes.length === 1) {
+		ctx.vec3Pos[0] = posKeyframes[0].px;
+		ctx.vec3Pos[1] = posKeyframes[0].py;
+		ctx.vec3Pos[2] = posKeyframes[0].pz;
+		return ctx.vec3Pos;
+	}
 	let prevIdx = 0;
 	let nextIdx = 0;
 	for (let i = 0; i < posKeyframes.length; i++) {
@@ -271377,11 +273597,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	}
 	if (prevIdx === nextIdx) {
 		const kf = posKeyframes[prevIdx];
-		return [
-			kf.px,
-			kf.py,
-			kf.pz
-		];
+		ctx.vec3Pos[0] = kf.px;
+		ctx.vec3Pos[1] = kf.py;
+		ctx.vec3Pos[2] = kf.pz;
+		return ctx.vec3Pos;
 	}
 	const prevFrame = posKeyframes[prevIdx].frame;
 	let nextFrame = posKeyframes[nextIdx].frame;
@@ -271391,20 +273610,15 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	t = Math.max(0, Math.min(1, t));
 	const p1 = posKeyframes[prevIdx];
 	const p2 = posKeyframes[nextIdx];
-	return lerpVec3([
-		p1.px,
-		p1.py,
-		p1.pz
-	], [
-		p2.px,
-		p2.py,
-		p2.pz
-	], t);
+	ctx.vec3Pos[0] = p1.px + (p2.px - p1.px) * t;
+	ctx.vec3Pos[1] = p1.py + (p2.py - p1.py) * t;
+	ctx.vec3Pos[2] = p1.pz + (p2.pz - p1.pz) * t;
+	return ctx.vec3Pos;
 }
 /**
 * Get scale at a specific frame from keyframes
 */
-function getScaleAtFrame(scaleKeyFrames, frame, animLen) {
+function getScaleAtFrame(ctx, scaleKeyFrames, frame, animLen) {
 	if (!scaleKeyFrames || scaleKeyFrames.length === 0) return null;
 	if (scaleKeyFrames.length === 1) return scaleKeyFrames[0].Scale;
 	let prevIdx = 0;
@@ -271427,7 +273641,7 @@ function getScaleAtFrame(scaleKeyFrames, frame, animLen) {
 	if (frame < prevFrame) frame += animLen;
 	let t = nextFrame - prevFrame > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
 	t = Math.max(0, Math.min(1, t));
-	return lerpVec3(scaleKeyFrames[prevIdx].Scale, scaleKeyFrames[nextIdx].Scale, t);
+	return lerpVec3(ctx, scaleKeyFrames[prevIdx].Scale, scaleKeyFrames[nextIdx].Scale, t);
 }
 /**
 * Calculate normals (NONE type)
@@ -271436,20 +273650,19 @@ function calcNormal_NONE(out) {
 	for (let i = 1, count = out.length; i < count; i += 3) out[i] = -1;
 }
 /**
-* Calculate normals (FLAT type)
+* Calculate normals (FLAT type) - uses identity normalMat (local space)
 */
-function calcNormal_FLAT(node, out, normalMat, groupUsed) {
+function calcNormal_FLAT(node, out, groupUsed, tempVec) {
 	let i, j, count;
 	let face;
-	const temp_vec = vec3$3.create();
 	const faces = node.faces;
 	const vertices = node.vertices;
 	for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 		face = faces[i];
-		vec3$3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
-		out[j] = normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
-		out[j + 1] = normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
-		out[j + 2] = normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
+		vec3$3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], tempVec);
+		out[j] = tempVec[0];
+		out[j + 1] = tempVec[1];
+		out[j + 2] = tempVec[2];
 		if (face.smoothGroup !== void 0) groupUsed[face.smoothGroup] = true;
 	}
 }
@@ -271558,52 +273771,57 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
 	}
 }
 /**
-* Compile a node at a specific animation frame
+* Get node matrix at a specific animation frame (world space, no camera view)
 */
-function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = mat4$16.create();
-	const normalMat = mat4$16.create();
+function getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, animLen, outMat, outNormalMat) {
+	const matrix = ctx.matrix;
+	mat4$16.identity(matrix);
+	ctx.vec3BoxCenter[0] = -node.main.box.center[0];
+	ctx.vec3BoxCenter[1] = -node.main.box.max[1];
+	ctx.vec3BoxCenter[2] = -node.main.box.center[2];
+	mat4$16.translate(matrix, matrix, ctx.vec3BoxCenter);
+	const nodeMatrix = ctx.nodeMatrix;
+	if (node._parentMatrix) mat4$16.copy(nodeMatrix, node._parentMatrix);
+	else mat4$16.identity(nodeMatrix);
+	if (node.baseMatrix) mat4$16.multiply(nodeMatrix, nodeMatrix, node.baseMatrix);
+	const animPos = getPositionAtFrame(ctx, node.posKeyframes, frame, animLen);
+	if (animPos) mat4$16.translate(nodeMatrix, nodeMatrix, animPos);
+	else mat4$16.translate(nodeMatrix, nodeMatrix, node.pos);
+	const animRot = getRotationAtFrame(ctx, node.rotKeyframes, frame, animLen);
+	if (animRot) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+	else if (node.rotKeyframes && node.rotKeyframes.length > 0) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
+	else mat4$16.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
+	const animScale = getScaleAtFrame(ctx, node.scaleKeyFrames, frame, animLen);
+	if (animScale) mat4$16.scale(nodeMatrix, nodeMatrix, animScale);
+	else mat4$16.scale(nodeMatrix, nodeMatrix, node.scale);
+	mat4$16.multiply(matrix, matrix, nodeMatrix);
+	if (!node.is_only) mat4$16.translate(matrix, matrix, node.offset);
+	mat4$16.multiply(matrix, matrix, mat3$1.toMat4(node.mat3, ctx.mat4Node));
+	mat4$16.multiply(outMat, instanceMatrix, matrix);
+	mat4$16.extractRotation(ctx.normalMat, outMat);
+	mat3$1.fromMat4(outNormalMat, ctx.normalMat);
+}
+/**
+* Compile a node in LOCAL space (no modelViewMat, no instance matrix)
+*/
+function compileNodeLocal(ctx, node) {
 	const textures = node.textures;
 	const faces = node.faces;
 	const vertices = node.vertices;
 	const mesh = {};
 	const mesh_size = [];
-	const shadeGroup = new Array(32);
-	const shadeGroupUsed = new Array(32);
+	const shadeGroup = new Array(32).fill(null);
+	const shadeGroupUsed = new Array(32).fill(false);
 	let i, x, y, z, count;
-	const matrix = mat4$16.create();
-	mat4$16.identity(matrix);
-	mat4$16.translate(matrix, matrix, [
-		-node.main.box.center[0],
-		-node.main.box.max[1],
-		-node.main.box.center[2]
-	]);
-	const nodeMatrix = mat4$16.create();
-	mat4$16.identity(nodeMatrix);
-	const animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
-	if (animPos) mat4$16.translate(nodeMatrix, nodeMatrix, animPos);
-	else mat4$16.translate(nodeMatrix, nodeMatrix, node.pos);
-	const animRot = getRotationAtFrame(node.rotKeyframes, frame, animLen);
-	if (animRot) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, animRot);
-	else if (node.rotKeyframes && node.rotKeyframes.length > 0) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
-	else mat4$16.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
-	const animScale = getScaleAtFrame(node.scaleKeyFrames, frame, animLen);
-	if (animScale) mat4$16.scale(nodeMatrix, nodeMatrix, animScale);
-	else mat4$16.scale(nodeMatrix, nodeMatrix, node.scale);
-	mat4$16.multiply(matrix, matrix, nodeMatrix);
-	if (!node.is_only) mat4$16.translate(matrix, matrix, node.offset);
-	mat4$16.multiply(matrix, matrix, mat3$1.toMat4(node.mat3));
-	mat4$16.multiply(modelViewMat, instanceMatrix, matrix);
-	mat4$16.extractRotation(normalMat, modelViewMat);
 	count = vertices.length;
 	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
 		x = vertices[i][0];
 		y = vertices[i][1];
 		z = vertices[i][2];
-		vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
-		vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
-		vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
+		vert[i * 3 + 0] = x;
+		vert[i * 3 + 1] = y;
+		vert[i * 3 + 2] = z;
 	}
 	const face_normal = new Float32Array(faces.length * 3);
 	for (i = 0, count = textures.length; i < count; ++i) mesh_size[textures[i]] = 0;
@@ -271616,85 +273834,32 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 		case 1:
-			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, shadeGroupUsed, ctx.tempVec);
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 		case 2:
-			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, shadeGroupUsed, ctx.tempVec);
 			calcNormal_SMOOTH(node, face_normal, shadeGroupUsed, shadeGroup);
 			generate_mesh_SMOOTH(node, vert, shadeGroup, mesh);
 	}
 	return mesh;
 }
 /**
-* Rebuild mesh buffer at current frame
+* Get node matrix for non-animated model (mirrors Node.compile in Loaders/Model.js)
 */
-function rebuildMeshAtFrame(self, gl, frame) {
-	const model = self.model;
-	const nodes = model.nodes;
-	const instances = model.instances;
-	const objects = [];
-	const infos = [];
-	let total = 0;
-	for (let ni = 0; ni < nodes.length; ni++) for (let ii = 0; ii < instances.length; ii++) {
-		const mesh = compileNodeAtFrame(nodes[ni], instances[ii], frame, model.animLen);
-		const textureKeys = Object.keys(mesh);
-		for (let ki = 0; ki < textureKeys.length; ki++) {
-			const texIdx = textureKeys[ki];
-			objects.push({
-				texture: model.textures[texIdx],
-				alpha: model.alpha,
-				mesh: mesh[texIdx]
-			});
-			total += mesh[texIdx].length;
-		}
-	}
-	const buffer = new Float32Array(total);
-	let offset = 0;
-	let i = 0;
-	for (; i < objects.length; i++) {
-		const obj = objects[i];
-		const length = obj.mesh.length;
-		infos[i] = {
-			texture: "data/texture/" + obj.texture,
-			vertOffset: offset / 9,
-			vertCount: length / 9
-		};
-		buffer.set(obj.mesh, offset);
-		offset += length;
-	}
-	if (!self.buffer) self.buffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-	if (self._bufferSize === buffer.byteLength) gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
-	else {
-		gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
-		self._bufferSize = buffer.byteLength;
-	}
-	if (self.objects.length !== infos.length) {
-		for (i = 0; i < self.objects.length; i++) if (self.objects[i] && self.objects[i].texture) gl.deleteTexture(self.objects[i].texture);
-		self.objects = new Array(infos.length);
-		for (i = 0; i < infos.length; i++) {
-			self.objects[i] = {
-				vertCount: infos[i].vertCount,
-				vertOffset: infos[i].vertOffset,
-				complete: false,
-				texture: null
-			};
-			(function(idx, texturePath) {
-				Client.loadFile(texturePath, function(data) {
-					WebGL_default.texture(gl, data, function(texture) {
-						self.objects[idx].texture = texture;
-						self.objects[idx].complete = true;
-					});
-				}, function() {
-					self.objects[idx].complete = true;
-				});
-			})(i, infos[i].texture);
-		}
-	} else for (i = 0; i < infos.length; i++) {
-		self.objects[i].vertCount = infos[i].vertCount;
-		self.objects[i].vertOffset = infos[i].vertOffset;
-	}
+function getNodeMatrixStatic(ctx, node, instanceMatrix, outMat, outNormalMat) {
+	const matrix = ctx.matrix;
+	mat4$16.identity(matrix);
+	ctx.vec3BoxCenter[0] = -node.main.box.center[0];
+	ctx.vec3BoxCenter[1] = -node.main.box.max[1];
+	ctx.vec3BoxCenter[2] = -node.main.box.center[2];
+	mat4$16.translate(matrix, matrix, ctx.vec3BoxCenter);
+	mat4$16.multiply(matrix, matrix, node.matrix);
+	if (!node.is_only) mat4$16.translate(matrix, matrix, node.offset);
+	mat4$16.multiply(matrix, matrix, mat3$1.toMat4(node.mat3, ctx.mat4Node));
+	mat4$16.multiply(outMat, instanceMatrix, matrix);
+	mat4$16.extractRotation(ctx.normalMat, outMat);
+	mat3$1.fromMat4(outNormalMat, ctx.normalMat);
 }
 function initModel(gl, data) {
 	const self = this;
@@ -271702,18 +273867,57 @@ function initModel(gl, data) {
 	this.objects.length = count;
 	if (!this.buffer) this.buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, this.isAnimated ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
-	this._bufferSize = data.buffer.byteLength;
-	function onTextureLoaded(texture, i) {
-		self.objects[i].texture = texture;
-		self.objects[i].complete = true;
-	}
+	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
+	const glTextureCache = /* @__PURE__ */ new Map();
+	const pending = /* @__PURE__ */ new Map();
 	for (let i = 0; i < count; ++i) {
 		if (!this.objects[i]) this.objects[i] = {};
-		this.objects[i].vertCount = data.infos[i].vertCount;
-		this.objects[i].vertOffset = data.infos[i].vertOffset;
-		this.objects[i].complete = false;
-		WebGL_default.texture(gl, data.infos[i].texture, onTextureLoaded, i);
+		const info = data.infos[i];
+		const obj = this.objects[i];
+		obj.vertCount = info.vertCount;
+		obj.vertOffset = info.vertOffset;
+		obj.complete = false;
+		obj.modelMat = info.modelMat;
+		obj.normalMat = info.normalMat;
+		obj.nodeIndex = info.nodeIndex;
+		obj.instIndex = info.instIndex;
+		obj.applyNodeNormal = info.shadeType === 1 || info.shadeType === 2;
+		if (!info.textureData) continue;
+		const texPath = info.texPath;
+		if (glTextureCache.has(texPath)) {
+			obj.texture = glTextureCache.get(texPath);
+			obj.complete = true;
+			continue;
+		}
+		if (pending.has(texPath)) {
+			pending.get(texPath).push(i);
+			continue;
+		}
+		const waiting = [i];
+		pending.set(texPath, waiting);
+		WebGL_default.texture(gl, info.textureData, function(texture) {
+			glTextureCache.set(texPath, texture);
+			pending.delete(texPath);
+			for (let k = 0; k < waiting.length; ++k) {
+				self.objects[waiting[k]].texture = texture;
+				self.objects[waiting[k]].complete = true;
+			}
+		});
+	}
+}
+/**
+* Update node matrices for current animation frame
+*/
+function updateNodeMatrices(self, frame) {
+	const ctx = self._scratch;
+	const model = self.model;
+	const nodes = model.nodes;
+	const instances = model.instances;
+	for (let i = 0, count = self.objects.length; i < count; ++i) {
+		const obj = self.objects[i];
+		const node = nodes[obj.nodeIndex];
+		const instanceMatrix = instances[obj.instIndex];
+		getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, model.animLen, obj.modelMat, obj.normalMat);
 	}
 }
 var _program$21, _normalMat, mat4$16, mat3$1, quat, vec3$3, _light, RsmEffect;
@@ -271772,6 +273976,7 @@ var init_RsmEffect = __esmMin((() => {
 				filename: null
 			};
 			this._Params = params;
+			this._scratch = createScratch();
 		}
 		static init(gl) {
 			_program$21 = WebGL_default.createShaderProgram(gl, RsmEffect_default$1, RsmEffect_default);
@@ -271779,7 +273984,7 @@ var init_RsmEffect = __esmMin((() => {
 		}
 		init(gl, tick) {
 			const self = this;
-			let i, count, j, size, total, offset, length;
+			let count, total, offset, length;
 			Client.getFile(this.filename, function(buf) {
 				self.model = new RSM(buf);
 				self.isAnimated = false;
@@ -271792,60 +273997,110 @@ var init_RsmEffect = __esmMin((() => {
 						break;
 					}
 				}
-				const objects = [], infos = [];
-				let meshes, index, object;
+				const objects = [];
+				let object;
 				self.globalParameters.filename = self.filename.replace("data/model/", "") + Math.floor(Math.random() * 15);
 				self.model.createInstance(self.globalParameters, 0, 0);
-				const data = self.model.compile();
-				count = data.meshes.length;
-				total = 0;
-				for (i = 0, count = data.meshes.length; i < count; ++i) {
-					meshes = data.meshes[i];
-					index = Object.keys(meshes);
-					for (j = 0, size = index.length; j < size; ++j) {
-						objects.push({
-							texture: data.textures[index[j]],
-							alpha: self.model.alpha,
-							mesh: meshes[index[j]]
-						});
-						total += meshes[index[j]].length;
+				const nodes = self.model.nodes;
+				const instances = self.model.instances;
+				if (self.animLen <= 0) for (let ni = 0; ni < nodes.length; ni++) {
+					const node = nodes[ni];
+					node._parentMatrix = null;
+					if (node.parentname && node.parentname !== node.name) {
+						const parent = nodes.find((n) => n.name === node.parentname);
+						if (parent && !parent.absoluteTransform) node._parentMatrix = parent.matrix;
 					}
 				}
-				const buffer = new Float32Array(total);
-				count = objects.length;
-				offset = 0;
-				for (i = 0; i < count; ++i) {
+				for (let ni = 0; ni < nodes.length; ni++) {
+					const localMesh = compileNodeLocal(self._scratch, nodes[ni]);
+					const textureKeys = Object.keys(localMesh);
+					for (let ki = 0; ki < textureKeys.length; ki++) {
+						const texIdx = textureKeys[ki];
+						objects.push({
+							texture: self.model.textures[texIdx],
+							alpha: self.model.alpha,
+							mesh: localMesh[texIdx],
+							nodeIndex: ni
+						});
+					}
+				}
+				total = 0;
+				const objCount = objects.length;
+				for (let i = 0; i < objCount; ++i) {
 					object = objects[i];
 					length = object.mesh.length;
-					infos[i] = {
-						texture: "data/texture/" + object.texture,
-						vertOffset: offset / 9,
-						vertCount: length / 9
-					};
+					object.vertOffset = total / 9;
+					object.vertCount = length / 9;
+					total += length;
+				}
+				const buffer = new Float32Array(total);
+				offset = 0;
+				for (let i = 0; i < objCount; ++i) {
+					object = objects[i];
+					length = object.mesh.length;
 					buffer.set(object.mesh, offset);
 					offset += length;
 				}
-				i = -1;
+				const drawInfos = [];
+				for (let ii = 0; ii < instances.length; ii++) for (let oi = 0; oi < objCount; oi++) {
+					const obj = objects[oi];
+					drawInfos.push({
+						texPath: `data/texture/${obj.texture}`,
+						textureData: null,
+						vertOffset: obj.vertOffset,
+						vertCount: obj.vertCount,
+						nodeIndex: obj.nodeIndex,
+						instIndex: ii,
+						modelMat: mat4$16.create(),
+						normalMat: mat3$1.create(),
+						shadeType: nodes[obj.nodeIndex].main.shadeType
+					});
+				}
+				count = drawInfos.length;
+				const textureDataCache = /* @__PURE__ */ new Map();
+				let i = -1;
 				function loadNextTexture() {
 					if (++i === count) {
 						initModel.call(self, gl, {
 							buffer,
-							infos
+							infos: drawInfos
 						});
+						if (self.isAnimated) updateNodeMatrices(self, 0);
+						else for (let k = 0; k < count; ++k) {
+							const obj = self.objects[k];
+							getNodeMatrixStatic(self._scratch, nodes[obj.nodeIndex], instances[obj.instIndex], obj.modelMat, obj.normalMat);
+						}
 						self.ready = true;
 						return;
 					}
-					Client.loadFile(infos[i].texture, (_data) => {
-						infos[i].texture = _data;
+					const info = drawInfos[i];
+					const texPath = info.texPath;
+					if (textureDataCache.has(texPath)) {
+						info.textureData = textureDataCache.get(texPath);
 						loadNextTexture();
-					}, loadNextTexture);
+						return;
+					}
+					Client.loadFile(texPath, (_data) => {
+						textureDataCache.set(texPath, _data);
+						info.textureData = _data;
+						loadNextTexture();
+					}, () => {
+						loadNextTexture();
+					});
 				}
 				loadNextTexture();
 			});
 			this.needInit = false;
 		}
 		free(gl) {
-			for (let i = 0, count = this.objects.length; i < count; ++i) if (this.objects[i] && this.objects[i].texture) gl.deleteTexture(this.objects[i].texture);
+			const deletedTextures = /* @__PURE__ */ new Set();
+			for (let i = 0, count = this.objects.length; i < count; ++i) {
+				const obj = this.objects[i];
+				if (obj && obj.texture && !deletedTextures.has(obj.texture)) {
+					deletedTextures.add(obj.texture);
+					gl.deleteTexture(obj.texture);
+				}
+			}
 			if (this.buffer) {
 				gl.deleteBuffer(this.buffer);
 				this.buffer = null;
@@ -271890,7 +274145,7 @@ var init_RsmEffect = __esmMin((() => {
 				const elapsed = tick - this.startTick;
 				const frame = Math.floor(elapsed * this.fps / 1e3 % this.animLen);
 				if (frame !== this.lastFrame) {
-					rebuildMeshAtFrame(this, gl, frame);
+					updateNodeMatrices(this, frame);
 					this.lastFrame = frame;
 				}
 			}
@@ -271902,9 +274157,15 @@ var init_RsmEffect = __esmMin((() => {
 			gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 36, 12);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 36, 24);
 			gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 36, 32);
-			for (let i = 0, count = this.objects.length; i < count; ++i) if (this.objects[i] && this.objects[i].complete) {
-				gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
-				gl.drawArrays(gl.TRIANGLES, this.objects[i].vertOffset, this.objects[i].vertCount);
+			for (let i = 0, count = this.objects.length; i < count; ++i) {
+				const obj = this.objects[i];
+				if (obj && obj.complete) {
+					gl.bindTexture(gl.TEXTURE_2D, obj.texture);
+					gl.uniformMatrix4fv(uniform.uModelMat, false, obj.modelMat);
+					gl.uniformMatrix3fv(uniform.uNodeNormalMat, false, obj.normalMat);
+					gl.uniform1f(uniform.uApplyNodeNormal, obj.applyNodeNormal ? 1 : 0);
+					gl.drawArrays(gl.TRIANGLES, obj.vertOffset, obj.vertCount);
+				}
 			}
 		}
 		static afterRender(gl) {
@@ -273852,7 +276113,7 @@ function clean(name, AID, effectID) {
 	const list = _list$3[name];
 	count = list.length;
 	for (i = 0; i < count; ++i) if ((!AID || list[i]._Params.Init.ownerAID === AID) && (!effectID || effectIdList.includes(list[i]._Params.Inst.effectID))) {
-		if (list[i].free) list[i].free(_gl$1);
+		if (list[i].free) list[i].free(_gl);
 		list.splice(i, 1);
 		i--;
 		count--;
@@ -273868,7 +276129,7 @@ function cleanRepeat(name, AID, effectID) {
 		}
 	});
 }
-var _gl$1, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
+var _gl, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
 var init_EffectManager = __esmMin((() => {
 	init_EffectTable();
 	init_SkillEffect();
@@ -273928,7 +276189,7 @@ var init_EffectManager = __esmMin((() => {
 		* Initialize effects manager
 		*/
 		static init(gl) {
-			_gl$1 = gl;
+			_gl = gl;
 			if (Configs.get("development")) ProcessCommand_default.add("d_effectmanager", "Print EffectManager list to console.", function() {
 				EffectManager.debug();
 			}, ["d_em"], true);
@@ -274500,7 +276761,7 @@ var init_EffectManager = __esmMin((() => {
 				for (let i = list.length - 1; i >= 0; --i) {
 					const Params = list[i]._Params;
 					if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
-						if (list[i].free) list[i].free(_gl$1);
+						if (list[i].free) list[i].free(_gl);
 						list.splice(i, 1);
 					}
 				}
@@ -277132,333 +279393,6 @@ var init_Upsampling = __esmMin((() => {
 		}
 	};
 }));
-// src/Core/PerfProbe.js
-/**
-* Core/PerfProbe.js
-*
-* Opt-in performance probe: frame time, draw calls per frame, map load time
-* and startup-to-login time, with a small on-screen overlay.
-*
-* Off unless the page opts in, with `localStorage.roPerf = '1'` or `?perf=1`
-* in the URL. Off, every hook below is one boolean test and nothing else: the
-* WebGL context is not wrapped, no overlay is made, and `window.roPerf` does
-* not exist.
-*
-* On, `window.roPerf` gives:
-*   stats()        frame statistics since the last reset(), plus the marks
-*   reset()        start a new measurement window
-*   slowFrames()   frames over 33 ms since the reset, also marked in Chrome
-*                  traces as 'roPerf slow frame' measures
-*   marks          { login, maps: [{ map, loadMs, firstFrameMs }] }
-*   overlay(bool)  show or hide the overlay (shown by default)
-*
-* This file is part of ROBrowser, (http://www.robrowser.com/).
-*/
-/**
-* Whether the page asked for the probe
-*
-* @return {boolean}
-*/
-function readEnabled() {
-	try {
-		if (typeof window === "undefined") return false;
-		if (/[?&]perf=1(&|$)/.test(window.location.search)) return true;
-		return window.localStorage.getItem("roPerf") === "1";
-	} catch (_e) {
-		return false;
-	}
-}
-/**
-* Percentile of a sorted array
-*
-* @param {Float32Array|Array} sorted ascending
-* @param {number} p 0..100
-* @return {number}
-*/
-function percentile(sorted, p) {
-	if (!sorted.length) return 0;
-	const index = Math.min(sorted.length - 1, Math.ceil(p / 100 * sorted.length) - 1);
-	return sorted[Math.max(0, index)];
-}
-/**
-* avg / p50 / p95 / p99 / max of the first `count` values
-*
-* @param {Float32Array|Uint32Array} values
-* @param {number} count
-* @return {object}
-*/
-function summarize(values, count) {
-	const sorted = Float64Array.from(values.subarray(0, count)).sort();
-	let sum = 0;
-	for (let i = 0; i < count; ++i) sum += sorted[i];
-	const round = (v) => Math.round(v * 100) / 100;
-	return {
-		avg: round(count ? sum / count : 0),
-		p50: round(percentile(sorted, 50)),
-		p95: round(percentile(sorted, 95)),
-		p99: round(percentile(sorted, 99)),
-		max: round(count ? sorted[count - 1] : 0)
-	};
-}
-/**
-* Record a slow frame: the gap since the previous frame started, up to the
-* end of this frame's work
-*
-* @param {number} interval ms since the previous frame started
-* @param {number} work ms spent in this frame
-* @param {number} draws draw calls in this frame
-*/
-function logSlow(interval, work, draws) {
-	const start = _frameTime - interval;
-	if (_slow.length < MAX_SLOW) _slow.push({
-		at: Math.round(start),
-		frameMs: Math.round(interval * 10) / 10,
-		workMs: Math.round(work * 10) / 10,
-		draws
-	});
-	try {
-		performance.measure("roPerf slow frame", {
-			start,
-			end: performance.now()
-		});
-	} catch (_e) {}
-}
-/**
-* Wrap the context's draw calls to count them
-*
-* @param {WebGLRenderingContext} gl
-*/
-function wrapContext(gl) {
-	for (const name of DRAW_CALLS) {
-		const original = gl[name];
-		if (typeof original !== "function") continue;
-		const countArg = name === "drawArrays" || name === "drawArraysInstanced" ? 2 : name === "drawRangeElements" ? 3 : 1;
-		gl[name] = function() {
-			_frameDraws++;
-			_frameVertices += arguments[countArg] | 0;
-			return original.apply(gl, arguments);
-		};
-	}
-}
-/**
-* Build the overlay element
-*/
-function makeOverlay() {
-	_overlay = document.createElement("div");
-	_overlay.id = "roPerfOverlay";
-	_overlay.style.cssText = "position:fixed;top:4px;right:4px;z-index:100000;pointer-events:none;font:11px/1.3 monospace;color:#cfc;background:rgba(0,0,0,0.6);padding:3px 6px;white-space:pre;";
-	document.body.appendChild(_overlay);
-	_overlayTimer = setInterval(updateOverlay, 500);
-}
-/**
-* Refresh the overlay from the last second of frames
-*/
-function updateOverlay() {
-	if (!_overlay) return;
-	const now = performance.now();
-	let frames = 0;
-	let work = 0;
-	let worst = 0;
-	let draws = 0;
-	let elapsed = 0;
-	for (let k = _total - 1; k >= Math.max(0, _total - MAX_FRAMES) && elapsed < 1e3; --k) {
-		const i = k % MAX_FRAMES;
-		frames++;
-		elapsed += _interval[i];
-		work += _work[i];
-		draws += _draws[i];
-		worst = Math.max(worst, _interval[i]);
-	}
-	const last = _marks.maps[_marks.maps.length - 1];
-	_overlay.textContent = (frames ? Math.round(frames * 1e3 / Math.max(elapsed, 1)) : 0) + " fps  " + (frames ? (elapsed / frames).toFixed(1) : "-") + " ms (max " + worst.toFixed(0) + ")\nwork " + (frames ? (work / frames).toFixed(1) : "-") + " ms  draws " + (frames ? Math.round(draws / frames) : 0) + "\n" + (last ? last.map + " load " + Math.round(last.loadMs) + " ms" : "") + (_marks.login !== null ? "  login " + Math.round(_marks.login) + " ms" : "") + (now - _lastFrameStart > 1e3 ? "\n(no frames)" : "");
-}
-var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$2, _windowStart, _frameStart, _frameTime, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl, _overlay, _overlayTimer, _mapStart, _mapName$2, _mapReady$1, _slow, _marks, PerfProbe;
-var init_PerfProbe = __esmMin((() => {
-	MAX_FRAMES = 36e3;
-	HITCH_MS = 50;
-	SLOW_MS = 33;
-	MAX_SLOW = 1e3;
-	DRAW_CALLS = [
-		"drawArrays",
-		"drawElements",
-		"drawArraysInstanced",
-		"drawElementsInstanced",
-		"drawRangeElements"
-	];
-	_interval = new Float32Array(MAX_FRAMES);
-	_work = new Float32Array(MAX_FRAMES);
-	_draws = new Uint32Array(MAX_FRAMES);
-	_total = 0;
-	_pending$2 = 0;
-	_windowStart = 0;
-	_frameStart = 0;
-	_frameTime = 0;
-	_lastFrameStart = 0;
-	_frameDraws = 0;
-	_frameVertices = 0;
-	_totalVertices = 0;
-	_gl = null;
-	_overlay = null;
-	_overlayTimer = 0;
-	_mapStart = 0;
-	_mapName$2 = "";
-	_mapReady$1 = 0;
-	_slow = [];
-	_marks = {
-		login: null,
-		maps: []
-	};
-	PerfProbe = class PerfProbe {
-		/**
-		* @type {boolean} decided once, at load
-		*/
-		static enabled = readEnabled();
-		/**
-		* Count draw calls on this context (once per context)
-		*
-		* @param {WebGLRenderingContext} gl
-		*/
-		static attach(gl) {
-			if (!PerfProbe.enabled || !gl || _gl === gl) return;
-			_gl = gl;
-			wrapContext(gl);
-			if (!_overlay) makeOverlay();
-		}
-		/**
-		* Called by the render loop before a frame's work
-		*
-		* @param {number} now rAF timestamp
-		*/
-		static frameStart(now) {
-			_frameStart = performance.now();
-			_frameTime = now;
-			_pending$2 = _lastFrameStart ? now - _lastFrameStart : 0;
-			_lastFrameStart = now;
-			_frameDraws = 0;
-			_frameVertices = 0;
-		}
-		/**
-		* Called by the render loop after a frame's work
-		*/
-		static frameEnd() {
-			if (!_frameStart) return;
-			if (_pending$2 > 0) {
-				const i = _total % MAX_FRAMES;
-				_interval[i] = _pending$2;
-				_work[i] = performance.now() - _frameStart;
-				_draws[i] = _frameDraws;
-				_totalVertices += _frameVertices;
-				if (_pending$2 > SLOW_MS) logSlow(_pending$2, _work[i], _frameDraws);
-				_total++;
-				_pending$2 = 0;
-			}
-			if (_mapReady$1) {
-				const map = _marks.maps[_marks.maps.length - 1];
-				map.firstFrameMs = Math.round((performance.now() - _mapStart) * 10) / 10;
-				_mapReady$1 = 0;
-			}
-		}
-		/**
-		* A map started loading
-		*
-		* @param {string} name
-		*/
-		static mapStart(name) {
-			_mapStart = performance.now();
-			_mapName$2 = name;
-			_lastFrameStart = 0;
-		}
-		/**
-		* A map finished loading and is about to be drawn
-		*/
-		static mapReady() {
-			if (!_mapStart) return;
-			_marks.maps.push({
-				map: _mapName$2,
-				loadMs: Math.round((performance.now() - _mapStart) * 10) / 10,
-				firstFrameMs: null
-			});
-			_mapReady$1 = 1;
-		}
-		/**
-		* The login window was shown; the first time is the startup time
-		*/
-		static loginShown() {
-			if (_marks.login === null) _marks.login = Math.round(performance.now());
-		}
-		/**
-		* Start a new measurement window
-		*/
-		static reset() {
-			_total = 0;
-			_pending$2 = 0;
-			_lastFrameStart = 0;
-			_totalVertices = 0;
-			_slow.length = 0;
-			_windowStart = performance.now();
-		}
-		/**
-		* Frame statistics since the last reset
-		*
-		* @return {object}
-		*/
-		static stats() {
-			const seconds = (performance.now() - _windowStart) / 1e3;
-			const kept = Math.min(_total, MAX_FRAMES);
-			const draws = summarize(_draws, kept);
-			let hitches = 0;
-			for (let i = 0; i < kept; ++i) if (_interval[i] > HITCH_MS) hitches++;
-			const memory = performance.memory;
-			return {
-				frames: _total,
-				kept,
-				seconds: Math.round(seconds * 10) / 10,
-				fps: Math.round(_total / Math.max(seconds, .001) * 10) / 10,
-				frameMs: summarize(_interval, kept),
-				workMs: summarize(_work, kept),
-				drawCalls: draws,
-				verticesPerFrame: _total ? Math.round(_totalVertices / _total) : 0,
-				hitches,
-				heapMB: memory ? Math.round(memory.usedJSHeapSize / 1048576) : null,
-				marks: JSON.parse(JSON.stringify(_marks))
-			};
-		}
-		/**
-		* Frames slower than 33 ms since the last reset: when the gap started
-		* (performance.now() time), its length, and the frame's work and draws
-		*
-		* @return {Array}
-		*/
-		static slowFrames() {
-			return _slow.slice();
-		}
-		/**
-		* Show or hide the overlay
-		*
-		* @param {boolean} show
-		*/
-		static overlay(show) {
-			if (show && !_overlay && _gl) makeOverlay();
-			else if (!show && _overlay) {
-				clearInterval(_overlayTimer);
-				_overlay.remove();
-				_overlay = null;
-			}
-		}
-	};
-	if (PerfProbe.enabled) {
-		PerfProbe.reset();
-		window.roPerf = {
-			stats: PerfProbe.stats,
-			reset: PerfProbe.reset,
-			slowFrames: PerfProbe.slowFrames,
-			overlay: PerfProbe.overlay,
-			get marks() {
-				return JSON.parse(JSON.stringify(_marks));
-			}
-		};
-	}
-}));
 // src/Renderer/MapRenderer.js
 var MapRenderer_exports = /* @__PURE__ */ __exportAll({ default: () => MapRenderer });
 /**
@@ -277692,15 +279626,12 @@ function onMapComplete(success, error) {
 	MapRenderer.onLoad();
 	Sky_default.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
+	if (PerfProbe.enabled) PerfProbe.mapReady();
 	Renderer.show();
 	Renderer.render(MapRenderer.onRender);
 	Background.remove(() => {
+		if (loadId !== MapRenderer._loadId) return;
 		_revealing = false;
-		if (loadId !== MapRenderer._loadId) {
-			_nextMap = null;
-			return;
-		}
-		if (PerfProbe.enabled) PerfProbe.mapReady();
 		Mouse.intersect = true;
 		if (_nextMap) {
 			const mapname = _nextMap;
@@ -277800,6 +279731,10 @@ var init_MapRenderer = __esmMin((() => {
 		*/
 		static _loadRequest = 0;
 		/**
+		* @var {Array<function>} worker results of the map load in progress, held until the fade is over
+		*/
+		static _fadeQueue = [];
+		/**
 		* @var {Float32Array} diffuse Modified diffuse color
 		*/
 		static diffuse = null;
@@ -277829,7 +279764,7 @@ var init_MapRenderer = __esmMin((() => {
 				_nextMap = mapname;
 				return;
 			}
-			mapname = mapname.replace(/^(\d{3})(\d@)/, "$2").replace(/^\d{3}#/, "");
+			mapname = mapname.replace(/^(\w{3})(\d@)/, "$2").replace(/^\w{3}#/, "");
 			const loadId = ++this._loadId;
 			SoundManager.stop();
 			Renderer.stop();
@@ -277843,9 +279778,10 @@ var init_MapRenderer = __esmMin((() => {
 				const filename = mapname.replace(/\.gat$/i, ".rsw");
 				let faded = false;
 				const waiting = [];
+				this._fadeQueue = waiting;
 				const afterFade = (fn) => (...args) => {
 					if (faded) fn(...args);
-					else waiting.push(() => fn(...args));
+					else if (loadId === MapRenderer._loadId) waiting.push(() => fn(...args));
 				};
 				Thread.hook("MAP_PROGRESS", afterFade(loadEvent(onProgressUpdate)));
 				Thread.hook("MAP_WORLD", afterFade(loadEvent(onWorldComplete)));
@@ -277856,7 +279792,7 @@ var init_MapRenderer = __esmMin((() => {
 				Thread.hook("MAP_REPLACED_MODELS", afterFade(loadEvent((models) => MapHooks_default.modelsReady(Renderer.getContext(), models))));
 				Thread.send("MAP_REPLACE_MODELS", MapHooks_default.modelNames());
 				MapRenderer._loadRequest = Thread.send("LOAD_MAP", filename, afterFade(loadStep(loadId, onMapComplete)));
-				Background.setLoading(function() {
+				Background.setLoading(() => {
 					if (loadId !== MapRenderer._loadId) {
 						waiting.length = 0;
 						return;
@@ -277889,7 +279825,10 @@ var init_MapRenderer = __esmMin((() => {
 		static cancelLoad() {
 			this._loadId++;
 			this._loadRequest = 0;
+			this._fadeQueue.length = 0;
 			this.loading = false;
+			_revealing = false;
+			_nextMap = null;
 		}
 		/**
 		* Clean up data
@@ -278409,101 +280348,6 @@ var init_Camera = __esmMin((() => {
 		}
 	};
 }));
-// src/Renderer/FramePacer.js
-var SAMPLES, MIN_SAMPLES, MAX_INTERVAL, _intervals, _sorted, _count, _next$1, _lastTick, FramePacer;
-var init_FramePacer = __esmMin((() => {
-	SAMPLES = 31;
-	MIN_SAMPLES = 8;
-	MAX_INTERVAL = 100;
-	_intervals = new Float32Array(SAMPLES);
-	_sorted = new Float32Array(SAMPLES);
-	_count = 0;
-	_next$1 = 0;
-	_lastTick = 0;
-	FramePacer = class FramePacer {
-		/**
-		* Record a rAF callback, rendered or not
-		*
-		* @param {number} now rAF timestamp (ms)
-		*/
-		static sample(now) {
-			const interval = now - _lastTick;
-			_lastTick = now;
-			if (interval <= 0 || interval > MAX_INTERVAL) return;
-			_intervals[_next$1] = interval;
-			_next$1 = (_next$1 + 1) % SAMPLES;
-			_count = Math.min(_count + 1, SAMPLES);
-		}
-		/**
-		* Measured refresh interval: the mean of the middle half of the recent
-		* rAF intervals (robust to a stall, and to timestamps that jitter either
-		* side of the refresh, where a median picks one side), or 0 while there
-		* are too few
-		*
-		* @return {number} ms
-		*/
-		static refreshInterval() {
-			if (_count < MIN_SAMPLES) return 0;
-			const sorted = _sorted.subarray(0, _count);
-			sorted.set(_intervals.subarray(0, _count));
-			sorted.sort();
-			const from = _count >> 2;
-			const to = _count - from;
-			let sum = 0;
-			for (let i = from; i < to; ++i) sum += sorted[i];
-			return sum / (to - from);
-		}
-		/**
-		* How many refreshes each frame lasts, for a limit: the fewest that keep
-		* the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
-		* display count as 60 or 120.
-		*
-		* @param {number} limit fps
-		* @param {number} refresh refresh interval (ms)
-		* @return {number} 1 or more
-		*/
-		static refreshesPerFrame(limit, refresh) {
-			return Math.max(1, Math.ceil(1e3 / refresh / (limit * 1.01)));
-		}
-		/**
-		* Whether frames can be paced evenly under a limit: the rate a whole
-		* number of refreshes gives is the display's own, or within 10% of it
-		*
-		* @param {number} limit fps
-		* @param {number} refresh refresh interval (ms)
-		* @return {boolean}
-		*/
-		static canPace(limit, refresh) {
-			const frames = FramePacer.refreshesPerFrame(limit, refresh);
-			return frames === 1 || 1e3 / refresh / frames >= limit * .9;
-		}
-		/**
-		* Whether a frame is due, and from when the next one counts
-		*
-		* @param {number} now rAF timestamp (ms)
-		* @param {number} last value returned for the previous frame
-		* @param {number} limit fps, above 0
-		* @return {number} the new `last` when a frame is due, or -1 to skip
-		*/
-		static next(now, last, limit) {
-			const elapsed = now - last;
-			const refresh = FramePacer.refreshInterval();
-			if (!refresh || !FramePacer.canPace(limit, refresh)) {
-				const interval = 1e3 / limit;
-				return elapsed < interval ? -1 : now - elapsed % interval;
-			}
-			return elapsed < (FramePacer.refreshesPerFrame(limit, refresh) - .5) * refresh ? -1 : now;
-		}
-		/**
-		* Forget the measured refresh rate (for tests, or a display change)
-		*/
-		static reset() {
-			_count = 0;
-			_next$1 = 0;
-			_lastTick = 0;
-		}
-	};
-}));
 // src/Renderer/Renderer.js
 var Renderer_exports = /* @__PURE__ */ __exportAll({ default: () => Renderer });
 var mat4$9, _requestAnimationFrame, _cancelAnimationFrame, Renderer;
@@ -278520,8 +280364,9 @@ var init_Renderer = __esmMin((() => {
 	init_SessionStorage();
 	init_PostProcess();
 	init_MemoryManager();
-	init_FramePacer();
 	init_PerfProbe();
+	init_SpriteBatch();
+	init_FramePacer();
 	init_preload_helper();
 	({mat4: mat4$9} = gl_matrix_default);
 	_requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
@@ -278602,7 +280447,7 @@ var init_Renderer = __esmMin((() => {
 				this.canvas.addEventListener("webglcontextrestored", this.onContextRestored.bind(this), false);
 				this.gl = WebGL_default.getContext(this.canvas, param);
 				this.isWebGL2 = WebGL_default.isWebGL2(this.gl);
-				if (PerfProbe.enabled) PerfProbe.attach(this.gl);
+				PerfProbe.attach(this.gl);
 				if (typeof console !== "undefined" && console.info) console.info("Renderer using WebGL " + (this.isWebGL2 ? "2" : "1") + " context");
 				window.addEventListener("resize", this.onResize.bind(this));
 				window.addEventListener("contextmenu", (event) => {
@@ -278653,6 +280498,7 @@ var init_Renderer = __esmMin((() => {
 			gl.enable(gl.BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			PostProcess.restartModules(gl);
+			SpriteBatch.contextRestored();
 			this.resize();
 			this.render();
 		}
@@ -278718,7 +280564,7 @@ var init_Renderer = __esmMin((() => {
 			if (this.contextLost) return;
 			const now = typeof time === "number" ? time : Date.now();
 			if (!this._renderBound) this._renderBound = this._render.bind(this);
-			FramePacer.sample(now);
+			if (typeof time === "number") FramePacer.sample(now);
 			if (typeof this._lastFrameTime === "undefined" || this._lastFrameTime === 0) {
 				this._lastFrameTime = now;
 				if (!this.tick) this.tick = Date.now();
@@ -278789,6 +280635,7 @@ var init_Renderer = __esmMin((() => {
 					console.error(e);
 				}
 				Cursor.setSceneDriven(false);
+				if (PerfProbe.enabled) PerfProbe.stop();
 				return;
 			}
 			const pos = this.renderCallbacks.indexOf(fn);
@@ -322894,6 +324741,7 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 // src/DB/DBManager.js
 var DBManager_exports = /* @__PURE__ */ __exportAll({ default: () => DB });
 async function startLua() {
+	LuaModuleLoader.clearCache();
 	const wasmUrl = (await __vitePreload(async () => {
 		const { default: __vite_default__ } = await Promise.resolve().then(() => (init_liblua5_1(), liblua5_1_exports));
 		return { default: __vite_default__ };
@@ -322909,11 +324757,43 @@ async function startLua() {
 		CLua.Lua.create({ customWasmUri: wasmUrl }),
 		CLua.Lua.create({ customWasmUri: wasmUrl })
 	]);
-	lua = oneRunAtATime(l);
-	HO_AI = ha;
-	MER_AI = ma;
-	default_HO_AI = dha;
-	default_MER_AI = dma;
+	lua = oneRunAtATime(LuaModuleLoader.setup(l));
+	HO_AI = LuaModuleLoader.setup(ha, { searchPaths: [
+		"./?.lua",
+		"./?.lub",
+		"AI/USER_AI/?.lua",
+		"AI/USER_AI/?.lub",
+		"AI/?.lua",
+		"AI/?.lub",
+		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+	] });
+	MER_AI = LuaModuleLoader.setup(ma, { searchPaths: [
+		"./?.lua",
+		"./?.lub",
+		"AI/USER_AI/?.lua",
+		"AI/USER_AI/?.lub",
+		"AI/?.lua",
+		"AI/?.lub",
+		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+	] });
+	default_HO_AI = LuaModuleLoader.setup(dha, { searchPaths: [
+		"./?.lua",
+		"./?.lub",
+		"AI/?.lua",
+		"AI/?.lub",
+		"AI/USER_AI/?.lua",
+		"AI/USER_AI/?.lub",
+		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+	] });
+	default_MER_AI = LuaModuleLoader.setup(dma, { searchPaths: [
+		"./?.lua",
+		"./?.lub",
+		"AI/?.lua",
+		"AI/?.lub",
+		"AI/USER_AI/?.lua",
+		"AI/USER_AI/?.lub",
+		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+	] });
 }
 /**
 * Runs a state's files and strings one after another, never two at once.
@@ -325242,33 +327122,39 @@ function loadCustomSkillTreeView(filename, onEnd) {
 * Loads efstids.lub, stateiconimginfo.lub, and stateiconinfo.lub sequentially,
 * synchronizing EFST_IDs with StatusConst and populating the StatusInfo table.
 *
+* customEfstIds, customStateIconImgInfo and customStateIconInfo: the mods'
+* rows of the three tables, read after the client's, in mod order. Each is a
+* list of files shaped like the client's own, holding only a mod's rows: the
+* names of its own status icons (EFST_IDs.EFST_X = 20000, numbers in the
+* range servers keep for mods), their pictures (in data/texture/effect/) and
+* their tooltips, or new pictures and tooltips for stock icons. Every mod's
+* names come first, so its other rows can use them; a later mod's row wins.
+* A mod's file that fails to load is left out.
+*
 * @param {string} basePath - Directory path (e.g., DB.LUA_PATH + 'stateicon/')
 * @param {function} callback - (Unused/Legacy)
 * @param {function} onEnd - Function to run when done
 */
 function loadStateIconInfo(basePath, callback, onEnd) {
-	const files = [
-		"efstids.lub",
-		"stateiconimginfo.lub",
-		"stateiconinfo.lub"
-	];
+	const files = stateIconFiles(basePath.endsWith("/") ? basePath : basePath + "/", Configs.get.bind(Configs));
 	const loadedBuffers = [];
-	const dirPath = basePath.endsWith("/") ? basePath : basePath + "/";
 	function loadNext(index) {
 		if (index >= files.length) {
 			processLuaData();
 			return;
 		}
-		const fullPath = dirPath + files[index];
-		console.log("Loading file \"" + fullPath + "\"...");
-		Client.loadFile(fullPath, function(data) {
-			loadedBuffers.push({
-				name: files[index],
-				data
-			});
+		const file = files[index];
+		console.log("Loading file \"" + file.path + "\"...");
+		Client.loadFile(file.path, function(data) {
+			loadedBuffers.push(Object.assign({ data }, file));
 			loadNext(index + 1);
 		}, function() {
-			console.error("[loadStateIconInfo] - Failed to load " + fullPath);
+			if (file.mod) {
+				console.error("[loadStateIconInfo] - Failed to load a mod's table, left out: " + file.path);
+				loadNext(index + 1);
+				return;
+			}
+			console.error("[loadStateIconInfo] - Failed to load " + file.path);
 			if (onEnd) onEnd();
 		});
 	}
@@ -325305,24 +327191,6 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 				StatusInfo[id].icon = icon;
 				return 1;
 			};
-			for (let i = 0; i < loadedBuffers.length; i++) {
-				const f = loadedBuffers[i];
-				const buffer = f.data instanceof ArrayBuffer ? new Uint8Array(f.data) : f.data;
-				lua.mountFile(f.name, buffer);
-				await lua.doFile(f.name);
-				if (f.name === "efstids.lub") await lua.doString(`
-							if EFST_IDs then
-								__EFST_IDS_ORIGINAL = EFST_IDs 
-
-								EFST_IDs = setmetatable({}, {
-									__index = function(t, k)
-										local id = __EFST_IDS_ORIGINAL[k]
-										return id ~= nil and id or -1
-									end
-								})
-							end
-						`);
-			}
 			lua.doStringSync(`
 					function extract_status_info()
 						-- Sync StatusConst (SC) with the full list of EFST_IDs from the original table
@@ -325378,12 +327246,41 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 						end
 					end
 
-					extract_status_info()
 				`);
+			for (let i = 0; i < loadedBuffers.length; i++) {
+				const f = loadedBuffers[i];
+				const buffer = f.data instanceof ArrayBuffer ? new Uint8Array(f.data) : f.data;
+				if (f.mod && f.stage === "efstids") await lua.doString(BEFORE_MOD_NAMES);
+				else if (f.mod) await lua.doString(BEFORE_MOD_ROWS);
+				lua.mountFile(f.name, buffer);
+				f.mounted = true;
+				if (f.mod) try {
+					await lua.doFile(f.name);
+				} catch (e) {
+					console.error(`[loadStateIconInfo] ${f.name} left out:`, e);
+					if (f.stage === "efstids") await lua.doString("EFST_IDs = __MOD_EFST_SAVE");
+					continue;
+				}
+				else await lua.doFile(f.name);
+				if (f.mod && f.stage === "efstids") await lua.doString(AFTER_MOD_NAMES);
+				if (f.mod ? f.stage !== "efstids" : f.stage === "stateiconinfo") lua.doStringSync("extract_status_info()");
+				if (!f.mod && f.stage === "efstids") await lua.doString(`
+							if EFST_IDs then
+								__EFST_IDS_ORIGINAL = EFST_IDs 
+
+								EFST_IDs = setmetatable({}, {
+									__index = function(t, k)
+										local id = __EFST_IDS_ORIGINAL[k]
+										return id ~= nil and id or -1
+									end
+								})
+							end
+						`);
+			}
 		} catch (e) {
 			console.error("[loadStateIconInfo] Lua Error:", e);
 		} finally {
-			loadedBuffers.forEach((f) => lua.unmountFile(f.name));
+			loadedBuffers.forEach((f) => f.mounted && lua.unmountFile(f.name));
 			if (onEnd) onEnd();
 		}
 	}
@@ -325960,6 +327857,7 @@ var init_DBManager = __esmMin((() => {
 	init_StatusInfo();
 	init_StatusConst();
 	init_StatusEffectTable();
+	init_StateIconMods();
 	init_xmlparse();
 	init_Base62();
 	init_bson();
@@ -325975,6 +327873,7 @@ var init_DBManager = __esmMin((() => {
 	init_MemoryManager();
 	init_HtmlHelper();
 	init_LenientEnums();
+	init_LuaModuleLoader();
 	init_preload_helper();
 	lookTables = null;
 	itemPackages = /* @__PURE__ */ new Map();
@@ -326063,6 +327962,7 @@ var init_DBManager = __esmMin((() => {
 			DB.isLoaded = false;
 			DB.count = 0;
 			DB.index = 0;
+			LuaModuleLoader.clearCache();
 			mountPalettes = void 0;
 			if (mountPalettesProbe) mountPalettesProbe.stale = true;
 			else MemoryManager.remove(null, DB.getBodyPalPath(JobConst_default.PIG_CREATOR, 1, 0));
@@ -328801,7 +330701,7 @@ var init_PetInformations$1 = __esmMin((() => {
 	PetInformations_default$1 = ":host {\r\n	width: 280px;\r\n	height: 180px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n#PetInformations {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 180px;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n\r\n#PetInformations .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#PetInformations .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#PetInformations .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	display: inline-block;\r\n	width: 50px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#PetInformations .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#PetInformations .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#PetInformations .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#PetInformations .content {\r\n	background-repeat: no-repeat;\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n#PetInformations .title_name {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 100px;\r\n}\r\n#PetInformations .name {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 150px;\r\n	border: none;\r\n	background-color: #eee;\r\n	margin: 0px;\r\n	width: 70px;\r\n	color: black;\r\n}\r\n\r\n#PetInformations .modify {\r\n	position: absolute;\r\n	background-color: grey;\r\n	top: 5px;\r\n	right: 5px;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n#PetInformations .name.disabled {\r\n	color: black;\r\n	text-shadow: 1px 1px 0px #00ff00;\r\n	background-color: transparent;\r\n}\r\n#PetInformations .modify.disabled {\r\n	display: none;\r\n}\r\n\r\n#PetInformations .title_level {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 100px;\r\n}\r\n#PetInformations .level {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 150px;\r\n}\r\n\r\n#PetInformations .title_hunger {\r\n	position: absolute;\r\n	top: 55px;\r\n	left: 100px;\r\n}\r\n#PetInformations .hunger {\r\n	position: absolute;\r\n	top: 55px;\r\n	left: 150px;\r\n}\r\n\r\n#PetInformations .title_intimacy {\r\n	position: absolute;\r\n	top: 75px;\r\n	left: 100px;\r\n}\r\n#PetInformations .intimacy {\r\n	position: absolute;\r\n	top: 75px;\r\n	left: 150px;\r\n}\r\n\r\n#PetInformations .title_accessory {\r\n	position: absolute;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n#PetInformations .accessory {\r\n	position: absolute;\r\n	top: 120px;\r\n	left: 100px;\r\n}\r\n#PetInformations .feeding {\r\n	position: absolute;\r\n	top: 140px;\r\n	left: 100px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#PetInformations .feeding .pet_auto_feed {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	margin-left: 5px;\r\n}\r\n\r\n#PetInformations .command {\r\n	position: absolute;\r\n	top: 27px;\r\n	right: 5px;\r\n	width: 105px;\r\n}\r\n";
 }));
 // src/UI/Components/PetInformations/PetInformations.js
-var PetInformations, _preferences$18, petAutoFeeding, PetInformations_default;
+var PetInformations, _preferences$19, petAutoFeeding, PetInformations_default;
 var init_PetInformations = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -328816,7 +330716,7 @@ var init_PetInformations = __esmMin((() => {
 	PetInformations = new GUIComponent("PetInformations", PetInformations_default$1);
 	PetInformations.render = () => PetInformations_default$2;
 	PetInformations.captureKeyEvents = true;
-	_preferences$18 = Preferences.get("PetInformations", {
+	_preferences$19 = Preferences.get("PetInformations", {
 		x: 100,
 		y: 200,
 		show: true
@@ -328878,17 +330778,18 @@ var init_PetInformations = __esmMin((() => {
 			const feeding = root.querySelector(".feeding");
 			if (feeding) feeding.style.display = "none";
 		}
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$18.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$18.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+		if (!_preferences$19.show) this._host.style.display = "none";
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$19.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$19.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	};
 	/**
 	* Once remove from body, save user preferences
 	*/
 	PetInformations.onRemove = function onRemove() {
-		_preferences$18.show = this._host.style.display !== "none";
-		_preferences$18.y = parseInt(this._host.style.top, 10);
-		_preferences$18.x = parseInt(this._host.style.left, 10);
-		_preferences$18.save();
+		_preferences$19.show = this._host.style.display !== "none";
+		_preferences$19.y = parseInt(this._host.style.top, 10);
+		_preferences$19.x = parseInt(this._host.style.left, 10);
+		_preferences$19.save();
 	};
 	/**
 	* Process shortcut
@@ -328909,7 +330810,13 @@ var init_PetInformations = __esmMin((() => {
 	* @param {object} pet info
 	*/
 	PetInformations.setInformations = function setInformations(info) {
+		if (!info) return;
+		if (!this.__loaded) {
+			this.append();
+			this._host.style.display = "none";
+		}
 		const root = PetInformations.getRoot();
+		if (!root) return;
 		const nameInput = root.querySelector(".name");
 		if (nameInput) nameInput.value = info.szName;
 		const levelEl = root.querySelector(".level");
@@ -328965,7 +330872,9 @@ var init_PetInformations = __esmMin((() => {
 	* @param {number} intimacy
 	*/
 	PetInformations.setIntimacy = function setIntimacy(val) {
-		const el = PetInformations.getRoot().querySelector(".intimacy");
+		const root = PetInformations.getRoot();
+		if (!root) return;
+		const el = root.querySelector(".intimacy");
 		if (el) el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
 	};
 	PetInformations.setFeedConfig = function setFeedConfig(flag) {
@@ -328982,7 +330891,9 @@ var init_PetInformations = __esmMin((() => {
 	* @param {number} hunger
 	*/
 	PetInformations.setHunger = function setHunger(val) {
-		const el = PetInformations.getRoot().querySelector(".hunger");
+		const root = PetInformations.getRoot();
+		if (!root) return;
+		const el = root.querySelector(".hunger");
 		if (el) el.textContent = DB.getMessage(val < 10 ? 667 : val < 25 ? 668 : val < 75 ? 669 : val < 90 ? 670 : 671);
 	};
 	/**
@@ -330141,8 +332052,9 @@ var init_EntityCast = __esmMin((() => {
 		*/
 		render(matrix) {
 			const canvas = this.canvas;
-			const percent = +((Date.now() - this.tick) / this.delay).toFixed(2);
-			if (percent >= 1) {
+			const ratio = (Date.now() - this.tick) / this.delay;
+			const percent = +ratio.toFixed(2);
+			if (ratio >= 1) {
 				this.remove();
 				if (this.onComplete) {
 					this.onComplete();
@@ -332265,6 +334177,62 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	return true;
 }
 /**
+* Compute segment duration based on diagonal movement
+*/
+function getSegmentDuration(dx, dy, baseSpeed) {
+	let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
+	if (!duration || duration < 1) duration = 1;
+	return duration;
+}
+/**
+* Finish walking sequence for entity
+*/
+function finishWalk(entity, pos, walk, path, total) {
+	const cellHeight = entity.objecttype == entity.constructor.TYPE_FALCON ? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5 : Altitude.getCellHeight(path[total - 2], path[total - 1]);
+	pos[0] = path[total - 2];
+	pos[1] = path[total - 1];
+	pos[2] = cellHeight;
+	walk.lastPos.set(pos);
+	if (entity.isFastMoving) {
+		entity.isFastMoving = false;
+		entity._fastMoveTrail = false;
+		entity._preserveDirection = false;
+		if (typeof entity._normalSpeed === "number") {
+			entity.walk.speed = entity._normalSpeed;
+			delete entity._normalSpeed;
+		}
+	}
+	if (entity.objecttype == entity.constructor.TYPE_WUG && entity.isAttacking) entity.setAction({
+		action: entity.ACTION.ATTACK,
+		frame: 0,
+		repeat: false,
+		play: true,
+		next: {
+			delay: Date.now() + 432,
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: false
+		}
+	});
+	else if (walk.settling ? entity.action === entity.ACTION.WALK : entity.action !== entity.ACTION.DIE) entity.setAction({
+		action: entity.ACTION.IDLE,
+		frame: 0,
+		play: true,
+		repeat: true
+	});
+	entity.onWalkEnd();
+	if (walk.onEnd) {
+		walk.onEnd();
+		walk.onEnd = null;
+	}
+	const predicted = walk.predicted;
+	entity.resetRoute();
+	walk.predicted = predicted;
+	entity.isAttacking = false;
+}
+/**
 * Process walking
 */
 function walkProcess() {
@@ -332301,58 +334269,8 @@ function walkProcess() {
 		console.trace("Stack trace of debug:");
 	}
 	if (this.action === this.ACTION.WALK || this.isFastMoving || walk.settling || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
-		const getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
-			let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
-			if (!duration || duration < 1) duration = 1;
-			return duration;
-		};
-		const finishWalk = () => {
-			const cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5 : Altitude.getCellHeight(path[total - 2], path[total - 1]);
-			pos[0] = path[total - 2];
-			pos[1] = path[total - 1];
-			pos[2] = cellHeight;
-			walk.lastPos.set(pos);
-			if (this.isFastMoving) {
-				this.isFastMoving = false;
-				this._fastMoveTrail = false;
-				this._preserveDirection = false;
-				if (typeof this._normalSpeed === "number") {
-					this.walk.speed = this._normalSpeed;
-					delete this._normalSpeed;
-				}
-			}
-			if (this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) this.setAction({
-				action: this.ACTION.ATTACK,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					delay: Date.now() + 432,
-					action: this.ACTION.IDLE,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: false
-				}
-			});
-			else if (walk.settling ? this.action === this.ACTION.WALK : this.action !== this.ACTION.DIE) this.setAction({
-				action: this.ACTION.IDLE,
-				frame: 0,
-				play: true,
-				repeat: true
-			});
-			this.onWalkEnd();
-			if (walk.onEnd) {
-				walk.onEnd();
-				walk.onEnd = null;
-			}
-			const predicted = walk.predicted;
-			this.resetRoute();
-			walk.predicted = predicted;
-			this.isAttacking = false;
-		};
 		if (index >= total) {
-			finishWalk();
+			finishWalk(this, pos, walk, path, total);
 			return;
 		}
 		let startX = walk.pos[0];
@@ -332424,7 +334342,7 @@ function walkProcess() {
 		walk.tick = segmentStart;
 		walk.prevTick = TICK;
 		if (!(index >= total - 2 && t >= .999 && TICK >= segmentEnd)) return;
-		finishWalk();
+		finishWalk(this, pos, walk, path, total);
 	} else {
 		if (index < total) {
 			this.walk.tick += TICK - this.walk.prevTick;
@@ -332472,7 +334390,7 @@ function resetRoute(keepDistance) {
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
 	if (!keepDistance) this.walk.dist = 0;
-	this.walk.path = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
+	this.walk.path.fill(0);
 	if (this.walk.segmentDurations) this.walk.segmentDurations.fill(0);
 	this.walk.lastPos[0] = 0;
 	this.walk.lastPos[1] = 0;
@@ -332572,6 +334490,22 @@ var init_EntityWalk = __esmMin((() => {
 	_serverPath = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
 }));
 // src/Renderer/Entity/EntityRender.js
+function acquireSnapshotBuffers() {
+	const buf = _snapshotPool.pop();
+	if (buf) return buf;
+	return {
+		position: /* @__PURE__ */ new Float32Array(3),
+		_position: /* @__PURE__ */ new Int32Array(2),
+		color: /* @__PURE__ */ new Float32Array(4)
+	};
+}
+function releaseSnapshotBuffers(snapshot) {
+	if (_snapshotPool.length < 64) _snapshotPool.push({
+		position: snapshot.position,
+		_position: snapshot._position,
+		color: snapshot.color
+	});
+}
 /**
 * Render an Entity
 *
@@ -332605,6 +334539,9 @@ function render$5(modelView, projection) {
 		this.attachments.render(Date.now());
 	}
 	renderGUI(this, modelView, projection);
+}
+function isLookingBack(direction) {
+	return direction > 2 && direction < 6;
 }
 function renderWaterDepth$1() {
 	const frame = this.waterDepthFrame;
@@ -332713,22 +334650,26 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, enab
 			entity.ACTION.SKILL
 		].includes(entity.action) || entity.isFastMoving) && now - trail.lastTick > interval;
 		if (shouldCapture) {
+			const buffers = acquireSnapshotBuffers();
+			buffers.position.set(entity.position);
+			buffers._position.set(_position);
+			buffers.color.set(entity.effectColor);
 			trail.snapshots.unshift({
-				position: gl_matrix_default.vec3.clone(entity.position),
+				position: buffers.position,
+				_position: buffers._position,
+				color: buffers.color,
 				tick: now,
 				layers,
 				spr,
-				pal,
-				_position: new Int32Array(_position),
-				color: [...entity.effectColor]
+				pal
 			});
 			trail.lastTick = now;
-			if (trail.snapshots.length > maxLen) trail.snapshots.pop();
+			if (trail.snapshots.length > maxLen) releaseSnapshotBuffers(trail.snapshots.pop());
 		}
 		if (trail.snapshots.length) {
-			const originalPos = gl_matrix_default.vec3.clone(SpriteRenderer.position);
+			_scratchPosition.set(SpriteRenderer.position);
 			const originalZ = SpriteRenderer.zIndex;
-			const originalColor = new Float32Array(entity.effectColor);
+			_scratchColor.set(entity.effectColor);
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				const duration = blurType === 4 || blurType === 3 ? 800 : 400;
 				for (let idx = 0; idx < trail.snapshots.length; idx++) {
@@ -332749,9 +334690,9 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, enab
 					for (let i = 0; i < snp.layers.length; ++i) entity.renderLayer(snp.layers[i], snp.spr, snp.pal, files.size, snp._position, type, false);
 				}
 			});
-			SpriteRenderer.position.set(originalPos);
+			SpriteRenderer.position.set(_scratchPosition);
 			SpriteRenderer.zIndex = originalZ;
-			entity.effectColor.set(originalColor);
+			entity.effectColor.set(_scratchColor);
 		}
 	}
 }
@@ -332923,7 +334864,7 @@ function Init$3() {
 	this.waterDepthFrame = void 0;
 	this._waterDepthFrameBuffer = null;
 }
-var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, _attachmentPosition, renderElement;
+var WALK_DIST_TO_MOTION, _snapshotPool, _scratchPosition, _scratchColor, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, _attachmentPosition, renderElement;
 var init_EntityRender = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
@@ -332937,6 +334878,9 @@ var init_EntityRender = __esmMin((() => {
 	init_Graphics();
 	init_GR2ModelRenderer();
 	WALK_DIST_TO_MOTION = 170.2;
+	_snapshotPool = [];
+	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
+	_scratchColor = /* @__PURE__ */ new Float32Array(4);
 	renderGUI = (function renderGUIClosure() {
 		const mat4 = gl_matrix_default.mat4;
 		const vec4 = gl_matrix_default.vec4;
@@ -333097,6 +335041,7 @@ var init_EntityRender = __esmMin((() => {
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
 								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? 50 : 25) > self.bodyHeight + 64) {
+									if ((self.action === self.ACTION.ATTACK || self.action === self.ACTION.ATTACK1 || self.action === self.ACTION.ATTACK2 || self.action === self.ACTION.ATTACK3) && !lookingFront) return -450;
 									if (self.action === self.ACTION.SIT) return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 									return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
 								}
@@ -333108,7 +335053,7 @@ var init_EntityRender = __esmMin((() => {
 							SpriteRenderer.zIndex = -1;
 							renderElement(self, self.files.shield, "shield", _position, true);
 						});
-						if (!(direction > 2 && direction < 6)) {
+						if (!isLookingBack(direction)) {
 							if (SessionStorage_default.Playing == true && self.hasCart == true) {
 								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
 								SpriteRenderer.runWithDepth(true, false, false, function() {
@@ -333124,7 +335069,7 @@ var init_EntityRender = __esmMin((() => {
 							}
 						}
 						SpriteRenderer.zIndex = 150;
-						if (RIDING_STATUS && !(direction > 2 && direction < 6) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
+						if (RIDING_STATUS && !isLookingBack(direction) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
 						renderElement(self, self.files.body, "body", _position, true);
 						let bodyZOffset = 250;
 						if (RIDING_STATUS) {
@@ -333145,7 +335090,7 @@ var init_EntityRender = __esmMin((() => {
 							SpriteRenderer.zIndex = bodyZOffset + 300;
 							renderElement(self, self.files.accessory, "head", _position, false);
 						}
-						if (direction > 2 && direction < 6) {
+						if (isLookingBack(direction)) {
 							if (self.robe > 0) {
 								SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
 								renderElement(self, self.files.robe, "robe", _position, true);
@@ -336071,6 +338016,7 @@ var init_GUIComponent = __esmMin((() => {
 			if (this.init) this.init();
 			this._setupMouseMode();
 			this._host.remove();
+			whenDrawn.suspend(this._host);
 		}
 		/**
 		* Add the component to the DOM.
@@ -336091,6 +338037,7 @@ var init_GUIComponent = __esmMin((() => {
 				return;
 			}
 			parent.appendChild(this._host);
+			whenDrawn.resume(this._host);
 			if (this._noCursorStyle) _trackNoCursorStyle(this._noCursorStyle);
 			if (this.onKeyDown) this._bindKeyDown();
 			if (this.mouseMode === MouseMode.FREEZE) {
@@ -336135,6 +338082,7 @@ var init_GUIComponent = __esmMin((() => {
 				});
 				this._host.remove();
 				UIScale_default.detach(this);
+				whenDrawn.suspend(this._host);
 				if (this._noCursorStyle) _untrackNoCursorStyle(this._noCursorStyle);
 				if (this.mouseMode === MouseMode.FREEZE) {
 					_frozenBy.delete(this);
@@ -336678,12 +338626,21 @@ var init_GUIComponent = __esmMin((() => {
 		* Process legacy data-* attributes on a single DOM element.
 		* Handles: data-background, data-hover, data-down, data-active, data-text, data-preload.
 		* Static so it can be called from anywhere (e.g. dynamically created buttons).
+		*
+		* @param {HTMLElement} node
+		* @param {object} [options]
+		* @param {boolean} [options.text] - set the localized text
+		* @param {boolean} [options.images] - fetch the images
+		* @param {string} [options.deferredFrom] - the node's inline background
+		*   when its images were deferred: a different one set since then by the
+		*   window itself stays
 		*/
-		static processDataAttrs(node, { text = true, images = true } = {}) {
+		static processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
 			if (!_Client || !_DB) {
 				_ensureDeps().then(() => GUIComponent.processDataAttrs(node, {
 					text,
-					images
+					images,
+					deferredFrom
 				}));
 				return;
 			}
@@ -336721,6 +338678,7 @@ var init_GUIComponent = __esmMin((() => {
 					console.error(e.message);
 				}
 				node.classList.remove("no-texture");
+				if (deferredFrom !== void 0 && node.style.backgroundImage !== deferredFrom) return;
 				updateBg();
 			}, () => {
 				node.classList.add("no-texture");
@@ -336802,7 +338760,13 @@ var init_GUIComponent = __esmMin((() => {
 				}
 				GUIComponent.processDataAttrs(node, { images: false });
 				const { background, hover, down, active, preload } = node.dataset;
-				if (background || hover || down || active || preload) whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false }));
+				if (background || hover || down || active || preload) {
+					const deferredFrom = node.style.backgroundImage;
+					whenDrawn(node, () => GUIComponent.processDataAttrs(node, {
+						text: false,
+						deferredFrom
+					}));
+				}
 			}
 		}
 		/**
@@ -337198,6 +339162,16 @@ function renderStatus(status, now) {
 	ctx.arc(16, 16, 24, 1.5 * Math.PI, (1.5 + perc * 2) % 2 * Math.PI);
 	ctx.lineTo(16, 16);
 	ctx.fill();
+	if (status.count) {
+		ctx.font = "bold 11px Arial";
+		ctx.textAlign = "right";
+		ctx.textBaseline = "bottom";
+		ctx.lineWidth = 3;
+		ctx.strokeStyle = "black";
+		ctx.strokeText(String(status.count), 31, 32);
+		ctx.fillStyle = "white";
+		ctx.fillText(String(status.count), 31, 32);
+	}
 	if (status.time && status.timeTick + 1e3 < now) {
 		status.timeTick = now;
 		const tick = (end - now) / 1e3 | 0;
@@ -337220,7 +339194,7 @@ function rendering$1(tick) {
 		for (let i = 0; i < count; ++i) renderStatus(_status$1[indexes[i]], tick);
 	}
 }
-var StatusIcons, _status$1, _last_updated_time, _render_time, TKM_ICON_OVERRIDE, StatusIcons_default;
+var StatusIcons, _status$1, _last_updated_time, _render_time, TKM_ICON_OVERRIDE, MOD_ICON_FIRST, MOD_ICON_LAST, StatusIcons_default;
 var init_StatusIcons = __esmMin((() => {
 	init_StatusInfo();
 	init_StatusConst();
@@ -337283,14 +339257,17 @@ var init_StatusIcons = __esmMin((() => {
 		_status$1 = {};
 		ScreenEffectManager.clean();
 	};
+	MOD_ICON_FIRST = 2e4;
+	MOD_ICON_LAST = 22999;
 	/**
 	* Update icon on screen
 	*
 	* @param {number} status id
 	* @param {number} enable/disable
 	* @param {number} life time
+	* @param {number} [val1] - the status's first value; for a mod's icon, its stacks
 	*/
-	StatusIcons.update = function update(index, state, life) {
+	StatusIcons.update = function update(index, state, life, val1) {
 		if (!(index in StatusInfo) || !StatusInfo[index].icon) return;
 		if (!state && (!life || life <= 0)) {
 			removeElementIndex(index);
@@ -337301,6 +339278,7 @@ var init_StatusIcons = __esmMin((() => {
 		_status$1[index].start = Renderer.tick;
 		_status$1[index].end = Renderer.tick + life;
 		if (life === 9999) _status$1[index].end = Infinity;
+		_status$1[index].count = index >= MOD_ICON_FIRST && index <= MOD_ICON_LAST && val1 > 1 ? val1 : 0;
 		if (_status$1[index].img) {
 			if (TKM_ICON_OVERRIDE[index]) {
 				const wantVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
@@ -337421,7 +339399,7 @@ function showGuide() {
 		MobileUI._host.style.display = "block";
 		root.querySelector("#MobileUI").classList.add("guideOnly");
 	}
-	root.querySelector("#guideNeverShow").checked = _preferences$17.guideNeverShow;
+	root.querySelector("#guideNeverShow").checked = _preferences$18.guideNeverShow;
 	root.querySelector("#guideBody").scrollTop = 0;
 	guide.classList.remove("disabled");
 	guideShownThisSession = true;
@@ -337445,7 +339423,7 @@ function hideGuide() {
 * @returns {boolean} guide got opened
 */
 function showGuideOnActivate() {
-	if (guideShownThisSession || _preferences$17.guideNeverShow) return false;
+	if (guideShownThisSession || _preferences$18.guideNeverShow) return false;
 	showGuide();
 	return true;
 }
@@ -337479,8 +339457,8 @@ function setupGuide(root) {
 		event.preventDefault();
 	}, { passive: false });
 	root.querySelector("#guideNeverShow").addEventListener("change", (event) => {
-		_preferences$17.guideNeverShow = event.target.checked;
-		_preferences$17.save();
+		_preferences$18.guideNeverShow = event.target.checked;
+		_preferences$18.save();
 	});
 	bindButton(root, "#guideCloseButton", (e) => {
 		hideGuide();
@@ -338134,7 +340112,7 @@ function isFreeCell$2(x, y) {
 	});
 	return free;
 }
-var vec2, mat2, direction, rotate, targetPos, movementTimer, MobileUI, _preferences$17, C_LANG_FILE, _texts, guideShownThisSession, GUIDE_SECTIONS, showButtons, C_AUTOTARGET_DELAY, C_TOUCH_CLICK_GUARD, C_LONG_PRESS_DELAY, C_TOUCH_MOVE_TOLERANCE, centerX, centerY, maxDistance, normalizedX, normalizedY, _joystickBase, _joystickThumb, MobileUI_default;
+var vec2, mat2, direction, rotate, targetPos, movementTimer, MobileUI, _preferences$18, C_LANG_FILE, _texts, guideShownThisSession, GUIDE_SECTIONS, showButtons, C_AUTOTARGET_DELAY, C_TOUCH_CLICK_GUARD, C_LONG_PRESS_DELAY, C_TOUCH_MOVE_TOLERANCE, centerX, centerY, maxDistance, normalizedX, normalizedY, _joystickBase, _joystickThumb, MobileUI_default;
 var init_MobileUI = __esmMin((() => {
 	init_Context();
 	init_UIManager();
@@ -338167,7 +340145,7 @@ var init_MobileUI = __esmMin((() => {
 	MobileUI = new GUIComponent("MobileUI", MobileUI_default$1);
 	MobileUI.render = () => MobileUI_default$2;
 	MobileUI.needFocus = false;
-	_preferences$17 = Preferences.get("MobileUI", {
+	_preferences$18 = Preferences.get("MobileUI", {
 		x: 0,
 		y: 0,
 		zIndex: 1e3,
@@ -338437,12 +340415,12 @@ var init_MobileUI = __esmMin((() => {
 	* Removes MobileUI
 	*/
 	MobileUI.onRemove = function onRemove() {
-		_preferences$17.y = 0;
-		_preferences$17.x = 0;
-		_preferences$17.zIndex = 1e3;
-		_preferences$17.width = Renderer.width;
-		_preferences$17.height = Renderer.height;
-		_preferences$17.save();
+		_preferences$18.y = 0;
+		_preferences$18.x = 0;
+		_preferences$18.zIndex = 1e3;
+		_preferences$18.width = Renderer.width;
+		_preferences$18.height = Renderer.height;
+		_preferences$18.save();
 		if (SessionStorage_default.AutoTargeting) toggleAutoTargeting();
 	};
 	/**
@@ -341039,7 +343017,7 @@ function onItemOut$9() {
 	const overlay = Vending.getRoot().querySelector(".overlay");
 	if (overlay) overlay.style.display = "none";
 }
-var Vending, _preferences$16, _input$1, _output$1, _slots, _type$2, transferItem$1, Vending_default;
+var Vending, _preferences$17, _input$1, _output$1, _slots, _type$2, transferItem$1, Vending_default;
 var init_Vending = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -341072,7 +343050,7 @@ var init_Vending = __esmMin((() => {
 		VENDING_STORE: 0,
 		BUYING_STORE: 1
 	};
-	_preferences$16 = Preferences.get("Vending", {
+	_preferences$17 = Preferences.get("Vending", {
 		inputWindow: {
 			x: 100,
 			y: 100,
@@ -341174,12 +343152,12 @@ var init_Vending = __esmMin((() => {
 		const outputWin = root.querySelector(".OutputWindow");
 		const inputContent = inputWin.querySelector(".content");
 		const outputContent = outputWin.querySelector(".content");
-		inputWin.style.top = `${Math.min(Math.max(0, _preferences$16.inputWindow.y), Renderer.height - inputContent.offsetHeight)}px`;
-		inputWin.style.left = `${Math.min(Math.max(0, _preferences$16.inputWindow.x), Renderer.width - inputContent.offsetWidth)}px`;
-		outputWin.style.top = `${Math.min(Math.max(0, _preferences$16.outputWindow.y), Renderer.height - outputContent.offsetHeight)}px`;
-		outputWin.style.left = `${Math.min(Math.max(0, _preferences$16.outputWindow.x), Renderer.width - outputContent.offsetWidth)}px`;
-		resize$1(inputContent, _preferences$16.inputWindow.height);
-		resize$1(outputContent, _preferences$16.outputWindow.height);
+		inputWin.style.top = `${Math.min(Math.max(0, _preferences$17.inputWindow.y), Renderer.height - inputContent.offsetHeight)}px`;
+		inputWin.style.left = `${Math.min(Math.max(0, _preferences$17.inputWindow.x), Renderer.width - inputContent.offsetWidth)}px`;
+		outputWin.style.top = `${Math.min(Math.max(0, _preferences$17.outputWindow.y), Renderer.height - outputContent.offsetHeight)}px`;
+		outputWin.style.left = `${Math.min(Math.max(0, _preferences$17.outputWindow.x), Renderer.width - outputContent.offsetWidth)}px`;
+		resize$1(inputContent, _preferences$17.inputWindow.height);
+		resize$1(outputContent, _preferences$17.outputWindow.height);
 		this._host.style.display = "none";
 	};
 	Vending.setType = function setType(type) {
@@ -341220,13 +343198,13 @@ var init_Vending = __esmMin((() => {
 		const outputWin = root.querySelector(".OutputWindow");
 		_input$1.length = 0;
 		_output$1.length = 0;
-		_preferences$16.inputWindow.x = parseInt(inputWin.style.left, 10);
-		_preferences$16.inputWindow.y = parseInt(inputWin.style.top, 10);
-		_preferences$16.inputWindow.height = inputWin.querySelector(".content").offsetHeight / 32 | 0;
-		_preferences$16.outputWindow.x = parseInt(outputWin.style.left, 10);
-		_preferences$16.outputWindow.y = parseInt(outputWin.style.top, 10);
-		_preferences$16.outputWindow.height = outputWin.querySelector(".content").offsetHeight / 32 | 0;
-		_preferences$16.save();
+		_preferences$17.inputWindow.x = parseInt(inputWin.style.left, 10);
+		_preferences$17.inputWindow.y = parseInt(inputWin.style.top, 10);
+		_preferences$17.inputWindow.height = inputWin.querySelector(".content").offsetHeight / 32 | 0;
+		_preferences$17.outputWindow.x = parseInt(outputWin.style.left, 10);
+		_preferences$17.outputWindow.y = parseInt(outputWin.style.top, 10);
+		_preferences$17.outputWindow.height = outputWin.querySelector(".content").offsetHeight / 32 | 0;
+		_preferences$17.save();
 		root.querySelectorAll(".content").forEach((el) => {
 			el.innerHTML = "";
 		});
@@ -341489,7 +343467,7 @@ function onItemUsed(event, itemEl) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 }
-var VendingShop, _realSize, _type$1, _preferences$15, VendingShop_default;
+var VendingShop, _realSize, _type$1, _preferences$16, VendingShop_default;
 var init_VendingShop = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -341524,7 +343502,7 @@ var init_VendingShop = __esmMin((() => {
 	*/
 	VendingShop.list = [];
 	_realSize = 0;
-	_preferences$15 = Preferences.get("VendingShop", {
+	_preferences$16 = Preferences.get("VendingShop", {
 		x: 200,
 		y: 200,
 		width: 8,
@@ -341575,11 +343553,11 @@ var init_VendingShop = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	VendingShop.onAppend = function onAppend() {
-		this.resize(_preferences$15.width, _preferences$15.height);
+		this.resize(_preferences$16.width, _preferences$16.height);
 		const hostRect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$15.y), Renderer.height - hostRect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$15.x), Renderer.width - hostRect.width)}px`;
-		_realSize = _preferences$15.reduce ? 0 : hostRect.height;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$16.y), Renderer.height - hostRect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$16.x), Renderer.width - hostRect.width)}px`;
+		_realSize = _preferences$16.reduce ? 0 : hostRect.height;
 		const messageText = DB.getMessage(226);
 		const titleShop = Vending_default._shopname.length > 25 ? `${Vending_default._shopname.substring(0, 25)}...` : Vending_default._shopname;
 		const shopnameEl = this.getRoot().querySelector(".text.shopname");
@@ -341612,12 +343590,12 @@ var init_VendingShop = __esmMin((() => {
 		this.list.length = 0;
 		const itemInfoEl = document.querySelector(".ItemInfo");
 		if (itemInfoEl) itemInfoEl.remove();
-		_preferences$15.reduce = !!_realSize;
-		_preferences$15.y = parseInt(this._host.style.top, 10);
-		_preferences$15.x = parseInt(this._host.style.left, 10);
-		_preferences$15.width = Math.floor((this._host.getBoundingClientRect().width - 25) / 32);
-		_preferences$15.height = Math.floor((this._host.getBoundingClientRect().height - 20) / 32);
-		_preferences$15.save();
+		_preferences$16.reduce = !!_realSize;
+		_preferences$16.y = parseInt(this._host.style.top, 10);
+		_preferences$16.x = parseInt(this._host.style.left, 10);
+		_preferences$16.width = Math.floor((this._host.getBoundingClientRect().width - 25) / 32);
+		_preferences$16.height = Math.floor((this._host.getBoundingClientRect().height - 20) / 32);
+		_preferences$16.save();
 		this._host.style.display = "none";
 	};
 	/**
@@ -341908,7 +343886,7 @@ function formatUnixDate(unixTimestamp) {
 	const d = /* @__PURE__ */ new Date(unixTimestamp * 1e3);
 	return String(d.getMonth() + 1).padStart(2, "0") + "/" + String(d.getDate()).padStart(2, "0") + " - " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + ":" + String(d.getSeconds()).padStart(2, "0");
 }
-var VendingReport, VendingReportTable, _preferences$14, VendingReport_default;
+var VendingReport, VendingReportTable, _preferences$15, VendingReport_default;
 var init_VendingReport = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -341936,7 +343914,7 @@ var init_VendingReport = __esmMin((() => {
 	VendingReport._startHeight = 0;
 	VendingReport._boundResizeDrag = null;
 	VendingReport._boundResizeStop = null;
-	_preferences$14 = Preferences.get("VendingReport", {
+	_preferences$15 = Preferences.get("VendingReport", {
 		x: 200,
 		y: 200,
 		width: 400,
@@ -341998,9 +343976,9 @@ var init_VendingReport = __esmMin((() => {
 	VendingReport.onRemove = function OnRemove() {
 		VendingReport.reset();
 		ItemInfo_default.remove();
-		_preferences$14.y = parseInt(this._host.style.top, 10) || 0;
-		_preferences$14.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$14.save();
+		_preferences$15.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences$15.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$15.save();
 		this._host.style.display = "none";
 	};
 	VendingReport.reset = function reset() {
@@ -342240,7 +344218,7 @@ var init_ChangeCart = __esmMin((() => {
 	*/
 	ChangeCart.onAppend = function onAppend() {
 		this._host.style.display = "none";
-		loadCartData();
+		whenDrawn(this._host, loadCartData);
 	};
 	ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 		if (SessionStorage_default.Entity.hasCart == false) return;
@@ -342521,7 +344499,7 @@ function refreshList(contentEl) {
 		index++;
 	}
 }
-var Emoticons, _page, EMOTICONS_PER_PAGE, TOTAL_PAGES, EMOTICONS_COUNT, _action, _sprite, _entity$1, _preferences$13, Emoticons_default;
+var Emoticons, _page, EMOTICONS_PER_PAGE, TOTAL_PAGES, EMOTICONS_COUNT, _action, _sprite, _entity$1, _preferences$14, Emoticons_default;
 var init_Emoticons = __esmMin((() => {
 	init_Emotions();
 	init_Client();
@@ -342546,7 +344524,7 @@ var init_Emoticons = __esmMin((() => {
 	TOTAL_PAGES = 0;
 	EMOTICONS_COUNT = Object.keys(Emotions_default.order).length;
 	_entity$1 = new Entity();
-	_preferences$13 = Preferences.get("Emoticons", {
+	_preferences$14 = Preferences.get("Emoticons", {
 		x: 600,
 		y: 200,
 		show: false
@@ -342593,18 +344571,18 @@ var init_Emoticons = __esmMin((() => {
 	* Appending to html
 	*/
 	Emoticons.onAppend = function onAppend() {
-		if (!_preferences$13.show) this._host.style.display = "none";
-		this._host.style.top = Math.min(Math.max(0, _preferences$13.y), Renderer.height - this._host.offsetHeight) + "px";
-		this._host.style.left = Math.min(Math.max(0, _preferences$13.x), Renderer.width - this._host.offsetWidth) + "px";
+		if (!_preferences$14.show) this._host.style.display = "none";
+		this._host.style.top = Math.min(Math.max(0, _preferences$14.y), Renderer.height - this._host.offsetHeight) + "px";
+		this._host.style.left = Math.min(Math.max(0, _preferences$14.x), Renderer.width - this._host.offsetWidth) + "px";
 	};
 	/**
 	* Once removed from DOM, save preferences
 	*/
 	Emoticons.onRemove = function onRemove() {
-		_preferences$13.show = this._host.style.display !== "none";
-		_preferences$13.y = parseInt(this._host.style.top, 10) || 0;
-		_preferences$13.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$13.save();
+		_preferences$14.show = this._host.style.display !== "none";
+		_preferences$14.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences$14.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$14.save();
 	};
 	/**
 	* Update page
@@ -342712,7 +344690,7 @@ function onDropText(event) {
 	if (data.type === "item") return;
 	event.currentTarget.value = data;
 }
-var ShortCuts, _MACRO_INIT, _FLAG_INIT, _preferences$12, ShortCuts_default;
+var ShortCuts, _MACRO_INIT, _FLAG_INIT, _preferences$13, ShortCuts_default;
 var init_ShortCuts = __esmMin((() => {
 	init_Preferences$1();
 	init_Renderer();
@@ -342756,7 +344734,7 @@ var init_ShortCuts = __esmMin((() => {
 	* Store ShortCuts items
 	*/
 	ShortCuts.list = [];
-	_preferences$12 = Preferences.get("ShortCuts", {
+	_preferences$13 = Preferences.get("ShortCuts", {
 		x: 0,
 		y: 172,
 		width: 7,
@@ -342822,10 +344800,10 @@ var init_ShortCuts = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	ShortCuts.onAppend = function onAppend() {
-		if (!_preferences$12.show) this._host.style.display = "none";
+		if (!_preferences$13.show) this._host.style.display = "none";
 		const rect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$12.y), Renderer.height - rect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$12.x), Renderer.width - rect.width)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$13.y), Renderer.height - rect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$13.x), Renderer.width - rect.width)}px`;
 	};
 	/**
 	* Remove ShortCuts from window (and so clean up items)
@@ -342835,17 +344813,17 @@ var init_ShortCuts = __esmMin((() => {
 		if (content) content.innerHTML = "";
 		this.list.length = 0;
 		document.querySelectorAll(".ItemInfo").forEach((el) => el.remove());
-		_preferences$12.show = this._host.style.display !== "none";
-		_preferences$12.reduce = false;
-		_preferences$12.y = parseInt(this._host.style.top, 10);
-		_preferences$12.x = parseInt(this._host.style.left, 10);
-		_preferences$12.width = Math.floor((this._host.offsetWidth - 25) / 32);
-		_preferences$12.height = Math.floor((this._host.offsetHeight - 20) / 32);
-		_preferences$12.magnet_top = this.magnet.TOP;
-		_preferences$12.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$12.magnet_left = this.magnet.LEFT;
-		_preferences$12.magnet_right = this.magnet.RIGHT;
-		_preferences$12.save();
+		_preferences$13.show = this._host.style.display !== "none";
+		_preferences$13.reduce = false;
+		_preferences$13.y = parseInt(this._host.style.top, 10);
+		_preferences$13.x = parseInt(this._host.style.left, 10);
+		_preferences$13.width = Math.floor((this._host.offsetWidth - 25) / 32);
+		_preferences$13.height = Math.floor((this._host.offsetHeight - 20) / 32);
+		_preferences$13.magnet_top = this.magnet.TOP;
+		_preferences$13.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$13.magnet_left = this.magnet.LEFT;
+		_preferences$13.magnet_right = this.magnet.RIGHT;
+		_preferences$13.save();
 	};
 	/**
 	* Process shortcut
@@ -343307,7 +345285,7 @@ function stopPropagation$6(event) {
 	event.preventDefault();
 	return false;
 }
-var CashShop, _preferences$11, CashShop_default;
+var CashShop, _preferences$12, CashShop_default;
 var init_CashShop$1 = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -343331,7 +345309,7 @@ var init_CashShop$1 = __esmMin((() => {
 	* Store cash shop items
 	*/
 	CashShop.list = [];
-	_preferences$11 = Preferences.get("CashShop", {
+	_preferences$12 = Preferences.get("CashShop", {
 		x: 80,
 		y: 100,
 		magnet_top: false,
@@ -343507,25 +345485,25 @@ var init_CashShop$1 = __esmMin((() => {
 	CashShop.onAppend = function OnAppend() {
 		const hostHeight = this._host.offsetHeight || 540;
 		const hostWidth = this._host.offsetWidth || 723;
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$11.y), Renderer.height - hostHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$11.x), Renderer.width - hostWidth)}px`;
-		this.magnet.TOP = _preferences$11.magnet_top;
-		this.magnet.BOTTOM = _preferences$11.magnet_bottom;
-		this.magnet.LEFT = _preferences$11.magnet_left;
-		this.magnet.RIGHT = _preferences$11.magnet_right;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$12.y), Renderer.height - hostHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$12.x), Renderer.width - hostWidth)}px`;
+		this.magnet.TOP = _preferences$12.magnet_top;
+		this.magnet.BOTTOM = _preferences$12.magnet_bottom;
+		this.magnet.LEFT = _preferences$12.magnet_left;
+		this.magnet.RIGHT = _preferences$12.magnet_right;
 		CashShop.loadComponentCashShop();
 	};
 	/**
 	* Remove Cash shop
 	*/
 	CashShop.onRemove = function onRemove() {
-		_preferences$11.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$11.y = parseInt(this._host.style.top, 10) || 0;
-		_preferences$11.magnet_top = this.magnet.TOP;
-		_preferences$11.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$11.magnet_left = this.magnet.LEFT;
-		_preferences$11.magnet_right = this.magnet.RIGHT;
-		_preferences$11.save();
+		_preferences$12.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$12.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences$12.magnet_top = this.magnet.TOP;
+		_preferences$12.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$12.magnet_left = this.magnet.LEFT;
+		_preferences$12.magnet_right = this.magnet.RIGHT;
+		_preferences$12.save();
 		CashShop.stopBannerRotation();
 		CashShop.csListItemSearchResult = [];
 		CashShop.cashShopBannerTable = [];
@@ -345646,7 +347624,7 @@ function addRouletteIcon() {
 		if (_iconBtn) _iconBtn.style.backgroundImage = `url(${data})`;
 	});
 }
-var Roulette, _preferences$10, _rouletteInfo, _pending, _requestTimer, _spinTimer, _cooldownUntil, _prize, _nextStep, _status, _rotation, _iconBtn, Roulette_default;
+var Roulette, _preferences$11, _rouletteInfo, _pending, _requestTimer, _spinTimer, _cooldownUntil, _prize, _nextStep, _status, _rotation, _iconBtn, Roulette_default;
 var init_Roulette$1 = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -345664,7 +347642,7 @@ var init_Roulette$1 = __esmMin((() => {
 	* Render HTML
 	*/
 	Roulette.render = () => Roulette_default$2;
-	_preferences$10 = Preferences.get("Roulette", {
+	_preferences$11 = Preferences.get("Roulette", {
 		x: 200,
 		y: 200,
 		show: false
@@ -345709,8 +347687,8 @@ var init_Roulette$1 = __esmMin((() => {
 	* Once append to the DOM
 	*/
 	Roulette.onAppend = function onAppend() {
-		this._host.style.top = Math.min(Math.max(0, _preferences$10.y), Renderer.height - this._host.offsetHeight) + "px";
-		this._host.style.left = Math.min(Math.max(0, _preferences$10.x), Renderer.width - this._host.offsetWidth) + "px";
+		this._host.style.top = Math.min(Math.max(0, _preferences$11.y), Renderer.height - this._host.offsetHeight) + "px";
+		this._host.style.left = Math.min(Math.max(0, _preferences$11.x), Renderer.width - this._host.offsetWidth) + "px";
 		this._host.style.display = "none";
 		if (ROConfig.enableRoulette === false) return;
 		if (PacketVerManager_default.value < 20141008) return;
@@ -345725,10 +347703,10 @@ var init_Roulette$1 = __esmMin((() => {
 			_iconBtn.remove();
 			_iconBtn = null;
 		}
-		_preferences$10.show = this._host.style.display !== "none";
-		_preferences$10.x = parseInt(this._host.style.left, 10);
-		_preferences$10.y = parseInt(this._host.style.top, 10);
-		_preferences$10.save();
+		_preferences$11.show = this._host.style.display !== "none";
+		_preferences$11.x = parseInt(this._host.style.left, 10);
+		_preferences$11.y = parseInt(this._host.style.top, 10);
+		_preferences$11.save();
 		finishRequest$1();
 		clearTimeout(_spinTimer);
 		_spinTimer = null;
@@ -345927,7 +347905,7 @@ function onClickPCGoldTimer() {
 	packet.name = "GOLDPCCAFE";
 	Network.sendPacket(packet);
 }
-var MAX_GOLDPC_VAR, _data, PCGoldTimer, PCGoldTimer_default;
+var MAX_GOLDPC_VAR, _data$1, PCGoldTimer, PCGoldTimer_default;
 var init_PCGoldTimer$1 = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -345939,7 +347917,7 @@ var init_PCGoldTimer$1 = __esmMin((() => {
 	init_DBManager();
 	init_SessionStorage();
 	MAX_GOLDPC_VAR = 300;
-	_data = {
+	_data$1 = {
 		isActive: 0,
 		mode: 0,
 		point: 0,
@@ -345960,12 +347938,12 @@ var init_PCGoldTimer$1 = __esmMin((() => {
 	*/
 	PCGoldTimer.onAppend = function onAppend() {
 		const root = this.getRoot();
-		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${_data.backgroundImage}`, function(url) {
+		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${_data$1.backgroundImage}`, function(url) {
 			const container = root.querySelector(".container");
 			if (container) container.style.backgroundImage = `url(${url})`;
 		});
-		if (_data.isActive === 1 || SessionStorage_default.PCGoldTimer) {
-			if (_data.isActive !== 1) this.setData(SessionStorage_default.PCGoldTimer, true);
+		if (_data$1.isActive === 1 || SessionStorage_default.PCGoldTimer) {
+			if (_data$1.isActive !== 1) this.setData(SessionStorage_default.PCGoldTimer, true);
 			if (!this.timer) this.startTimer();
 		} else {
 			this.stopTimer();
@@ -345976,30 +347954,30 @@ var init_PCGoldTimer$1 = __esmMin((() => {
 		this._host.style.display = this._host.style.display === "none" ? "" : "none";
 	};
 	PCGoldTimer.setData = function setData(packet, refresh = false) {
-		if (!refresh) _data.startTime = Date.now();
-		else _data.startTime = SessionStorage_default.PCGoldTimer.startTime;
-		if (_data.point === MAX_GOLDPC_VAR) _data.startTime = -_data.startTime;
-		_data.isActive = packet.isActive ? packet.isActive : 0;
-		_data.mode = packet.mode ? packet.mode : 0;
-		_data.point = packet.point ? packet.point : 0;
-		_data.playedTime = packet.playedTime ? packet.playedTime : 0;
-		_data.backgroundImage = packet.mode == 1 ? "mileage_bg1.bmp" : "mileage_bg2.bmp";
-		SessionStorage_default.PCGoldTimer = _data;
+		if (!refresh) _data$1.startTime = Date.now();
+		else _data$1.startTime = SessionStorage_default.PCGoldTimer.startTime;
+		if (_data$1.point === MAX_GOLDPC_VAR) _data$1.startTime = -_data$1.startTime;
+		_data$1.isActive = packet.isActive ? packet.isActive : 0;
+		_data$1.mode = packet.mode ? packet.mode : 0;
+		_data$1.point = packet.point ? packet.point : 0;
+		_data$1.playedTime = packet.playedTime ? packet.playedTime : 0;
+		_data$1.backgroundImage = packet.mode == 1 ? "mileage_bg1.bmp" : "mileage_bg2.bmp";
+		SessionStorage_default.PCGoldTimer = _data$1;
 	};
 	PCGoldTimer.startTimer = function startTimer() {
 		const root = this.getRoot();
 		this.timer = setInterval(function() {
-			const millisecondsMissing = 36e5 - (Date.now() - _data.startTime + _data.playedTime * 1e3);
+			const millisecondsMissing = 36e5 - (Date.now() - _data$1.startTime + _data$1.playedTime * 1e3);
 			let text = PCGoldTimer.formatTime(millisecondsMissing);
 			if (text.includes("-")) {
 				text = "00:00";
-				_data.point = Math.min(_data.point, MAX_GOLDPC_VAR);
-				if (_data.point === MAX_GOLDPC_VAR) text = "----:----";
+				_data$1.point = Math.min(_data$1.point, MAX_GOLDPC_VAR);
+				if (_data$1.point === MAX_GOLDPC_VAR) text = "----:----";
 			}
 			const timerEl = root.querySelector(".timer-text-value");
 			const pointsEl = root.querySelector(".total-points-value");
 			if (timerEl) timerEl.textContent = text;
-			if (pointsEl) pointsEl.textContent = _data.point;
+			if (pointsEl) pointsEl.textContent = _data$1.point;
 		}, 1e3);
 	};
 	PCGoldTimer.stopTimer = function stopTimer() {
@@ -346018,6 +347996,241 @@ var init_PCGoldTimer$1 = __esmMin((() => {
 	};
 	PCGoldTimer.needFocus = false;
 	PCGoldTimer_default = UIManager.addComponent(PCGoldTimer);
+}));
+// src/UI/Components/MemorialDungeon/MemorialDungeon.html?raw
+var MemorialDungeon_default$2;
+var init_MemorialDungeon$3 = __esmMin((() => {
+	MemorialDungeon_default$2 = "<div id=\"MemorialDungeon\">\r\n	<div class=\"titlebar\">\r\n		<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n		<ui-text class=\"title\" msg=\"1336\">Memorial Dungeon</ui-text>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"content\">\r\n		<div class=\"name\"></div>\r\n		<div class=\"info\"></div>\r\n		<div class=\"buttons\">\r\n			<button class=\"destroy\"><ui-text msg=\"3270\">Dungeon Destroyed</ui-text></button>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+}));
+// src/UI/Components/MemorialDungeon/MemorialDungeon.css?raw
+var MemorialDungeon_default$1;
+var init_MemorialDungeon$2 = __esmMin((() => {
+	MemorialDungeon_default$1 = ":host {\r\n	top: 300px;\r\n	left: 10px;\r\n	width: 160px;\r\n}\r\n\r\n#MemorialDungeon {\r\n	position: relative;\r\n	width: 160px;\r\n}\r\n\r\n#MemorialDungeon .titlebar {\r\n	position: relative;\r\n	height: 17px;\r\n	background-repeat: repeat-x;\r\n	border-radius: 4px 4px 0 0;\r\n}\r\n\r\n#MemorialDungeon .titlebar .title {\r\n	position: absolute;\r\n	left: 6px;\r\n	top: 2px;\r\n	text-shadow: 1px 1px 0px white;\r\n	white-space: nowrap;\r\n	font-size: 11px;\r\n}\r\n\r\n#MemorialDungeon .titlebar .close {\r\n	position: absolute;\r\n	right: 3px;\r\n	top: 3px;\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n#MemorialDungeon .content {\r\n	background-color: white;\r\n	border: 1px solid #c6c6c6;\r\n	border-top: none;\r\n	border-radius: 0 0 4px 4px;\r\n	padding: 6px 6px 8px;\r\n	font-size: 12px;\r\n	line-height: 15px;\r\n	text-align: center;\r\n}\r\n\r\n#MemorialDungeon .content .name .md-name {\r\n	color: #3c5ac8;\r\n}\r\n\r\n#MemorialDungeon .content .info {\r\n	margin-top: 2px;\r\n}\r\n\r\n#MemorialDungeon .content .info .date {\r\n	color: #ff0000;\r\n}\r\n\r\n#MemorialDungeon .content .buttons {\r\n	display: none;\r\n	margin-top: 6px;\r\n}\r\n\r\n#MemorialDungeon .content .buttons.visible {\r\n	display: block;\r\n}\r\n\r\n/* Generic text button: left and right caps over a stretched middle */\r\n#MemorialDungeon .destroy {\r\n	height: 20px;\r\n	padding: 0 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat, no-repeat, repeat-x;\r\n	background-position:\r\n		left top,\r\n		right top,\r\n		left top;\r\n	background-size:\r\n		6px 20px,\r\n		6px 20px,\r\n		auto 20px;\r\n	background-origin: border-box;\r\n	font-size: 12px;\r\n	color: black;\r\n	cursor: pointer;\r\n}\r\n";
+}));
+// src/UI/Components/MemorialDungeon/MemorialDungeon.js
+/**
+* Destroy button: the window closes at once, the server confirms in the chat
+*/
+function onDestroy() {
+	const pkt = new PACKET.CZ.MEMORIALDUNGEON_COMMAND();
+	pkt.Command = COMMAND_DESTROY_FORCE;
+	Network.sendPacket(pkt);
+	MemorialDungeon.remove();
+}
+/**
+* Generic text button, drawn from basic_interface/btn_<state>_{left,mid,right}.bmp
+*
+* @param {HTMLElement} button
+*/
+function initTextButton(button) {
+	const images = {};
+	let current = "out";
+	const set = (state) => {
+		const img = images[state];
+		if (img.left && img.right && img.mid) button.style.backgroundImage = `url(${img.left}), url(${img.right}), url(${img.mid})`;
+	};
+	[
+		"out",
+		"over",
+		"press"
+	].forEach((state) => {
+		images[state] = {};
+		[
+			"left",
+			"mid",
+			"right"
+		].forEach((part) => {
+			Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/btn_${state}_${part}.bmp`, (url) => {
+				images[state][part] = url;
+				if (state === current) set(state);
+			});
+		});
+	});
+	const to = (state) => () => {
+		current = state;
+		set(state);
+	};
+	button.addEventListener("mouseenter", to("over"));
+	button.addEventListener("mouseleave", to("out"));
+	button.addEventListener("mousedown", to("press"));
+	button.addEventListener("mouseup", to("over"));
+}
+/**
+* @param {number} time - unix time
+* @return {string} MM/DD HH:MM in local time
+*/
+function formatDate(time) {
+	const date = /* @__PURE__ */ new Date(time * 1e3);
+	const pad = (n) => String(n).padStart(2, "0");
+	return `${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+/**
+* Append text with RO colour codes (^rrggbb) as spans
+*
+* @param {HTMLElement} parent
+* @param {string} text
+*/
+function appendColored(parent, text) {
+	const parts = text.split(/\^([0-9a-fA-F]{6})/);
+	let node = parent;
+	for (let i = 0; i < parts.length; i++) if (i % 2) {
+		node = document.createElement("span");
+		if (parts[i] !== "000000") node.style.color = `#${parts[i]}`;
+		parent.appendChild(node);
+	} else if (parts[i]) node.appendChild(document.createTextNode(parts[i]));
+}
+var STATE, COMMAND_DESTROY_FORCE, MemorialDungeon, _preferences$10, _data, MemorialDungeon_default;
+var init_MemorialDungeon$1 = __esmMin((() => {
+	init_DBManager();
+	init_Client();
+	init_Preferences$1();
+	init_PacketStructure();
+	init_NetworkManager();
+	init_Renderer();
+	init_Elements();
+	init_GUIComponent();
+	init_UIManager();
+	init_MemorialDungeon$3();
+	init_MemorialDungeon$2();
+	STATE = {
+		STANDBY: 0,
+		AVAILABLE: 1,
+		PROGRESS: 2
+	};
+	COMMAND_DESTROY_FORCE = 3;
+	MemorialDungeon = new GUIComponent("MemorialDungeon", MemorialDungeon_default$1);
+	MemorialDungeon.STATE = STATE;
+	_preferences$10 = Preferences.get("MemorialDungeon", {
+		x: 10,
+		y: -1
+	}, 1);
+	_data = null;
+	MemorialDungeon.render = () => MemorialDungeon_default$2;
+	MemorialDungeon.init = function init() {
+		this.draggable(".titlebar");
+		const root = this.getRoot();
+		const closeBtn = root.querySelector(".close");
+		closeBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
+		closeBtn.addEventListener("click", () => this.remove());
+		const destroy = root.querySelector(".destroy");
+		destroy.addEventListener("click", onDestroy);
+		initTextButton(destroy);
+	};
+	MemorialDungeon.onAppend = function onAppend() {
+		const y = _preferences$10.y < 0 ? Math.round(Renderer.height / 2) : _preferences$10.y;
+		this._host.style.left = `${_preferences$10.x}px`;
+		this._host.style.top = `${y}px`;
+		this.refresh();
+	};
+	MemorialDungeon.onRemove = function onRemove() {
+		_preferences$10.x = parseInt(this._host.style.left, 10);
+		_preferences$10.y = parseInt(this._host.style.top, 10);
+		_preferences$10.save();
+	};
+	/**
+	* Instance is queued (ZC_MEMORIALDUNGEON_SUBSCRIPTION_INFO)
+	*
+	* @param {string} name - instance name
+	* @param {number} priority - position in the queue
+	*/
+	MemorialDungeon.setStandby = function setStandby(name, priority) {
+		_data = {
+			state: STATE.STANDBY,
+			name,
+			priority,
+			destroyDate: 0,
+			enterDate: 0
+		};
+		this.append();
+	};
+	/**
+	* Queue position changed (ZC_MEMORIALDUNGEON_SUBSCRIPTION_NOTIFY)
+	*
+	* @param {number} priority
+	*/
+	MemorialDungeon.setPriority = function setPriority(priority) {
+		if (!_data) return;
+		_data.priority = priority;
+		if (this.__active) this.refresh();
+	};
+	/**
+	* Instance exists (ZC_MEMORIALDUNGEON_INFO)
+	*
+	* @param {string} name - instance name
+	* @param {number} destroyDate - unix time the instance ends (0 = no limit)
+	* @param {number} enterDate - unix time the instance ends if nobody enters (0 = someone is inside)
+	*/
+	MemorialDungeon.setInfo = function setInfo(name, destroyDate, enterDate) {
+		_data = {
+			state: enterDate ? STATE.AVAILABLE : STATE.PROGRESS,
+			name,
+			priority: 0,
+			destroyDate,
+			enterDate
+		};
+		this.append();
+	};
+	/**
+	* Entry time limit changed (ZC_MEMORIALDUNGEON_NOTIFY, type 0)
+	*
+	* @param {number} enterDate - unix time, 0 = someone entered
+	*/
+	MemorialDungeon.setEnterDate = function setEnterDate(enterDate) {
+		if (!_data || _data.state === STATE.STANDBY) return;
+		_data.enterDate = enterDate;
+		_data.state = enterDate ? STATE.AVAILABLE : STATE.PROGRESS;
+		if (this.__active) this.refresh();
+	};
+	/**
+	* Instance is gone
+	*/
+	MemorialDungeon.clear = function clear() {
+		_data = null;
+		this.remove();
+	};
+	/**
+	* @return {object|null} current instance
+	*/
+	MemorialDungeon.getData = function getData() {
+		return _data;
+	};
+	/**
+	* Draw the current instance
+	*/
+	MemorialDungeon.refresh = function refresh() {
+		const root = this.getRoot();
+		if (!root || !_data) return;
+		const name = root.querySelector(".name");
+		name.textContent = "";
+		const [before, after = ""] = DB.getMessage([
+			1337,
+			1338,
+			1339
+		][_data.state]).split("%s");
+		const span = document.createElement("span");
+		span.className = "md-name";
+		span.textContent = `[${_data.name}]`;
+		name.append(before, span, after);
+		const info = root.querySelector(".info");
+		info.textContent = "";
+		switch (_data.state) {
+			case STATE.STANDBY:
+				appendColored(info, DB.getMessage(1342).replace("%d", _data.priority));
+				break;
+			case STATE.AVAILABLE:
+				appendColored(info, DB.getMessage(1343).replace("%s", formatDate(_data.enterDate)));
+				break;
+			case STATE.PROGRESS: if (_data.destroyDate) {
+				const date = document.createElement("div");
+				date.className = "date";
+				date.textContent = formatDate(_data.destroyDate);
+				info.append(DB.getMessage(1344), date);
+			}
+		}
+		root.querySelector(".buttons").classList.toggle("visible", _data.state === STATE.AVAILABLE);
+	};
+	MemorialDungeon.needFocus = false;
+	MemorialDungeon_default = UIManager.addComponent(MemorialDungeon);
 }));
 // src/UI/Components/MapName/MapName.html?raw
 var MapName_default$2;
@@ -346578,7 +348791,7 @@ function playTimeAttackBanner() {
 	}
 	run();
 }
-var PvPTimer, TIMER_W, TIMER_H, TA_W, TA_H, TIMER_Y, TA_Y, _timerCanvas, _timerCtx, _taCanvas, _taCtx, _timefontAct, _timefontSpr, _timeAtkAct, _timeAtkSpr, _timerInterval, _startTs, _layerEntity$1, _taHideTimer, isFirstTime, PvPTimer_default;
+var PvPTimer, TIMER_W, TIMER_H, TA_W, TA_H, TIMER_Y, TA_Y, _timerCanvas, _timerCtx, _taCanvas, _taCtx, _timefontAct, _timefontSpr, _timeAtkAct, _timeAtkSpr, _timerInterval, _startTs, _layerEntity$1, _taHideTimer, isFirstTime, _bannerPending, PvPTimer_default;
 var init_PvPTimer = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -346603,6 +348816,7 @@ var init_PvPTimer = __esmMin((() => {
 	_layerEntity$1 = new Entity();
 	_taHideTimer = null;
 	isFirstTime = true;
+	_bannerPending = false;
 	/**
 	* Initialize UI
 	*/
@@ -346618,6 +348832,11 @@ var init_PvPTimer = __esmMin((() => {
 			_timefontSpr = tSpr;
 			_timeAtkAct = aAct;
 			_timeAtkSpr = aSpr;
+			if (_timerInterval) renderTimer((Date.now() / 1e3 | 0) - _startTs);
+			if (_bannerPending && this._host.style.display !== "none") {
+				_bannerPending = false;
+				playTimeAttackBanner();
+			}
 		});
 		const root = this.getRoot();
 		_timerCanvas = root.querySelector(".pvp-timer-canvas");
@@ -346641,6 +348860,7 @@ var init_PvPTimer = __esmMin((() => {
 	*/
 	PvPTimer.onRemove = function onRemove() {
 		isFirstTime = true;
+		_bannerPending = false;
 		stopTimer();
 	};
 	/**
@@ -346656,8 +348876,12 @@ var init_PvPTimer = __esmMin((() => {
 		this._host.style.display = "";
 		startTimer();
 		if (isFirstTime === true) {
-			playTimeAttackBanner();
+			_bannerPending = true;
 			isFirstTime = false;
+		}
+		if (_bannerPending && _timeAtkAct) {
+			_bannerPending = false;
+			playTimeAttackBanner();
 		}
 	};
 	PvPTimer_default = UIManager.addComponent(PvPTimer);
@@ -346755,6 +348979,7 @@ var init_PvPCount = __esmMin((() => {
 		loadFiles(["data/sprite/ÀÌÆÑÆ®/rankfont.act", "data/sprite/ÀÌÆÑÆ®/rankfont.spr"], (rAct, rSpr) => {
 			_rankfontAct = rAct;
 			_rankfontSpr = rSpr;
+			if (total > 0) renderRankText(`${ranking}/${total}`);
 		});
 		_rankCanvas = this.getRoot().querySelector(".pvp-rank-canvas");
 		if (!_rankCanvas) return;
@@ -351182,7 +353407,7 @@ function onEntityStatusChange(pkt) {
 	}
 	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : void 0);
 	processBlockStatus(entity, pkt);
-	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS);
+	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS, pkt.val ? pkt.val[0] : 0);
 }
 function updateWarlockSpheres(entity) {
 	if (entity.Summon1 || entity.Summon2 || entity.Summon3 || entity.Summon4 || entity.Summon5) {
@@ -359817,6 +362042,82 @@ var init_PCGoldTimer = __esmMin((() => {
 	init_PacketStructure();
 	init_PCGoldTimer$1();
 }));
+// src/Engine/MapEngine/MemorialDungeon.js
+/**
+* Instance queued
+*
+* @param {object} pkt - PACKET.ZC.MEMORIALDUNGEON_SUBSCRIPTION_INFO
+*/
+function onSubscriptionInfo(pkt) {
+	MemorialDungeon_default.setStandby(pkt.MemorialDungeonName, pkt.PriorityOrderNum);
+}
+/**
+* Queue position changed, or the instance left the queue
+*
+* @param {object} pkt - PACKET.ZC.MEMORIALDUNGEON_SUBSCRIPTION_NOTIFY
+*/
+function onSubscriptionNotify(pkt) {
+	if ((pkt.PriorityOrderNum & 65535) === PRIORITY_CANCELED) {
+		if (MemorialDungeon_default.getData()) ChatBox_default.addText(DB.getMessage(1345), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
+		MemorialDungeon_default.clear();
+		return;
+	}
+	MemorialDungeon_default.setPriority(pkt.PriorityOrderNum);
+}
+/**
+* Instance created or (re)entered; also sent on every map load
+*
+* @param {object} pkt - PACKET.ZC.MEMORIALDUNGEON_INFO
+*/
+function onInfo(pkt) {
+	MemorialDungeon_default.setInfo(pkt.MemorialDungeonName, pkt.DestroyDate, pkt.EnterTimeOutDate);
+}
+/**
+* Entry limit changed, or the instance is gone
+*
+* @param {object} pkt - PACKET.ZC.MEMORIALDUNGEON_NOTIFY
+*/
+function onNotify(pkt) {
+	if (pkt.Type === NOTIFY.INFO) {
+		MemorialDungeon_default.setEnterDate(pkt.EnterLimitDate);
+		return;
+	}
+	const data = MemorialDungeon_default.getData();
+	const msg = NOTIFY_MSG[pkt.Type];
+	if (msg) ChatBox_default.addText(DB.getMessage(msg).replace("%s", data ? data.name : ""), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
+	MemorialDungeon_default.clear();
+}
+/**
+* Initialize
+*/
+function MemorialDungeonEngine() {
+	Network.hookPacket(PACKET.ZC.MEMORIALDUNGEON_SUBSCRIPTION_INFO, onSubscriptionInfo);
+	Network.hookPacket(PACKET.ZC.MEMORIALDUNGEON_SUBSCRIPTION_NOTIFY, onSubscriptionNotify);
+	Network.hookPacket(PACKET.ZC.MEMORIALDUNGEON_INFO, onInfo);
+	Network.hookPacket(PACKET.ZC.MEMORIALDUNGEON_NOTIFY, onNotify);
+}
+var PRIORITY_CANCELED, NOTIFY, NOTIFY_MSG;
+var init_MemorialDungeon = __esmMin((() => {
+	init_DBManager();
+	init_NetworkManager();
+	init_PacketStructure();
+	init_ChatBox();
+	init_MemorialDungeon$1();
+	PRIORITY_CANCELED = 65535;
+	NOTIFY = {
+		INFO: 0,
+		DESTROY_LIVE_TIMEOUT: 1,
+		DESTROY_ENTER_TIMEOUT: 2,
+		DESTROY_USER_REQUEST: 3,
+		CREATE_FAIL: 4
+	};
+	NOTIFY_MSG = {
+		[NOTIFY.DESTROY_LIVE_TIMEOUT]: 1346,
+		[NOTIFY.DESTROY_ENTER_TIMEOUT]: 1347,
+		[NOTIFY.DESTROY_USER_REQUEST]: 1348,
+		[NOTIFY.CREATE_FAIL]: 1333
+	};
+}));
 // src/Engine/MapEngine/Captcha.js
 /**
 * Reset captcha
@@ -361100,6 +363401,7 @@ var init_MapEngine = __esmMin((() => {
 	init_RodexIcon();
 	init_Roulette$1();
 	init_PCGoldTimer$1();
+	init_MemorialDungeon$1();
 	init_Refine();
 	init_Reputation();
 	init_PetInformations();
@@ -361149,6 +363451,7 @@ var init_MapEngine = __esmMin((() => {
 	init_Rodex();
 	init_Roulette();
 	init_PCGoldTimer();
+	init_MemorialDungeon();
 	init_Captcha();
 	init_Clan();
 	init_CashShop();
@@ -361292,6 +363595,7 @@ var init_MapEngine = __esmMin((() => {
 				MainEngine$5();
 				RouletteEngine();
 				MainEngine$4();
+				MemorialDungeonEngine();
 				MainEngine$3();
 				MainEngine$2();
 				if (Configs.get("enableCashShop")) MainEngine$1();
@@ -361322,6 +363626,7 @@ var init_MapEngine = __esmMin((() => {
 				RodexIcon_default.prepare();
 				Roulette_default.prepare();
 				PCGoldTimer_default.prepare();
+				MemorialDungeon_default.prepare();
 				Navigation_default.prepare();
 				CaptchaUpload_default.prepare();
 				CaptchaSelector_default.prepare();
@@ -367733,7 +370038,7 @@ var init_WinLogin$2 = __esmMin((() => {
 function replayLog(...args) {
 	if (Configs.get("development", false)) console.log(...args);
 }
-var ContainerType, ContainerTypeNames, ItemChunkKind, ItemRecordTag, ReplayOpCodes, ReplayOpCodeName, ReplayState;
+var ContainerType, ReplayEventSubOpCode, ContainerTypeNames, ItemChunkKind, ItemRecordTag, ReplayOpCodes, ReplayOpCodeName, ReplayState, WindowIdToComponent;
 var init_ReplayTypes = __esmMin((() => {
 	init_Configs();
 	ContainerType = {
@@ -367746,12 +370051,41 @@ var init_ReplayTypes = __esmMin((() => {
 		GroupAndFriends: 7,
 		Items: 8,
 		Companions: 9,
+		MemorialDungeon: 10,
+		Unused11: 11,
+		EntryQueue: 12,
+		Hotkeys: 13,
 		InitialPackets: 14,
 		InitialEntities: 15,
 		InitialFloorItems: 16,
-		Efst: 17,
+		SkillGroundUnits: 17,
 		EfstList: 18,
-		EntitiesInfo: 21
+		OpenWindows: 19,
+		WindowDragAll: 20,
+		EntitiesInfo: 21,
+		ActorNames: 22,
+		QuestFlag: 23,
+		Navigation: 24
+	};
+	ReplayEventSubOpCode = {
+		WINDOW_MOVE: 900,
+		ITEM_DESC: 901,
+		WINDOW_MSG: 902,
+		SET_TARGET: 903,
+		SET_MAP_INFO: 904,
+		MAP_TRANSITION: 905,
+		SET_BGM_AMBIENT: 906,
+		SET_SESSION_TEXT: 907,
+		NAVIGATION_MSG: 908,
+		MAKE_WINDOW: 909,
+		NAVI_PATH: 910,
+		NAVI_WAYPOINT: 911,
+		NAVI_TARGET: 912,
+		NAVIGATION_PATH: 910,
+		NAVIGATION_ARROW: 911,
+		NAVIGATION_ACTIVE: 912,
+		WINDOW_ACTION: 913,
+		CLOSE_WINDOW: 914
 	};
 	ContainerTypeNames = {};
 	for (const [name, code] of Object.entries(ContainerType)) ContainerTypeNames[code] = name;
@@ -367760,7 +370094,9 @@ var init_ReplayTypes = __esmMin((() => {
 		CART: 4516,
 		CART_MIRROR: 4518,
 		EQUIPPED: 4601,
-		EQUIPPED_COSTUME: 4603
+		EQUIPPED_COSTUME: 4603,
+		STORAGE: 4701,
+		GUILD_STORAGE: 4702
 	};
 	ItemRecordTag = {
 		START_CHAIN: 281,
@@ -367781,15 +370117,25 @@ var init_ReplayTypes = __esmMin((() => {
 		ZC_STORE_ENTRY: 202,
 		ZC_PROGRESS: 203,
 		ZC_BUYING_STORE_ENTRY: 204,
+		ZC_SKILL_POST_ENTRY: 205,
+		ZC_SKILL_GROUND_UNIT: 206,
 		ZC_ITEM_ENTRY: 207,
 		ZC_NOTIFY_MOVEENTRY8: 208,
 		ZC_NOTIFY_STANDENTRY7: 210,
+		ZC_NOTIFY_NEWENTRY5: 212,
+		ZC_NOTIFY_ACTENTRY: 213,
 		ZC_NOTIFY_MOVEENTRY11: 214,
+		ZC_NOTIFY_STANDENTRY10: 215,
+		ZC_NOTIFY_MOVEENTRY10: 216,
 		ZC_NOTIFY_STANDENTRY11: 217,
+		ZC_NOTIFY_MOVEENTRY: 218,
+		ZC_NPC_CHAT: 401,
 		Begin_950: 950,
 		End_950: 951,
+		TailMagic: 960,
 		Region: 961,
 		Service: 962,
+		ServerType: 963,
 		Sex: 963,
 		Charactername: 964,
 		Mapname: 965,
@@ -367797,7 +370143,11 @@ var init_ReplayTypes = __esmMin((() => {
 		PosX: 967,
 		PosY: 968,
 		Direction: 969,
+		TotalTimeMs: 970,
 		Length: 970,
+		PacketCount: 971,
+		EndFileOffset: 972,
+		SaveUiOptions: 973,
 		Begin_1000: 1e3,
 		End_1000: 1001,
 		Aid: 1010,
@@ -367881,11 +370231,77 @@ var init_ReplayTypes = __esmMin((() => {
 		Begin_4500: 4500,
 		End_4500: 4501,
 		InventoryItems: 4510,
+		CartItems: 4516,
+		CartMirrorItems: 4518,
 		EquippedItems: 4601,
 		EquippedShadowItems: 4603,
-		CartItems: 4516,
+		StorageItems: 4701,
+		GuildStorageItems: 4702,
 		Begin_5000: 5e3,
 		End_5000: 5001,
+		HomunGid: 5101,
+		HomunName: 5102,
+		HomunJob: 5103,
+		HomunLevel: 5104,
+		HomunFullness: 5105,
+		HomunRelation: 5106,
+		HomunHp: 5107,
+		HomunMaxHp: 5108,
+		HomunSp: 5109,
+		HomunMaxSp: 5110,
+		HomunAtk: 5111,
+		HomunMatk: 5112,
+		HomunHit: 5113,
+		HomunCritical: 5114,
+		HomunDef: 5115,
+		HomunMdef: 5116,
+		HomunFlee: 5117,
+		HomunAspd: 5118,
+		HomunExp: 5119,
+		HomunNextExp: 5120,
+		HomunSkillPoint: 5121,
+		HomunOldFullness: 5122,
+		HomunOldRelation: 5123,
+		HomunIsModified: 5124,
+		HomunIsModifiedName: 5125,
+		HomunState: 5126,
+		HomunAtkRange: 5127,
+		HomunClass: 5128,
+		HomunEvolution: 5129,
+		HomunEvolutionCost: 5130,
+		HomunBaseLevel: 5131,
+		HomunMaxLevel: 5132,
+		HomunAutoFeed: 5133,
+		HomunFoodId: 5134,
+		MercenaryGid: 5201,
+		MercenaryName: 5202,
+		MercenaryJob: 5203,
+		MercenaryLevel: 5204,
+		MercenaryHp: 5205,
+		MercenaryMaxHp: 5206,
+		MercenarySp: 5207,
+		MercenaryMaxSp: 5208,
+		MercenaryAtk: 5209,
+		MercenaryMatk: 5210,
+		MercenaryHit: 5211,
+		MercenaryCritical: 5212,
+		MercenaryDef: 5213,
+		MercenaryMdef: 5214,
+		MercenaryFlee: 5215,
+		MercenaryAspd: 5216,
+		MercenaryRemainTime: 5217,
+		MercenaryCalls: 5218,
+		MercenaryKillCount: 5219,
+		MercenaryState: 5220,
+		MercenaryAtkRange: 5221,
+		MercenaryClass: 5222,
+		MercenaryType: 5223,
+		MercenaryEndurance: 5224,
+		MercenarySkillPoint: 5225,
+		MercenaryContractTime: 5226,
+		MercenaryProperty: 5227,
+		MercenaryPropertyLevel: 5228,
+		MercenaryOldFullness: 5229,
 		Begin_5300: 5300,
 		PetGid: 5301,
 		PetIsNameModified: 5302,
@@ -367897,21 +370313,76 @@ var init_ReplayTypes = __esmMin((() => {
 		PetRelation: 5308,
 		PetEggIndex: 5309,
 		PetOldFullness: 5310,
+		ElementalGid: 5401,
+		ElementalName: 5402,
+		ElementalJob: 5403,
+		ElementalLevel: 5404,
+		ElementalRemainTime: 5405,
 		Begin_5500: 5500,
 		End_5500: 5501,
+		MemorialDungeonIsOpen: 5510,
+		MemorialDungeonWndX: 5511,
+		MemorialDungeonWndY: 5512,
+		MemorialDungeonFactor: 5513,
+		MemorialDungeonEnterTime: 5514,
+		MemorialDungeonName: 5515,
+		MemorialDungeonDestroyTime: 5516,
+		MemorialDungeonReEnterTime: 5517,
+		MemorialDungeonState: 5518,
 		Begin_6500: 6500,
 		End_6500: 6501,
+		EntryQueueSelected: 6511,
+		EntryQueueState: 6512,
+		EntryQueueInfo: 6513,
+		EntryQueueApply: 6514,
+		EntryQueueWnd: 6515,
+		EntryQueueStandByWnd: 6516,
+		EntryQueueParam1: 6517,
+		EntryQueueParam2: 6518,
 		Begin_7000: 7e3,
 		End_7000: 7001,
+		HotkeyBar1: 7100,
+		HotkeyBar2: 7101,
+		Begin_7500: 7500,
+		End_7500: 7501,
+		SkillNameEntry: 7502,
+		SkillItem: 7504,
+		SkillTreeItem: 7505,
 		Begin_8000: 8e3,
 		End_8000: 8001,
+		NaviAutoSearch: 8002,
+		NaviFindDistance: 8003,
+		NaviShowDistance: 8004,
+		NaviDrawNpcIcon: 8005,
+		NaviRoutePath: 8006,
+		NaviStartNode: 8007,
+		NaviEndNode: 8008,
+		NaviStartX: 8009,
+		NaviStartY: 8010,
+		NaviEndX: 8011,
+		NaviEndY: 8012,
+		NaviTargetGid: 8013,
+		NaviTargetType: 8014,
+		NaviStartMap: 8015,
+		NaviDestMap: 8016,
+		NaviRouteCost: 8017,
+		NaviScrollState: 8018,
+		NaviActiveTab: 8019,
+		NaviFilterState: 8020,
+		NaviWorldInfo: 8021,
+		NaviWaypointList: 8022,
+		NaviIsPathActive: 8023,
 		Begin_10000: 1e4,
 		End_10000: 10001,
 		Begin_13000: 13e3,
-		NameList: 13003,
 		End_13000: 13001,
+		ActorNameList: 13002,
+		GuildNameList: 13003,
+		GuildEmblemId: 13004,
+		GuildEmblemData: 13005,
 		Begin_14000: 14e3,
 		End_14000: 14001,
+		IsOnQuest: 14011,
 		Begin_15000: 15e3,
 		End_15000: 15001,
 		Begin_17000: 17e3,
@@ -367921,8 +370392,10 @@ var init_ReplayTypes = __esmMin((() => {
 		EfstInfo: 19011,
 		Begin_20000: 2e4,
 		End_20000: 20001,
+		OpenWindow_Base: 20100,
 		Begin_25000: 25e3,
 		End_25000: 25001,
+		IsDragAll: 25010,
 		Begin_26000: 26e3,
 		End_26000: 26001
 	};
@@ -367938,41 +370411,32 @@ var init_ReplayTypes = __esmMin((() => {
 		PLAYING_PACKET_STREAM: "PLAYING_PACKET_STREAM",
 		REPLAY_FINISHED: "REPLAY_FINISHED"
 	};
-}));
-// src/Engine/Replay/ReplaySocket.js
-var ReplaySocket;
-var init_ReplaySocket = __esmMin((() => {
-	ReplaySocket = class {
-		constructor(host, port) {
-			this.host = host;
-			this.port = port;
-			this.connected = false;
-			this.onMessage = null;
-			this.onClose = null;
-			this.onError = null;
-			this.onComplete = null;
-			setTimeout(() => {
-				this.connected = true;
-				if (this.onComplete) this.onComplete(true);
-			}, 10);
-		}
-		send(buffer) {}
-		close() {
-			this.connected = false;
-			if (this.onClose) this.onClose();
-		}
-		/**
-		* Feed data into NetworkManager
-		* @param {Uint8Array|ArrayBuffer} data
-		*/
-		push(data) {
-			if (!this.connected || !this.onMessage || !data) return;
-			let buffer;
-			if (data instanceof Uint8Array) buffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-			else if (data instanceof ArrayBuffer) buffer = data;
-			else return;
-			this.onMessage(buffer);
-		}
+	WindowIdToComponent = {
+		0: "BasicInfo",
+		1: "ItemInfo",
+		2: "ItemSelection",
+		3: "Inventory",
+		4: "Equipment",
+		5: "WinStats",
+		6: "SkillList",
+		7: "ChatBox",
+		8: "ChatRoom",
+		9: "MiniMap",
+		10: "PartyFriends",
+		11: "Guild",
+		12: "Emoticons",
+		13: "ShortCut",
+		14: "GraphicsOption",
+		15: "Escape",
+		16: "Quest",
+		17: "NpcStore",
+		18: "PetInformations",
+		19: "HomunInformations",
+		20: "MercenaryInformations",
+		21: "CartItems",
+		22: "Storage",
+		23: "WorldMap",
+		24: "Navigation"
 	};
 }));
 // src/Engine/Replay/ReplayParser.js
@@ -368120,16 +370584,34 @@ var init_ReplayParser = __esmMin((() => {
 		buildBuffers() {
 			const sessionBuffer = this.buildSessionBuffer();
 			const itemsBuffer = this.buildItemsBuffer();
-			const petBuffer = this.buildPetBuffer();
+			const companionsBuffer = this.buildCompanionsBuffer();
+			const petBuffer = companionsBuffer.pet;
+			const homunBuffer = companionsBuffer.homunculus;
+			const mercenaryBuffer = companionsBuffer.mercenary;
+			const elementalBuffer = companionsBuffer.elemental;
 			const statusBuffer = this.buildStatusBuffer();
 			const efstListBuffer = this.buildEfstListBuffer();
+			const hotkeysBuffer = this.buildHotkeysBuffer();
+			const questsBuffer = this.buildQuestsBuffer();
+			const groupAndFriendsBuffer = this.buildGroupAndFriendsBuffer();
+			const memorialDungeonBuffer = this.buildMemorialDungeonBuffer();
+			const entryQueueBuffer = this.buildEntryQueueBuffer();
+			const navigationBuffer = this.buildNavigationBuffer();
+			const actorNamesBuffer = this.buildActorNamesBuffer();
+			const openWindowsBuffer = this.buildOpenWindowsBuffer();
+			const windowDragAllBuffer = this.buildWindowDragAllBuffer();
 			Object.assign(sessionBuffer, statusBuffer);
 			if (petBuffer) sessionBuffer.pet = petBuffer;
+			if (homunBuffer) sessionBuffer.homun = homunBuffer;
+			if (mercenaryBuffer) sessionBuffer.mercenary = mercenaryBuffer;
+			if (elementalBuffer) sessionBuffer.elemental = elementalBuffer;
+			if (questsBuffer.isOnQuest !== void 0) sessionBuffer.isOnQuest = questsBuffer.isOnQuest;
 			const initialBuffer = [];
 			const initialTypes = [
 				ContainerType.InitialPackets,
 				ContainerType.InitialEntities,
-				ContainerType.InitialFloorItems
+				ContainerType.InitialFloorItems,
+				ContainerType.SkillGroundUnits
 			];
 			for (const container of this.containers) {
 				if (!initialTypes.includes(container.type)) continue;
@@ -368156,9 +370638,22 @@ var init_ReplayParser = __esmMin((() => {
 				header: this.header,
 				sessionBuffer,
 				itemsBuffer,
+				companionsBuffer,
 				petBuffer,
+				homunBuffer,
+				mercenaryBuffer,
+				elementalBuffer,
 				statusBuffer,
 				efstListBuffer,
+				hotkeysBuffer,
+				questsBuffer,
+				groupAndFriendsBuffer,
+				memorialDungeonBuffer,
+				entryQueueBuffer,
+				navigationBuffer,
+				actorNamesBuffer,
+				openWindowsBuffer,
+				windowDragAllBuffer,
 				initialBuffer,
 				packetStreamBuffer,
 				durationMs
@@ -368210,6 +370705,22 @@ var init_ReplayParser = __esmMin((() => {
 				if (dir !== null) buf.startDir = dir;
 				const lengthMs = readU32ById(replayData, 970);
 				if (lengthMs !== null) buf.durationMs = lengthMs;
+				const tailMagic = readU32ById(replayData, ReplayOpCodes.TailMagic);
+				if (tailMagic !== null) buf.tailMagic = tailMagic;
+				const region = readU32ById(replayData, ReplayOpCodes.Region) ?? readU8ById(replayData, ReplayOpCodes.Region);
+				if (region !== null) buf.region = region;
+				const service = readU32ById(replayData, ReplayOpCodes.Service) ?? readU8ById(replayData, ReplayOpCodes.Service);
+				if (service !== null) buf.service = service;
+				const serverType = readU32ById(replayData, ReplayOpCodes.ServerType) ?? readU8ById(replayData, ReplayOpCodes.ServerType);
+				if (serverType !== null) buf.serverType = serverType;
+				const mapType = readU32ById(replayData, ReplayOpCodes.Maptype) ?? readU8ById(replayData, ReplayOpCodes.Maptype);
+				if (mapType !== null) buf.mapType = mapType;
+				const packetCount = readU32ById(replayData, ReplayOpCodes.PacketCount);
+				if (packetCount !== null) buf.packetCount = packetCount;
+				const endFileOffset = readU32ById(replayData, ReplayOpCodes.EndFileOffset);
+				if (endFileOffset !== null) buf.endFileOffset = endFileOffset;
+				const saveUiOptions = readU32ById(replayData, ReplayOpCodes.SaveUiOptions) ?? readU8ById(replayData, ReplayOpCodes.SaveUiOptions);
+				if (saveUiOptions !== null) buf.saveUiOptions = saveUiOptions;
 			}
 			const sessionContainer = this.containers.find((c) => c.type === ContainerType.Session);
 			if (sessionContainer) {
@@ -368399,36 +370910,424 @@ var init_ReplayParser = __esmMin((() => {
 			if (maxSp !== null) buf.maxSp = maxSp;
 			return buf;
 		}
-		buildPetBuffer() {
+		buildCompanionsBuffer() {
 			const compContainer = this.containers.find((c) => c.type === ContainerType.Companions);
-			if (!compContainer) return null;
+			if (!compContainer) return {
+				pet: null,
+				homunculus: null,
+				mercenary: null,
+				elemental: null
+			};
 			const readU32 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+			const readU8 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint8(0);
 			const readU32ById = (id) => {
 				const ch = compContainer.data.find((c) => c.id === id);
 				if (!ch || ch.data.byteLength < 4) return null;
 				return readU32(ch);
+			};
+			const readU8ById = (id) => {
+				const ch = compContainer.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength < 1) return null;
+				return readU8(ch);
 			};
 			const readStringById = (id) => {
 				const ch = compContainer.data.find((c) => c.id === id);
 				if (!ch || ch.data.byteLength === 0) return "";
 				return this.readString(ch.data);
 			};
-			const aid = readU32ById(ReplayOpCodes.PetGid);
-			if (!aid) return null;
-			const name = readStringById(ReplayOpCodes.PetName);
-			const viewRaw = readU32ById(ReplayOpCodes.PetJob) ?? 0;
-			const level = readU32ById(ReplayOpCodes.PetLevel) ?? 1;
-			const hunger = readU32ById(ReplayOpCodes.PetFullness) ?? 0;
-			const intimacy = readU32ById(ReplayOpCodes.PetRelation) ?? 0;
-			return {
-				aid,
-				name,
-				view: viewRaw === 4294967295 ? -1 : viewRaw,
-				job: viewRaw === 4294967295 ? -1 : viewRaw,
-				level,
-				hunger,
-				intimacy
+			let pet = null;
+			const petAid = readU32ById(ReplayOpCodes.PetGid);
+			if (petAid) {
+				const name = readStringById(ReplayOpCodes.PetName);
+				const viewRaw = readU32ById(ReplayOpCodes.PetJob) ?? 0;
+				const level = readU32ById(ReplayOpCodes.PetLevel) ?? 1;
+				const hunger = readU32ById(ReplayOpCodes.PetFullness) ?? 0;
+				const intimacy = readU32ById(ReplayOpCodes.PetRelation) ?? 0;
+				const accessory = readU32ById(ReplayOpCodes.PetAccessory) ?? 0;
+				const isNameModified = readU32ById(ReplayOpCodes.PetIsNameModified) ?? readU8ById(ReplayOpCodes.PetIsNameModified) ?? 0;
+				const eggIndex = readU32ById(ReplayOpCodes.PetEggIndex) ?? 0;
+				const oldFullness = readU32ById(ReplayOpCodes.PetOldFullness) ?? 0;
+				pet = {
+					aid: petAid,
+					name,
+					szName: name,
+					view: viewRaw === 4294967295 ? -1 : viewRaw,
+					job: viewRaw === 4294967295 ? -1 : viewRaw,
+					level,
+					nLevel: level,
+					hunger,
+					nFullness: hunger,
+					intimacy,
+					nRelationship: intimacy,
+					accessory,
+					ITID: accessory,
+					bModified: isNameModified,
+					eggIndex,
+					oldFullness
+				};
+			}
+			let homunculus = null;
+			const homunGid = readU32ById(ReplayOpCodes.HomunGid);
+			if (homunGid) {
+				const szName = readStringById(ReplayOpCodes.HomunName) || "";
+				const level = readU32ById(ReplayOpCodes.HomunLevel) ?? 1;
+				const fullness = readU32ById(ReplayOpCodes.HomunFullness) ?? 0;
+				const relation = readU32ById(ReplayOpCodes.HomunRelation) ?? 0;
+				const hp = readU32ById(ReplayOpCodes.HomunHp) ?? 0;
+				const maxHp = readU32ById(ReplayOpCodes.HomunMaxHp) ?? 0;
+				const sp = readU32ById(ReplayOpCodes.HomunSp) ?? 0;
+				const maxSp = readU32ById(ReplayOpCodes.HomunMaxSp) ?? 0;
+				const exp = readU32ById(ReplayOpCodes.HomunExp) ?? 0;
+				const nextExp = readU32ById(ReplayOpCodes.HomunNextExp) ?? 0;
+				homunculus = {
+					gid: homunGid,
+					szName,
+					name: szName,
+					job: readU32ById(ReplayOpCodes.HomunJob) ?? 0,
+					nLevel: level,
+					level,
+					nFullness: fullness,
+					hunger: fullness,
+					nRelationship: relation,
+					intimacy: relation,
+					hp,
+					maxHP: maxHp,
+					sp,
+					maxSP: maxSp,
+					atk: readU32ById(ReplayOpCodes.HomunAtk) ?? 0,
+					Matk: readU32ById(ReplayOpCodes.HomunMatk) ?? 0,
+					hit: readU32ById(ReplayOpCodes.HomunHit) ?? 0,
+					critical: readU32ById(ReplayOpCodes.HomunCritical) ?? 0,
+					def: readU32ById(ReplayOpCodes.HomunDef) ?? 0,
+					Mdef: readU32ById(ReplayOpCodes.HomunMdef) ?? 0,
+					flee: readU32ById(ReplayOpCodes.HomunFlee) ?? 0,
+					aspd: readU32ById(ReplayOpCodes.HomunAspd) ?? 0,
+					exp,
+					maxEXP: nextExp,
+					skillPoint: readU32ById(ReplayOpCodes.HomunSkillPoint) ?? 0,
+					oldFullness: readU32ById(ReplayOpCodes.HomunOldFullness) ?? 0,
+					oldRelation: readU32ById(ReplayOpCodes.HomunOldRelation) ?? 0,
+					bModified: readU32ById(ReplayOpCodes.HomunIsModified) ?? 0,
+					state: readU32ById(ReplayOpCodes.HomunState) ?? 0,
+					atkRange: readU32ById(ReplayOpCodes.HomunAtkRange) ?? 0,
+					class_: readU32ById(ReplayOpCodes.HomunClass) ?? 0,
+					evolution: readU32ById(ReplayOpCodes.HomunEvolution) ?? 0,
+					evolutionCost: readU32ById(ReplayOpCodes.HomunEvolutionCost) ?? 0,
+					autoFeed: readU32ById(ReplayOpCodes.HomunAutoFeed) ?? 0,
+					foodId: readU32ById(ReplayOpCodes.HomunFoodId) ?? 0
+				};
+			}
+			let mercenary = null;
+			const mercGid = readU32ById(ReplayOpCodes.MercenaryGid);
+			if (mercGid) {
+				const name = readStringById(ReplayOpCodes.MercenaryName) || "";
+				const level = readU32ById(ReplayOpCodes.MercenaryLevel) ?? 1;
+				const hp = readU32ById(ReplayOpCodes.MercenaryHp) ?? 0;
+				const maxHp = readU32ById(ReplayOpCodes.MercenaryMaxHp) ?? 0;
+				const sp = readU32ById(ReplayOpCodes.MercenarySp) ?? 0;
+				const maxSp = readU32ById(ReplayOpCodes.MercenaryMaxSp) ?? 0;
+				mercenary = {
+					gid: mercGid,
+					name,
+					job: readU32ById(ReplayOpCodes.MercenaryJob) ?? 0,
+					level,
+					hp,
+					maxHP: maxHp,
+					sp,
+					maxSP: maxSp,
+					atk: readU32ById(ReplayOpCodes.MercenaryAtk) ?? 0,
+					Matk: readU32ById(ReplayOpCodes.MercenaryMatk) ?? 0,
+					hit: readU32ById(ReplayOpCodes.MercenaryHit) ?? 0,
+					critical: readU32ById(ReplayOpCodes.MercenaryCritical) ?? 0,
+					def: readU32ById(ReplayOpCodes.MercenaryDef) ?? 0,
+					Mdef: readU32ById(ReplayOpCodes.MercenaryMdef) ?? 0,
+					flee: readU32ById(ReplayOpCodes.MercenaryFlee) ?? 0,
+					aspd: readU32ById(ReplayOpCodes.MercenaryAspd) ?? 0,
+					ExpireDate: readU32ById(ReplayOpCodes.MercenaryRemainTime) ?? 0,
+					remainTime: readU32ById(ReplayOpCodes.MercenaryRemainTime) ?? 0,
+					calls: readU32ById(ReplayOpCodes.MercenaryCalls) ?? 0,
+					approval_monster_kill_counter: readU32ById(ReplayOpCodes.MercenaryKillCount) ?? 0,
+					killCount: readU32ById(ReplayOpCodes.MercenaryKillCount) ?? 0,
+					state: readU32ById(ReplayOpCodes.MercenaryState) ?? 0,
+					atkRange: readU32ById(ReplayOpCodes.MercenaryAtkRange) ?? 0,
+					class_: readU32ById(ReplayOpCodes.MercenaryClass) ?? 0,
+					type: readU32ById(ReplayOpCodes.MercenaryType) ?? 0,
+					faith: readU32ById(ReplayOpCodes.MercenaryEndurance) ?? 0,
+					endurance: readU32ById(ReplayOpCodes.MercenaryEndurance) ?? 0,
+					SKPoint: readU32ById(ReplayOpCodes.MercenarySkillPoint) ?? 0,
+					contractTime: readU32ById(ReplayOpCodes.MercenaryContractTime) ?? 0,
+					property: readU32ById(ReplayOpCodes.MercenaryProperty) ?? 0,
+					propertyLevel: readU32ById(ReplayOpCodes.MercenaryPropertyLevel) ?? 0,
+					oldFullness: readU32ById(ReplayOpCodes.MercenaryOldFullness) ?? 0
+				};
+			}
+			let elemental = null;
+			const elemGid = readU32ById(ReplayOpCodes.ElementalGid);
+			if (elemGid) elemental = {
+				gid: elemGid,
+				name: readStringById(ReplayOpCodes.ElementalName) || "",
+				job: readU32ById(ReplayOpCodes.ElementalJob) ?? 0,
+				level: readU32ById(ReplayOpCodes.ElementalLevel) ?? 1,
+				remainTime: readU32ById(ReplayOpCodes.ElementalRemainTime) ?? 0
 			};
+			return {
+				pet,
+				homunculus,
+				mercenary,
+				elemental
+			};
+		}
+		buildPetBuffer() {
+			return this.buildCompanionsBuffer().pet;
+		}
+		buildHotkeysBuffer() {
+			const hotkeysContainer = this.containers.find((c) => c.type === ContainerType.Hotkeys);
+			if (!hotkeysContainer) return [];
+			const list = [];
+			for (const chunk of hotkeysContainer.data) {
+				if (!chunk.data || chunk.data.byteLength < 7) continue;
+				const view = new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength);
+				const count = Math.floor(chunk.data.byteLength / 7);
+				for (let i = 0; i < count; i++) {
+					const offset = i * 7;
+					const isSkill = view.getUint8(offset) === 1;
+					const id = view.getUint32(offset + 1, true);
+					const countVal = view.getUint16(offset + 5, true);
+					list.push({
+						isSkill,
+						ID: id,
+						count: countVal
+					});
+				}
+			}
+			return list;
+		}
+		buildQuestsBuffer() {
+			const questsContainer = this.containers.find((c) => c.type === ContainerType.Quests);
+			const questFlagContainer = this.containers.find((c) => c.type === ContainerType.QuestFlag);
+			let isOnQuest = false;
+			if (questFlagContainer) {
+				const flagChunk = questFlagContainer.data.find((c) => c.id === ReplayOpCodes.IsOnQuest);
+				if (flagChunk && flagChunk.data.byteLength > 0) isOnQuest = flagChunk.data[0] !== 0;
+			}
+			const quests = [];
+			if (questsContainer) for (const chunk of questsContainer.data) {
+				if (!chunk.data || chunk.data.byteLength === 0) continue;
+				const view = new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength);
+				if (chunk.data.byteLength >= 4) {
+					const questId = view.getUint32(0, true);
+					const active = chunk.data.byteLength > 4 ? chunk.data[4] !== 0 : true;
+					quests.push({
+						questID: questId,
+						active,
+						data: chunk.data
+					});
+				}
+			}
+			return {
+				isOnQuest,
+				quests
+			};
+		}
+		buildGroupAndFriendsBuffer() {
+			const groupContainer = this.containers.find((c) => c.type === ContainerType.GroupAndFriends);
+			if (!groupContainer) return {
+				groupName: "",
+				groupInfo: [],
+				friendInfo: []
+			};
+			let groupName = "";
+			const nameChunk = groupContainer.data.find((c) => c.id === ReplayOpCodes.GroupName);
+			if (nameChunk && nameChunk.data?.byteLength > 0) groupName = this.readString(nameChunk.data);
+			const groupInfo = [];
+			const groupInfoChunk = groupContainer.data.find((c) => c.id === ReplayOpCodes.GroupInfo);
+			if (groupInfoChunk && groupInfoChunk.data?.byteLength >= 46) {
+				const data = groupInfoChunk.data;
+				const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+				const count = Math.floor(data.byteLength / 46);
+				for (let i = 0; i < count; i++) {
+					const offset = i * 46;
+					const aid = view.getUint32(offset, true);
+					const charName = this.readString(data.subarray(offset + 4, offset + 28));
+					const mapName = this.readString(data.subarray(offset + 28, offset + 44));
+					const role = view.getUint8(offset + 44);
+					const state = view.getUint8(offset + 45);
+					groupInfo.push({
+						AID: aid,
+						characterName: charName,
+						mapName,
+						role,
+						state
+					});
+				}
+			}
+			const friendInfo = [];
+			const friendInfoChunk = groupContainer.data.find((c) => c.id === ReplayOpCodes.FriendInfo);
+			if (friendInfoChunk && friendInfoChunk.data?.byteLength >= 32) {
+				const data = friendInfoChunk.data;
+				const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+				const count = Math.floor(data.byteLength / 32);
+				for (let i = 0; i < count; i++) {
+					const offset = i * 32;
+					const aid = view.getUint32(offset, true);
+					const gid = view.getUint32(offset + 4, true);
+					const name = this.readString(data.subarray(offset + 8, offset + 32));
+					friendInfo.push({
+						AID: aid,
+						GID: gid,
+						Name: name
+					});
+				}
+			}
+			return {
+				groupName,
+				groupInfo,
+				friendInfo
+			};
+		}
+		buildMemorialDungeonBuffer() {
+			const mdContainer = this.containers.find((c) => c.type === ContainerType.MemorialDungeon);
+			if (!mdContainer) return null;
+			const readU32ById = (id) => {
+				const ch = mdContainer.data.find((c) => c.id === id);
+				return ch && ch.data.byteLength >= 4 ? new DataView(ch.data.buffer, ch.data.byteOffset, ch.data.byteLength).getUint32(0, true) : null;
+			};
+			const readStringById = (id) => {
+				const ch = mdContainer.data.find((c) => c.id === id);
+				return ch && ch.data.byteLength > 0 ? this.readString(ch.data) : "";
+			};
+			return {
+				isOpen: (readU32ById(ReplayOpCodes.MemorialDungeonIsOpen) ?? 0) !== 0,
+				name: readStringById(ReplayOpCodes.MemorialDungeonName),
+				wndX: readU32ById(ReplayOpCodes.MemorialDungeonWndX) ?? 0,
+				wndY: readU32ById(ReplayOpCodes.MemorialDungeonWndY) ?? 0,
+				factor: readU32ById(ReplayOpCodes.MemorialDungeonFactor) ?? 0,
+				enterTime: readU32ById(ReplayOpCodes.MemorialDungeonEnterTime) ?? 0,
+				destroyTime: readU32ById(ReplayOpCodes.MemorialDungeonDestroyTime) ?? 0,
+				reEnterTime: readU32ById(ReplayOpCodes.MemorialDungeonReEnterTime) ?? 0,
+				state: readU32ById(ReplayOpCodes.MemorialDungeonState) ?? 0
+			};
+		}
+		buildEntryQueueBuffer() {
+			const eqContainer = this.containers.find((c) => c.type === ContainerType.EntryQueue);
+			if (!eqContainer) return null;
+			const readU32ById = (id) => {
+				const ch = eqContainer.data.find((c) => c.id === id);
+				return ch && ch.data.byteLength >= 4 ? new DataView(ch.data.buffer, ch.data.byteOffset, ch.data.byteLength).getUint32(0, true) : null;
+			};
+			return {
+				selected: readU32ById(ReplayOpCodes.EntryQueueSelected) ?? 0,
+				state: readU32ById(ReplayOpCodes.EntryQueueState) ?? 0,
+				info: readU32ById(ReplayOpCodes.EntryQueueInfo) ?? 0,
+				apply: readU32ById(ReplayOpCodes.EntryQueueApply) ?? 0,
+				wnd: readU32ById(ReplayOpCodes.EntryQueueWnd) ?? 0,
+				standByWnd: readU32ById(ReplayOpCodes.EntryQueueStandByWnd) ?? 0,
+				param1: readU32ById(ReplayOpCodes.EntryQueueParam1) ?? 0,
+				param2: readU32ById(ReplayOpCodes.EntryQueueParam2) ?? 0
+			};
+		}
+		buildNavigationBuffer() {
+			const navContainer = this.containers.find((c) => c.type === ContainerType.Navigation);
+			if (!navContainer) return null;
+			const readU32ById = (id) => {
+				const ch = navContainer.data.find((c) => c.id === id);
+				return ch && ch.data.byteLength >= 4 ? new DataView(ch.data.buffer, ch.data.byteOffset, ch.data.byteLength).getUint32(0, true) : null;
+			};
+			const readStringById = (id) => {
+				const ch = navContainer.data.find((c) => c.id === id);
+				return ch && ch.data.byteLength > 0 ? this.readString(ch.data) : "";
+			};
+			return {
+				autoSearch: (readU32ById(ReplayOpCodes.NaviAutoSearch) ?? 0) !== 0,
+				findDistance: readU32ById(ReplayOpCodes.NaviFindDistance) ?? 0,
+				showDistance: readU32ById(ReplayOpCodes.NaviShowDistance) ?? 0,
+				drawNpcIcon: (readU32ById(ReplayOpCodes.NaviDrawNpcIcon) ?? 0) !== 0,
+				startNode: readU32ById(ReplayOpCodes.NaviStartNode) ?? 0,
+				endNode: readU32ById(ReplayOpCodes.NaviEndNode) ?? 0,
+				startX: readU32ById(ReplayOpCodes.NaviStartX) ?? 0,
+				startY: readU32ById(ReplayOpCodes.NaviStartY) ?? 0,
+				endX: readU32ById(ReplayOpCodes.NaviEndX) ?? 0,
+				endY: readU32ById(ReplayOpCodes.NaviEndY) ?? 0,
+				x: readU32ById(ReplayOpCodes.NaviEndX) ?? 0,
+				y: readU32ById(ReplayOpCodes.NaviEndY) ?? 0,
+				targetGid: readU32ById(ReplayOpCodes.NaviTargetGid) ?? 0,
+				targetType: readU32ById(ReplayOpCodes.NaviTargetType) ?? 0,
+				startMap: readStringById(ReplayOpCodes.NaviStartMap),
+				destMap: readStringById(ReplayOpCodes.NaviDestMap),
+				routeCost: readU32ById(ReplayOpCodes.NaviRouteCost) ?? 0,
+				isPathActive: (readU32ById(ReplayOpCodes.NaviIsPathActive) ?? 0) !== 0
+			};
+		}
+		buildActorNamesBuffer() {
+			const namesContainer = this.containers.find((c) => c.type === ContainerType.ActorNames);
+			if (!namesContainer) return {
+				actorNames: [],
+				guildNames: []
+			};
+			const actorNames = [];
+			const actorChunk = namesContainer.data.find((c) => c.id === ReplayOpCodes.ActorNameList);
+			if (actorChunk && actorChunk.data?.byteLength >= 28) {
+				const data = actorChunk.data;
+				const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+				const count = Math.floor(data.byteLength / 28);
+				for (let i = 0; i < count; i++) {
+					const offset = i * 28;
+					const gid = view.getUint32(offset, true);
+					const name = this.readString(data.subarray(offset + 4, offset + 28));
+					actorNames.push({
+						gid,
+						name
+					});
+				}
+			}
+			const guildNames = [];
+			const guildChunk = namesContainer.data.find((c) => c.id === ReplayOpCodes.GuildNameList);
+			if (guildChunk && guildChunk.data?.byteLength >= 28) {
+				const data = guildChunk.data;
+				const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+				const count = Math.floor(data.byteLength / 28);
+				for (let i = 0; i < count; i++) {
+					const offset = i * 28;
+					const guildId = view.getUint32(offset, true);
+					const name = this.readString(data.subarray(offset + 4, offset + 28));
+					guildNames.push({
+						guildId,
+						name
+					});
+				}
+			}
+			return {
+				actorNames,
+				actors: actorNames,
+				guildNames
+			};
+		}
+		buildOpenWindowsBuffer() {
+			const winContainer = this.containers.find((c) => c.type === ContainerType.OpenWindows);
+			if (!winContainer) return [];
+			const openWindows = [];
+			for (const chunk of winContainer.data) if (chunk.id >= ReplayOpCodes.OpenWindow_Base && chunk.id < 20500) {
+				const windowId = chunk.id - ReplayOpCodes.OpenWindow_Base;
+				let x = null;
+				let y = null;
+				if (chunk.data && chunk.data.byteLength >= 4) {
+					const view = new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength);
+					x = view.getInt16(0, true);
+					y = view.getInt16(2, true);
+				}
+				openWindows.push({
+					windowId,
+					x,
+					y
+				});
+			}
+			return openWindows;
+		}
+		buildWindowDragAllBuffer() {
+			const dragContainer = this.containers.find((c) => c.type === ContainerType.WindowDragAll);
+			if (!dragContainer) return false;
+			const ch = dragContainer.data.find((c) => c.id === ReplayOpCodes.IsDragAll);
+			return ch && ch.data?.byteLength > 0 ? ch.data[0] !== 0 : false;
 		}
 		buildEfstListBuffer() {
 			const efstContainer = this.containers.find((c) => c.type === ContainerType.EfstList);
@@ -368452,8 +371351,11 @@ var init_ReplayParser = __esmMin((() => {
 			const out = {
 				inventory: [],
 				cart: [],
+				cartMirror: [],
 				equipped: [],
-				equippedCostume: []
+				equippedCostume: [],
+				storage: [],
+				guildStorage: []
 			};
 			const SKIP_CHUNKS = /* @__PURE__ */ new Set([
 				4602,
@@ -368581,7 +371483,7 @@ var init_ReplayParser = __esmMin((() => {
 					}
 					if (itemId > 0) {
 						let itemType = ItemType_default.ETC;
-						if (chunk.id === ItemChunkKind.EQUIPPED_COSTUME || equipped & (EquipmentLocation_default.COSTUME_HEAD_TOP | EquipmentLocation_default.COSTUME_HEAD_MID | EquipmentLocation_default.COSTUME_HEAD_BOTTOM | EquipmentLocation_default.COSTUME_ROBE | EquipmentLocation_default.COSTUME_FLOOR | EquipmentLocation_default.SHADOW_ARMOR | EquipmentLocation_default.SHADOW_WEAPON | EquipmentLocation_default.SHADOW_SHIELD | EquipmentLocation_default.SHADOW_SHOES | EquipmentLocation_default.SHADOW_R_ACCESSORY_SHADOW | EquipmentLocation_default.SHADOW_L_ACCESSORY_SHADOW)) itemType = ItemType_default.SHADOWGEAR;
+						if (chunk.id === ItemChunkKind.EQUIPPED_COSTUME || chunk.id === ReplayOpCodes.EquippedShadowItems || equipped & (EquipmentLocation_default.COSTUME_HEAD_TOP | EquipmentLocation_default.COSTUME_HEAD_MID | EquipmentLocation_default.COSTUME_HEAD_BOTTOM | EquipmentLocation_default.COSTUME_ROBE | EquipmentLocation_default.COSTUME_FLOOR | EquipmentLocation_default.SHADOW_ARMOR | EquipmentLocation_default.SHADOW_WEAPON | EquipmentLocation_default.SHADOW_SHIELD | EquipmentLocation_default.SHADOW_SHOES | EquipmentLocation_default.SHADOW_R_ACCESSORY_SHADOW | EquipmentLocation_default.SHADOW_L_ACCESSORY_SHADOW)) itemType = ItemType_default.SHADOWGEAR;
 						else if (equipped & EquipmentLocation_default.WEAPON) itemType = ItemType_default.WEAPON;
 						else if (equipped & EquipmentLocation_default.AMMO) itemType = ItemType_default.AMMO;
 						else if (equipped > 0) itemType = ItemType_default.ARMOR;
@@ -368640,13 +371542,25 @@ var init_ReplayParser = __esmMin((() => {
 						parseItemChunk(chunk, out.inventory);
 						break;
 					case ItemChunkKind.CART:
+						parseItemChunk(chunk, out.cart);
+						break;
 					case ItemChunkKind.CART_MIRROR:
+						parseItemChunk(chunk, out.cartMirror);
 						if (out.cart.length === 0) parseItemChunk(chunk, out.cart);
 						break;
 					case ItemChunkKind.EQUIPPED:
 						parseItemChunk(chunk, out.equipped);
 						break;
-					case ItemChunkKind.EQUIPPED_COSTUME: parseItemChunk(chunk, out.equippedCostume);
+					case ItemChunkKind.EQUIPPED_COSTUME:
+					case ReplayOpCodes.EquippedShadowItems:
+						parseItemChunk(chunk, out.equippedCostume);
+						break;
+					case ItemChunkKind.STORAGE:
+					case ReplayOpCodes.StorageItems:
+						parseItemChunk(chunk, out.storage);
+						break;
+					case ItemChunkKind.GUILD_STORAGE:
+					case ReplayOpCodes.GuildStorageItems: parseItemChunk(chunk, out.guildStorage);
 				}
 			}
 			return out;
@@ -368717,6 +371631,42 @@ var init_ReplayParser = __esmMin((() => {
 		}
 	};
 }));
+// src/Engine/Replay/ReplaySocket.js
+var ReplaySocket;
+var init_ReplaySocket = __esmMin((() => {
+	ReplaySocket = class {
+		constructor(host, port) {
+			this.host = host;
+			this.port = port;
+			this.connected = false;
+			this.onMessage = null;
+			this.onClose = null;
+			this.onError = null;
+			this.onComplete = null;
+			setTimeout(() => {
+				this.connected = true;
+				if (this.onComplete) this.onComplete(true);
+			}, 10);
+		}
+		send(buffer) {}
+		close() {
+			this.connected = false;
+			if (this.onClose) this.onClose();
+		}
+		/**
+		* Feed data into NetworkManager
+		* @param {Uint8Array|ArrayBuffer} data
+		*/
+		push(data) {
+			if (!this.connected || !this.onMessage || !data) return;
+			let buffer;
+			if (data instanceof Uint8Array) buffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+			else if (data instanceof ArrayBuffer) buffer = data;
+			else return;
+			this.onMessage(buffer);
+		}
+	};
+}));
 // src/Engine/Replay/ReplayPlayer.js
 var ReplayPlayer_exports = /* @__PURE__ */ __exportAll({ default: () => ReplayPlayer });
 var ReplayPlayer;
@@ -368731,9 +371681,23 @@ var init_ReplayPlayer = __esmMin((() => {
 	init_WinStats();
 	init_Inventory();
 	init_CartItems();
+	init_ShortCut();
+	init_Storage$1();
+	init_PartyFriends();
+	init_Quest$1();
+	init_HomunInformations();
+	init_MercenaryInformations();
+	init_PetInformations();
+	init_Navigation();
+	init_ItemInfo();
+	init_ChatBox();
+	init_BGM();
+	init_EntityManager();
+	init_UIManager();
+	init_BinaryReader();
 	init_ReplayTypes();
-	init_ReplaySocket();
 	init_ReplayParser();
+	init_ReplaySocket();
 	ReplayPlayer = class {
 		constructor() {
 			this.parser = null;
@@ -368747,8 +371711,20 @@ var init_ReplayPlayer = __esmMin((() => {
 			this._sessionData = null;
 			this._itemsBuffer = null;
 			this._petBuffer = null;
+			this._homunBuffer = null;
+			this._mercenaryBuffer = null;
+			this._elementalBuffer = null;
 			this._statusBuffer = null;
 			this._efstListBuffer = [];
+			this._hotkeysBuffer = [];
+			this._questsBuffer = null;
+			this._groupAndFriendsBuffer = null;
+			this._memorialDungeonBuffer = null;
+			this._entryQueueBuffer = null;
+			this._navigationBuffer = null;
+			this._actorNamesBuffer = null;
+			this._openWindowsBuffer = [];
+			this._windowDragAll = null;
 			this._initialBuffer = [];
 			this._packetStreamBuffer = [];
 			this._initialGroupIndex = 0;
@@ -368769,8 +371745,20 @@ var init_ReplayPlayer = __esmMin((() => {
 			this._sessionData = result.sessionBuffer;
 			this._itemsBuffer = result.itemsBuffer;
 			this._petBuffer = result.petBuffer;
+			this._homunBuffer = result.homunBuffer;
+			this._mercenaryBuffer = result.mercenaryBuffer;
+			this._elementalBuffer = result.elementalBuffer;
 			this._statusBuffer = result.statusBuffer;
 			this._efstListBuffer = result.efstListBuffer || [];
+			this._hotkeysBuffer = result.hotkeysBuffer || [];
+			this._questsBuffer = result.questsBuffer || null;
+			this._groupAndFriendsBuffer = result.groupAndFriendsBuffer || null;
+			this._memorialDungeonBuffer = result.memorialDungeonBuffer || null;
+			this._entryQueueBuffer = result.entryQueueBuffer || null;
+			this._navigationBuffer = result.navigationBuffer || null;
+			this._actorNamesBuffer = result.actorNamesBuffer || null;
+			this._openWindowsBuffer = result.openWindowsBuffer || [];
+			this._windowDragAll = result.windowDragAll;
 			this._initialBuffer = result.initialBuffer;
 			this._packetStreamBuffer = result.packetStreamBuffer;
 			this.durationMs = result.durationMs || 0;
@@ -368908,6 +371896,40 @@ var init_ReplayPlayer = __esmMin((() => {
 				SessionStorage_default.petId = 0;
 				SessionStorage_default.pet = {};
 			}
+			if (s.homun && s.homun.gid) {
+				SessionStorage_default.homunId = s.homun.gid;
+				SessionStorage_default.homun = s.homun;
+			} else {
+				SessionStorage_default.homunId = 0;
+				SessionStorage_default.homun = {};
+			}
+			if (s.mercenary && (s.mercenary.gid || s.mercenary.GID)) {
+				const mercId = s.mercenary.gid || s.mercenary.GID;
+				SessionStorage_default.mercId = mercId;
+				SessionStorage_default.mercenaryId = mercId;
+				SessionStorage_default.mercenary = s.mercenary;
+			} else {
+				SessionStorage_default.mercId = 0;
+				SessionStorage_default.mercenaryId = 0;
+				SessionStorage_default.mercenary = {};
+			}
+			if (s.elemental && s.elemental.gid) {
+				SessionStorage_default.elementalId = s.elemental.gid;
+				SessionStorage_default.elemental = s.elemental;
+			} else {
+				SessionStorage_default.elementalId = 0;
+				SessionStorage_default.elemental = {};
+			}
+			if (s.tailMagic || s.region !== void 0 || s.service !== void 0 || s.serverType !== void 0) SessionStorage_default.replayMeta = {
+				tailMagic: s.tailMagic,
+				region: s.region,
+				service: s.service,
+				serverType: s.serverType,
+				mapType: s.mapType,
+				packetCount: s.packetCount,
+				endFileOffset: s.endFileOffset,
+				saveUiOptions: s.saveUiOptions
+			};
 			SessionStorage_default.Entity = new Player(playerInitData);
 			SessionStorage_default.Entity.display.name = charName;
 			SessionStorage_default.Entity.sex = sex;
@@ -369082,6 +372104,100 @@ var init_ReplayPlayer = __esmMin((() => {
 						for (const item of this._itemsBuffer.cart) cartUI.addItem(item);
 					} else if (typeof cartUI.setItems === "function") cartUI.setItems(this._itemsBuffer.cart);
 				}
+				const storageUI = StorageController?.getUI ? StorageController.getUI() || StorageController : StorageController;
+				if (storageUI && this._itemsBuffer.storage?.length > 0) {
+					if (typeof storageUI.prepare === "function" && !storageUI.__loaded) storageUI.prepare();
+					if (typeof storageUI.setItems === "function") storageUI.setItems(this._itemsBuffer.storage);
+				}
+			}
+			if (this._sessionData?.pet) {
+				const petId = this._sessionData.pet.aid || this._sessionData.pet.AID;
+				if (petId) {
+					SessionStorage_default.petId = petId;
+					SessionStorage_default.pet = this._sessionData.pet;
+				}
+			}
+			if (this._sessionData?.homun) {
+				const homunId = this._sessionData.homun.gid || this._sessionData.homun.GID;
+				if (homunId) {
+					SessionStorage_default.homunId = homunId;
+					SessionStorage_default.homun = this._sessionData.homun;
+				}
+			}
+			if (this._sessionData?.mercenary) {
+				const mercId = this._sessionData.mercenary.gid || this._sessionData.mercenary.GID;
+				if (mercId) {
+					SessionStorage_default.mercId = mercId;
+					SessionStorage_default.mercenaryId = mercId;
+					SessionStorage_default.mercenary = this._sessionData.mercenary;
+				}
+			}
+			if (this._sessionData?.elemental) {
+				const eleId = this._sessionData.elemental.gid || this._sessionData.elemental.GID;
+				if (eleId) {
+					SessionStorage_default.elementalId = eleId;
+					SessionStorage_default.elemental = this._sessionData.elemental;
+				}
+			}
+			if (this._homunBuffer && typeof HomunInformations_default?.setInformations === "function") HomunInformations_default.setInformations(this._homunBuffer);
+			if (this._mercenaryBuffer && typeof MercenaryInformations_default?.setInformations === "function") MercenaryInformations_default.setInformations(this._mercenaryBuffer);
+			if (this._petBuffer && typeof PetInformations_default?.setInformations === "function") PetInformations_default.setInformations(this._petBuffer);
+			if (this._hotkeysBuffer?.length > 0 && typeof ShortCut_default?.setList === "function") ShortCut_default.setList(this._hotkeysBuffer);
+			if (this._groupAndFriendsBuffer) {
+				if (this._groupAndFriendsBuffer.groupInfo?.length > 0 && typeof controller?.setParty === "function") controller.setParty(this._groupAndFriendsBuffer.groupName || "", this._groupAndFriendsBuffer.groupInfo);
+				if (this._groupAndFriendsBuffer.friendInfo?.length > 0 && typeof controller?.setFriends === "function") controller.setFriends(this._groupAndFriendsBuffer.friendInfo);
+			}
+			if (this._questsBuffer) {
+				const quests = this._questsBuffer.quests || this._questsBuffer.questInfo;
+				if (Array.isArray(quests) && quests.length > 0 && typeof Controller$3?.setQuestList === "function") {
+					const questList = {};
+					for (const q of quests) {
+						const questId = q.questID || q.id || q;
+						const questInfo = DB.getQuestInfo(questId) || {};
+						questList[questId] = {
+							questID: questId,
+							title: questInfo.Title || "",
+							summary: questInfo.Summary || "",
+							description: questInfo.Description || "",
+							icon: questInfo.IconName || "ico_nq.bmp",
+							npc_spr: questInfo.NpcSpr || null,
+							npc_navi: questInfo.NpcNavi || null,
+							npc_pos_x: questInfo.NpcPosX || null,
+							npc_pos_y: questInfo.NpcPosY || null,
+							reward_item_list: questInfo.RewardItemList || [],
+							reward_exp_base: questInfo.RewardEXP || 0,
+							reward_exp_job: questInfo.RewardJEXP || 0,
+							active: q.active !== void 0 ? q.active : q.data?.byteLength > 4 ? q.data[4] !== 0 : true,
+							start_time: 0,
+							end_time: 0,
+							count: 0,
+							hunt_list: []
+						};
+					}
+					Controller$3.setQuestList(questList);
+				} else if (quests && typeof quests === "object" && typeof Controller$3?.setQuestList === "function") Controller$3.setQuestList(quests);
+			}
+			const actors = this._actorNamesBuffer?.actorNames || this._actorNamesBuffer?.actors;
+			if (actors?.length > 0) for (const actor of actors) {
+				const entity = EntityManager.get(actor.gid);
+				if (entity?.display) entity.display.name = actor.name;
+			}
+			if (this._openWindowsBuffer?.length > 0) for (const win of this._openWindowsBuffer) {
+				const compName = WindowIdToComponent[win.windowId];
+				if (compName) try {
+					const comp = UIManager.getComponent(compName);
+					if (comp) {
+						if (!comp.__active || !comp._host?.parentNode) comp.append();
+						else if (typeof comp.ui?.show === "function") comp.ui.show();
+					}
+				} catch (e) {
+					replayLog(`[ReplayPlayer] Error opening window ${compName}:`, e);
+				}
+			}
+			if (this._navigationBuffer?.isPathActive && typeof Navigation_default?.setTargetCoordinatesText === "function") {
+				const navX = this._navigationBuffer.endX ?? this._navigationBuffer.x;
+				const navY = this._navigationBuffer.endY ?? this._navigationBuffer.y;
+				if (navX !== void 0 && navY !== void 0) Navigation_default.setTargetCoordinatesText(navX, navY);
 			}
 			if (SessionStorage_default.Entity) {
 				if (BasicInfoController.update) {
@@ -369120,7 +372236,8 @@ var init_ReplayPlayer = __esmMin((() => {
 			while (this._streamChunkIndex < this._packetStreamBuffer.length) {
 				const chunk = this._packetStreamBuffer[this._streamChunkIndex];
 				if (chunk.time <= logicalTime) {
-					this._pushPacket(chunk.data);
+					if (chunk.packetId === 2222 || chunk.packetId === 2222) this._handleReplayEvent(chunk.data);
+					else this._pushPacket(chunk.data);
 					this._streamChunkIndex++;
 				} else break;
 			}
@@ -369128,6 +372245,133 @@ var init_ReplayPlayer = __esmMin((() => {
 				replayLog("[Replay] Replay finished");
 				this._setState(ReplayState.REPLAY_FINISHED);
 				this.stop();
+			}
+		}
+		/**
+		* Handles synthetic replay events (Opcode 2222 / 0x08AE).
+		* Format: [packetId: Uint16 (2222), length: Uint16, subOpCode: Uint16, payload...]
+		*/
+		_handleReplayEvent(data) {
+			if (!data || data.byteLength < 6) return;
+			try {
+				const reader = new BinaryReader(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+				reader.seek(2, 2);
+				const len = reader.readUShort();
+				const subOpCode = reader.readUShort();
+				const totalLen = data.byteLength;
+				if (len < 6 || len > totalLen) return;
+				switch (subOpCode) {
+					case ReplayEventSubOpCode.WINDOW_MOVE: {
+						if (totalLen < 12 || len < 12) return;
+						const windowId = reader.readUShort();
+						const x = reader.readShort();
+						const y = reader.readShort();
+						const compName = WindowIdToComponent[windowId];
+						if (compName) try {
+							const comp = UIManager.getComponent(compName);
+							if (comp?.ui) comp.ui.css({
+								left: `${x}px`,
+								top: `${y}px`
+							});
+						} catch (_e) {}
+						break;
+					}
+					case ReplayEventSubOpCode.ITEM_DESC: {
+						if (totalLen < 10 || len < 10) return;
+						const itid = reader.readUInt();
+						if (ItemInfo_default?.setItem) {
+							if (!ItemInfo_default.__active) ItemInfo_default.append();
+							ItemInfo_default.setItem({
+								ITID: itid,
+								IsIdentified: true
+							});
+						}
+						break;
+					}
+					case ReplayEventSubOpCode.WINDOW_MSG: {
+						if (totalLen < 8 || len < 8) return;
+						reader.readUShort();
+						const msgLen = Math.min(len - 8, totalLen - 8);
+						if (msgLen > 0 && ChatBox_default?.addText) {
+							const text = reader.readBinaryString(msgLen);
+							ChatBox_default.addText(text, ChatBox_default.TYPE_INFO);
+						}
+						break;
+					}
+					case ReplayEventSubOpCode.SET_TARGET: {
+						if (totalLen < 10 || len < 10) return;
+						const targetGid = reader.readUInt();
+						if (SessionStorage_default.Entity) SessionStorage_default.Entity.target = targetGid ? EntityManager.get(targetGid) : null;
+						break;
+					}
+					case ReplayEventSubOpCode.SET_MAP_INFO:
+						if (totalLen < 22 || len < 22) return;
+						replayLog(`[ReplayEvent] SET_MAP_INFO: ${reader.readBinaryString(16)}`);
+						break;
+					case ReplayEventSubOpCode.MAP_TRANSITION:
+						if (totalLen < 22 || len < 22) return;
+						replayLog(`[ReplayEvent] MAP_TRANSITION: ${reader.readBinaryString(16)}`);
+						break;
+					case ReplayEventSubOpCode.SET_BGM_AMBIENT: {
+						const bgmLen = Math.min(len > 6 ? len - 6 : 0, totalLen > 6 ? totalLen - 6 : 0);
+						if (bgmLen > 0) {
+							const bgmName = reader.readBinaryString(bgmLen);
+							if (BGM?.play && bgmName) BGM.play(bgmName);
+						}
+						break;
+					}
+					case ReplayEventSubOpCode.SET_SESSION_TEXT: {
+						const textLen = Math.min(len > 6 ? len - 6 : 0, totalLen > 6 ? totalLen - 6 : 0);
+						if (textLen > 0) replayLog(`[ReplayEvent] SET_SESSION_TEXT: ${reader.readBinaryString(textLen)}`);
+						break;
+					}
+					case ReplayEventSubOpCode.NAVI_PATH:
+					case ReplayEventSubOpCode.NAVI_WAYPOINT:
+					case ReplayEventSubOpCode.NAVI_TARGET:
+					case ReplayEventSubOpCode.NAVIGATION_PATH:
+					case ReplayEventSubOpCode.NAVIGATION_ARROW:
+					case ReplayEventSubOpCode.NAVIGATION_ACTIVE:
+						if (totalLen >= 10 && len >= 10 && typeof Navigation_default?.setTargetCoordinatesText === "function") {
+							const x = reader.readUShort();
+							const y = reader.readUShort();
+							Navigation_default.setTargetCoordinatesText(x, y);
+						}
+						break;
+					case ReplayEventSubOpCode.MAKE_WINDOW: {
+						if (totalLen < 8 || len < 8) return;
+						const windowId = reader.readUShort();
+						const compName = WindowIdToComponent[windowId];
+						if (compName) try {
+							const comp = UIManager.getComponent(compName);
+							if (comp) {
+								if (!comp.__active || !comp._host?.parentNode) comp.append();
+								else if (comp.ui && typeof comp.ui.show === "function") comp.ui.show();
+							}
+						} catch (e) {
+							replayLog(`[ReplayEvent] MAKE_WINDOW error for ${compName}:`, e);
+						}
+						break;
+					}
+					case ReplayEventSubOpCode.WINDOW_ACTION:
+						if (totalLen < 10 || len < 10) return;
+						replayLog(`[ReplayEvent] WINDOW_ACTION: win=${reader.readUShort()}, action=${reader.readUShort()}`);
+						break;
+					case ReplayEventSubOpCode.CLOSE_WINDOW: {
+						if (totalLen < 8 || len < 8) return;
+						const windowId = reader.readUShort();
+						const compName = WindowIdToComponent[windowId];
+						if (compName) try {
+							const comp = UIManager.getComponent(compName);
+							if (comp && (comp.__active || comp._host?.parentNode)) comp.remove();
+						} catch (e) {
+							replayLog(`[ReplayEvent] CLOSE_WINDOW error for ${compName}:`, e);
+						}
+						break;
+					}
+					default: replayLog(`[ReplayEvent] Unhandled subOpCode: ${subOpCode}`);
+				}
+			} catch (e) {
+				console.warn("[ReplayPlayer] Error handling replay event:", e);
 			}
 		}
 		_getCurrentStreamChunk() {
@@ -369226,6 +372470,7 @@ function createWinLogin({ name, htmlText, cssText }) {
 		if (_preferences.ID.length) _inputPassword.focus();
 		else _inputUsername.focus();
 		Component.placeOnTop();
+		if (PerfProbe.enabled) PerfProbe.loginShown();
 		ScreenHooks_default.show("login", _screen, this._host);
 		if (PerfProbe.enabled) PerfProbe.loginShown();
 	};
