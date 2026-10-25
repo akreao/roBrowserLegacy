@@ -17,6 +17,7 @@ import SU from 'DB/Skills/SkillUnitConst.js';
 import ItemEffect from 'DB/Items/ItemEffect.js';
 import Commands from 'Controls/ProcessCommand.js';
 import Events from 'Core/Events.js';
+import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
 import EffectPrim from 'Renderer/Effects/EffectPrim.js';
@@ -42,6 +43,8 @@ import WaterfallEffect from 'Renderer/Effects/WaterfallEffect.js';
 import Session from 'Engine/SessionStorage.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import { isRepeatGroundPacket } from 'DB/Effects/HastyFireInTheHoleEffect.js';
+import { motionSpeed } from 'DB/Effects/StormSlashEffect.js';
+import { raptorHit, lowFlight, lowFlightDelay, hailShots, gustSpray } from 'Renderer/Effects/DruidWindSim.js';
 
 /**
  * @type {object} saved webgl context
@@ -147,9 +150,24 @@ function spamSTR(Params) {
 		str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
 	}
 
-	// A copy the client turns on screen (degrees clockwise, StrEffect.layout)
-	if (Params.Init.screenTurn) {
-		str.screenTurn = Params.Init.screenTurn;
+	// A copy the client turns on screen (degrees clockwise, StrEffect.layout).
+	// A row's turnOffset adds to it: art drawn pointing the other way.
+	if (Params.Init.screenTurn !== undefined || Params.effect.turnOffset) {
+		const turn = (Params.Init.screenTurn || 0) + (Params.effect.turnOffset || 0);
+		if (turn % 360) {
+			str.screenTurn = turn;
+		}
+	}
+
+	// A copy the client mirrors (before the turn) or tilts back (after it)
+	if (Params.Init.flipX) {
+		str.flipX = true;
+	}
+	if (Params.Init.flipY) {
+		str.flipY = true;
+	}
+	if (Params.effect.tilt) {
+		str.tilt = Params.effect.tilt;
 	}
 
 	// A copy the client draws larger or smaller (StrEffect.layout)
@@ -353,6 +371,29 @@ function cleanRepeat(name, AID, effectID) {
 /**
  * @type {object} Effects namespace
  */
+/** C's rand(): a non-negative integer. */
+function crand() {
+	return Math.floor(Math.random() * 0x8000);
+}
+
+/** World units (5 to a cell) of an entity's position: [x, height (negative up), z]. */
+function worldUnits(position) {
+	return [position[0] * 5, -position[2] * 5, position[1] * 5];
+}
+
+/** Frames in the entity's current action, from its body ACT (8 when unknown). */
+function actionFrames(entity) {
+	const file = entity && entity.files && entity.files.body && entity.files.body.act;
+	const act = file ? Client.loadFile(file) : null;
+	if (act && act.actions && act.actions.length) {
+		const action = act.actions[(entity.action * 8) % act.actions.length];
+		if (action && action.animations && action.animations.length) {
+			return action.animations.length;
+		}
+	}
+	return 8;
+}
+
 class EffectManager {
 	/**
 	 * Initialize effects manager
@@ -1127,6 +1168,77 @@ class EffectManager {
 			}
 		}
 
+		// Thrown from the caster onto the target's spot (BezierArcThrow rows).
+		// Wind Bomb's tornado.
+		const thrown = SkillEffect[skillId].successEffectThrowAtTarget;
+		if (thrown && srcAID && destAID) {
+			const destEntity = EntityManager.get(destAID);
+			if (destEntity && EntityManager.get(srcAID)) {
+				EffectManager.spam({
+					effectId: thrown,
+					ownerAID: srcAID,
+					position: destEntity.position.slice(),
+					startTick: tick,
+					otherAID: destAID
+				});
+			}
+		}
+
+		// One of two arts on the target, by which quarter of the screen it is in
+		// from the caster, turned and mirrored (DruidWindSim.lowFlight), plus a
+		// floor art; all start once the caster's current motion has played.
+		// Low Flight.
+		const byAxis = SkillEffect[skillId].successEffectIdOnTargetByAxis;
+		if (byAxis && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			const pick =
+				srcEntity && destEntity ? lowFlight(screenAngle(srcEntity.position, destEntity.position)) : null;
+			if (pick) {
+				const start = (tick || Renderer.tick) + lowFlightDelay(actionFrames(srcEntity), motionSpeed(srcEntity));
+				const art = byAxis[pick.art];
+				if (art) {
+					EffectManager.spam({
+						effectId: art,
+						ownerAID: destAID,
+						startTick: start,
+						otherAID: srcAID,
+						screenTurn: pick.screenTurn,
+						flipX: pick.flipX,
+						flipY: pick.flipY
+					});
+				}
+				if (byAxis.always) {
+					EffectManager.spam({
+						effectId: byAxis.always,
+						ownerAID: destAID,
+						startTick: start,
+						otherAID: srcAID
+					});
+				}
+			}
+		}
+
+		// Shots scattered around the target in waves (DruidWindSim.hailShots),
+		// placed once. Sharpen Hail.
+		const hail = SkillEffect[skillId].successEffectHailScatter;
+		const hailAt = hail && destAID ? EntityManager.get(destAID) : null;
+		if (hailAt) {
+			const start = tick || Renderer.tick;
+			const [x, y, z] = hailAt.position;
+			hailShots(crand).forEach(shot => {
+				hail.forEach(effectId => {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: destAID,
+						position: [x + shot.dx / 5, y, z - shot.dy / 5],
+						startTick: start + shot.delay,
+						otherAID: srcAID
+					});
+				});
+			});
+		}
+
 		// One effect where the target stands (its rows are not attached, so it stays
 		// put), picked by which half of the screen the target is in, seen from the
 		// caster (ScreenDirection.screenSide). Radiant Spear's leftdown/rightdown spear.
@@ -1231,6 +1343,50 @@ class EffectManager {
 
 		play('damageEffectIdOnCaster', srcAID, destAID);
 		play('damageEffectIdOnTarget', destAID, srcAID);
+
+		const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
+		const destEntity = destAID ? EntityManager.get(destAID) : null;
+		if (!srcEntity || !destEntity) {
+			return;
+		}
+		const angle = screenAngle(srcEntity.position, destEntity.position);
+
+		// Wereraptor attack hits on the target, turned to the attack and mirrored
+		// to stay upright (DruidWindSim.raptorHit)
+		const turned = skill.damageEffectIdOnTargetTurned;
+		const hit = turned ? raptorHit(angle) : null;
+		if (hit) {
+			(Array.isArray(turned) ? turned : [turned]).forEach(effectId => {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					screenTurn: hit.screenTurn,
+					flipX: hit.flipX
+				});
+			});
+		}
+
+		// Copies sprayed ahead of the caster toward the target, placed once,
+		// mirrored like a raptor hit but not turned (DruidWindSim.gustSpray).
+		// Sharpen Gust's attack_02.
+		const spray = skill.damageEffectGustSpray;
+		const sprayHit = spray ? raptorHit(angle) : null;
+		if (sprayHit) {
+			const start = tick || Renderer.tick;
+			gustSpray(worldUnits(srcEntity.position), worldUnits(destEntity.position), crand).forEach(copy => {
+				EffectManager.spam({
+					effectId: spray,
+					ownerAID: destAID,
+					position: [copy.x / 5, copy.z / 5, -copy.y / 5],
+					startTick: start + copy.delay,
+					otherAID: srcAID,
+					scale: copy.scale,
+					flipX: sprayHit.flipX
+				});
+			});
+		}
 	}
 
 	/**

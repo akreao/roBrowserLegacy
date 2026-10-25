@@ -25906,6 +25906,37 @@ export default {
 			yOffset: 5
 		}
 	],
+	// Wereraptor attack hits (EZ2 attack_00 / _01 on the hit target, turned and
+	// mirrored by DruidWindSim.raptorHit; attack_02 sprayed by gustSpray)
+	ef_druid_raptor_attack_00: [
+		{
+			type: 'STR',
+			file: 'druid/wereraptor_attack/attack_00/attack_00',
+			texturePath: 'druid/wereraptor_attack/attack_00/',
+			min: 'druid/wereraptor_attack/attack_00/min_attack_00',
+			attachedEntity: true,
+			yOffset: 2
+		}
+	],
+	ef_druid_raptor_attack_01: [
+		{
+			type: 'STR',
+			file: 'druid/wereraptor_attack/attack_01/attack_01',
+			texturePath: 'druid/wereraptor_attack/attack_01/',
+			min: 'druid/wereraptor_attack/attack_01/min_attack_01',
+			attachedEntity: true,
+			yOffset: 5
+		}
+	],
+	ef_druid_raptor_attack_02: [
+		{
+			type: 'STR',
+			file: 'druid/wereraptor_attack/attack_02/attack_02',
+			texturePath: 'druid/wereraptor_attack/attack_02/',
+			min: 'druid/wereraptor_attack/attack_02/min_attack_02',
+			yOffset: 10
+		}
+	],
 	ef_druid_ice_hit: [
 		{
 			type: 'STR',
@@ -26008,9 +26039,7 @@ export default {
 			texturePath: 'druid/dr_shooting_feather/shooting_feather/',
 			min: 'druid/dr_shooting_feather/shooting_feather/min_shooting_feather',
 			wav: 'effect/druid/dr_shooting_feather',
-			// The feathers fly to the right of the caster in the file
-			rotateToTarget: true,
-			facing: 0,
+			// Points right in the file: turned once toward the target (successEffectIdOnCasterAimed)
 			yOffset: 10
 		}
 	],
@@ -26051,17 +26080,19 @@ export default {
 			texturePath: 'druid/dr_low_flight/low_flight_horizon/',
 			min: 'druid/dr_low_flight/low_flight_horizon/min_low_flight_horizon',
 			wav: 'effect/druid/dr_low_flight',
-			// The raptor sweeps in from the right, the caster's side, in the file
-			rotateToTarget: true,
-			facing: 0,
+			// Sideways art, for a target left or right of the caster (DruidWindSim.lowFlight)
+			attachedEntity: true,
 			yOffset: 8
-		},
+		}
+	],
+	ef_druid_low_flight_bottom: [
 		{
 			type: 'STR',
 			file: 'druid/dr_low_flight/low_flight_bottom/low_flight_bottom',
 			texturePath: 'druid/dr_low_flight/low_flight_bottom/',
 			min: 'druid/dr_low_flight/low_flight_bottom/min_low_flight_bottom',
 			renderBeforeEntities: true,
+			attachedEntity: true,
 			yOffset: 10
 		}
 	],
@@ -26071,6 +26102,8 @@ export default {
 			file: 'druid/dr_low_flight/low_flight_vertical/low_flight_vertical',
 			texturePath: 'druid/dr_low_flight/low_flight_vertical/',
 			min: 'druid/dr_low_flight/low_flight_vertical/min_low_flight_vertical',
+			// Up-down art, for a target below or above the caster (DruidWindSim.lowFlight)
+			attachedEntity: true,
 			yOffset: 0
 		}
 	],
@@ -26101,9 +26134,9 @@ export default {
 			texturePath: 'druid/dr_cutting_wind/cutting_wind/',
 			min: 'druid/dr_cutting_wind/cutting_wind/min_cutting_wind',
 			wav: 'effect/druid/dr_cutting_wind',
-			// The wind blade flies to the left of the caster in the file
-			rotateToTarget: true,
-			facing: 180,
+			// The blade flies left in the file: the client turns it by the angle from
+			// the target to the caster, half a circle past the caster's aim
+			turnOffset: 180,
 			yOffset: 5
 		}
 	],
@@ -26123,14 +26156,23 @@ export default {
 			texturePath: 'druid/dr_wind_bomb/wind_bomb_main/',
 			min: 'druid/dr_wind_bomb/wind_bomb_main/min_wind_bomb_main',
 			wav: 'effect/druid/dr_wind_bomb',
+			// The client starts it 300 ms after the use (as 300 / 16 + 1 ticks)
+			delayStart: 304,
+			delayWav: 304,
+			attachedEntity: true,
 			yOffset: 5
-		},
+		}
+	],
+	ef_druid_wind_bomb_throw: [
 		{
 			type: 'STR',
 			file: 'druid/dr_wind_bomb/wind_bomb_tornado/wind_bomb_tornado',
 			texturePath: 'druid/dr_wind_bomb/wind_bomb_tornado/',
 			min: 'druid/dr_wind_bomb/wind_bomb_tornado/min_wind_bomb_tornado',
-			yOffset: 0
+			// Thrown from the caster onto the target like Thundering Orb's orb (CWindBomb)
+			xOffset: 0,
+			yOffset: 0,
+			arcThrow: true
 		}
 	],
 	ef_druid_wind_bomb_hit: [
@@ -26246,9 +26288,9 @@ export default {
 			texturePath: 'druid/kr_sharpen_gust/sharpen_gust/',
 			min: 'druid/kr_sharpen_gust/sharpen_gust/min_sharpen_gust',
 			wav: 'effect/druid/kr_sharpen_gust',
-			// The gust flies to the right of the caster in the file
-			rotateToTarget: true,
-			facing: 0,
+			// Points right in the file: turned once toward the target, then tilted
+			// back 30 degrees about the screen's x axis, as the client does
+			tilt: 30,
 			yOffset: 5
 		},
 		{
@@ -26257,6 +26299,7 @@ export default {
 			texturePath: 'druid/kr_sharpen_gust/sharpen_gust_bottom/',
 			min: 'druid/kr_sharpen_gust/sharpen_gust_bottom/min_sharpen_gust_bottom',
 			renderBeforeEntities: true,
+			tilt: 30,
 			yOffset: 2
 		}
 	],
@@ -26988,9 +27031,7 @@ export default {
 			texturePath: 'druid/at_pinion_shot/pinion_shot/',
 			min: 'druid/at_pinion_shot/pinion_shot/min_pinion_shot',
 			wav: 'effect/druid/at_pinion_shot',
-			// The feathers fly to the right of the caster in the file
-			rotateToTarget: true,
-			facing: 0,
+			// Points right in the file: turned once toward the target (successEffectIdOnCasterAimed)
 			yOffset: 10
 		}
 	],

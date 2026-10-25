@@ -62,6 +62,50 @@ let _modelView = null;
  * 640x480 canvas. An aimed effect turns about this point.
  */
 const AIM_PIVOT_X = 320;
+
+/**
+ * Turn a frame's four corners as StrEffect.vs would (by the frame's own angle),
+ * then mirror them, turn them by the aim and tilt them, in place. The shader
+ * then draws them with no turn of its own.
+ *
+ * Corners are in STR pixels, y down the screen. Angles in degrees: `angle` is
+ * the frame's, `aim` the effect's counter-clockwise turn, `tilt` a turn about
+ * the screen's x axis (it shortens y by cos(tilt)).
+ *
+ * @param {number} angle
+ * @param {number} aim
+ * @param {boolean} flipX
+ * @param {boolean} flipY
+ * @param {number} tilt
+ * @param {Float32Array|Array<number>} cornerX
+ * @param {Float32Array|Array<number>} cornerY
+ */
+function transformCorners(angle, aim, flipX, flipY, tilt, cornerX, cornerY) {
+	const r1 = (-angle / 180) * Math.PI;
+	const c1 = Math.cos(r1);
+	const s1 = Math.sin(r1);
+	const r2 = (aim / 180) * Math.PI;
+	const c2 = Math.cos(r2);
+	const s2 = Math.sin(r2);
+	const squash = tilt ? Math.cos((tilt / 180) * Math.PI) : 1;
+	for (let i = 0; i < 4; i++) {
+		// The shader's space: y up
+		const px = cornerX[i];
+		const py = -cornerY[i];
+		let x = px * c1 - py * s1;
+		let y = px * s1 + py * c1;
+		if (flipX) {
+			x = -x;
+		}
+		if (flipY) {
+			y = -y;
+		}
+		const tx = x * c2 - y * s2;
+		const ty = (x * s2 + y * c2) * squash;
+		cornerX[i] = tx;
+		cornerY[i] = -ty;
+	}
+}
 const AIM_PIVOT_Y = 240;
 
 // Pixel to world conversion for attachment offsets
@@ -440,15 +484,18 @@ class StrEffect {
 			return 0.0;
 		}
 
-		if (this.aimAngle) {
-			// Turn the layout about the art's centre; STR y points down the screen
-			const rad = (this.aimAngle / 180) * Math.PI;
+		if (this.aimAngle || this.flipX || this.flipY || this.tilt) {
+			// Turn the layout about the art's centre; STR y points down the screen.
+			// As the client does: mirrored first, then turned, then tilted (its
+			// tilt is a turn about the screen's x axis, which shortens y).
+			const rad = ((this.aimAngle || 0) / 180) * Math.PI;
 			const cos = Math.cos(rad);
 			const sin = Math.sin(rad);
-			const x = (animat.pos[0] - AIM_PIVOT_X) * k;
-			const y = (AIM_PIVOT_Y - animat.pos[1]) * k;
+			const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
+			const y = (AIM_PIVOT_Y - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+			const squash = this.tilt ? Math.cos((this.tilt / 180) * Math.PI) : 1;
 			out[0] = x * cos - y * sin + shiftX;
-			out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) - shiftY;
+			out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) * squash - shiftY;
 			return verticalBase;
 		}
 
@@ -483,6 +530,13 @@ class StrEffect {
 		_cornerY[2] = animat.xy[7] * cornerScale;
 		_cornerX[3] = animat.xy[2] * cornerScale;
 		_cornerY[3] = animat.xy[6] * cornerScale;
+		// Mirrored or tilted: the corners are turned here, as the shader would,
+		// so the mirror and tilt can go between the frame's own turn and the aim.
+		let spriteAngle = animat.angle - (this.aimAngle || 0);
+		if (this.flipX || this.flipY || this.tilt) {
+			transformCorners(animat.angle, this.aimAngle || 0, this.flipX, this.flipY, this.tilt, _cornerX, _cornerY);
+			spriteAngle = 0;
+		}
 		gl.uniform4fv(uniform.uCornerX, _cornerX);
 		gl.uniform4fv(uniform.uCornerY, _cornerY);
 
@@ -493,7 +547,7 @@ class StrEffect {
 		gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 		gl.uniform1f(uniform.uVerticalBase, verticalBase);
 		gl.uniform3fv(uniform.uSpritePosition, this.position);
-		gl.uniform1f(uniform.uSpriteAngle, animat.angle - (this.aimAngle || 0));
+		gl.uniform1f(uniform.uSpriteAngle, spriteAngle);
 
 		// Send texture and data
 		gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
