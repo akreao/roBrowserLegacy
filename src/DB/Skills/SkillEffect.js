@@ -212,7 +212,9 @@ SkillEffect[SK.HN_HELLS_DRIVE] = {
 	// cells), 32 ms apart, when the use packet succeeds: floor layer plus a random blast
 	successEffectGridIds: ['ef_hn_hells_drive_bottom', ['ef_hn_hells_drive_00', 'ef_hn_hells_drive_01', 'ef_hn_hells_drive_02']],
 	successEffectGridSizeByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9],
-	successEffectGridStep: 32
+	successEffectGridStep: 32,
+	// While casting: the brown cast circle, not the element aura
+	castAuraEffectId: 1709
 }; //Hell's Drive
 SkillEffect[SK.HN_GROUND_GRAVITATION] = { effectId: 'ef_hn_ground_gravitation' }; //Ground Gravitation
 SkillEffect[SK.HN_NAPALM_VULCAN_STRIKE] = { effectId: 'ef_hn_napalm_vulcan_strike' }; //Napalm Vulcan Strike
