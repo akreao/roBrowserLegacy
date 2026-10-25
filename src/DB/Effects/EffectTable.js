@@ -25741,11 +25741,13 @@ export default {
 	],
 
 	// Help Angel (NV_HELPANGEL), from the client's own effect folders.
+	// The client plays effect\priest_sanctuary.wav, then effects 1367 and 1368 (the floor ring).
 	ef_nv_helpangel: [
 		{
 			type: 'STR',
 			file: 'help_angel/help_angel/help_angel',
-			texturePath: 'help_angel/help_angel/'
+			texturePath: 'help_angel/help_angel/',
+			wav: 'effect/priest_sanctuary'
 		},
 		{
 			type: 'STR',
