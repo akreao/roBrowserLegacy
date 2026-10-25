@@ -225074,11 +225074,11 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_QUILL_SPEAR] = {
-		effectIdOnCaster: "ef_druid_quill_spear",
+		successEffectIdOnCasterAimed: "ef_druid_quill_spear_3x7",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_QUILL_SPEAR_S] = {
-		effectIdOnCaster: "ef_druid_quill_spear_s",
+		successEffectIdOnCasterAimed: "ef_druid_quill_spear_5x7",
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.AT_TEMPEST_FLAP] = {
@@ -277162,6 +277162,18 @@ var init_EffectManager = __esmMin((() => {
 					});
 				}
 			}
+			const aimed = SkillEffect[skillId].successEffectIdOnCasterAimed;
+			if (aimed && srcAID && destAID) {
+				const srcEntity = EntityManager.get(srcAID);
+				const destEntity = EntityManager.get(destAID);
+				if (srcEntity && destEntity) EffectManager.spam({
+					effectId: aimed,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					screenTurn: screenAngle$1(srcEntity.position, destEntity.position)
+				});
+			}
 			const bySide = SkillEffect[skillId].successEffectIdOnTargetByScreenSide;
 			if (bySide && srcAID && destAID) {
 				const srcEntity = EntityManager.get(srcAID);
@@ -306514,23 +306526,23 @@ var init_EffectTable = __esmMin((() => {
 			rotateToTarget: true,
 			facing: 0
 		}],
-		ef_druid_quill_spear: [{
+		ef_druid_quill_spear_3x7: [{
 			type: "STR",
 			file: "druid/at_quill_spear/quill_spear_3x7/quill_spear_3x7",
 			texturePath: "druid/at_quill_spear/quill_spear_3x7/",
 			min: "druid/at_quill_spear/quill_spear_3x7/min_quill_spear_3x7",
 			wav: "effect/druid/at_quill_spear",
-			rotateToTarget: true,
-			facing: 0
+			yOffset: 5,
+			attachedEntity: true
 		}],
-		ef_druid_quill_spear_s: [{
+		ef_druid_quill_spear_5x7: [{
 			type: "STR",
 			file: "druid/at_quill_spear/quill_spear_5x7/quill_spear_5x7",
 			texturePath: "druid/at_quill_spear/quill_spear_5x7/",
 			min: "druid/at_quill_spear/quill_spear_5x7/min_quill_spear_5x7",
 			wav: "effect/druid/at_quill_spear",
-			rotateToTarget: true,
-			facing: 0
+			yOffset: 5,
+			attachedEntity: true
 		}],
 		ef_druid_tempest_flap: [{
 			type: "STR",
