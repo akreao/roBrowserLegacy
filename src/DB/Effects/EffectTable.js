@@ -10579,14 +10579,82 @@ export default {
 		}
 	],
 
-	// Colors of Hyunrok (SH_COLORS_OF_HYUN_ROK), from the client's own effect folders.
-	ef_sh_colors_of_hyun_rok: [
+	// Colors of Hyunrok (SH_COLORS_OF_HYUN_ROK): one per level, the EZ2 rows of the same name (PosY 7).
+	ef_sh_colors_of_hyun_rok_water: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/colors_of_hyun_rok_water',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_water/min_colors_of_hyun_rok_water',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_wind: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/colors_of_hyun_rok_wind',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_wind/min_colors_of_hyun_rok_wind',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_earth: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/colors_of_hyun_rok_earth',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_earth/min_colors_of_hyun_rok_earth',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_fire: [
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/colors_of_hyun_rok_fire',
 			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/',
 			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/min_colors_of_hyun_rok_fire',
-			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok'
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_darkness: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/colors_of_hyun_rok_darkness',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_darkness/min_colors_of_hyun_rok_darkness',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_saint: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/colors_of_hyun_rok_saint',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_saint/min_colors_of_hyun_rok_saint',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok',
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+	ef_sh_colors_of_hyun_rok_reset: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/colors_of_hyun_rok_reset',
+			texturePath: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/',
+			min: 'spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_reset/min_colors_of_hyun_rok_reset',
+			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok01',
+			yOffset: 7,
+			attachedEntity: true
 		}
 	],
 

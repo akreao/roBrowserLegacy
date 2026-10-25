@@ -1725,7 +1725,18 @@ SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spray
 SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festival_of_ki_sul' }; //Marine Festival of Kisul
 SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul' }; //Sandy Festival of Kisul
 SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage' }; //Kisul Rampage
-SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = { effectId: 'ef_sh_colors_of_hyun_rok' }; //Colors of Hyunrok
+SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = {
+	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
+	successEffectIdOnCasterByLevel: [
+		'ef_sh_colors_of_hyun_rok_water',
+		'ef_sh_colors_of_hyun_rok_wind',
+		'ef_sh_colors_of_hyun_rok_earth',
+		'ef_sh_colors_of_hyun_rok_fire',
+		'ef_sh_colors_of_hyun_rok_darkness',
+		'ef_sh_colors_of_hyun_rok_saint',
+		'ef_sh_colors_of_hyun_rok_reset'
+	]
+}; //Colors of Hyunrok
 SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { effectId: 'ef_sh_hyun_roks_breeze' }; //Hyunrok Breeze
 SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon' }; //Hyunrok Cannon
 SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion
