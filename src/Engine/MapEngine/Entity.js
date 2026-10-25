@@ -2017,7 +2017,7 @@ function onEntityCastCancel(pkt) {
 		entity.cast.clean();
 
 		// Cancel effects
-		EffectManager.remove(null, entity.GID, [12, 1709, 54, 55, 56, 57, 58, 59, 454, 60, 513, 831, 840, 841, 842, 843, 845]);
+		EffectManager.remove(null, entity.GID, [12, 1709, 54, 55, 56, 57, 58, 59, 830, 2368, 454, 60, 513, 831, 840, 841, 842, 843, 845]);
 		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
