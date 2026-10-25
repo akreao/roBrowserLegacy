@@ -25944,28 +25944,30 @@ export default {
 			facing: 0
 		}
 	],
-	ef_druid_quill_spear: [
+	// EZ2 row quill_spear_3x7. The spear flies to the right in the file; the
+	// caller turns it toward the target on screen (screenTurn).
+	ef_druid_quill_spear_3x7: [
 		{
 			type: 'STR',
 			file: 'druid/at_quill_spear/quill_spear_3x7/quill_spear_3x7',
 			texturePath: 'druid/at_quill_spear/quill_spear_3x7/',
 			min: 'druid/at_quill_spear/quill_spear_3x7/min_quill_spear_3x7',
 			wav: 'effect/druid/at_quill_spear',
-			// The spear flies to the right of the caster in the file
-			rotateToTarget: true,
-			facing: 0
+			yOffset: 5,
+			attachedEntity: true
 		}
 	],
-	ef_druid_quill_spear_s: [
+	// EZ2 row quill_spear_5x7. The spear flies to the right in the file; the
+	// caller turns it toward the target on screen (screenTurn).
+	ef_druid_quill_spear_5x7: [
 		{
 			type: 'STR',
 			file: 'druid/at_quill_spear/quill_spear_5x7/quill_spear_5x7',
 			texturePath: 'druid/at_quill_spear/quill_spear_5x7/',
 			min: 'druid/at_quill_spear/quill_spear_5x7/min_quill_spear_5x7',
 			wav: 'effect/druid/at_quill_spear',
-			// The spear flies to the right of the caster in the file
-			rotateToTarget: true,
-			facing: 0
+			yOffset: 5,
+			attachedEntity: true
 		}
 	],
 	ef_druid_tempest_flap: [
