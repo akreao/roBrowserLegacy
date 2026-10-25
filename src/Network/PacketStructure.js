@@ -10993,6 +10993,15 @@ PACKET.ZC.NOTIFY_ACT3 = function PACKET_ZC_NOTIFY_ACT3(fp, end) {
 };
 PACKET.ZC.NOTIFY_ACT3.size = 34;
 
+// 0x8cf
+// A Kagerou/Oboro's spirit charms: element type (1 water, 2 earth, 3 fire, 4 wind) and count
+PACKET.ZC.SPIRITS_ATTRIBUTE = function PACKET_ZC_SPIRITS_ATTRIBUTE(fp, end) {
+	this.AID = fp.readULong();
+	this.type = fp.readShort();
+	this.num = fp.readShort();
+};
+PACKET.ZC.SPIRITS_ATTRIBUTE.size = 10;
+
 // 0x8d0
 PACKET.ZC.REQ_WEAR_EQUIP_ACK2 = function PACKET_ZC_REQ_WEAR_EQUIP_ACK2(fp, end) {
 	this.index = fp.readUShort();

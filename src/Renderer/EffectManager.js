@@ -887,6 +887,21 @@ class EffectManager {
 			});
 		}
 
+		// One look per spirit charm element, picked from the caster's charms
+		if (SkillEffect[skillId].effectIdByCharmType && srcAID) {
+			const caster = EntityManager.get(srcAID);
+			const effectId = caster && SkillEffect[skillId].effectIdByCharmType[caster.charmType];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					position: position,
+					startTick: tick,
+					otherAID: srcAID
+				});
+			}
+		}
+
 		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
 			effects = Array.isArray(SkillEffect[skillId].effectIdOnCaster)
 				? SkillEffect[skillId].effectIdOnCaster
