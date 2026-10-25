@@ -222520,6 +222520,92 @@ var init_Sounds = __esmMin((() => {
 		render: render$9
 	};
 }));
+// src/DB/Effects/HastyFireInTheHoleEffect.js
+/**
+* When a size starts: its delay counted in whole ticks, plus the tick the
+* effect is created on.
+*
+* @param {number} ms delay given by the client
+* @return {number} ms
+*/
+function waveDelay(ms) {
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$2;
+}
+/**
+* One EZ2 row of the skill, at PosY 10.
+*
+* @param {string} folder top or floor folder
+* @param {string} size 5x5, 7x7 or 9x9
+* @param {number} delay ms
+* @return {object} STR layer
+*/
+function layer$1(folder, size, delay) {
+	const path = FOLDER$1 + folder + "/";
+	return {
+		type: "STR",
+		file: path + "hasty_fire_in_the_hole_" + size,
+		texturePath: path,
+		min: path + "min_hasty_fire_in_the_hole_" + size,
+		xOffset: 0,
+		yOffset: 10,
+		delayStart: delay
+	};
+}
+/**
+* EffectTable rows for the skill: top and floor for each size.
+*
+* @return {object}
+*/
+function hastyFireInTheHoleEffects() {
+	const rows = [];
+	SIZES.forEach((size, wave) => {
+		const delay = waveDelay(WAVE_DELAY_MS[wave]);
+		rows.push({
+			...layer$1("hasty_fire_in_the_hole", size, delay),
+			wav: "effect/night_watch/nw_hasty_fire_in_the_hole_" + wave,
+			delayWav: delay
+		}, {
+			...layer$1("hasty_fire_in_the_hole_bottom", size, delay),
+			renderBeforeEntities: true
+		});
+	});
+	return { ef_nw_hasty_fire_in_the_hole: rows };
+}
+/**
+* Whether a ground packet repeats one the same caster sent for the same skill
+* and cell less than windowMs ago. Remembers the packet when it does not.
+*
+* @param {number} skillId
+* @param {number} srcAID caster
+* @param {Array} position target cell
+* @param {number} windowMs
+* @param {number} [now] ms clock
+* @return {boolean}
+*/
+function isRepeatGroundPacket(skillId, srcAID, position, windowMs, now = Date.now()) {
+	const key = skillId + ":" + srcAID + ":" + (position ? position[0] + "," + position[1] : "");
+	const last = lastBlast.get(key);
+	for (const [k, t] of lastBlast) if (now - t >= windowMs) lastBlast.delete(k);
+	if (last !== void 0 && now - last < windowMs) return true;
+	lastBlast.set(key, now);
+	return false;
+}
+var TICK_MS$2, FOLDER$1, SIZES, WAVE_DELAY_MS, lastBlast;
+var init_HastyFireInTheHoleEffect = __esmMin((() => {
+	TICK_MS$2 = 1e3 / 60;
+	FOLDER$1 = "night_watch/nw_hasty_fire_in_the_hole/";
+	SIZES = [
+		"5x5",
+		"7x7",
+		"9x9"
+	];
+	WAVE_DELAY_MS = [
+		0,
+		288,
+		576
+	];
+	lastBlast = /* @__PURE__ */ new Map();
+}));
 // src/DB/Skills/SkillEffect.js
 var SkillEffect_exports = /* @__PURE__ */ __exportAll({ default: () => SkillEffect });
 var CHAMPION_JOBS, SkillEffect;
@@ -222527,6 +222613,7 @@ var init_SkillEffect = __esmMin((() => {
 	init_SkillConst();
 	init_EntityManager();
 	init_JobConst();
+	init_HastyFireInTheHoleEffect();
 	CHAMPION_JOBS = /* @__PURE__ */ new Set([
 		JobConst_default.MONK_H,
 		JobConst_default.SURA,
@@ -223817,7 +223904,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NW_AUTO_FIRING_LAUNCHER] = { effectId: "ef_nw_auto_firing_launcher" };
 	SkillEffect[SkillConst_default.NW_HIDDEN_CARD] = { effectId: "ef_nw_hidden_card" };
 	SkillEffect[SkillConst_default.NW_MISSION_BOMBARD] = { hitEffectId: "ef_nw_mission_bombard_hit" };
-	SkillEffect[SkillConst_default.NW_HASTY_FIRE_IN_THE_HOLE] = { effectId: "ef_nw_hasty_fire_in_the_hole" };
+	SkillEffect[SkillConst_default.NW_HASTY_FIRE_IN_THE_HOLE] = {
+		effectId: "ef_nw_hasty_fire_in_the_hole",
+		groundRepeatWindowMs: 700
+	};
 	SkillEffect[5500] = {
 		effectId: "ef_nw_wild_shot",
 		effectIdOnCaster: "ef_nw_wild_shot_cast",
@@ -276330,6 +276420,7 @@ var init_EffectManager = __esmMin((() => {
 	init_WaterfallEffect();
 	init_SessionStorage();
 	init_Graphics();
+	init_HastyFireInTheHoleEffect();
 	_list$3 = {};
 	_uniqueId = 1;
 	targetableUnits = [SkillUnitConst_default.UNT_ICEWALL, SkillUnitConst_default.UNT_REVERBERATION];
@@ -276711,6 +276802,8 @@ var init_EffectManager = __esmMin((() => {
 		static spamSkill(skillId, destAID, position, tick, srcAID) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
+			const repeatWindowMs = SkillEffect[skillId].groundRepeatWindowMs;
+			if (repeatWindowMs && (!position || isRepeatGroundPacket(skillId, srcAID, position, repeatWindowMs))) return;
 			if (SkillEffect[skillId].effectId) {
 				if (typeof SkillEffect[skillId].effectId === "function") effects = SkillEffect[skillId].effectId(srcAID);
 				else effects = SkillEffect[skillId].effectId;
@@ -287192,6 +287285,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SkySunEffect();
 	init_StormSlashEffect();
 	init_ServantDemolitionEffect();
+	init_HastyFireInTheHoleEffect();
 	init_WarlockSphere();
 	init_CastCone();
 	init_CastCircle();
@@ -302782,6 +302876,7 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		...stormSlashEffects(),
 		...servantDemolitionEffects(),
+		...hastyFireInTheHoleEffects(),
 		ef_dk_dragonic_breath: [{
 			type: "STR",
 			file: "dragon_knight/dragonic_breath/dragonic_breath/dragonic_breath",
@@ -304261,19 +304356,6 @@ var init_EffectTable = __esmMin((() => {
 			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
 			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
 			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
-		}],
-		ef_nw_hasty_fire_in_the_hole: [{
-			type: "STR",
-			file: "night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole/hasty_fire_in_the_hole_5x5",
-			texturePath: "night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole/",
-			min: "night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole/min_hasty_fire_in_the_hole_5x5",
-			wav: "effect/night_watch/nw_hasty_fire_in_the_hole_0"
-		}, {
-			type: "STR",
-			file: "night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole_bottom/hasty_fire_in_the_hole_5x5",
-			texturePath: "night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole_bottom/",
-			min: "night_watch/nw_hasty_fire_in_the_hole/hasty_fire_in_the_hole_bottom/min_hasty_fire_in_the_hole_5x5",
-			renderBeforeEntities: true
 		}],
 		ef_nw_wild_shot: [{
 			type: "STR",
