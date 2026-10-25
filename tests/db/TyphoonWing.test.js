@@ -109,7 +109,7 @@ describe('Typhoon Wing', () => {
 		);
 		// the cast aura is replaced by castAuraEffectId and lasts the cast time
 		const entity = read('Engine/MapEngine/Entity.js');
-		expect(entity).toContain('EF_Init_Par.effectId = SkillEffect[pkt.SKID].castAuraEffectId;');
+		expect(entity).toContain('[castSkill.castAuraEffectId].flat().forEach(effectId => {');
 		expect(entity).toContain('EffectManager.removeCastLoops(entity.GID);');
 	});
 

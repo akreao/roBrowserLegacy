@@ -44,8 +44,8 @@ describe('Midnight Kick effect', () => {
 describe('castAuraEffectId', () => {
 	it('replaces the aura picked from the element, just before it is spawned', () => {
 		const castSkill = entity.slice(entity.indexOf('function onEntityCastSkill('));
-		const override = castSkill.indexOf('SkillEffect[pkt.SKID].castAuraEffectId');
+		const override = castSkill.indexOf('[castSkill.castAuraEffectId].flat()');
 		expect(override).toBeGreaterThan(castSkill.indexOf('EffectConst.EF_DARKCASTING'));
-		expect(override).toBeLessThan(castSkill.indexOf('EffectManager.spam(EF_Init_Par)', override));
+		expect(override).toBeLessThan(castSkill.indexOf('EffectManager.spam({ ...EF_Init_Par, effectId })', override));
 	});
 });

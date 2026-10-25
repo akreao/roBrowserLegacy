@@ -32,7 +32,7 @@ function effect(id) {
 describe('fourth-job effects mapped to the art the client has', () => {
 	it('draws Enchanting Sky and Dark Dragon - Nightmare, not just their sound', () => {
 		// Enchanting Sky is drawn by its status (EnchantingSky.test.js): a burst, then a loop.
-		expect(skillEffect).toMatch(/SkillEffect\[SK\.SS_ANKOKURYUUAKUMU\] = \{ effectId: 'ef_ss_ankokuryuuakumu' \}/);
+		expect(skillEffect).toMatch(/SkillEffect\[SK\.SS_ANKOKURYUUAKUMU\] = \{ effectId: 'ef_ss_ankokuryuuakumu'[, }]/);
 		expect(effect('ef_ske_enchanting_sky').filter(layer => layer.str)).toHaveLength(1);
 		expect(effect('ef_ske_enchanting_sky_loop').filter(layer => layer.str)).toHaveLength(1);
 		expect(effect('ef_ss_ankokuryuuakumu').filter(layer => layer.str)).toHaveLength(2);

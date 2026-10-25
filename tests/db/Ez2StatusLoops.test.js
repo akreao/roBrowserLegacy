@@ -111,11 +111,17 @@ describe('ground units that loop an EZ2 effect', () => {
 
 	it('leave the skill cast to the unit', () => {
 		const skillEffect = read('DB/Skills/SkillEffect.js');
+		// Their rows hold only what plays while casting (FourthJobCastAura.test.js)
 		for (const skill of ['HN_JACK_FROST_NOVA', 'HN_GROUND_GRAVITATION', 'SOA_TOTEM_OF_TUTELARY', 'SH_HYUN_ROKS_BREEZE']) {
-			expect(skillEffect, skill).not.toContain(`SkillEffect[SK.${skill}] =`);
+			const start = skillEffect.indexOf(`SkillEffect[SK.${skill}] =`);
+			if (start === -1) {
+				continue;
+			}
+			const row = skillEffect.slice(start, skillEffect.indexOf('};', start));
+			expect(row.match(/\b\w+(?=: )/g).every(f => /^(castAuraEffectId|beginCastEffectId)$/.test(f)), skill).toBe(true);
 		}
 		expect(skillEffect).toContain(
-			"SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit' };"
+			"SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit', castAuraEffectId: 840 };"
 		);
 	});
 

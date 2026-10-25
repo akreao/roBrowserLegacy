@@ -10744,6 +10744,8 @@ export default {
 	ef_sh_chul_ho_battering_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/',
 			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast',
@@ -10786,6 +10788,8 @@ export default {
 	ef_sh_hyun_rok_spirit_power_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast',
@@ -10793,6 +10797,8 @@ export default {
 		},
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom',
@@ -15347,10 +15353,74 @@ export default {
 	//837: [{}],	//EF_ROLLINGCAST	   Casting [S]
 	//838: [{}],	//EF_WATER_BELOW	   Watery aura
 	//839: [{}],	//EF_WATER_FADE	   [Client Error]
-	//840: [{}],	//EF_BEGINSPELL_N3	   Red cone
-	//841: [{}],	//EF_BEGINSPELL_N4	   Green cone
-	//842: [{}],	//EF_BEGINSPELL_N5	   Yellow cone
-	//843: [{}],	//EF_BEGINSPELL_N6	   White cone
+	840: [
+		{
+			//EF_BEGINSPELL_N3	   Red cone cast aura
+			// The official client's bubble cone in red, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 3
+					}),
+					Params
+				);
+			}
+		}
+	],
+	841: [
+		{
+			//EF_BEGINSPELL_N4	   Green cone cast aura
+			// The official client's bubble cone in green, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 4
+					}),
+					Params
+				);
+			}
+		}
+	],
+	842: [
+		{
+			//EF_BEGINSPELL_N5	   Yellow cone cast aura
+			// The official client's bubble cone in yellow, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 5
+					}),
+					Params
+				);
+			}
+		}
+	],
+	843: [
+		{
+			//EF_BEGINSPELL_N6	   White cone cast aura
+			// The official client's bubble cone in white, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 6
+					}),
+					Params
+				);
+			}
+		}
+	],
 	//844: [{}],	//EF_BEGINSPELL_N7	   Purple cone
 	845: [
 		{
@@ -15701,6 +15771,8 @@ export default {
 	ef_ss_raidenpou_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/',
 			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast',
@@ -18032,6 +18104,54 @@ export default {
 					Params
 				);
 			}
+		}
+	],
+
+	1449: [
+		{
+			// Jack Frost Nova cast: the client's tinted cast circle in new_jackfrost/ring_ice.tga,
+			// mode 2 (bluish, normal blending), for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_jackfrost/ring_ice.tga',
+						2
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Jack Frost Nova cast, with 1449: the client plays new_jackfrost_cast.str for the cast time
+	1446: [
+		{
+			type: 'STR',
+			file: 'new_jackfrost/new_jackfrost_cast/new_jackfrost_cast',
+			texturePath: 'new_jackfrost/new_jackfrost_cast/',
+			min: 'new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Shinkirou cast, with 2373: the client plays mystery_illusion_cast_bottom.str for the cast time
+	1774: [
+		{
+			type: 'STR',
+			file: 'mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom',
+			texturePath: 'mystery_illusion/mystery_illusion_cast_bottom/',
+			min: 'mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
 		}
 	],
 
@@ -23607,6 +23727,8 @@ export default {
 	ef_nw_wild_shot_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_cast/',
 			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast',
@@ -23644,6 +23766,8 @@ export default {
 	ef_nw_midnight_fallen_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom',
 			texturePath: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/',
 			min: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom',
@@ -25917,6 +26041,70 @@ export default {
 			min: 'druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/min_typhoon_wing_7x7_bottom',
 			renderBeforeEntities: true,
 			yOffset: 10
+		}
+	],
+	// Mayhemic Thorns cast: the client plays acidified_zone_ground_cast.str (2228) and its
+	// floor layer (2229) for the cast time
+	2228: [
+		{
+			type: 'STR',
+			file: 'acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast',
+			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast/',
+			min: 'acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+	2229: [
+		{
+			type: 'STR',
+			file: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom',
+			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/',
+			min: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+	ef_cast_circle_red: [
+		{
+			// Effect 55: tinted circle, ring_yellow.tga, mode 1 (reddish, additive)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						1
+					),
+					Params
+				);
+			}
+		}
+	],
+	ef_cast_circle_violet: [
+		{
+			// Effect 59: untinted circle, magic_violet.tga
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'magic_violet.tga'
+					),
+					Params
+				);
+			}
 		}
 	],
 	// Druid cast circles: the official client gives skills 6525-6606 no element
