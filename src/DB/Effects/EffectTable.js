@@ -17403,14 +17403,16 @@ export default {
 			file: 'elemental_master/em_psychic_stream/psychic_stream/psychic_stream',
 			texturePath: 'elemental_master/em_psychic_stream/psychic_stream/',
 			min: 'elemental_master/em_psychic_stream/psychic_stream/min_psychic_stream',
-			wav: 'effect/em_psychic_stream'
+			wav: 'effect/em_psychic_stream',
+			yOffset: 12
 		},
 		{
 			type: 'STR',
 			file: 'elemental_master/em_psychic_stream/psychic_stream_bottom/psychic_stream_bottom',
 			texturePath: 'elemental_master/em_psychic_stream/psychic_stream_bottom/',
 			min: 'elemental_master/em_psychic_stream/psychic_stream_bottom/min_psychic_stream_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 12
 		}
 	],
 
@@ -17420,7 +17422,8 @@ export default {
 			type: 'STR',
 			file: 'elemental_master/em_psychic_stream/psychic_stream_cast/psychic_stream_cast',
 			texturePath: 'elemental_master/em_psychic_stream/psychic_stream_cast/',
-			min: 'elemental_master/em_psychic_stream/psychic_stream_cast/min_psychic_stream_cast'
+			min: 'elemental_master/em_psychic_stream/psychic_stream_cast/min_psychic_stream_cast',
+			yOffset: 10
 		}
 	],
 
@@ -17430,7 +17433,8 @@ export default {
 			type: 'STR',
 			file: 'elemental_master/em_psychic_stream/psychic_stream_hit/psychic_stream_hit',
 			texturePath: 'elemental_master/em_psychic_stream/psychic_stream_hit/',
-			min: 'elemental_master/em_psychic_stream/psychic_stream_hit/min_psychic_stream_hit'
+			min: 'elemental_master/em_psychic_stream/psychic_stream_hit/min_psychic_stream_hit',
+			yOffset: 8
 		}
 	],
 
@@ -20557,7 +20561,8 @@ export default {
 			file: 'archmage/ag_energy_conversion/energy_conversion/energy_conversion',
 			texturePath: 'archmage/ag_energy_conversion/energy_conversion/',
 			min: 'archmage/ag_energy_conversion/energy_conversion/min_energy_conversion',
-			wav: 'effect/ag_energy_conversion'
+			wav: 'effect/ag_energy_conversion',
+			yOffset: 12
 		}
 	],
 
@@ -20567,14 +20572,16 @@ export default {
 			type: 'STR',
 			file: 'archmage/ag_energy_conversion/energy_conversion_cast/energy_conversion_cast',
 			texturePath: 'archmage/ag_energy_conversion/energy_conversion_cast/',
-			min: 'archmage/ag_energy_conversion/energy_conversion_cast/min_energy_conversion_cast'
+			min: 'archmage/ag_energy_conversion/energy_conversion_cast/min_energy_conversion_cast',
+			yOffset: 11
 		},
 		{
 			type: 'STR',
 			file: 'archmage/ag_energy_conversion/energy_conversion_cast_bottom/energy_conversion_cast_bottom',
 			texturePath: 'archmage/ag_energy_conversion/energy_conversion_cast_bottom/',
 			min: 'archmage/ag_energy_conversion/energy_conversion_cast_bottom/min_energy_conversion_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -21584,7 +21591,8 @@ export default {
 			file: '4tr_kvasirsonata/kvasirsonata/kvasirsonata',
 			texturePath: '4tr_kvasirsonata/kvasirsonata/',
 			min: '4tr_kvasirsonata/kvasirsonata/min_kvasirsonata',
-			wav: 'effect/tr_kvasir_sonata'
+			wav: 'effect/tr_kvasir_sonata',
+			yOffset: 24
 		}
 	],
 
@@ -21594,14 +21602,16 @@ export default {
 			type: 'STR',
 			file: '4tr_kvasirsonata/kvasirsonata_cast/kvasirsonata_cast',
 			texturePath: '4tr_kvasirsonata/kvasirsonata_cast/',
-			min: '4tr_kvasirsonata/kvasirsonata_cast/min_kvasirsonata_cast'
+			min: '4tr_kvasirsonata/kvasirsonata_cast/min_kvasirsonata_cast',
+			yOffset: 9
 		},
 		{
 			type: 'STR',
 			file: '4tr_kvasirsonata/kvasirsonata_cast_bottom/kvasirsonata_cast_bottom',
 			texturePath: '4tr_kvasirsonata/kvasirsonata_cast_bottom/',
 			min: '4tr_kvasirsonata/kvasirsonata_cast_bottom/min_kvasirsonata_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 9
 		}
 	],
 
@@ -21677,7 +21687,8 @@ export default {
 			file: 'metalicfury/metalicfury/metalicfury',
 			texturePath: 'metalicfury/metalicfury/',
 			min: 'metalicfury/metalicfury/min_metalicfury',
-			wav: 'effect/tr_metalic_fury'
+			wav: 'effect/tr_metalic_fury',
+			yOffset: 7
 		}
 	],
 
@@ -21715,7 +21726,8 @@ export default {
 			file: 'gef_nocturn/gef_nocturn/gef_nocturn',
 			texturePath: 'gef_nocturn/gef_nocturn/',
 			min: 'gef_nocturn/gef_nocturn/min_gef_nocturn',
-			wav: 'effect/tr_gef_nocturn'
+			wav: 'effect/tr_gef_nocturn',
+			yOffset: 15
 		}
 	],
 
@@ -21725,14 +21737,16 @@ export default {
 			type: 'STR',
 			file: 'gef_nocturn/gef_nocturn_cast/gef_nocturn_cast',
 			texturePath: 'gef_nocturn/gef_nocturn_cast/',
-			min: 'gef_nocturn/gef_nocturn_cast/min_gef_nocturn_cast'
+			min: 'gef_nocturn/gef_nocturn_cast/min_gef_nocturn_cast',
+			yOffset: 9
 		},
 		{
 			type: 'STR',
 			file: 'gef_nocturn/gef_nocturn_cast_bottom/gef_nocturn_cast_bottom',
 			texturePath: 'gef_nocturn/gef_nocturn_cast_bottom/',
 			min: 'gef_nocturn/gef_nocturn_cast_bottom/min_gef_nocturn_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 9
 		}
 	],
 
@@ -21771,7 +21785,8 @@ export default {
 			file: 'ain_rhapsody/ain_rhapsody/ain_rhapsody',
 			texturePath: 'ain_rhapsody/ain_rhapsody/',
 			min: 'ain_rhapsody/ain_rhapsody/min_ain_rhapsody',
-			wav: 'effect/tr_ain_rhapsody'
+			wav: 'effect/tr_ain_rhapsody',
+			yOffset: 14
 		}
 	],
 
@@ -21781,7 +21796,8 @@ export default {
 			type: 'STR',
 			file: 'ain_rhapsody/ain_rhapsody_cast/ain_rhapsody_cast',
 			texturePath: 'ain_rhapsody/ain_rhapsody_cast/',
-			min: 'ain_rhapsody/ain_rhapsody_cast/min_ain_rhapsody_cast'
+			min: 'ain_rhapsody/ain_rhapsody_cast/min_ain_rhapsody_cast',
+			yOffset: 9
 		}
 	],
 
@@ -21813,7 +21829,8 @@ export default {
 			file: 'jawaii_serenade/jawaii_serenade/jawaii_serenade',
 			texturePath: 'jawaii_serenade/jawaii_serenade/',
 			min: 'jawaii_serenade/jawaii_serenade/min_jawaii_serenade',
-			wav: 'effect/tr_jawaii_serenade'
+			wav: 'effect/tr_jawaii_serenade',
+			yOffset: 15
 		}
 	],
 
@@ -21823,14 +21840,16 @@ export default {
 			type: 'STR',
 			file: 'jawaii_serenade/jawaii_serenade_cast/jawaii_serenade_cast',
 			texturePath: 'jawaii_serenade/jawaii_serenade_cast/',
-			min: 'jawaii_serenade/jawaii_serenade_cast/min_jawaii_serenade_cast'
+			min: 'jawaii_serenade/jawaii_serenade_cast/min_jawaii_serenade_cast',
+			yOffset: 9
 		},
 		{
 			type: 'STR',
 			file: 'jawaii_serenade/jawaii_serenade_cast_bottom/jawaii_serenade_cast_bottom',
 			texturePath: 'jawaii_serenade/jawaii_serenade_cast_bottom/',
 			min: 'jawaii_serenade/jawaii_serenade_cast_bottom/min_jawaii_serenade_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 9
 		}
 	],
 
@@ -21862,7 +21881,8 @@ export default {
 			file: 'pronmarch/pronmarch/pronmarch',
 			texturePath: 'pronmarch/pronmarch/',
 			min: 'pronmarch/pronmarch/min_pronmarch',
-			wav: 'effect/tr_pron_march'
+			wav: 'effect/tr_pron_march',
+			yOffset: 15
 		}
 	],
 
@@ -21872,14 +21892,16 @@ export default {
 			type: 'STR',
 			file: 'pronmarch/pronmarch_cast/pronmarch_cast',
 			texturePath: 'pronmarch/pronmarch_cast/',
-			min: 'pronmarch/pronmarch_cast/min_pronmarch_cast'
+			min: 'pronmarch/pronmarch_cast/min_pronmarch_cast',
+			yOffset: 9
 		},
 		{
 			type: 'STR',
 			file: 'pronmarch/pronmarch_cast_bottom/pronmarch_cast_bottom',
 			texturePath: 'pronmarch/pronmarch_cast_bottom/',
 			min: 'pronmarch/pronmarch_cast_bottom/min_pronmarch_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 9
 		}
 	],
 
@@ -21889,14 +21911,16 @@ export default {
 			type: 'STR',
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/rhythmical_wave',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/',
-			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/min_rhythmical_wave'
+			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/min_rhythmical_wave',
+			yOffset: 11
 		},
 		{
 			type: 'STR',
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/rhythmical_wave_bottom',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/',
 			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/min_rhythmical_wave_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -21906,14 +21930,16 @@ export default {
 			type: 'STR',
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/rhythmical_wave_cast',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/',
-			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/min_rhythmical_wave_cast'
+			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/min_rhythmical_wave_cast',
+			yOffset: 11
 		},
 		{
 			type: 'STR',
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/rhythmical_wave_cast_bottom',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/',
 			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/min_rhythmical_wave_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -21923,7 +21949,8 @@ export default {
 			type: 'STR',
 			file: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/rhythmical_wave_hit',
 			texturePath: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/',
-			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/min_rhythmical_wave_hit'
+			min: 'troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/min_rhythmical_wave_hit',
+			yOffset: 11
 		}
 	],
 
@@ -22347,7 +22374,8 @@ export default {
 			texturePath: 'windhawk/calamitygale/calumitygale_cast/',
 			min: 'windhawk/calamitygale/calumitygale_cast/min_calumitygale_cast',
 			fallback: ['4wh_calumitygale/calumitygale_cast/calumitygale_cast'],
-			wav: 'effect/wh_calamitygale'
+			wav: 'effect/wh_calamitygale',
+			yOffset: 11
 		}
 	],
 
@@ -22376,7 +22404,8 @@ export default {
 			type: 'STR',
 			file: 'galestorm/galestorm_cast/galestorm_cast',
 			texturePath: 'galestorm/galestorm_cast/',
-			min: 'galestorm/galestorm_cast/min_galestorm_cast'
+			min: 'galestorm/galestorm_cast/min_galestorm_cast',
+			yOffset: 10
 		}
 	],
 
@@ -22386,7 +22415,8 @@ export default {
 			type: 'STR',
 			file: 'galestorm/galestorm_hit/galestorm_hit',
 			texturePath: 'galestorm/galestorm_hit/',
-			min: 'galestorm/galestorm_hit/min_galestorm_hit'
+			min: 'galestorm/galestorm_hit/min_galestorm_hit',
+			yOffset: 7
 		}
 	],
 
@@ -22583,7 +22613,8 @@ export default {
 			file: 'windhawk/wh_wild_walk/wild_walk/wild_walk',
 			texturePath: 'windhawk/wh_wild_walk/wild_walk/',
 			min: 'windhawk/wh_wild_walk/wild_walk/min_wild_walk',
-			wav: 'effect/wh_wild_walk'
+			wav: 'effect/wh_wild_walk',
+			yOffset: 10
 		}
 	],
 
@@ -22593,14 +22624,16 @@ export default {
 			type: 'STR',
 			file: 'windhawk/wh_wild_walk/wild_walk_cast/wild_walk_cast',
 			texturePath: 'windhawk/wh_wild_walk/wild_walk_cast/',
-			min: 'windhawk/wh_wild_walk/wild_walk_cast/min_wild_walk_cast'
+			min: 'windhawk/wh_wild_walk/wild_walk_cast/min_wild_walk_cast',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'windhawk/wh_wild_walk/wild_walk_cast_bottom/wild_walk_cast_bottom',
 			texturePath: 'windhawk/wh_wild_walk/wild_walk_cast_bottom/',
 			min: 'windhawk/wh_wild_walk/wild_walk_cast_bottom/min_wild_walk_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -22610,7 +22643,8 @@ export default {
 			type: 'STR',
 			file: 'windhawk/wh_wild_walk/wild_walk_hit/wild_walk_hit',
 			texturePath: 'windhawk/wh_wild_walk/wild_walk_hit/',
-			min: 'windhawk/wh_wild_walk/wild_walk_hit/min_wild_walk_hit'
+			min: 'windhawk/wh_wild_walk/wild_walk_hit/min_wild_walk_hit',
+			yOffset: 5
 		}
 	],
 
