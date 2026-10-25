@@ -321,7 +321,12 @@ class StrEffect {
 			return;
 		}
 
-		this.aimAngle = this.getAimAngle();
+		// Aimed at the other entity, and/or turned a fixed amount (screenTurn,
+		// degrees clockwise on screen, as the client turns some EZ2 copies)
+		const aim = this.getAimAngle();
+		// Both reach below the feet on screen: drawn over the ground (renderAnimation)
+		this.aimed = !!aim || !!this.screenTurn;
+		this.aimAngle = aim - (this.screenTurn || 0);
 
 		keyIndex = ((tick - this.startTick) / 1000) * strFile.fps;
 
@@ -494,7 +499,7 @@ class StrEffect {
 		// An aimed effect stands at one entity and reaches the other. Turned
 		// towards the camera, it runs through the ground and the other entity
 		// in front of where it stands, which would hide part of it.
-		if (this.aimAngle) {
+		if (this.aimed) {
 			gl.disable(gl.DEPTH_TEST);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			gl.enable(gl.DEPTH_TEST);

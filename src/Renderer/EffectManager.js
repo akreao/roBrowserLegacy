@@ -29,6 +29,7 @@ import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import { screenAngle, screenSector, screenSide } from 'Renderer/Effects/ScreenDirection.js';
 import shuffledGrid from 'Renderer/Effects/ShuffledGrid.js';
+import spinSets, { SPIN_SLOT } from 'Renderer/Effects/SpinSets.js';
 import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
@@ -131,6 +132,11 @@ function spamSTR(Params) {
 	// client places those effects (StrEffect.layout).
 	if (Params.effect.xOffset !== undefined || Params.effect.yOffset !== undefined) {
 		str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
+	}
+
+	// A copy the client turns on screen (degrees clockwise, StrEffect.layout)
+	if (Params.Init.screenTurn) {
+		str.screenTurn = Params.Init.screenTurn;
 	}
 
 	// Start effect
@@ -1080,6 +1086,26 @@ class EffectManager {
 						otherAID: srcAID,
 						skillLevel: level
 					});
+				});
+			});
+		}
+
+		// Sets of copies at the target, one set per file, each copy turned on
+		// screen and started in its own 32 ms slot (SpinSets.js). Placed once on
+		// the ground. Kunai - Nightmare's blades.
+		const spinIds = SkillEffect[skillId].successEffectSpinSets;
+		const spinAt = spinIds ? EntityManager.get(destAID) || EntityManager.get(srcAID) : null;
+		if (spinAt) {
+			const start = tick || Renderer.tick;
+			const [x, y, z] = spinAt.position;
+			spinSets(spinIds.length).forEach(({ set, turn, slot }) => {
+				EffectManager.spam({
+					effectId: spinIds[set],
+					ownerAID: destAID,
+					position: [x, y, z],
+					startTick: start + SPIN_SLOT * slot,
+					otherAID: srcAID,
+					screenTurn: turn
 				});
 			});
 		}

@@ -15620,14 +15620,44 @@ export default {
 		}
 	],
 
-	// Kunai - Nightmare (SS_HITOUAKUMU), from the client's own effect folders.
+	// Kunai - Nightmare (SS_HITOUAKUMU): EZ2 rows, placed on the ground where the
+	// caster stands (not following), PosY 0. The burst is a floor row.
 	ef_ss_hitouakumu: [
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu/hitouakumu',
 			texturePath: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu/',
 			min: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu/min_hitouakumu',
-			wav: 'effect/shinkiro_shiranui/ss_hitouakumu'
+			wav: 'effect/shinkiro_shiranui/ss_hitouakumu',
+			renderBeforeEntities: true,
+			yOffset: 0
+		}
+	],
+	ef_ss_hitouakumu_00: [
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_00/hitouakumu_00',
+			texturePath: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_00/',
+			min: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_00/min_hitouakumu_00',
+			yOffset: 0
+		}
+	],
+	ef_ss_hitouakumu_01: [
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_01/hitouakumu_01',
+			texturePath: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_01/',
+			min: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_01/min_hitouakumu_01',
+			yOffset: 0
+		}
+	],
+	ef_ss_hitouakumu_02: [
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_02/hitouakumu_02',
+			texturePath: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_02/',
+			min: 'shinkiro_shiranui/ss_hitouakumu/hitouakumu_02/min_hitouakumu_02',
+			yOffset: 0
 		}
 	],
 
