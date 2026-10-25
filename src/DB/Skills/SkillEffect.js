@@ -203,7 +203,13 @@ SkillEffect[SK.HN_SPIRAL_PIERCE_MAX] = { effectId: 'ef_hn_spiral_pierce_max' }; 
 SkillEffect[SK.HN_METEOR_STORM_BUSTER] = { effectId: 'ef_hn_meteor_storm_buster' }; //Meteor Storm Buster
 SkillEffect[SK.HN_JUPITEL_THUNDER_STORM] = { effectId: 'ef_hn_jupitel_thunder_storm' }; //Jupitel Thunderstorm
 SkillEffect[SK.HN_JACK_FROST_NOVA] = { effectId: 'ef_hn_jack_frost_nova' }; //Jack Frost Nova
-SkillEffect[SK.HN_HELLS_DRIVE] = { effectId: 'ef_hn_hells_drive' }; //Hell's Drive
+SkillEffect[SK.HN_HELLS_DRIVE] = {
+	// One spot per row and column of a square over the splash area (3, 5, 7 or 9
+	// cells), 32 ms apart, when the use packet succeeds: floor layer plus a random blast
+	successEffectGridIds: ['ef_hn_hells_drive_bottom', ['ef_hn_hells_drive_00', 'ef_hn_hells_drive_01', 'ef_hn_hells_drive_02']],
+	successEffectGridSizeByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9],
+	successEffectGridStep: 32
+}; //Hell's Drive
 SkillEffect[SK.HN_GROUND_GRAVITATION] = { effectId: 'ef_hn_ground_gravitation' }; //Ground Gravitation
 SkillEffect[SK.HN_NAPALM_VULCAN_STRIKE] = { effectId: 'ef_hn_napalm_vulcan_strike' }; //Napalm Vulcan Strike
 SkillEffect[SK.HN_BREAKINGLIMIT] = { effectId: 'ef_hn_breakinglimit' }; //Breaking Limit

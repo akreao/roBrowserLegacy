@@ -6635,13 +6635,43 @@ export default {
 		}
 	],
 
-	// Hell's Drive (HN_HELLS_DRIVE), from the client's own effect folders.
-	ef_hn_hells_drive: [
+	// Hell's Drive (HN_HELLS_DRIVE): the EZ2 rows, each placed once on the ground
+	// at one spot of the skill's grid (SkillEffect successEffectGrid*): the floor
+	// layer plus one of the three blasts, picked at random.
+	ef_hn_hells_drive_bottom: [
 		{
 			type: 'STR',
 			file: 'hyper_novice/hn_hells_drive/hells_drive_bottom',
 			texturePath: 'hyper_novice/hn_hells_drive/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 0
+		}
+	],
+	ef_hn_hells_drive_00: [
+		{
+			type: 'STR',
+			file: 'hyper_novice/hn_hells_drive/hells_drive_00',
+			texturePath: 'hyper_novice/hn_hells_drive/',
+			wav: 'effect/hyper_novice/hn_hells_drive_00',
+			yOffset: 0
+		}
+	],
+	ef_hn_hells_drive_01: [
+		{
+			type: 'STR',
+			file: 'hyper_novice/hn_hells_drive/hells_drive_01',
+			texturePath: 'hyper_novice/hn_hells_drive/',
+			wav: 'effect/hyper_novice/hn_hells_drive_01',
+			yOffset: 0
+		}
+	],
+	ef_hn_hells_drive_02: [
+		{
+			type: 'STR',
+			file: 'hyper_novice/hn_hells_drive/hells_drive_02',
+			texturePath: 'hyper_novice/hn_hells_drive/',
+			wav: 'effect/hyper_novice/hn_hells_drive_02',
+			yOffset: 0
 		}
 	],
 
