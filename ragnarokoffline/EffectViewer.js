@@ -224953,11 +224953,11 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_FOCUS] = {
 		beginCastEffectId: "ef_druid_thunder_cast",
-		effectIdOnCaster: "ef_druid_thundering_focus_g",
+		successEffectId: "ef_druid_thundering_focus_g",
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_FOCUS_S] = {
-		effectIdOnCaster: "ef_druid_thundering_focus_y",
+		successEffectId: "ef_druid_thundering_focus_y",
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_ORB] = {
@@ -306018,14 +306018,20 @@ var init_EffectTable = __esmMin((() => {
 			file: "druid/kr_thundering_focus/thundering_focus_g/thundering_focus_g",
 			texturePath: "druid/kr_thundering_focus/thundering_focus_g/",
 			min: "druid/kr_thundering_focus/thundering_focus_g/min_thundering_focus_g",
-			wav: "effect/druid/kr_thundering_focus_g"
+			wav: "effect/druid/kr_thundering_focus_g",
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_druid_thundering_focus_y: [{
 			type: "STR",
 			file: "druid/kr_thundering_focus/thundering_focus_y/thundering_focus_y",
 			texturePath: "druid/kr_thundering_focus/thundering_focus_y/",
 			min: "druid/kr_thundering_focus/thundering_focus_y/min_thundering_focus_y",
-			wav: "effect/druid/kr_thundering_focus_y"
+			wav: "effect/druid/kr_thundering_focus_y",
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_druid_thundering_orb_g: [{
 			type: "STR",
