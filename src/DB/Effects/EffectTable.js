@@ -15307,7 +15307,23 @@ export default {
 		}
 	],
 
-	//830: [{}],	//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
+	830: [
+		{
+			//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
+			// The official client's two pulsing bubble crowns, light blue and white (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						pulse: true
+					}),
+					Params
+				);
+			}
+		}
+	],
 	831: [
 		{
 			//EF_BEGINSPELL_N2	   Blue cone cast aura (Enchanting Sky)
@@ -26064,6 +26080,22 @@ export default {
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
+		}
+	],
+	2368: [
+		{
+			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 11
+					}),
+					Params
+				);
+			}
 		}
 	],
 	ef_cast_circle_red: [

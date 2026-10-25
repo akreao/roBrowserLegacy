@@ -1081,13 +1081,14 @@ SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEff
 SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting' }; //Spiral Shooting
 SkillEffect[SK.NW_MAGAZINE_FOR_ONE] = { effectId: 'ef_nw_magazine_for_one' }; //Magazine for One
 SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire' }; //Wild Fire
-SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade' }; //Basic Grenade
-SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; //Grenades Dropping
-SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
+SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade', castAuraEffectId: 830 }; //Basic Grenade
+SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping', castAuraEffectId: 830 }; //Grenades Dropping
+SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher', castAuraEffectId: 830 }; //Auto Firing Launcher
 SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card', castAuraEffectId: 840 }; //Hidden Card
 SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit', castAuraEffectId: 840 }; //Mission Bombard (the bomb and its fire come from its skill unit)
 SkillEffect[SK.NW_HASTY_FIRE_IN_THE_HOLE] = {
 	effectId: 'ef_nw_hasty_fire_in_the_hole', // 5x5, 7x7 and 9x9 in turn
+	castAuraEffectId: 830,
 	groundRepeatWindowMs: REPEAT_WINDOW_MS
 }; //Hasty Fire in the Hole
 SkillEffect[5500 /* NW_WILD_SHOT */] = {
@@ -1162,17 +1163,17 @@ SkillEffect[5499 /* SS_FOUR_CHARM */] = {
 SkillEffect[SK.KG_KAGEHUMI] = {}; //Shadow Trampling
 SkillEffect[SK.KG_KYOMU] = {}; //Empty Shadow
 SkillEffect[SK.KG_KAGEMUSYA] = {}; //Shadow Warrior
-SkillEffect[SK.SOA_TALISMAN_OF_PROTECTION] = { effectId: 'ef_soa_talisman_of_protection' }; //Talisman Of Protection
-SkillEffect[SK.SOA_TALISMAN_OF_WARRIOR] = { effectId: 'ef_soa_talisman_of_warrior' }; //Talisman Of Warrior
-SkillEffect[SK.SOA_TALISMAN_OF_MAGICIAN] = { effectId: 'ef_soa_talisman_of_magician' }; //Talisman Of Magician
+SkillEffect[SK.SOA_TALISMAN_OF_PROTECTION] = { effectId: 'ef_soa_talisman_of_protection', castAuraEffectId: 830 }; //Talisman Of Protection
+SkillEffect[SK.SOA_TALISMAN_OF_WARRIOR] = { effectId: 'ef_soa_talisman_of_warrior', castAuraEffectId: 830 }; //Talisman Of Warrior
+SkillEffect[SK.SOA_TALISMAN_OF_MAGICIAN] = { effectId: 'ef_soa_talisman_of_magician', castAuraEffectId: 830 }; //Talisman Of Magician
 SkillEffect[SK.SOA_SOUL_GATHERING] = { effectId: 'ef_soa_soul_gathering', castAuraEffectId: 454 }; //Soul Gathering
-SkillEffect[SK.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: 'ef_soa_talisman_of_five_elements' }; //Talisman Of Five Elements
+SkillEffect[SK.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: 'ef_soa_talisman_of_five_elements', castAuraEffectId: 830 }; //Talisman Of Five Elements
 SkillEffect[SK.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: 'ef_soa_talisman_of_soul_stealing', castAuraEffectId: 441 }; //Talisman Of Soul Stealing
 SkillEffect[SK.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: 'ef_soa_exorcism_of_malicious_soul' }; //Exorcism Of Malicious Soul
 SkillEffect[SK.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: 'ef_soa_talisman_of_blue_dragon', castAuraEffectId: 845 }; //Talisman Of Blue Dragon
 SkillEffect[SK.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: 'ef_soa_talisman_of_white_tiger', castAuraEffectId: 843 }; //Talisman Of White Tiger
 SkillEffect[SK.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: 'ef_soa_talisman_of_red_phoenix', castAuraEffectId: 840 }; //Talisman Of Red Phoenix
-SkillEffect[SK.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: 'ef_soa_talisman_of_black_tortoise' }; //Talisman Of Black Tortoise
+SkillEffect[SK.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: 'ef_soa_talisman_of_black_tortoise', castAuraEffectId: 2368 }; //Talisman Of Black Tortoise
 SkillEffect[SK.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: 'ef_soa_talisman_of_four_bearing_god' }; //Talisman Of Four Bearing God
 SkillEffect[SK.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: 'ef_soa_circle_of_directions_and_elementals' }; //Circle Of Directions And Elementals
 SkillEffect[SK.SOA_SOUL_OF_HEAVEN_AND_EARTH] = { effectId: 'ef_soa_soul_of_heaven_and_earth' }; //Soul Of Heaven And Earth

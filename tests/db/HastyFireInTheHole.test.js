@@ -134,6 +134,6 @@ describe('Hasty Fire in the Hole', () => {
 		vm.runInContext(db.slice(start, end), context);
 		context.mergeEz2Effects(EffectTable, SkillEffect);
 		expect(SkillEffect[SKID].effectId).toBe('ef_nw_hasty_fire_in_the_hole');
-		expect(Object.keys(SkillEffect[SKID]).sort()).toEqual(['effectId', 'groundRepeatWindowMs']);
+		expect(Object.keys(SkillEffect[SKID]).sort()).toEqual(['castAuraEffectId', 'effectId', 'groundRepeatWindowMs']);
 	});
 });
