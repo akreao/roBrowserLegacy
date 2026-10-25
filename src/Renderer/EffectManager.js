@@ -151,6 +151,12 @@ function spamSTR(Params) {
 		str.screenTurn = Params.Init.screenTurn;
 	}
 
+	// A copy the client draws larger or smaller (StrEffect.layout)
+	const scale = Params.Init.scale || Params.effect.scale;
+	if (scale > 0 && scale !== 1) {
+		str.scale = scale;
+	}
+
 	// Start effect
 	EffectManager.add(str, Params);
 }
@@ -773,8 +779,13 @@ class EffectManager {
 						Params.effect,
 						Params.Inst,
 						Params.Init,
-						(effectId, position, startTick) =>
-							EffectManager.spam({ effectId, position, startTick, otherAID: Params.Init.otherAID }),
+						(effectId, position, startTick, scale) =>
+							EffectManager.spam(
+								Object.assign(
+									{ effectId, position, startTick, otherAID: Params.Init.otherAID },
+									scale && { scale }
+								)
+							),
 						(x, y) => Altitude.getCellHeight(x, y)
 					),
 					Params

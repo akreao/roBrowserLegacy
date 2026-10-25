@@ -47,4 +47,12 @@ describe('StrEffect layout', () => {
 		const owner = { position: [0, 0, 0] };
 		assert.deepEqual(layout({ ownerEntity: owner, yOffset: 10, ez2Offset: [0, 99] }, [320, 320]), [0, -70, 0]);
 	});
+
+	it('scales the art about its anchor, not the PosX/PosY shift', () => {
+		assert.deepEqual(layout({ scale: 1.5 }, [330, 300]), [15, -30, 0.5]);
+		assert.deepEqual(layout({ scale: 1.5, ez2Offset: [0, 10] }, [330, 250]), [15, -55, 0]);
+		const owner = { position: [0, 0, 0] };
+		assert.deepEqual(layout({ ownerEntity: owner, yOffset: 14, scale: 1.5 }, [330, 320]), [15, -98, 0]);
+		assert.deepEqual(layout({ scale: 0.5, ez2Offset: [0, 0], aimAngle: 90 }, [340, 240]), [0, -10, 0]);
+	});
 });

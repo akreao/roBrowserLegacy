@@ -19298,15 +19298,27 @@ export default {
 		}
 	],
 
-	// Cross Rain (IG_CROSS_RAIN), from the client's own effect folders.
-	ef_ig_cross_rain: [
+	// Cross Rain's unit (official effect 2462): every 9 - level / 3 ticks a
+	// spear of rain lands at a random point of a square around the unit, 3 cells
+	// wide at levels 1-3, 5 at 4-6, 7 at 7-9, 9 at 10.
+	ef_ig_cross_rain_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ig_cross_rain_drop',
+			interval: 150,
+			intervalByLevel: [150, 150, 400 / 3, 400 / 3, 400 / 3, 350 / 3, 350 / 3, 350 / 3, 100, 100],
+			areaByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9]
+		}
+	],
+
+	// One drop of Cross Rain's unit (no sound)
+	ef_ig_cross_rain_drop: [
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/new_cross_rain',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain',
-			fallback: ['crossrain/cross_rain/cross_rain'],
-			wav: 'effect/ig_cross_rain'
+			fallback: ['crossrain/cross_rain/cross_rain']
 		}
 	],
 
@@ -23515,6 +23527,31 @@ export default {
 
 	// Mission Bombard (NW_MISSION_BOMBARD), from the client's own effect folders.
 	ef_nw_mission_bombard_hit: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',
+			texturePath: 'night_watch/nw_mission_bombard/mission_bombard/',
+			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit'
+		}
+	],
+
+	// Mission Bombard's unit (official effect 2354): while the unit stands,
+	// every 15 ticks (250 ms) three blasts land at random points of a 9x9
+	// square around it, each drawn at a random size from 0.5 to 1.
+	ef_nw_mission_bombard_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_nw_mission_bombard_drop',
+			interval: 250,
+			count: 3,
+			areaByLevel: [9],
+			area: 9,
+			scaleRange: [0.5, 1]
+		}
+	],
+
+	// One blast of Mission Bombard's unit (no sound)
+	ef_nw_mission_bombard_drop: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',

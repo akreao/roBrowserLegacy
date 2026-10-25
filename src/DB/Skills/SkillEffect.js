@@ -1692,7 +1692,7 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	effectIdOnCaster: 'ef_ig_overslash_cast',
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
-SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
+SkillEffect[SK.IG_CROSS_RAIN] = { effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain (the rain comes from its skill unit)
 //Radiant Spear: when the use packet succeeds, one spear lands where the target stands.
 //A target on the right half of the screen (seen from the caster) gets leftdown, on the left half rightdown.
 SkillEffect[6503 /* IG_RADIANT_SPEAR */] = {

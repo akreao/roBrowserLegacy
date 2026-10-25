@@ -98,9 +98,10 @@ describe('ground units that loop an EZ2 effect', () => {
 		expect(SkillUnit[SU.UNT_MISSION_BOMBARD]).toEqual([
 			'mission_bombard',
 			'mission_bombard_fire',
-			'mission_bombard_fire_bottom'
+			'mission_bombard_fire_bottom',
+			'ef_nw_mission_bombard_field'
 		]);
-		expect(SkillUnit[SU.UNT_CROSS_RAIN]).toEqual(['new_cross_rain_bottom']);
+		expect(SkillUnit[SU.UNT_CROSS_RAIN]).toEqual(['new_cross_rain_bottom', 'ef_ig_cross_rain_field']);
 	});
 
 	it('play their end rows where they stood', () => {
