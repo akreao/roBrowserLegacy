@@ -322631,7 +322631,23 @@ function loadBSONFile(filename, targetTable, onEnd) {
 	}, onEnd);
 }
 /**
+* The last two parts of an STR path, lower case: its file and own folder.
+* A skill's top and floor layers can share a file name in different folders
+* (hasty_fire_in_the_hole/..._7x7 and hasty_fire_in_the_hole_bottom/..._7x7),
+* so the folder stays part of it.
+*
+* @param {string} file STR path without extension
+* @return {string}
+*/
+function strFileKey(file) {
+	return (file || "").toLowerCase().split("/").slice(-2).join("/");
+}
+/**
 * Whether a skill's effects already draw this STR file.
+* Ignores the leading folders: older hand-written rows load the same STR
+* from its pre-4th-job folder (roseblossom/roseblossom_cast/... instead of
+* troubadour_trouvere/tr_roseblossom/roseblossom_cast/...), and the skill
+* would draw both.
 *
 * @param {object} skillEntry SkillEffect row, or undefined
 * @param {object} EffectTable
@@ -322640,13 +322656,13 @@ function loadBSONFile(filename, targetTable, onEnd) {
 */
 function skillPlaysFile(skillEntry, EffectTable, file) {
 	if (!skillEntry || !file) return false;
-	const wanted = file.toLowerCase();
+	const wanted = strFileKey(file);
 	for (const field in skillEntry) {
 		const value = skillEntry[field];
 		const names = Array.isArray(value) ? value : [value];
 		for (const name of names) {
 			const effects = typeof name === "string" ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some((effect) => (effect.file || "").toLowerCase() === wanted)) return true;
+			if (Array.isArray(effects) && effects.some((effect) => strFileKey(effect.file) === wanted)) return true;
 		}
 	}
 	return false;
@@ -322759,7 +322775,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		}];
 		count++;
 		const file = EffectTable[effectName][0].file;
-		if (skillId && !skillPlaysFile(SkillEffect[skillId], EffectTable, file) && !statusPlaysFile(EffectTable, file)) {
+		if (skillId && !entry.IsInfinite && !skillPlaysFile(SkillEffect[skillId], EffectTable, file) && !statusPlaysFile(EffectTable, file)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 			if (skillEntry[field]) {
