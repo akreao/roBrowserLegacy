@@ -25627,36 +25627,87 @@ export default {
 			renderBeforeEntities: true
 		}
 	],
-	ef_druid_thundering_call_g: [
+	// Thundering Call (KR_THUNDERING_CALL green, _S yellow): the client plays one
+	// size on the target, 3x3 below level 7 and 5x5 from 7. EZ2 rows of the same
+	// name (PosY 10). See SkillEffect.js.
+	ef_druid_thundering_call_g_3x3: [
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_call/thundering_call_g_3x3/thundering_call_g_3x3',
 			texturePath: 'druid/kr_thundering_call/thundering_call_g_3x3/',
 			min: 'druid/kr_thundering_call/thundering_call_g_3x3/min_thundering_call_g_3x3',
-			wav: 'effect/druid/kr_thundering_call_g'
+			wav: 'effect/druid/kr_thundering_call_g',
+			yOffset: 10,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_call/thundering_call_g_3x3_bottom/thundering_call_g_3x3_bottom',
 			texturePath: 'druid/kr_thundering_call/thundering_call_g_3x3_bottom/',
 			min: 'druid/kr_thundering_call/thundering_call_g_3x3_bottom/min_thundering_call_g_3x3_bottom',
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
-	ef_druid_thundering_call_y: [
+	ef_druid_thundering_call_g_5x5: [
+		{
+			type: 'STR',
+			file: 'druid/kr_thundering_call/thundering_call_g_5x5/thundering_call_g_5x5',
+			texturePath: 'druid/kr_thundering_call/thundering_call_g_5x5/',
+			min: 'druid/kr_thundering_call/thundering_call_g_5x5/min_thundering_call_g_5x5',
+			wav: 'effect/druid/kr_thundering_call_g',
+			yOffset: 10,
+			attachedEntity: true
+		},
+		{
+			type: 'STR',
+			file: 'druid/kr_thundering_call/thundering_call_g_5x5_bottom/thundering_call_g_5x5_bottom',
+			texturePath: 'druid/kr_thundering_call/thundering_call_g_5x5_bottom/',
+			min: 'druid/kr_thundering_call/thundering_call_g_5x5_bottom/min_thundering_call_g_5x5_bottom',
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+	ef_druid_thundering_call_y_3x3: [
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_call/thundering_call_y_3x3/thundering_call_y_3x3',
 			texturePath: 'druid/kr_thundering_call/thundering_call_y_3x3/',
 			min: 'druid/kr_thundering_call/thundering_call_y_3x3/min_thundering_call_y_3x3',
-			wav: 'effect/druid/kr_thundering_call_y'
+			wav: 'effect/druid/kr_thundering_call_y',
+			yOffset: 10,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_thundering_call/thundering_call_y_3x3_bottom/thundering_call_y_3x3_bottom',
 			texturePath: 'druid/kr_thundering_call/thundering_call_y_3x3_bottom/',
 			min: 'druid/kr_thundering_call/thundering_call_y_3x3_bottom/min_thundering_call_y_3x3_bottom',
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+	ef_druid_thundering_call_y_5x5: [
+		{
+			type: 'STR',
+			file: 'druid/kr_thundering_call/thundering_call_y_5x5/thundering_call_y_5x5',
+			texturePath: 'druid/kr_thundering_call/thundering_call_y_5x5/',
+			min: 'druid/kr_thundering_call/thundering_call_y_5x5/min_thundering_call_y_5x5',
+			wav: 'effect/druid/kr_thundering_call_y',
+			yOffset: 10,
+			attachedEntity: true
+		},
+		{
+			type: 'STR',
+			file: 'druid/kr_thundering_call/thundering_call_y_5x5_bottom/thundering_call_y_5x5_bottom',
+			texturePath: 'druid/kr_thundering_call/thundering_call_y_5x5_bottom/',
+			min: 'druid/kr_thundering_call/thundering_call_y_5x5_bottom/min_thundering_call_y_5x5_bottom',
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 	ef_druid_earth_drill: [

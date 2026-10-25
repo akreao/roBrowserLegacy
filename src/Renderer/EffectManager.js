@@ -1014,6 +1014,21 @@ class EffectManager {
 			}
 		}
 
+		// The same pick on the target, following it. Thundering Call's size.
+		const byLevelOnTarget = SkillEffect[skillId].successEffectIdOnTargetByLevel;
+		if (byLevelOnTarget && byLevelOnTarget.length && level > 0 && destAID) {
+			const effectId = byLevelOnTarget[Math.min(level, byLevelOnTarget.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					skillLevel: level
+				});
+			}
+		}
+
 		if (SkillEffect[skillId].successEffectIdOnCaster) {
 			effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster)
 				? SkillEffect[skillId].successEffectIdOnCaster
