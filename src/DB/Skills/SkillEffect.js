@@ -1076,25 +1076,14 @@ SkillEffect[SK.NW_GRENADE_FRAGMENT] = {
 		'ef_nw_grenade_fragment_reset'
 	]
 }; //Grenade Fragment
-<<<<<<< HEAD
-SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night' }; //The Vigilante at Night
-SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit' }; //Only One Bullet
-SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting' }; //Spiral Shooting
-SkillEffect[SK.NW_MAGAZINE_FOR_ONE] = { effectId: 'ef_nw_magazine_for_one' }; //Magazine for One
-SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire' }; //Wild Fire
-SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade', castAuraEffectId: 830 }; //Basic Grenade
-SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping', castAuraEffectId: 830 }; //Grenades Dropping
-SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher', castAuraEffectId: 830 }; //Auto Firing Launcher
-=======
 SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night', castAuraEffectId: 2367 }; //The Vigilante at Night
 SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit', castAuraEffectId: 2367 }; //Only One Bullet
 SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting', castAuraEffectId: 2367 }; //Spiral Shooting
 SkillEffect[SK.NW_MAGAZINE_FOR_ONE] = { effectId: 'ef_nw_magazine_for_one', castAuraEffectId: 2367 }; //Magazine for One
 SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire', castAuraEffectId: 2367 }; //Wild Fire
-SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade' }; //Basic Grenade
-SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; //Grenades Dropping
-SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
->>>>>>> origin/claude/4th-cast-white-rings
+SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade', castAuraEffectId: 830 }; //Basic Grenade
+SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping', castAuraEffectId: 830 }; //Grenades Dropping
+SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher', castAuraEffectId: 830 }; //Auto Firing Launcher
 SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card', castAuraEffectId: 840 }; //Hidden Card
 SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit', castAuraEffectId: 840 }; //Mission Bombard (the bomb and its fire come from its skill unit)
 SkillEffect[SK.NW_HASTY_FIRE_IN_THE_HOLE] = {
@@ -1184,18 +1173,11 @@ SkillEffect[SK.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: 'ef_soa_exorcism_of
 SkillEffect[SK.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: 'ef_soa_talisman_of_blue_dragon', castAuraEffectId: 845 }; //Talisman Of Blue Dragon
 SkillEffect[SK.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: 'ef_soa_talisman_of_white_tiger', castAuraEffectId: 843 }; //Talisman Of White Tiger
 SkillEffect[SK.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: 'ef_soa_talisman_of_red_phoenix', castAuraEffectId: 840 }; //Talisman Of Red Phoenix
-<<<<<<< HEAD
 SkillEffect[SK.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: 'ef_soa_talisman_of_black_tortoise', castAuraEffectId: 2368 }; //Talisman Of Black Tortoise
-SkillEffect[SK.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: 'ef_soa_talisman_of_four_bearing_god' }; //Talisman Of Four Bearing God
-SkillEffect[SK.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: 'ef_soa_circle_of_directions_and_elementals' }; //Circle Of Directions And Elementals
-SkillEffect[SK.SOA_SOUL_OF_HEAVEN_AND_EARTH] = { effectId: 'ef_soa_soul_of_heaven_and_earth' }; //Soul Of Heaven And Earth
-=======
-SkillEffect[SK.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: 'ef_soa_talisman_of_black_tortoise' }; //Talisman Of Black Tortoise
 SkillEffect[SK.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: 'ef_soa_talisman_of_four_bearing_god', castAuraEffectId: 2369 }; //Talisman Of Four Bearing God
 SkillEffect[SK.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: 'ef_soa_circle_of_directions_and_elementals', castAuraEffectId: 1565 }; //Circle Of Directions And Elementals
 SkillEffect[SK.SOA_SOUL_OF_HEAVEN_AND_EARTH] = { effectId: 'ef_soa_soul_of_heaven_and_earth', castAuraEffectId: 1556 }; //Soul Of Heaven And Earth
 SkillEffect[SK.SOA_TOTEM_OF_TUTELARY] = { castAuraEffectId: 911 }; //Totem Of Tutelary
->>>>>>> origin/claude/4th-cast-white-rings
 SkillEffect[SK.OB_ZANGETSU] = {}; //Distorted Crescent
 SkillEffect[SK.OB_OBOROGENSOU] = {}; //Moonlight Fantasy
 SkillEffect[SK.OB_OBOROGENSOU_TRANSITION_ATK] = {}; //Moonlight Fantasy Transition Attack

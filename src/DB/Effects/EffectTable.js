@@ -46,10 +46,10 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
-import CastFunnel from 'Renderer/Effects/CastFunnel.js';
-import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
+import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -16611,6 +16611,35 @@ export default {
 			}
 		}
 	],
+	2373: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration / 16,
+						'ring_black.tga'
+					),
+					Params
+				);
+			}
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373),
+					Params
+				);
+			}
+		}
+	],
 	//912: [{}],	//EF_WALLOFTHORN	   Wall of Thorns unit (green fog cloud)
 	//913: [{}],	//EF_FIREBALL5	   Magic projectiles
 	//914: [{}],	//EF_THROWITEM11	   (Nothing)
@@ -26185,37 +26214,6 @@ export default {
 			attachedEntity: true
 		}
 	],
-<<<<<<< HEAD
-	// Shinkirou cast, with 1774 (official client): four rings of ring_black.tga opening
-	// out round the caster (CastFunnelSim.js), white split images of the caster sliding
-	// out for 30 ticks, and the caster red, drawn adding light, with a glow copy, to
-	// tick 30 (CasterMarks.js). For the cast time.
-	2373: [
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			func: function (Params) {
-				this.add(
-					new CastFunnel(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration / 16,
-						'ring_black.tga'
-=======
-<<<<<<< HEAD
-	2368: [
-		{
-			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
-						variant: 11
-					}),
-=======
 	2367: [
 		{
 			// Night Watch, Soul Ascetic and Spirit Handler cast aura: the client's cast-aura ring in
@@ -26232,21 +26230,26 @@ export default {
 						Params.Init.duration,
 						'ring_yellow.tga',
 						[0, 0]
->>>>>>> origin/claude/4th-cast-cones
 					),
 					Params
 				);
 			}
-<<<<<<< HEAD
-		},
+		}
+	],
+	2368: [
 		{
+			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
 			type: 'FUNC',
 			attachedEntity: true,
-			castLoop: true,
+			wav: 'effect/ef_beginspell',
 			func: function (Params) {
 				this.add(
-					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373),
-=======
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 11
+					}),
+					Params
+				);
+			}
 		}
 	],
 	1556: [
@@ -26310,8 +26313,6 @@ export default {
 						'new_battle_w/abr_battle_warior.tga',
 						[0, 0]
 					),
->>>>>>> origin/claude/4th-cast-white-rings
->>>>>>> origin/claude/4th-cast-cones
 					Params
 				);
 			}
