@@ -37,6 +37,7 @@ import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
+import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -20781,18 +20782,8 @@ export default {
 		}
 	],
 
-	// Storm Slash (DK_STORMSLASH), from the client's own effect folders.
-	ef_dk_stormslash_hit: [
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_stormslash/stormslash/stormslash_%d',
-			min: 'dragon_knight/dk_stormslash/stormslash/min_stormslash_%d',
-			rand: [1, 5],
-			texturePath: 'dragon_knight/dk_stormslash/stormslash/',
-			fallback: ['stormslash/stormslash/stormslash_%d'],
-			wav: 'effect/dk_stormslash1'
-		}
-	],
+	// Storm Slash (DK_STORMSLASH): one stage per skill level, ef_dk_stormslash_1 to _5.
+	...stormSlashEffects(),
 
 	// Dragonic Breath (DK_DRAGONIC_BREATH), from the client's own effect folders.
 	ef_dk_dragonic_breath: [
