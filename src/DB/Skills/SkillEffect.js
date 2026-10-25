@@ -42,6 +42,10 @@
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
+ *	- successEffectIdOnCasterByScreenDirection:
+ *								12 effects; plays one on the caster when the skill succeeds, picked by where
+ *								the target is on screen: 30 degree steps clockwise, the first centred straight up.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
@@ -1685,7 +1689,25 @@ SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever
 SkillEffect[SK.WE_CHEERUP] = {}; //Cheer Up
-SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] = { effectId: 'ef_sh_chul_ho_sonic_claw' }; //Chulho Sonic Claw
+//Chulho Sonic Claw: the claw and one wave, both on the caster when the use packet succeeds.
+//The wave is picked by where the target is on screen, in 30 degree steps clockwise from straight up.
+SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] = {
+	successEffectIdOnCaster: 'ef_sh_chul_ho_sonic_claw',
+	successEffectIdOnCasterByScreenDirection: [
+		'ef_sh_chul_ho_sonic_claw_wave_12',
+		'ef_sh_chul_ho_sonic_claw_wave_1',
+		'ef_sh_chul_ho_sonic_claw_wave_1',
+		'ef_sh_chul_ho_sonic_claw_wave_3',
+		'ef_sh_chul_ho_sonic_claw_wave_5',
+		'ef_sh_chul_ho_sonic_claw_wave_5',
+		'ef_sh_chul_ho_sonic_claw_wave_6',
+		'ef_sh_chul_ho_sonic_claw_wave_7',
+		'ef_sh_chul_ho_sonic_claw_wave_7',
+		'ef_sh_chul_ho_sonic_claw_wave_9',
+		'ef_sh_chul_ho_sonic_claw_wave_11',
+		'ef_sh_chul_ho_sonic_claw_wave_11'
+	]
+};
 SkillEffect[SK.SH_HOWLING_OF_CHUL_HO] = { effectId: 'ef_sh_howling_of_chul_ho' }; //Howling of Chulho
 SkillEffect[SK.SH_HOGOGONG_STRIKE] = { effectId: 'ef_sh_hogogong_strike' }; //Hogogong Strike
 SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spraying' }; //Kisul Water Spraying
