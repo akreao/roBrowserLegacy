@@ -224589,7 +224589,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.IQ_SINCERE_FAITH] = { effectId: "ef_iq_sincere_faith" };
 	SkillEffect[SkillConst_default.IQ_MASSIVE_F_BLASTER] = {
-		effectId: "ef_iq_massive_f_blaster",
+		successEffectIdOnCaster: "ef_iq_massive_f_blaster",
 		hitEffectId: "ef_iq_massive_f_blaster_hit"
 	};
 	SkillEffect[SkillConst_default.IQ_EXPOSION_BLASTER] = {
@@ -303463,6 +303463,7 @@ var init_EffectTable = __esmMin((() => {
 			file: "mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom",
 			texturePath: "mystery_illusion/mystery_illusion_cast_bottom/",
 			min: "mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom",
+			wav: "effect/ef_beginspell",
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -308956,6 +308957,7 @@ var init_EffectTable = __esmMin((() => {
 			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
 			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
 			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
+			wav: "effect/ef_beginspell",
 			castLoop: true,
 			attachedEntity: true
 		}],
