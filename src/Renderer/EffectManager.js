@@ -28,6 +28,7 @@ import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import { screenAngle, screenSector, screenSide } from 'Renderer/Effects/ScreenDirection.js';
+import shuffledGrid from 'Renderer/Effects/ShuffledGrid.js';
 import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
@@ -1030,6 +1031,34 @@ class EffectManager {
 					});
 				}
 			}
+		}
+
+		// Copies spread over a grid around the target, one per row and column,
+		// placed once on the ground and started a step apart. The grid size
+		// comes from the skill level (a level past the end uses the last size).
+		// An entry that is a list plays one of its files at random per spot.
+		// Hell's Drive's blasts.
+		const gridIds = SkillEffect[skillId].successEffectGridIds;
+		const gridSizes = SkillEffect[skillId].successEffectGridSizeByLevel;
+		const center = gridIds && level > 0 ? EntityManager.get(destAID) || EntityManager.get(srcAID) : null;
+		if (center && gridSizes && gridSizes.length) {
+			const size = gridSizes[Math.min(level, gridSizes.length) - 1];
+			const step = SkillEffect[skillId].successEffectGridStep || 0;
+			const start = tick || Renderer.tick;
+			const [x, y, z] = center.position;
+			shuffledGrid(size).forEach(([dx, dy], k) => {
+				gridIds.forEach(entry => {
+					const effectId = Array.isArray(entry) ? entry[Math.floor(Math.random() * entry.length)] : entry;
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: destAID,
+						position: [x + dx, y + dy, z],
+						startTick: start + step * k,
+						otherAID: srcAID,
+						skillLevel: level
+					});
+				});
+			});
 		}
 	}
 
