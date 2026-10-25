@@ -710,9 +710,14 @@ class EffectManager {
 			: 0;
 
 		//Start and End
+		// delayStart may be worked out per cast (from the caster's motion, say)
+		const delayStart =
+			typeof Params.effect.delayStart === 'function'
+				? Params.effect.delayStart(Params)
+				: Params.effect.delayStart;
 		Params.Inst.startTick =
 			Params.Inst.startTick +
-			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
+			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : delayStart || 0);
 		Params.Inst.endTick =
 			Params.Inst.duration > 0
 				? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration

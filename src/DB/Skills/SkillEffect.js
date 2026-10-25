@@ -1278,7 +1278,16 @@ SkillEffect[SK.DK_HACKANDSLASHER_ATK] = { effectId: 'ef_dk_hackandslasher_atk' }
 SkillEffect[SK.DK_DRAGONIC_AURA] = { effectIdOnCaster: 'ef_dk_dragonic_aura' }; //Dragonic Aura
 SkillEffect[SK.DK_MADNESS_CRUSHER] = { effectId: 'ef_dk_madness_crusher' }; //Madness Crusher
 SkillEffect[SK.DK_VIGOR] = { effectId: 'ef_dk_vigor', effectIdOnCaster: 'ef_dk_vigor_cast' }; //Vigor
-SkillEffect[SK.DK_STORMSLASH] = { hitEffectId: 'ef_dk_stormslash_hit' }; //Storm Slash
+// Storm Slash: the official client plays the stage that matches the skill level
+SkillEffect[SK.DK_STORMSLASH] = {
+	successEffectIdOnCasterByLevel: [
+		'ef_dk_stormslash_1',
+		'ef_dk_stormslash_2',
+		'ef_dk_stormslash_3',
+		'ef_dk_stormslash_4',
+		'ef_dk_stormslash_5'
+	]
+}; //Storm Slash
 SkillEffect[SK.DK_DRAGONIC_BREATH] = { effectId: 'ef_dk_dragonic_breath', hitEffectId: 'ef_dk_dragonic_breath_hit' }; //Dragonic Breath
 SkillEffect[6502 /* DK_DRAGONIC_PIERCE */] = {
 	effectId: 'ef_dk_dragonic_pierce',
