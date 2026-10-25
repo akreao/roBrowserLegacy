@@ -25034,7 +25034,8 @@ export default {
 			file: 'druid/dr_werewolf/werewolf/werewolf',
 			texturePath: 'druid/dr_werewolf/werewolf/',
 			min: 'druid/dr_werewolf/werewolf/min_werewolf',
-			wav: 'effect/druid/dr_werewolf'
+			wav: 'effect/druid/dr_werewolf',
+			yOffset: 10
 		}
 	],
 	ef_druid_wereraptor: [
@@ -25043,7 +25044,8 @@ export default {
 			file: 'druid/dr_wereraptor/wereraptor/wereraptor',
 			texturePath: 'druid/dr_wereraptor/wereraptor/',
 			min: 'druid/dr_wereraptor/wereraptor/min_wereraptor',
-			wav: 'effect/druid/dr_wereraptor'
+			wav: 'effect/druid/dr_wereraptor',
+			yOffset: 10
 		}
 	],
 	ef_druid_enrage_wolf: [
@@ -25052,7 +25054,8 @@ export default {
 			file: 'druid/dr_enrage_wolf/enrage_wolf/enrage_wolf',
 			texturePath: 'druid/dr_enrage_wolf/enrage_wolf/',
 			min: 'druid/dr_enrage_wolf/enrage_wolf/min_enrage_wolf',
-			wav: 'effect/druid/dr_enrage_wolf'
+			wav: 'effect/druid/dr_enrage_wolf',
+			yOffset: 10
 		}
 	],
 	ef_druid_enrage_raptor: [
@@ -25061,7 +25064,8 @@ export default {
 			file: 'druid/dr_enrage_raptor/enrage_raptor/enrage_raptor',
 			texturePath: 'druid/dr_enrage_raptor/enrage_raptor/',
 			min: 'druid/dr_enrage_raptor/enrage_raptor/min_enrage_raptor',
-			wav: 'effect/druid/dr_enrage_raptor'
+			wav: 'effect/druid/dr_enrage_raptor',
+			yOffset: 13
 		}
 	],
 	ef_druid_blood_howling: [
@@ -25070,7 +25074,8 @@ export default {
 			file: 'druid/dr_blood_howling/blood_howling/blood_howling',
 			texturePath: 'druid/dr_blood_howling/blood_howling/',
 			min: 'druid/dr_blood_howling/blood_howling/min_blood_howling',
-			wav: 'effect/druid/dr_blood_howling'
+			wav: 'effect/druid/dr_blood_howling',
+			yOffset: 12
 		}
 	],
 	ef_druid_preening: [
@@ -25079,7 +25084,8 @@ export default {
 			file: 'druid/dr_preening/preening/preening',
 			texturePath: 'druid/dr_preening/preening/',
 			min: 'druid/dr_preening/preening/min_preening',
-			wav: 'effect/druid/dr_preening'
+			wav: 'effect/druid/dr_preening',
+			yOffset: 15
 		}
 	],
 	ef_druid_truth_of_ice: [
@@ -25088,14 +25094,16 @@ export default {
 			file: 'druid/dr_truth_of_ice/truth_of_ice/truth_of_ice',
 			texturePath: 'druid/dr_truth_of_ice/truth_of_ice/',
 			min: 'druid/dr_truth_of_ice/truth_of_ice/min_truth_of_ice',
-			wav: 'effect/druid/dr_truth_of_ice'
+			wav: 'effect/druid/dr_truth_of_ice',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_truth_of_ice/truth_of_ice_bottom/truth_of_ice_bottom',
 			texturePath: 'druid/dr_truth_of_ice/truth_of_ice_bottom/',
 			min: 'druid/dr_truth_of_ice/truth_of_ice_bottom/min_truth_of_ice_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 12
 		}
 	],
 	ef_druid_truth_of_wind: [
@@ -25104,14 +25112,16 @@ export default {
 			file: 'druid/dr_truth_of_wind/truth_of_wind/truth_of_wind',
 			texturePath: 'druid/dr_truth_of_wind/truth_of_wind/',
 			min: 'druid/dr_truth_of_wind/truth_of_wind/min_truth_of_wind',
-			wav: 'effect/druid/dr_truth_of_wind'
+			wav: 'effect/druid/dr_truth_of_wind',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_truth_of_wind/truth_of_wind_bottom/truth_of_wind_bottom',
 			texturePath: 'druid/dr_truth_of_wind/truth_of_wind_bottom/',
 			min: 'druid/dr_truth_of_wind/truth_of_wind_bottom/min_truth_of_wind_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 12
 		}
 	],
 	ef_druid_truth_of_earth: [
@@ -25120,14 +25130,16 @@ export default {
 			file: 'druid/dr_truth_of_earth/truth_of_earth/truth_of_earth',
 			texturePath: 'druid/dr_truth_of_earth/truth_of_earth/',
 			min: 'druid/dr_truth_of_earth/truth_of_earth/min_truth_of_earth',
-			wav: 'effect/druid/dr_truth_of_earth'
+			wav: 'effect/druid/dr_truth_of_earth',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_truth_of_earth/truth_of_earth_bottom/truth_of_earth_bottom',
 			texturePath: 'druid/dr_truth_of_earth/truth_of_earth_bottom/',
 			min: 'druid/dr_truth_of_earth/truth_of_earth_bottom/min_truth_of_earth_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 12
 		}
 	],
 	ef_druid_nature_shield: [
@@ -25136,14 +25148,16 @@ export default {
 			file: 'druid/dr_nature_shield/nature_shield/nature_shield',
 			texturePath: 'druid/dr_nature_shield/nature_shield/',
 			min: 'druid/dr_nature_shield/nature_shield/min_nature_shield',
-			wav: 'effect/druid/dr_nature_shield'
+			wav: 'effect/druid/dr_nature_shield',
+			yOffset: 10
 		}
 	],
 	ef_druid_nature_protection: [
 		{
 			type: 'STR',
 			file: 'druid/dr_nature_protection/nature_protection/nature_protection',
-			texturePath: 'druid/dr_nature_protection/nature_protection/'
+			texturePath: 'druid/dr_nature_protection/nature_protection/',
+			yOffset: 12
 		}
 	],
 	ef_druid_hit_wolf: [
@@ -25151,7 +25165,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_hit/dr_hit_werewolf/dr_hit_werewolf',
 			texturePath: 'druid/dr_hit/dr_hit_werewolf/',
-			min: 'druid/dr_hit/dr_hit_werewolf/min_dr_hit_werewolf'
+			min: 'druid/dr_hit/dr_hit_werewolf/min_dr_hit_werewolf',
+			yOffset: 5
 		}
 	],
 	ef_druid_hit_raptor: [
@@ -25159,7 +25174,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_hit/dr_hit_wereraptor/dr_hit_wereraptor',
 			texturePath: 'druid/dr_hit/dr_hit_wereraptor/',
-			min: 'druid/dr_hit/dr_hit_wereraptor/min_dr_hit_wereraptor'
+			min: 'druid/dr_hit/dr_hit_wereraptor/min_dr_hit_wereraptor',
+			yOffset: 5
 		}
 	],
 	ef_druid_ice_hit: [
@@ -25167,7 +25183,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_ice_hit/ice_hit/ice_hit',
 			texturePath: 'druid/dr_ice_hit/ice_hit/',
-			min: 'druid/dr_ice_hit/ice_hit/min_ice_hit'
+			min: 'druid/dr_ice_hit/ice_hit/min_ice_hit',
+			yOffset: 5
 		}
 	],
 	ef_druid_ice_cast: [
@@ -25176,14 +25193,16 @@ export default {
 			file: 'druid/ice_cast/ice_cast/ice_cast',
 			texturePath: 'druid/ice_cast/ice_cast/',
 			min: 'druid/ice_cast/ice_cast/min_ice_cast',
-			wav: 'effect/druid/ice_cast'
+			wav: 'effect/druid/ice_cast',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/ice_cast/ice_cast_bottom/ice_cast_bottom',
 			texturePath: 'druid/ice_cast/ice_cast_bottom/',
 			min: 'druid/ice_cast/ice_cast_bottom/min_ice_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_thunder_cast: [
@@ -25192,7 +25211,9 @@ export default {
 			file: 'druid/thundering_cast/thundering_cast/thundering_cast',
 			texturePath: 'druid/thundering_cast/thundering_cast/',
 			min: 'druid/thundering_cast/thundering_cast/min_thundering_cast',
-			wav: 'effect/druid/thundering_cast'
+			wav: 'effect/druid/thundering_cast',
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_thunder_hit_g: [
@@ -25200,7 +25221,8 @@ export default {
 			type: 'STR',
 			file: 'druid/thundering_attack/thundering_attack_g/thundering_attack_g',
 			texturePath: 'druid/thundering_attack/thundering_attack_g/',
-			min: 'druid/thundering_attack/thundering_attack_g/min_thundering_attack_g'
+			min: 'druid/thundering_attack/thundering_attack_g/min_thundering_attack_g',
+			yOffset: 3
 		}
 	],
 	ef_druid_thunder_hit_y: [
@@ -25208,7 +25230,8 @@ export default {
 			type: 'STR',
 			file: 'druid/thundering_attack/thundering_attack_y/thundering_attack_y',
 			texturePath: 'druid/thundering_attack/thundering_attack_y/',
-			min: 'druid/thundering_attack/thundering_attack_y/min_thundering_attack_y'
+			min: 'druid/thundering_attack/thundering_attack_y/min_thundering_attack_y',
+			yOffset: 3
 		}
 	],
 	ef_druid_nomercy_claw: [
@@ -25217,7 +25240,8 @@ export default {
 			file: 'druid/dr_nomercy_claw/nomercy_claw/nomercy_claw',
 			texturePath: 'druid/dr_nomercy_claw/nomercy_claw/',
 			min: 'druid/dr_nomercy_claw/nomercy_claw/min_nomercy_claw',
-			wav: 'effect/druid/dr_nomercy_claw'
+			wav: 'effect/druid/dr_nomercy_claw',
+			yOffset: 10
 		}
 	],
 	ef_druid_cruel_bite: [
@@ -25226,7 +25250,8 @@ export default {
 			file: 'druid/dr_cruel_bite/cruel_bite/cruel_bite',
 			texturePath: 'druid/dr_cruel_bite/cruel_bite/',
 			min: 'druid/dr_cruel_bite/cruel_bite/min_cruel_bite',
-			wav: 'effect/druid/dr_cruel_bite'
+			wav: 'effect/druid/dr_cruel_bite',
+			yOffset: 10
 		}
 	],
 	ef_druid_hunger: [
@@ -25235,7 +25260,8 @@ export default {
 			file: 'druid/dr_hunger/hunger/hunger',
 			texturePath: 'druid/dr_hunger/hunger/',
 			min: 'druid/dr_hunger/hunger/min_hunger',
-			wav: 'effect/druid/dr_hunger'
+			wav: 'effect/druid/dr_hunger',
+			yOffset: 13.2
 		}
 	],
 	ef_druid_hunger_target: [
@@ -25243,7 +25269,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_hunger/hunger_target/hunger_target',
 			texturePath: 'druid/dr_hunger/hunger_target/',
-			min: 'druid/dr_hunger/hunger_target/min_hunger_target'
+			min: 'druid/dr_hunger/hunger_target/min_hunger_target',
+			yOffset: 7
 		}
 	],
 	ef_druid_shooting_feather: [
@@ -25255,7 +25282,8 @@ export default {
 			wav: 'effect/druid/dr_shooting_feather',
 			// The feathers fly to the right of the caster in the file
 			rotateToTarget: true,
-			facing: 0
+			facing: 0,
+			yOffset: 10
 		}
 	],
 	ef_druid_shooting_feather_hit: [
@@ -25266,7 +25294,8 @@ export default {
 			min: 'druid/dr_shooting_feather/shooting_feather_attack/min_shooting_feather_attack',
 			// The feathers land from the left, the caster's side, in the file
 			rotateToTarget: true,
-			facing: 180
+			facing: 180,
+			yOffset: 0
 		}
 	],
 	ef_druid_flicking_tonado: [
@@ -25275,14 +25304,16 @@ export default {
 			file: 'druid/dr_flicking_tonado/flicking_tonado/flicking_tonado',
 			texturePath: 'druid/dr_flicking_tonado/flicking_tonado/',
 			min: 'druid/dr_flicking_tonado/flicking_tonado/min_flicking_tonado',
-			wav: 'effect/druid/dr_flicking_tonado'
+			wav: 'effect/druid/dr_flicking_tonado',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_flicking_tonado/flicking_tonado_bottom/flicking_tonado_bottom',
 			texturePath: 'druid/dr_flicking_tonado/flicking_tonado_bottom/',
 			min: 'druid/dr_flicking_tonado/flicking_tonado_bottom/min_flicking_tonado_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_low_flight: [
@@ -25294,14 +25325,16 @@ export default {
 			wav: 'effect/druid/dr_low_flight',
 			// The raptor sweeps in from the right, the caster's side, in the file
 			rotateToTarget: true,
-			facing: 0
+			facing: 0,
+			yOffset: 8
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_low_flight/low_flight_bottom/low_flight_bottom',
 			texturePath: 'druid/dr_low_flight/low_flight_bottom/',
 			min: 'druid/dr_low_flight/low_flight_bottom/min_low_flight_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_low_flight_up: [
@@ -25309,7 +25342,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_low_flight/low_flight_vertical/low_flight_vertical',
 			texturePath: 'druid/dr_low_flight/low_flight_vertical/',
-			min: 'druid/dr_low_flight/low_flight_vertical/min_low_flight_vertical'
+			min: 'druid/dr_low_flight/low_flight_vertical/min_low_flight_vertical',
+			yOffset: 0
 		}
 	],
 	ef_druid_ice_totem: [
@@ -25318,7 +25352,8 @@ export default {
 			file: 'druid/dr_ice_totem/ice_totem/ice_totem',
 			texturePath: 'druid/dr_ice_totem/ice_totem/',
 			min: 'druid/dr_ice_totem/ice_totem/min_ice_totem',
-			wav: 'effect/druid/dr_ice_totem'
+			wav: 'effect/druid/dr_ice_totem',
+			yOffset: 10
 		}
 	],
 	ef_druid_ice_cloud: [
@@ -25327,7 +25362,8 @@ export default {
 			file: 'druid/dr_ice_cloud/ice_cloud/ice_cloud',
 			texturePath: 'druid/dr_ice_cloud/ice_cloud/',
 			min: 'druid/dr_ice_cloud/ice_cloud/min_ice_cloud',
-			wav: 'effect/druid/dr_ice_cloud'
+			wav: 'effect/druid/dr_ice_cloud',
+			yOffset: 10
 		}
 	],
 	ef_druid_cutting_wind: [
@@ -25339,7 +25375,8 @@ export default {
 			wav: 'effect/druid/dr_cutting_wind',
 			// The wind blade flies to the left of the caster in the file
 			rotateToTarget: true,
-			facing: 180
+			facing: 180,
+			yOffset: 5
 		}
 	],
 	ef_druid_cutting_wind_hit: [
@@ -25347,7 +25384,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_cutting_wind/cutting_wind_hit/cutting_wind_hit',
 			texturePath: 'druid/dr_cutting_wind/cutting_wind_hit/',
-			min: 'druid/dr_cutting_wind/cutting_wind_hit/min_cutting_wind_hit'
+			min: 'druid/dr_cutting_wind/cutting_wind_hit/min_cutting_wind_hit',
+			yOffset: 5
 		}
 	],
 	ef_druid_wind_bomb: [
@@ -25356,13 +25394,15 @@ export default {
 			file: 'druid/dr_wind_bomb/wind_bomb_main/wind_bomb_main',
 			texturePath: 'druid/dr_wind_bomb/wind_bomb_main/',
 			min: 'druid/dr_wind_bomb/wind_bomb_main/min_wind_bomb_main',
-			wav: 'effect/druid/dr_wind_bomb'
+			wav: 'effect/druid/dr_wind_bomb',
+			yOffset: 5
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_wind_bomb/wind_bomb_tornado/wind_bomb_tornado',
 			texturePath: 'druid/dr_wind_bomb/wind_bomb_tornado/',
-			min: 'druid/dr_wind_bomb/wind_bomb_tornado/min_wind_bomb_tornado'
+			min: 'druid/dr_wind_bomb/wind_bomb_tornado/min_wind_bomb_tornado',
+			yOffset: 0
 		}
 	],
 	ef_druid_wind_bomb_hit: [
@@ -25370,7 +25410,8 @@ export default {
 			type: 'STR',
 			file: 'druid/dr_wind_bomb/wind_bomb_hit/wind_bomb_hit',
 			texturePath: 'druid/dr_wind_bomb/wind_bomb_hit/',
-			min: 'druid/dr_wind_bomb/wind_bomb_hit/min_wind_bomb_hit'
+			min: 'druid/dr_wind_bomb/wind_bomb_hit/min_wind_bomb_hit',
+			yOffset: 5
 		}
 	],
 	ef_druid_earth_flower: [
@@ -25379,14 +25420,16 @@ export default {
 			file: 'druid/dr_earth_flower/earth_flower/earth_flower',
 			texturePath: 'druid/dr_earth_flower/earth_flower/',
 			min: 'druid/dr_earth_flower/earth_flower/min_earth_flower',
-			wav: 'effect/druid/dr_earth_flower'
+			wav: 'effect/druid/dr_earth_flower',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_earth_flower/earth_flower_bottom/earth_flower_bottom',
 			texturePath: 'druid/dr_earth_flower/earth_flower_bottom/',
 			min: 'druid/dr_earth_flower/earth_flower_bottom/min_earth_flower_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_around_flower: [
@@ -25395,14 +25438,16 @@ export default {
 			file: 'druid/dr_around_flower/around_flower/around_flower',
 			texturePath: 'druid/dr_around_flower/around_flower/',
 			min: 'druid/dr_around_flower/around_flower/min_around_flower',
-			wav: 'effect/druid/dr_around_flower'
+			wav: 'effect/druid/dr_around_flower',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/dr_around_flower/around_flower_bottom/around_flower_bottom',
 			texturePath: 'druid/dr_around_flower/around_flower_bottom/',
 			min: 'druid/dr_around_flower/around_flower_bottom/min_around_flower_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_nasty_slash: [
@@ -25411,7 +25456,8 @@ export default {
 			file: 'druid/kr_nasty_slash/nasty_slash/nasty_slash',
 			texturePath: 'druid/kr_nasty_slash/nasty_slash/',
 			min: 'druid/kr_nasty_slash/nasty_slash/min_nasty_slash',
-			wav: 'effect/druid/kr_nasty_slash'
+			wav: 'effect/druid/kr_nasty_slash',
+			yOffset: 3
 		}
 	],
 	ef_druid_double_slash: [
@@ -25420,7 +25466,8 @@ export default {
 			file: 'druid/kr_double_slash/double_slash/double_slash',
 			texturePath: 'druid/kr_double_slash/double_slash/',
 			min: 'druid/kr_double_slash/double_slash/min_double_slash',
-			wav: 'effect/druid/kr_double_slash'
+			wav: 'effect/druid/kr_double_slash',
+			yOffset: 10
 		}
 	],
 	ef_druid_claw_wave: [
@@ -25429,7 +25476,8 @@ export default {
 			file: 'druid/kr_claw_wave/claw_wave/claw_wave',
 			texturePath: 'druid/kr_claw_wave/claw_wave/',
 			min: 'druid/kr_claw_wave/claw_wave/min_claw_wave',
-			wav: 'effect/druid/kr_claw_wave'
+			wav: 'effect/druid/kr_claw_wave',
+			yOffset: 10
 		}
 	],
 	ef_druid_chop_chop: [
@@ -25438,7 +25486,8 @@ export default {
 			file: 'druid/kr_chop_chop/chop_chop/chop_chop',
 			texturePath: 'druid/kr_chop_chop/chop_chop/',
 			min: 'druid/kr_chop_chop/chop_chop/min_chop_chop',
-			wav: 'effect/druid/kr_chop_chop'
+			wav: 'effect/druid/kr_chop_chop',
+			yOffset: 7
 		}
 	],
 	ef_druid_chop_chop_hit: [
@@ -25446,7 +25495,8 @@ export default {
 			type: 'STR',
 			file: 'druid/kr_chop_chop/chop_chop_sub/chop_chop_sub',
 			texturePath: 'druid/kr_chop_chop/chop_chop_sub/',
-			min: 'druid/kr_chop_chop/chop_chop_sub/min_chop_chop_sub'
+			min: 'druid/kr_chop_chop/chop_chop_sub/min_chop_chop_sub',
+			yOffset: 7
 		}
 	],
 	ef_druid_iron_howling: [
@@ -25455,7 +25505,8 @@ export default {
 			file: 'druid/kr_iron_howling/iron_howling/iron_howling',
 			texturePath: 'druid/kr_iron_howling/iron_howling/',
 			min: 'druid/kr_iron_howling/iron_howling/min_iron_howling',
-			wav: 'effect/druid/kr_iron_howling'
+			wav: 'effect/druid/kr_iron_howling',
+			yOffset: 12
 		}
 	],
 	ef_druid_sharpen_gust: [
@@ -25467,14 +25518,16 @@ export default {
 			wav: 'effect/druid/kr_sharpen_gust',
 			// The gust flies to the right of the caster in the file
 			rotateToTarget: true,
-			facing: 0
+			facing: 0,
+			yOffset: 5
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_sharpen_gust/sharpen_gust_bottom/sharpen_gust_bottom',
 			texturePath: 'druid/kr_sharpen_gust/sharpen_gust_bottom/',
 			min: 'druid/kr_sharpen_gust/sharpen_gust_bottom/min_sharpen_gust_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 2
 		}
 	],
 	ef_druid_sharpen_hail: [
@@ -25483,14 +25536,16 @@ export default {
 			file: 'druid/kr_sharpen_hail/sharpen_hail/sharpen_hail',
 			texturePath: 'druid/kr_sharpen_hail/sharpen_hail/',
 			min: 'druid/kr_sharpen_hail/sharpen_hail/min_sharpen_hail',
-			wav: 'effect/druid/kr_sharpen_hail'
+			wav: 'effect/druid/kr_sharpen_hail',
+			yOffset: 15
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_sharpen_hail/sharpen_hail_bottom/sharpen_hail_bottom',
 			texturePath: 'druid/kr_sharpen_hail/sharpen_hail_bottom/',
 			min: 'druid/kr_sharpen_hail/sharpen_hail_bottom/min_sharpen_hail_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 15
 		}
 	],
 	ef_druid_sharpen_hail_shot: [
@@ -25498,14 +25553,16 @@ export default {
 			type: 'STR',
 			file: 'druid/kr_sharpen_hail/sharpen_hail_shot/sharpen_hail_shot',
 			texturePath: 'druid/kr_sharpen_hail/sharpen_hail_shot/',
-			min: 'druid/kr_sharpen_hail/sharpen_hail_shot/min_sharpen_hail_shot'
+			min: 'druid/kr_sharpen_hail/sharpen_hail_shot/min_sharpen_hail_shot',
+			yOffset: 15
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_sharpen_hail/sharpen_hail_shot_bottom/sharpen_hail_shot_bottom',
 			texturePath: 'druid/kr_sharpen_hail/sharpen_hail_shot_bottom/',
 			min: 'druid/kr_sharpen_hail/sharpen_hail_shot_bottom/min_sharpen_hail_shot_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 15
 		}
 	],
 	// Typhoon Wing: the official client plays one size at the cell, by level (SkillEffect groundEffectIdByLevel)
@@ -25551,14 +25608,15 @@ export default {
 			file: 'druid/kr_feather_sprinkle/feather_sprinkle/feather_sprinkle',
 			texturePath: 'druid/kr_feather_sprinkle/feather_sprinkle/',
 			min: 'druid/kr_feather_sprinkle/feather_sprinkle/min_feather_sprinkle',
-			wav: 'effect/druid/kr_feather_sprinkle'
+			wav: 'effect/druid/kr_feather_sprinkle',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_feather_sprinkle/feather_sprinkle_bottom/feather_sprinkle_bottom',
 			texturePath: 'druid/kr_feather_sprinkle/feather_sprinkle_bottom/',
 			min: 'druid/kr_feather_sprinkle/feather_sprinkle_bottom/min_feather_sprinkle_bottom',
-			renderBeforeEntities: true
+			yOffset: 10
 		}
 	],
 	ef_druid_wind_veil: [
@@ -25567,14 +25625,16 @@ export default {
 			file: 'druid/kr_wind_veil/wild_veil/wild_veil',
 			texturePath: 'druid/kr_wind_veil/wild_veil/',
 			min: 'druid/kr_wind_veil/wild_veil/min_wild_veil',
-			wav: 'effect/druid/kr_wind_veil'
+			wav: 'effect/druid/kr_wind_veil',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_wind_veil/wild_veil_bottom/wild_veil_bottom',
 			texturePath: 'druid/kr_wind_veil/wild_veil_bottom/',
 			min: 'druid/kr_wind_veil/wild_veil_bottom/min_wild_veil_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_ice_pillar_start: [
@@ -25583,14 +25643,16 @@ export default {
 			file: 'druid/kr_ice_pillar/ice_pillar_start/ice_pillar_start',
 			texturePath: 'druid/kr_ice_pillar/ice_pillar_start/',
 			min: 'druid/kr_ice_pillar/ice_pillar_start/min_ice_pillar_start',
-			wav: 'effect/druid/kr_ice_pillar_start'
+			wav: 'effect/druid/kr_ice_pillar_start',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_ice_pillar/ice_pillar_start_bottom/ice_pillar_start_bottom',
 			texturePath: 'druid/kr_ice_pillar/ice_pillar_start_bottom/',
 			min: 'druid/kr_ice_pillar/ice_pillar_start_bottom/min_ice_pillar_start_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_ice_pillar_loop: [
@@ -25598,14 +25660,16 @@ export default {
 			type: 'STR',
 			file: 'druid/kr_ice_pillar/ice_pillar_loop/ice_pillar_loop',
 			texturePath: 'druid/kr_ice_pillar/ice_pillar_loop/',
-			min: 'druid/kr_ice_pillar/ice_pillar_loop/min_ice_pillar_loop'
+			min: 'druid/kr_ice_pillar/ice_pillar_loop/min_ice_pillar_loop',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_ice_pillar/ice_pillar_loop_bottom/ice_pillar_loop_bottom',
 			texturePath: 'druid/kr_ice_pillar/ice_pillar_loop_bottom/',
 			min: 'druid/kr_ice_pillar/ice_pillar_loop_bottom/min_ice_pillar_loop_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_ice_splash: [
@@ -25614,7 +25678,8 @@ export default {
 			file: 'druid/kr_ice_splash/ice_splash/ice_splash',
 			texturePath: 'druid/kr_ice_splash/ice_splash/',
 			min: 'druid/kr_ice_splash/ice_splash/min_ice_splash',
-			wav: 'effect/druid/kr_ice_splash'
+			wav: 'effect/druid/kr_ice_splash',
+			yOffset: 12
 		}
 	],
 	ef_druid_thundering_focus_g: [
@@ -25793,14 +25858,16 @@ export default {
 			file: 'druid/kr_earth_drill/earth_drill/earth_drill',
 			texturePath: 'druid/kr_earth_drill/earth_drill/',
 			min: 'druid/kr_earth_drill/earth_drill/min_earth_drill',
-			wav: 'effect/druid/kr_earth_drill'
+			wav: 'effect/druid/kr_earth_drill',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_earth_drill/earth_drill_bottom/earth_drill_bottom',
 			texturePath: 'druid/kr_earth_drill/earth_drill_bottom/',
 			min: 'druid/kr_earth_drill/earth_drill_bottom/min_earth_drill_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_earth_stamp: [
@@ -25809,14 +25876,16 @@ export default {
 			file: 'druid/kr_earth_stamp/earth_stamp/earth_stamp',
 			texturePath: 'druid/kr_earth_stamp/earth_stamp/',
 			min: 'druid/kr_earth_stamp/earth_stamp/min_earth_stamp',
-			wav: 'effect/druid/kr_earth_stamp'
+			wav: 'effect/druid/kr_earth_stamp',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_earth_stamp/earth_stamp_bottom/earth_stamp_bottom',
 			texturePath: 'druid/kr_earth_stamp/earth_stamp_bottom/',
 			min: 'druid/kr_earth_stamp/earth_stamp_bottom/min_earth_stamp_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_ground_bloom: [
@@ -25825,14 +25894,16 @@ export default {
 			file: 'druid/kr_ground_bloom/ground_bloom/ground_bloom',
 			texturePath: 'druid/kr_ground_bloom/ground_bloom/',
 			min: 'druid/kr_ground_bloom/ground_bloom/min_ground_bloom',
-			wav: 'effect/druid/kr_ground_bloom'
+			wav: 'effect/druid/kr_ground_bloom',
+			yOffset: 11.5
 		},
 		{
 			type: 'STR',
 			file: 'druid/kr_ground_bloom/ground_bloom_bottom/ground_bloom_bottom',
 			texturePath: 'druid/kr_ground_bloom/ground_bloom_bottom/',
 			min: 'druid/kr_ground_bloom/ground_bloom_bottom/min_ground_bloom_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 11.5
 		}
 	],
 	ef_druid_pulse_of_madness: [
@@ -25841,7 +25912,8 @@ export default {
 			file: 'druid/at_pulse_of_madness/pulse_of_madness/pulse_of_madness',
 			texturePath: 'druid/at_pulse_of_madness/pulse_of_madness/',
 			min: 'druid/at_pulse_of_madness/pulse_of_madness/min_pulse_of_madness',
-			wav: 'effect/druid/at_pulse_of_madness'
+			wav: 'effect/druid/at_pulse_of_madness',
+			yOffset: 16
 		}
 	],
 	ef_druid_alpha_phase: [
@@ -25850,7 +25922,8 @@ export default {
 			file: 'druid/at_alpha_phase/alpha_phase/alpha_phase',
 			texturePath: 'druid/at_alpha_phase/alpha_phase/',
 			min: 'druid/at_alpha_phase/alpha_phase/min_alpha_phase',
-			wav: 'effect/druid/at_alpha_phase'
+			wav: 'effect/druid/at_alpha_phase',
+			yOffset: 15
 		}
 	],
 	ef_druid_apex_phase: [
@@ -25859,7 +25932,8 @@ export default {
 			file: 'druid/at_apex_phase/apex_phase/apex_phase',
 			texturePath: 'druid/at_apex_phase/apex_phase/',
 			min: 'druid/at_apex_phase/apex_phase/min_apex_phase',
-			wav: 'effect/druid/at_apex_phase'
+			wav: 'effect/druid/at_apex_phase',
+			yOffset: 13
 		}
 	],
 	ef_druid_flip_flap: [
@@ -25868,7 +25942,8 @@ export default {
 			file: 'druid/at_flip_flap/flip_flap/flip_flap',
 			texturePath: 'druid/at_flip_flap/flip_flap/',
 			min: 'druid/at_flip_flap/flip_flap/min_flip_flap',
-			wav: 'effect/druid/at_flip_flap'
+			wav: 'effect/druid/at_flip_flap',
+			yOffset: 10
 		}
 	],
 	ef_druid_nature_harmony: [
@@ -25877,7 +25952,8 @@ export default {
 			file: 'druid/at_nature_harmony/nature_harmony/nature_harmony',
 			texturePath: 'druid/at_nature_harmony/nature_harmony/',
 			min: 'druid/at_nature_harmony/nature_harmony/min_nature_harmony',
-			wav: 'effect/druid/at_nature_harmony'
+			wav: 'effect/druid/at_nature_harmony',
+			yOffset: 10
 		}
 	],
 	ef_druid_primal_claw: [
@@ -25886,7 +25962,8 @@ export default {
 			file: 'druid/at_primal_claw/primal_claw/primal_claw',
 			texturePath: 'druid/at_primal_claw/primal_claw/',
 			min: 'druid/at_primal_claw/primal_claw/min_primal_claw',
-			wav: 'effect/druid/at_primal_claw'
+			wav: 'effect/druid/at_primal_claw',
+			yOffset: 10
 		}
 	],
 	ef_druid_feral_claw: [
@@ -25895,7 +25972,8 @@ export default {
 			file: 'druid/at_feral_claw/feral_claw/feral_claw',
 			texturePath: 'druid/at_feral_claw/feral_claw/',
 			min: 'druid/at_feral_claw/feral_claw/min_feral_claw',
-			wav: 'effect/druid/at_feral_claw'
+			wav: 'effect/druid/at_feral_claw',
+			yOffset: 10
 		}
 	],
 	ef_druid_alpha_claw: [
@@ -25904,7 +25982,8 @@ export default {
 			file: 'druid/at_alpha_claw/alpha_claw/alpha_claw',
 			texturePath: 'druid/at_alpha_claw/alpha_claw/',
 			min: 'druid/at_alpha_claw/alpha_claw/min_alpha_claw',
-			wav: 'effect/druid/at_alpha_claw'
+			wav: 'effect/druid/at_alpha_claw',
+			yOffset: 10
 		}
 	],
 	ef_druid_savage_lunge: [
@@ -25913,14 +25992,16 @@ export default {
 			file: 'druid/at_savage_lunge/savage_lunge/savage_lunge',
 			texturePath: 'druid/at_savage_lunge/savage_lunge/',
 			min: 'druid/at_savage_lunge/savage_lunge/min_savage_lunge',
-			wav: 'effect/druid/at_savage_lunge'
+			wav: 'effect/druid/at_savage_lunge',
+			yOffset: 12
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_savage_lunge/savage_lunge_bottom/savage_lunge_bottom',
 			texturePath: 'druid/at_savage_lunge/savage_lunge_bottom/',
 			min: 'druid/at_savage_lunge/savage_lunge_bottom/min_savage_lunge_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 12
 		}
 	],
 	ef_druid_frenzy_fang: [
@@ -25929,7 +26010,8 @@ export default {
 			file: 'druid/at_frenzy_fang/frenzy_fang/frenzy_fang',
 			texturePath: 'druid/at_frenzy_fang/frenzy_fang/',
 			min: 'druid/at_frenzy_fang/frenzy_fang/min_frenzy_fang',
-			wav: 'effect/druid/at_frenzy_fang'
+			wav: 'effect/druid/at_frenzy_fang',
+			yOffset: 10
 		}
 	],
 	ef_druid_pinion_shot: [
@@ -25941,7 +26023,8 @@ export default {
 			wav: 'effect/druid/at_pinion_shot',
 			// The feathers fly to the right of the caster in the file
 			rotateToTarget: true,
-			facing: 0
+			facing: 0,
+			yOffset: 10
 		}
 	],
 	// EZ2 row quill_spear_3x7. The spear flies to the right in the file; the
@@ -25976,14 +26059,16 @@ export default {
 			file: 'druid/at_tempest_flap/tempest_flap/tempest_flap',
 			texturePath: 'druid/at_tempest_flap/tempest_flap/',
 			min: 'druid/at_tempest_flap/tempest_flap/min_tempest_flap',
-			wav: 'effect/druid/at_tempest_flap'
+			wav: 'effect/druid/at_tempest_flap',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_tempest_flap/tempest_flap_bottom/tempest_flap_bottom',
 			texturePath: 'druid/at_tempest_flap/tempest_flap_bottom/',
 			min: 'druid/at_tempest_flap/tempest_flap_bottom/min_tempest_flap_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_tempest_flap_cast: [
@@ -25991,7 +26076,8 @@ export default {
 			type: 'STR',
 			file: 'druid/at_tempest_flap/tempest_flap_cast/tempest_flap_cast',
 			texturePath: 'druid/at_tempest_flap/tempest_flap_cast/',
-			min: 'druid/at_tempest_flap/tempest_flap_cast/min_tempest_flap_cast'
+			min: 'druid/at_tempest_flap/tempest_flap_cast/min_tempest_flap_cast',
+			yOffset: 10
 		}
 	],
 	ef_druid_aero_sync: [
@@ -26000,14 +26086,16 @@ export default {
 			file: 'druid/at_aero_sync/aero_sync_main/aero_sync_main',
 			texturePath: 'druid/at_aero_sync/aero_sync_main/',
 			min: 'druid/at_aero_sync/aero_sync_main/min_aero_sync_main',
-			wav: 'effect/druid/at_aero_sync'
+			wav: 'effect/druid/at_aero_sync',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_aero_sync/aero_sync_main_bottom/aero_sync_main_bottom',
 			texturePath: 'druid/at_aero_sync/aero_sync_main_bottom/',
 			min: 'druid/at_aero_sync/aero_sync_main_bottom/min_aero_sync_main_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_aero_sync_self: [
@@ -26015,7 +26103,8 @@ export default {
 			type: 'STR',
 			file: 'druid/at_aero_sync/aero_sync_sync/aero_sync_sync',
 			texturePath: 'druid/at_aero_sync/aero_sync_sync/',
-			min: 'druid/at_aero_sync/aero_sync_sync/min_aero_sync_sync'
+			min: 'druid/at_aero_sync/aero_sync_sync/min_aero_sync_sync',
+			yOffset: 15
 		}
 	],
 	ef_druid_zephyr_link: [
@@ -26024,14 +26113,16 @@ export default {
 			file: 'druid/at_zephyr_link/zephyr_link/zephyr_link',
 			texturePath: 'druid/at_zephyr_link/zephyr_link/',
 			min: 'druid/at_zephyr_link/zephyr_link/min_zephyr_link',
-			wav: 'effect/druid/at_zephyr_link'
+			wav: 'effect/druid/at_zephyr_link',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_zephyr_link/zephyr_link_bottom/zephyr_link_bottom',
 			texturePath: 'druid/at_zephyr_link/zephyr_link_bottom/',
 			min: 'druid/at_zephyr_link/zephyr_link_bottom/min_zephyr_link_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_glacier_monolith_start: [
@@ -26040,14 +26131,16 @@ export default {
 			file: 'druid/at_glacier_monolith/glacier_monolith_start/glacier_monolith_start',
 			texturePath: 'druid/at_glacier_monolith/glacier_monolith_start/',
 			min: 'druid/at_glacier_monolith/glacier_monolith_start/min_glacier_monolith_start',
-			wav: 'effect/druid/at_glacier_monolith_start'
+			wav: 'effect/druid/at_glacier_monolith_start',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_glacier_monolith/glacier_monolith_start_bottom/glacier_monolith_start_bottom',
 			texturePath: 'druid/at_glacier_monolith/glacier_monolith_start_bottom/',
 			min: 'druid/at_glacier_monolith/glacier_monolith_start_bottom/min_glacier_monolith_start_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_glacier_monolith_loop: [
@@ -26055,14 +26148,16 @@ export default {
 			type: 'STR',
 			file: 'druid/at_glacier_monolith/glacier_monolith_loop/glacier_monolith_loop',
 			texturePath: 'druid/at_glacier_monolith/glacier_monolith_loop/',
-			min: 'druid/at_glacier_monolith/glacier_monolith_loop/min_glacier_monolith_loop'
+			min: 'druid/at_glacier_monolith/glacier_monolith_loop/min_glacier_monolith_loop',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_glacier_monolith/glacier_monolith_loop_bottom/glacier_monolith_loop_bottom',
 			texturePath: 'druid/at_glacier_monolith/glacier_monolith_loop_bottom/',
 			min: 'druid/at_glacier_monolith/glacier_monolith_loop_bottom/min_glacier_monolith_loop_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_glacier_nova: [
@@ -26071,7 +26166,8 @@ export default {
 			file: 'druid/at_glacier_nova/glacier_nova/glacier_nova',
 			texturePath: 'druid/at_glacier_nova/glacier_nova/',
 			min: 'druid/at_glacier_nova/glacier_nova/min_glacier_nova',
-			wav: 'effect/druid/at_glacier_nova'
+			wav: 'effect/druid/at_glacier_nova',
+			yOffset: 10
 		}
 	],
 	ef_druid_glacier_shard: [
@@ -26080,13 +26176,15 @@ export default {
 			file: 'druid/at_glacier_shard/glacier_shard/glacier_shard',
 			texturePath: 'druid/at_glacier_shard/glacier_shard/',
 			min: 'druid/at_glacier_shard/glacier_shard/min_glacier_shard',
-			wav: 'effect/druid/at_glacier_shard'
+			wav: 'effect/druid/at_glacier_shard',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_glacier_shard/glacier_shard_target/glacier_shard_target',
 			texturePath: 'druid/at_glacier_shard/glacier_shard_target/',
-			min: 'druid/at_glacier_shard/glacier_shard_target/min_glacier_shard_target'
+			min: 'druid/at_glacier_shard/glacier_shard_target/min_glacier_shard_target',
+			yOffset: 10
 		}
 	],
 	ef_druid_glacier_stomp: [
@@ -26094,7 +26192,8 @@ export default {
 			type: 'STR',
 			file: 'druid/at_glacier_stomp/glacier_stomp/glacier_stomp',
 			texturePath: 'druid/at_glacier_stomp/glacier_stomp/',
-			min: 'druid/at_glacier_stomp/glacier_stomp/min_glacier_stomp'
+			min: 'druid/at_glacier_stomp/glacier_stomp/min_glacier_stomp',
+			yOffset: 10
 		}
 	],
 	ef_druid_chilling_blast: [
@@ -26103,14 +26202,16 @@ export default {
 			file: 'druid/at_chilling_blast/chilling_blast/chilling_blast',
 			texturePath: 'druid/at_chilling_blast/chilling_blast/',
 			min: 'druid/at_chilling_blast/chilling_blast/min_chilling_blast',
-			wav: 'effect/druid/at_chilling_blast'
+			wav: 'effect/druid/at_chilling_blast',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_chilling_blast/chilling_blast_bottom/chilling_blast_bottom',
 			texturePath: 'druid/at_chilling_blast/chilling_blast_bottom/',
 			min: 'druid/at_chilling_blast/chilling_blast_bottom/min_chilling_blast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_roaring_piercer_g: [
@@ -26122,7 +26223,8 @@ export default {
 			wav: 'effect/druid/at_roaring_piercer_g',
 			// The spear flies to the left of the caster in the file
 			rotateToTarget: true,
-			facing: 180
+			facing: 180,
+			yOffset: 5
 		}
 	],
 	ef_druid_roaring_piercer_y: [
@@ -26134,7 +26236,8 @@ export default {
 			wav: 'effect/druid/at_roaring_piercer_y',
 			// The spear flies to the left of the caster in the file
 			rotateToTarget: true,
-			facing: 180
+			facing: 180,
+			yOffset: 5
 		}
 	],
 	ef_druid_roaring_charge: [
@@ -26143,14 +26246,16 @@ export default {
 			file: 'druid/at_roaring_charge/roaring_charge/roaring_charge',
 			texturePath: 'druid/at_roaring_charge/roaring_charge/',
 			min: 'druid/at_roaring_charge/roaring_charge/min_roaring_charge',
-			wav: 'effect/druid/at_roaring_charge_g'
+			wav: 'effect/druid/at_roaring_charge_g',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_roaring_charge/roaring_charge_bottom/roaring_charge_bottom',
 			texturePath: 'druid/at_roaring_charge/roaring_charge_bottom/',
 			min: 'druid/at_roaring_charge/roaring_charge_bottom/min_roaring_charge_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_roaring_charge_s: [
@@ -26159,14 +26264,16 @@ export default {
 			file: 'druid/at_roaring_charge/roaring_charge_s/roaring_charge_s',
 			texturePath: 'druid/at_roaring_charge/roaring_charge_s/',
 			min: 'druid/at_roaring_charge/roaring_charge_s/min_roaring_charge_s',
-			wav: 'effect/druid/at_roaring_charge_y'
+			wav: 'effect/druid/at_roaring_charge_y',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_roaring_charge/roaring_charge_s_bottom/roaring_charge_s_bottom',
 			texturePath: 'druid/at_roaring_charge/roaring_charge_s_bottom/',
 			min: 'druid/at_roaring_charge/roaring_charge_s_bottom/min_roaring_charge_s_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_furios_storm: [
@@ -26175,14 +26282,16 @@ export default {
 			file: 'druid/at_furios_storm/furios_storm_a/furios_storm_a',
 			texturePath: 'druid/at_furios_storm/furios_storm_a/',
 			min: 'druid/at_furios_storm/furios_storm_a/min_furios_storm_a',
-			wav: 'effect/druid/at_furios_storm'
+			wav: 'effect/druid/at_furios_storm',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_furios_storm/furios_storm_a_bottom/furios_storm_a_bottom',
 			texturePath: 'druid/at_furios_storm/furios_storm_a_bottom/',
 			min: 'druid/at_furios_storm/furios_storm_a_bottom/min_furios_storm_a_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_terra_wave: [
@@ -26191,14 +26300,16 @@ export default {
 			file: 'druid/at_terra_wave/terra_wave/terra_wave',
 			texturePath: 'druid/at_terra_wave/terra_wave/',
 			min: 'druid/at_terra_wave/terra_wave/min_terra_wave',
-			wav: 'effect/druid/at_terra_wave'
+			wav: 'effect/druid/at_terra_wave',
+			yOffset: 0
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_terra_wave/terra_wave_bottom/terra_wave_bottom',
 			texturePath: 'druid/at_terra_wave/terra_wave_bottom/',
 			min: 'druid/at_terra_wave/terra_wave_bottom/min_terra_wave_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 0
 		}
 	],
 	ef_druid_terra_harvest: [
@@ -26207,14 +26318,16 @@ export default {
 			file: 'druid/at_terra_harvest/terra_harvest_yellow/terra_harvest_yellow',
 			texturePath: 'druid/at_terra_harvest/terra_harvest_yellow/',
 			min: 'druid/at_terra_harvest/terra_harvest_yellow/min_terra_harvest_yellow',
-			wav: 'effect/druid/at_terra_harvest'
+			wav: 'effect/druid/at_terra_harvest',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_terra_harvest/terra_harvest_yellow_bottom/terra_harvest_yellow_bottom',
 			texturePath: 'druid/at_terra_harvest/terra_harvest_yellow_bottom/',
 			min: 'druid/at_terra_harvest/terra_harvest_yellow_bottom/min_terra_harvest_yellow_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_solid_stomp: [
@@ -26223,14 +26336,16 @@ export default {
 			file: 'druid/at_solid_stomp/solid_stomp/solid_stomp',
 			texturePath: 'druid/at_solid_stomp/solid_stomp/',
 			min: 'druid/at_solid_stomp/solid_stomp/min_solid_stomp',
-			wav: 'effect/druid/at_solid_stomp'
+			wav: 'effect/druid/at_solid_stomp',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_solid_stomp/solid_stomp_bottom/solid_stomp_bottom',
 			texturePath: 'druid/at_solid_stomp/solid_stomp_bottom/',
 			min: 'druid/at_solid_stomp/solid_stomp_bottom/min_solid_stomp_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 	ef_druid_gravity_hole: [
@@ -26239,14 +26354,16 @@ export default {
 			file: 'druid/at_gravity_hole/gravity_hole/gravity_hole',
 			texturePath: 'druid/at_gravity_hole/gravity_hole/',
 			min: 'druid/at_gravity_hole/gravity_hole/min_gravity_hole',
-			wav: 'effect/druid/at_gravity_hole'
+			wav: 'effect/druid/at_gravity_hole',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
 			file: 'druid/at_gravity_hole/gravity_hole_bottom/gravity_hole_bottom',
 			texturePath: 'druid/at_gravity_hole/gravity_hole_bottom/',
 			min: 'druid/at_gravity_hole/gravity_hole_bottom/min_gravity_hole_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
