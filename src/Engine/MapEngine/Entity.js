@@ -16,6 +16,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 import StatusState from 'DB/Status/StatusState.js';
 import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
+import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
@@ -1944,8 +1945,12 @@ function onEntityCastSkill(pkt) {
 		}
 	}
 
-	// Check if cast aura needs to be hidden
-	hideCastAura = pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura;
+	// Check if cast aura needs to be hidden. Skills the official client gives
+	// no element aura (DB/Skills/CastAuraRule.js) show only their own cast aura, if any.
+	const castSkill = pkt.SKID in SkillEffect ? SkillEffect[pkt.SKID] : null;
+	hideCastAura =
+		(castSkill && castSkill.hideCastAura) ||
+		(!hasElementCastAura(pkt.SKID) && !(castSkill && castSkill.castAuraEffectId));
 
 	// Cast aura
 	if (pkt.delayTime && !hideCastAura) {

@@ -1,11 +1,12 @@
 /**
  * Renderer/Effects/CastCircle.js
  *
- * Draws the official client's untinted cast circle: four bands of a ring
- * texture standing around the caster, the texture drawn white with normal
- * alpha blending. Hell's Drive casts with it (effect 1709,
- * new_earthdrive/ring_brown.tga). The motion and geometry are in
- * CastCircleSim.js; this file only draws them.
+ * Draws the official client's cast circle: four bands of a ring texture
+ * standing around the caster. The untinted circle draws the texture white with
+ * normal alpha blending (Hell's Drive's effect 1709, new_earthdrive/ring_brown.tga;
+ * effect 56, magic_green.tga). Given a mode, it draws the tinted circle instead
+ * (effect 54: ring_blue.tga mode 2; 57: ring_yellow.tga mode 0). The motion and
+ * geometry are in CastCircleSim.js; this file only draws them.
  *
  * Effect table entry:
  *   { type: 'FUNC', attachedEntity: true, func(Params) {
@@ -19,7 +20,15 @@
 import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import { CIRCLE_TICK_MS, BANDS, CIRCLE_VERTICES, circleFrames, bandAlpha, buildCircle } from './CastCircleSim.js';
+import {
+	CIRCLE_TICK_MS,
+	BANDS,
+	CIRCLE_VERTICES,
+	TINT_MODES,
+	circleFrames,
+	bandAlpha,
+	buildCircle
+} from './CastCircleSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 
@@ -55,15 +64,19 @@ class CastCircle {
 	 * @param {number} startTick
 	 * @param {number} castTime cast time, ms
 	 * @param {string} texture file under data/texture/effect/
+	 * @param {number} [mode] the tinted circle's mode (TINT_MODES); leave out for the untinted circle
 	 */
-	constructor(position, startTick, castTime, texture) {
+	constructor(position, startTick, castTime, texture, mode) {
 		this.position = position;
 		this.startTick = startTick || 0;
 		this.frames = circleFrames(castTime);
 		this.endTick = this.startTick + this.frames * CIRCLE_TICK_MS;
 		this.texture = texture;
 		this.vertices = new Float32Array(CIRCLE_VERTICES * 5);
-		this.color = new Float32Array([1, 1, 1, 1]);
+		this.tinted = mode in TINT_MODES;
+		const tint = this.tinted ? TINT_MODES[mode] : TINT_MODES[0];
+		this.color = new Float32Array([tint.color[0] / 255, tint.color[1] / 255, tint.color[2] / 255, 1]);
+		this.additive = tint.additive;
 	}
 
 	init(gl) {
@@ -95,7 +108,7 @@ class CastCircle {
 
 		// The client counts a tick before drawing, so the first frame is tick 1.
 		const t = Math.min(this.frames, Math.floor((tick - this.startTick) / CIRCLE_TICK_MS) + 1);
-		const starts = buildCircle(this.vertices, t, this.position);
+		const starts = buildCircle(this.vertices, t, this.position, this.tinted);
 		const attribute = _program.attribute;
 		const self = this;
 
@@ -105,15 +118,22 @@ class CastCircle {
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
 			gl.bindTexture(gl.TEXTURE_2D, texture);
+			if (self.additive) {
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+			}
 
 			for (let b = 0; b < BANDS.length; b++) {
-				const alpha = bandAlpha(b, t, self.frames);
+				const alpha = bandAlpha(b, t, self.frames, self.tinted);
 				if (alpha <= 0) {
 					continue;
 				}
 				self.color[3] = alpha / 255;
 				gl.uniform4fv(_program.uniform.uColor, self.color);
 				gl.drawArrays(gl.TRIANGLES, starts[b], starts[b + 1] - starts[b]);
+			}
+
+			if (self.additive) {
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			}
 		});
 	}
@@ -157,7 +177,7 @@ class CastCircle {
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 
-		// Normal alpha blending, as the client draws the untinted circle
+		// Normal alpha blending, as the client draws the untinted circle and tinted modes 0 and 2
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	}
 

@@ -1,10 +1,11 @@
 /**
  * Renderer/Effects/CastCircleSim.js
  *
- * Motion and geometry of the official client's untinted cast circle, without
- * any WebGL, so it can be tested on its own. Hell's Drive casts with it
- * (effect 1709, new_earthdrive/ring_brown.tga); the client's wind and dark
- * element cast auras use the same circle with Magic_Green / Magic_Violet.
+ * Motion and geometry of the official client's cast circle, without any
+ * WebGL, so it can be tested on its own. Hell's Drive casts with the untinted
+ * circle (effect 1709, new_earthdrive/ring_brown.tga); the client's wind and
+ * dark element cast auras (56, 59) use it with Magic_Green / Magic_Violet.
+ * Effects 54, 55 and 57 use the tinted circle (see TINT_MODES).
  *
  * As the official client builds it:
  *
@@ -20,6 +21,9 @@
  *    and lose 5 a tick over the last 40 ticks; the tall band climbs from 70 to
  *    100 and loses 3 a tick at the end.
  *  - It lasts the cast time, but at least 70 ticks.
+ *  - The tinted circle has the same bands, coloured and blended by its mode.
+ *    Its tall band stays at alpha 60, loses 2 a tick at the end and does not
+ *    pulse: it grows over 90 ticks and holds, like the others.
  *
  * Units are the client's: world units (5 to a cell), ticks (60 a second), degrees.
  */
@@ -58,6 +62,16 @@ function stripsOf(band) {
 	return Math.floor(band.arc / Math.floor(band.arc / (POINTS - 1)));
 }
 
+/**
+ * The tinted circle's modes: texture colour (0-255) and blending. Effect 54 is
+ * ring_blue.tga in mode 2, 55 ring_yellow.tga in mode 1, 57 ring_yellow.tga in mode 0.
+ */
+export const TINT_MODES = {
+	0: { color: [255, 255, 255], additive: false },
+	1: { color: [255, 175, 175], additive: true },
+	2: { color: [195, 195, 255], additive: false }
+};
+
 /** Number of vertices of the circle (triangles, 5 floats each). */
 export const CIRCLE_VERTICES = BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 
@@ -78,16 +92,17 @@ export function circleFrames(castTime) {
  * @param {number} b band index
  * @param {number} t
  * @param {number} frames
+ * @param {boolean} [tinted] the tinted circle (effects 54, 55, 57)
  * @return {number}
  */
-export function bandAlpha(b, t, frames) {
+export function bandAlpha(b, t, frames, tinted = false) {
 	const band = BANDS[b];
 	const fadeFrom = frames - FADE;
 	if (!band.pulse) {
 		return Math.max(0, band.alpha - 5 * Math.max(0, t - fadeFrom + 1));
 	}
-	const up = Math.min(100, band.alpha + 8 * Math.min(t, fadeFrom - 1, 19));
-	return Math.max(0, up - 3 * Math.max(0, t - fadeFrom + 1));
+	const up = Math.min(tinted ? 60 : 100, band.alpha + 8 * Math.min(t, fadeFrom - 1, 19));
+	return Math.max(0, up - (tinted ? 2 : 3) * Math.max(0, t - fadeFrom + 1));
 }
 
 /**
@@ -96,15 +111,16 @@ export function bandAlpha(b, t, frames) {
  * @param {number} b
  * @param {number} j 0 to 20
  * @param {number} t
+ * @param {boolean} [tinted] the tinted circle: no band pulses
  * @return {number}
  */
-export function pointHeight(b, j, t) {
+export function pointHeight(b, j, t, tinted = false) {
 	const band = BANDS[b];
 	const full = band.height * Math.sin(9 * j * DEG);
 	if (t < GROW + 1) {
 		return Math.max(0, full * Math.sin(t * DEG));
 	}
-	if (!band.pulse || t === GROW + 1) {
+	if (!band.pulse || tinted || t === GROW + 1) {
 		return Math.max(0, full);
 	}
 	return full * 0.55 + full * 0.45 * Math.sin((t % 360) * DEG);
@@ -131,9 +147,10 @@ function vertex(out, i, center, x, y, up, u, v) {
  * @param {number} b band index
  * @param {number} t tick, 1 on the first
  * @param {Array} center position, in cells
+ * @param {boolean} tinted
  * @return {number} next float
  */
-function buildBand(out, o, b, t, center) {
+function buildBand(out, o, b, t, center, tinted) {
 	const band = BANDS[b];
 	const step = Math.floor(band.arc / (POINTS - 1));
 	const turn = (band.turn + band.spin * t) % 360;
@@ -146,7 +163,7 @@ function buildBand(out, o, b, t, center) {
 		const angle = (band.arc === 360 && j === POINTS - 1 ? turn : turn + a) * DEG;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
-		const h = pointHeight(b, j, t);
+		const h = pointHeight(b, j, t, tinted);
 		const point = {
 			fx: band.foot * cos,
 			fy: band.foot * sin,
@@ -177,14 +194,15 @@ function buildBand(out, o, b, t, center) {
  * @param {Float32Array} out CIRCLE_VERTICES * 5 floats
  * @param {number} t tick, 1 on the first
  * @param {Array} center position, in cells
+ * @param {boolean} [tinted] the tinted circle (effects 54, 55, 57)
  * @return {number[]} first vertex of each band, then the total
  */
-export function buildCircle(out, t, center) {
+export function buildCircle(out, t, center, tinted = false) {
 	const starts = [];
 	let o = 0;
 	for (let b = 0; b < BANDS.length; b++) {
 		starts.push(o / 5);
-		o = buildBand(out, o, b, t, center);
+		o = buildBand(out, o, b, t, center, tinted);
 	}
 	starts.push(o / 5);
 	return starts;

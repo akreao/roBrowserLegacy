@@ -11,6 +11,7 @@
  */
 import EffectDB from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
+import JobId from 'DB/Jobs/JobConst.js';
 import SkillUnit, { SkillUnitEnd } from 'DB/Skills/SkillUnit.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
 import ItemEffect from 'DB/Items/ItemEffect.js';
@@ -1396,6 +1397,21 @@ class EffectManager {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+
+		// Played on the caster when the cast starts, only while it is in Wereraptor
+		// form (the official client checks the form set by EFST_WERERAPTOR).
+		if (SkillEffect[skillId].beginCastEffectIdInRaptorForm) {
+			const caster = EntityManager.get(destAID);
+			if (caster && caster.job_transform === JobId.WERERAPTOR) {
+				EffectManager.spam({
+					effectId: SkillEffect[skillId].beginCastEffectIdInRaptorForm,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					castEndTick: castEndTick
+				});
+			}
 		}
 
 		// Played on the skill's target (srcAID here) when the cast starts.

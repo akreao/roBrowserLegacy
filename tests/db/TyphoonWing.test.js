@@ -14,7 +14,7 @@ const skillEffect = read('DB/Skills/SkillEffect.js');
 const effectTable = read('DB/Effects/EffectTable.js');
 
 const SKID = 6557;
-const CAST = 'ef_druid_typhoon_wing_cast';
+const CAST = 'ef_druid_cast_circle_green';
 const BY_LEVEL = [...Array(5).fill('ef_druid_typhoon_wing_5x5'), 'ef_druid_typhoon_wing_7x7'];
 
 function entry(id) {
