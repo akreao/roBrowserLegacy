@@ -223935,7 +223935,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SS_FUUMASHOUAKU] = { effectId: "ef_ss_fuumashouaku" };
 	SkillEffect[SkillConst_default.SS_FUUMAKOUCHIKU] = { effectId: "ef_ss_fuumakouchiku" };
 	SkillEffect[SkillConst_default.SS_KUNAIWAIKYOKU] = { effectId: "ef_ss_kunaiwaikyoku" };
-	SkillEffect[SkillConst_default.SS_KUNAIKAITEN] = { effectId: "ef_ss_kunaikaiten" };
+	SkillEffect[SkillConst_default.SS_KUNAIKAITEN] = { successEffectIdOnCaster: "ef_ss_kunaikaiten" };
 	SkillEffect[SkillConst_default.SS_KUNAIKUSSETSU] = { effectId: "ef_ss_kunaikussetsu" };
 	SkillEffect[SkillConst_default.SS_SEKIENHOU] = { effectId: "ef_ss_sekienhou" };
 	SkillEffect[SkillConst_default.SS_REIKETSUHOU] = { effectId: "ef_ss_reiketsuhou" };
@@ -224038,7 +224038,10 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_shc_eternal_slash_hit"
 	};
 	SkillEffect[SkillConst_default.SHC_POTENT_VENOM] = { effectId: "ef_shc_potent_venom" };
-	SkillEffect[SkillConst_default.SHC_SHADOW_STAB] = { effectId: "ef_shc_shadow_stab" };
+	SkillEffect[SkillConst_default.SHC_SHADOW_STAB] = {
+		successEffectIdOnCaster: "ef_shc_shadow_stab",
+		hitEffectId: "ef_shc_shadow_stab_hit"
+	};
 	SkillEffect[SkillConst_default.SHC_IMPACT_CRATER] = {
 		effectId: "ef_shc_impact_crater",
 		hitEffectId: "ef_shc_impact_crater_hit"
@@ -224990,11 +224993,27 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_CALL] = {
 		beginCastEffectId: "ef_druid_thunder_cast",
-		effectId: "ef_druid_thundering_call_g",
+		successEffectIdOnTargetByLevel: [
+			"ef_druid_thundering_call_g_3x3",
+			"ef_druid_thundering_call_g_3x3",
+			"ef_druid_thundering_call_g_3x3",
+			"ef_druid_thundering_call_g_3x3",
+			"ef_druid_thundering_call_g_3x3",
+			"ef_druid_thundering_call_g_3x3",
+			"ef_druid_thundering_call_g_5x5"
+		],
 		hitEffectId: "ef_druid_thunder_hit_g"
 	};
 	SkillEffect[SkillConst_default.KR_THUNDERING_CALL_S] = {
-		effectId: "ef_druid_thundering_call_y",
+		successEffectIdOnTargetByLevel: [
+			"ef_druid_thundering_call_y_3x3",
+			"ef_druid_thundering_call_y_3x3",
+			"ef_druid_thundering_call_y_3x3",
+			"ef_druid_thundering_call_y_3x3",
+			"ef_druid_thundering_call_y_3x3",
+			"ef_druid_thundering_call_y_3x3",
+			"ef_druid_thundering_call_y_5x5"
+		],
 		hitEffectId: "ef_druid_thunder_hit_y"
 	};
 	SkillEffect[SkillConst_default.KR_EARTH_DRILL] = { effectId: "ef_druid_earth_drill" };
@@ -276905,6 +276924,17 @@ var init_EffectManager = __esmMin((() => {
 					skillLevel: level
 				});
 			}
+			const byLevelOnTarget = SkillEffect[skillId].successEffectIdOnTargetByLevel;
+			if (byLevelOnTarget && byLevelOnTarget.length && level > 0 && destAID) {
+				const effectId = byLevelOnTarget[Math.min(level, byLevelOnTarget.length) - 1];
+				if (effectId) EffectManager.spam({
+					effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					skillLevel: level
+				});
+			}
 			if (SkillEffect[skillId].successEffectIdOnCaster) {
 				effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster) ? SkillEffect[skillId].successEffectIdOnCaster : [SkillEffect[skillId].successEffectIdOnCaster];
 				effects.forEach((effectId) => {
@@ -299106,13 +299136,46 @@ var init_EffectTable = __esmMin((() => {
 			min: "shinkiro_shiranui/ss_kunaiwaikyoku/min_kunaiwaikyoku",
 			wav: "effect/shinkiro_shiranui/ss_kunaiwaikyoku"
 		}],
-		ef_ss_kunaikaiten: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/kunaikaiten_bottom",
-			texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/",
-			min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/min_kunaikaiten_bottom",
-			renderBeforeEntities: true
-		}],
+		ef_ss_kunaikaiten: [
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/kunaikaiten_bottom",
+				texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/",
+				min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/min_kunaikaiten_bottom",
+				wav: "effect/shinkiro_shiranui/ss_kagegissen",
+				renderBeforeEntities: true,
+				yOffset: 10,
+				duplicate: 4,
+				timeBetweenDupli: 480
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/kunaikaiten_00",
+				texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/",
+				min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/min_kunaikaiten_00",
+				yOffset: 10,
+				duplicate: 4,
+				timeBetweenDupli: 480
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_01/kunaikaiten_01",
+				texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_01/",
+				min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_01/min_kunaikaiten_01",
+				yOffset: 10,
+				duplicate: 4,
+				timeBetweenDupli: 480
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/kunaikaiten_00",
+				texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/",
+				min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_00/min_kunaikaiten_00",
+				yOffset: 10,
+				duplicate: 4,
+				timeBetweenDupli: 480
+			}
+		],
 		ef_ss_kunaikussetsu: [{
 			type: "STR",
 			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/kunaikussetsu",
@@ -303060,7 +303123,20 @@ var init_EffectTable = __esmMin((() => {
 			file: "shadow_cross/shc_shadow_stab/shadow_stab/shadow_stab",
 			texturePath: "shadow_cross/shc_shadow_stab/shadow_stab/",
 			fallback: ["shadow_stab/shadow_stab/shadow_stab"],
-			wav: "effect/shc_shadow_stab"
+			wav: "effect/shc_shadow_stab",
+			xOffset: 0,
+			yOffset: 4,
+			rotateToTarget: true,
+			facing: 0
+		}],
+		ef_shc_shadow_stab_hit: [{
+			type: "STR",
+			file: "shadow_cross/shc_shadow_stab/shadow_stab_hit1/shadow_stab_hit1",
+			texturePath: "shadow_cross/shc_shadow_stab/shadow_stab_hit1/",
+			min: "shadow_cross/shc_shadow_stab/shadow_stab_hit1/min_shadow_stab_hit1",
+			fallback: ["shadow_stab/shadow_stab_hit1/shadow_stab_hit1"],
+			xOffset: 0,
+			yOffset: 5
 		}],
 		ef_shc_impact_crater: [{
 			type: "STR",
@@ -305999,31 +306075,73 @@ var init_EffectTable = __esmMin((() => {
 			min: "druid/kr_thundering_orb/thundering_orb_y_bottom/min_thundering_orb_y_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_druid_thundering_call_g: [{
+		ef_druid_thundering_call_g_3x3: [{
 			type: "STR",
 			file: "druid/kr_thundering_call/thundering_call_g_3x3/thundering_call_g_3x3",
 			texturePath: "druid/kr_thundering_call/thundering_call_g_3x3/",
 			min: "druid/kr_thundering_call/thundering_call_g_3x3/min_thundering_call_g_3x3",
-			wav: "effect/druid/kr_thundering_call_g"
+			wav: "effect/druid/kr_thundering_call_g",
+			yOffset: 10,
+			attachedEntity: true
 		}, {
 			type: "STR",
 			file: "druid/kr_thundering_call/thundering_call_g_3x3_bottom/thundering_call_g_3x3_bottom",
 			texturePath: "druid/kr_thundering_call/thundering_call_g_3x3_bottom/",
 			min: "druid/kr_thundering_call/thundering_call_g_3x3_bottom/min_thundering_call_g_3x3_bottom",
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
-		ef_druid_thundering_call_y: [{
+		ef_druid_thundering_call_g_5x5: [{
+			type: "STR",
+			file: "druid/kr_thundering_call/thundering_call_g_5x5/thundering_call_g_5x5",
+			texturePath: "druid/kr_thundering_call/thundering_call_g_5x5/",
+			min: "druid/kr_thundering_call/thundering_call_g_5x5/min_thundering_call_g_5x5",
+			wav: "effect/druid/kr_thundering_call_g",
+			yOffset: 10,
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "druid/kr_thundering_call/thundering_call_g_5x5_bottom/thundering_call_g_5x5_bottom",
+			texturePath: "druid/kr_thundering_call/thundering_call_g_5x5_bottom/",
+			min: "druid/kr_thundering_call/thundering_call_g_5x5_bottom/min_thundering_call_g_5x5_bottom",
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_druid_thundering_call_y_3x3: [{
 			type: "STR",
 			file: "druid/kr_thundering_call/thundering_call_y_3x3/thundering_call_y_3x3",
 			texturePath: "druid/kr_thundering_call/thundering_call_y_3x3/",
 			min: "druid/kr_thundering_call/thundering_call_y_3x3/min_thundering_call_y_3x3",
-			wav: "effect/druid/kr_thundering_call_y"
+			wav: "effect/druid/kr_thundering_call_y",
+			yOffset: 10,
+			attachedEntity: true
 		}, {
 			type: "STR",
 			file: "druid/kr_thundering_call/thundering_call_y_3x3_bottom/thundering_call_y_3x3_bottom",
 			texturePath: "druid/kr_thundering_call/thundering_call_y_3x3_bottom/",
 			min: "druid/kr_thundering_call/thundering_call_y_3x3_bottom/min_thundering_call_y_3x3_bottom",
-			renderBeforeEntities: true
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_druid_thundering_call_y_5x5: [{
+			type: "STR",
+			file: "druid/kr_thundering_call/thundering_call_y_5x5/thundering_call_y_5x5",
+			texturePath: "druid/kr_thundering_call/thundering_call_y_5x5/",
+			min: "druid/kr_thundering_call/thundering_call_y_5x5/min_thundering_call_y_5x5",
+			wav: "effect/druid/kr_thundering_call_y",
+			yOffset: 10,
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "druid/kr_thundering_call/thundering_call_y_5x5_bottom/thundering_call_y_5x5_bottom",
+			texturePath: "druid/kr_thundering_call/thundering_call_y_5x5_bottom/",
+			min: "druid/kr_thundering_call/thundering_call_y_5x5_bottom/min_thundering_call_y_5x5_bottom",
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_druid_earth_drill: [{
 			type: "STR",
@@ -326305,6 +326423,10 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			}
 		}
 	}
+	const skidNames = Object.keys(SkillConst_default);
+	function siblingPlaysFile(skillId, file) {
+		return skidNames.some((name) => SkillConst_default[name] === skillId && skidNames.some((other) => other.startsWith(name + "_") && skillPlaysFile(SkillEffect[SkillConst_default[other]], EffectTable, file)));
+	}
 	for (const effectName in Ez2streffect) {
 		const entry = Ez2streffect[effectName];
 		const meta = effectMetadata[effectName];
@@ -326339,7 +326461,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		}];
 		count++;
 		const file = EffectTable[effectName][0].file;
-		if (skillId && !entry.IsInfinite && !skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) && !statusPlaysFile(EffectTable, file) && !unitPlaysFile(EffectTable, file)) {
+		if (skillId && !entry.IsInfinite && !skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) && !siblingPlaysFile(skillId, file) && !statusPlaysFile(EffectTable, file) && !unitPlaysFile(EffectTable, file)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 			if (skillEntry[field]) {
