@@ -261207,7 +261207,7 @@ var init_EffectManager = __esmMin((() => {
 				const [x, y, z] = center.position;
 				shuffledGrid(size).forEach(([dx, dy], k) => {
 					gridIds.forEach((entry) => {
-						const effectId = Array.isArray(entry) ? entry[Math.floor(Math.random() * entry.length)] : entry;
+						const effectId = Array.isArray(entry) ? entry.at(Math.floor(Math.random() * entry.length)) : entry;
 						EffectManager.spam({
 							effectId,
 							ownerAID: destAID,
@@ -261261,7 +261261,7 @@ var init_EffectManager = __esmMin((() => {
 			const play = (field, ownerAID, otherAID) => {
 				if (!skill[field] || !ownerAID) return;
 				(Array.isArray(skill[field]) ? skill[field] : [skill[field]]).forEach((entry) => {
-					const effectId = Array.isArray(entry) ? entry[Math.floor(random() * entry.length)] : entry;
+					const effectId = Array.isArray(entry) ? entry.at(Math.floor(random() * entry.length)) : entry;
 					EffectManager.spam({
 						effectId,
 						ownerAID,
