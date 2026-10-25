@@ -887,6 +887,20 @@ function onSpiritSphere(pkt) {
 }
 
 /**
+ * Spirit charms (Kagerou/Oboro and their 4th jobs).
+ * Keeps the charm element on the entity; Four Colors Charm picks its look from it.
+ * Like the official client, a packet with no charms left keeps the last element.
+ *
+ * @param {object} pkt - PACKET.ZC.SPIRITS_ATTRIBUTE
+ */
+function onSpiritCharm(pkt) {
+	const entity = EntityManager.get(pkt.AID);
+	if (entity && pkt.num > 0) {
+		entity.charmType = pkt.type;
+	}
+}
+
+/**
  * Millennium Shield visual effect
  *
  * @param {object} pkt - PACKET.ZC.MILLENNIUMSHIELD
@@ -982,6 +996,7 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.REPAIRITEMLIST2, onRepairList);
 	Network.hookPacket(PACKET.ZC.SPIRITS, onSpiritSphere);
 	Network.hookPacket(PACKET.ZC.SPIRITS2, onSpiritSphere);
+	Network.hookPacket(PACKET.ZC.SPIRITS_ATTRIBUTE, onSpiritCharm);
 	Network.hookPacket(PACKET.ZC.MILLENNIUMSHIELD, onMillenniumShield);
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
 	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);
