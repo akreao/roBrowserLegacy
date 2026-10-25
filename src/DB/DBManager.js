@@ -4747,12 +4747,11 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	const wanted = keyOf(file);
 	for (const field in skillEntry) {
 		const value = skillEntry[field];
-		// A field can be one name, a list, or a map of variants (effectIdByCharmType)
-		const names = Array.isArray(value)
-			? value
-			: value && typeof value === 'object'
-				? Object.values(value)
-				: [value];
+		// Status rows can hold lists of lists (StatusEffectTable stages); a skill
+		// field can be a map of variants (effectIdByCharmType)
+		const names = [value]
+			.flat(Infinity)
+			.flatMap(name => (name && typeof name === 'object' ? Object.values(name) : [name]));
 		for (const name of names) {
 			const effects = typeof name === 'string' ? EffectTable[name] : null;
 			if (Array.isArray(effects) && effects.some(effect => keyOf(effect.file) === wanted)) {

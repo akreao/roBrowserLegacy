@@ -11,11 +11,22 @@ import StatusEffectTable from 'DB/Status/StatusEffectTable.js';
 import EffectManager from 'Renderer/EffectManager.js';
 
 /**
+ * Every effect a row's stages can show
+ *
+ * @param {object} row StatusEffectTable row
+ * @return {Array<string>}
+ */
+function stageEffects(row) {
+	return [...new Set((row && row.stages ? row.stages : []).flat())];
+}
+
+/**
  * @param {number} AID actor id
  * @param {number} status status id (StatusConst)
  * @param {number} state 1 on, 0 off
+ * @param {number} [value] the status's first value, which picks a stage
  */
-export function updateStatusEffects(AID, status, state) {
+export function updateStatusEffects(AID, status, state, value) {
 	const row = StatusEffectTable[status];
 	if (!row) {
 		return;
@@ -30,7 +41,14 @@ export function updateStatusEffects(AID, status, state) {
 				EffectManager.spam({ effectId, ownerAID: AID, persistent: true });
 			}
 		});
+		if (row.stages) {
+			stageEffects(row).forEach(effectId => EffectManager.remove(null, AID, effectId));
+			(row.stages[value] || []).forEach(effectId => EffectManager.spam({ effectId, ownerAID: AID }));
+		}
 	} else if (state == 0) {
 		loops.forEach(effectId => EffectManager.remove(null, AID, effectId));
+		(row.clears || []).forEach(other =>
+			stageEffects(StatusEffectTable[other]).forEach(effectId => EffectManager.remove(null, AID, effectId))
+		);
 	}
 }

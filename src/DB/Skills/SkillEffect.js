@@ -46,6 +46,10 @@
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
+ *	- successEffectIdOnCasterByScreenDirection:
+ *								12 effects; plays one on the caster when the skill succeeds, picked by where
+ *								the target is on screen: 30 degree steps clockwise, the first centred straight up.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
@@ -1039,8 +1043,19 @@ SkillEffect[SK.RL_AM_BLAST] = {}; //Anti-Material Blast
 SkillEffect[SK.RL_SLUGSHOT] = { effectId: 'ef_rl_slugshot' }; //Slug Shot
 SkillEffect[SK.RL_HAMMER_OF_GOD] = {}; //Hammer of God
 SkillEffect[SK.RL_R_TRIP_PLUSATK] = {}; //Round Trip Plus Attack
-SkillEffect[SK.NW_INTENSIVE_AIM] = { effectId: 'ef_nw_intensive_aim' }; //Intensive Aim
-SkillEffect[SK.NW_GRENADE_FRAGMENT] = { effectId: 'ef_nw_grenade_fragment' }; //Grenade Fragment
+SkillEffect[SK.NW_INTENSIVE_AIM] = { successEffectIdOnCaster: 'ef_nw_intensive_aim_helix' }; //Intensive Aim: the helix on the caster per use; the gauge is drawn by the Intensive Aim Count status (StatusEffectTable.js)
+SkillEffect[SK.NW_GRENADE_FRAGMENT] = {
+	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
+	successEffectIdOnCasterByLevel: [
+		'ef_nw_grenade_fragment_water',
+		'ef_nw_grenade_fragment_wind',
+		'ef_nw_grenade_fragment_earth',
+		'ef_nw_grenade_fragment_fire',
+		'ef_nw_grenade_fragment_darkness',
+		'ef_nw_grenade_fragment_saint',
+		'ef_nw_grenade_fragment_reset'
+	]
+}; //Grenade Fragment
 SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night' }; //The Vigilante at Night
 SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit' }; //Only One Bullet
 SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting' }; //Spiral Shooting
@@ -1278,7 +1293,16 @@ SkillEffect[SK.DK_HACKANDSLASHER_ATK] = { effectId: 'ef_dk_hackandslasher_atk' }
 SkillEffect[SK.DK_DRAGONIC_AURA] = { effectIdOnCaster: 'ef_dk_dragonic_aura' }; //Dragonic Aura
 SkillEffect[SK.DK_MADNESS_CRUSHER] = { effectId: 'ef_dk_madness_crusher' }; //Madness Crusher
 SkillEffect[SK.DK_VIGOR] = { effectId: 'ef_dk_vigor', effectIdOnCaster: 'ef_dk_vigor_cast' }; //Vigor
-SkillEffect[SK.DK_STORMSLASH] = { hitEffectId: 'ef_dk_stormslash_hit' }; //Storm Slash
+// Storm Slash: the official client plays the stage that matches the skill level
+SkillEffect[SK.DK_STORMSLASH] = {
+	successEffectIdOnCasterByLevel: [
+		'ef_dk_stormslash_1',
+		'ef_dk_stormslash_2',
+		'ef_dk_stormslash_3',
+		'ef_dk_stormslash_4',
+		'ef_dk_stormslash_5'
+	]
+}; //Storm Slash
 SkillEffect[SK.DK_DRAGONIC_BREATH] = { effectId: 'ef_dk_dragonic_breath', hitEffectId: 'ef_dk_dragonic_breath_hit' }; //Dragonic Breath
 SkillEffect[6502 /* DK_DRAGONIC_PIERCE */] = {
 	effectId: 'ef_dk_dragonic_pierce',
@@ -1676,7 +1700,25 @@ SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever
 SkillEffect[SK.WE_CHEERUP] = {}; //Cheer Up
-SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] = { effectId: 'ef_sh_chul_ho_sonic_claw' }; //Chulho Sonic Claw
+//Chulho Sonic Claw: the claw and one wave, both on the caster when the use packet succeeds.
+//The wave is picked by where the target is on screen, in 30 degree steps clockwise from straight up.
+SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] = {
+	successEffectIdOnCaster: 'ef_sh_chul_ho_sonic_claw',
+	successEffectIdOnCasterByScreenDirection: [
+		'ef_sh_chul_ho_sonic_claw_wave_12',
+		'ef_sh_chul_ho_sonic_claw_wave_1',
+		'ef_sh_chul_ho_sonic_claw_wave_1',
+		'ef_sh_chul_ho_sonic_claw_wave_3',
+		'ef_sh_chul_ho_sonic_claw_wave_5',
+		'ef_sh_chul_ho_sonic_claw_wave_5',
+		'ef_sh_chul_ho_sonic_claw_wave_6',
+		'ef_sh_chul_ho_sonic_claw_wave_7',
+		'ef_sh_chul_ho_sonic_claw_wave_7',
+		'ef_sh_chul_ho_sonic_claw_wave_9',
+		'ef_sh_chul_ho_sonic_claw_wave_11',
+		'ef_sh_chul_ho_sonic_claw_wave_11'
+	]
+};
 SkillEffect[SK.SH_HOWLING_OF_CHUL_HO] = { effectId: 'ef_sh_howling_of_chul_ho' }; //Howling of Chulho
 SkillEffect[SK.SH_HOGOGONG_STRIKE] = { effectId: 'ef_sh_hogogong_strike' }; //Hogogong Strike
 SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spraying' }; //Kisul Water Spraying

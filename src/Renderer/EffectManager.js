@@ -27,6 +27,7 @@ import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
+import { screenAngle, screenSector } from 'Renderer/Effects/ScreenDirection.js';
 import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
@@ -710,9 +711,14 @@ class EffectManager {
 			: 0;
 
 		//Start and End
+		// delayStart may be worked out per cast (from the caster's motion, say)
+		const delayStart =
+			typeof Params.effect.delayStart === 'function'
+				? Params.effect.delayStart(Params)
+				: Params.effect.delayStart;
 		Params.Inst.startTick =
 			Params.Inst.startTick +
-			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
+			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : delayStart || 0);
 		Params.Inst.endTick =
 			Params.Inst.duration > 0
 				? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration
@@ -927,8 +933,10 @@ class EffectManager {
 	 * @param {number} skill id
 	 * @param {number} target aid
 	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} [level] skill level from the packet
 	 */
-	static spamSkillSuccess(skillId, destAID, tick, srcAID) {
+	static spamSkillSuccess(skillId, destAID, tick, srcAID, level) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -951,6 +959,22 @@ class EffectManager {
 			});
 		}
 
+		// One file on the caster, picked by skill level (index level - 1; a
+		// level past the end plays the last). Grenade Fragment's element.
+		const byLevel = SkillEffect[skillId].successEffectIdOnCasterByLevel;
+		if (byLevel && byLevel.length && level > 0) {
+			const effectId = byLevel[Math.min(level, byLevel.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					skillLevel: level
+				});
+			}
+		}
+
 		if (SkillEffect[skillId].successEffectIdOnCaster) {
 			effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster)
 				? SkillEffect[skillId].successEffectIdOnCaster
@@ -966,6 +990,26 @@ class EffectManager {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+
+		// One of 12 files on the caster, picked by which way the target lies on screen
+		// (ScreenDirection.screenSector). Chul Ho Sonic Claw's waves.
+		const byDirection = SkillEffect[skillId].successEffectIdOnCasterByScreenDirection;
+		if (byDirection && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				const angle = screenAngle(srcEntity.position, destEntity.position);
+				const effectId = byDirection[screenSector(angle)];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
+			}
 		}
 	}
 

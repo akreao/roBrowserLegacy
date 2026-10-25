@@ -37,6 +37,7 @@ import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
+import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -10382,14 +10383,112 @@ export default {
 		}
 	],
 
-	// Chulho Sonic Claw (SH_CHUL_HO_SONIC_CLAW), from the client's own effect folders.
+	// Chulho Sonic Claw (SH_CHUL_HO_SONIC_CLAW): the claw on the caster when the skill is used.
 	ef_sh_chul_ho_sonic_claw: [
 		{
 			type: 'STR',
 			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/chul_ho_sonic_claw',
 			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/',
 			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/min_chul_ho_sonic_claw',
-			wav: 'effect/spirit_handler/sh_chul_ho_sonic_claw'
+			wav: 'effect/spirit_handler/sh_chul_ho_sonic_claw',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 12 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_12: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_12',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_12',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 1 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_1: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_1',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_1',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 3 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_3: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_3',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_3',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 5 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_5: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_5',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_5',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 6 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_6: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_6',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_6',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 7 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_7: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_7',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_7',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 9 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_9: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_9',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_9',
+			attachedEntity: true,
+			yOffset: 10
+		}
+	],
+
+	// Chulho Sonic Claw's wave toward a target at 11 o'clock on screen, on the caster.
+	ef_sh_chul_ho_sonic_claw_wave_11: [
+		{
+			type: 'STR',
+			file: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/chul_ho_sonic_claw_wave_11',
+			texturePath: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/',
+			min: 'spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw_wave/min_chul_ho_sonic_claw_wave_11',
+			attachedEntity: true,
+			yOffset: 10
 		}
 	],
 
@@ -20862,18 +20961,8 @@ export default {
 		}
 	],
 
-	// Storm Slash (DK_STORMSLASH), from the client's own effect folders.
-	ef_dk_stormslash_hit: [
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_stormslash/stormslash/stormslash_%d',
-			min: 'dragon_knight/dk_stormslash/stormslash/min_stormslash_%d',
-			rand: [1, 5],
-			texturePath: 'dragon_knight/dk_stormslash/stormslash/',
-			fallback: ['stormslash/stormslash/stormslash_%d'],
-			wav: 'effect/dk_stormslash1'
-		}
-	],
+	// Storm Slash (DK_STORMSLASH): one stage per skill level, ef_dk_stormslash_1 to _5.
+	...stormSlashEffects(),
 
 	// Dragonic Breath (DK_DRAGONIC_BREATH), from the client's own effect folders.
 	ef_dk_dragonic_breath: [
@@ -22576,24 +22665,274 @@ export default {
 		}
 	],
 
-	// Intensive Aim (NW_INTENSIVE_AIM), from the client's own effect folders.
-	ef_nw_intensive_aim: [
+	// Intensive Aim (NW_INTENSIVE_AIM): the aim gauge. The Intensive Aim Count status
+	// shows one stage per value (00 to 10), and the full glow at 10. See StatusEffectTable.js.
+	ef_nw_intensive_aim_00: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_00',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_00',
+			repeat: true,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_01: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_01',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_01',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_02: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_02',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_02',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_03: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_03',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_03',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_04: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_04',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_04',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_05: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_05',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_05',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_06: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_06',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_06',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_07: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_07',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_07',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_08: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_08',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_08',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_09: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_09',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_09',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_10: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_10',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_10',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	// The full gauge: loops from 496 ms while the count is 10.
+	ef_nw_intensive_aim_full: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full',
 			texturePath: 'night_watch/nw_intensive_aim/intensive_aim_full/',
 			min: 'night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full',
-			wav: 'effect/night_watch/nw_intensive_aim'
+			repeat: true,
+			delayStart: 496,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
 		}
 	],
 
-	// Grenade Fragment (NW_GRENADE_FRAGMENT), from the client's own effect folders.
-	ef_nw_grenade_fragment: [
+	// Played on the caster each time the skill is used.
+	ef_nw_intensive_aim_helix: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim_helix/intensiveaim_helix',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim_helix/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim_helix/min_intensiveaim_helix',
+			wav: 'effect/night_watch/nw_intensiveaim_helix',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+
+	// Grenade Fragment (NW_GRENADE_FRAGMENT): one file per skill level, from the
+	// EZ2 rows of the same name (PosY 10). See SkillEffect.js.
+	ef_nw_grenade_fragment_water: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_water/grenade_fragment_water',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_water/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_water/min_grenade_fragment_water',
+			wav: 'effect/night_watch/nw_grenade_fragment_water',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_wind: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_wind/grenade_fragment_wind',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_wind/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_wind/min_grenade_fragment_wind',
+			wav: 'effect/night_watch/nw_grenade_fragment_wind',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_earth: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_earth/grenade_fragment_earth',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_earth/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_earth/min_grenade_fragment_earth',
+			wav: 'effect/night_watch/nw_grenade_fragment_earth',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_fire: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire',
 			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/',
-			min: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire'
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire',
+			wav: 'effect/night_watch/nw_grenade_fragment_fire',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_darkness: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_darkness/grenade_fragment_darkness',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_darkness/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_darkness/min_grenade_fragment_darkness',
+			wav: 'effect/night_watch/nw_grenade_fragment_darkness',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_saint: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_saint/grenade_fragment_saint',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_saint/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_saint/min_grenade_fragment_saint',
+			wav: 'effect/night_watch/nw_grenade_fragment_saint',
+			yOffset: 10,
+			attachedEntity: true
+		}
+	],
+	ef_nw_grenade_fragment_reset: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_grenade_fragment/grenade_fragment_reset/grenade_fragment_reset',
+			texturePath: 'night_watch/nw_grenade_fragment/grenade_fragment_reset/',
+			min: 'night_watch/nw_grenade_fragment/grenade_fragment_reset/min_grenade_fragment_reset',
+			wav: 'effect/night_watch/nw_grenade_fragment_reset',
+			yOffset: 10,
+			attachedEntity: true
 		}
 	],
 

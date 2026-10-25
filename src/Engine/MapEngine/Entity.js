@@ -1584,7 +1584,7 @@ function onEntityUseSkill(pkt) {
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
 		if (pkt.result == 1) {
-			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID);
+			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 		}
 	}
 }
@@ -2519,7 +2519,7 @@ function onEntityStatusChange(pkt) {
 			break;
 	}
 
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state);
+	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val ? pkt.val[0] : undefined);
 	processBlockStatus(entity, pkt);
 
 	// Modify icon
