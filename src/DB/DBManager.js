@@ -4700,6 +4700,34 @@ function strFileKey(file) {
 }
 
 /**
+ * Words that name one variant of an effect: a stage (_00, _1), a size
+ * (_5x5), an element (_earth) or a direction (_leftdown). A stage number on
+ * the end of a word (hit2) is taken off too.
+ */
+const EZ2_VARIANT_WORD =
+	/^(\d+|\d+x\d+|earth|fire|water|wind|ice|saint|holy|dark|darkness|poison|ghost|undead|neutral|reset|leftdown|rightdown|leftup|rightup)$/;
+
+/**
+ * strFileKey with the variant words taken out, so the variants of one
+ * effect (four_charm_earth, four_charm_fire, four_charm_ice) share a key.
+ *
+ * @param {string} file STR path without extension
+ * @return {string}
+ */
+function strVariantKey(file) {
+	return strFileKey(file)
+		.split('/')
+		.map(part =>
+			part
+				.split('_')
+				.filter(word => !EZ2_VARIANT_WORD.test(word))
+				.map(word => word.replace(/([a-z])\d+$/, '$1'))
+				.join('_')
+		)
+		.join('/');
+}
+
+/**
  * Whether a skill's effects already draw this STR file.
  * Ignores the leading folders: older hand-written rows load the same STR
  * from its pre-4th-job folder (roseblossom/roseblossom_cast/... instead of
@@ -4709,19 +4737,20 @@ function strFileKey(file) {
  * @param {object} skillEntry SkillEffect row, or undefined
  * @param {object} EffectTable
  * @param {string} file STR path without extension
+ * @param {function} [keyOf] what counts as the same file, strFileKey by default
  * @return {boolean}
  */
-function skillPlaysFile(skillEntry, EffectTable, file) {
+function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	if (!skillEntry || !file) {
 		return false;
 	}
-	const wanted = strFileKey(file);
+	const wanted = keyOf(file);
 	for (const field in skillEntry) {
 		const value = skillEntry[field];
 		const names = Array.isArray(value) ? value : [value];
 		for (const name of names) {
 			const effects = typeof name === 'string' ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some(effect => strFileKey(effect.file) === wanted)) {
+			if (Array.isArray(effects) && effects.some(effect => keyOf(effect.file) === wanted)) {
 				return true;
 			}
 		}
@@ -4892,11 +4921,13 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		// status that plays it (StatusEffectTable.js), would draw it twice.
 		// Endless (IsInfinite) files are a status's or a unit's loop: played
 		// from a skill's cast, nothing would ever stop them.
+		// Only one variant of an effect: the official client picks one by
+		// stage, element or direction, and all of them at once is a pile.
 		const file = EffectTable[effectName][0].file;
 		if (
 			skillId &&
 			!entry.IsInfinite &&
-			!skillPlaysFile(SkillEffect[skillId], EffectTable, file) &&
+			!skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) &&
 			!statusPlaysFile(EffectTable, file)
 		) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
