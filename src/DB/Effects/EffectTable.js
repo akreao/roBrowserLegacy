@@ -25850,6 +25850,27 @@ export default {
 			yOffset: 10
 		}
 	],
+	// Typhoon Wing cast: the official client draws the untinted cast circle in
+	// magic_green.tga (its effect 56) for the cast time, instead of an element aura
+	ef_druid_typhoon_wing_cast: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'magic_green.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
 	ef_druid_feather_sprinkle: [
 		{
 			type: 'STR',
