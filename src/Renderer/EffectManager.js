@@ -1066,6 +1066,24 @@ class EffectManager {
 			}
 		}
 
+		// One effect on the caster, turned on screen toward the target once, at
+		// the start (screenTurn = ScreenDirection.screenAngle). Needs a target.
+		// Quill Spear.
+		const aimed = SkillEffect[skillId].successEffectIdOnCasterAimed;
+		if (aimed && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				EffectManager.spam({
+					effectId: aimed,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					screenTurn: screenAngle(srcEntity.position, destEntity.position)
+				});
+			}
+		}
+
 		// One effect where the target stands (its rows are not attached, so it stays
 		// put), picked by which half of the screen the target is in, seen from the
 		// caster (ScreenDirection.screenSide). Radiant Spear's leftdown/rightdown spear.
