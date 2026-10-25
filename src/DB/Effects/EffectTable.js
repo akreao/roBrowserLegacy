@@ -15577,21 +15577,102 @@ export default {
 		}
 	],
 
-	// Four Colors Charm (SS_FOUR_CHARM), from the client's own effect folders.
-	ef_ss_four_charm: [
-		{
-			type: 'STR',
-			file: 'shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice',
-			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_ice/',
-			min: 'shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice',
-			wav: 'effect/shinkiro_shiranui/ss_four_charm'
-		},
+	// Four Colors Charm (SS_FOUR_CHARM), one look per charm element (EZ2 rows
+	// four_charm_<element>_bottom then four_charm_<element>). SkillEffect picks one
+	// from the caster's charm type.
+	ef_ss_four_charm_water: [
 		{
 			type: 'STR',
 			file: 'shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/four_charm_ice_bottom',
 			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/',
 			min: 'shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/min_four_charm_ice_bottom',
-			renderBeforeEntities: true
+			wav: 'effect/shinkiro_shiranui/ss_four_charm_water',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_ice/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
+		}
+	],
+
+	ef_ss_four_charm_earth: [
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_earth_bottom/four_charm_earth_bottom',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_earth_bottom/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_earth_bottom/min_four_charm_earth_bottom',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm_earth',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_earth/four_charm_earth',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_earth/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_earth/min_four_charm_earth',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
+		}
+	],
+
+	ef_ss_four_charm_fire: [
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_fire_bottom/four_charm_fire_bottom',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_fire_bottom/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_fire_bottom/min_four_charm_fire_bottom',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm_fire',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_fire/four_charm_fire',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_fire/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_fire/min_four_charm_fire',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
+		}
+	],
+
+	ef_ss_four_charm_wind: [
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_wind_bottom/four_charm_wind_bottom',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_wind_bottom/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_wind_bottom/min_four_charm_wind_bottom',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm_wind',
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		},
+		{
+			type: 'STR',
+			file: 'shinkiro_shiranui/ss_four_charm/four_charm_wind/four_charm_wind',
+			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_wind/',
+			min: 'shinkiro_shiranui/ss_four_charm/four_charm_wind/min_four_charm_wind',
+			wav: 'effect/shinkiro_shiranui/ss_four_charm',
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: true
 		}
 	],
 

@@ -36,6 +36,10 @@
  *	- beginCastTargetEffectId: 	Triggers once when the cast starts, on the skill's target. Nothing plays without a known target.
  *								Can be used for effects the official client shows on the target while the caster casts.
  *
+ *	- effectIdByCharmType: 		Triggers once for every skill use, on the caster. Map of spirit charm type
+ *								(1 water, 2 earth, 3 fire, 4 wind) to effect; plays the one for the caster's
+ *								charms (ZC_SPIRITS_ATTRIBUTE), nothing without charms.
+ *
  *	- successEffectId: 			Triggers when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
@@ -1116,7 +1120,14 @@ SkillEffect[SK.SS_ANTENPOU] = { effectId: 'ef_ss_antenpou' }; //Darkening Cannon
 SkillEffect[SK.SS_KAGEAKUMU] = { effectId: 'ef_ss_kageakumu' }; //Shadow - Nightmare
 SkillEffect[SK.SS_HITOUAKUMU] = { effectId: 'ef_ss_hitouakumu' }; //Kunai - Nightmare
 SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
-SkillEffect[5499 /* SS_FOUR_CHARM */] = { effectId: 'ef_ss_four_charm' }; //Four Colors Charm
+SkillEffect[5499 /* SS_FOUR_CHARM */] = {
+	effectIdByCharmType: {
+		1: 'ef_ss_four_charm_water',
+		2: 'ef_ss_four_charm_earth',
+		3: 'ef_ss_four_charm_fire',
+		4: 'ef_ss_four_charm_wind'
+	}
+}; //Four Colors Charm
 SkillEffect[SK.KG_KAGEHUMI] = {}; //Shadow Trampling
 SkillEffect[SK.KG_KYOMU] = {}; //Empty Shadow
 SkillEffect[SK.KG_KAGEMUSYA] = {}; //Shadow Warrior
