@@ -40,6 +40,7 @@
  *								Can be used to create casting effects.
  *
  *	- beginCastTargetEffectId: 	Triggers once when the cast starts, on the skill's target. Nothing plays without a known target.
+ *	- beginCastEffectIdInRaptorForm: Triggers once when the cast starts, on the caster, only while it is in Wereraptor form.
  *								Can be used for effects the official client shows on the target while the caster casts.
  *
  *	- effectIdByCharmType: 		Triggers once for every skill use, on the caster. Map of spirit charm type
@@ -1941,16 +1942,20 @@ SkillEffect[SK.SP_SOULREVOLVE] = { effectId: 'ef_sp_soulrevolve' }; //Soul Revol
 SkillEffect[SK.NV_HELPANGEL] = { effectId: 'ef_nv_helpangel' }; //Help Angel
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)
+// While casting, the official client shows no element aura for skills 6525-6606
+// (DB/Skills/CastAuraRule.js), only the skill's own cast effect: castAuraEffectId
+// (cast circle 54 blue, 56 green, 57 yellow, or 12) and/or beginCastEffectId rows.
+// See effect-port/druid-cast-aura.md.
 SkillEffect[SK.DR_WEREWOLF] = { effectId: 'ef_druid_werewolf' };
 SkillEffect[SK.DR_WERERAPTOR] = { effectId: 'ef_druid_wereraptor' };
-SkillEffect[SK.DR_ENRAGE_WOLF] = { effectId: 'ef_druid_enrage_wolf' };
-SkillEffect[SK.DR_ENRAGE_RAPTOR] = { effectId: 'ef_druid_enrage_raptor' };
-SkillEffect[SK.DR_BLOOD_HOWLING] = { effectId: 'ef_druid_blood_howling' };
-SkillEffect[SK.DR_PREENING] = { effectId: 'ef_druid_preening' };
-SkillEffect[SK.DR_TRUTH_OF_ICE] = { effectId: 'ef_druid_truth_of_ice' };
-SkillEffect[SK.DR_TRUTH_OF_WIND] = { effectId: 'ef_druid_truth_of_wind' };
-SkillEffect[SK.DR_TRUTH_OF_EARTH] = { effectId: 'ef_druid_truth_of_earth' };
-SkillEffect[SK.DR_NATURE_SHIELD] = { effectId: 'ef_druid_nature_shield' };
+SkillEffect[SK.DR_ENRAGE_WOLF] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_enrage_wolf' };
+SkillEffect[SK.DR_ENRAGE_RAPTOR] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectId: 'ef_druid_enrage_raptor' };
+SkillEffect[SK.DR_BLOOD_HOWLING] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_blood_howling' };
+SkillEffect[SK.DR_PREENING] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectId: 'ef_druid_preening' };
+SkillEffect[SK.DR_TRUTH_OF_ICE] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_truth_of_ice' };
+SkillEffect[SK.DR_TRUTH_OF_WIND] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectId: 'ef_druid_truth_of_wind' };
+SkillEffect[SK.DR_TRUTH_OF_EARTH] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectId: 'ef_druid_truth_of_earth' };
+SkillEffect[SK.DR_NATURE_SHIELD] = { castAuraEffectId: 12, effectId: 'ef_druid_nature_shield' };
 SkillEffect[SK.DR_NOMERCY_CLAW] = { effectIdOnCaster: 'ef_druid_nomercy_claw', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.DR_CRUEL_BITE] = { effectId: 'ef_druid_cruel_bite', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.DR_HUNGER] = { effectIdOnCaster: 'ef_druid_hunger', effectId: 'ef_druid_hunger_target', hitEffectId: 'ef_druid_hit_wolf' };
@@ -1959,38 +1964,38 @@ SkillEffect[SK.DR_FLICKING_TONADO] = { effectIdOnCaster: 'ef_druid_flicking_tona
 SkillEffect[SK.DR_LOW_FLIGHT] = { effectIdOnCaster: 'ef_druid_low_flight_up', effectId: 'ef_druid_low_flight', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.DR_ICE_TOTEM] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_totem', hitEffectId: 'ef_druid_ice_hit' };
 SkillEffect[SK.DR_ICE_CLOUD] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_cloud', hitEffectId: 'ef_druid_ice_hit' };
-SkillEffect[SK.DR_CUTTING_WIND] = { effectIdOnCaster: 'ef_druid_cutting_wind', hitEffectId: 'ef_druid_cutting_wind_hit' };
-SkillEffect[SK.DR_WIND_BOMB] = { effectId: 'ef_druid_wind_bomb', hitEffectId: 'ef_druid_wind_bomb_hit' };
-SkillEffect[SK.DR_EARTH_FLOWER] = { effectId: 'ef_druid_earth_flower' };
-SkillEffect[SK.DR_AROUND_FLOWER] = { effectIdOnCaster: 'ef_druid_around_flower' };
+SkillEffect[SK.DR_CUTTING_WIND] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectIdOnCaster: 'ef_druid_cutting_wind', hitEffectId: 'ef_druid_cutting_wind_hit' };
+SkillEffect[SK.DR_WIND_BOMB] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectId: 'ef_druid_wind_bomb', hitEffectId: 'ef_druid_wind_bomb_hit' };
+SkillEffect[SK.DR_EARTH_FLOWER] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectId: 'ef_druid_earth_flower' };
+SkillEffect[SK.DR_AROUND_FLOWER] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectIdOnCaster: 'ef_druid_around_flower' };
 SkillEffect[SK.KR_NASTY_SLASH] = { effectId: 'ef_druid_nasty_slash', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.KR_DOUBLE_SLASH] = { effectId: 'ef_druid_double_slash', hitEffectId: 'ef_druid_hit_wolf' };
-SkillEffect[SK.KR_CLAW_WAVE] = { effectId: 'ef_druid_claw_wave', hitEffectId: 'ef_druid_hit_wolf' };
+SkillEffect[SK.KR_CLAW_WAVE] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_claw_wave', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.KR_CHOP_CHOP] = { effectIdOnCaster: 'ef_druid_chop_chop', hitEffectId: 'ef_druid_chop_chop_hit' };
-SkillEffect[SK.KR_IRON_HOWLING] = { effectId: 'ef_druid_iron_howling' };
-SkillEffect[SK.KR_SHARPEN_GUST] = { effectIdOnCaster: 'ef_druid_sharpen_gust', hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.KR_SHARPEN_HAIL] = { effectId: ['ef_druid_sharpen_hail_shot', 'ef_druid_sharpen_hail'], hitEffectId: 'ef_druid_hit_raptor' };
-// Typhoon Wing: green cast circle while casting (no element aura), then one size at the cell by level
-SkillEffect[SK.KR_TYPHOON_WING] = { castAuraEffectId: 'ef_druid_typhoon_wing_cast', groundEffectIdByLevel: ['ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_7x7'], hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.KR_IRON_HOWLING] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_iron_howling' };
+SkillEffect[SK.KR_SHARPEN_GUST] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectIdOnCaster: 'ef_druid_sharpen_gust', hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.KR_SHARPEN_HAIL] = { castAuraEffectId: 'ef_druid_cast_circle_green', beginCastEffectId: 'ef_druid_sharpen_hail', effectId: 'ef_druid_sharpen_hail_shot', hitEffectId: 'ef_druid_hit_raptor' };
+// Typhoon Wing: one size at the cell by level
+SkillEffect[SK.KR_TYPHOON_WING] = { castAuraEffectId: 'ef_druid_cast_circle_green', groundEffectIdByLevel: ['ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_5x5', 'ef_druid_typhoon_wing_7x7'], hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.KR_FEATHER_SPRINKLE] = { effectIdOnCaster: 'ef_druid_feather_sprinkle', hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.KR_WIND_VEIL] = { effectId: 'ef_druid_wind_veil' };
+SkillEffect[SK.KR_WIND_VEIL] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectId: 'ef_druid_wind_veil' };
 SkillEffect[SK.KR_ICE_PILLAR] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_pillar_start', hitEffectId: 'ef_druid_ice_hit' };
 SkillEffect[SK.KR_ICE_SPLASH] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_ice_splash', hitEffectId: 'ef_druid_ice_hit' };
 // Thundering Focus: one floor ring on the target when the use succeeds, the same at every level
 SkillEffect[SK.KR_THUNDERING_FOCUS] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectId: 'ef_druid_thundering_focus_g', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.KR_THUNDERING_FOCUS_S] = { successEffectId: 'ef_druid_thundering_focus_y', hitEffectId: 'ef_druid_thunder_hit_y' };
+SkillEffect[SK.KR_THUNDERING_FOCUS_S] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectId: 'ef_druid_thundering_focus_y', hitEffectId: 'ef_druid_thunder_hit_y' };
 // Thundering Orb: from the ground packet only, the orb flies to the cell, then the burst
 SkillEffect[SK.KR_THUNDERING_ORB] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: ['ef_druid_thundering_orb_throw', 'ef_druid_thundering_orb_g'], groundRepeatWindowMs: REPEAT_WINDOW_MS, hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.KR_THUNDERING_ORB_S] = { effectId: ['ef_druid_thundering_orb_throw', 'ef_druid_thundering_orb_y'], groundRepeatWindowMs: REPEAT_WINDOW_MS, hitEffectId: 'ef_druid_thunder_hit_y' };
+SkillEffect[SK.KR_THUNDERING_ORB_S] = { beginCastEffectId: 'ef_druid_thunder_cast', effectId: ['ef_druid_thundering_orb_throw', 'ef_druid_thundering_orb_y'], groundRepeatWindowMs: REPEAT_WINDOW_MS, hitEffectId: 'ef_druid_thunder_hit_y' };
 // Thundering Call: on the target when the use succeeds, 3x3 for level 1-6 and 5x5 from 7
 SkillEffect[SK.KR_THUNDERING_CALL] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_3x3', 'ef_druid_thundering_call_g_5x5'], hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.KR_THUNDERING_CALL_S] = { successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_5x5'], hitEffectId: 'ef_druid_thunder_hit_y' };
-SkillEffect[SK.KR_EARTH_DRILL] = { effectId: 'ef_druid_earth_drill' };
-SkillEffect[SK.KR_EARTH_STAMP] = { effectId: 'ef_druid_earth_stamp' };
+SkillEffect[SK.KR_THUNDERING_CALL_S] = { beginCastEffectId: 'ef_druid_thunder_cast', successEffectIdOnTargetByLevel: ['ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_3x3', 'ef_druid_thundering_call_y_5x5'], hitEffectId: 'ef_druid_thunder_hit_y' };
+SkillEffect[SK.KR_EARTH_DRILL] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectId: 'ef_druid_earth_drill' };
+SkillEffect[SK.KR_EARTH_STAMP] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectId: 'ef_druid_earth_stamp' };
 SkillEffect[SK.KR_NATURE_PROTECTION] = { effectId: 'ef_druid_nature_protection' };
 SkillEffect[SK.KR_GROUND_BLOOM] = { effectIdOnCaster: 'ef_druid_ground_bloom' };
-SkillEffect[SK.AT_PULSE_OF_MADNESS] = { effectId: 'ef_druid_pulse_of_madness' };
-SkillEffect[SK.AT_ALPHA_PHASE] = { effectId: 'ef_druid_alpha_phase' };
+SkillEffect[SK.AT_PULSE_OF_MADNESS] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_pulse_of_madness' };
+SkillEffect[SK.AT_ALPHA_PHASE] = { castAuraEffectId: 'ef_druid_cast_circle_blue', effectId: 'ef_druid_alpha_phase' };
 SkillEffect[SK.AT_APEX_PHASE] = { effectId: 'ef_druid_apex_phase' };
 SkillEffect[SK.AT_FLIP_FLAP] = { effectId: 'ef_druid_flip_flap' };
 SkillEffect[SK.AT_FLIP_FLAP_TARGET] = { effectId: 'ef_druid_flip_flap' };
@@ -2000,25 +2005,25 @@ SkillEffect[SK.AT_FERAL_CLAW] = { effectIdOnCaster: 'ef_druid_feral_claw', hitEf
 SkillEffect[SK.AT_ALPHA_CLAW] = { effectIdOnCaster: 'ef_druid_alpha_claw', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.AT_SAVAGE_LUNGE] = { effectId: 'ef_druid_savage_lunge', hitEffectId: 'ef_druid_hit_wolf' };
 SkillEffect[SK.AT_FRENZY_FANG] = { effectId: 'ef_druid_frenzy_fang', hitEffectId: 'ef_druid_hit_wolf' };
-SkillEffect[SK.AT_PINION_SHOT] = { effectIdOnCaster: 'ef_druid_pinion_shot', hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.AT_QUILL_SPEAR] = { successEffectIdOnCasterAimed: 'ef_druid_quill_spear_3x7', hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.AT_PINION_SHOT] = { castAuraEffectId: 'ef_druid_cast_circle_green', effectIdOnCaster: 'ef_druid_pinion_shot', hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.AT_QUILL_SPEAR] = { castAuraEffectId: 'ef_druid_cast_circle_green', successEffectIdOnCasterAimed: 'ef_druid_quill_spear_3x7', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.AT_QUILL_SPEAR_S] = { successEffectIdOnCasterAimed: 'ef_druid_quill_spear_5x7', hitEffectId: 'ef_druid_hit_raptor' };
-SkillEffect[SK.AT_TEMPEST_FLAP] = { effectIdOnCaster: 'ef_druid_tempest_flap_cast', effectId: 'ef_druid_tempest_flap', hitEffectId: 'ef_druid_hit_raptor' };
+SkillEffect[SK.AT_TEMPEST_FLAP] = { beginCastEffectIdInRaptorForm: 'ef_druid_tempest_flap_cast', effectId: 'ef_druid_tempest_flap', hitEffectId: 'ef_druid_hit_raptor' };
 SkillEffect[SK.AT_AERO_SYNC] = { effectIdOnCaster: 'ef_druid_aero_sync_self', effectId: 'ef_druid_aero_sync' };
 SkillEffect[SK.AT_ZEPHYR_LINK] = { effectId: 'ef_druid_zephyr_link' };
 SkillEffect[SK.AT_GLACIER_MONOLITH] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_glacier_monolith_start', hitEffectId: 'ef_druid_ice_hit' };
-SkillEffect[SK.AT_GLACIER_NOVA] = { effectId: 'ef_druid_glacier_nova', hitEffectId: 'ef_druid_ice_hit' };
+SkillEffect[SK.AT_GLACIER_NOVA] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_glacier_nova', hitEffectId: 'ef_druid_ice_hit' };
 SkillEffect[SK.AT_GLACIER_SHARD] = { beginCastEffectId: 'ef_druid_ice_cast', effectId: 'ef_druid_glacier_shard', hitEffectId: 'ef_druid_ice_hit' };
-SkillEffect[SK.AT_GLACIER_STOMP] = { effectIdOnCaster: 'ef_druid_glacier_stomp', hitEffectId: 'ef_druid_ice_hit' };
-SkillEffect[SK.AT_CHILLING_BLAST] = { effectIdOnCaster: 'ef_druid_chilling_blast', hitEffectId: 'ef_druid_ice_hit' };
+SkillEffect[SK.AT_GLACIER_STOMP] = { beginCastEffectId: 'ef_druid_ice_cast', effectIdOnCaster: 'ef_druid_glacier_stomp', hitEffectId: 'ef_druid_ice_hit' };
+SkillEffect[SK.AT_CHILLING_BLAST] = { beginCastEffectId: 'ef_druid_ice_cast', effectIdOnCaster: 'ef_druid_chilling_blast', hitEffectId: 'ef_druid_ice_hit' };
 SkillEffect[SK.AT_ROARING_PIERCER] = { beginCastEffectId: 'ef_druid_thunder_cast', effectIdOnCaster: 'ef_druid_roaring_piercer_g', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.AT_ROARING_PIERCER_S] = { effectIdOnCaster: 'ef_druid_roaring_piercer_y', hitEffectId: 'ef_druid_thunder_hit_y' };
-SkillEffect[SK.AT_ROARING_CHARGE] = { effectIdOnCaster: 'ef_druid_roaring_charge', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.AT_ROARING_CHARGE_S] = { effectIdOnCaster: 'ef_druid_roaring_charge_s', hitEffectId: 'ef_druid_thunder_hit_y' };
-SkillEffect[SK.AT_FURIOS_STORM] = { effectIdOnCaster: 'ef_druid_furios_storm', hitEffectId: 'ef_druid_thunder_hit_g' };
-SkillEffect[SK.AT_TERRA_WAVE] = { effectId: 'ef_druid_terra_wave' };
-SkillEffect[SK.AT_TERRA_HARVEST] = { effectId: 'ef_druid_terra_harvest' };
-SkillEffect[SK.AT_SOLID_STOMP] = { effectIdOnCaster: 'ef_druid_solid_stomp' };
-SkillEffect[SK.AT_GRAVITY_HOLE] = { effectIdOnCaster: 'ef_druid_gravity_hole' };
+SkillEffect[SK.AT_ROARING_PIERCER_S] = { beginCastEffectId: 'ef_druid_thunder_cast', effectIdOnCaster: 'ef_druid_roaring_piercer_y', hitEffectId: 'ef_druid_thunder_hit_y' };
+SkillEffect[SK.AT_ROARING_CHARGE] = { beginCastEffectId: 'ef_druid_thunder_cast', effectIdOnCaster: 'ef_druid_roaring_charge', hitEffectId: 'ef_druid_thunder_hit_g' };
+SkillEffect[SK.AT_ROARING_CHARGE_S] = { beginCastEffectId: 'ef_druid_thunder_cast', effectIdOnCaster: 'ef_druid_roaring_charge_s', hitEffectId: 'ef_druid_thunder_hit_y' };
+SkillEffect[SK.AT_FURIOS_STORM] = { beginCastEffectId: 'ef_druid_thunder_cast', effectIdOnCaster: 'ef_druid_furios_storm', hitEffectId: 'ef_druid_thunder_hit_g' };
+SkillEffect[SK.AT_TERRA_WAVE] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectId: 'ef_druid_terra_wave' };
+SkillEffect[SK.AT_TERRA_HARVEST] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectId: 'ef_druid_terra_harvest' };
+SkillEffect[SK.AT_SOLID_STOMP] = { castAuraEffectId: 'ef_druid_cast_circle_yellow', effectIdOnCaster: 'ef_druid_solid_stomp' };
+SkillEffect[SK.AT_GRAVITY_HOLE] = { castAuraEffectId: 12, effectIdOnCaster: 'ef_druid_gravity_hole' };
 
 export default SkillEffect;

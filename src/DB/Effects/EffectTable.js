@@ -25850,9 +25850,10 @@ export default {
 			yOffset: 10
 		}
 	],
-	// Typhoon Wing cast: the official client draws the untinted cast circle in
-	// magic_green.tga (its effect 56) for the cast time, instead of an element aura
-	ef_druid_typhoon_wing_cast: [
+	// Druid cast circles: the official client gives skills 6525-6606 no element
+	// aura; their cast slot plays one of its cast circles for the cast time instead
+	// (effect-port/druid-cast-aura.md). Effect 56: untinted, magic_green.tga
+	ef_druid_cast_circle_green: [
 		{
 			type: 'FUNC',
 			attachedEntity: true,
@@ -25865,6 +25866,48 @@ export default {
 						Params.Inst.startTick,
 						Params.Init.duration,
 						'magic_green.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
+	// Effect 54: tinted circle, ring_blue.tga, mode 2 (bluish, normal blending)
+	ef_druid_cast_circle_blue: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_blue.tga',
+						2
+					),
+					Params
+				);
+			}
+		}
+	],
+	// Effect 57: tinted circle, ring_yellow.tga, mode 0 (white, normal blending)
+	ef_druid_cast_circle_yellow: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						0
 					),
 					Params
 				);
