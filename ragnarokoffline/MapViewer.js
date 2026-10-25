@@ -223970,7 +223970,8 @@ var init_SkillEffect = __esmMin((() => {
 			"ef_ss_hitouakumu_00",
 			"ef_ss_hitouakumu_01",
 			"ef_ss_hitouakumu_02"
-		]
+		],
+		castAuraEffectId: 812
 	};
 	SkillEffect[SkillConst_default.SS_ANKOKURYUUAKUMU] = { effectId: "ef_ss_ankokuryuuakumu" };
 	SkillEffect[5499] = { effectIdByCharmType: {
@@ -224969,6 +224970,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_druid_hit_raptor"
 	};
 	SkillEffect[SkillConst_default.KR_TYPHOON_WING] = {
+		castAuraEffectId: "ef_druid_typhoon_wing_cast",
 		groundEffectIdByLevel: [
 			"ef_druid_typhoon_wing_5x5",
 			"ef_druid_typhoon_wing_5x5",
@@ -272224,7 +272226,13 @@ function createPrimState(effect) {
 		alpha: num(effect.alpha, 254),
 		alphaSpeed: num(effect.alphaSpeed, 0),
 		alphaMax: num(effect.alphaMax, 254),
-		fadeOutFrame: num(effect.fadeOutFrame, -1)
+		fadeOutFrame: num(effect.fadeOutFrame, -1),
+		size: num(effect.size, 0),
+		sizeSpeed: num(effect.sizeSpeed, 0),
+		sizeAccel: num(effect.sizeAccel, 0),
+		sizeChangeFrame: num(effect.sizeChangeFrame, -1),
+		sizeChangeSpeed: num(effect.sizeChangeSpeed, 0),
+		sizeChangeAccel: num(effect.sizeChangeAccel, 0)
 	};
 }
 /**
@@ -272238,6 +272246,12 @@ function stepPrim(state) {
 	state.radiusSpeed += state.radiusAccel;
 	state.radius += state.radiusSpeed;
 	state.yaw += state.spin;
+	if (state.frame === state.sizeChangeFrame) {
+		state.sizeSpeed = state.sizeChangeSpeed;
+		state.sizeAccel = state.sizeChangeAccel;
+	}
+	state.sizeSpeed += state.sizeAccel;
+	state.size += state.sizeSpeed;
 	state.frame++;
 }
 /**
@@ -272277,6 +272291,7 @@ function vertex$2(out, i, center, x, y, up, u, v) {
 function primVertexCount(effect) {
 	const segments = num(effect.segments, 10);
 	if (effect.prim === "sphere") return segments * num(effect.bands, 5) * 6;
+	if (effect.prim === "quad") return 6;
 	return segments * 6;
 }
 /**
@@ -272355,6 +272370,26 @@ function buildSphere(out, effect, state, center) {
 	}
 }
 /**
+* Build the quad: a level square spanning -size..+size on both ground axes,
+* height units above the ground, the whole texture corner to corner.
+*
+* @param {Float32Array} out
+* @param {object} effect description
+* @param {object} state
+* @param {Array} center position, in cells
+*/
+function buildQuad(out, effect, state, center) {
+	const s = state.size;
+	const up = num(effect.height, 0);
+	let o = 0;
+	o = vertex$2(out, o, center, s, s, up, 0, 0);
+	o = vertex$2(out, o, center, s, -s, up, 1, 0);
+	o = vertex$2(out, o, center, -s, s, up, 0, 1);
+	o = vertex$2(out, o, center, s, -s, up, 1, 0);
+	o = vertex$2(out, o, center, -s, -s, up, 1, 1);
+	vertex$2(out, o, center, -s, s, up, 0, 1);
+}
+/**
 * Fill a vertex buffer with the primitive's triangles in its current state
 *
 * @param {Float32Array} out, primVertexCount(effect) * 5 floats
@@ -272364,6 +272399,7 @@ function buildSphere(out, effect, state, center) {
 */
 function buildPrimGeometry(out, effect, state, center) {
 	if (effect.prim === "sphere") buildSphere(out, effect, state, center);
+	else if (effect.prim === "quad") buildQuad(out, effect, state, center);
 	else buildRing(out, effect, state, center);
 }
 var PRIM_TICK_MS;
@@ -272403,10 +272439,15 @@ var init_EffectPrim = __esmMin((() => {
 			this.endTick = this.startTick + this.state.frames * PRIM_TICK_MS;
 			this.vertexCount = primVertexCount(effect);
 			this.vertices = new Float32Array(this.vertexCount * 5);
+			const color = effect.color || [
+				255,
+				255,
+				255
+			];
 			this.color = new Float32Array([
-				1,
-				1,
-				1,
+				color[0] / 255,
+				color[1] / 255,
+				color[2] / 255,
 				0
 			]);
 			this.dirty = true;
@@ -287253,6 +287294,50 @@ var init_CastCircle = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/CasterStrobe.js
+/**
+* Colour multiplier of the caster on a tick of the effect
+*
+* @param {number} frame tick since the effect started
+* @return {number} 0 (black) .. 1 (normal)
+*/
+function casterStrobeShade(frame) {
+	if (frame < STROBE.first) return 1;
+	if (frame <= STROBE.last) return frame % 2 ? 1 : 0;
+	return Math.min(1, (frame - STROBE.last) * STROBE.recoverStep / 255);
+}
+/**
+* Run the strobe on an entity, through its flash colour
+*
+* @param {Entity} entity
+*/
+function startCasterStrobe(entity) {
+	if (!entity || !entity.animations || !entity._flashColor) return;
+	const setShade = (shade) => {
+		entity._flashColor[0] = shade;
+		entity._flashColor[1] = shade;
+		entity._flashColor[2] = shade;
+		entity._flashColor[3] = 1;
+		entity.recalculateBlendingColor();
+	};
+	entity.animations.add((tick) => {
+		const frame = Math.floor(tick / PRIM_TICK_MS);
+		const poisoned = (entity._healthState & StatusState_default.HealthState.POISON) !== 0;
+		const done = frame > STROBE.last && (poisoned || casterStrobeShade(frame) >= 1);
+		setShade(done ? 1 : casterStrobeShade(frame));
+		return done;
+	});
+}
+var STROBE;
+var init_CasterStrobe = __esmMin((() => {
+	init_StatusState();
+	init_EffectPrimSim();
+	STROBE = {
+		first: 6,
+		last: 60,
+		recoverStep: 8
+	};
+}));
 // src/Renderer/Effects/EnergyOrbSim.js
 /**
 * The orbs for `count` charms, at their start angles with a random phase and bob.
@@ -287578,6 +287663,7 @@ var init_EffectTable = __esmMin((() => {
 	init_WarlockSphere();
 	init_CastCone();
 	init_CastCircle();
+	init_CasterStrobe();
 	init_EnergyOrb();
 	init_Altitude();
 	init_Renderer();
@@ -299225,6 +299311,33 @@ var init_EffectTable = __esmMin((() => {
 			}
 		}],
 		811: [{ wav: "effect/bodypaint" }],
+		812: [{
+			type: "PRIM",
+			prim: "quad",
+			texture: "fashasha",
+			attachedEntity: false,
+			duration: 950,
+			frames: 57,
+			color: [
+				10,
+				10,
+				10
+			],
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 10,
+			sizeChangeSpeed: .1,
+			sizeChangeAccel: .1 / 30,
+			alpha: 254,
+			fadeOutFrame: 30
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				startCasterStrobe(Params.Init.ownerEntity);
+			}
+		}],
 		813: [{
 			type: "STR",
 			file: "enervation",
@@ -306511,6 +306624,15 @@ var init_EffectTable = __esmMin((() => {
 			min: "druid/kr_typhoon_wing/typhoon_wing_7x7_bottom/min_typhoon_wing_7x7_bottom",
 			renderBeforeEntities: true,
 			yOffset: 10
+		}],
+		ef_druid_typhoon_wing_cast: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "magic_green.tga"), Params);
+			}
 		}],
 		ef_druid_feather_sprinkle: [{
 			type: "STR",
