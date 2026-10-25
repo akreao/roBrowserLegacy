@@ -322618,6 +322618,16 @@ function strFileKey(file) {
 	return (file || "").toLowerCase().split("/").slice(-2).join("/");
 }
 /**
+* strFileKey with the variant words taken out, so the variants of one
+* effect (four_charm_earth, four_charm_fire, four_charm_ice) share a key.
+*
+* @param {string} file STR path without extension
+* @return {string}
+*/
+function strVariantKey(file) {
+	return strFileKey(file).split("/").map((part) => part.split("_").filter((word) => !EZ2_VARIANT_WORD.test(word)).map((word) => word.replace(/([a-z])\d+$/, "$1")).join("_")).join("/");
+}
+/**
 * Whether a skill's effects already draw this STR file.
 * Ignores the leading folders: older hand-written rows load the same STR
 * from its pre-4th-job folder (roseblossom/roseblossom_cast/... instead of
@@ -322627,17 +322637,18 @@ function strFileKey(file) {
 * @param {object} skillEntry SkillEffect row, or undefined
 * @param {object} EffectTable
 * @param {string} file STR path without extension
+* @param {function} [keyOf] what counts as the same file, strFileKey by default
 * @return {boolean}
 */
-function skillPlaysFile(skillEntry, EffectTable, file) {
+function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	if (!skillEntry || !file) return false;
-	const wanted = strFileKey(file);
+	const wanted = keyOf(file);
 	for (const field in skillEntry) {
 		const value = skillEntry[field];
 		const names = Array.isArray(value) ? value : [value];
 		for (const name of names) {
 			const effects = typeof name === "string" ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some((effect) => strFileKey(effect.file) === wanted)) return true;
+			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
 		}
 	}
 	return false;
@@ -322750,7 +322761,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		}];
 		count++;
 		const file = EffectTable[effectName][0].file;
-		if (skillId && !entry.IsInfinite && !skillPlaysFile(SkillEffect[skillId], EffectTable, file) && !statusPlaysFile(EffectTable, file)) {
+		if (skillId && !entry.IsInfinite && !skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) && !statusPlaysFile(EffectTable, file)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 			if (skillEntry[field]) {
@@ -325321,7 +325332,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, ModSkillDescription;
+var lua, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, ModSkillDescription;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -328189,6 +328200,7 @@ var init_DBManager = __esmMin((() => {
 		broken_limit_buff: "effectId",
 		abyss_flame_target: "hitEffectId"
 	};
+	EZ2_VARIANT_WORD = /^(\d+|\d+x\d+|earth|fire|water|wind|ice|saint|holy|dark|darkness|poison|ghost|undead|neutral|reset|leftdown|rightdown|leftup|rightup)$/;
 	ModSkillDescription = {};
 }));
 // src/UI/Components/PetInformations/PetInformations.html?raw
