@@ -21311,14 +21311,33 @@ export default {
 		}
 	],
 
-	// Shadow Stab (SHC_SHADOW_STAB), from the client's own effect folders.
+	// Shadow Stab (SHC_SHADOW_STAB), as the official client plays it: the stab
+	// on the caster, turned on screen towards the target (EZ2 shadow_stab,
+	// PosY 4), then shadow_stab_hit1 on the target for each hit (PosY 5, no
+	// sound). The client never plays shadow_stab_hit2.
 	ef_shc_shadow_stab: [
 		{
 			type: 'STR',
 			file: 'shadow_cross/shc_shadow_stab/shadow_stab/shadow_stab',
 			texturePath: 'shadow_cross/shc_shadow_stab/shadow_stab/',
 			fallback: ['shadow_stab/shadow_stab/shadow_stab'],
-			wav: 'effect/shc_shadow_stab'
+			wav: 'effect/shc_shadow_stab',
+			xOffset: 0,
+			yOffset: 4,
+			// The stab runs to the right of the caster in the file
+			rotateToTarget: true,
+			facing: 0
+		}
+	],
+	ef_shc_shadow_stab_hit: [
+		{
+			type: 'STR',
+			file: 'shadow_cross/shc_shadow_stab/shadow_stab_hit1/shadow_stab_hit1',
+			texturePath: 'shadow_cross/shc_shadow_stab/shadow_stab_hit1/',
+			min: 'shadow_cross/shc_shadow_stab/shadow_stab_hit1/min_shadow_stab_hit1',
+			fallback: ['shadow_stab/shadow_stab_hit1/shadow_stab_hit1'],
+			xOffset: 0,
+			yOffset: 5
 		}
 	],
 
