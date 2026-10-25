@@ -1035,7 +1035,7 @@ SkillEffect[SK.RL_AM_BLAST] = {}; //Anti-Material Blast
 SkillEffect[SK.RL_SLUGSHOT] = { effectId: 'ef_rl_slugshot' }; //Slug Shot
 SkillEffect[SK.RL_HAMMER_OF_GOD] = {}; //Hammer of God
 SkillEffect[SK.RL_R_TRIP_PLUSATK] = {}; //Round Trip Plus Attack
-SkillEffect[SK.NW_INTENSIVE_AIM] = { effectId: 'ef_nw_intensive_aim' }; //Intensive Aim
+SkillEffect[SK.NW_INTENSIVE_AIM] = { successEffectIdOnCaster: 'ef_nw_intensive_aim_helix' }; //Intensive Aim: the helix on the caster per use; the gauge is drawn by the Intensive Aim Count status (StatusEffectTable.js)
 SkillEffect[SK.NW_GRENADE_FRAGMENT] = {
 	// Level 1-6 pick the element (water, wind, earth, fire, dark, holy), 7 resets it
 	successEffectIdOnCasterByLevel: [
