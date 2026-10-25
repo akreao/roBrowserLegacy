@@ -11,7 +11,7 @@
  */
 import EffectDB from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
-import SkillUnit from 'DB/Skills/SkillUnit.js';
+import SkillUnit, { SkillUnitEnd } from 'DB/Skills/SkillUnit.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
 import ItemEffect from 'DB/Items/ItemEffect.js';
 import Commands from 'Controls/ProcessCommand.js';
@@ -823,9 +823,10 @@ class EffectManager {
 			return;
 		}
 
-		const effectId = SkillUnit[unit_id];
+		// A unit can play several effects (an official unit's start and loop rows)
+		const effectIds = [SkillUnit[unit_id]].flat().filter(effectId => effectId in EffectDB);
 
-		if (!(effectId in EffectDB)) {
+		if (!effectIds.length) {
 			return;
 		}
 
@@ -843,23 +844,45 @@ class EffectManager {
 				? entity.constructor.TYPE_UNIT
 				: entity.constructor.TYPE_EFFECT;
 		entity.creatorGID = creatorUid;
+		entity.skillUnitId = unit_id;
 
 		EntityManager.add(entity);
 
 		// Effect
-		const EF_Init_Par = {
-			effectId: effectId,
-			ownerAID: uid,
-			position: [xPos, yPos, Altitude.getCellHeight(xPos, yPos)],
-			startTick: Renderer.tick,
-			persistent: true,
-			duration: -1, // Infinite by default but the effect param can have a duration that overrides this
-			otherAID: creatorUid,
-			skillLevel: level,
-			unitRange: range
-		};
+		effectIds.forEach(effectId => {
+			const EF_Init_Par = {
+				effectId: effectId,
+				ownerAID: uid,
+				position: [xPos, yPos, Altitude.getCellHeight(xPos, yPos)],
+				startTick: Renderer.tick,
+				persistent: true,
+				duration: -1, // Infinite by default but the effect param can have a duration that overrides this
+				otherAID: creatorUid,
+				skillLevel: level,
+				unitRange: range
+			};
 
-		EffectManager.spam(EF_Init_Par);
+			EffectManager.spam(EF_Init_Par);
+		});
+	}
+
+	/**
+	 * Play a skill unit's end effects where it stood, when it goes
+	 *
+	 * @param {number} uid skill unique id
+	 */
+	static spamSkillZoneEnd(uid) {
+		if (!Preferences.effect) {
+			return;
+		}
+
+		const entity = EntityManager.get(uid);
+		if (!entity || !(entity.skillUnitId in SkillUnitEnd)) {
+			return;
+		}
+
+		const position = [entity.position[0], entity.position[1], entity.position[2]];
+		SkillUnitEnd[entity.skillUnitId].forEach(effectId => EffectManager.spam({ effectId, position }));
 	}
 
 	/**

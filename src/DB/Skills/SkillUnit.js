@@ -137,4 +137,33 @@ SkillUnit[SU.UNT_GLACIAL_MONOLITH] = 'ef_druid_glacier_monolith_loop';
 // Star Cannon: drops stars around the caster while it exists (official effect 2350)
 SkillUnit[SU.UNT_STAR_CANNON] = 'ef_ske_star_cannon_field';
 
+// 4th-job units, as the official client draws them: the unit's start rows once,
+// then its loop rows until the unit goes. Names are rows of ez2streffect.bson.
+SkillUnit[SU.UNT_JACK_FROST_NOVA] = [
+	'jack_frost_nova_start_bottom',
+	'jack_frost_nova_start',
+	'jack_frost_nova_loop_bottom',
+	'jack_frost_nova_loop'
+];
+SkillUnit[SU.UNT_GROUND_GRAVITATION] = [
+	'ground_gravitation_bottom_start',
+	'ground_gravitation_start',
+	'ground_gravitation_bottom_loop',
+	'ground_gravitation_loop'
+];
+SkillUnit[SU.UNT_TOTEM_OF_TUTELARY] = [
+	'totem_of_tutelary_bottom_start',
+	'totem_of_tutelary_start',
+	'totem_of_tutelary_bottom_loop',
+	'totem_of_tutelary_loop'
+];
+SkillUnit[SU.UNT_HYUN_ROKS_BREEZE] = ['hyun_roks_breeze_bottom', 'hyun_roks_breeze'];
+SkillUnit[SU.UNT_MISSION_BOMBARD] = ['mission_bombard', 'mission_bombard_fire', 'mission_bombard_fire_bottom'];
+SkillUnit[SU.UNT_CROSS_RAIN] = ['new_cross_rain_bottom'];
+
+// Played once where a unit stood when it goes (official end rows).
+export const SkillUnitEnd = {};
+SkillUnitEnd[SU.UNT_JACK_FROST_NOVA] = ['jack_frost_nova_end'];
+SkillUnitEnd[SU.UNT_TOTEM_OF_TUTELARY] = ['totem_of_tutelary_bottom_end', 'totem_of_tutelary_end'];
+
 export default SkillUnit;

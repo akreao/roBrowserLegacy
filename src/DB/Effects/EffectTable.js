@@ -6627,16 +6627,6 @@ export default {
 		}
 	],
 
-	// Jack Frost Nova (HN_JACK_FROST_NOVA), from the client's own effect folders.
-	ef_hn_jack_frost_nova: [
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_jack_frost_nova/jack_frost_nova_end/jack_frost_nova_end',
-			texturePath: 'hyper_novice/hn_jack_frost_nova/jack_frost_nova_end/',
-			wav: 'effect/hyper_novice/hn_jack_frost_nova'
-		}
-	],
-
 	// Hell's Drive (HN_HELLS_DRIVE): the EZ2 rows, each placed once on the ground
 	// at one spot of the skill's grid (SkillEffect successEffectGrid*): the floor
 	// layer plus one of the three blasts, picked at random.
@@ -6677,16 +6667,6 @@ export default {
 		}
 	],
 
-	// Ground Gravitation (HN_GROUND_GRAVITATION), from the client's own effect folders.
-	ef_hn_ground_gravitation: [
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_ground_gravitation/ground_gravitation_loop',
-			texturePath: 'hyper_novice/hn_ground_gravitation/',
-			wav: 'effect/hyper_novice/hn_ground_gravitation'
-		}
-	],
-
 	// Napalm Vulcan Strike (HN_NAPALM_VULCAN_STRIKE), from the client's own effect folders.
 	ef_hn_napalm_vulcan_strike: [
 		{
@@ -6704,11 +6684,6 @@ export default {
 			file: 'hyper_novice/hn_breakinglimit/breakinglimit/breakinglimit',
 			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit/',
 			wav: 'effect/hyper_novice/hn_breakinglimit'
-		},
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_breakinglimit/breakinglimit_buff/breakinglimit_buff',
-			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit_buff/'
 		}
 	],
 
@@ -6719,11 +6694,6 @@ export default {
 			file: 'hyper_novice/hn_rulebreak/rulebreak/rulebreak',
 			texturePath: 'hyper_novice/hn_rulebreak/rulebreak/',
 			wav: 'effect/hyper_novice/hn_rulebreak'
-		},
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_rulebreak/rulebreak_buff/rulebreak_buff',
-			texturePath: 'hyper_novice/hn_rulebreak/rulebreak_buff/'
 		}
 	],
 
@@ -10690,24 +10660,6 @@ export default {
 		}
 	],
 
-	// Hyunrok Breeze (SH_HYUN_ROKS_BREEZE), from the client's own effect folders.
-	ef_sh_hyun_roks_breeze: [
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/hyun_roks_breeze',
-			texturePath: 'spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/',
-			min: 'spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/min_hyun_roks_breeze',
-			wav: 'effect/spirit_handler/sh_hyun_roks_breeze'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/hyun_roks_breeze_bottom',
-			texturePath: 'spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/',
-			min: 'spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/min_hyun_roks_breeze_bottom',
-			renderBeforeEntities: true
-		}
-	],
-
 	// Hyunrok Cannon (SH_HYUN_ROK_CANNON), from the client's own effect folders.
 	ef_sh_hyun_rok_cannon: [
 		{
@@ -10727,19 +10679,6 @@ export default {
 			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion/',
 			min: 'spirit_handler/sh_temporary_communion/temporary_communion/min_temporary_communion',
 			wav: 'effect/spirit_handler/sh_temporary_communion'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/temporary_communion_buff',
-			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/',
-			min: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/min_temporary_communion_buff'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/temporary_communion_buff_bottom',
-			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/',
-			min: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/min_temporary_communion_buff_bottom',
-			renderBeforeEntities: true
 		}
 	],
 
@@ -13373,16 +13312,6 @@ export default {
 		}
 	],
 
-	// Totem Of Tutelary (SOA_TOTEM_OF_TUTELARY), from the client's own effect folders.
-	ef_soa_totem_of_tutelary: [
-		{
-			type: 'STR',
-			file: 'soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/totem_of_tutelary_end',
-			texturePath: 'soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/',
-			min: 'soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/min_totem_of_tutelary_end'
-		}
-	],
-
 	// Talisman Of Five Elements (SOA_TALISMAN_OF_FIVE_ELEMENTS), from the client's own effect folders.
 	ef_soa_talisman_of_five_elements: [
 		{
@@ -13501,12 +13430,6 @@ export default {
 			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/',
 			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth',
 			wav: 'effect/soul_ascetic/soa_soul_of_heaven_and_earth'
-		},
-		{
-			type: 'STR',
-			file: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/soul_of_heaven_and_earth_buff',
-			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/',
-			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/min_soul_of_heaven_and_earth_buff'
 		}
 	],
 
@@ -19123,14 +19046,6 @@ export default {
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain',
 			fallback: ['crossrain/cross_rain/cross_rain'],
 			wav: 'effect/ig_cross_rain'
-		},
-		{
-			type: 'STR',
-			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/new_cross_rain_bottom',
-			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/',
-			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/min_new_cross_rain_bottom',
-			fallback: ['crossrain/cross_rain_bottom/cross_rain_bottom'],
-			renderBeforeEntities: true
 		}
 	],
 
@@ -20963,20 +20878,9 @@ export default {
 	// Servant Weapon Sign (DK_SERVANT_W_SIGN), from the client's own effect folders.
 	ef_dk_servant_w_sign: [
 		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_sign/servant_sign/servant_sign',
-			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign/',
-			min: 'dragon_knight/dk_servant_w_sign/servant_sign/min_servant_sign',
-			fallback: ['servant_sign/servant_sign/servant_sign'],
-			wav: 'effect/dk_servant_w_sign'
-		},
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/servant_sign_bottom',
-			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/',
-			min: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/min_servant_sign_bottom',
-			fallback: ['servant_sign/servant_sign_bottom/servant_sign_bottom'],
-			renderBeforeEntities: true
+			// The sign itself loops with the Servant Sign status (StatusEffectTable.js)
+			wav: 'effect/dk_servant_w_sign',
+			attachedEntity: true
 		}
 	],
 
@@ -21101,12 +21005,9 @@ export default {
 	// Vigor (DK_VIGOR), from the client's own effect folders.
 	ef_dk_vigor: [
 		{
-			type: 'STR',
-			file: 'dragon_knight/dk_vigor/vigor_buff/vigor_buff',
-			texturePath: 'dragon_knight/dk_vigor/vigor_buff/',
-			min: 'dragon_knight/dk_vigor/vigor_buff/min_vigor_buff',
-			fallback: ['vigor/vigor_buff/vigor_buff'],
-			wav: 'effect/dk_vigor'
+			// The buff itself loops with the Vigor status (StatusEffectTable.js)
+			wav: 'effect/dk_vigor',
+			attachedEntity: true
 		}
 	],
 
@@ -23232,17 +23133,6 @@ export default {
 			texturePath: 'night_watch/nw_hidden_card/hidden_card/',
 			min: 'night_watch/nw_hidden_card/hidden_card/min_hiddencard',
 			wav: 'effect/night_watch/nw_hidden_card'
-		}
-	],
-
-	// Mission Bombard (NW_MISSION_BOMBARD), from the client's own effect folders.
-	ef_nw_mission_bombard: [
-		{
-			type: 'STR',
-			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard',
-			texturePath: 'night_watch/nw_mission_bombard/mission_bombard/',
-			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard',
-			wav: 'effect/night_watch/nw_mission_bombard'
 		}
 	],
 
