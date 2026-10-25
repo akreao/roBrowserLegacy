@@ -276,6 +276,16 @@ describe('4th-job cast effects', () => {
 		}
 	});
 
+	it('plays the begin-spell sound where the client\'s STR-by-id case does', () => {
+		// The client's per-id setup plays ef_beginspell.wav for 1774 and 2228 only.
+		for (const id of [1774, 2228]) {
+			expect(entry(id), String(id)).toContain("wav: 'effect/ef_beginspell'");
+		}
+		for (const id of [1446, 2229]) {
+			expect(entry(id), String(id)).not.toContain('wav:');
+		}
+	});
+
 	it('plays each effect of a cast aura list', () => {
 		const entity = read('Engine/MapEngine/Entity.js');
 		expect(entity).toContain('[castSkill.castAuraEffectId].flat().forEach(effectId => {');
