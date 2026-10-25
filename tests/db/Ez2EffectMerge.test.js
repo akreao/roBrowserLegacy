@@ -15,7 +15,7 @@ function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}) {
 	const context = vm.createContext({
 		console: { log() {} },
 		Ez2streffect: records,
-		SKID: { DR_CUTTING_WIND: 6542, SKE_RISING_MOON: 5468 },
+		SKID: { DR_CUTTING_WIND: 6542, SKE_RISING_MOON: 5468, NW_INTENSIVE_AIM: 5403 },
 		StatusEffectTable
 	});
 	vm.runInContext(db.slice(start, end), context);
@@ -138,5 +138,25 @@ describe('kRO effect table merged into skills', () => {
 		assert.equal(skills[6542].effectId, 'cutting_wind_start');
 		// Still in the effect table, for a status or a hand-written row to use
 		assert.equal(EffectTable.cutting_wind_loop[0].repeat, true);
+	});
+
+	it('does not add a stage a status shows by its value', () => {
+		const dir = 'NIGHT_WATCH\\NW_INTENSIVE_AIM\\';
+		const aim = {
+			intensive_aim_10: { FilePath: dir + 'intensive_aim\\intensive_aim_10.str' },
+			intensiveaim_helix: { FilePath: dir + 'intensive_aim_helix\\intensiveaim_helix.str' }
+		};
+		const EffectTable = {
+			ef_nw_intensive_aim_09: [{ type: 'STR', file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_09' }],
+			ef_nw_intensive_aim_10: [{ type: 'STR', file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_10' }],
+			ef_nw_intensive_aim_helix: [
+				{ type: 'STR', file: 'night_watch/nw_intensive_aim/intensive_aim_helix/intensiveaim_helix' }
+			]
+		};
+		const hand = () => ({ 5403: { successEffectIdOnCaster: 'ef_nw_intensive_aim_helix' } });
+		const status = { 1346: { stages: [['ef_nw_intensive_aim_09'], ['ef_nw_intensive_aim_10']] } };
+		assert.deepEqual({ ...merge(aim, EffectTable, hand(), status)[5403] }, hand()[5403]);
+		// Without the status row, the last stage would be bolted onto the skill
+		assert.equal(merge(aim, EffectTable, hand())[5403].effectId, 'intensive_aim_10');
 	});
 });

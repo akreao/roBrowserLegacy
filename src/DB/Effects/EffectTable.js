@@ -22486,14 +22486,194 @@ export default {
 		}
 	],
 
-	// Intensive Aim (NW_INTENSIVE_AIM), from the client's own effect folders.
-	ef_nw_intensive_aim: [
+	// Intensive Aim (NW_INTENSIVE_AIM): the aim gauge. The Intensive Aim Count status
+	// shows one stage per value (00 to 10), and the full glow at 10. See StatusEffectTable.js.
+	ef_nw_intensive_aim_00: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_00',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_00',
+			repeat: true,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_01: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_01',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_01',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_02: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_02',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_02',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_03: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_03',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_03',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_04: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_04',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_04',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_05: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_05',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_05',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_06: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_06',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_06',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_07: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_07',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_07',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_08: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_08',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_08',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_09: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_09',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_09',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			repeat: true,
+			soundLoop: false,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	ef_nw_intensive_aim_10: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim/intensive_aim_10',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim/min_intensive_aim_10',
+			wav: 'effect/night_watch/nw_intensive_aim',
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	// The full gauge: loops from 496 ms while the count is 10.
+	ef_nw_intensive_aim_full: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full',
 			texturePath: 'night_watch/nw_intensive_aim/intensive_aim_full/',
 			min: 'night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full',
-			wav: 'effect/night_watch/nw_intensive_aim'
+			repeat: true,
+			delayStart: 496,
+			xOffset: 8,
+			yOffset: 7,
+			attachedEntity: true
+		}
+	],
+
+	// Played on the caster each time the skill is used.
+	ef_nw_intensive_aim_helix: [
+		{
+			type: 'STR',
+			file: 'night_watch/nw_intensive_aim/intensive_aim_helix/intensiveaim_helix',
+			texturePath: 'night_watch/nw_intensive_aim/intensive_aim_helix/',
+			min: 'night_watch/nw_intensive_aim/intensive_aim_helix/min_intensiveaim_helix',
+			wav: 'effect/night_watch/nw_intensiveaim_helix',
+			yOffset: 10,
+			attachedEntity: true
 		}
 	],
 
