@@ -223004,7 +223004,13 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: "ef_ig_cross_rain",
 		effectIdOnCaster: "ef_ig_cross_rain_cast"
 	};
-	SkillEffect[6503] = { effectIdOnCaster: "ef_ig_radiant_spear_cast" };
+	SkillEffect[6503] = {
+		effectIdOnCaster: "ef_ig_radiant_spear_cast",
+		successEffectIdOnTargetByScreenSide: {
+			right: "ef_ig_radiant_spear_leftdown",
+			left: "ef_ig_radiant_spear_rightdown"
+		}
+	};
 	SkillEffect[6504] = { effectId: "ef_ig_imperial_cross" };
 	SkillEffect[6505] = {
 		effectId: "ef_ig_imperial_pressure",
@@ -275252,6 +275258,17 @@ function screenAngle$1(from, to, matrix, width = Renderer.width, height = Render
 function screenSector(angle) {
 	return Math.floor(Math.trunc(angle + 105) % 360 / 30);
 }
+/**
+* The official two-way split of that angle: 'right' from 270 through 0 to 90
+* degrees, both ends included, 'left' strictly between 90 and 270. Straight
+* up, straight down and the same spot count as right.
+*
+* @param {number} angle from screenAngle
+* @return {string} 'right' or 'left'
+*/
+function screenSide(angle) {
+	return angle <= 90 || angle >= 270 ? "right" : "left";
+}
 var mat4$15, vec4$7, _matrix$5, _point;
 var init_ScreenDirection = __esmMin((() => {
 	init_gl_matrix();
@@ -276638,6 +276655,20 @@ var init_EffectManager = __esmMin((() => {
 						ownerAID: srcAID,
 						startTick: tick,
 						otherAID: destAID
+					});
+				}
+			}
+			const bySide = SkillEffect[skillId].successEffectIdOnTargetByScreenSide;
+			if (bySide && srcAID && destAID) {
+				const srcEntity = EntityManager.get(srcAID);
+				const destEntity = EntityManager.get(destAID);
+				if (srcEntity && destEntity) {
+					const effectId = bySide[screenSide(screenAngle$1(srcEntity.position, destEntity.position))];
+					if (effectId) EffectManager.spam({
+						effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
 					});
 				}
 			}
@@ -300604,6 +300635,46 @@ var init_EffectTable = __esmMin((() => {
 			file: "imperial_guard/ig_radiant_spear/radiant_spear_cast/radiant_spear_cast",
 			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_cast/",
 			min: "imperial_guard/ig_radiant_spear/radiant_spear_cast/min_radiant_spear_cast"
+		}],
+		ef_ig_radiant_spear_leftdown: [{
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/radiant_spear_leftdown_bottom",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown_bottom/min_radiant_spear_leftdown_bottom",
+			wav: "effect/lg_radiant_spear2",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}, {
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown/radiant_spear_leftdown",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_leftdown/min_radiant_spear_leftdown",
+			wav: "effect/lg_radiant_spear1",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
+		}],
+		ef_ig_radiant_spear_rightdown: [{
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/radiant_spear_rightdown_bottom",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown_bottom/min_radiant_spear_rightdown_bottom",
+			wav: "effect/lg_radiant_spear2",
+			xOffset: 0,
+			yOffset: 11,
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}, {
+			type: "STR",
+			file: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown/radiant_spear_rightdown",
+			texturePath: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown/",
+			min: "imperial_guard/ig_radiant_spear/radiant_spear_rightdown/min_radiant_spear_rightdown",
+			wav: "effect/lg_radiant_spear1",
+			xOffset: 0,
+			yOffset: 11,
+			attachedEntity: false
 		}],
 		ef_ig_imperial_cross: [{
 			type: "STR",
