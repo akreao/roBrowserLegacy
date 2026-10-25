@@ -223939,7 +223939,14 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SS_ANTENPOU] = { effectId: "ef_ss_antenpou" };
 	SkillEffect[SkillConst_default.SS_KAGEAKUMU] = { effectId: "ef_ss_kageakumu" };
-	SkillEffect[SkillConst_default.SS_HITOUAKUMU] = { effectId: "ef_ss_hitouakumu" };
+	SkillEffect[SkillConst_default.SS_HITOUAKUMU] = {
+		successEffectId: "ef_ss_hitouakumu",
+		successEffectSpinSets: [
+			"ef_ss_hitouakumu_00",
+			"ef_ss_hitouakumu_01",
+			"ef_ss_hitouakumu_02"
+		]
+	};
 	SkillEffect[SkillConst_default.SS_ANKOKURYUUAKUMU] = { effectId: "ef_ss_ankokuryuuakumu" };
 	SkillEffect[5499] = { effectIdByCharmType: {
 		1: "ef_ss_four_charm_water",
@@ -256496,7 +256503,9 @@ var init_StrEffect = __esmMin((() => {
 			}
 			const strFile = Client.loadFile(this.filename, null, null, { texturePath: this.texturePath });
 			if (strFile === null) return;
-			this.aimAngle = this.getAimAngle();
+			const aim = this.getAimAngle();
+			this.aimed = !!aim || !!this.screenTurn;
+			this.aimAngle = aim - (this.screenTurn || 0);
 			keyIndex = (tick - this.startTick) / 1e3 * strFile.fps;
 			if (this.persistent && strFile && strFile.maxKey) keyIndex = keyIndex % strFile.maxKey;
 			if (!this._lastValidAnim) this._lastValidAnim = {};
@@ -256613,7 +256622,7 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform1f(uniform.uSpriteAngle, animat.angle - (this.aimAngle || 0));
 			gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 			gl.bindTexture(gl.TEXTURE_2D, material);
-			if (this.aimAngle) {
+			if (this.aimed) {
 				gl.disable(gl.DEPTH_TEST);
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 				gl.enable(gl.DEPTH_TEST);
@@ -275474,6 +275483,35 @@ function shuffledGrid(n, random = Math.random) {
 	return columns.map((column, k) => [column - half, rows[k] - half]);
 }
 var init_ShuffledGrid = __esmMin((() => {}));
+// src/Renderer/Effects/SpinSets.js
+/**
+* @param {number} sets how many sets (one per row)
+* @param {function} [random] source of numbers in [0, 1), Math.random by default
+* @return {{set: number, turn: number, slot: number}[]} one entry per copy: its set,
+*   its clockwise turn on screen in degrees, and its start slot (x SPIN_SLOT ms)
+*/
+function spinSets(sets, random = Math.random) {
+	const copies = [];
+	for (let set = 0; set < sets; set++) {
+		const n = SET_MIN + Math.floor(random() * SET_SPREAD);
+		const step = 360 / n;
+		const jitter = Math.floor(step);
+		const order = shuffled(n, random);
+		for (let i = 0; i < n; i++) copies.push({
+			set,
+			turn: i * step + Math.floor(random() * jitter),
+			slot: order[i] + SET_GAP * set
+		});
+	}
+	return copies;
+}
+var SET_GAP, SET_MIN, SET_SPREAD;
+var init_SpinSets = __esmMin((() => {
+	init_ShuffledGrid();
+	SET_GAP = 10;
+	SET_MIN = 15;
+	SET_SPREAD = 5;
+}));
 // src/Renderer/Effects/QuadHorn.vs?raw
 var QuadHorn_default$1;
 var init_QuadHorn$2 = __esmMin((() => {
@@ -276266,6 +276304,7 @@ function spamSTR(Params) {
 	});
 	const str = new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
 	if (Params.effect.xOffset !== void 0 || Params.effect.yOffset !== void 0) str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
+	if (Params.Init.screenTurn) str.screenTurn = Params.Init.screenTurn;
 	EffectManager.add(str, Params);
 }
 /**
@@ -276386,6 +276425,7 @@ var init_EffectManager = __esmMin((() => {
 	init_EntityManager();
 	init_ScreenDirection();
 	init_ShuffledGrid();
+	init_SpinSets();
 	init_Renderer();
 	init_Altitude();
 	init_SoundManager();
@@ -276917,6 +276957,26 @@ var init_EffectManager = __esmMin((() => {
 							otherAID: srcAID,
 							skillLevel: level
 						});
+					});
+				});
+			}
+			const spinIds = SkillEffect[skillId].successEffectSpinSets;
+			const spinAt = spinIds ? EntityManager.get(destAID) || EntityManager.get(srcAID) : null;
+			if (spinAt) {
+				const start = tick || Renderer.tick;
+				const [x, y, z] = spinAt.position;
+				spinSets(spinIds.length).forEach(({ set, turn, slot }) => {
+					EffectManager.spam({
+						effectId: spinIds[set],
+						ownerAID: destAID,
+						position: [
+							x,
+							y,
+							z
+						],
+						startTick: start + 32 * slot,
+						otherAID: srcAID,
+						screenTurn: turn
 					});
 				});
 			}
@@ -299138,7 +299198,30 @@ var init_EffectTable = __esmMin((() => {
 			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/hitouakumu",
 			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/",
 			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/min_hitouakumu",
-			wav: "effect/shinkiro_shiranui/ss_hitouakumu"
+			wav: "effect/shinkiro_shiranui/ss_hitouakumu",
+			renderBeforeEntities: true,
+			yOffset: 0
+		}],
+		ef_ss_hitouakumu_00: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_00/hitouakumu_00",
+			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_00/",
+			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_00/min_hitouakumu_00",
+			yOffset: 0
+		}],
+		ef_ss_hitouakumu_01: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_01/hitouakumu_01",
+			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_01/",
+			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_01/min_hitouakumu_01",
+			yOffset: 0
+		}],
+		ef_ss_hitouakumu_02: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_02/hitouakumu_02",
+			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_02/",
+			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu_02/min_hitouakumu_02",
+			yOffset: 0
 		}],
 		ef_ss_ankokuryuuakumu: [
 			{
