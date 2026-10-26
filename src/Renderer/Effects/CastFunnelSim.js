@@ -20,6 +20,10 @@
  *    tick to 200 over 10 ticks, then loses 5 a tick: it is gone on tick 50,
  *    whatever the effect's lifetime.
  *
+ * The builder's variant only changes the fade-out step (FADE_OUT_BY_VARIANT):
+ * variant 0, which the Sage ground skills' cast rings use (effects 225 and
+ * 236-238), loses 2 a tick, so it lasts until tick 110.
+ *
  * Units are the client's: world units (5 to a cell), ticks (60 a second), degrees.
  */
 
@@ -49,8 +53,31 @@ export const FUNNEL = {
 	alphaDown: 5 // a tick, afterwards
 };
 
-/** Ticks the funnel shows: alpha is 0 from then on. */
-export const VISIBLE_TICKS = FUNNEL.riseTicks + (FUNNEL.alphaUp * FUNNEL.riseTicks) / FUNNEL.alphaDown;
+/** Alpha lost a tick after the rise, by builder variant (1 is not used here). */
+export const FADE_OUT_BY_VARIANT = { 0: 2, 2: 8, 3: 5, 4: 5, 5: 4 };
+
+/**
+ * Fade-out step of a variant: 2 for any variant not in the table, as in the client.
+ *
+ * @param {number} variant
+ * @return {number}
+ */
+export function fadeOutStep(variant) {
+	return FADE_OUT_BY_VARIANT[variant] ?? 2;
+}
+
+/**
+ * Ticks the funnel shows: alpha is 0 from then on.
+ *
+ * @param {number} [alphaDown] fade-out step
+ * @return {number}
+ */
+export function visibleTicks(alphaDown = FUNNEL.alphaDown) {
+	return FUNNEL.riseTicks + (FUNNEL.alphaUp * FUNNEL.riseTicks) / alphaDown;
+}
+
+/** Ticks variant 4 shows. */
+export const VISIBLE_TICKS = visibleTicks();
 
 /** Number of vertices of the funnel (triangles, 5 floats each). */
 export const FUNNEL_VERTICES = BANDS * (POINTS - 1) * 6;
@@ -59,13 +86,14 @@ export const FUNNEL_VERTICES = BANDS * (POINTS - 1) * 6;
  * A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
  *
  * @param {number} t
+ * @param {number} [alphaDown] fade-out step (variant 4's 5 by default)
  * @return {number}
  */
-export function funnelAlpha(t) {
+export function funnelAlpha(t, alphaDown = FUNNEL.alphaDown) {
 	if (t <= FUNNEL.riseTicks) {
 		return FUNNEL.alphaUp * Math.max(0, t);
 	}
-	return Math.max(0, FUNNEL.alphaUp * FUNNEL.riseTicks - FUNNEL.alphaDown * (t - FUNNEL.riseTicks));
+	return Math.max(0, FUNNEL.alphaUp * FUNNEL.riseTicks - alphaDown * (t - FUNNEL.riseTicks));
 }
 
 /**

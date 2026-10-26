@@ -5002,7 +5002,18 @@ export default {
 
 	//223: [{}],	//EF_GANBANTEIN	   Holy Cast Aura
 	//224: [{}],	//EF_WIND	   Wind (Map effect)
-	//225: [{}],	//EF_VOLCANO	   Volcano casting effect
+	225: [
+		{
+			//EF_VOLCANO	   Volcano casting effect
+			// Official client: from the ground packet, at the cell, the funnel primitive in ring_red.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 310, 'ring_red.tga', 0), Params);
+			}
+		}
+	],
 
 	226: [
 		{
@@ -5618,9 +5629,42 @@ export default {
 		}
 	],
 
-	//236: [{}],	//EF_DELUGE	   Deluge Cast Aura
-	//237: [{}],	//EF_VIOLENTGALE	   Violent Gale Cast Aura
-	//238: [{}],	//EF_LANDPROTECTOR	   Magnetic Earth Cast Aura
+	236: [
+		{
+			//EF_DELUGE	   Deluge Cast Aura
+			// Official client: from the ground packet, at the cell, the funnel primitive in ring_blue.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, 'ring_blue.tga', 0), Params);
+			}
+		}
+	],
+	237: [
+		{
+			//EF_VIOLENTGALE	   Violent Gale Cast Aura
+			// Official client: from the ground packet, at the cell, the funnel primitive in magic_green.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, 'magic_green.tga', 0), Params);
+			}
+		}
+	],
+	238: [
+		{
+			//EF_LANDPROTECTOR	   Magnetic Earth Cast Aura
+			// Official client: from the ground packet, at the cell, the funnel primitive in ring_white.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, 'ring_white.tga', 0), Params);
+			}
+		}
+	],
 	239: [
 		{
 			//EF_BOTTOM_VO	   Volcano (Visual Effect)
