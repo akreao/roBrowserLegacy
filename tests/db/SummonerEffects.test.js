@@ -66,4 +66,13 @@ describe('Summoner skill effects', () => {
 		expect(block).toContain("file: 'su_freshshrimp/su_freshshrimp'");
 		expect(block).toContain("wav: 'effect/su_shrimpparty'");
 	});
+	it("Bunch of Shrimp plays on use success only", () => {
+		expect(row('SU_BUNCHOFSHRIMP')).toBe("{ successEffectId: 'ef_su_bunchofshrimp' }");
+	});
+
+	it('Bunch of Shrimp has its sound', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const block = table.match(/\tef_su_bunchofshrimp: \[([\s\S]*?)\r?\n\t\],/)[1];
+		expect(block).toContain("wav: 'effect/su_brunchofshrimp'");
+	});
 });

@@ -25874,12 +25874,14 @@ export default {
 		}
 	],
 
-	// Bunch of Shrimp (SU_BUNCHOFSHRIMP), from the client's own effect folders.
+	// Bunch of Shrimp (SU_BUNCHOFSHRIMP): effect 1116; the official client's start
+	// sound is spelled su_brunchofshrimp.wav.
 	ef_su_bunchofshrimp: [
 		{
 			type: 'STR',
 			file: 'su_bunchofshrimp/su_bunchofshrimp',
-			texturePath: 'su_bunchofshrimp/'
+			texturePath: 'su_bunchofshrimp/',
+			wav: 'effect/su_brunchofshrimp'
 		}
 	],
 

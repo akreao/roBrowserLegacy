@@ -1815,7 +1815,8 @@ SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
 // Tuna Belly: once, on the use packet's target when it succeeds.
 SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
-SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
+// Bunch of Shrimp: on each party member's use packet when it succeeds (effect 1116).
+SkillEffect[SK.SU_BUNCHOFSHRIMP] = { successEffectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
 // Fresh Shrimp: on the use packet's target when it succeeds, silent (effect 1098).
 SkillEffect[SK.SU_FRESHSHRIMP] = { successEffectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
