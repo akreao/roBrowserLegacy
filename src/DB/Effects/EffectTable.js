@@ -13098,10 +13098,13 @@ export default {
 
 	632: [
 		{
-			//EF_KASUMIKIRI	Mist Slash
+			//EF_KASUMIKIRI	Haze Slasher: official effect 632 (effect-port/ninja-skills.md)
+			// 안개베기 action 0 or 2 at random, 4 ticks a frame, once; its sound at the start.
 			type: 'SPR',
 			file: '\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2',
 			wav: 'effect/\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2',
+			frame: [0, 2],
+			delayFrame: 4 * (1000 / 60),
 			attachedEntity: true
 		}
 	],
