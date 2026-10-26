@@ -183,5 +183,6 @@ SkillUnitEnd[SU.UNT_SHINKIROU] = ['shinkirou_idle_end'];
 // trap's own effect at it. Keyed by the trap's unit id before the change.
 export const SkillUnitTrigger = {};
 SkillUnitTrigger[SU.UNT_BLASTMINE] = [EC.EF_BLASTMINEBOMB];
+SkillUnitTrigger[SU.UNT_CLAYMORETRAP] = [EC.EF_CLAYMORE];
 
 export default SkillUnit;

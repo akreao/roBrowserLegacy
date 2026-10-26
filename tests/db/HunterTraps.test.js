@@ -96,3 +96,10 @@ describe('Blast Mine', () => {
 		]);
 	});
 });
+
+describe('Claymore Trap', () => {
+	it('explodes at the trap (107); each hit gets the hit flash only', () => {
+		expect(triggers().table[0x98]).toEqual([107]);
+		expect(skillRow('HT_CLAYMORETRAP')).toEqual({ hitEffectId: [0] });
+	});
+});
