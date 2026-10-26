@@ -1399,6 +1399,14 @@ export default {
 		}
 	],
 
+	stonecurse_sound: [
+		{
+			// The sound the official client plays with Stone Curse's effect 23 (not part of 23 itself)
+			wav: '_stonecurse',
+			attachedEntity: true
+		}
+	],
+
 	24: [
 		{
 			//fireball caster effect (on target effect 49:)	//EF_FIREBALL	Fire Ball
