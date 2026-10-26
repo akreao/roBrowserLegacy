@@ -291,7 +291,9 @@ SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0, h
 SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar
-SkillEffect[SK.AL_HOLYLIGHT] = { effectId: 152 }; //Holy Light
+// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
+// 152 (HolyHit.str) once, nothing on a miss. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: [0, 152], hitEffectOnce: true }; //Holy Light
 SkillEffect[SK.MG_ENERGYCOAT] = { effectId: 169 }; //Energy Coat
 // NPC Skills
 SkillEffect[SK.NPC_PIERCINGATT] = { effectIdOnCaster: 148 }; //Piercing Attack
