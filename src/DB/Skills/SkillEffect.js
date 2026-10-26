@@ -679,10 +679,10 @@ SkillEffect[SK.GS_FULLBUSTER] = { effectId: 584 }; //Full Buster
 SkillEffect[SK.GS_SPREADATTACK] = { effectId: 645 }; //Spread Attack
 SkillEffect[SK.GS_GROUNDDRIFT] = {}; //Ground Drift
 // Ninja
-SkillEffect[SK.NJ_SYURIKEN] = { beforeHitEffectId: 613 }; //Throw Shuriken
-SkillEffect[SK.NJ_KUNAI] = { beforeHitEffectId: 614 }; //Throw Kunai
-SkillEffect[SK.NJ_HUUMA] = { beforeHitEffectId: 615 }; //Throw Huuma Shuriken
-SkillEffect[SK.NJ_ZENYNAGE] = { beforeHitEffectId: 616 }; //Throw Zeny
+SkillEffect[SK.NJ_SYURIKEN] = { damageEffectIdOnCaster: 613 }; //Throw Shuriken
+SkillEffect[SK.NJ_KUNAI] = { damageEffectIdOnCaster: 614 }; //Throw Kunai
+SkillEffect[SK.NJ_HUUMA] = { damageEffectIdOnCaster: 615 }; //Throw Huuma Shuriken
+SkillEffect[SK.NJ_ZENYNAGE] = { damageEffectIdOnCaster: 616 }; //Throw Zeny
 SkillEffect[SK.NJ_TATAMIGAESHI] = { successEffectId: 'ef_flip_tatami_sound' }; //Improvised Defense
 SkillEffect[SK.NJ_KASUMIKIRI] = { effectId: 632 }; //Vanishing Slash
 SkillEffect[SK.NJ_SHADOWJUMP] = {}; //Shadow Leap
