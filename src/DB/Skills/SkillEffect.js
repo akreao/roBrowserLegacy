@@ -1832,7 +1832,8 @@ SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //P
 SkillEffect[SK.SU_SVG_SPIRIT] = { damageEffectIdOnTarget: 'ef_su_svg_spirit' }; //Spirit of Savage
 // Hiss: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_HISS] = { successEffectId: 'ef_su_hiss' }; //Hiss
-SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
+// Nyang Grass: nothing for the ground packet; the field comes with its unit (SkillUnit.js).
+SkillEffect[SK.SU_NYANGGRASS] = {}; //Nyang Grass
 // Grooming: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_GROOMING] = { successEffectId: 'ef_su_grooming' }; //Grooming
 // Purring: the official client plays Grooming's effect (1123, su_grooming.wav) for it.

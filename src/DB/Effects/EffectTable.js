@@ -47,6 +47,7 @@ import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
@@ -25982,15 +25983,8 @@ export default {
 		}
 	],
 
-	// Nyang Grass (SU_NYANGGRASS), from the client's own effect folders.
-	ef_su_nyanggrass: [
-		{
-			type: 'STR',
-			file: 'su_nyanggrass/su_nyanggrass',
-			texturePath: 'su_nyanggrass/',
-			wav: 'effect/su_nyanggrass'
-		}
-	],
+	// Nyang Grass (SU_NYANGGRASS): the field the unit draws (DB/Effects/NyangGrassEffect.js).
+	...nyangGrassEffects,
 
 	// Grooming (SU_GROOMING), from the client's own effect folders.
 	ef_su_grooming: [

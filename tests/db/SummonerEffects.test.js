@@ -114,4 +114,7 @@ describe('Summoner skill effects', () => {
 		expect(plain).toContain('opacity: 100 / 255');
 		expect(item).not.toContain('opacity');
 	});
+	it("Nyang Grass draws nothing from the ground packet", () => {
+		expect(row('SU_NYANGGRASS')).toBe("{}");
+	});
 });
