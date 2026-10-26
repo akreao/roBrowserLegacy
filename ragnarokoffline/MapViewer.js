@@ -222689,13 +222689,12 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MG_SAFETYWALL] = {};
 	SkillEffect[SkillConst_default.MG_SOULSTRIKE] = {
 		beforeHitEffectId: 15,
-		hitEffectId: [0, 1],
-		hitEffectOnce: true
+		hitEffectId: 0,
+		firstHitEffectId: 1
 	};
 	SkillEffect[SkillConst_default.MG_COLDBOLT] = {
 		damageEffectIdOnTarget: 26,
-		hitEffectId: 51,
-		hitEffectOnce: true
+		hitEffectId: 51
 	};
 	SkillEffect[SkillConst_default.MG_FROSTDIVER] = {
 		damageEffectIdOnCaster: 27,
@@ -222713,11 +222712,10 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.MG_FIREBOLT] = {
 		damageEffectIdOnTarget: 31,
-		hitEffectId: 49,
-		hitEffectOnce: true
+		hitEffectId: 49
 	};
 	SkillEffect[SkillConst_default.MG_LIGHTNINGBOLT] = {
-		effectId: 29,
+		damageEffectIdOnTarget: 29,
 		hitEffectId: 52
 	};
 	SkillEffect[SkillConst_default.MG_THUNDERSTORM] = {
@@ -222997,7 +222995,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: [0, 152],
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.MG_ENERGYCOAT] = { effectId: 169 };
+	SkillEffect[SkillConst_default.MG_ENERGYCOAT] = { successEffectIdOnCaster: 169 };
 	SkillEffect[SkillConst_default.NPC_PIERCINGATT] = { effectIdOnCaster: 148 };
 	SkillEffect[SkillConst_default.NPC_MENTALBREAKER] = { effectId: 181 };
 	SkillEffect[SkillConst_default.NPC_RANGEATTACK] = {};
@@ -223092,12 +223090,19 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_SPEARQUICKEN] = { effectId: 250 };
 	SkillEffect[SkillConst_default.MO_CALLSPIRITS] = {};
 	SkillEffect[SkillConst_default.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 };
-	SkillEffect[SkillConst_default.MO_TRIPLEATTACK] = { effectId: 329 };
+	SkillEffect[SkillConst_default.MO_TRIPLEATTACK] = {
+		damageEffectIdOnCaster: 329,
+		hitEffectId: 0
+	};
 	SkillEffect[SkillConst_default.MO_BODYRELOCATION] = { effectId: 166 };
-	SkillEffect[SkillConst_default.MO_INVESTIGATE] = { effectId: 267 };
+	SkillEffect[SkillConst_default.MO_INVESTIGATE] = {
+		damageEffectIdOnCaster: 267,
+		hitEffectId: 0
+	};
 	SkillEffect[SkillConst_default.MO_FINGEROFFENSIVE] = {
-		effectId: 265,
-		hitEffectId: 1
+		damageEffectIdOnCaster: 265,
+		hitEffectId: 0,
+		firstHitEffectId: 1
 	};
 	SkillEffect[SkillConst_default.MO_STEELBODY] = { effectId: [254, "quake"] };
 	SkillEffect[SkillConst_default.MO_BLADESTOP] = {};
@@ -278212,7 +278217,7 @@ var init_EffectManager = __esmMin((() => {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) return;
-			if (SkillEffect[skillId].hitEffectId) {
+			if (SkillEffect[skillId].hitEffectId != null) {
 				effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
 				effects.forEach((effectId) => {
 					EF_Init_Par = {
@@ -278222,6 +278227,17 @@ var init_EffectManager = __esmMin((() => {
 						otherAID: srcAID
 					};
 					EffectManager.spam(EF_Init_Par);
+				});
+			}
+			if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+				effects = Array.isArray(SkillEffect[skillId].firstHitEffectId) ? SkillEffect[skillId].firstHitEffectId : [SkillEffect[skillId].firstHitEffectId];
+				effects.forEach((effectId) => {
+					EffectManager.spam({
+						effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
+					});
 				});
 			}
 			if (SkillEffect[skillId].hitEffectIdOnCaster) {
@@ -293338,11 +293354,6 @@ var init_EffectTable = __esmMin((() => {
 			duplicate: 1,
 			file: "lightning",
 			type: "STR"
-		}, {
-			attachedEntity: true,
-			file: "windhit%d",
-			rand: [1, 3],
-			type: "STR"
 		}],
 		30: [{
 			type: "STR",
@@ -296910,7 +296921,7 @@ var init_EffectTable = __esmMin((() => {
 			alphaMax: 1,
 			blendMode: 2,
 			duration: 150,
-			toSrc: true,
+			fromSrc: true,
 			rotateWithCamera: true,
 			rotateToTarget: true,
 			angle: 90,
@@ -298682,14 +298693,17 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		329: [
-			{ wav: "effect/ef_hit2" },
+			{
+				wav: "effect/ef_hit2",
+				delayWav: 167
+			},
 			{
 				wav: "effect/ef_hit4",
-				delayWav: 200
+				delayWav: 333
 			},
 			{
 				wav: "effect/ef_hit2",
-				delayWav: 400
+				delayWav: 500
 			}
 		],
 		331: [{
