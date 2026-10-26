@@ -75,4 +75,14 @@ describe('Summoner skill effects', () => {
 		const block = table.match(/\tef_su_bunchofshrimp: \[([\s\S]*?)\r?\n\t\],/)[1];
 		expect(block).toContain("wav: 'effect/su_brunchofshrimp'");
 	});
+	it("Stem Spear plays at the caster as the damage packet arrives", () => {
+		expect(row('SU_SV_STEMSPEAR')).toBe("{ damageEffectIdOnCaster: 'ef_su_sv_stemspear' }");
+	});
+
+	it('Stem Spear has its sound and is not attached', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const block = table.match(/\tef_su_sv_stemspear: \[([\s\S]*?)\r?\n\t\],/)[1];
+		expect(block).toContain("wav: 'effect/su_stemspear'");
+		expect(block).not.toContain('attachedEntity');
+	});
 });

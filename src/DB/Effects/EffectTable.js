@@ -25825,12 +25825,14 @@ export default {
 		}
 	],
 
-	// Silvervine Stem Spear (SU_SV_STEMSPEAR), from the client's own effect folders.
+	// Silvervine Stem Spear (SU_SV_STEMSPEAR): effect 1101, left where the caster
+	// stands when the damage packet arrives, start sound su_stemspear.wav.
 	ef_su_sv_stemspear: [
 		{
 			type: 'STR',
 			file: 'su_sv_stemspear/su_sv_stemspear',
-			texturePath: 'su_sv_stemspear/'
+			texturePath: 'su_sv_stemspear/',
+			wav: 'effect/su_stemspear'
 		}
 	],
 

@@ -1800,7 +1800,9 @@ SkillEffect[SK.SU_HIDE] = {}; //Hide
 SkillEffect[SK.SU_SCRATCH] = { successEffectId: 'ef_su_scratch' }; //Scratch
 SkillEffect[SK.SU_STOOP] = {}; //Stoop
 SkillEffect[SK.SU_LOPE] = {}; //Lope
-SkillEffect[SK.SU_SV_STEMSPEAR] = { effectId: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
+// Silvervine Stem Spear: the official client plays 1101 at the caster as each damage
+// packet arrives (and flies 4 spear sprites to the target, effect 1100, not ported).
+SkillEffect[SK.SU_SV_STEMSPEAR] = { damageEffectIdOnCaster: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
 SkillEffect[SK.SU_CN_POWDERING] = {}; //Catnip Powdering
 SkillEffect[SK.SU_CN_METEOR] = {}; //Catnip Meteor
 SkillEffect[SK.SU_SV_ROOTTWIST] = {}; //Silvervine Root Twist
