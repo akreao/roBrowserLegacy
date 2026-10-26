@@ -38,6 +38,7 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
+import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
@@ -22945,28 +22946,8 @@ export default {
 		}
 	],
 
-	ef_arrow_shower_projectile: [
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: false,
-			duration: 140,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			fadeIn: true,
-			fadeOut: true,
-			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1,
-			posxEndRand: 1.5,
-			posyEndRand: 1.5
-		}
-	],
+	// Arrow Shower (AC_SHOWER): the client's arrows to the cells around a point, ArrowShowerEffects.js.
+	...arrowShowerEffects(),
 
 	// Wind Sign (WH_WIND_SIGN), from the client's own effect folders.
 	ef_wh_wind_sign: [

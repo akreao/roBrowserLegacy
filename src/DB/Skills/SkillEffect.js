@@ -141,7 +141,14 @@ SkillEffect[SK.AC_CONCENTRATION] = { effectId: 153 }; //Improve Concentration
 // a normal bow attack; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target.
 // See effect-port/archer-skills.md.
 SkillEffect[SK.AC_DOUBLE] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1] }; //Double Strafe
-SkillEffect[SK.AC_SHOWER] = { effectId: 'ef_arrow_shower_projectile', hitEffectId: 1 }; //Arrow Shower
+// Official client: arrows to the 8 cells around the ground cell from the ground packet; arrows to the
+// damaged actor and the 8 cells around it from each damage packet; each hit that lands plays 0 (the
+// standard hit flash) and 1 (EF_HIT2). See effect-port/archer-skills.md.
+SkillEffect[SK.AC_SHOWER] = {
+	groundEffectIdByLevel: ['ef_arrow_shower_ground'],
+	damageEffectIdOnTarget: 'ef_arrow_shower_target',
+	hitEffectId: [0, 1]
+}; //Arrow Shower
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
 SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
