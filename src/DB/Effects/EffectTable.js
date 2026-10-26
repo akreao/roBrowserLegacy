@@ -9167,7 +9167,8 @@ export default {
 		{
 			// Moonlit water mill/sheltering bliss	//EF_SPHEREWIND2	Sheltering Bliss
 			type: 'FUNC',
-			wav: 'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5',
+			// The client plays its own sound, effect/\xb4\xde\xba\xfb.wav (dal-bit), from the use packet.
+			wav: 'effect/\xb4\xde\xba\xfb',
 			attachedEntity: false,
 			func: function (Params) {
 				const BlueTile = FlatColorTile('salmon', { r: 0xff / 255, g: 0x8a / 255, b: 0xbb / 255, a: 0.6 });
@@ -11555,6 +11556,22 @@ export default {
 	'517_music': [
 		{
 			wav: 'effect/\xc7\xec\xb8\xa3\xb8\xf0\xb5\xe5\xc0\xc7\x20\xc1\xf6\xc6\xce\xc0\xcc',
+			attachedEntity: true
+		}
+	],
+
+	// Longing for Freedom's use sound (the official client plays it with the white cone 843)
+	ef_longing_freedom_sound: [
+		{
+			wav: 'effect/ac_concentration',
+			attachedEntity: true
+		}
+	],
+
+	// Tarot Card of Fate's use sound
+	ef_tarot_card_sound: [
+		{
+			wav: 'effect/priest_slowpoison',
 			attachedEntity: true
 		}
 	],
