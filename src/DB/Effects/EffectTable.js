@@ -13237,6 +13237,14 @@ export default {
 		}
 	],
 
+	// Watery Evasion (NJ_SUITON): the official client plays 수둔.wav from the ground packet. The units'
+	// water (620, EF_BOTTOM_SUITON: ring_blue.tga ripples, prim 36) is not ported yet.
+	ef_watery_evasion_sound: [
+		{
+			wav: 'effect/\xbc\xf6\xb5\xd0'
+		}
+	],
+
 	636: [
 		{
 			//EF_HYOUSYOURAKU	Falling Ice Pillar
