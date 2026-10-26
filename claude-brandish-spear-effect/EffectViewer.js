@@ -222732,15 +222732,20 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.TF_DETOXIFY] = { effectId: 21 };
 	SkillEffect[SkillConst_default.ALL_RESURRECTION] = { effectId: [77, 140] };
 	SkillEffect[SkillConst_default.KN_PIERCE] = {
-		effectIdOnCaster: 148,
-		hitEffectId: 147
+		damageEffectIdOnCaster: 148,
+		hitEffectId: 81,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.KN_BRANDISHSPEAR] = {
 		hideCastBar: true,
 		hideCastAura: true,
 		damageEffectIdOnTarget: 70
 	};
-	SkillEffect[SkillConst_default.KN_SPEARSTAB] = { effectIdOnCaster: 150 };
+	SkillEffect[SkillConst_default.KN_SPEARSTAB] = {
+		damageEffectIdOnCaster: 150,
+		hitEffectId: 81,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.KN_SPEARBOOMERANG] = {
 		effectIdOnCaster: 151,
 		beforeHitEffectId: "ef_spear_projectile",
@@ -272602,8 +272607,69 @@ function createPrimState(effect) {
 		sizeAccel: num(effect.sizeAccel, 0),
 		sizeChangeFrame: num(effect.sizeChangeFrame, -1),
 		sizeChangeSpeed: num(effect.sizeChangeSpeed, 0),
-		sizeChangeAccel: num(effect.sizeChangeAccel, 0)
+		sizeChangeAccel: num(effect.sizeChangeAccel, 0),
+		radiusChangeFrame: num(effect.radiusChangeFrame, -1),
+		radiusChangeSpeed: num(effect.radiusChangeSpeed, 0),
+		radiusChangeAccel: num(effect.radiusChangeAccel, 0),
+		baseRadius: num(effect.baseRadius, 0),
+		baseSpeed: num(effect.baseSpeed, 0),
+		baseAccel: num(effect.baseAccel, 0),
+		topRadius: num(effect.topRadius, 0),
+		topSpeed: num(effect.topSpeed, 0),
+		topAccel: num(effect.topAccel, 0),
+		coneHeight: num(effect.coneHeight, 0),
+		coneHeightSpeed: num(effect.coneHeightSpeed, 0),
+		coneHeightAccel: num(effect.coneHeightAccel, 0),
+		coneHeightMax: num(effect.coneHeightMax, 100),
+		pitch: num(effect.pitch, 0),
+		drift: num(effect.drift, 0),
+		driftAccel: num(effect.driftAccel, 0),
+		driftOffset: 0
 	};
+}
+/**
+* Facing angle of an owner in the official client's convention, from a roBrowser
+* direction (0 south, then clockwise: 1 south-west ... 7 south-east).
+* The client measures it as atan2(dx, -dz) in degrees, 0..360; with the map's
+* y taken as the client's z that puts 0 on south and 90 on east.
+*
+* @param {number} direction roBrowser direction 0-7
+* @return {number} degrees
+*/
+function facingAngle(direction) {
+	const DX = [
+		0,
+		-1,
+		-1,
+		-1,
+		0,
+		1,
+		1,
+		1
+	];
+	const DY = [
+		-1,
+		-1,
+		0,
+		1,
+		1,
+		1,
+		0,
+		-1
+	];
+	const d = ((Math.round(direction) || 0) % 8 + 8) % 8;
+	return (Math.atan2(DX[d], -DY[d]) * 180 / Math.PI + 360) % 360;
+}
+/**
+* Turn a primitive by its owner's facing, the way the client sets up a hit
+* band: yaw = 180 - facing (kept in 0..360), plus the effect's own yaw.
+*
+* @param {object} state from createPrimState
+* @param {object} effect description
+* @param {number} direction roBrowser direction 0-7
+*/
+function applyFacing(state, effect, direction) {
+	if (effect.facing) state.yaw = (180 - facingAngle(direction) + 360) % 360 + num(effect.yaw, 0);
 }
 /**
 * Advance a primitive by one tick
@@ -272613,8 +272679,20 @@ function createPrimState(effect) {
 function stepPrim(state) {
 	if (state.frame === state.fadeOutFrame && state.frames > state.frame) state.alphaSpeed = -state.alpha / (state.frames - state.frame);
 	state.alpha = Math.min(state.alphaMax, Math.max(0, state.alpha + state.alphaSpeed));
+	if (state.frame === state.radiusChangeFrame) {
+		state.radiusSpeed = state.radiusChangeSpeed;
+		state.radiusAccel = state.radiusChangeAccel;
+	}
 	state.radiusSpeed += state.radiusAccel;
 	state.radius += state.radiusSpeed;
+	state.baseSpeed += state.baseAccel;
+	state.baseRadius += state.baseSpeed;
+	state.topSpeed += state.topAccel;
+	state.topRadius += state.topSpeed;
+	state.coneHeightSpeed += state.coneHeightAccel;
+	state.coneHeight = Math.min(state.coneHeight + state.coneHeightSpeed, state.coneHeightMax);
+	state.drift += state.driftAccel;
+	state.driftOffset += state.drift;
 	state.yaw += state.spin;
 	if (state.frame === state.sizeChangeFrame) {
 		state.sizeSpeed = state.sizeChangeSpeed;
@@ -272663,6 +272741,86 @@ function primVertexCount(effect) {
 	if (effect.prim === "sphere") return segments * num(effect.bands, 5) * 6;
 	if (effect.prim === "quad") return 6;
 	return segments * 6;
+}
+/**
+* Turn a point of the cone's own frame into the world: tilt by pitch about the
+* side axis, then turn by yaw about the vertical (the client's row-vector
+* order). Frame: x and z level, y down (so negative y is up).
+*
+* @param {number} x
+* @param {number} y
+* @param {number} z
+* @param {number} pitch radians
+* @param {number} yaw radians
+* @return {Array} [x, y, z]
+*/
+function coneToWorld(x, y, z, pitch, yaw) {
+	const cp = Math.cos(pitch), sp = Math.sin(pitch);
+	const cy = Math.cos(yaw), sy = Math.sin(yaw);
+	const ty = y * cp - z * sp;
+	const tz = y * sp + z * cp;
+	return [
+		x * cy + tz * sy,
+		ty,
+		-x * sy + tz * cy
+	];
+}
+/**
+* Build the cone band: ten segments (by default) around the axis, from the base
+* circle (V = 1) to the top circle coneHeight away along the axis (V = 0).
+* U runs uStep per segment and starts again at 0 once it reaches 1.
+* The band sits `height` units above the position and has drifted
+* driftOffset units along its axis, toward the top.
+*
+* @param {Float32Array} out
+* @param {object} effect description
+* @param {object} state
+* @param {Array} center position, in cells
+*/
+function buildCone$1(out, effect, state, center) {
+	const segments = num(effect.segments, 10);
+	const step = 360 / segments;
+	const uStep = num(effect.uStep, .25);
+	const pitch = state.pitch / 180 * Math.PI;
+	const yaw = state.yaw / 180 * Math.PI;
+	const b = state.baseRadius;
+	const t = state.topRadius;
+	const h = state.coneHeight;
+	const lift = num(effect.height, 0);
+	const axis = coneToWorld(0, -1, 0, pitch, yaw);
+	const ox = axis[0] * state.driftOffset;
+	const oy = axis[1] * state.driftOffset;
+	const oz = axis[2] * state.driftOffset;
+	const point = (r, depth, deg, u, v) => {
+		const a = deg / 180 * Math.PI;
+		const p = coneToWorld(r * Math.cos(a), -depth, r * Math.sin(a), pitch, yaw);
+		return [
+			p[0] + ox,
+			p[2] + oz,
+			lift - (p[1] + oy),
+			u,
+			v
+		];
+	};
+	let u = 0;
+	let o = 0;
+	for (let i = 0; i < segments; ++i) {
+		const a0 = i * step;
+		const a1 = a0 + step;
+		const u0 = u;
+		const u1 = u + uStep;
+		const base0 = point(b, 0, a0, u0, 1);
+		const base1 = point(b, 0, a1, u1, 1);
+		const top0 = point(t, h, a0, u0, 0);
+		const top1 = point(t, h, a1, u1, 0);
+		o = vertex$7(out, o, center, ...base0);
+		o = vertex$7(out, o, center, ...base1);
+		o = vertex$7(out, o, center, ...top0);
+		o = vertex$7(out, o, center, ...top1);
+		o = vertex$7(out, o, center, ...top0);
+		o = vertex$7(out, o, center, ...base1);
+		u = u1 >= 1 ? 0 : u1;
+	}
 }
 /**
 * Build the ring: a band between radius and radius - width, lying on the ground.
@@ -272770,6 +272928,7 @@ function buildQuad(out, effect, state, center) {
 function buildPrimGeometry(out, effect, state, center) {
 	if (effect.prim === "sphere") buildSphere(out, effect, state, center);
 	else if (effect.prim === "quad") buildQuad(out, effect, state, center);
+	else if (effect.prim === "cone") buildCone$1(out, effect, state, center);
 	else buildRing$1(out, effect, state, center);
 }
 var PRIM_TICK_MS;
@@ -272800,12 +272959,15 @@ var init_EffectPrim = __esmMin((() => {
 		/**
 		* @param {object} effect description
 		* @param {object} EF_Inst_Par instance parameters
+		* @param {object} [EF_Init_Par] init parameters (owner entity, for `facing`)
 		*/
-		constructor(effect, EF_Inst_Par) {
+		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			this.effect = effect;
 			this.position = EF_Inst_Par.position;
 			this.startTick = EF_Inst_Par.startTick;
 			this.state = createPrimState(effect);
+			const owner = EF_Init_Par && EF_Init_Par.ownerEntity;
+			applyFacing(this.state, effect, owner ? owner.direction : EF_Inst_Par.direction);
 			this.endTick = this.startTick + this.state.frames * PRIM_TICK_MS;
 			this.vertexCount = primVertexCount(effect);
 			this.vertices = new Float32Array(this.vertexCount * 5);
@@ -294752,8 +294914,21 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		81: [{
-			wav: "effect/ef_bash",
-			attachedEntity: true
+			type: "PRIM",
+			prim: "cone",
+			texture: "ring_yellow",
+			attachedEntity: true,
+			duration: 15 * (1e3 / 60),
+			frames: 15,
+			facing: true,
+			pitch: -90,
+			height: 10,
+			baseRadius: 6,
+			topRadius: 11,
+			coneHeight: 2.5,
+			drift: .7,
+			driftAccel: -.02333333333333333,
+			fadeOutFrame: 8
 		}],
 		82: [{
 			wav: "effect/ef_bash",
@@ -295414,7 +295589,6 @@ var init_EffectTable = __esmMin((() => {
 		150: [{
 			type: "STR",
 			file: "spearstab",
-			wav: "_enemy_hit_normal1",
 			attachedEntity: true
 		}],
 		151: [{
