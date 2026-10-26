@@ -390,7 +390,7 @@ SkillEffect[SK.AM_RESURRECTHOMUN] = {}; //Homunculus Resurrection
 // source (the Crusader) or, for Providence, its target. See effect-port/crusader-skills.md.
 SkillEffect[SK.CR_AUTOGUARD] = { successEffectIdOnCaster: 336 }; //Guard
 SkillEffect[SK.CR_SHIELDCHARGE] = { damageEffectIdOnTarget: 246, hitEffectId: 0, hitEffectOnce: true }; //Smite
-SkillEffect[SK.CR_SHIELDBOOMERANG] = { beforeHitEffectId: 'ef_shield_projectile', effectId: 249 }; //Shield Boomerang
+SkillEffect[SK.CR_SHIELDBOOMERANG] = { damageEffectIdOnCaster: 249, hitEffectId: 0, hitEffectOnce: true }; //Shield Boomerang
 SkillEffect[SK.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 }; //Shield Reflect
 SkillEffect[SK.CR_HOLYCROSS] = { damageEffectIdOnTarget: 245, hitEffectId: 0, hitEffectOnce: true }; //Holy Cross
 // Official client: 226 on the caster as each damage packet arrives (with its sound) and the hit

@@ -48,6 +48,7 @@ import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
@@ -5714,12 +5715,8 @@ export default {
 		}
 	],
 
-	249: [
-		{
-			//EF_SHIELDBOOMERANG	Shield Boomerang
-			wav: 'effect/cru_shield boomerang'
-		}
-	],
+	// EF_SHIELDBOOMERANG, Shield Boomerang: the client's thrown shield, out and back (ShieldBoomerangEffect.js)
+	249: shieldBoomerangEffect,
 
 	250: [
 		{
