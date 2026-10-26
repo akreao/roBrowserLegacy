@@ -9885,8 +9885,9 @@ export default {
 
 	457: [
 		{
-			//flying kick on target	//EF_JUMPKICK	Flying Side Kick (2nd Part)
-			wav: 'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
+			//EF_JUMPKICK	Flying Kick, on the caster
+			wav: 'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', // t_날라차기
+			delayWav: 83, // tick 5
 			attachedEntity: true
 		}
 	],
