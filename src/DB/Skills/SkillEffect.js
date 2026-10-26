@@ -188,11 +188,7 @@ SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
 SkillEffect[SK.KN_PIERCE] = { effectIdOnCaster: 148, hitEffectId: 147 }; //Pierce
 SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, effectId: 70, effectIdOnCaster: 144 }; //Brandish Spear
 SkillEffect[SK.KN_SPEARSTAB] = { effectIdOnCaster: 150 }; //Spear Stab
-SkillEffect[SK.KN_SPEARBOOMERANG] = {
-	effectIdOnCaster: 151,
-	beforeHitEffectId: 'ef_spear_projectile',
-	hitEffectId: 80
-}; //Spear Boomerang
+SkillEffect[SK.KN_SPEARBOOMERANG] = { damageEffectIdOnCaster: [80, 151], hitEffectId: 3, hitEffectOnce: true }; //Spear Boomerang
 SkillEffect[SK.KN_TWOHANDQUICKEN] = { effectId: 130 }; //Twohand Quicken
 SkillEffect[SK.KN_AUTOCOUNTER] = {
 	hideCastAura: true /*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/
