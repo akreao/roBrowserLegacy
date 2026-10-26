@@ -1410,8 +1410,7 @@ class EffectManager {
 		}
 
 		// Skills marked hitEffectOnce play their hit effects for the first hit
-		// of a damage packet only, like the official client does for damage a
-		// character deals: one hit message per packet, whatever the hit count.
+		// of a damage packet only.
 		if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) {
 			return;
 		}

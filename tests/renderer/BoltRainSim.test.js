@@ -96,9 +96,9 @@ describe('BoltRainSim', () => {
 });
 
 describe('Cold Bolt wiring', () => {
-	it('plays 26 on the target per damage packet and 51 once on the hit', () => {
+	it('plays 26 on the target per damage packet and 51 on every hit', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
-			/SkillEffect\[SK\.MG_COLDBOLT\] = \{ damageEffectIdOnTarget: 26, hitEffectId: 51, hitEffectOnce: true \};/
+			/SkillEffect\[SK\.MG_COLDBOLT\] = \{ damageEffectIdOnTarget: 26, hitEffectId: 51 \};/
 		);
 	});
 
