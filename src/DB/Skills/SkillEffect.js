@@ -501,7 +501,7 @@ SkillEffect[SK.PA_SACRIFICE] = { effectId: 366 }; // Martyr's Reckoning
 SkillEffect[SK.PA_GOSPEL] = { effectId: 370, groundEffectId: '370_ground' }; //Battle Chant
 // Champion
 SkillEffect[SK.CH_PALMSTRIKE] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 376, hitEffectId: 0 }; //Raging Palm Strike
-SkillEffect[SK.CH_TIGERFIST] = { effectIdOnCaster: 263, effectId: [377, 'quake'] }; //Glacier Fist
+SkillEffect[SK.CH_TIGERFIST] = { damageEffectIdOnCaster: ['quake', 377, 263], hitEffectId: [0, 1] }; //Glacier Fist
 SkillEffect[SK.CH_CHAINCRUSH] = { effectId: 512 }; //Chain Crush Combo
 // Professor
 SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378, successEffectIdOnCaster: 379 }; //Indulge

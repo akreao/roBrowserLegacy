@@ -8850,7 +8850,9 @@ export default {
 	377: [
 		{
 			//martyr's reckoning 2	//EF_BASH3D2	   Martyr's Reckoning 2
-			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_¿¬È¯? can be incorrect wav name
+			// mon_맹룡과강.wav on tick 5, as the official client
+			wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad',
+			delayWav: 83,
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
