@@ -101,7 +101,9 @@ SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
-SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
+// Official client: the damage lands with 0 (the standard hit flash) and 1 (EF_HIT2) on the target, once per
+// damage packet whatever the hit count. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: [0, 1], hitEffectOnce: true }; //Soul Strike
 SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
 SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
 SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
