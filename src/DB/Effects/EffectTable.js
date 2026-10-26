@@ -8828,7 +8828,18 @@ export default {
 		}
 	],
 
-	//375: [{}],	//EF_ASSUMPTIO	   Assumptio (Visual Effect)
+	375: [
+		{
+			//EF_ASSUMPTIO	Assumptio (status look)
+			// The official client draws a glow copy round the actor on every tick while 375 lives: it is
+			// launched with the status and removed when the status ends (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 99999, 375), Params);
+			}
+		}
+	],
 	376: [
 		{
 			//EF_HITLINE2	   Palm Strike
