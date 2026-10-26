@@ -133,3 +133,12 @@ describe('Land Mine', () => {
 		expect(triggers().table[0x93]).toBeUndefined();
 	});
 });
+
+describe('Shockwave Trap', () => {
+	it('the trap holds ShockWave.str (145, looping, silent) while it stands; no 146 on hits', () => {
+		expect(read('DB/Skills/SkillUnit.js')).toContain("SkillUnit[SU.UNT_SHOCKWAVE] = ['ef_trap_03_6', EC.EF_SHOCKWAVE];");
+		expect(skillRow('HT_SHOCKWAVE')).toEqual({ hitEffectId: [0] });
+		expect(effectRow(145)).toEqual([{ type: 'STR', file: 'shockwave', attachedEntity: false }]);
+		expect(triggers().table[0x94]).toBeUndefined();
+	});
+});
