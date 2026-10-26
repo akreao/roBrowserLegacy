@@ -1754,7 +1754,7 @@ function onEntityUseSkillToAttack(pkt) {
 			const addDamage = function (i, startTick) {
 				if (pkt.damage) {
 					// Only if hits
-					EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID);
+					EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i);
 				}
 
 				if (!isCombo && isBlueCombo) {
