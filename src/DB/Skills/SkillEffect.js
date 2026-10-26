@@ -697,7 +697,9 @@ SkillEffect[SK.GS_DUST] = { damageEffectIdOnTarget: 628, hitEffectId: 0, hitEffe
 // Official client: 584 on the caster, aimed at the target, as each damage packet arrives; the hit plays
 // the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_FULLBUSTER] = { damageEffectIdOnCaster: 584, hitEffectId: 0, hitEffectOnce: true }; //Full Buster
-SkillEffect[SK.GS_SPREADATTACK] = { effectId: 645 }; //Spread Attack
+// Official client: 645 on the caster, aimed at the target, as each damage packet arrives; the hit plays
+// the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_SPREADATTACK] = { damageEffectIdOnCaster: 645, hitEffectId: 0, hitEffectOnce: true }; //Spread Attack
 SkillEffect[SK.GS_GROUNDDRIFT] = {}; //Ground Drift
 // Ninja
 SkillEffect[SK.NJ_SYURIKEN] = { beforeHitEffectId: 613 }; //Throw Shuriken

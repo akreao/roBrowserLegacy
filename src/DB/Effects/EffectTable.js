@@ -13230,9 +13230,10 @@ export default {
 
 	645: [
 		{
-			//EF_SPREADATTACK	Spread Attack
+			//EF_SPREADATTACK	Spread Attack. Official client: sprite from tick 0 at 4 ticks a frame, no sound.
 			type: 'SPR',
 			file: '\xbd\xba\xc7\xc1\xb7\xb9\xb5\xe5',
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true,
 			direction: true
 		}
