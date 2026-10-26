@@ -33,7 +33,7 @@ import MagicRing from 'Renderer/Effects/MagicRing.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
-import PropertyGround from 'Renderer/Effects/PropertyGround.js';
+import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
@@ -5626,11 +5626,10 @@ export default {
 			//EF_BOTTOM_VO	   Volcano (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
+			// Official client: one breathing band of ring_red.tga under the unit's cell for as long as
+			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
-				this.add(
-					new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_red', Params.Inst.startTick),
-					Params
-				);
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, 'ring_red.tga'), Params);
 			}
 		}
 	],
@@ -5639,11 +5638,10 @@ export default {
 			//EF_BOTTOM_DE	   Deluge (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
+			// Official client: one breathing band of ring_blue.tga under the unit's cell for as long as
+			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
-				this.add(
-					new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_blue', Params.Inst.startTick),
-					Params
-				);
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, 'ring_blue.tga'), Params);
 			}
 		}
 	],
@@ -5652,11 +5650,10 @@ export default {
 			//EF_BOTTOM_VI	   Violent Gale (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
+			// Official client: one breathing band of magic_green.tga under the unit's cell for as long as
+			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
-				this.add(
-					new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_yellow', Params.Inst.startTick),
-					Params
-				);
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, 'magic_green.tga'), Params);
 			}
 		}
 	],
