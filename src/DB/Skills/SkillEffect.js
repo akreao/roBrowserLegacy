@@ -1809,7 +1809,8 @@ SkillEffect[SK.SU_SCAROFTAROU] = { effectId: 'ef_su_scaroftarou' }; //Scar of Ta
 // Picky Peck: once, on the use packet's target when it succeeds (not again on the damage).
 SkillEffect[SK.SU_PICKYPECK] = { successEffectId: 'ef_su_pickypeck' }; //Picky Peck
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
-SkillEffect[SK.SU_ARCLOUSEDASH] = { effectId: 'ef_su_arclousedash' }; //Arclouse Dash
+// Arclouse Dash: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_ARCLOUSEDASH] = { successEffectId: 'ef_su_arclousedash' }; //Arclouse Dash
 SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
 // Tuna Belly: once, on the use packet's target when it succeeds.
 SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly

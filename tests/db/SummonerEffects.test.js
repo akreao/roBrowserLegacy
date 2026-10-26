@@ -29,4 +29,7 @@ describe('Summoner skill effects', () => {
 		expect(block).toContain("file: 'su_tunabelly/su_tunabelly'");
 		expect(block).toContain("wav: 'effect/su_tunabelly'");
 	});
+	it("Arclouse Dash plays on use success only", () => {
+		expect(row('SU_ARCLOUSEDASH')).toBe("{ successEffectId: 'ef_su_arclousedash' }");
+	});
 });
