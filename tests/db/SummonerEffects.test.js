@@ -117,4 +117,11 @@ describe('Summoner skill effects', () => {
 	it("Nyang Grass draws nothing from the ground packet", () => {
 		expect(row('SU_NYANGGRASS')).toBe("{}");
 	});
+	it("Lunatic Carrot Beat drops its carrots on use success, by level", () => {
+		expect(row('SU_LUNATICCARROTBEAT')).toBe("{ successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat'] }");
+	});
+
+	it("Lunatic Carrot Beat with the item drops the full-alpha carrots", () => {
+		expect(row('SU_LUNATICCARROTBEAT2')).toBe("{ successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat2'] }");
+	});
 });

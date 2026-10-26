@@ -1816,7 +1816,10 @@ SkillEffect[SK.SU_PICKYPECK] = { successEffectId: 'ef_su_pickypeck' }; //Picky P
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
 // Arclouse Dash: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_ARCLOUSEDASH] = { successEffectId: 'ef_su_arclousedash' }; //Arclouse Dash
-SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
+// Lunatic Carrot Beat: carrots fall around the target when the use packet succeeds, more
+// for higher levels (DB/Effects/CarrotBeatEffect.js); the _2 version is the one with the item.
+SkillEffect[SK.SU_LUNATICCARROTBEAT] = { successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat'] }; //Lunatic Carrot Beat
+SkillEffect[SK.SU_LUNATICCARROTBEAT2] = { successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat2'] }; //Lunatic Carrot Beat (with the item)
 // Tuna Belly: once, on the use packet's target when it succeeds.
 SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party

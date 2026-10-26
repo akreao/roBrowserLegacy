@@ -48,6 +48,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
+import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
@@ -25982,6 +25983,10 @@ export default {
 			wav: 'effect/su_hiss'
 		}
 	],
+
+	// Lunatic Carrot Beat (SU_LUNATICCARROTBEAT / 2): the falling carrots
+	// (DB/Effects/CarrotBeatEffect.js).
+	...carrotBeatEffects,
 
 	// Nyang Grass (SU_NYANGGRASS): the field the unit draws (DB/Effects/NyangGrassEffect.js).
 	...nyangGrassEffects,
