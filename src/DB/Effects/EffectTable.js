@@ -9150,6 +9150,15 @@ export default {
 			file: 'sword',
 			wav: 'effect/kyrie_guard',
 			attachedEntity: true
+		},
+		{
+			// Counter Instinct (official client): to tick 29 a glow copy round the caster,
+			// which flickers grey and back every three ticks (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 200, 392), Params);
+			}
 		}
 	],
 
