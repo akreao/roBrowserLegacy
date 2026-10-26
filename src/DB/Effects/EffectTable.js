@@ -3796,10 +3796,9 @@ export default {
 
 	126: [
 		{
-			//EF_POISONREACT	Poison React
+			//EF_POISONREACT	Poison React: the STR only, no sound (the official client plays none)
 			type: 'STR',
 			file: 'poisonreact_1st',
-			wav: 'effect/assasin_poisonreact',
 			attachedEntity: true
 		}
 	],
