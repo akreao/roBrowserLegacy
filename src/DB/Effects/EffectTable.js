@@ -51,6 +51,7 @@ import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
+import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
@@ -979,14 +980,8 @@ export default {
 	],
 
 	10: [
-		{
-			//EF_COIN	Mammonite
-			type: 'STR',
-			file: 'maemor',
-			min: 'memor_min',
-			wav: 'effect/ef_coin2',
-			attachedEntity: true
-		}
+		// EF_COIN, Mammonite: Maemor.str and the client's 5 bouncing coins with their coin sounds (MammoniteEffect.js)
+		...mammoniteEffect
 	],
 
 	11: [
