@@ -222688,7 +222688,7 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: 30,
 		hitEffectId: 52
 	};
-	SkillEffect[SkillConst_default.AL_RUWACH] = { hitEffectId: 1 };
+	SkillEffect[SkillConst_default.AL_RUWACH] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.AL_PNEUMA] = { groundEffectId: 141 };
 	SkillEffect[SkillConst_default.AL_TELEPORT] = {};
 	SkillEffect[SkillConst_default.AL_WARP] = {};
@@ -222953,7 +222953,10 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.MC_CHANGECART] = {};
 	SkillEffect[SkillConst_default.MC_LOUD] = { effectId: 311 };
-	SkillEffect[SkillConst_default.AL_HOLYLIGHT] = { effectId: 152 };
+	SkillEffect[SkillConst_default.AL_HOLYLIGHT] = {
+		hitEffectId: [0, 152],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.MG_ENERGYCOAT] = { effectId: 169 };
 	SkillEffect[SkillConst_default.NPC_PIERCINGATT] = { effectIdOnCaster: 148 };
 	SkillEffect[SkillConst_default.NPC_MENTALBREAKER] = { effectId: 181 };
@@ -272357,6 +272360,7 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} wegl context
 		*/
 		render(gl, tick) {
+			if (tick < this.startTick) return;
 			const renderCount = tick - this.startTick;
 			const duration = this.endTick - this.startTick;
 			const uniform = _program$32.uniform;
@@ -292997,12 +293001,83 @@ var init_EffectTable = __esmMin((() => {
 			head: true,
 			attachedEntity: true
 		}],
-		40: [{
-			type: "STR",
-			file: "cross",
-			wav: "effect/ef_signum",
-			attachedEntity: true
-		}],
+		40: [
+			{
+				type: "STR",
+				file: "cross",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_signum",
+				delayWav: 500
+			},
+			{
+				type: "CYLINDER",
+				delayStart: 500,
+				textureName: "alpha_down",
+				alphaMax: .6,
+				duration: 1e3,
+				rotate: true,
+				fade: true,
+				angleX: -90,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .1,
+				topSize: 2,
+				animation: 2,
+				zIndex: 1,
+				wav: "effect/ef_bash",
+				delayWav: 500,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				delayStart: 500,
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 1e3,
+				duplicate: 10,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				rotate: true,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 2.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				delayStart: 500,
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 1e3,
+				duplicate: 8,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				rotate: true,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
 		41: [{
 			type: "STR",
 			file: "angelus",
@@ -297174,7 +297249,6 @@ var init_EffectTable = __esmMin((() => {
 				repeat: true,
 				repeatDelay: -300,
 				topSize: 3.9,
-				wav: "effect/ef_readyportal",
 				type: "CYLINDER"
 			},
 			{
