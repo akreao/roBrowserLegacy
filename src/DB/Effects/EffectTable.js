@@ -7440,6 +7440,15 @@ export default {
 		}
 	],
 
+	// Increasing Accuracy (GS_INCREASING): the sound of the official client's effect 456 (its rising
+	// streaks are not ported). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
+	ef_gs_increasing_accuracy: [
+		{
+			wav: 'effect/ef_incagility',
+			attachedEntity: true
+		}
+	],
+
 	// Cracker (GS_CRACKER): the official client's use-packet sound. See effect-port/gunslinger-skills.md.
 	ef_gs_cracker: [
 		{

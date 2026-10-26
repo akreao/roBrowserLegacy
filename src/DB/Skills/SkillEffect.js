@@ -675,7 +675,10 @@ SkillEffect[SK.GS_MADNESSCANCEL] = { successEffectId: 625 }; //Madness Canceller
 // Official client: 626 on the caster when the use packet's result is set: a red body glow on one
 // tick in four for 1 s. Gatling Fever plays the same. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_ADJUSTMENT] = { successEffectId: 626 }; //AdJustment
-SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdOnCaster: 'ef_gs_increasing_cast' }; //Increasing Accuracy
+// Official client: 456 on the caster when the use packet's result is set: effect\EF_IncAgility.wav and
+// rising ac_center2 streaks (not ported). The increasing_activity STRs are Elemental Master's
+// Increasing Activity, not this skill. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_INCREASING] = { successEffectId: 'ef_gs_increasing_accuracy' }; //Increasing Accuracy
 // Official client: 644 on the target as each damage packet arrives; the hit plays the standard hit
 // flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_MAGICALBULLET] = { damageEffectIdOnTarget: 644, hitEffectId: 0, hitEffectOnce: true }; //Magical Bullet
