@@ -1258,8 +1258,10 @@ export default {
 		}
 	],
 
-	// EF_STEAL, Steal: the client's 10 particle7 sparks and EF_Steal.wav (StealEffect.js)
-	18: stealEffect,
+	18: [
+		// EF_STEAL, Steal: the client's 10 particle7 sparks and EF_Steal.wav (StealEffect.js)
+		...stealEffect
+	],
 
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
 
