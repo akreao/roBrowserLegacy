@@ -1824,8 +1824,10 @@ SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Sa
 // Hiss: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_HISS] = { successEffectId: 'ef_su_hiss' }; //Hiss
 SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
-SkillEffect[SK.SU_GROOMING] = { effectId: 'ef_su_grooming' }; //Grooming
-SkillEffect[SK.SU_PURRING] = {}; //Purring
+// Grooming: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_GROOMING] = { successEffectId: 'ef_su_grooming' }; //Grooming
+// Purring: the official client plays Grooming's effect (1123, su_grooming.wav) for it.
+SkillEffect[SK.SU_PURRING] = { successEffectId: 'ef_su_grooming' }; //Purring
 SkillEffect[SK.SU_SHRIMPARTY] = {}; //Tasty Shrimp Party
 SkillEffect[SK.SU_MEOWMEOW] = {}; //Meow Meow
 SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering

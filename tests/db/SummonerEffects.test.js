@@ -38,4 +38,11 @@ describe('Summoner skill effects', () => {
 	it("Hiss plays on use success only", () => {
 		expect(row('SU_HISS')).toBe("{ successEffectId: 'ef_su_hiss' }");
 	});
+	it("Grooming plays on use success only", () => {
+		expect(row('SU_GROOMING')).toBe("{ successEffectId: 'ef_su_grooming' }");
+	});
+
+	it("Purring plays Grooming's effect on use success", () => {
+		expect(row('SU_PURRING')).toBe("{ successEffectId: 'ef_su_grooming' }");
+	});
 });
