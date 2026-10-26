@@ -113,7 +113,9 @@ SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Fros
 // Official client: when the use packet reports success, 23 (StoneCurse.str) on the target and
 // _stonecurse.wav at the target. Nothing on a failed attempt. See effect-port/mage-audit.md.
 SkillEffect[SK.MG_STONECURSE] = { successEffectId: [23, 'stonecurse_sound'] }; //Stone Curse
-SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
+// Official client: 24 on the caster as each damage packet arrives (four fireballs to that target), then
+// 49 (fire hit) and 1 (EF_HIT2) once when the damage lands. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_FIREBALL] = { damageEffectIdOnCaster: 24, hitEffectId: [49, 1], hitEffectOnce: true }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
 // Official client: 31 on the target as the damage packet arrives, one fire bolt per hit (BoltRain.js),
 // then 49 (fire hit) once when the damage lands. See effect-port/bolts.md.
