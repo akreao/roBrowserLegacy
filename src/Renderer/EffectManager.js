@@ -223,6 +223,7 @@ function spamSprite(Params) {
 		yOffset: Params.effect.yOffset,
 		frame: Params.effect.frame,
 		delay: Params.effect.delayFrame,
+		opacity: Params.effect.opacity,
 		renderBefore: !!Params.effect.renderBeforeEntities
 	});
 

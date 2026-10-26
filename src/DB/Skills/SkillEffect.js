@@ -1804,7 +1804,10 @@ SkillEffect[SK.SU_LOPE] = {}; //Lope
 // packet arrives (and flies 4 spear sprites to the target, effect 1100, not ported).
 SkillEffect[SK.SU_SV_STEMSPEAR] = { damageEffectIdOnCaster: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
 SkillEffect[SK.SU_CN_POWDERING] = {}; //Catnip Powdering
-SkillEffect[SK.SU_CN_METEOR] = {}; //Catnip Meteor
+// Catnip Meteor: one falling meteor at the cell of each ground packet (the server sends
+// one per meteor); only from the ground packet, not from the damage.
+SkillEffect[SK.SU_CN_METEOR] = { groundEffectIdByLevel: ['ef_su_cn_meteor'] }; //Catnip Meteor
+SkillEffect[SK.SU_CN_METEOR2] = { groundEffectIdByLevel: ['ef_su_cn_meteor2'] }; //Catnip Meteor (with the item)
 SkillEffect[SK.SU_SV_ROOTTWIST] = {}; //Silvervine Root Twist
 SkillEffect[SK.SU_SV_ROOTTWIST_ATK] = {}; //Silver Vine Root Twist Attack
 SkillEffect[SK.SU_SCAROFTAROU] = { effectId: 'ef_su_scaroftarou' }; //Scar of Tarou

@@ -94,4 +94,24 @@ describe('Summoner skill effects', () => {
 		const effects = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
 		expect(effects).toMatch(/\tef_su_bitescar: \[[\s\S]*?file: 'bite_scar\/bite_scar'/);
 	});
+	it("Catnip Meteor drops a meteor per ground packet", () => {
+		expect(row('SU_CN_METEOR')).toBe("{ groundEffectIdByLevel: ['ef_su_cn_meteor'] }");
+	});
+
+	it("Catnip Meteor with the item drops the full-alpha meteor", () => {
+		expect(row('SU_CN_METEOR2')).toBe("{ groundEffectIdByLevel: ['ef_su_cn_meteor2'] }");
+	});
+
+	it('Catnip Meteor is su_cn_meteor.spr at 4 ticks a frame, faded without the item', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const plain = table.match(/\tef_su_cn_meteor: \[([\s\S]*?)\r?\n\t\],/)[1];
+		const item = table.match(/\tef_su_cn_meteor2: \[([\s\S]*?)\r?\n\t\],/)[1];
+		for (const block of [plain, item]) {
+			expect(block).toContain("file: 'su_cn_meteor/su_cn_meteor'");
+			expect(block).toContain('delayFrame: (4 * 1000) / 60');
+			expect(block).toContain('Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60)');
+		}
+		expect(plain).toContain('opacity: 100 / 255');
+		expect(item).not.toContain('opacity');
+	});
 });

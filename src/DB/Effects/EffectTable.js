@@ -25857,6 +25857,40 @@ export default {
 		}
 	],
 
+	// Catnip Meteor (SU_CN_METEOR): effect 1106 at each meteor's cell, one ground
+	// packet per meteor. The official client plays su_cn_meteor.spr once, 4 ticks a
+	// frame, at alpha 100 of 255, and shakes the camera when it is 48 ticks old.
+	ef_su_cn_meteor: [
+		{
+			type: 'SPR',
+			file: 'su_cn_meteor/su_cn_meteor',
+			delayFrame: (4 * 1000) / 60,
+			opacity: 100 / 255
+		},
+		{
+			type: 'FUNC',
+			func: function (Params) {
+				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
+			}
+		}
+	],
+
+	// Catnip Meteor with the item (SU_CN_METEOR2): effect 1112, the same meteor at
+	// full alpha.
+	ef_su_cn_meteor2: [
+		{
+			type: 'SPR',
+			file: 'su_cn_meteor/su_cn_meteor',
+			delayFrame: (4 * 1000) / 60
+		},
+		{
+			type: 'FUNC',
+			func: function (Params) {
+				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
+			}
+		}
+	],
+
 	// Picky Peck (SU_PICKYPECK), from the client's own effect folders.
 	ef_su_pickypeck: [
 		{
