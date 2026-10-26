@@ -15729,7 +15729,23 @@ export default {
 			}
 		}
 	],
-	//844: [{}],	//EF_BEGINSPELL_N7	   Purple cone
+	844: [
+		{
+			//EF_BEGINSPELL_N7	   Purple cone cast aura (Eternal Chaos, A Whistle, Humming, Please Don't Forget Me)
+			// The official client's bubble cone in purple, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 7
+					}),
+					Params
+				);
+			}
+		}
+	],
 	845: [
 		{
 			//EF_BEGINSPELL_N8	   Turquoise cone cast aura (All in the Sky)
