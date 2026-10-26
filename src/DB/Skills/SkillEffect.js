@@ -185,9 +185,9 @@ SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
 // Knight
-SkillEffect[SK.KN_PIERCE] = { effectIdOnCaster: 148, hitEffectId: 147 }; //Pierce
-SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, effectId: 70, effectIdOnCaster: 144 }; //Brandish Spear
-SkillEffect[SK.KN_SPEARSTAB] = { effectIdOnCaster: 150 }; //Spear Stab
+SkillEffect[SK.KN_PIERCE] = { damageEffectIdOnCaster: 148, hitEffectId: 81, hitEffectOnce: true }; //Pierce
+SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, damageEffectIdOnTarget: 70 }; //Brandish Spear
+SkillEffect[SK.KN_SPEARSTAB] = { damageEffectIdOnCaster: 150, hitEffectId: 81, hitEffectOnce: true }; //Spear Stab
 SkillEffect[SK.KN_SPEARBOOMERANG] = { damageEffectIdOnCaster: [80, 151], hitEffectId: 3, hitEffectOnce: true }; //Spear Boomerang
 SkillEffect[SK.KN_TWOHANDQUICKEN] = { effectId: 130 }; //Twohand Quicken
 SkillEffect[SK.KN_AUTOCOUNTER] = {
@@ -1931,7 +1931,7 @@ SkillEffect[SK.MA_REMOVETRAP] = SkillEffect[SK.HT_REMOVETRAP]; //Remove_Trap
 SkillEffect[SK.MA_CHARGEARROW] = SkillEffect[SK.AC_CHARGEARROW]; //Arrow_Repel
 SkillEffect[SK.MA_SHARPSHOOTING] = SkillEffect[SK.SN_SHARPSHOOTING]; //Focused_Arrow_Strike
 SkillEffect[SK.ML_PIERCE] = SkillEffect[SK.KN_PIERCE]; //Pierce
-SkillEffect[SK.ML_BRANDISH] = SkillEffect[SK.KN_BRANDISH]; //Brandish_Spear
+SkillEffect[SK.ML_BRANDISH] = SkillEffect[SK.KN_BRANDISHSPEAR]; //Brandish_Spear
 SkillEffect[SK.ML_SPIRALPIERCE] = SkillEffect[SK.LK_SPIRALPIERCE]; //Spiral_Pierce
 SkillEffect[SK.ML_DEFENDER] = SkillEffect[SK.CR_DEFENDER]; //Defending_Aura
 SkillEffect[SK.ML_AUTOGUARD] = SkillEffect[SK.CR_AUTOGUARD]; //Guard
