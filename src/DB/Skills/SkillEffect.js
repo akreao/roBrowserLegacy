@@ -666,7 +666,9 @@ SkillEffect[SK.GS_BULLSEYE] = { effectId: 649 }; //Bulls Eye
 // Official client: 625 on the caster when the use packet's result is set: a blue body glow on one
 // tick in four for 1 s. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_MADNESSCANCEL] = { successEffectId: 625 }; //Madness Canceller
-SkillEffect[SK.GS_ADJUSTMENT] = { effectId: 626 }; //AdJustment
+// Official client: 626 on the caster when the use packet's result is set: a red body glow on one
+// tick in four for 1 s. Gatling Fever plays the same. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_ADJUSTMENT] = { successEffectId: 626 }; //AdJustment
 SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdOnCaster: 'ef_gs_increasing_cast' }; //Increasing Accuracy
 SkillEffect[SK.GS_MAGICALBULLET] = { effectId: 644 }; //Magical Bullet
 SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
@@ -675,7 +677,7 @@ SkillEffect[SK.GS_DISARM] = { effectId: 627 }; //Disarm
 SkillEffect[SK.GS_PIERCINGSHOT] = {}; //Piercing Shot
 SkillEffect[SK.GS_RAPIDSHOWER] = { effectId: 643 }; //Rapid Shower
 SkillEffect[SK.GS_DESPERADO] = { effectId: 637 }; //Desperado
-SkillEffect[SK.GS_GATLINGFEVER] = { effectId: 626 }; //Gatling Fever
+SkillEffect[SK.GS_GATLINGFEVER] = { successEffectId: 626 }; //Gatling Fever
 SkillEffect[SK.GS_DUST] = { effectId: 628 }; //Dust
 SkillEffect[SK.GS_FULLBUSTER] = { effectId: 584 }; //Full Buster
 SkillEffect[SK.GS_SPREADATTACK] = { effectId: 645 }; //Spread Attack
