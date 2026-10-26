@@ -223479,7 +223479,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 49,
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.NJ_KAENSIN] = { groundEffectId: 634 };
+	SkillEffect[SkillConst_default.NJ_KAENSIN] = {};
 	SkillEffect[SkillConst_default.NJ_BAKUENRYU] = { effectId: 635 };
 	SkillEffect[SkillConst_default.NJ_HYOUSENSOU] = { effectId: 619 };
 	SkillEffect[SkillConst_default.NJ_SUITON] = { groundEffectId: 620 };
@@ -277686,7 +277686,7 @@ var init_EffectManager = __esmMin((() => {
 			if (typeof Params.effect.repeat !== "undefined" && Params.effect.repeat !== null) Params.Inst.persistent = Params.effect.repeat;
 			Params.Inst.repeatEnd = Params.Init.repeatEnd ? Params.Init.repeatEnd : Params.effect.repeatEnd || 0;
 			Params.Inst.repeatDelay = Params.effect.repeatDelay ? Params.effect.repeatDelay : Params.Init.repeatDelay;
-			if (Params.effect.wav && !(Params.Inst.noDelay && Params.effect.soundLoop === false)) {
+			if (Params.effect.wav && !(Params.Inst.noDelay && Params.effect.soundLoop === false) && !(Params.effect.wavChance < 1 && Math.random() >= Params.effect.wavChance)) {
 				filename = Params.effect.wav;
 				if (Params.effect.rand) filename = filename.replace("%d", Math.round(Params.effect.rand[0] + (Params.effect.rand[1] - Params.effect.rand[0]) * Math.random()));
 				Events.setTimeout(function() {
@@ -302290,9 +302290,14 @@ var init_EffectTable = __esmMin((() => {
 		634: [{
 			type: "SPR",
 			file: "È­¿°Áø",
+			delayFrame: 5 * (1e3 / 60),
+			yOffset: -7,
 			repeat: true,
 			attachedEntity: true
-		}, { wav: "effect/È­¿°Áø" }],
+		}, {
+			wav: "effect/È­¿°Áø",
+			wavChance: 1 / 8
+		}],
 		635: [{
 			type: "STR",
 			file: "fire dragon",
