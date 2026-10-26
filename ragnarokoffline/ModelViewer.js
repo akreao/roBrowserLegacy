@@ -222647,7 +222647,7 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnCaster: 16,
 		hitEffectId: [49, 17]
 	};
-	SkillEffect[SkillConst_default.SM_ENDURE] = { effectId: 11 };
+	SkillEffect[SkillConst_default.SM_ENDURE] = { successEffectIdOnCaster: 11 };
 	SkillEffect[SkillConst_default.MG_SIGHT] = {};
 	SkillEffect[SkillConst_default.MG_NAPALMBEAT] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.MG_SAFETYWALL] = {};
@@ -222869,7 +222869,7 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 171
 	};
 	SkillEffect[SkillConst_default.AS_SPLASHER] = { effectId: 129 };
-	SkillEffect[SkillConst_default.NV_FIRSTAID] = { effectId: 309 };
+	SkillEffect[SkillConst_default.NV_FIRSTAID] = { successEffectIdOnCaster: 309 };
 	SkillEffect[SkillConst_default.NV_TRICKDEAD] = {};
 	SkillEffect[SkillConst_default.HN_DOUBLEBOWLINGBASH] = {
 		effectId: "ef_hn_doublebowlingbash",
@@ -225132,7 +225132,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SP_SOULGOLEM] = { effectId: "ef_sp_soulgolem" };
 	SkillEffect[SkillConst_default.SP_SOULCURSE] = { effectId: "ef_sp_soulcurse" };
 	SkillEffect[SkillConst_default.SP_SOULREVOLVE] = { effectId: "ef_sp_soulrevolve" };
-	SkillEffect[SkillConst_default.NV_HELPANGEL] = { effectId: "ef_nv_helpangel" };
+	SkillEffect[SkillConst_default.NV_HELPANGEL] = { successEffectIdOnCaster: "ef_nv_helpangel" };
 	SkillEffect[SkillConst_default.DR_WEREWOLF] = { effectId: "ef_druid_werewolf" };
 	SkillEffect[SkillConst_default.DR_WERERAPTOR] = { effectId: "ef_druid_wereraptor" };
 	SkillEffect[SkillConst_default.DR_ENRAGE_WOLF] = {
