@@ -694,7 +694,9 @@ SkillEffect[SK.GS_GATLINGFEVER] = { successEffectId: 626 }; //Gatling Fever
 // Official client: 628 on the target as each damage packet arrives; the hit plays the standard hit
 // flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_DUST] = { damageEffectIdOnTarget: 628, hitEffectId: 0, hitEffectOnce: true }; //Dust
-SkillEffect[SK.GS_FULLBUSTER] = { effectId: 584 }; //Full Buster
+// Official client: 584 on the caster, aimed at the target, as each damage packet arrives; the hit plays
+// the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_FULLBUSTER] = { damageEffectIdOnCaster: 584, hitEffectId: 0, hitEffectOnce: true }; //Full Buster
 SkillEffect[SK.GS_SPREADATTACK] = { effectId: 645 }; //Spread Attack
 SkillEffect[SK.GS_GROUNDDRIFT] = {}; //Ground Drift
 // Ninja

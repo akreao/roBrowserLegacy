@@ -12016,9 +12016,12 @@ export default {
 
 	584: [
 		{
-			//EF_M02	Full Buster
+			//EF_M02	Full Buster. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 5.
 			type: 'SPR',
 			file: 'm_ef02',
+			wav: 'effect/\xc7\xae\xb9\xf6\xbd\xba\xc5\xcd', // 풀버스터
+			delayWav: 83, // tick 5
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true,
 			direction: true
 		}
