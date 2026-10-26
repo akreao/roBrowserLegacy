@@ -393,7 +393,10 @@ SkillEffect[SK.CR_SHIELDCHARGE] = { damageEffectIdOnTarget: 246, hitEffectId: 0,
 SkillEffect[SK.CR_SHIELDBOOMERANG] = { beforeHitEffectId: 'ef_shield_projectile', effectId: 249 }; //Shield Boomerang
 SkillEffect[SK.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 }; //Shield Reflect
 SkillEffect[SK.CR_HOLYCROSS] = { damageEffectIdOnTarget: 245, hitEffectId: 0, hitEffectOnce: true }; //Holy Cross
-SkillEffect[SK.CR_GRANDCROSS] = { effectId: 226 }; //Grand Cross
+// Official client: 226 on the caster as each damage packet arrives (with its sound) and the hit
+// flash 0 once per packet. roBrowser's 226 is one big cross over the whole area, so it plays once,
+// on the Crusader, from the use packet, until the client's 226 look is ported.
+SkillEffect[SK.CR_GRANDCROSS] = { successEffectIdOnCaster: 226, hitEffectId: 0, hitEffectOnce: true }; //Grand Cross
 SkillEffect[SK.CR_DEVOTION] = { successEffectIdOnCaster: 251 }; //Sacrifice
 SkillEffect[SK.CR_PROVIDENCE] = { successEffectId: 248 }; //Resistant Souls
 SkillEffect[SK.CR_DEFENDER] = { successEffectIdOnCaster: 222 }; //Defending Aura
