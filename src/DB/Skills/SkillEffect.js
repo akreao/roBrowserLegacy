@@ -663,7 +663,9 @@ SkillEffect[SK.GS_GLITTERING] = { effectId: 'gunslinger_coin' }; //Flip the Coin
 SkillEffect[SK.GS_FLING] = {}; //Fling
 SkillEffect[SK.GS_TRIPLEACTION] = { effectId: 648 }; //Triple Action
 SkillEffect[SK.GS_BULLSEYE] = { effectId: 649 }; //Bulls Eye
-SkillEffect[SK.GS_MADNESSCANCEL] = { effectId: 625 }; //Madness Canceller
+// Official client: 625 on the caster when the use packet's result is set: a blue body glow on one
+// tick in four for 1 s. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_MADNESSCANCEL] = { successEffectId: 625 }; //Madness Canceller
 SkillEffect[SK.GS_ADJUSTMENT] = { effectId: 626 }; //AdJustment
 SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdOnCaster: 'ef_gs_increasing_cast' }; //Increasing Accuracy
 SkillEffect[SK.GS_MAGICALBULLET] = { effectId: 644 }; //Magical Bullet
