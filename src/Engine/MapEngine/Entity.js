@@ -2099,19 +2099,13 @@ function onEntityStatusChange(pkt) {
 			}
 			break;
 
-		case StatusConst.HIDING: {
-			const EF_Init_Par = {
-				effectId: EffectConst.EF_SUMMONSLAVE,
-				ownerAID: pkt.AID
-			};
-
-			if (pkt.state == 1) {
-				EF_Init_Par.effectId = EffectConst.EF_BASH;
+		case StatusConst.HIDING:
+			// Official client: going into hiding plays EF_BASH (16) on the actor, except for
+			// Ninja and Baby Ninja; coming out plays nothing. See effect-port/thief-skills.md.
+			if (pkt.state == 1 && entity.job != JobId.NINJA && entity.job != JobId.NINJA_B) {
+				EffectManager.spam({ effectId: EffectConst.EF_BASH, ownerAID: pkt.AID });
 			}
-
-			EffectManager.spam(EF_Init_Par);
 			break;
-		}
 
 		case StatusConst.FALCON:
 			if (pkt.state || !pkt.hasOwnProperty('state')) {
