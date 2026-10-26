@@ -222563,8 +222563,9 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: [0, 1]
 	};
 	SkillEffect[SkillConst_default.AC_SHOWER] = {
-		effectId: "ef_arrow_shower_projectile",
-		hitEffectId: 1
+		groundEffectIdByLevel: ["ef_arrow_shower_ground"],
+		damageEffectIdOnTarget: "ef_arrow_shower_target",
+		hitEffectId: [0, 1]
 	};
 	SkillEffect[SkillConst_default.TF_STEAL] = { successEffectId: 18 };
 	SkillEffect[SkillConst_default.TF_HIDING] = {};
@@ -275473,6 +275474,10 @@ var init_ThreeDEffect = __esmMin((() => {
 				this.poszStart = otherPosition[2] - position[2] + this.zOffset + this.zOffsetStart + randStart[2];
 				this.poszEnd = 0 + this.zOffset + this.zOffsetEnd + randEnd[2];
 			}
+			if (effect.endCellOffset) {
+				this.posxEnd += effect.endCellOffset[0];
+				this.posyEnd += effect.endCellOffset[1];
+			}
 			if (effect.size) {
 				this.sizeStartX = effect.size;
 				this.sizeStartY = effect.size;
@@ -286869,6 +286874,50 @@ var init_SkySunEffect = __esmMin((() => {
 		attachedEntity: false
 	};
 }));
+// src/DB/Effects/ArrowShowerEffects.js
+/**
+* One arrow from the caster (the effect's other entity) to its owner's
+* position plus a cell offset.
+* @param {number[]} offset [x, y] in cells
+*/
+function arrow(offset) {
+	return {
+		type: "3D",
+		alphaMax: 1,
+		angle: 180,
+		attachedEntity: false,
+		delayStart: 432,
+		duration: 192,
+		absoluteSpriteName: "data/sprite/npc/skel_archer_arrow",
+		toSrc: true,
+		endCellOffset: offset,
+		rotateToTarget: true,
+		rotateWithCamera: true,
+		size: 100,
+		zOffset: 2,
+		zIndex: 1
+	};
+}
+/** EffectTable rows. */
+function arrowShowerEffects() {
+	return {
+		ef_arrow_shower_ground: NEIGHBOUR_CELLS.map(arrow),
+		ef_arrow_shower_target: [arrow([0, 0]), ...NEIGHBOUR_CELLS.map(arrow)]
+	};
+}
+var NEIGHBOUR_CELLS;
+var init_ArrowShowerEffects = __esmMin((() => {
+	NEIGHBOUR_CELLS = [
+		[1, 0],
+		[1, 1],
+		[1, -1],
+		[-1, 0],
+		[-1, 1],
+		[-1, -1],
+		[0, 1],
+		[0, -1]
+	];
+}));
 // src/DB/Effects/ServantDemolitionEffect.js
 /**
 * How long after the damage packet the gathering starts: motion speed x 100
@@ -290660,6 +290709,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SpiritSphere();
 	init_SkySunEffect();
 	init_StormSlashEffect();
+	init_ArrowShowerEffects();
 	init_ServantDemolitionEffect();
 	init_HastyFireInTheHoleEffect();
 	init_WarlockSphere();
@@ -307613,26 +307663,7 @@ var init_EffectTable = __esmMin((() => {
 			soundLoop: false,
 			yOffset: 6
 		}],
-		ef_arrow_shower_projectile: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: false,
-			duration: 140,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			fadeIn: true,
-			fadeOut: true,
-			absoluteSpriteName: "data/sprite/npc/skel_archer_arrow",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1,
-			posxEndRand: 1.5,
-			posyEndRand: 1.5
-		}],
+		...arrowShowerEffects(),
 		ef_wh_wind_sign: [{
 			type: "STR",
 			file: "windsign/windsign/windsign",
