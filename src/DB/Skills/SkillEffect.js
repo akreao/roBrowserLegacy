@@ -272,7 +272,9 @@ SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
 SkillEffect[SK.TF_THROWSTONE] = { beforeHitEffectId: 308 }; //Stone Fling
 SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
-SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar
+// Official client: 311 on the caster from the use packet, only when its result is set.
+// See effect-port/merchant-skills.md.
+SkillEffect[SK.MC_LOUD] = { successEffectId: 311 }; //Crazy Uproar
 SkillEffect[SK.AL_HOLYLIGHT] = { effectId: 152 }; //Holy Light
 SkillEffect[SK.MG_ENERGYCOAT] = { effectId: 169 }; //Energy Coat
 // NPC Skills
