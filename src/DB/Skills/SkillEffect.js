@@ -136,21 +136,22 @@ SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49 }; /
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52 }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
-// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash) and 1 (EF_HIT2).
-// The status look (33) comes from the effect state. See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_RUWACH] = { hitEffectId: [0, 1] }; //Ruwach
+// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash), and 1 (EF_HIT2)
+// with the first hit of the packet. The status look (33) comes from the effect state.
+// See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_RUWACH] = { hitEffectId: 0, firstHitEffectId: 1 }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
 // Official client: the use packet picks the heal effect by the healed amount (the packet's level
 // field) on the target, which plays the heal sound; on an undead, 320 on the target as the damage
-// packet arrives, then 0 and 1 once when the damage lands. See effect-port/acolyte-skills.md.
+// packet arrives, then 0 on every hit and 1 with the first one. See effect-port/acolyte-skills.md.
 const healEffectByAmount = amount => (amount >= 4000 ? 325 : amount >= 2000 ? 313 : amount >= 200 ? 312 : 7);
 SkillEffect[SK.AL_HEAL] = {
 	successEffectId: healEffectByAmount,
 	damageEffectIdOnTarget: 320,
-	hitEffectId: [0, 1],
-	hitEffectOnce: true
+	hitEffectId: 0,
+	firstHitEffectId: 1
 }; //Heal
 // Official client: the use packet shows these only when its result is set (a resisted Decrease AGI
 // shows nothing). See effect-port/acolyte-skills.md.
@@ -308,9 +309,9 @@ SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 // Official client: 311 on the caster from the use packet, only when its result is set.
 // See effect-port/merchant-skills.md.
 SkillEffect[SK.MC_LOUD] = { successEffectId: 311 }; //Crazy Uproar
-// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
-// 152 (HolyHit.str) once, nothing on a miss. See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: [0, 152], hitEffectOnce: true }; //Holy Light
+// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) on
+// every hit and 152 (HolyHit.str) with the first one, nothing on a miss. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: 0, firstHitEffectId: 152 }; //Holy Light
 // Official client: 169 (EnergyCoat.str) on the caster from the use packet, only when its result is set.
 // See effect-port/mage-audit.md.
 SkillEffect[SK.MG_ENERGYCOAT] = { successEffectIdOnCaster: 169 }; //Energy Coat
