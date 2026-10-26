@@ -38,6 +38,7 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
+import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
 import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
@@ -6879,7 +6880,8 @@ export default {
 		}
 	],
 
-	//310: [{}],	//EF_SPRINKLESAND	   Sprinkle Sand
+	// EF_SPRINKLESAND, Sand Attack: the client's 80 rising sand grains (SandAttackEffect.js)
+	310: sandAttackEffect,
 
 	311: [
 		{

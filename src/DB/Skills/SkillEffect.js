@@ -268,7 +268,9 @@ SkillEffect[SK.AC_MAKINGARROW] = {}; //Arrow Crafting
 // Official client: one arrow per damage packet, as for a normal bow attack; each hit that lands plays
 // 0 (the standard hit flash) on the target, nothing else (not in the hit map). See effect-port/archer-skills.md.
 SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Arrow Repel
-SkillEffect[SK.TF_SPRINKLESAND] = { effectId: 310 }; //Sand Attack
+// Official client: 310 (sand) on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/thief-skills.md.
+SkillEffect[SK.TF_SPRINKLESAND] = { damageEffectIdOnTarget: 310, hitEffectId: 0, hitEffectOnce: true }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
 SkillEffect[SK.TF_THROWSTONE] = { beforeHitEffectId: 308 }; //Stone Fling
