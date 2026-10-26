@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { scaledLayer } from '../../src/Renderer/Entity/EntityAttachments.js';
+import { scaledLayer } from '../../src/Renderer/Entity/ScaledLayer.js';
 
 // Lightning Jolt (NJ_RAIGEKISAI, skill 541): the official client plays 622 at the cell (ground packet)
 // and on the caster when the use packet succeeds: the 썬더스톰 sprite, 2 ticks a frame, once, 2.5

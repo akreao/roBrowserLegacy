@@ -14,29 +14,7 @@ import Camera from 'Renderer/Camera.js';
 import Ground from 'Renderer/Map/Ground.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import Renderer from 'Renderer/Renderer.js';
-
-/** Reused copy of a layer drawn at another size. */
-const _scaledPos = [0, 0];
-const _scaledLayer = {};
-
-/**
- * A layer as drawn at size factor `scale`: its offset grows with it, as the
- * official client scales an effect sprite's whole frame. Scale 1 keeps the layer.
- *
- * @param {object} layer
- * @param {number} scale
- * @return {object}
- */
-export function scaledLayer(layer, scale) {
-	if (scale === 1) {
-		return layer;
-	}
-	Object.assign(_scaledLayer, layer);
-	_scaledPos[0] = layer.pos[0] * scale;
-	_scaledPos[1] = layer.pos[1] * scale;
-	_scaledLayer.pos = _scaledPos;
-	return _scaledLayer;
-}
+import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
 // Default fog for STR attachments
 const _defaultFog = {
@@ -407,7 +385,7 @@ class AttachmentManager {
 			SpriteRenderer.zIndex = zIdx;
 			for (i = 0, count = layers.length; i < count; ++i) {
 				self.entity.renderLayer(
-					scaledLayer(layers[i], attachment.scale),
+					attachment.scale === 1 ? layers[i] : scaledLayer(layers[i], attachment.scale),
 					spr,
 					spr,
 					attachment.scale,
