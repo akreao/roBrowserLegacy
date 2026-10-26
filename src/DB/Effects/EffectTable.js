@@ -38,15 +38,19 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
+import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
 import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
+import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
+import { stealEffect } from 'DB/Effects/StealEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
@@ -1265,30 +1269,8 @@ export default {
 	],
 
 	18: [
-		{
-			//EF_STEAL	Steal
-			alphaMax: 1,
-			attachedEntity: false,
-			red: 1,
-			green: 1,
-			blue: 0.85,
-			duration: 500,
-			duplicate: 7,
-			timeBetweenDupli: 0,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			posxEndRand: 3.5,
-			posyEndRand: 3.5,
-			poszEndRand: 1,
-			poszEndRandMiddle: 3,
-			sizeEnd: 10,
-			sizeStart: 200,
-			type: '3D',
-			zIndex: 10
-		},
-		{
-			wav: 'effect/ef_steal'
-		}
+		// EF_STEAL, Steal: the client's 10 particle7 sparks and EF_Steal.wav (StealEffect.js)
+		...stealEffect
 	],
 
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
@@ -1322,31 +1304,8 @@ export default {
 	],
 
 	21: [
-		{
-			//EF_DETOXICATION	Detoxify
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1000,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: 0.7,
-			size: 100,
-			sizeRand: 20,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			attachedEntity: true,
-			wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
-		}
+		// EF_DETOXICATION, Detoxify: the client's 20 rising particle2 bubbles (DetoxifyEffect.js)
+		...detoxifyEffect
 	],
 
 	22: [
@@ -1899,9 +1858,80 @@ export default {
 	40: [
 		{
 			//EF_SIGNUM	Signum Crucis
+			// Official client: the cross STR from the start; on tick 30 (500 ms) EF_Signum.wav, EF_Bash.wav
+			// and a bash burst (effect 16's look). See effect-port/acolyte-skills.md.
 			type: 'STR',
 			file: 'cross',
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/ef_signum',
+			delayWav: 500
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_down',
+			alphaMax: 0.6,
+			duration: 1000,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.1,
+			topSize: 2,
+			animation: 2,
+			zIndex: 1,
+			wav: 'effect/ef_bash',
+			delayWav: 500,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 10,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 2.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 8,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4,
+			animation: 2,
+			zIndex: 1.2,
 			attachedEntity: true
 		}
 	],
@@ -6740,27 +6770,8 @@ export default {
 
 	//307: [{}],	//EF_FORESTLIGHT	   Forest Light 1
 
-	308: [
-		{
-			//EF_THROWITEM3	   Throw Stone
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 0.5,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM3, Throw Stone: the client's thrown stone with its trail (ThrowStoneEffect.js)
+	308: throwStoneEffect,
 
 	309: [
 		{
@@ -6948,7 +6959,8 @@ export default {
 		}
 	],
 
-	//310: [{}],	//EF_SPRINKLESAND	   Sprinkle Sand
+	// EF_SPRINKLESAND, Sand Attack: the client's 80 rising sand grains (SandAttackEffect.js)
+	310: sandAttackEffect,
 
 	311: [
 		{
@@ -7082,8 +7094,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
@@ -7328,6 +7339,8 @@ export default {
 	317: [
 		{
 			//Warp Portal Animation 2	//EF_PORTAL2	Warp Portal Animation 2
+			// Official client: the open portal plays EF_Portal.wav once when it appears and no
+			// EF_ReadyPortal.wav (that is the waiting portal, 316). See effect-port/acolyte-skills.md.
 			alphaMax: 0.4,
 			animation: 4,
 			attachedEntity: true,
@@ -7346,7 +7359,6 @@ export default {
 			repeat: true,
 			repeatDelay: -300,
 			topSize: 3.9,
-			wav: 'effect/ef_readyportal',
 			type: 'CYLINDER'
 		},
 		{
@@ -7789,8 +7801,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
