@@ -125,3 +125,11 @@ describe('Flasher', () => {
 		expect(skillRow('HT_FLASHER')).toEqual({ hitEffectId: [0] });
 	});
 });
+
+describe('Land Mine', () => {
+	it('plays nothing at the cell or on the target, only the hit flash per hit', () => {
+		expect(skillRow('HT_LANDMINE')).toEqual({ hitEffectId: [0] });
+		// Stepped on, the unit turns into a used trap: no effect of its own.
+		expect(triggers().table[0x93]).toBeUndefined();
+	});
+});
