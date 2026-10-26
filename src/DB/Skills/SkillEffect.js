@@ -26,6 +26,9 @@
  *	- hitEffectOnce: 			true: hitEffectId and hitEffectIdOnCaster trigger on the first hit of each damage
  *								packet only, as the official client plays them when a character deals the damage.
  *
+ *	- hitDelay: 				ms added to attackMT for the hit (damage number, hit motion, hitEffectId), for
+ *								skills whose hit the official client queues later (Heel Drop, Roundhouse: 300).
+ *
  *	- beforeHitEffectId: 		Triggers before every hit (including every hit of a multi hit skill) and after the cast.
  *								Can be used to create pre-damage effects like flying balls and others.
  *								Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.

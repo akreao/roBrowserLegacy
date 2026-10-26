@@ -17,6 +17,7 @@ import Level99Bubble from 'Renderer/Effects/Level99Bubble.js';
 import LevelAuraEffects from 'DB/Effects/LevelAuraEffects.js';
 import CostumeSpriteEffects from 'DB/Effects/CostumeSpriteEffects.js';
 import BodyEffects from 'DB/Effects/BodyEffects.js';
+import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
 import SoundManager from 'Audio/SoundManager.js';
@@ -27532,5 +27533,8 @@ export default {
 	...CostumeSpriteEffects,
 
 	// The effects that change how their owner's body is drawn: BodyEffects.js.
-	...BodyEffects
+	...BodyEffects,
+
+	// The Taekwon body effects (press, spin, kick, quake, ready glow): TaekwonBodyEffects.js.
+	...TaekwonBodyEffects
 };

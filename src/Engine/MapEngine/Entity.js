@@ -1743,10 +1743,13 @@ function onEntityUseSkillToAttack(pkt) {
 
 	if (dstEntity) {
 		const target = pkt.damage ? dstEntity : srcEntity;
+		// Skills whose hit the official client queues later than attackMT (hitDelay, ms)
+		const hitDelay = (SkillEffect[pkt.SKID] && SkillEffect[pkt.SKID].hitDelay) || 0;
+		const hitPkt = hitDelay ? { ...pkt, attackMT: pkt.attackMT + hitDelay } : pkt;
 
 		if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 			// Will be hit actions
-			onEntityWillBeHitSub(pkt, dstEntity);
+			onEntityWillBeHitSub(hitPkt, dstEntity);
 
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
@@ -1786,7 +1789,7 @@ function onEntityUseSkillToAttack(pkt) {
 
 			for (let i = 0; i < pkt.count; ++i) {
 				EffectManager.spamSkillBeforeHit(pkt.SKID, pkt.targetID, Renderer.tick + C_MULTIHIT_DELAY * i, pkt.AID);
-				addDamage(i, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY * i);
+				addDamage(i, Renderer.tick + hitPkt.attackMT + C_MULTIHIT_DELAY * i);
 			}
 		}
 
