@@ -111,9 +111,9 @@ SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 // plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target. See effect-port/mage-audit.md.
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: [0, 1] }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
-// Official client: the damage lands with 0 (the standard hit flash) and 1 (EF_HIT2) on the target, once per
-// damage packet whatever the hit count. See effect-port/mage-audit.md.
-SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: [0, 1], hitEffectOnce: true }; //Soul Strike
+// Official client: 0 (the standard hit flash) on the target on every hit as it lands, 200 ms apart, and
+// 1 (EF_HIT2) with the first hit of each damage packet only. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 0, firstHitEffectId: 1 }; //Soul Strike
 // Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
 // then 51 (cold hit) on every hit as it lands, 200 ms apart. See effect-port/bolts.md.
 SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51 }; //Cold Bolt
