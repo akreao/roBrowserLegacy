@@ -3344,17 +3344,18 @@ export default {
 	92: [
 		{
 			//EF_METEORSTORM	Meteor Storm
+			// Official client: one of Meteor1-3.str at random (meteor4.str is unused), quake on tick 40
 			type: 'STR',
 			file: 'meteor%d',
 			wav: 'effect/wizard_meteor',
-			rand: [1, 4],
+			rand: [1, 3],
 			attachedEntity: true
 		},
 		{
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 600;
+				const start = Params.Inst.startTick + 2000 / 3;
 				Camera.setQuake(start);
 			}
 		}
