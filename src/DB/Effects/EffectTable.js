@@ -3433,7 +3433,9 @@ export default {
 			attachedEntity: false
 		},
 		{
-			wav: 'effect/wizard_quagmire'
+			// Official client: each launch (one per unit cell) plays the sound 1 time in 12
+			wav: 'effect/wizard_quagmire',
+			wavChance: 1 / 12
 		}
 	],
 
