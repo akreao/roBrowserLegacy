@@ -24486,21 +24486,6 @@ export default {
 		}
 	],
 
-	// Counter Kick (TK_COUNTER), from the client's own effect folders.
-	ef_tk_counter: [
-		{
-			type: 'STR',
-			file: 'new_counter_slash/new_counter_slash/new_counter_slash',
-			texturePath: 'new_counter_slash/new_counter_slash/'
-		},
-		{
-			type: 'STR',
-			file: 'new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom',
-			texturePath: 'new_counter_slash/new_counter_slash_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
 	// Spirit of the Assasin (SL_ASSASIN), from the client's own effect folders.
 	ef_sl_assasin: [
 		{
