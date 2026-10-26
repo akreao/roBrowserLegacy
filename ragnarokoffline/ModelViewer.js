@@ -218154,7 +218154,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$3)) return {
+	if (u(s, r$4)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -219083,7 +219083,7 @@ function $e(e, t, n, r, i, a) {
 function nt(e, t, n) {
 	if (tt++, n !== t) throw Error(`[IGC_ARITH_VERIFY] ${e} divergence at call #${tt}: f64=${t} bigint=${n}`);
 }
-function at(e, t) {
+function at$1(e, t) {
 	let n = e[t] | 0, r = e[t + 1] | 0, i = e[t + 2] | 0, a = e[t + 3] | 0, o = (n | r << 8 | i << 16 | a << 24) >>> 0, s = o >>> 31 & 1, c = o & 2147483647, l = V[c >>> 4 & 15];
 	return l |= V[c & 15] << 4, l = l << 4 >>> 0 | V[c >>> 8 & 15], l = l << 4 >>> 0 | V[c >>> 12 & 15], l = l << 4 >>> 0 | V[c >>> 16 & 15], l = l << 4 >>> 0 | V[c >>> 20 & 15], l = l << 4 >>> 0 | V[c >>> 24 & 15], l = l << 3 >>> 0 | rt[c >>> 28 & 7], {
 		buf: e,
@@ -219845,7 +219845,7 @@ async function tn() {
 	Qt = e.exports, Qt.scratchBase() >>> 0, q = qt(e), Jt(e), Yt(e), $t = Xt(e);
 }
 function nn(e, t) {
-	return q ? q.bitOpen(e, t) : at(e, t);
+	return q ? q.bitOpen(e, t) : at$1(e, t);
 }
 function rn(e, t) {
 	if (q) {
@@ -220580,7 +220580,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$3, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$4, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -220600,7 +220600,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$3 = [
+	r$4 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -222708,7 +222708,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AL_CURE] = { successEffectId: 66 };
 	SkillEffect[SkillConst_default.MC_IDENTIFY] = {};
 	SkillEffect[SkillConst_default.MC_VENDING] = {};
-	SkillEffect[SkillConst_default.MC_MAMMONITE] = { effectId: 10 };
+	SkillEffect[SkillConst_default.MC_MAMMONITE] = {
+		hitEffectId: [0, 10],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.AC_CONCENTRATION] = { effectId: 153 };
 	SkillEffect[SkillConst_default.AC_DOUBLE] = {
 		damageEffectIdOnTarget: "ef_arrow_projectile",
@@ -222948,11 +222951,12 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.MC_CARTREVOLUTION] = {
-		beginCastEffectId: 170,
-		hitEffectId: 170
+		damageEffectIdOnCaster: 170,
+		hitEffectId: [0, 170],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.MC_CHANGECART] = {};
-	SkillEffect[SkillConst_default.MC_LOUD] = { effectId: 311 };
+	SkillEffect[SkillConst_default.MC_LOUD] = { successEffectId: 311 };
 	SkillEffect[SkillConst_default.AL_HOLYLIGHT] = {
 		hitEffectId: [0, 152],
 		hitEffectOnce: true
@@ -223332,7 +223336,12 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.TK_READYSTORM] = {};
 	SkillEffect[SkillConst_default.TK_STORMKICK] = { effectId: 435 };
 	SkillEffect[SkillConst_default.TK_READYDOWN] = {};
-	SkillEffect[SkillConst_default.TK_DOWNKICK] = { effectId: 413 };
+	SkillEffect[SkillConst_default.TK_DOWNKICK] = {
+		damageEffectIdOnTarget: 413,
+		hitEffectId: [0],
+		hitEffectOnce: true,
+		hitDelay: 300
+	};
 	SkillEffect[SkillConst_default.TK_READYTURN] = {};
 	SkillEffect[SkillConst_default.TK_TURNKICK] = { effectId: 414 };
 	SkillEffect[SkillConst_default.TK_READYCOUNTER] = {};
@@ -285473,6 +285482,246 @@ var init_BodyEffects = __esmMin((() => {
 		1131: additiveBody()
 	};
 }));
+// src/Renderer/Effects/BodyMotionSim.js
+/**
+* Press: share of its height a layer keeps on tick n of the press.
+*
+* @param {number} n
+* @param {function} [random] returns a number in [0, 1)
+* @return {number}
+*/
+function pressScale(n, random = Math.random) {
+	if (n < 4) return (100 - 20 * n) / 100;
+	if (n < 34) return .4 - Math.floor(random() * 6) / 100;
+	return 1;
+}
+/**
+* Spin: the layer's turn in degrees on tick n (one turn over 36 ticks).
+*
+* @param {number} n
+* @return {number}
+*/
+function spinAngle(n) {
+	if (n < 0 || n >= 37) return 0;
+	const angle = 180 - Math.cos(5 * n * DEG$8) * 180;
+	return angle >= 360 ? angle - 360 : angle;
+}
+/**
+* Kick: how far the layer is up on tick n, as a share of its height.
+*
+* @param {number} n
+* @return {number}
+*/
+function kickLift(n) {
+	if (n < 0) return 0;
+	if (n < 19) return .3 * Math.sin(5 * n * DEG$8);
+	if (n < 21) return .3;
+	if (n < 24) return (23 - n) * .1;
+	return 0;
+}
+/**
+* Ready glow: alpha (0-255) of the two added copies on tick n, or 0.
+*
+* @param {number} n
+* @return {number}
+*/
+function readyAlpha(n) {
+	if (n < 0 || n > 50) return 0;
+	if (n < 11) return 15 * n;
+	if (n < 21) return 160;
+	return (51 - n) * 5;
+}
+/**
+* One layer's quad with the owner's marks applied. Sprite pixels, y down,
+* `oy` the layer centre and `h` its height; `ox` and `w` the same across.
+*
+* @param {object[]} marks the owner's marks this tick
+* @param {number} ox
+* @param {number} oy
+* @param {number} w (negative when mirrored)
+* @param {number} h
+* @param {function} [random] returns a number in [0, 1)
+* @return {{ox: number, oy: number, w: number, h: number, angle: number}}
+*/
+function applyMarks(marks, ox, oy, w, h, random = Math.random) {
+	const sign = h < 0 ? -1 : 1;
+	let top = oy - Math.abs(h) / 2;
+	let bottom = oy + Math.abs(h) / 2;
+	let left = ox - Math.abs(w) / 2;
+	let right = ox + Math.abs(w) / 2;
+	let angle = 0;
+	for (let i = 0; i < marks.length; i++) {
+		const mark = marks[i];
+		if (mark.kick !== void 0) {
+			const up = kickLift(mark.kick) * (bottom - top);
+			top -= up;
+			bottom -= up;
+		}
+	}
+	for (let i = 0; i < marks.length; i++) {
+		const mark = marks[i];
+		if (mark.press !== void 0) top += (bottom - top) * (1 - pressScale(mark.press, random));
+		if (mark.spin !== void 0) angle = spinAngle(mark.spin);
+	}
+	for (let i = 0; i < marks.length; i++) if (marks[i].quake) {
+		const jitter = () => Math.floor(random() * 11) - 5;
+		top += jitter();
+		bottom += jitter();
+		left += jitter();
+		right += jitter();
+		break;
+	}
+	return {
+		ox: (left + right) / 2,
+		oy: (top + bottom) / 2,
+		w: (w < 0 ? -1 : 1) * (right - left),
+		h: sign * (bottom - top),
+		angle
+	};
+}
+/**
+* Ready glow alpha (0-255) the owner's marks ask for this tick, or 0.
+*
+* @param {object[]} marks
+* @return {number}
+*/
+function glowAlpha(marks) {
+	let alpha = 0;
+	for (let i = 0; i < marks.length; i++) if (marks[i].ready !== void 0) alpha = Math.max(alpha, readyAlpha(marks[i].ready));
+	return alpha;
+}
+/**
+* The marks every live body effect puts on an entity this tick.
+*
+* @param {object} entity
+* @return {object[]}
+*/
+function marksOf(entity) {
+	const list = entity._bodyMotions;
+	if (!list || !list.size) return [];
+	const marks = [];
+	list.forEach((mark) => {
+		if (mark) marks.push(mark);
+	});
+	return marks;
+}
+var DEG$8, READY_COLOR, SCHEDULES$1;
+var init_BodyMotionSim = __esmMin((() => {
+	DEG$8 = Math.PI / 180;
+	READY_COLOR = [
+		5,
+		5,
+		255
+	];
+	SCHEDULES$1 = {
+		413: (age) => age >= 17 && age <= 50 ? { press: age - 17 } : null,
+		414: (age) => age < 18 ? { spin: age * 2 } : null,
+		415: (age) => age >= 30 ? { kick: age - 30 } : null,
+		426: () => ({ quake: true }),
+		449: (age) => age < 51 ? { ready: age } : null,
+		458: () => ({ quake: true }),
+		466: (age) => age >= 14 && age < 50 ? { spin: age - 14 } : null
+	};
+}));
+// src/Renderer/Effects/BodyMotion.js
+var BodyMotion;
+var init_BodyMotion = __esmMin((() => {
+	init_EntityManager();
+	init_EffectPrimSim();
+	init_BodyMotionSim();
+	BodyMotion = class {
+		static ready = true;
+		static renderBeforeEntities = true;
+		static beforeRender() {}
+		static afterRender() {}
+		/**
+		* @param {Entity} owner
+		* @param {number} startTick
+		* @param {number} effectId 413, 414, 415, 426, 449, 458 or 466
+		* @param {number} frames lifetime in ticks (1/60 s)
+		*/
+		constructor(owner, startTick, effectId, frames) {
+			this.owner = owner || null;
+			this.startTick = startTick || 0;
+			this.schedule = SCHEDULES$1[effectId] || (() => null);
+			this.frames = Math.max(1, Math.floor(frames));
+			if (this.owner) {
+				if (!this.owner._bodyMotions) this.owner._bodyMotions = /* @__PURE__ */ new Map();
+				this.owner._bodyMotions.set(this, null);
+			}
+			this.ready = true;
+		}
+		render(gl, tick) {
+			if (!this.owner || EntityManager.get(this.owner.GID) !== this.owner) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (tick < this.startTick) return;
+			const age = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
+			if (age >= this.frames) {
+				this.needCleanUp = true;
+				this.owner._bodyMotions.set(this, null);
+				return;
+			}
+			this.owner._bodyMotions.set(this, this.schedule(age));
+		}
+		free() {
+			if (this.owner && this.owner._bodyMotions) this.owner._bodyMotions.delete(this);
+			this.owner = null;
+		}
+	};
+}));
+// src/DB/Effects/TaekwonBodyEffects.js
+/**
+* The body motion of effect `effectId`, for `frames` ticks.
+*
+* @param {number} effectId
+* @param {number} frames
+* @return {object} effect table entry
+*/
+function bodyMotion(effectId, frames) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.add(new BodyMotion(Params.Init.ownerEntity, Params.Inst.startTick, effectId, frames), Params);
+		}
+	};
+}
+var at, TaekwonBodyEffects_default;
+var init_TaekwonBodyEffects = __esmMin((() => {
+	init_BodyMotion();
+	init_EffectPrimSim();
+	at = (n) => Math.round(n * PRIM_TICK_MS);
+	TaekwonBodyEffects_default = {
+		413: [{
+			wav: "effect/t_³»·ÁÂï±â",
+			delayWav: at(5),
+			attachedEntity: true
+		}, bodyMotion(413, 50)],
+		414: [bodyMotion(414, 50)],
+		415: [
+			{
+				wav: "effect/ef_hit2",
+				delayWav: at(17),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_hit4",
+				delayWav: at(25),
+				attachedEntity: true
+			},
+			bodyMotion(415, 100)
+		],
+		449: [bodyMotion(449, 60)],
+		458: [bodyMotion(458, 35)],
+		466: [{
+			wav: "effect/t_µ¹·ÁÂ÷±â",
+			delayWav: at(5),
+			attachedEntity: true
+		}, bodyMotion(466, 50)]
+	};
+}));
 // src/Renderer/Effects/Tiles.vs?raw
 var Tiles_default$1;
 var init_Tiles$2 = __esmMin((() => {
@@ -287083,13 +287332,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$2(random, 9) - 4,
-		y: r$2(random, 9) - 4,
-		counter: r$2(random, 10) - 10,
-		heading: r$2(random, 360),
-		rise: r$2(random, 40) / 100 + .2,
-		drift: r$2(random, 10) / 100,
-		half: r$2(random, 16) * .03 + .1
+		x: r$3(random, 9) - 4,
+		y: r$3(random, 9) - 4,
+		counter: r$3(random, 10) - 10,
+		heading: r$3(random, 360),
+		rise: r$3(random, 40) / 100 + .2,
+		drift: r$3(random, 10) / 100,
+		half: r$3(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -287126,7 +287375,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$2;
+var SAND_COLOR, SAND_TEXTURE, r$3;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -287134,7 +287383,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$2 = (random, k) => Math.floor(random() * k);
+	r$3 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -289406,14 +289655,14 @@ var init_StreakLines = __esmMin((() => {
 function planBubbles(random = Math.random) {
 	const bubbles = [];
 	for (let i = 0; i < DETOX.count; i++) {
-		const heading = r$1(random, 360) * Math.PI / 180;
-		const dist = 2 + r$1(random, 6);
+		const heading = r$2(random, 360) * Math.PI / 180;
+		const dist = 2 + r$2(random, 6);
 		bubbles.push({
 			spawn: i * DETOX.every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r$1(random, 30)) / 100,
-			scale: (40 + r$1(random, 50)) / 100
+			rise: (30 + r$2(random, 30)) / 100,
+			scale: (40 + r$2(random, 50)) / 100
 		});
 	}
 	return bubbles;
@@ -289448,7 +289697,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, r$1;
+var DETOX, r$2;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -289458,7 +289707,7 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		fadeStart: 32,
 		spin: 3
 	};
-	r$1 = (random, k) => Math.floor(random() * k);
+	r$2 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/DetoxifyEffect.js
 /**
@@ -289567,19 +289816,19 @@ var init_CasterStrobe = __esmMin((() => {
 function planSparks$1(random = Math.random) {
 	const sparks = [];
 	for (let i = 0; i < STEAL.count; i++) {
-		const heading = r(random, 360);
-		const elevation = r(random, 100) - 50;
-		const dist = 4 + r(random, 4);
+		const heading = r$1(random, 360);
+		const elevation = r$1(random, 100) - 50;
+		const dist = 4 + r$1(random, 4);
 		sparks.push({
 			heading,
 			start: {
-				x: Math.cos(rad(elevation)) * Math.cos(rad(heading)) * dist,
-				y: Math.cos(rad(elevation)) * Math.sin(rad(heading)) * dist,
-				up: Math.sin(rad(elevation)) * dist + STEAL.lift
+				x: Math.cos(rad$1(elevation)) * Math.cos(rad$1(heading)) * dist,
+				y: Math.cos(rad$1(elevation)) * Math.sin(rad$1(heading)) * dist,
+				up: Math.sin(rad$1(elevation)) * dist + STEAL.lift
 			},
-			speed: (50 + r(random, 50)) / 100,
-			rise: (60 + r(random, 90)) / 100,
-			scale: (100 + r(random, 100)) / 100
+			speed: (50 + r$1(random, 50)) / 100,
+			rise: (60 + r$1(random, 90)) / 100,
+			scale: (100 + r$1(random, 100)) / 100
 		});
 	}
 	return sparks;
@@ -289611,7 +289860,7 @@ function sparkAt(spark, age) {
 	for (let m = 1; m <= k; m++) dist += Math.max(spark.speed - slow * m, 0);
 	const g = 2 * spark.rise / STEAL.life;
 	const up = spark.rise * k - g * k * (k + 1) / 2;
-	const h = rad(spark.heading);
+	const h = rad$1(spark.heading);
 	return {
 		x: spark.start.x + Math.cos(h) * dist,
 		y: spark.start.y + Math.sin(h) * dist,
@@ -289620,7 +289869,7 @@ function sparkAt(spark, age) {
 		alpha: fadeAlpha(k, STEAL.life, STEAL.fadeStart)
 	};
 }
-var STEAL, r, rad;
+var STEAL, r$1, rad$1;
 var init_StealSparkSim = __esmMin((() => {
 	STEAL = {
 		count: 10,
@@ -289628,8 +289877,8 @@ var init_StealSparkSim = __esmMin((() => {
 		fadeStart: 34,
 		lift: 10
 	};
-	r = (random, k) => Math.floor(random() * k);
-	rad = (d) => d * Math.PI / 180;
+	r$1 = (random, k) => Math.floor(random() * k);
+	rad$1 = (d) => d * Math.PI / 180;
 }));
 // src/DB/Effects/StealEffect.js
 /**
@@ -289682,6 +289931,198 @@ var init_StealEffect = __esmMin((() => {
 	}, {
 		wav: "effect/ef_steal",
 		attachedEntity: true
+	}];
+}));
+// src/Renderer/Effects/MammoniteCoinSim.js
+/**
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} the coins, in client units
+*/
+function planCoins(random = Math.random) {
+	const coins = [];
+	for (let i = 0; i < COIN.count; i++) {
+		const life = 40 + r(random, 30);
+		const heading = r(random, 12) * 30;
+		const dist = 2 + r(random, 2);
+		const speed = (50 + r(random, 50)) / 100;
+		const rise = (50 + r(random, 100)) / 25;
+		coins.push({
+			life,
+			heading,
+			dist,
+			speed,
+			rise,
+			sounds: []
+		});
+	}
+	coins.forEach((coin) => {
+		coin.path = flyCoin(coin);
+		coin.sounds = coin.path.bounces.map((tick) => ({
+			tick,
+			wav: `effect/ef_coin${1 + r(random, 3)}`
+		}));
+	});
+	return coins;
+}
+/**
+* Steps a coin through its life.
+*
+* @param {object} coin
+* @return {object} { dist, up } per tick (index = ticks done), and the ticks it bounced on
+*/
+function flyCoin(coin) {
+	const dist = [0];
+	const up = [COIN.lift];
+	const bounces = [];
+	let v = coin.speed;
+	let vUp = coin.rise;
+	let d = 0;
+	let h = COIN.lift;
+	const slow = coin.speed / coin.life / 3.5;
+	const gravity = 4 * coin.rise / coin.life;
+	for (let k = 1; k < coin.life; k++) {
+		v = Math.max(v - slow, 0);
+		d += v;
+		vUp -= gravity;
+		h += vUp;
+		if (vUp < 0 && h < 0) {
+			vUp = -vUp / 1.5;
+			bounces.push(k);
+		}
+		dist.push(d);
+		up.push(h);
+	}
+	return {
+		dist,
+		up,
+		bounces
+	};
+}
+/**
+* A coin after `age` ticks, or null outside its life.
+*
+* @param {object} coin from planCoins
+* @param {number} age
+* @return {?object} { x, y, up } in client units from the target, alpha 0-254
+*/
+function coinAt(coin, age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= coin.life) return null;
+	const h = rad(coin.heading);
+	const d = coin.dist + coin.path.dist[k];
+	return {
+		x: Math.cos(h) * d,
+		y: Math.sin(h) * d,
+		up: coin.path.up[k],
+		alpha: fadeAlpha(k, coin.life, coin.life - Math.floor(coin.life / 3))
+	};
+}
+/**
+* The trailing copy after `age` ticks: where the coin was a tick earlier, at half its alpha.
+*
+* @param {object} coin from planCoins
+* @param {number} age
+* @return {?object} as coinAt
+*/
+function coinTrailAt(coin, age) {
+	const now = coinAt(coin, age);
+	const before = coinAt(coin, age - 1);
+	if (!now || !before) return null;
+	return {
+		x: before.x,
+		y: before.y,
+		up: before.up,
+		alpha: now.alpha / 2
+	};
+}
+var COIN, r, rad;
+var init_MammoniteCoinSim = __esmMin((() => {
+	init_StealSparkSim();
+	COIN = {
+		count: 5,
+		startTick: 20,
+		lift: 10,
+		scale: 2,
+		trailScale: 1.5
+	};
+	r = (random, k) => Math.floor(random() * k);
+	rad = (d) => d * Math.PI / 180;
+}));
+// src/DB/Effects/MammoniteEffect.js
+/**
+* The 3D effect drawing one coin, or its trailing copy, following the target.
+*
+* @param {object} coin from planCoins
+* @param {boolean} [trail] the copy a tick behind
+* @return {object}
+*/
+function coinEffect(coin, trail = false) {
+	const at = trail ? coinTrailAt : coinAt;
+	const size = (trail ? COIN.trailScale : COIN.scale) * 100;
+	return {
+		type: "3D",
+		spriteName: "µ¿Àü",
+		playSprite: true,
+		sprDelay: PRIM_TICK_MS,
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: coin.life * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = at(coin, age);
+			if (!p) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+var mammoniteEffect;
+var init_MammoniteEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_MammoniteCoinSim();
+	mammoniteEffect = [{
+		type: "STR",
+		file: "maemor",
+		min: "memor_min",
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const startTick = Params.Inst.startTick + COIN.startTick * PRIM_TICK_MS;
+			planCoins().forEach((coin, i) => {
+				[false, true].forEach((trail, j) => {
+					this.spamEffect({
+						effect: coinEffect(coin, trail),
+						Inst: {
+							effectID: 10,
+							duplicateID: i * 2 + j,
+							startTick
+						},
+						Init: Params.Init
+					});
+				});
+				coin.sounds.forEach((sound) => {
+					this.spamEffect({
+						effect: {
+							wav: sound.wav,
+							attachedEntity: true
+						},
+						Inst: {
+							effectID: 10,
+							duplicateID: i,
+							startTick: startTick + sound.tick * PRIM_TICK_MS
+						},
+						Init: Params.Init
+					});
+				});
+			});
+		}
 	}];
 }));
 // src/Renderer/Effects/EnergyOrbSim.js
@@ -291717,6 +292158,7 @@ var init_EffectTable = __esmMin((() => {
 	init_LevelAuraEffects();
 	init_CostumeSpriteEffects();
 	init_BodyEffects();
+	init_TaekwonBodyEffects();
 	init_Songs();
 	init_SoundManager();
 	init_Events();
@@ -291750,6 +292192,7 @@ var init_EffectTable = __esmMin((() => {
 	init_DetoxifyEffect();
 	init_CasterStrobe();
 	init_StealEffect();
+	init_MammoniteEffect();
 	init_EnergyOrb();
 	init_SoulCollect();
 	init_RotateLine();
@@ -292261,13 +292704,7 @@ var init_EffectTable = __esmMin((() => {
 				zIndex: 0
 			}
 		],
-		10: [{
-			type: "STR",
-			file: "maemor",
-			min: "memor_min",
-			wav: "effect/ef_coin2",
-			attachedEntity: true
-		}],
+		10: [...mammoniteEffect],
 		11: [{
 			type: "3D",
 			alphaMax: 1,
@@ -294982,12 +295419,81 @@ var init_EffectTable = __esmMin((() => {
 			file: "energycoat",
 			attachedEntity: true
 		}],
-		170: [{
-			type: "STR",
-			file: "cartrevolution",
-			wav: "effect/ef_magnumbreak",
-			attachedEntity: true
-		}],
+		170: [
+			{
+				type: "STR",
+				file: "cartrevolution",
+				attachedEntity: true
+			},
+			{
+				type: "PRIM",
+				prim: "ring",
+				texture: "ring_yellow",
+				attachedEntity: false,
+				delayStart: 7 * (1e3 / 60),
+				duration: 20 * (1e3 / 60),
+				frames: 20,
+				radiusSpeed: 1.75,
+				radiusAccel: -.04375,
+				width: 5,
+				alpha: 0,
+				alphaSpeed: 12,
+				alphaMax: 180,
+				fadeOutFrame: 5,
+				wav: "effect/ef_magnumbreak",
+				delayWav: 7 * (1e3 / 60)
+			},
+			{
+				type: "PRIM",
+				prim: "sphere",
+				texture: "´ëÆø¹ß",
+				attachedEntity: false,
+				delayStart: 7 * (1e3 / 60),
+				duration: 20 * (1e3 / 60),
+				frames: 20,
+				radiusSpeed: 1.35,
+				radiusAccel: -.03375,
+				spin: 3,
+				alpha: 0,
+				alphaSpeed: 240 / 7,
+				alphaMax: 240,
+				fadeOutFrame: 5
+			},
+			{
+				type: "PRIM",
+				prim: "ring",
+				texture: "ring_yellow",
+				attachedEntity: false,
+				delayStart: 20 * (1e3 / 60),
+				duration: 20 * (1e3 / 60),
+				frames: 20,
+				radiusSpeed: 1.75,
+				radiusAccel: -.04375,
+				width: 5,
+				alpha: 0,
+				alphaSpeed: 12,
+				alphaMax: 180,
+				fadeOutFrame: 5,
+				wav: "effect/ef_magnumbreak",
+				delayWav: 20 * (1e3 / 60)
+			},
+			{
+				type: "PRIM",
+				prim: "sphere",
+				texture: "´ëÆø¹ß",
+				attachedEntity: false,
+				delayStart: 20 * (1e3 / 60),
+				duration: 20 * (1e3 / 60),
+				frames: 20,
+				radiusSpeed: 1.35,
+				radiusAccel: -.03375,
+				spin: 3,
+				alpha: 0,
+				alphaSpeed: 240 / 7,
+				alphaMax: 240,
+				fadeOutFrame: 5
+			}
+		],
 		171: [{
 			type: "3D",
 			spriteName: "particle3",
@@ -311920,7 +312426,8 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		...table,
 		...CostumeSpriteEffects_default,
-		...BodyEffects_default
+		...BodyEffects_default,
+		...TaekwonBodyEffects_default
 	};
 }));
 // src/Vendors/liblua5.1.wasm?url
@@ -341290,6 +341797,34 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 	}
 }
 /**
+* Taekwon ready glow (EF_TAE_READY, BodyMotion.js): the layers drawn twice
+* more, added, in blue at the given alpha.
+*
+* @param {Entity} entity
+* @param {Array} layers
+* @param {object} spr
+* @param {object} pal
+* @param {object} files
+* @param {number[]} _position
+* @param {number} alpha 0-255
+*/
+function renderReadyGlow(entity, layers, spr, pal, files, _position, alpha) {
+	const color = entity.effectColor;
+	const r = color[0];
+	const g = color[1];
+	const b = color[2];
+	const a = color[3];
+	color[0] = READY_COLOR[0] / 255;
+	color[1] = READY_COLOR[1] / 255;
+	color[2] = READY_COLOR[2] / 255;
+	color[3] = alpha / 255;
+	for (let k = 0; k < 2; k++) for (let i = 0; i < layers.length; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, "glow", true);
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
+	color[3] = a;
+}
+/**
 * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
 * @param {Entity} entity
 * @param {Array} layers
@@ -341554,6 +342089,17 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.offset[1] = layer.pos[1] + pos[1];
 	SpriteRenderer.xSize = this.xSize;
 	SpriteRenderer.ySize = this.ySize;
+	if (type !== "shadow" && type !== "cartshadow" && this._bodyMotions && this._bodyMotions.size) {
+		const marks = marksOf(this);
+		if (marks.length) {
+			const quad = applyMarks(marks, SpriteRenderer.offset[0], SpriteRenderer.offset[1], width, height);
+			SpriteRenderer.offset[0] = quad.ox;
+			SpriteRenderer.offset[1] = quad.oy;
+			SpriteRenderer.size[0] = quad.w;
+			SpriteRenderer.size[1] = quad.h;
+			SpriteRenderer.angle = layer.angle + quad.angle;
+		}
+	}
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
@@ -341583,6 +342129,7 @@ var init_EntityRender = __esmMin((() => {
 	init_DBManager();
 	init_Graphics();
 	init_GR2ModelRenderer();
+	init_BodyMotionSim();
 	WALK_DIST_TO_MOTION = 170.2;
 	_snapshotPool = [];
 	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
@@ -341911,6 +342458,10 @@ var init_EntityRender = __esmMin((() => {
 			renderSecondBody(entity, layers, spr, pal, files, type, _position, entity.getOpt3(StatusState_default.Status.ASSUMPTIO) || !!entity._enableHalo, isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._fastMoveTrail || !!entity._enableTrail, isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1);
 			if (type !== "shadow" && type !== "cartshadow" && (entity._castGlow > 0 || entity._splitImageAge >= 0)) renderCasterMarks(entity, layers, spr, pal, files, _position);
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
+			if (type !== "shadow" && type !== "cartshadow" && entity._bodyMotions && entity._bodyMotions.size) {
+				const alpha = glowAlpha(marksOf(entity));
+				if (alpha > 0) renderReadyGlow(entity, layers, spr, pal, files, _position, alpha);
+			}
 			if (is_main && type === "body" && entity.waterDepthFrame === null) {
 				const frame = entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: /* @__PURE__ */ new Int32Array(2) });
 				frame.layers = layers;
@@ -359608,8 +360159,13 @@ function onEntityUseSkillToAttack(pkt) {
 	}
 	if (dstEntity) {
 		const target = pkt.damage ? dstEntity : srcEntity;
+		const hitDelay = SkillEffect[pkt.SKID] && SkillEffect[pkt.SKID].hitDelay || 0;
+		const hitPkt = hitDelay ? {
+			...pkt,
+			attackMT: pkt.attackMT + hitDelay
+		} : pkt;
 		if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction$1.SKILL)) {
-			onEntityWillBeHitSub(pkt, dstEntity);
+			onEntityWillBeHitSub(hitPkt, dstEntity);
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
 			const addDamage = function(i, startTick) {
@@ -359620,7 +360176,7 @@ function onEntityUseSkillToAttack(pkt) {
 			};
 			for (let i = 0; i < pkt.count; ++i) {
 				EffectManager.spamSkillBeforeHit(pkt.SKID, pkt.targetID, Renderer.tick + C_MULTIHIT_DELAY * i, pkt.AID);
-				addDamage(i, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY * i);
+				addDamage(i, Renderer.tick + hitPkt.attackMT + C_MULTIHIT_DELAY * i);
 			}
 		}
 		if (typeof pkt.xPos === "number" && typeof pkt.yPos === "number" && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
