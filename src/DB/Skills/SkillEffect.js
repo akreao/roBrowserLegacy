@@ -663,7 +663,9 @@ SkillEffect[SK.GS_GLITTERING] = { effectId: 'gunslinger_coin' }; //Flip the Coin
 // Official client: 548 (red body glow) on the target as each damage packet arrives; the hit plays the
 // standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_FLING] = { damageEffectIdOnTarget: 548, hitEffectId: 0, hitEffectOnce: true }; //Fling
-SkillEffect[SK.GS_TRIPLEACTION] = { effectId: 648 }; //Triple Action
+// Official client: 648 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_TRIPLEACTION] = { damageEffectIdOnTarget: 648, hitEffectId: 0, hitEffectOnce: true }; //Triple Action
 SkillEffect[SK.GS_BULLSEYE] = { effectId: 649 }; //Bulls Eye
 // Official client: 625 on the caster when the use packet's result is set: a blue body glow on one
 // tick in four for 1 s. See effect-port/gunslinger-skills.md.

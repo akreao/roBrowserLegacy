@@ -13252,10 +13252,17 @@ export default {
 
 	648: [
 		{
-			//EF_TRIPLEACTION	Triple Action
+			//EF_TRIPLEACTION	Triple Action. Official client: the sound on tick 25, the sprite from
+			// tick 30 at 2 ticks a frame. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7', // 트리플액션
+			delayWav: 417, // tick 25
+			attachedEntity: true
+		},
+		{
 			type: 'SPR',
 			file: '\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
-			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
+			delayStart: 500, // tick 30
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
