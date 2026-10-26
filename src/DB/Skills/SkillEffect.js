@@ -86,7 +86,9 @@ const CHAMPION_JOBS = new Set([
 const SkillEffect = {};
 
 // Swordman
-SkillEffect[SK.SM_BASH] = { beginCastEffectId: 16, hitEffectId: 1 }; //Bash
+// Official client: no effect of its own (16 EF_BASH is not played for Bash); each hit that lands plays
+// 0 (the standard hit flash) and 1 (EF_HIT2) on the target. See effect-port/swordman-skills.md.
+SkillEffect[SK.SM_BASH] = { hitEffectId: [0, 1] }; //Bash
 SkillEffect[SK.SM_PROVOKE] = { successEffectId: 67 }; //Provoke
 SkillEffect[SK.SM_MAGNUM] = { effectIdOnCaster: 17, effectId: 'quake_magnum' }; //Magnum Break
 SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
