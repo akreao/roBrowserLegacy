@@ -47,7 +47,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { throwStoneEffect, throwVenomKnifeEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
@@ -12770,25 +12770,8 @@ export default {
 	//599: [{}],	//EF_SHRINK	   Cast Time Sound and Flashing Animation on Player
 
 	600: [
-		{
-			//EF_THROWITEM6	   Throw Venom Knife
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xba\xa3\xb3\xd1\xb3\xaa\xc0\xcc\xc7\xc1.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
+		// EF_THROWITEM6: Throw Venom Knife's knife, the Throw Stone flight with the knife's numbers (ThrowStoneEffect.js)
+		...throwVenomKnifeEffect
 	],
 
 	//601: [{}],	//EF_SIGHT2	   Sight Blaster

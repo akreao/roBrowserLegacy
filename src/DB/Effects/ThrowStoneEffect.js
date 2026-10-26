@@ -5,12 +5,14 @@
  * it: thrown from the caster at the target's position as the damage packet
  * arrives, in a low arc, spinning, with three fainter copies trailing it.
  * Motion in Renderer/Effects/ThrownStoneSim.js. Spec: effect-port/thief-skills.md.
+ * Effect 600 (EF_THROWITEM6), Throw Venom Knife's knife, is the same flight with
+ * the knife's numbers (VENOM_KNIFE). Spec: effect-port/assassin-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
-import { STONE, STONE_TEXTURE, planThrow, stoneAt, trailAt } from 'Renderer/Effects/ThrownStoneSim.js';
+import { STONE, VENOM_KNIFE, planThrow, stoneAt, trailAt } from 'Renderer/Effects/ThrownStoneSim.js';
 
 /** roBrowser 3D size units across one official unit (35 to a cell). */
 const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
@@ -22,7 +24,8 @@ const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
  * @return {number}
  */
 export function lastStoneTick(t) {
-	return Math.floor(STONE.moveUntil * t.ticks) + Math.ceil(255 / STONE.fade);
+	const kind = t.kind || STONE;
+	return Math.floor(kind.moveUntil * t.ticks) + Math.ceil(255 / kind.fade);
 }
 
 /**
@@ -33,9 +36,14 @@ export function lastStoneTick(t) {
  * @return {object}
  */
 export function stoneEffect(t, copy) {
+	const kind = t.kind || STONE;
+	const tint = kind.tint || [255, 255, 255];
 	return {
 		type: '3D',
-		file: STONE_TEXTURE,
+		file: kind.texture,
+		red: tint[0] / 255,
+		green: tint[1] / 255,
+		blue: tint[2] / 255,
 		alphaMax: 1,
 		attachedEntity: false,
 		duration: (lastStoneTick(t) + 1) * PRIM_TICK_MS,
@@ -50,7 +58,7 @@ export function stoneEffect(t, copy) {
 				x: p.x / UNITS_PER_CELL,
 				y: p.y / UNITS_PER_CELL,
 				z: p.up / UNITS_PER_CELL,
-				size: 2 * STONE.half * SIZE_PER_UNIT,
+				size: 2 * kind.half * SIZE_PER_UNIT,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
@@ -58,30 +66,45 @@ export function stoneEffect(t, copy) {
 	};
 }
 
-/** EffectTable row for 308. */
-export const throwStoneEffect = [
-	{
-		//EF_THROWITEM3	Throw Stone, from the caster at the target as the damage packet arrives
-		type: 'FUNC',
-		attachedEntity: true,
-		func: function (Params) {
-			const caster = Params.Init.ownerEntity.position;
-			const target = Params.Init.otherEntity && Params.Init.otherEntity.position;
-			if (!target) {
-				return;
-			}
-			const at = [caster[0], caster[1], caster[2]];
-			const t = planThrow(
-				[0, 0, 0],
-				[0, 1, 2].map(i => (target[i] - caster[i]) * UNITS_PER_CELL)
-			);
-			[-1, 0, 1, 2].forEach((copy, i) => {
-				this.spamEffect({
-					effect: stoneEffect(t, copy),
-					Inst: { effectID: 308, duplicateID: i, startTick: Params.Inst.startTick },
-					Init: Object.assign({}, Params.Init, { position: at })
+/**
+ * EffectTable rows for a thrown item, from the caster at the target as the
+ * damage packet arrives.
+ *
+ * @param {number} effectId
+ * @param {object} kind STONE or VENOM_KNIFE
+ * @return {Array<object>}
+ */
+function thrownItemEffect(effectId, kind) {
+	return [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity.position;
+				const target = Params.Init.otherEntity && Params.Init.otherEntity.position;
+				if (!target) {
+					return;
+				}
+				const at = [caster[0], caster[1], caster[2]];
+				const t = planThrow(
+					[0, 0, 0],
+					[0, 1, 2].map(i => (target[i] - caster[i]) * UNITS_PER_CELL),
+					kind
+				);
+				[-1, 0, 1, 2].forEach((copy, i) => {
+					this.spamEffect({
+						effect: stoneEffect(t, copy),
+						Inst: { effectID: effectId, duplicateID: i, startTick: Params.Inst.startTick },
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
 				});
-			});
+			}
 		}
-	}
-];
+	];
+}
+
+/** EffectTable row for 308 (EF_THROWITEM3): Throw Stone's stone. */
+export const throwStoneEffect = thrownItemEffect(308, STONE);
+
+/** EffectTable row for 600 (EF_THROWITEM6): Throw Venom Knife's knife. */
+export const throwVenomKnifeEffect = thrownItemEffect(600, VENOM_KNIFE);
