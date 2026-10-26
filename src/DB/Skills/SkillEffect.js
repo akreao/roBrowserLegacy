@@ -155,7 +155,9 @@ SkillEffect[SK.AL_CURE] = { successEffectId: 66 }; //Cure
 // Merchant
 SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
 SkillEffect[SK.MC_VENDING] = {}; //Vending
-SkillEffect[SK.MC_MAMMONITE] = { effectId: 10 }; //Mammonite
+// Official client: nothing at use or as the packet arrives; when the hit lands, 0 (hit flash) and 10
+// (EF_COIN) once per damage packet, nothing on a miss. See effect-port/merchant-skills.md.
+SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: [0, 10], hitEffectOnce: true }; //Mammonite
 // Archer
 SkillEffect[SK.AC_CONCENTRATION] = { effectId: 153 }; //Improve Concentration
 // Official client: no effect of its own (16 EF_BASH is not played); one arrow per damage packet, as for
