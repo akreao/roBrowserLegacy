@@ -25893,6 +25893,21 @@ export default {
 		}
 	],
 
+	// Silvervine Root Twist (status SV_ROOTTWIST): effect 1110, the official client's
+	// su_sv_roottwist.spr on the actor for as long as the status lasts, 3 units below
+	// it, 8 ticks a frame, with su_roottwist.wav when it starts.
+	ef_su_roottwist: [
+		{
+			type: 'SPR',
+			file: 'su_sv_roottwist/su_sv_roottwist',
+			wav: 'effect/su_roottwist',
+			attachedEntity: true,
+			repeat: true,
+			delayFrame: (8 * 1000) / 60,
+			yOffset: 3 * 7
+		}
+	],
+
 	// Picky Peck (SU_PICKYPECK), from the client's own effect folders.
 	ef_su_pickypeck: [
 		{

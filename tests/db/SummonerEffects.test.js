@@ -124,4 +124,14 @@ describe('Summoner skill effects', () => {
 	it("Lunatic Carrot Beat with the item drops the full-alpha carrots", () => {
 		expect(row('SU_LUNATICCARROTBEAT2')).toBe("{ successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat2'] }");
 	});
+	it('Root Twist loops the roots sprite on the actor while the status lasts', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Status/StatusEffectTable.js'), 'utf8');
+		expect(table).toMatch(/\[StatusConst\.SV_ROOTTWIST\]: \{\s*loop: \['ef_su_roottwist'\]\s*\}/);
+		const effects = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const block = effects.match(/\tef_su_roottwist: \[([\s\S]*?)\r?\n\t\],/)[1];
+		expect(block).toContain("file: 'su_sv_roottwist/su_sv_roottwist'");
+		expect(block).toContain("wav: 'effect/su_roottwist'");
+		expect(block).toContain('repeat: true');
+		expect(block).toContain('delayFrame: (8 * 1000) / 60');
+	});
 });

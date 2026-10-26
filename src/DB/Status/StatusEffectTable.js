@@ -271,5 +271,11 @@ export default {
 	[StatusConst.BITESCAR]: {
 		start: ['ef_su_bitescar'],
 		stop: ['ef_su_bitescar']
+	},
+
+	// Silvervine Root Twist: the roots on the actor while the status lasts (official
+	// effect 1110).
+	[StatusConst.SV_ROOTTWIST]: {
+		loop: ['ef_su_roottwist']
 	}
 };
