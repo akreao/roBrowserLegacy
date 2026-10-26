@@ -18,6 +18,7 @@ import LevelAuraEffects from 'DB/Effects/LevelAuraEffects.js';
 import CostumeSpriteEffects from 'DB/Effects/CostumeSpriteEffects.js';
 import BodyEffects from 'DB/Effects/BodyEffects.js';
 import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
+import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
 import SoundManager from 'Audio/SoundManager.js';
@@ -27627,5 +27628,8 @@ export default {
 	...BodyEffects,
 
 	// The Taekwon body effects (press, spin, kick, quake, ready glow): TaekwonBodyEffects.js.
-	...TaekwonBodyEffects
+	...TaekwonBodyEffects,
+
+	// The Gunslinger body glows (Fling, Madness Canceller, Adjustment, Gatling Fever): GunslingerBodyEffects.js.
+	...GunslingerBodyEffects
 };
