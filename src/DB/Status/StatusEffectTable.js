@@ -264,5 +264,12 @@ export default {
 	},
 	[StatusConst.THUNDERING_ROD_MAX]: {
 		loop: ['thundering_rod_full']
+	},
+
+	// Bite scar (Scar of Tarou): bite_scar.str once when the status starts,
+	// removed when it ends (official effect 1119).
+	[StatusConst.BITESCAR]: {
+		start: ['ef_su_bitescar'],
+		stop: ['ef_su_bitescar']
 	}
 };

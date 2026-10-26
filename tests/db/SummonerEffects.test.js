@@ -88,4 +88,10 @@ describe('Summoner skill effects', () => {
 	it("Spirit of Savage plays on each target as its damage packet arrives", () => {
 		expect(row('SU_SVG_SPIRIT')).toBe("{ damageEffectIdOnTarget: 'ef_su_svg_spirit' }");
 	});
+	it('Bite scar plays once when the status starts and is removed when it ends', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Status/StatusEffectTable.js'), 'utf8');
+		expect(table).toMatch(/\[StatusConst\.BITESCAR\]: \{\s*start: \['ef_su_bitescar'\],\s*stop: \['ef_su_bitescar'\]\s*\}/);
+		const effects = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		expect(effects).toMatch(/\tef_su_bitescar: \[[\s\S]*?file: 'bite_scar\/bite_scar'/);
+	});
 });

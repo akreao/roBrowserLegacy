@@ -25846,6 +25846,17 @@ export default {
 		}
 	],
 
+	// Bite scar (status BITESCAR, from Scar of Tarou): effect 1119, bite_scar.str
+	// once on the actor when the status starts, removed when it ends.
+	ef_su_bitescar: [
+		{
+			type: 'STR',
+			file: 'bite_scar/bite_scar',
+			texturePath: 'bite_scar/',
+			attachedEntity: true
+		}
+	],
+
 	// Picky Peck (SU_PICKYPECK), from the client's own effect folders.
 	ef_su_pickypeck: [
 		{
