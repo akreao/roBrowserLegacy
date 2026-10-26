@@ -642,7 +642,7 @@ SkillEffect[SK.SL_SKA] = { effectId: [254, 261, 'quake'] }; //Eska
 // Other 2nd Skills
 SkillEffect[SK.SM_SELFPROVOKE] = {}; //Provoke Self
 SkillEffect[SK.NPC_EMOTION_ON] = {}; //Emotion ON
-SkillEffect[SK.ST_PRESERVE] = { beginCastEffectId: '496_beforecast', effectId: 496 }; //Preserve
+SkillEffect[SK.ST_PRESERVE] = { effectId: 496 }; //Preserve
 SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion

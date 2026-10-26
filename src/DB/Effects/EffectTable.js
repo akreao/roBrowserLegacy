@@ -11101,6 +11101,15 @@ export default {
 		{
 			//EF_GUARD2	  Preserve
 			wav: 'effect/black_maximize_power_sword_bic'
+		},
+		{
+			// Preserve (official client): ticks 10 to 30 the caster is drawn adding light on
+			// even ticks (CasterMarks.js). Its guard shield (prim 61, a01.bmp) is not drawn here.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 200, 496), Params);
+			}
 		}
 	],
 
