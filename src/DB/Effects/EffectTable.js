@@ -1495,16 +1495,10 @@ export default {
 
 	29: [
 		{
-			//EF_LIGHTBOLT	Lightning Bolt
+			//EF_LIGHTBOLT	Lightning Bolt (the official client plays Lightning.str only; the wind hit is 52)
 			attachedEntity: true,
 			duplicate: 1,
 			file: 'lightning',
-			type: 'STR'
-		},
-		{
-			attachedEntity: true,
-			file: 'windhit%d',
-			rand: [1, 3],
 			type: 'STR'
 		}
 	],

@@ -108,7 +108,9 @@ SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
 SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
 SkillEffect[SK.MG_FIREBOLT] = { beforeHitEffectId: 'ef_firebolt', hitEffectId: 49 }; //Fire Bolt
-SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt
+// Official client: 29 (Lightning.str) on the target as the damage packet arrives, then 52 (wind hit)
+// once when the damage lands, whatever the hit count. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52, hitEffectOnce: true }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
 SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwach
