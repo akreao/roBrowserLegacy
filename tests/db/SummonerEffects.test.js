@@ -85,4 +85,7 @@ describe('Summoner skill effects', () => {
 		expect(block).toContain("wav: 'effect/su_stemspear'");
 		expect(block).not.toContain('attachedEntity');
 	});
+	it("Spirit of Savage plays on each target as its damage packet arrives", () => {
+		expect(row('SU_SVG_SPIRIT')).toBe("{ damageEffectIdOnTarget: 'ef_su_svg_spirit' }");
+	});
 });

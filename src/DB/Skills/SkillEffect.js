@@ -1824,7 +1824,9 @@ SkillEffect[SK.SU_FRESHSHRIMP] = { successEffectId: 'ef_su_freshshrimp' }; //Fre
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
 // Power of Flock: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //Power of Flock
-SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Savage
+// Spirit of Savage: the official client plays 1129 on each target as its damage packet
+// arrives (and flies the svg_spirit sprite from the caster, effect 1128, not ported).
+SkillEffect[SK.SU_SVG_SPIRIT] = { damageEffectIdOnTarget: 'ef_su_svg_spirit' }; //Spirit of Savage
 // Hiss: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_HISS] = { successEffectId: 'ef_su_hiss' }; //Hiss
 SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
