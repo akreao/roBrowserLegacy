@@ -52,6 +52,7 @@
  *
  *	- successEffectId: 			Triggers when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
+ *								A function gets the packet's level field and returns the effect(s).
  *
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
@@ -130,7 +131,16 @@ SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwa
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
-SkillEffect[SK.AL_HEAL] = { effectId: 312, hitEffectId: 320 }; //Heal
+// Official client: the use packet picks the heal effect by the healed amount (the packet's level
+// field) on the target, which plays the heal sound; on an undead, 320 on the target as the damage
+// packet arrives, then 0 and 1 once when the damage lands. See effect-port/acolyte-skills.md.
+const healEffectByAmount = amount => (amount >= 4000 ? 325 : amount >= 2000 ? 313 : amount >= 200 ? 312 : 7);
+SkillEffect[SK.AL_HEAL] = {
+	successEffectId: healEffectByAmount,
+	damageEffectIdOnTarget: 320,
+	hitEffectId: [0, 1],
+	hitEffectOnce: true
+}; //Heal
 // Official client: the use packet shows these only when its result is set (a resisted Decrease AGI
 // shows nothing). See effect-port/acolyte-skills.md.
 SkillEffect[SK.AL_INCAGI] = { successEffectId: 37 }; //Increase AGI

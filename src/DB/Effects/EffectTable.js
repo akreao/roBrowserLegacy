@@ -6954,8 +6954,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
@@ -7661,8 +7660,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
