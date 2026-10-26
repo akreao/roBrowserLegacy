@@ -399,7 +399,7 @@ SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { successEffectIdOnCaster: ['quake', 'monk
 // Official client: as the damage packet arrives, the camera quake and 266 (with its sound) on the
 // target; the hit flash 0. No aura (328 / 510) and no cast-start effect. See effect-port/monk-skills.md.
 SkillEffect[SK.MO_EXTREMITYFIST] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 266, hitEffectId: 0 }; //Asura Strike
-SkillEffect[SK.MO_CHAINCOMBO] = { effectId: [262, 273], effectIdOnCaster: 263 }; //Raging Quadruple Blow
+SkillEffect[SK.MO_CHAINCOMBO] = { damageEffectIdOnTarget: [262, 273], damageEffectIdOnCaster: 263, hitEffectId: [0, 122] }; //Raging Quadruple Blow
 SkillEffect[SK.MO_COMBOFINISH] = { effectId: [330, 'quake'] }; //Raging Thrust
 // Sage
 SkillEffect[SK.SA_CASTCANCEL] = {}; //Cast Cancel
