@@ -12999,7 +12999,15 @@ export default {
 	],
 
 	//623: [{}],	//EF_CHEMICAL4	   Piercing Shot
-	//624: [{}],	//EF_STIN5	   Kamaitachi
+	624: [
+		{
+			//EF_STIN5	First Wind: official effect 624 (effect-port/ninja-skills.md), on the caster as
+			// the damage packet arrives, aimed at the target: t_바람방출.wav on tick 1. Not ported:
+			// the 270바람.tga wind (prim 126) on ticks 0-4.
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2',
+			delayWav: 1000 / 60
+		}
+	],
 	//625: [{}],	//EF_MADNESS_BLUE	   Madness Canceller
 	//626: [{}],	//EF_MADNESS_RED	   Adjustment
 

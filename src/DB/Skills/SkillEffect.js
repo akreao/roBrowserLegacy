@@ -697,7 +697,7 @@ SkillEffect[SK.NJ_SUITON] = { groundEffectId: 620 }; //Hidden Water
 SkillEffect[SK.NJ_HYOUSYOURAKU] = { effectId: 636 }; //Ice Meteor
 SkillEffect[SK.NJ_HUUJIN] = { effectId: 621 }; //Wind Blade
 SkillEffect[SK.NJ_RAIGEKISAI] = { effectId: 622 }; //Lightning Strike of Destruction
-SkillEffect[SK.NJ_KAMAITACHI] = {}; //Kamaitachi
+SkillEffect[SK.NJ_KAMAITACHI] = { damageEffectIdOnCaster: 624 }; //Kamaitachi
 SkillEffect[SK.NJ_NEN] = {}; //Soul
 SkillEffect[SK.NJ_ISSEN] = { effectId: 633 }; //Final Strike
 // Additional NPC Skills (Episode 11.3)
