@@ -527,7 +527,14 @@ SkillEffect[SK.ASC_EDP] = { effectId: 493 }; //Enchant Deadly Poison
 SkillEffect[SK.ASC_BREAKER] = { beforeHitEffectId: 361 }; //Soul Destroyer
 // Sniper
 SkillEffect[SK.SN_SIGHT] = { effectId: 386 }; //Falcon Eyes
-SkillEffect[SK.SN_FALCONASSAULT] = { hideCastAura: true, effectId: 387 }; //Falcon Assault
+SkillEffect[SK.SN_FALCONASSAULT] = {
+	hideCastAura: true,
+	// Official client: 387 on the target as the damage packet arrives; the hit
+	// once per packet: hit flash 0 and Blitz Beat's 115.
+	damageEffectIdOnTarget: 387,
+	hitEffectId: [0, 115],
+	hitEffectOnce: true
+}; //Falcon Assault
 SkillEffect[SK.SN_SHARPSHOOTING] = {
 	hitEffectId: 388,
 	beforeHitEffectId: 'ef_arrow_projectile',

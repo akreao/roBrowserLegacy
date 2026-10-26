@@ -16,7 +16,9 @@
  *  - split images (bit 0x1000, with the effect's age): four white copies of the
  *    sprite sliding out right, left, down and up, fading out by age 30;
  *  - colour: the caster's colour, which every actor's tick brings back by
- *    8 out of 255 a channel once nothing sets it.
+ *    8 out of 255 a channel once nothing sets it;
+ *  - turn: the owner's facing, turned by a number of degrees from where it
+ *    faced when the turning started (Falcon Assault spins its target).
  *
  * Effect table entry:
  *   { type: 'FUNC', attachedEntity: true, func(Params) {
@@ -32,6 +34,8 @@ import { PRIM_TICK_MS } from './EffectPrimSim.js';
 /** Colour recovery a tick, out of 255, and the split images' fade. */
 export const RECOVER_STEP = 8;
 export const SPLIT_TICKS = 30;
+/** Falcon Assault's turn a tick, in degrees. */
+export const TURN_STEP = 30;
 
 const RED = [255, 0, 0];
 const YELLOW = [250, 250, 100];
@@ -51,6 +55,13 @@ export const SCHEDULES = {
 	2373: age => {
 		const on = age <= 30;
 		return { add: on, glow: on, split: true, color: on ? RED : null };
+	},
+	// Falcon Assault, on its target: from age 30 the target spins 30 degrees a tick
+	// to age 54, and is drawn adding light on ages 30-34, 40-44 and 50.
+	387: age => {
+		const add = age >= 30 && age <= 50 && (age - 30) % 10 < 5;
+		const turn = age >= 30 && age <= 54 ? ((age - 29) * TURN_STEP) % 360 : null;
+		return { add, glow: false, split: false, color: null, turn };
 	},
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.
 	502: age => {
@@ -76,6 +87,18 @@ export function colorAt(schedule, age) {
 		}
 	}
 	return null;
+}
+
+/**
+ * The facing (0-7, roBrowser's directions are 45 degrees apart) after turning
+ * `degrees` from `direction`.
+ *
+ * @param {number} direction
+ * @param {number} degrees
+ * @return {number}
+ */
+export function turnedDirection(direction, degrees) {
+	return (((direction + Math.round(degrees / 45)) % 8) + 8) % 8;
 }
 
 /**
@@ -122,7 +145,7 @@ export default class CasterMarks {
 	 * @param {Entity} owner the caster
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
-	 * @param {number} effectId 934, 2373 or 502
+	 * @param {number} effectId 934, 2373, 502 or 387
 	 */
 	constructor(owner, startTick, frames, effectId) {
 		this.owner = owner || null;
@@ -156,6 +179,13 @@ export default class CasterMarks {
 		} else if (this._split) {
 			owner._splitImageAge = undefined;
 			this._split = false;
+		}
+
+		if (state.turn !== null && state.turn !== undefined) {
+			if (this.turnFrom === undefined) {
+				this.turnFrom = owner.direction;
+			}
+			owner.direction = turnedDirection(this.turnFrom, state.turn);
 		}
 
 		if (age !== null && owner._flashColor) {
