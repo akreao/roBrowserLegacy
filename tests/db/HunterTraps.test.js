@@ -103,3 +103,10 @@ describe('Claymore Trap', () => {
 		expect(skillRow('HT_CLAYMORETRAP')).toEqual({ hitEffectId: [0] });
 	});
 });
+
+describe('Freezing Trap', () => {
+	it('freezes at the trap (108); each hit gets the hit flash only', () => {
+		expect(triggers().table[0x97]).toEqual([108]);
+		expect(skillRow('HT_FREEZINGTRAP')).toEqual({ hitEffectId: [0] });
+	});
+});
