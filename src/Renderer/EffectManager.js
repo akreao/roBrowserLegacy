@@ -1066,9 +1066,12 @@ class EffectManager {
 		}
 
 		if (SkillEffect[skillId].successEffectId) {
-			effects = Array.isArray(SkillEffect[skillId].successEffectId)
-				? SkillEffect[skillId].successEffectId
-				: [SkillEffect[skillId].successEffectId];
+			// A function picks the effect from the packet's level field (Heal: the healed amount)
+			effects =
+				typeof SkillEffect[skillId].successEffectId === 'function'
+					? SkillEffect[skillId].successEffectId(level)
+					: SkillEffect[skillId].successEffectId;
+			effects = Array.isArray(effects) ? effects : [effects];
 
 			effects.forEach(effectId => {
 				EF_Init_Par = {

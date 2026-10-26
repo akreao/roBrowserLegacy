@@ -206,6 +206,11 @@ class Cylinder {
 	 * @param {object} wegl context
 	 */
 	render(gl, tick) {
+		// Not before its start (delayStart, effects queued for the hit)
+		if (tick < this.startTick) {
+			return;
+		}
+
 		const renderCount = tick - this.startTick;
 		const duration = this.endTick - this.startTick;
 		const uniform = _program.uniform;

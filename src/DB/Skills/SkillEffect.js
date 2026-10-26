@@ -52,6 +52,7 @@
  *
  *	- successEffectId: 			Triggers when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
+ *								A function gets the packet's level field and returns the effect(s).
  *
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
@@ -126,18 +127,31 @@ SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49, hit
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
-SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwach
+// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash) and 1 (EF_HIT2).
+// The status look (33) comes from the effect state. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_RUWACH] = { hitEffectId: [0, 1] }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
-SkillEffect[SK.AL_HEAL] = { effectId: 312, hitEffectId: 320 }; //Heal
-SkillEffect[SK.AL_INCAGI] = { effectId: 37 }; //Increase AGI
-SkillEffect[SK.AL_DECAGI] = { effectId: 38 }; //Decrease AGI
-SkillEffect[SK.AL_HOLYWATER] = { effectId: 39 }; //Aqua Benedicta
-SkillEffect[SK.AL_CRUCIS] = { effectId: 40 }; //Signum Crucis
-SkillEffect[SK.AL_ANGELUS] = { effectId: 41 }; //Angelus
-SkillEffect[SK.AL_BLESSING] = { effectId: 42 }; //Blessing
-SkillEffect[SK.AL_CURE] = { effectId: 66 }; //Cure
+// Official client: the use packet picks the heal effect by the healed amount (the packet's level
+// field) on the target, which plays the heal sound; on an undead, 320 on the target as the damage
+// packet arrives, then 0 and 1 once when the damage lands. See effect-port/acolyte-skills.md.
+const healEffectByAmount = amount => (amount >= 4000 ? 325 : amount >= 2000 ? 313 : amount >= 200 ? 312 : 7);
+SkillEffect[SK.AL_HEAL] = {
+	successEffectId: healEffectByAmount,
+	damageEffectIdOnTarget: 320,
+	hitEffectId: [0, 1],
+	hitEffectOnce: true
+}; //Heal
+// Official client: the use packet shows these only when its result is set (a resisted Decrease AGI
+// shows nothing). See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_INCAGI] = { successEffectId: 37 }; //Increase AGI
+SkillEffect[SK.AL_DECAGI] = { successEffectId: 38 }; //Decrease AGI
+SkillEffect[SK.AL_HOLYWATER] = { successEffectId: 39 }; //Aqua Benedicta
+SkillEffect[SK.AL_CRUCIS] = { successEffectId: 40 }; //Signum Crucis
+SkillEffect[SK.AL_ANGELUS] = { successEffectId: 41 }; //Angelus
+SkillEffect[SK.AL_BLESSING] = { successEffectId: 42 }; //Blessing
+SkillEffect[SK.AL_CURE] = { successEffectId: 66 }; //Cure
 // Merchant
 SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
 SkillEffect[SK.MC_VENDING] = {}; //Vending
@@ -159,7 +173,9 @@ SkillEffect[SK.AC_SHOWER] = {
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
 SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
-SkillEffect[SK.TF_POISON] = { hitEffectId: 20 }; //Envenom
+// Official client: 16 (EF_BASH) on the caster as each damage packet arrives; the hit plays 0 (the standard
+// hit flash) and 1 (EF_HIT2) on the target, once per packet. 20 is not played. See effect-port/thief-skills.md.
+SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: [0, 1], hitEffectOnce: true }; //Envenom
 SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
@@ -266,16 +282,22 @@ SkillEffect[SK.AC_MAKINGARROW] = {}; //Arrow Crafting
 // Official client: one arrow per damage packet, as for a normal bow attack; each hit that lands plays
 // 0 (the standard hit flash) on the target, nothing else (not in the hit map). See effect-port/archer-skills.md.
 SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Arrow Repel
-SkillEffect[SK.TF_SPRINKLESAND] = { effectId: 310 }; //Sand Attack
+// Official client: 310 (sand) on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/thief-skills.md.
+SkillEffect[SK.TF_SPRINKLESAND] = { damageEffectIdOnTarget: 310, hitEffectId: 0, hitEffectOnce: true }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
-SkillEffect[SK.TF_THROWSTONE] = { beforeHitEffectId: 308 }; //Stone Fling
+// Official client: 308 (the stone) from the caster at the target as each damage packet arrives; the hit
+// plays the standard hit flash (0) once per packet. See effect-port/thief-skills.md.
+SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0, hitEffectOnce: true }; //Stone Fling
 SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 // Official client: 311 on the caster from the use packet, only when its result is set.
 // See effect-port/merchant-skills.md.
 SkillEffect[SK.MC_LOUD] = { successEffectId: 311 }; //Crazy Uproar
-SkillEffect[SK.AL_HOLYLIGHT] = { effectId: 152 }; //Holy Light
+// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
+// 152 (HolyHit.str) once, nothing on a miss. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: [0, 152], hitEffectOnce: true }; //Holy Light
 SkillEffect[SK.MG_ENERGYCOAT] = { effectId: 169 }; //Energy Coat
 // NPC Skills
 SkillEffect[SK.NPC_PIERCINGATT] = { effectIdOnCaster: 148 }; //Piercing Attack
