@@ -1552,7 +1552,10 @@ function onEntityUseSkill(pkt) {
 		// In healing skill, the level parameter stored the healed value
 		if (pkt.SKID === SkillId.AL_HEAL || pkt.SKID === SkillId.AB_HIGHNESSHEAL || pkt.SKID === SkillId.AB_CHEAL) {
 			Damage.add(pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL);
-			Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
+			// Heal's effect plays the sound itself, as in the official client
+			if (pkt.SKID !== SkillId.AL_HEAL) {
+				Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
+			}
 		}
 
 		// Steal Coin zeny
