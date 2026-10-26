@@ -36,6 +36,7 @@ export const SPLIT_TICKS = 30;
 const RED = [255, 0, 0];
 const YELLOW = [250, 250, 100];
 const WHITE = [255, 255, 255];
+const PURPLE = [182, 89, 255];
 
 /**
  * What each effect sets on the caster on its tick `age` (0 on the first).
@@ -51,6 +52,12 @@ export const SCHEDULES = {
 	2373: age => {
 		const on = age <= 30;
 		return { add: on, glow: on, split: true, color: on ? RED : null };
+	},
+	// Eternal Chaos / Loki's Veil status (EF_ENERVATION7): flickering purple (added) and white, ages 4 to 90.
+	864: age => {
+		const on = age >= 4 && age <= 90;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: false, split: false, color: on ? (even ? PURPLE : WHITE) : null };
 	},
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.
 	502: age => {
@@ -122,7 +129,7 @@ export default class CasterMarks {
 	 * @param {Entity} owner the caster
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
-	 * @param {number} effectId 934, 2373 or 502
+	 * @param {number} effectId 934, 2373, 502 or 864
 	 */
 	constructor(owner, startTick, frames, effectId) {
 		this.owner = owner || null;

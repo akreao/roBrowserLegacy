@@ -4,6 +4,8 @@
  * Effects the official client draws on an actor while a status is on.
  *
  * start: played each time the status starts.
+ * restart: like start, but the actor's earlier copy is removed first (the client
+ *   removes it before launching the effect again).
  * loop: started with the status, one copy per actor, removed when the status ends.
  * stages: one entry per status value (the status's first value), each a list of
  *   effects. Each time the status starts with value N, every stage effect on the
@@ -264,5 +266,53 @@ export default {
 	},
 	[StatusConst.THUNDERING_ROD_MAX]: {
 		loop: ['thundering_rod_full']
+	},
+
+	// Bard and Dancer songs (renewal): the client launches an aura on every actor
+	// the song's status starts on, removing its earlier copy first.
+	[StatusConst.WHISTLE]: {
+		restart: [865]
+	},
+	[StatusConst.ASSASSINCROSS]: {
+		restart: [873]
+	},
+	[StatusConst.POEMBRAGI]: {
+		restart: [877]
+	},
+	[StatusConst.APPLEIDUN]: {
+		restart: [861]
+	},
+	[StatusConst.HUMMING]: {
+		restart: [865]
+	},
+	[StatusConst.DONTFORGETME]: {
+		restart: [38]
+	},
+	[StatusConst.FORTUNEKISS]: {
+		restart: [871]
+	},
+	[StatusConst.SERVICEFORYOU]: {
+		restart: [873]
+	},
+	[StatusConst.RICHMANKIM]: {
+		restart: [867]
+	},
+	[StatusConst.ETERNALCHAOS]: {
+		restart: [864]
+	},
+	[StatusConst.DRUMBATTLEFIELD]: {
+		restart: [871]
+	},
+	[StatusConst.RINGNIBELUNGEN]: {
+		restart: [875]
+	},
+	[StatusConst.ROKISWEIL]: {
+		restart: [864]
+	},
+	[StatusConst.INTOABYSS]: {
+		restart: [865]
+	},
+	[StatusConst.SIEGFRIED]: {
+		restart: [875]
 	}
 };
