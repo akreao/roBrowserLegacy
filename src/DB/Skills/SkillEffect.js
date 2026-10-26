@@ -296,7 +296,9 @@ SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0, h
 // damage packet when the hit lands. See effect-port/merchant-skills.md.
 SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: [0, 170], hitEffectOnce: true }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
-SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar
+// Official client: 311 on the caster from the use packet, only when its result is set.
+// See effect-port/merchant-skills.md.
+SkillEffect[SK.MC_LOUD] = { successEffectId: 311 }; //Crazy Uproar
 // Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
 // 152 (HolyHit.str) once, nothing on a miss. See effect-port/acolyte-skills.md.
 SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: [0, 152], hitEffectOnce: true }; //Holy Light
