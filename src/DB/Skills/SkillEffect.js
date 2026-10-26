@@ -105,7 +105,9 @@ SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Sou
 SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
 SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
 SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
-SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
+// Official client: 24 on the caster as each damage packet arrives (four fireballs to that target), then
+// 49 (fire hit) and 1 (EF_HIT2) once when the damage lands. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_FIREBALL] = { damageEffectIdOnCaster: 24, hitEffectId: [49, 1], hitEffectOnce: true }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
 SkillEffect[SK.MG_FIREBOLT] = { beforeHitEffectId: 'ef_firebolt', hitEffectId: 49 }; //Fire Bolt
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt

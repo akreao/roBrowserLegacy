@@ -1134,7 +1134,7 @@ export default {
 			rotateToTarget: true,
 			sizeStart: 100.0,
 			sizeEnd: 500.0,
-			zOffsetStart: 3,
+			zOffset: 3,
 			arc: 4.0,
 			retreat: 3.0,
 			soulStrikePattern: true
@@ -1401,27 +1401,92 @@ export default {
 
 	24: [
 		{
-			//fireball caster effect (on target effect 49:)	//EF_FIREBALL	Fire Ball
+			//EF_FIREBALL	Fire Ball, played on the caster: the official client throws four fireball sprites at the
+			//target on ticks 20, 24, 28 and 32, each flying 20 ticks from 15 units up, each with its own sound.
+			//The first is plain, the next three tinted (246, 199, 76) and fainter (alpha 180, 130, 80).
 			type: '3D',
-			alphaMax: 0.2,
-			alphaMaxDelta: 0.2,
-			attachedEntity: true,
-			duration: 250,
-			delayOffset: 160,
-			delayOffsetDelta: -40,
 			spriteName: 'fireball',
 			playSprite: true,
-			duplicate: 5,
-			timeBetweenDupli: 0,
-			toSrc: true,
+			attachedEntity: false,
+			fromSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-			zOffset: 2,
-			size: 200,
+			zOffset: 3,
+			delayStart: 333,
+			duration: 333,
+			alphaMax: 1,
+			size: 130,
 			zIndex: 1
 		},
 		{
-			wav: 'effect/ef_fireball'
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 400,
+			duration: 333,
+			alphaMax: 180 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 467,
+			duration: 333,
+			alphaMax: 130 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 533,
+			duration: 333,
+			alphaMax: 80 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 333
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 400
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 467
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 533
 		}
 	],
 
@@ -9596,7 +9661,7 @@ export default {
 			rotateToTarget: true,
 			sizeStart: 100.0,
 			sizeEnd: 500.0,
-			zOffsetStart: 3,
+			zOffset: 3,
 			arc: 4.0,
 			retreat: 4.0, //soulstrike2 have a little retreat upper
 			soulStrikePattern: true
