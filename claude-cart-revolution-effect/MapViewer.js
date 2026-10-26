@@ -218190,7 +218190,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r)) return {
+	if (u(s, r$3)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -220616,7 +220616,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$3, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -220636,7 +220636,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r = [
+	r$3 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -222661,7 +222661,7 @@ var init_HastyFireInTheHoleEffect = __esmMin((() => {
 }));
 // src/DB/Skills/SkillEffect.js
 var SkillEffect_exports = /* @__PURE__ */ __exportAll({ default: () => SkillEffect });
-var CHAMPION_JOBS, SkillEffect;
+var CHAMPION_JOBS, SkillEffect, healEffectByAmount;
 var init_SkillEffect = __esmMin((() => {
 	init_SkillConst();
 	init_EntityManager();
@@ -222724,21 +222724,24 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: 30,
 		hitEffectId: 52
 	};
-	SkillEffect[SkillConst_default.AL_RUWACH] = { hitEffectId: 1 };
+	SkillEffect[SkillConst_default.AL_RUWACH] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.AL_PNEUMA] = { groundEffectId: 141 };
 	SkillEffect[SkillConst_default.AL_TELEPORT] = {};
 	SkillEffect[SkillConst_default.AL_WARP] = {};
+	healEffectByAmount = (amount) => amount >= 4e3 ? 325 : amount >= 2e3 ? 313 : amount >= 200 ? 312 : 7;
 	SkillEffect[SkillConst_default.AL_HEAL] = {
-		effectId: 312,
-		hitEffectId: 320
+		successEffectId: healEffectByAmount,
+		damageEffectIdOnTarget: 320,
+		hitEffectId: [0, 1],
+		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.AL_INCAGI] = { effectId: 37 };
-	SkillEffect[SkillConst_default.AL_DECAGI] = { effectId: 38 };
-	SkillEffect[SkillConst_default.AL_HOLYWATER] = { effectId: 39 };
-	SkillEffect[SkillConst_default.AL_CRUCIS] = { effectId: 40 };
-	SkillEffect[SkillConst_default.AL_ANGELUS] = { effectId: 41 };
-	SkillEffect[SkillConst_default.AL_BLESSING] = { effectId: 42 };
-	SkillEffect[SkillConst_default.AL_CURE] = { effectId: 66 };
+	SkillEffect[SkillConst_default.AL_INCAGI] = { successEffectId: 37 };
+	SkillEffect[SkillConst_default.AL_DECAGI] = { successEffectId: 38 };
+	SkillEffect[SkillConst_default.AL_HOLYWATER] = { successEffectId: 39 };
+	SkillEffect[SkillConst_default.AL_CRUCIS] = { successEffectId: 40 };
+	SkillEffect[SkillConst_default.AL_ANGELUS] = { successEffectId: 41 };
+	SkillEffect[SkillConst_default.AL_BLESSING] = { successEffectId: 42 };
+	SkillEffect[SkillConst_default.AL_CURE] = { successEffectId: 66 };
 	SkillEffect[SkillConst_default.MC_IDENTIFY] = {};
 	SkillEffect[SkillConst_default.MC_VENDING] = {};
 	SkillEffect[SkillConst_default.MC_MAMMONITE] = { effectId: 10 };
@@ -222754,7 +222757,11 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.TF_STEAL] = { successEffectId: 18 };
 	SkillEffect[SkillConst_default.TF_HIDING] = {};
-	SkillEffect[SkillConst_default.TF_POISON] = { hitEffectId: 20 };
+	SkillEffect[SkillConst_default.TF_POISON] = {
+		damageEffectIdOnCaster: 16,
+		hitEffectId: [0, 1],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.TF_DETOXIFY] = { effectId: 21 };
 	SkillEffect[SkillConst_default.ALL_RESURRECTION] = { effectId: [77, 140] };
 	SkillEffect[SkillConst_default.KN_PIERCE] = {
@@ -222964,10 +222971,18 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnTarget: "ef_arrow_projectile",
 		hitEffectId: [0]
 	};
-	SkillEffect[SkillConst_default.TF_SPRINKLESAND] = { effectId: 310 };
+	SkillEffect[SkillConst_default.TF_SPRINKLESAND] = {
+		damageEffectIdOnTarget: 310,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.TF_BACKSLIDING] = {};
 	SkillEffect[SkillConst_default.TF_PICKSTONE] = { hideCastAura: true };
-	SkillEffect[SkillConst_default.TF_THROWSTONE] = { beforeHitEffectId: 308 };
+	SkillEffect[SkillConst_default.TF_THROWSTONE] = {
+		damageEffectIdOnCaster: 308,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.MC_CARTREVOLUTION] = {
 		damageEffectIdOnCaster: 170,
 		hitEffectId: [0, 170],
@@ -222975,7 +222990,10 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.MC_CHANGECART] = {};
 	SkillEffect[SkillConst_default.MC_LOUD] = { effectId: 311 };
-	SkillEffect[SkillConst_default.AL_HOLYLIGHT] = { effectId: 152 };
+	SkillEffect[SkillConst_default.AL_HOLYLIGHT] = {
+		hitEffectId: [0, 152],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.MG_ENERGYCOAT] = { effectId: 169 };
 	SkillEffect[SkillConst_default.NPC_PIERCINGATT] = { effectIdOnCaster: 148 };
 	SkillEffect[SkillConst_default.NPC_MENTALBREAKER] = { effectId: 181 };
@@ -272379,6 +272397,7 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} wegl context
 		*/
 		render(gl, tick) {
+			if (tick < this.startTick) return;
 			const renderCount = tick - this.startTick;
 			const duration = this.endTick - this.startTick;
 			const uniform = _program$32.uniform;
@@ -275484,6 +275503,16 @@ var init_TwoDEffect = __esmMin((() => {
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 }
+/**
+* Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
+*
+* @param {number} startTick
+* @param {number} tick
+* @return {number}
+*/
+function trackAge(startTick, tick) {
+	return (tick - startTick) * 60 / 1e3;
+}
 var blendMode$1, _soulStrikeFirstEffect, ThreeDEffect;
 var init_ThreeDEffect = __esmMin((() => {
 	init_WebGL();
@@ -275718,6 +275747,7 @@ var init_ThreeDEffect = __esmMin((() => {
 				this.sizeEndY = this.sizeStartY;
 			}
 			this.sizeSmooth = effect.sizeSmooth ? true : false;
+			this.track = typeof effect.track === "function" ? effect.track : null;
 			this.angle = effect.angle ? effect.angle : 0;
 			this.rotate = effect.rotate ? true : false;
 			this.toAngle = effect.toAngle ? effect.toAngle : 0;
@@ -275929,6 +275959,27 @@ var init_ThreeDEffect = __esmMin((() => {
 				const angle = steps * angleStep + startAngle;
 				SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
 			} else SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
+			if (this.track) {
+				const sample = this.track(trackAge(this.startTick, tick));
+				if (!sample) {
+					this.needCleanUp = this.endTick < tick;
+					return;
+				}
+				if (sample.x !== void 0) SpriteRenderer.position[0] = this.position[0] + sample.x;
+				if (sample.y !== void 0) SpriteRenderer.position[1] = this.position[1] + sample.y;
+				if (sample.z !== void 0) SpriteRenderer.position[2] = this.position[2] + sample.z;
+				if (sample.size !== void 0) {
+					sizeX = sample.size;
+					sizeY = sample.size;
+					SpriteRenderer.size[0] = sizeX;
+					SpriteRenderer.size[1] = sizeY;
+				}
+				if (sample.alpha !== void 0) {
+					alpha = Math.min(Math.max(sample.alpha, 0), 1);
+					SpriteRenderer.color[3] = alpha;
+				}
+				if (sample.angle !== void 0) SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
+			}
 			if (this.actRessource && this.spriteRessource) {
 				let entity = this.ownerEntity;
 				if (!entity) {
@@ -277862,7 +277913,8 @@ var init_EffectManager = __esmMin((() => {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			if (SkillEffect[skillId].successEffectId) {
-				effects = Array.isArray(SkillEffect[skillId].successEffectId) ? SkillEffect[skillId].successEffectId : [SkillEffect[skillId].successEffectId];
+				effects = typeof SkillEffect[skillId].successEffectId === "function" ? SkillEffect[skillId].successEffectId(level) : SkillEffect[skillId].successEffectId;
+				effects = Array.isArray(effects) ? effects : [effects];
 				effects.forEach((effectId) => {
 					EF_Init_Par = {
 						effectId,
@@ -287060,6 +287112,129 @@ var init_SkySunEffect = __esmMin((() => {
 		attachedEntity: false
 	};
 }));
+// src/Renderer/Effects/SandGrainSim.js
+/**
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} the grains, in client units
+*/
+function planGrains(random = Math.random) {
+	const grains = [];
+	for (let i = 0; i < 80; i++) grains.push({
+		x: r$2(random, 9) - 4,
+		y: r$2(random, 9) - 4,
+		counter: r$2(random, 10) - 10,
+		heading: r$2(random, 360),
+		rise: r$2(random, 40) / 100 + .2,
+		drift: r$2(random, 10) / 100,
+		half: r$2(random, 16) * .03 + .1
+	});
+	return grains;
+}
+/**
+* Alpha (0-255) after the grain's live tick k.
+*
+* @param {number} k counter value
+* @return {number}
+*/
+function grainAlpha(k) {
+	if (k <= 1) return 0;
+	if (k <= 10) return 15 * (k - 1);
+	return Math.max(135 - 3 * (k - 10), 0);
+}
+/**
+* Where a grain is after `age` ticks, or null when it does not show.
+*
+* @param {object} grain from planGrains
+* @param {number} age ticks since the effect started
+* @return {?object} { x, y, up } in client units from the target, alpha 0-255, angle (degrees), half
+*/
+function grainAt(grain, age) {
+	const k = grain.counter + Math.floor(age);
+	if (k <= 0) return null;
+	const alpha = grainAlpha(k);
+	if (alpha <= 0) return null;
+	const a = grain.heading * Math.PI / 180;
+	return {
+		x: grain.x + Math.cos(a) * grain.drift * k,
+		y: grain.y + Math.sin(a) * grain.drift * k,
+		up: grain.rise * k,
+		alpha,
+		angle: (-5 * k % 360 + 360) % 360,
+		half: grain.half
+	};
+}
+var SAND_COLOR, SAND_TEXTURE, r$2;
+var init_SandGrainSim = __esmMin((() => {
+	SAND_COLOR = [
+		250 / 255,
+		250 / 255,
+		150 / 255
+	];
+	SAND_TEXTURE = "effect/thunder_center.bmp";
+	r$2 = (random, k) => Math.floor(random() * k);
+}));
+// src/DB/Effects/SandAttackEffect.js
+/**
+* The 3D effect drawing one grain.
+*
+* @param {object} grain from planGrains
+* @return {object}
+*/
+function sandGrainEffect(grain) {
+	return {
+		type: "3D",
+		file: SAND_TEXTURE,
+		blendMode: 2,
+		red: SAND_COLOR[0],
+		green: SAND_COLOR[1],
+		blue: SAND_COLOR[2],
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: 66 * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = grainAt(grain, age);
+			if (!p) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: 2 * p.half * SIZE_PER_UNIT$1,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+var SIZE_PER_UNIT$1, sandAttackEffect;
+var init_SandAttackEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_SandGrainSim();
+	SIZE_PER_UNIT$1 = 7;
+	sandAttackEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const target = Params.Init.ownerEntity.position;
+			const at = [
+				target[0],
+				target[1],
+				target[2]
+			];
+			planGrains().forEach((grain, i) => {
+				this.spamEffect({
+					effect: sandGrainEffect(grain),
+					Inst: {
+						effectID: 310,
+						duplicateID: i,
+						startTick: Params.Inst.startTick
+					},
+					Init: Object.assign({}, Params.Init, { position: at })
+				});
+			});
+		}
+	}];
+}));
 // src/DB/Effects/ArrowShowerEffects.js
 /**
 * One arrow from the caster (the effect's other entity) to its owner's
@@ -288261,6 +288436,167 @@ var init_CastCircle = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/ThrownStoneSim.js
+/**
+* @param {number[]} from start [x, y, height] in units
+* @param {number[]} to end [x, y, height] in units
+* @return {object} the throw
+*/
+function planThrow(from, to) {
+	const dx = to[0] - from[0];
+	const dy = to[1] - from[1];
+	const dist = Math.sqrt(dx * dx + dy * dy);
+	return {
+		from,
+		dist,
+		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
+		climb: dist > 0 ? STONE.speed / dist * (to[2] - from[2]) : 0,
+		ticks: Math.floor(dist / STONE.speed) + 1
+	};
+}
+/**
+* The stone after k updates.
+*
+* @param {object} t from planThrow
+* @param {number} k
+* @return {object} { x, y, up } in units (up from the caster's ground), alpha 0-255, angle
+*/
+function stoneAt(t, k) {
+	let moves = 0;
+	while (moves < k && (moves + 1) / t.ticks <= STONE.moveUntil) moves++;
+	const s = Math.min(moves / t.ticks, 1);
+	return {
+		x: t.from[0] + t.dir[0] * STONE.speed * moves,
+		y: t.from[1] + t.dir[1] * STONE.speed * moves,
+		up: STONE.lift + t.climb * moves + STONE.arc * Math.sin(Math.PI * s),
+		alpha: Math.max(255 - STONE.fade * (k - moves), 0),
+		angle: STONE.spin * k % 360
+	};
+}
+/**
+* Trailing copy i (0 nearest) after k updates, or null when it does not show.
+* On each odd update j the copies take, in turn: copy 2 copy 1, copy 1 copy 0,
+* copy 0 the stone as it was before update j. So after the refresh on j, copy i
+* is the stone after j - 1 - 2i updates, valid once j - 2i >= 3.
+*
+* @param {object} t from planThrow
+* @param {number} i
+* @param {number} k
+* @return {?object}
+*/
+function trailAt(t, i, k) {
+	const j = k % 2 === 1 ? k : k - 1;
+	if (j - 2 * i < 3) return null;
+	const p = stoneAt(t, j - 1 - 2 * i);
+	let alpha = p.alpha;
+	for (let n = 0; n <= i; n++) alpha -= STONE.trail[n];
+	if (alpha < 1) return null;
+	p.alpha = alpha;
+	return p;
+}
+var STONE, STONE_TEXTURE;
+var init_ThrownStoneSim = __esmMin((() => {
+	STONE = {
+		speed: 2,
+		lift: 8,
+		arc: 10,
+		spin: 10,
+		moveUntil: 1.05,
+		fade: 20,
+		half: 2,
+		trail: [
+			150,
+			25,
+			25
+		]
+	};
+	STONE_TEXTURE = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp";
+}));
+// src/DB/Effects/ThrowStoneEffect.js
+/**
+* Last update the stone shows: it stops after floor(1.05 n) updates, then fades 20 a tick.
+*
+* @param {object} t from planThrow
+* @return {number}
+*/
+function lastStoneTick(t) {
+	return Math.floor(STONE.moveUntil * t.ticks) + Math.ceil(255 / STONE.fade);
+}
+/**
+* The 3D effect drawing the stone (copy -1) or trailing copy i.
+*
+* @param {object} t from planThrow, in units from the caster
+* @param {number} copy
+* @return {object}
+*/
+function stoneEffect(t, copy) {
+	return {
+		type: "3D",
+		file: STONE_TEXTURE,
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: (lastStoneTick(t) + 1) * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const k = Math.floor(age);
+			const p = copy < 0 ? stoneAt(t, k) : trailAt(t, copy, k);
+			if (!p || p.alpha < 1) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: 2 * STONE.half * SIZE_PER_UNIT,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+var SIZE_PER_UNIT, throwStoneEffect;
+var init_ThrowStoneEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_ThrownStoneSim();
+	SIZE_PER_UNIT = 7;
+	throwStoneEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const caster = Params.Init.ownerEntity.position;
+			const target = Params.Init.otherEntity && Params.Init.otherEntity.position;
+			if (!target) return;
+			const at = [
+				caster[0],
+				caster[1],
+				caster[2]
+			];
+			const t = planThrow([
+				0,
+				0,
+				0
+			], [
+				0,
+				1,
+				2
+			].map((i) => (target[i] - caster[i]) * 5));
+			[
+				-1,
+				0,
+				1,
+				2
+			].forEach((copy, i) => {
+				this.spamEffect({
+					effect: stoneEffect(t, copy),
+					Inst: {
+						effectID: 308,
+						duplicateID: i,
+						startTick: Params.Inst.startTick
+					},
+					Init: Object.assign({}, Params.Init, { position: at })
+				});
+			});
+		}
+	}];
+}));
 // src/Renderer/Effects/CastRingSim.js
 /**
 * @param {number} arg the ring's argument
@@ -289099,6 +289435,123 @@ var init_StreakLines = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/DetoxBubbleSim.js
+/**
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} the bubbles, in client units
+*/
+function planBubbles(random = Math.random) {
+	const bubbles = [];
+	for (let i = 0; i < DETOX.count; i++) {
+		const heading = r$1(random, 360) * Math.PI / 180;
+		const dist = 2 + r$1(random, 6);
+		bubbles.push({
+			spawn: i * DETOX.every,
+			x: Math.cos(heading) * dist,
+			y: Math.sin(heading) * dist,
+			rise: (30 + r$1(random, 30)) / 100,
+			scale: (40 + r$1(random, 50)) / 100
+		});
+	}
+	return bubbles;
+}
+/**
+* Alpha (0-254) after k ticks of a bubble's life.
+*
+* @param {number} k
+* @return {number}
+*/
+function bubbleAlpha(k) {
+	if (k >= DETOX.fadeStart) return Math.max(254 * (DETOX.life - 1 - k) / (DETOX.life - DETOX.fadeStart), 0);
+	return Math.min(254 / DETOX.fadeIn * k, 254);
+}
+/**
+* A bubble `age` ticks after it was made, or null outside its life.
+*
+* @param {object} bubble from planBubbles
+* @param {number} age ticks since the bubble's spawn
+* @return {?object} { x, y, up } in client units from the target, scale, alpha 0-254, angle
+*/
+function bubbleAt(bubble, age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= DETOX.life) return null;
+	const slow = bubble.rise / DETOX.life / 2;
+	return {
+		x: bubble.x,
+		y: bubble.y,
+		up: bubble.rise * k - slow * k * (k + 1) / 2,
+		scale: bubble.scale,
+		alpha: bubbleAlpha(k),
+		angle: DETOX.spin * k % 360
+	};
+}
+var DETOX, r$1;
+var init_DetoxBubbleSim = __esmMin((() => {
+	DETOX = {
+		count: 20,
+		every: 5,
+		life: 40,
+		fadeIn: 10,
+		fadeStart: 32,
+		spin: 3
+	};
+	r$1 = (random, k) => Math.floor(random() * k);
+}));
+// src/DB/Effects/DetoxifyEffect.js
+/**
+* The 3D effect drawing one bubble, following the target. It starts on the
+* bubble's own tick, so its age is the bubble's age.
+*
+* @param {object} bubble from planBubbles
+* @return {object}
+*/
+function detoxBubbleEffect(bubble) {
+	return {
+		type: "3D",
+		spriteName: "particle2",
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: DETOX.life * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = bubbleAt(bubble, age);
+			if (!p) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: p.scale * 100,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+var detoxifyEffect;
+var init_DetoxifyEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_DetoxBubbleSim();
+	detoxifyEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planBubbles().forEach((bubble, i) => {
+				this.spamEffect({
+					effect: detoxBubbleEffect(bubble),
+					Inst: {
+						effectID: 21,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + bubble.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}, {
+		wav: "effect/ef_detoxication",
+		attachedEntity: true
+	}];
+}));
 // src/Renderer/Effects/CasterStrobe.js
 /**
 * Colour multiplier of the caster on a tick of the effect
@@ -289142,6 +289595,131 @@ var init_CasterStrobe = __esmMin((() => {
 		last: 60,
 		recoverStep: 8
 	};
+}));
+// src/Renderer/Effects/StealSparkSim.js
+/**
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} the sparks, in client units
+*/
+function planSparks$1(random = Math.random) {
+	const sparks = [];
+	for (let i = 0; i < STEAL.count; i++) {
+		const heading = r(random, 360);
+		const elevation = r(random, 100) - 50;
+		const dist = 4 + r(random, 4);
+		sparks.push({
+			heading,
+			start: {
+				x: Math.cos(rad(elevation)) * Math.cos(rad(heading)) * dist,
+				y: Math.cos(rad(elevation)) * Math.sin(rad(heading)) * dist,
+				up: Math.sin(rad(elevation)) * dist + STEAL.lift
+			},
+			speed: (50 + r(random, 50)) / 100,
+			rise: (60 + r(random, 90)) / 100,
+			scale: (100 + r(random, 100)) / 100
+		});
+	}
+	return sparks;
+}
+/**
+* Alpha (0-254) after k ticks of a life with the given fade start.
+*
+* @param {number} k
+* @param {number} life
+* @param {number} fadeStart
+* @return {number}
+*/
+function fadeAlpha(k, life, fadeStart) {
+	if (k < fadeStart) return 254;
+	return Math.max(254 * (life - 1 - k) / (life - fadeStart), 0);
+}
+/**
+* A spark after `age` ticks, or null once its life is over.
+*
+* @param {object} spark from planSparks
+* @param {number} age
+* @return {?object} { x, y, up } in client units from the target, scale, alpha 0-254
+*/
+function sparkAt(spark, age) {
+	const k = Math.floor(age);
+	if (k >= STEAL.life) return null;
+	const slow = spark.speed / STEAL.life / 2;
+	let dist = 0;
+	for (let m = 1; m <= k; m++) dist += Math.max(spark.speed - slow * m, 0);
+	const g = 2 * spark.rise / STEAL.life;
+	const up = spark.rise * k - g * k * (k + 1) / 2;
+	const h = rad(spark.heading);
+	return {
+		x: spark.start.x + Math.cos(h) * dist,
+		y: spark.start.y + Math.sin(h) * dist,
+		up: spark.start.up + up,
+		scale: spark.scale * (1 - k / STEAL.life),
+		alpha: fadeAlpha(k, STEAL.life, STEAL.fadeStart)
+	};
+}
+var STEAL, r, rad;
+var init_StealSparkSim = __esmMin((() => {
+	STEAL = {
+		count: 10,
+		life: 50,
+		fadeStart: 34,
+		lift: 10
+	};
+	r = (random, k) => Math.floor(random() * k);
+	rad = (d) => d * Math.PI / 180;
+}));
+// src/DB/Effects/StealEffect.js
+/**
+* The 3D effect drawing one spark, following the target.
+*
+* @param {object} spark from planSparks
+* @return {object}
+*/
+function stealSparkEffect(spark) {
+	return {
+		type: "3D",
+		spriteName: "particle7",
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: STEAL.life * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = sparkAt(spark, age);
+			if (!p) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: p.scale * 100,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+var stealEffect;
+var init_StealEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_StealSparkSim();
+	stealEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planSparks$1().forEach((spark, i) => {
+				this.spamEffect({
+					effect: stealSparkEffect(spark),
+					Inst: {
+						effectID: 18,
+						duplicateID: i,
+						startTick: Params.Inst.startTick
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}, {
+		wav: "effect/ef_steal",
+		attachedEntity: true
+	}];
 }));
 // src/Renderer/Effects/EnergyOrbSim.js
 /**
@@ -291196,15 +291774,19 @@ var init_EffectTable = __esmMin((() => {
 	init_SpiritSphere();
 	init_SkySunEffect();
 	init_StormSlashEffect();
+	init_SandAttackEffect();
 	init_ArrowShowerEffects();
 	init_ServantDemolitionEffect();
 	init_HastyFireInTheHoleEffect();
 	init_WarlockSphere();
 	init_CastCone();
 	init_CastCircle();
+	init_ThrowStoneEffect();
 	init_CastRing();
 	init_StreakLines();
+	init_DetoxifyEffect();
 	init_CasterStrobe();
+	init_StealEffect();
 	init_EnergyOrb();
 	init_SoulCollect();
 	init_RotateLine();
@@ -291976,26 +292558,7 @@ var init_EffectTable = __esmMin((() => {
 				fadeOutFrame: 15
 			}
 		],
-		18: [{
-			alphaMax: 1,
-			attachedEntity: false,
-			red: 1,
-			green: 1,
-			blue: .85,
-			duration: 500,
-			duplicate: 7,
-			timeBetweenDupli: 0,
-			fadeOut: true,
-			file: "effect/pok1.tga",
-			posxEndRand: 3.5,
-			posyEndRand: 3.5,
-			poszEndRand: 1,
-			poszEndRandMiddle: 3,
-			sizeEnd: 10,
-			sizeStart: 200,
-			type: "3D",
-			zIndex: 10
-		}, { wav: "effect/ef_steal" }],
+		18: [...stealEffect],
 		20: [{
 			alphaMax: 1,
 			attachedEntity: true,
@@ -292019,29 +292582,7 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true,
 			wav: "effect/ef_detoxication"
 		}],
-		21: [{
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1e3,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/pok1.tga",
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: .7,
-			size: 100,
-			sizeRand: 20,
-			type: "3D",
-			zIndex: 1
-		}, {
-			attachedEntity: true,
-			wav: "effect/ef_detoxication"
-		}],
+		21: [...detoxifyEffect],
 		22: [
 			{
 				type: "3D",
@@ -292497,12 +293038,83 @@ var init_EffectTable = __esmMin((() => {
 			head: true,
 			attachedEntity: true
 		}],
-		40: [{
-			type: "STR",
-			file: "cross",
-			wav: "effect/ef_signum",
-			attachedEntity: true
-		}],
+		40: [
+			{
+				type: "STR",
+				file: "cross",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_signum",
+				delayWav: 500
+			},
+			{
+				type: "CYLINDER",
+				delayStart: 500,
+				textureName: "alpha_down",
+				alphaMax: .6,
+				duration: 1e3,
+				rotate: true,
+				fade: true,
+				angleX: -90,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .1,
+				topSize: 2,
+				animation: 2,
+				zIndex: 1,
+				wav: "effect/ef_bash",
+				delayWav: 500,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				delayStart: 500,
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 1e3,
+				duplicate: 10,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				rotate: true,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 2.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				delayStart: 500,
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 1e3,
+				duplicate: 8,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				rotate: true,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
 		41: [{
 			type: "STR",
 			file: "angelus",
@@ -296237,24 +296849,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/p_failed",
 			attachedEntity: true
 		}],
-		308: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: .5,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}],
+		308: throwStoneEffect,
 		309: [{
 			type: "2D",
 			alphaMax: 80 / 255,
@@ -296381,6 +296976,7 @@ var init_EffectTable = __esmMin((() => {
 			renderBeforeEntities: true,
 			yOffset: 10
 		}],
+		310: sandAttackEffect,
 		311: [{
 			type: "STR",
 			file: "loud",
@@ -296506,8 +297102,7 @@ var init_EffectTable = __esmMin((() => {
 				rotate: true,
 				textureName: "ring_white",
 				topSize: 1,
-				type: "CYLINDER",
-				wav: "_heal_effect"
+				type: "CYLINDER"
 			},
 			{
 				alphaMax: .3,
@@ -296760,7 +297355,6 @@ var init_EffectTable = __esmMin((() => {
 				repeat: true,
 				repeatDelay: -300,
 				topSize: 3.9,
-				wav: "effect/ef_readyportal",
 				type: "CYLINDER"
 			},
 			{
@@ -297162,8 +297756,7 @@ var init_EffectTable = __esmMin((() => {
 				rotate: true,
 				textureName: "ring_white",
 				topSize: 1,
-				type: "CYLINDER",
-				wav: "_heal_effect"
+				type: "CYLINDER"
 			},
 			{
 				alphaMax: .3,
@@ -358974,7 +359567,7 @@ function onEntityUseSkill(pkt) {
 		if (srcEntity && dstEntity !== srcEntity) srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 		if (pkt.SKID === SkillConst_default.AL_HEAL || pkt.SKID === SkillConst_default.AB_HIGHNESSHEAL || pkt.SKID === SkillConst_default.AB_CHEAL) {
 			Damage.add(pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL);
-			SoundManager.playPosition("_heal_effect.wav", dstEntity.position);
+			if (pkt.SKID !== SkillConst_default.AL_HEAL) SoundManager.playPosition("_heal_effect.wav", dstEntity.position);
 		}
 		if (pkt.SKID === SkillConst_default.RG_STEALCOIN) ChatBox_default.addText("You got " + pkt.level + " zeny.", ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
 		if (pkt.SKID === SkillConst_default.GC_ROLLINGCUTTER) {
@@ -359322,15 +359915,12 @@ function onEntityStatusChange(pkt) {
 			entity.hasCart = pkt.state || !pkt.hasOwnProperty("state");
 			if (pkt.val && (pkt.state || !pkt.hasOwnProperty("state"))) entity.CartNum = pkt.val[0];
 			break;
-		case StatusConst_default.HIDING: {
-			const EF_Init_Par = {
-				effectId: EffectConst_default.EF_SUMMONSLAVE,
+		case StatusConst_default.HIDING:
+			if (pkt.state == 1 && entity.job != JobConst_default.NINJA && entity.job != JobConst_default.NINJA_B) EffectManager.spam({
+				effectId: EffectConst_default.EF_BASH,
 				ownerAID: pkt.AID
-			};
-			if (pkt.state == 1) EF_Init_Par.effectId = EffectConst_default.EF_BASH;
-			EffectManager.spam(EF_Init_Par);
+			});
 			break;
-		}
 		case StatusConst_default.FALCON:
 			if (pkt.state || !pkt.hasOwnProperty("state")) {
 				if (!entity.falcon) entity.falcon = new Entity();
