@@ -12782,7 +12782,20 @@ export default {
 		}
 	],
 
-	//599: [{}],	//EF_SHRINK	   Cast Time Sound and Flashing Animation on Player
+	599: [
+		{
+			//EF_SHRINK	   Cast Time Sound and Flashing Animation on Player
+			// Shrink (official client): EF_BeginSpell.wav on tick 5, then to tick 25 the
+			// Crusader flickers yellow (drawn adding light) and white each tick (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			delayWav: 5 * (1000 / 60),
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 26, 599), Params);
+			}
+		}
+	],
 
 	600: [
 		{

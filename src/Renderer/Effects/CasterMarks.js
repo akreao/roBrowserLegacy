@@ -2,7 +2,8 @@
  * Renderer/Effects/CasterMarks.js
  *
  * What the official client's cast effects 934 (Nightmare Erasion), 2373
- * (Shinkirou) and 502 (Spiral Pierce Max) do to the caster's own sprite. It
+ * (Shinkirou) and 502 (Spiral Pierce Max), and Shrink's 599, do to the
+ * caster's own sprite. It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
  * the marks.
  *
@@ -57,6 +58,12 @@ export const SCHEDULES = {
 		const on = age <= 140;
 		const even = age % 2 === 0;
 		return { add: on && even, glow: on, split: false, color: on ? (even ? YELLOW : WHITE) : null };
+	},
+	// Shrink: ticks 5 to 25 flickering yellow (added) and white, no glow copy.
+	599: age => {
+		const on = age >= 5 && age <= 25;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: false, split: false, color: on ? (even ? YELLOW : WHITE) : null };
 	}
 };
 
@@ -122,7 +129,7 @@ export default class CasterMarks {
 	 * @param {Entity} owner the caster
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
-	 * @param {number} effectId 934, 2373 or 502
+	 * @param {number} effectId 934, 2373, 502 or 599
 	 */
 	constructor(owner, startTick, frames, effectId) {
 		this.owner = owner || null;
