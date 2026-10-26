@@ -15,6 +15,29 @@ import Ground from 'Renderer/Map/Ground.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import Renderer from 'Renderer/Renderer.js';
 
+/** Reused copy of a layer drawn at another size. */
+const _scaledPos = [0, 0];
+const _scaledLayer = {};
+
+/**
+ * A layer as drawn at size factor `scale`: its offset grows with it, as the
+ * official client scales an effect sprite's whole frame. Scale 1 keeps the layer.
+ *
+ * @param {object} layer
+ * @param {number} scale
+ * @return {object}
+ */
+export function scaledLayer(layer, scale) {
+	if (scale === 1) {
+		return layer;
+	}
+	Object.assign(_scaledLayer, layer);
+	_scaledPos[0] = layer.pos[0] * scale;
+	_scaledPos[1] = layer.pos[1] * scale;
+	_scaledLayer.pos = _scaledPos;
+	return _scaledLayer;
+}
+
 // Default fog for STR attachments
 const _defaultFog = {
 	use: false,
@@ -81,6 +104,8 @@ class AttachmentManager {
 		attachment.stopAtEnd = attachment.stopAtEnd || false;
 		attachment.delay = attachment.delay || false;
 		attachment.renderBefore = attachment.renderBefore || false;
+		// Size factor for effect sprites the official client scales up (Lightning Jolt's 2.5)
+		attachment.scale = attachment.scale || 1.0;
 
 		if (attachment.completeFile) {
 			attachment.spr = attachment.completeFile + '.spr';
@@ -381,7 +406,14 @@ class AttachmentManager {
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			SpriteRenderer.zIndex = zIdx;
 			for (i = 0, count = layers.length; i < count; ++i) {
-				self.entity.renderLayer(layers[i], spr, spr, 1.0, _position, false);
+				self.entity.renderLayer(
+					scaledLayer(layers[i], attachment.scale),
+					spr,
+					spr,
+					attachment.scale,
+					_position,
+					false
+				);
 			}
 		});
 
