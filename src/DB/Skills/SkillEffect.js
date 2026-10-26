@@ -686,7 +686,9 @@ SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
 SkillEffect[SK.GS_TRACKING] = { damageEffectIdOnTarget: 647, hitEffectId: 0, hitEffectOnce: true }; //Tracking
 SkillEffect[SK.GS_DISARM] = { effectId: 627 }; //Disarm
 SkillEffect[SK.GS_PIERCINGSHOT] = {}; //Piercing Shot
-SkillEffect[SK.GS_RAPIDSHOWER] = { effectId: 643 }; //Rapid Shower
+// Official client: 643 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_RAPIDSHOWER] = { damageEffectIdOnTarget: 643, hitEffectId: 0, hitEffectOnce: true }; //Rapid Shower
 SkillEffect[SK.GS_DESPERADO] = { effectId: 637 }; //Desperado
 SkillEffect[SK.GS_GATLINGFEVER] = { successEffectId: 626 }; //Gatling Fever
 SkillEffect[SK.GS_DUST] = { effectId: 628 }; //Dust

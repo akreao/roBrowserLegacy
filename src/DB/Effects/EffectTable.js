@@ -13204,10 +13204,12 @@ export default {
 
 	643: [
 		{
-			//EF_RAPIDSHOWER	Rapid Shower
+			//EF_RAPIDSHOWER	Rapid Shower. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 20.
 			type: 'SPR',
 			file: '\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
 			wav: 'effect/\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
+			delayWav: 333, // tick 20
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true
 		}
 	],
