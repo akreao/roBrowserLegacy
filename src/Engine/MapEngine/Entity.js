@@ -54,6 +54,7 @@ import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { startFootprints } from 'Renderer/Effects/Footprints.js';
 import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
+import { sendFalcon } from 'Engine/MapEngine/FalconFlight.js';
 
 // Excludes for skill name display
 const SkillNameDisplayExclude = [
@@ -1709,21 +1710,8 @@ function onEntityUseSkillToAttack(pkt) {
 			}
 		}
 
-		if (srcEntity.falcon) {
-			if (pkt.SKID == SkillId.HT_BLITZBEAT || pkt.SKID == SkillId.SN_FALCONASSAULT) {
-				srcEntity.falcon.action = srcEntity.action;
-				srcEntity.falcon.walk.speed = 35;
-
-				srcEntity.falcon.walkToNonWalkableGround(
-					srcEntity.falcon.position[0],
-					srcEntity.falcon.position[1],
-					dstEntity.position[0],
-					dstEntity.position[1],
-					0,
-					true,
-					true
-				);
-			}
+		if (pkt.SKID == SkillId.HT_BLITZBEAT || pkt.SKID == SkillId.SN_FALCONASSAULT) {
+			sendFalcon(srcEntity, dstEntity.position[0], dstEntity.position[1]);
 		}
 
 		if (srcEntity.wug) {

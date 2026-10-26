@@ -3693,8 +3693,25 @@ export default {
 	119: [
 		{
 			//EF_DETECTING	Detect
+			// Official client, at the cell: a level square of white fashasha.tga
+			// streaks one cell up, spreading fast for 17 ticks and then slowly,
+			// fading out from tick 40 to its end on tick 57 (Kunai - Nightmare's
+			// flash, 812, with other timings and no tint).
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
 			wav: 'effect/hunter_detecting',
-			attachedEntity: true
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 17,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 40
 		}
 	],
 
