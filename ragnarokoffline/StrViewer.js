@@ -222710,7 +222710,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: [0, 10],
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.AC_CONCENTRATION] = { effectId: 153 };
+	SkillEffect[SkillConst_default.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 };
 	SkillEffect[SkillConst_default.AC_DOUBLE] = {
 		damageEffectIdOnTarget: "ef_arrow_projectile",
 		hitEffectId: [0, 1]
