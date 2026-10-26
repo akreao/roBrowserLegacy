@@ -52,4 +52,18 @@ describe('Summoner skill effects', () => {
 	it("Meow Meow plays Chattering's effect on use success", () => {
 		expect(row('SU_MEOWMEOW')).toBe("{ successEffectId: 'ef_su_chattering' }");
 	});
+	it("Fresh Shrimp plays on use success only", () => {
+		expect(row('SU_FRESHSHRIMP')).toBe("{ successEffectId: 'ef_su_freshshrimp' }");
+	});
+
+	it("Tasty Shrimp Party plays on use success", () => {
+		expect(row('SU_SHRIMPARTY')).toBe("{ successEffectId: 'ef_su_shrimparty' }");
+	});
+
+	it('Tasty Shrimp Party is Fresh Shrimp with su_shrimpparty.wav', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const block = table.match(/\tef_su_shrimparty: \[([\s\S]*?)\r?\n\t\],/)[1];
+		expect(block).toContain("file: 'su_freshshrimp/su_freshshrimp'");
+		expect(block).toContain("wav: 'effect/su_shrimpparty'");
+	});
 });

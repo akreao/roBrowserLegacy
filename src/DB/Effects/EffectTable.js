@@ -25892,6 +25892,17 @@ export default {
 		}
 	],
 
+	// Tasty Shrimp Party (SU_SHRIMPARTY): the official client plays Fresh Shrimp's
+	// STR (effect 1098) with su_shrimpparty.wav, from skilleffectinfo.
+	ef_su_shrimparty: [
+		{
+			type: 'STR',
+			file: 'su_freshshrimp/su_freshshrimp',
+			texturePath: 'su_freshshrimp/',
+			wav: 'effect/su_shrimpparty'
+		}
+	],
+
 	// Power of Flock (SU_POWEROFFLOCK), from the client's own effect folders.
 	ef_su_powerofflock: [
 		{

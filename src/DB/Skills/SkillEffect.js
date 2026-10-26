@@ -1816,7 +1816,8 @@ SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
 SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
 SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
-SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
+// Fresh Shrimp: on the use packet's target when it succeeds, silent (effect 1098).
+SkillEffect[SK.SU_FRESHSHRIMP] = { successEffectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
 // Power of Flock: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //Power of Flock
@@ -1828,7 +1829,8 @@ SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
 SkillEffect[SK.SU_GROOMING] = { successEffectId: 'ef_su_grooming' }; //Grooming
 // Purring: the official client plays Grooming's effect (1123, su_grooming.wav) for it.
 SkillEffect[SK.SU_PURRING] = { successEffectId: 'ef_su_grooming' }; //Purring
-SkillEffect[SK.SU_SHRIMPARTY] = {}; //Tasty Shrimp Party
+// Tasty Shrimp Party: Fresh Shrimp's STR with su_shrimpparty.wav, on use success.
+SkillEffect[SK.SU_SHRIMPARTY] = { successEffectId: 'ef_su_shrimparty' }; //Tasty Shrimp Party
 // Meow Meow: the official client plays Chattering's effect (1124) with su_chattering.wav.
 SkillEffect[SK.SU_MEOWMEOW] = { successEffectId: 'ef_su_chattering' }; //Meow Meow
 // Chattering: on the use packet's target when it succeeds.
