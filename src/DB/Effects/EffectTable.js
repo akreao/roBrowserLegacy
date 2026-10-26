@@ -19142,6 +19142,13 @@ export default {
 		}
 	],
 
+	// Gravitation Field's ground packet: the official client plays wizard_earthspike.wav at the cell.
+	ef_gravitation_wav: [
+		{
+			wav: 'effect/wizard_earthspike'
+		}
+	],
+
 	ef_magicpower: [
 		{
 			wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
