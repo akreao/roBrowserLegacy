@@ -547,7 +547,7 @@ SkillEffect[SK.ST_REJECTSWORD] = { effectId: 392 }; //Counter Instinct
 SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
 SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
 // Clown & Gypsy
-SkillEffect[SK.CG_ARROWVULCAN] = { effectId: 393, beforeHitEffectId: 'ef_arrow_projectile' }; //Vulcan Arrow
+SkillEffect[SK.CG_ARROWVULCAN] = { damageEffectIdOnCaster: 393, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1], hitEffectOnce: true }; //Vulcan Arrow
 SkillEffect[SK.CG_MOONLIT] = { effectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
 SkillEffect[SK.CG_MARIONETTE] = { effectId: 395, hitEffectId: 396 }; //Marionette Control
 // Lord Knight

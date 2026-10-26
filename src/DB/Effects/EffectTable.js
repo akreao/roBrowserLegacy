@@ -9156,7 +9156,10 @@ export default {
 	393: [
 		{
 			//EF_TRIPLEATTACK3	   Arrow Vulcan
-			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad'
+			// On the caster as each damage packet arrives; the client plays the sound on its tick 30.
+			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad',
+			delayWav: 500,
+			attachedEntity: true
 		}
 	],
 
