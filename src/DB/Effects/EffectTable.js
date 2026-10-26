@@ -49,6 +49,7 @@ import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
+import { stealEffect } from 'DB/Effects/StealEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
@@ -1267,30 +1268,8 @@ export default {
 	],
 
 	18: [
-		{
-			//EF_STEAL	Steal
-			alphaMax: 1,
-			attachedEntity: false,
-			red: 1,
-			green: 1,
-			blue: 0.85,
-			duration: 500,
-			duplicate: 7,
-			timeBetweenDupli: 0,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			posxEndRand: 3.5,
-			posyEndRand: 3.5,
-			poszEndRand: 1,
-			poszEndRandMiddle: 3,
-			sizeEnd: 10,
-			sizeStart: 200,
-			type: '3D',
-			zIndex: 10
-		},
-		{
-			wav: 'effect/ef_steal'
-		}
+		// EF_STEAL, Steal: the client's 10 particle7 sparks and EF_Steal.wav (StealEffect.js)
+		...stealEffect
 	],
 
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
