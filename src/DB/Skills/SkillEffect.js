@@ -1829,8 +1829,10 @@ SkillEffect[SK.SU_GROOMING] = { successEffectId: 'ef_su_grooming' }; //Grooming
 // Purring: the official client plays Grooming's effect (1123, su_grooming.wav) for it.
 SkillEffect[SK.SU_PURRING] = { successEffectId: 'ef_su_grooming' }; //Purring
 SkillEffect[SK.SU_SHRIMPARTY] = {}; //Tasty Shrimp Party
-SkillEffect[SK.SU_MEOWMEOW] = {}; //Meow Meow
-SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering
+// Meow Meow: the official client plays Chattering's effect (1124) with su_chattering.wav.
+SkillEffect[SK.SU_MEOWMEOW] = { successEffectId: 'ef_su_chattering' }; //Meow Meow
+// Chattering: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_CHATTERING] = { successEffectId: 'ef_su_chattering' }; //Chattering
 // Wedding Skills 3
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever
