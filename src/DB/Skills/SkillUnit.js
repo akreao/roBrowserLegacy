@@ -186,5 +186,6 @@ SkillUnitTrigger[SU.UNT_BLASTMINE] = [EC.EF_BLASTMINEBOMB];
 SkillUnitTrigger[SU.UNT_CLAYMORETRAP] = [EC.EF_CLAYMORE];
 SkillUnitTrigger[SU.UNT_FREEZINGTRAP] = [EC.EF_FREEZING];
 SkillUnitTrigger[SU.UNT_SANDMAN] = [EC.EF_SANDMAN];
+SkillUnitTrigger[SU.UNT_FLASHER] = [EC.EF_FLASHER];
 
 export default SkillUnit;
