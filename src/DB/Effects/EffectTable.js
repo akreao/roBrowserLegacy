@@ -3566,6 +3566,7 @@ export default {
 			type: 'STR',
 			file: 'blastmine',
 			wav: 'effect/hunter_blastmine', //hun_blastmine
+			delayWav: 333, // official: the sound on tick 20
 			attachedEntity: false
 		}
 	],
