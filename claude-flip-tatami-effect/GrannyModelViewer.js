@@ -223464,14 +223464,14 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GS_FULLBUSTER] = { effectId: 584 };
 	SkillEffect[SkillConst_default.GS_SPREADATTACK] = { effectId: 645 };
 	SkillEffect[SkillConst_default.GS_GROUNDDRIFT] = {};
-	SkillEffect[SkillConst_default.NJ_SYURIKEN] = { beforeHitEffectId: 613 };
-	SkillEffect[SkillConst_default.NJ_KUNAI] = { beforeHitEffectId: 614 };
-	SkillEffect[SkillConst_default.NJ_HUUMA] = { beforeHitEffectId: 615 };
-	SkillEffect[SkillConst_default.NJ_ZENYNAGE] = { beforeHitEffectId: 616 };
+	SkillEffect[SkillConst_default.NJ_SYURIKEN] = { damageEffectIdOnCaster: 613 };
+	SkillEffect[SkillConst_default.NJ_KUNAI] = { damageEffectIdOnCaster: 614 };
+	SkillEffect[SkillConst_default.NJ_HUUMA] = { damageEffectIdOnCaster: 615 };
+	SkillEffect[SkillConst_default.NJ_ZENYNAGE] = { damageEffectIdOnCaster: 616 };
 	SkillEffect[SkillConst_default.NJ_TATAMIGAESHI] = { successEffectId: "ef_flip_tatami_sound" };
-	SkillEffect[SkillConst_default.NJ_KASUMIKIRI] = { effectId: 632 };
+	SkillEffect[SkillConst_default.NJ_KASUMIKIRI] = { damageEffectIdOnTarget: 632 };
 	SkillEffect[SkillConst_default.NJ_SHADOWJUMP] = {};
-	SkillEffect[SkillConst_default.NJ_KIRIKAGE] = { effectId: 630 };
+	SkillEffect[SkillConst_default.NJ_KIRIKAGE] = { damageEffectIdOnTarget: 630 };
 	SkillEffect[SkillConst_default.NJ_UTSUSEMI] = {};
 	SkillEffect[SkillConst_default.NJ_BUNSINJYUTSU] = { effectId: 617 };
 	SkillEffect[SkillConst_default.NJ_KOUENKA] = { effectId: 618 };
@@ -277225,6 +277225,26 @@ var init_DruidWindSim = __esmMin((() => {
 		-.1
 	];
 }));
+// src/Renderer/Effects/SpriteAction.js
+/**
+* Renderer/Effects/SpriteAction.js
+*
+* Which action of an effect sprite an SPR row plays. A row's `frame` is a
+* number, or a list of actions to pick one from at random each time it plays:
+* the official client picks some effect sprites' action so (Shadow Slash's
+* 그림자베기 plays action 0 or 4). Spec: effect-port/ninja-skills.md.
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* @param {number|number[]} [frame] the row's frame
+* @param {function} [random] returns 0 <= x < 1
+* @return {number|undefined}
+*/
+function spriteAction(frame, random = Math.random) {
+	return Array.isArray(frame) ? frame[Math.floor(random() * frame.length)] : frame;
+}
+var init_SpriteAction = __esmMin((() => {}));
 // src/Renderer/EffectManager.js
 /**
 * Create a new EF_Init_Par object and attach existing call params
@@ -277321,7 +277341,7 @@ function spamSprite(Params) {
 		stopAtEnd: Params.effect.stopAtEnd,
 		xOffset: Params.effect.xOffset,
 		yOffset: Params.effect.yOffset,
-		frame: Params.effect.frame,
+		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
 		renderBefore: !!Params.effect.renderBeforeEntities
 	});
@@ -277446,6 +277466,7 @@ var init_EffectManager = __esmMin((() => {
 	init_HastyFireInTheHoleEffect();
 	init_StormSlashEffect();
 	init_DruidWindSim();
+	init_SpriteAction();
 	_list$3 = {};
 	_uniqueId = 1;
 	targetableUnits = [SkillUnitConst_default.UNT_ICEWALL, SkillUnitConst_default.UNT_REVERBERATION];
@@ -288663,18 +288684,20 @@ var init_CastCircle = __esmMin((() => {
 /**
 * @param {number[]} from start [x, y, height] in units
 * @param {number[]} to end [x, y, height] in units
+* @param {object} [kind] STONE or NINJA_ITEM
 * @return {object} the throw
 */
-function planThrow(from, to) {
+function planThrow(from, to, kind = STONE) {
 	const dx = to[0] - from[0];
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
 	return {
+		kind,
 		from,
 		dist,
 		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
-		climb: dist > 0 ? STONE.speed / dist * (to[2] - from[2]) : 0,
-		ticks: Math.floor(dist / STONE.speed) + 1
+		climb: dist > 0 ? kind.speed / dist * (to[2] - from[2]) : 0,
+		ticks: Math.floor(dist / kind.speed) + 1
 	};
 }
 /**
@@ -288685,15 +288708,16 @@ function planThrow(from, to) {
 * @return {object} { x, y, up } in units (up from the caster's ground), alpha 0-255, angle
 */
 function stoneAt(t, k) {
+	const kind = t.kind;
 	let moves = 0;
-	while (moves < k && (moves + 1) / t.ticks <= STONE.moveUntil) moves++;
+	while (moves < k && (moves + 1) / t.ticks <= kind.moveUntil) moves++;
 	const s = Math.min(moves / t.ticks, 1);
 	return {
-		x: t.from[0] + t.dir[0] * STONE.speed * moves,
-		y: t.from[1] + t.dir[1] * STONE.speed * moves,
-		up: STONE.lift + t.climb * moves + STONE.arc * Math.sin(Math.PI * s),
-		alpha: Math.max(255 - STONE.fade * (k - moves), 0),
-		angle: STONE.spin * k % 360
+		x: t.from[0] + t.dir[0] * kind.speed * moves,
+		y: t.from[1] + t.dir[1] * kind.speed * moves,
+		up: kind.lift + t.climb * moves + kind.arc * Math.sin(Math.PI * s),
+		alpha: Math.max(255 - kind.fade * (k - moves), 0),
+		angle: (kind.startAngle + kind.spin * k) % 360
 	};
 }
 /**
@@ -288712,18 +288736,19 @@ function trailAt(t, i, k) {
 	if (j - 2 * i < 3) return null;
 	const p = stoneAt(t, j - 1 - 2 * i);
 	let alpha = p.alpha;
-	for (let n = 0; n <= i; n++) alpha -= STONE.trail[n];
+	for (let n = 0; n <= i; n++) alpha -= t.kind.trail[n];
 	if (alpha < 1) return null;
 	p.alpha = alpha;
 	return p;
 }
-var STONE, STONE_TEXTURE;
+var STONE, NINJA_ITEM, STONE_TEXTURE;
 var init_ThrownStoneSim = __esmMin((() => {
 	STONE = {
 		speed: 2,
 		lift: 8,
 		arc: 10,
 		spin: 10,
+		startAngle: 0,
 		moveUntil: 1.05,
 		fade: 20,
 		half: 2,
@@ -288733,29 +288758,43 @@ var init_ThrownStoneSim = __esmMin((() => {
 			25
 		]
 	};
+	NINJA_ITEM = Object.assign({}, STONE, {
+		speed: 3,
+		arc: 1,
+		spin: 45,
+		startAngle: 330,
+		half: 4,
+		color: [
+			255,
+			200,
+			255
+		]
+	});
 	STONE_TEXTURE = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp";
 }));
 // src/DB/Effects/ThrowStoneEffect.js
 /**
-* Last update the stone shows: it stops after floor(1.05 n) updates, then fades 20 a tick.
+* Last update the item shows: it stops after floor(1.05 n) updates, then fades 20 a tick.
 *
 * @param {object} t from planThrow
 * @return {number}
 */
 function lastStoneTick(t) {
-	return Math.floor(STONE.moveUntil * t.ticks) + Math.ceil(255 / STONE.fade);
+	return Math.floor(t.kind.moveUntil * t.ticks) + Math.ceil(255 / t.kind.fade);
 }
 /**
-* The 3D effect drawing the stone (copy -1) or trailing copy i.
+* The 3D effect drawing the item (copy -1) or trailing copy i.
 *
 * @param {object} t from planThrow, in units from the caster
 * @param {number} copy
+* @param {string} [file] texture
 * @return {object}
 */
-function stoneEffect(t, copy) {
-	return {
+function stoneEffect(t, copy, file = STONE_TEXTURE) {
+	const color = t.kind.color;
+	return Object.assign({
 		type: "3D",
-		file: STONE_TEXTURE,
+		file,
 		alphaMax: 1,
 		attachedEntity: false,
 		duration: (lastStoneTick(t) + 1) * PRIM_TICK_MS,
@@ -288768,19 +288807,27 @@ function stoneEffect(t, copy) {
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * STONE.half * SIZE_PER_UNIT,
+				size: 2 * t.kind.half * SIZE_PER_UNIT,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
 		}
-	};
+	}, color && {
+		red: color[0] / 255,
+		green: color[1] / 255,
+		blue: color[2] / 255
+	});
 }
-var SIZE_PER_UNIT, throwStoneEffect;
-var init_ThrowStoneEffect = __esmMin((() => {
-	init_EffectPrimSim();
-	init_ThrownStoneSim();
-	SIZE_PER_UNIT = 7;
-	throwStoneEffect = [{
+/**
+* EffectTable row for a thrown item.
+*
+* @param {number} effectID
+* @param {string} file texture
+* @param {object} kind STONE or NINJA_ITEM
+* @return {Array}
+*/
+function thrownItemRow(effectID, file, kind) {
+	return [{
 		type: "FUNC",
 		attachedEntity: true,
 		func: function(Params) {
@@ -288800,7 +288847,7 @@ var init_ThrowStoneEffect = __esmMin((() => {
 				0,
 				1,
 				2
-			].map((i) => (target[i] - caster[i]) * 5));
+			].map((i) => (target[i] - caster[i]) * 5), kind);
 			[
 				-1,
 				0,
@@ -288808,9 +288855,9 @@ var init_ThrowStoneEffect = __esmMin((() => {
 				2
 			].forEach((copy, i) => {
 				this.spamEffect({
-					effect: stoneEffect(t, copy),
+					effect: stoneEffect(t, copy, file),
 					Inst: {
-						effectID: 308,
+						effectID,
 						duplicateID: i,
 						startTick: Params.Inst.startTick
 					},
@@ -288819,6 +288866,21 @@ var init_ThrowStoneEffect = __esmMin((() => {
 			});
 		}
 	}];
+}
+var SIZE_PER_UNIT, ITEM, NINJA_TEXTURES, throwStoneEffect, ninjaThrowEffects;
+var init_ThrowStoneEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_ThrownStoneSim();
+	SIZE_PER_UNIT = 7;
+	ITEM = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/";
+	NINJA_TEXTURES = {
+		613: ITEM + "¼ö¸®°Ë.bmp",
+		614: ITEM + "Äí³ªÀÌ_µ¶.bmp",
+		615: ITEM + "Ç³¸¶_¿­È­.bmp",
+		616: "effect/coin_a.bmp"
+	};
+	throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
+	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
 }));
 // src/Renderer/Effects/CastRingSim.js
 /**
@@ -302093,78 +302155,10 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/itempokjuk",
 			attachedEntity: true
 		}],
-		613: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¼ö¸®°Ë.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		614: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Äí³ªÀÌ_µ¶.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		615: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Ç³¸¶_³ú¿ì.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		616: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/coin_a.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}],
+		613: ninjaThrowEffects[613],
+		614: ninjaThrowEffects[614],
+		615: ninjaThrowEffects[615],
+		616: ninjaThrowEffects[616],
 		618: [{
 			type: "STR",
 			file: "firehit",
@@ -302248,6 +302242,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "±×¸²ÀÚº£±â",
 			wav: "effect/±×¸²ÀÚº£±â",
+			frame: [0, 4],
+			delayFrame: 4 * (1e3 / 60),
 			attachedEntity: true
 		}],
 		631: [{
@@ -302263,6 +302259,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "¾È°³º£±â",
 			wav: "effect/¾È°³º£±â",
+			frame: [0, 2],
+			delayFrame: 4 * (1e3 / 60),
 			attachedEntity: true
 		}],
 		633: [{
