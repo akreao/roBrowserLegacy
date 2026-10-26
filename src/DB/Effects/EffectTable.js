@@ -5955,8 +5955,12 @@ export default {
 			textureName: 'ring_yellow',
 			topSize: 5,
 			attachedEntity: true
-		},
+		}
+	],
+
+	monk_fury_sound: [
 		{
+			// mon_폭기.wav: the official client plays it with Fury's use packet, not with effect 261
 			wav: 'effect/mon_\xc6\xf8\xb1\xe2',
 			attachedEntity: true
 		}
