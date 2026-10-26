@@ -19,6 +19,7 @@ import CostumeSpriteEffects from 'DB/Effects/CostumeSpriteEffects.js';
 import BodyEffects from 'DB/Effects/BodyEffects.js';
 import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
+import CloseConfineEffect from 'DB/Effects/CloseConfineEffect.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
 import SoundManager from 'Audio/SoundManager.js';
@@ -12821,11 +12822,12 @@ export default {
 
 	604: [
 		{
-			//EF_NPC_STOP2	Close Confine (Ground Effect)
+			//EF_NPC_STOP2	Close Confine, on both actors while the status is on (StatusEffectTable):
+			// silent, 12 ticks a frame, stays on its last frame
 			type: 'SPR',
 			file: 'cconfine',
 			attachedEntity: true,
-			wav: 'effect/ef_hit6',
+			delayFrame: 200,
 			stopAtEnd: true
 		}
 	],
@@ -27631,5 +27633,8 @@ export default {
 	...TaekwonBodyEffects,
 
 	// The Gunslinger body glows (Fling, Madness Canceller, Adjustment, Gatling Fever): GunslingerBodyEffects.js.
-	...GunslingerBodyEffects
+	...GunslingerBodyEffects,
+
+	// Close Confine on its target (quake, red flicker): CloseConfineEffect.js.
+	...CloseConfineEffect
 };

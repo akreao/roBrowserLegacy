@@ -56,6 +56,17 @@ export default {
 		loop: ['ef_ske_rising_moon_05']
 	},
 
+	// Close Confine (RG_CLOSECONFINE): the official client puts 604 (cconfine.spr)
+	// on the caster and the target while their status is on, replacing an old copy.
+	[StatusConst.RG_CCONFINE_M]: {
+		start: [604],
+		stop: [604]
+	},
+	[StatusConst.RG_CCONFINE_S]: {
+		start: [604],
+		stop: [604]
+	},
+
 	// Intensive Aim (NW_INTENSIVE_AIM): the server raises the count from 1 to 10
 	// while the stance is on; each value shows its own stage of the gauge, and
 	// 10 adds the full glow. The stages stay until the stance ends.
