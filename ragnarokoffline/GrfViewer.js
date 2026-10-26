@@ -223475,7 +223475,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GS_FLING] = {};
 	SkillEffect[SkillConst_default.GS_TRIPLEACTION] = { effectId: 648 };
 	SkillEffect[SkillConst_default.GS_BULLSEYE] = { effectId: 649 };
-	SkillEffect[SkillConst_default.GS_MADNESSCANCEL] = { effectId: 625 };
+	SkillEffect[SkillConst_default.GS_MADNESSCANCEL] = { successEffectId: 625 };
 	SkillEffect[SkillConst_default.GS_ADJUSTMENT] = { effectId: 626 };
 	SkillEffect[SkillConst_default.GS_INCREASING] = {
 		effectId: [456, "ef_gs_increasing"],
@@ -285623,15 +285623,29 @@ function applyMarks(marks, ox, oy, w, h, random = Math.random) {
 	};
 }
 /**
-* Ready glow alpha (0-255) the owner's marks ask for this tick, or 0.
+* The glows the owner's marks ask for this tick, blue first, as the client
+* draws them: each { color: [r, g, b] 0-255, alpha: 0-255 }.
 *
 * @param {object[]} marks
-* @return {number}
+* @return {object[]}
 */
-function glowAlpha(marks) {
-	let alpha = 0;
-	for (let i = 0; i < marks.length; i++) if (marks[i].ready !== void 0) alpha = Math.max(alpha, readyAlpha(marks[i].ready));
-	return alpha;
+function glowLayers(marks) {
+	let blue = 0;
+	let red = 0;
+	for (let i = 0; i < marks.length; i++) {
+		if (marks[i].ready !== void 0) blue = Math.max(blue, readyAlpha(marks[i].ready));
+		if (marks[i].red !== void 0) red = Math.max(red, readyAlpha(marks[i].red));
+	}
+	const layers = [];
+	if (blue > 0) layers.push({
+		color: READY_COLOR,
+		alpha: blue
+	});
+	if (red > 0) layers.push({
+		color: RED_COLOR,
+		alpha: red
+	});
+	return layers;
 }
 /**
 * The marks every live body effect puts on an entity this tick.
@@ -285648,13 +285662,18 @@ function marksOf(entity) {
 	});
 	return marks;
 }
-var DEG$8, READY_COLOR, SCHEDULES$1;
+var DEG$8, READY_COLOR, RED_COLOR, SCHEDULES$1;
 var init_BodyMotionSim = __esmMin((() => {
 	DEG$8 = Math.PI / 180;
 	READY_COLOR = [
 		5,
 		5,
 		255
+	];
+	RED_COLOR = [
+		255,
+		5,
+		5
 	];
 	SCHEDULES$1 = {
 		413: (age) => age >= 17 && age <= 50 ? { press: age - 17 } : null,
@@ -285663,7 +285682,10 @@ var init_BodyMotionSim = __esmMin((() => {
 		426: () => ({ quake: true }),
 		449: (age) => age < 51 ? { ready: age } : null,
 		458: () => ({ quake: true }),
-		466: (age) => age >= 14 && age < 50 ? { spin: age - 14 } : null
+		466: (age) => age >= 14 && age < 50 ? { spin: age - 14 } : null,
+		548: (age) => age <= 16 ? { red: age * 3 } : null,
+		625: (age) => age % 4 === 0 ? { ready: 20 } : null,
+		626: (age) => age % 4 === 0 ? { red: 20 } : null
 	};
 }));
 // src/Renderer/Effects/BodyMotion.js
@@ -285680,7 +285702,7 @@ var init_BodyMotion = __esmMin((() => {
 		/**
 		* @param {Entity} owner
 		* @param {number} startTick
-		* @param {number} effectId 413, 414, 415, 426, 449, 458 or 466
+		* @param {number} effectId 413, 414, 415, 426, 449, 458, 466, 548, 625 or 626
 		* @param {number} frames lifetime in ticks (1/60 s)
 		*/
 		constructor(owner, startTick, effectId, frames) {
@@ -285763,6 +285785,32 @@ var init_TaekwonBodyEffects = __esmMin((() => {
 			delayWav: at(5),
 			attachedEntity: true
 		}, bodyMotion(466, 50)]
+	};
+}));
+// src/DB/Effects/GunslingerBodyEffects.js
+/**
+* The body glow of effect `effectId`, for `frames` ticks.
+*
+* @param {number} effectId
+* @param {number} frames
+* @return {object} effect table entry
+*/
+function bodyGlow(effectId, frames) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.add(new BodyMotion(Params.Init.ownerEntity, Params.Inst.startTick, effectId, frames), Params);
+		}
+	};
+}
+var GunslingerBodyEffects_default;
+var init_GunslingerBodyEffects = __esmMin((() => {
+	init_BodyMotion();
+	GunslingerBodyEffects_default = {
+		548: [bodyGlow(548, 60)],
+		625: [bodyGlow(625, 60)],
+		626: [bodyGlow(626, 60)]
 	};
 }));
 // src/Renderer/Effects/Tiles.vs?raw
@@ -292259,6 +292307,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CostumeSpriteEffects();
 	init_BodyEffects();
 	init_TaekwonBodyEffects();
+	init_GunslingerBodyEffects();
 	init_Songs();
 	init_SoundManager();
 	init_Events();
@@ -312532,7 +312581,8 @@ var init_EffectTable = __esmMin((() => {
 		...table,
 		...CostumeSpriteEffects_default,
 		...BodyEffects_default,
-		...TaekwonBodyEffects_default
+		...TaekwonBodyEffects_default,
+		...GunslingerBodyEffects_default
 	};
 }));
 // src/Vendors/liblua5.1.wasm?url
@@ -341902,8 +341952,8 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 	}
 }
 /**
-* Taekwon ready glow (EF_TAE_READY, BodyMotion.js): the layers drawn twice
-* more, added, in blue at the given alpha.
+* Body glow (BodyMotion.js: Taekwon ready glow, Gunslinger blue and red
+* glows): the layers drawn twice more, added, in one colour at one alpha.
 *
 * @param {Entity} entity
 * @param {Array} layers
@@ -341911,17 +341961,18 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 * @param {object} pal
 * @param {object} files
 * @param {number[]} _position
+* @param {number[]} glowColor [r, g, b] 0-255
 * @param {number} alpha 0-255
 */
-function renderReadyGlow(entity, layers, spr, pal, files, _position, alpha) {
+function renderReadyGlow(entity, layers, spr, pal, files, _position, glowColor, alpha) {
 	const color = entity.effectColor;
 	const r = color[0];
 	const g = color[1];
 	const b = color[2];
 	const a = color[3];
-	color[0] = READY_COLOR[0] / 255;
-	color[1] = READY_COLOR[1] / 255;
-	color[2] = READY_COLOR[2] / 255;
+	color[0] = glowColor[0] / 255;
+	color[1] = glowColor[1] / 255;
+	color[2] = glowColor[2] / 255;
 	color[3] = alpha / 255;
 	for (let k = 0; k < 2; k++) for (let i = 0; i < layers.length; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, "glow", true);
 	color[0] = r;
@@ -342564,8 +342615,8 @@ var init_EntityRender = __esmMin((() => {
 			if (type !== "shadow" && type !== "cartshadow" && (entity._castGlow > 0 || entity._splitImageAge >= 0)) renderCasterMarks(entity, layers, spr, pal, files, _position);
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 			if (type !== "shadow" && type !== "cartshadow" && entity._bodyMotions && entity._bodyMotions.size) {
-				const alpha = glowAlpha(marksOf(entity));
-				if (alpha > 0) renderReadyGlow(entity, layers, spr, pal, files, _position, alpha);
+				const glows = glowLayers(marksOf(entity));
+				for (let g = 0; g < glows.length; g++) renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
 			}
 			if (is_main && type === "body" && entity.waterDepthFrame === null) {
 				const frame = entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: /* @__PURE__ */ new Int32Array(2) });
