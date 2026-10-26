@@ -42,6 +42,9 @@
  *	- damageEffectIdOnTarget:	Triggers on the target as soon as each damage packet of the skill arrives (splash
  *								and misses included). An entry that is a list plays one of its effects, picked at random.
  *
+ *	- splashEffectIdOnTarget:	Triggers on the target as a damage packet of the skill arrives with skill level -1,
+ *								the server's mark on the targets a splash reaches (Venom Splasher's burst).
+ *
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
  *								Can be used to create casting effects.
  *
@@ -257,7 +260,7 @@ SkillEffect[SK.AS_GRIMTOOTH] = { damageEffectIdOnCaster: 123, hitEffectId: [0, 1
 SkillEffect[SK.AS_ENCHANTPOISON] = { successEffectId: 125 }; //Enchant Poison
 SkillEffect[SK.AS_POISONREACT] = { successEffectId: 126, hitEffectId: 0, hitEffectOnce: true }; //Poison React
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
-SkillEffect[SK.AS_SPLASHER] = { effectId: 129 }; //Venom Splasher
+SkillEffect[SK.AS_SPLASHER] = { successEffectId: 125, splashEffectIdOnTarget: 129, hitEffectId: 0, hitEffectOnce: true }; //Venom Splasher
 // 1st Class Quest
 SkillEffect[SK.NV_FIRSTAID] = { effectId: 309 }; //First Aid
 SkillEffect[SK.NV_TRICKDEAD] = {}; //Play Dead

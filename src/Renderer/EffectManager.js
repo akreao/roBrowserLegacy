@@ -1312,6 +1312,32 @@ class EffectManager {
 	}
 
 	/**
+	 * Spam splashEffectIdOnTarget on the target of a damage packet that carries
+	 * skill level -1: the server's mark on the targets a splash reaches (Venom
+	 * Splasher's burst; the central target gets -2 and plays nothing).
+	 *
+	 * @param {number} skillId skill id
+	 * @param {number} destAID target aid
+	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} level the packet's skill level
+	 */
+	static spamSkillSplashMark(skillId, destAID, tick, srcAID, level) {
+		const skill = SkillEffect[skillId];
+		if (!skill || !skill.splashEffectIdOnTarget || level !== -1 || !destAID) {
+			return;
+		}
+		[skill.splashEffectIdOnTarget].flat().forEach(effectId => {
+			EffectManager.spam({
+				effectId: effectId,
+				ownerAID: destAID,
+				startTick: tick,
+				otherAID: srcAID
+			});
+		});
+	}
+
+	/**
 	 * Spam skill effects as a damage packet arrives, before the hit lands
 	 * (damageEffectIdOnCaster, damageEffectIdOnTarget). Every damage packet
 	 * counts, splash and misses included.

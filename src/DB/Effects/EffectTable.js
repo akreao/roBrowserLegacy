@@ -3806,10 +3806,11 @@ export default {
 
 	129: [
 		{
-			//EF_SPLASHER	Venom Splasher Explosion
+			//EF_SPLASHER	Venom Splasher burst, on each target the splash reaches; the sound on tick 10
 			type: 'STR',
 			file: 'venomsplasher',
 			wav: 'effect/assasin_venomsplasher',
+			delayWav: 10 * (1000 / 60),
 			attachedEntity: true
 		}
 	],
