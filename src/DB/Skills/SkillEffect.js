@@ -23,6 +23,9 @@
  *	- hitEffectId: 				Triggers on every hit with damage (including every hit of a multi hit skill) on the receiving entity.
  *								Can be used to create damage effects.
  *
+ *	- hitEffectOnce: 			true: hitEffectId and hitEffectIdOnCaster trigger on the first hit of each damage
+ *								packet only, as the official client plays them when a character deals the damage.
+ *
  *	- beforeHitEffectId: 		Triggers before every hit (including every hit of a multi hit skill) and after the cast.
  *								Can be used to create pre-damage effects like flying balls and others.
  *								Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.
@@ -96,18 +99,26 @@ SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, damageEffectIdOnCaste
 SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
-SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
+// Official client: no effect of its own (32 EF_NAPALMBEAT is never played for it); each hit that lands
+// plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: [0, 1] }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
-SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
+// Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
+// then 51 (cold hit) once when the damage lands. See effect-port/bolts.md.
+SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51, hitEffectOnce: true }; //Cold Bolt
 // Official client: 27 on the caster as the damage packet arrives (ice spikes along the line to the target),
 // then 51 (cold hit) and 28 (ice spikes bursting from the target) when the damage lands.
 // See effect-port/frost-diver.md.
 SkillEffect[SK.MG_FROSTDIVER] = { damageEffectIdOnCaster: 27, hitEffectId: [51, 28] }; //Frost Diver
-SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
+// Official client: when the use packet reports success, 23 (StoneCurse.str) on the target and
+// _stonecurse.wav at the target. Nothing on a failed attempt. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_STONECURSE] = { successEffectId: [23, 'stonecurse_sound'] }; //Stone Curse
 SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
-SkillEffect[SK.MG_FIREBOLT] = { beforeHitEffectId: 'ef_firebolt', hitEffectId: 49 }; //Fire Bolt
+// Official client: 31 on the target as the damage packet arrives, one fire bolt per hit (BoltRain.js),
+// then 49 (fire hit) once when the damage lands. See effect-port/bolts.md.
+SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49, hitEffectOnce: true }; //Fire Bolt
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
@@ -129,7 +140,10 @@ SkillEffect[SK.MC_VENDING] = {}; //Vending
 SkillEffect[SK.MC_MAMMONITE] = { effectId: 10 }; //Mammonite
 // Archer
 SkillEffect[SK.AC_CONCENTRATION] = { effectId: 153 }; //Improve Concentration
-SkillEffect[SK.AC_DOUBLE] = { beginCastEffectId: 16, beforeHitEffectId: 'ef_arrow_projectile', hitEffectId: 1 }; //Double Strafe
+// Official client: no effect of its own (16 EF_BASH is not played); one arrow per damage packet, as for
+// a normal bow attack; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target.
+// See effect-port/archer-skills.md.
+SkillEffect[SK.AC_DOUBLE] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1] }; //Double Strafe
 SkillEffect[SK.AC_SHOWER] = { effectId: 'ef_arrow_shower_projectile', hitEffectId: 1 }; //Arrow Shower
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
@@ -238,7 +252,9 @@ SkillEffect[SK.HN_RULEBREAK] = { effectId: 'ef_hn_rulebreak', castAuraEffectId: 
 SkillEffect[5505 /* HN_OVERCOMING_CRISIS */] = { effectId: 'ef_hn_overcoming_crisis' }; //Overcoming Crisis
 SkillEffect[SK.SM_AUTOBERSERK] = {}; //Auto Berserk
 SkillEffect[SK.AC_MAKINGARROW] = {}; //Arrow Crafting
-SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Arrow Repel
+// Official client: one arrow per damage packet, as for a normal bow attack; each hit that lands plays
+// 0 (the standard hit flash) on the target, nothing else (not in the hit map). See effect-port/archer-skills.md.
+SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Arrow Repel
 SkillEffect[SK.TF_SPRINKLESAND] = { effectId: 310 }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone

@@ -1318,8 +1318,9 @@ class EffectManager {
 	 * @param {number} tick
 	 * @param {number} srcAID caster aid
 	 * @param {function} [random] returns a number in [0, 1)
+	 * @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
 	 */
-	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random) {
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
 		const skill = SkillEffect[skillId];
 		if (!skill) {
 			return;
@@ -1336,7 +1337,8 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: ownerAID,
 					startTick: tick,
-					otherAID: otherAID
+					otherAID: otherAID,
+					hitCount: hitCount
 				});
 			});
 		};
@@ -1395,10 +1397,19 @@ class EffectManager {
 	 * @param {number} skill id
 	 * @param {number} target aid
 	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} [hitIndex] which hit of the damage packet this is, from 0
 	 */
-	static spamSkillHit(skillId, destAID, tick, srcAID) {
+	static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
+			return;
+		}
+
+		// Skills marked hitEffectOnce play their hit effects for the first hit
+		// of a damage packet only, like the official client does for damage a
+		// character deals: one hit message per packet, whatever the hit count.
+		if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) {
 			return;
 		}
 
