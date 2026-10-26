@@ -1811,7 +1811,8 @@ SkillEffect[SK.SU_PICKYPECK] = { successEffectId: 'ef_su_pickypeck' }; //Picky P
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
 SkillEffect[SK.SU_ARCLOUSEDASH] = { effectId: 'ef_su_arclousedash' }; //Arclouse Dash
 SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
-SkillEffect[SK.SU_TUNABELLY] = { effectId: 'ef_su_tunabelly' }; //Tuna Belly
+// Tuna Belly: once, on the use packet's target when it succeeds.
+SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
 SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
 SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shrimp

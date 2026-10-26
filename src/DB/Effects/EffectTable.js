@@ -25863,18 +25863,14 @@ export default {
 		}
 	],
 
-	// Tuna Belly (SU_TUNABELLY), from the client's own effect folders.
+	// Tuna Belly (SU_TUNABELLY): the official client plays su_tunabelly.str only
+	// (effect 1102, start sound su_tunabelly.wav); the folder's su_scratch.str is unused.
 	ef_su_tunabelly: [
 		{
 			type: 'STR',
-			file: 'su_tunabelly/su_scratch',
+			file: 'su_tunabelly/su_tunabelly',
 			texturePath: 'su_tunabelly/',
 			wav: 'effect/su_tunabelly'
-		},
-		{
-			type: 'STR',
-			file: 'su_tunabelly/su_tunabelly',
-			texturePath: 'su_tunabelly/'
 		}
 	],
 

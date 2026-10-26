@@ -18,4 +18,15 @@ describe('Summoner skill effects', () => {
 	it("Picky Peck plays once, on use success only", () => {
 		expect(row('SU_PICKYPECK')).toBe("{ successEffectId: 'ef_su_pickypeck' }");
 	});
+	it("Tuna Belly plays once, on use success only", () => {
+		expect(row('SU_TUNABELLY')).toBe("{ successEffectId: 'ef_su_tunabelly' }");
+	});
+
+	it('Tuna Belly is the one su_tunabelly STR with its sound', () => {
+		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const block = table.match(/\tef_su_tunabelly: \[([\s\S]*?)\r?\n\t\],/)[1];
+		expect(block.match(/type: 'STR'/g)).toHaveLength(1);
+		expect(block).toContain("file: 'su_tunabelly/su_tunabelly'");
+		expect(block).toContain("wav: 'effect/su_tunabelly'");
+	});
 });
