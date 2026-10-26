@@ -12969,13 +12969,114 @@ export default {
 	],
 
 	619: [
+		// EF_HYOUSENSOU	Freezing Spear: official effect 619 (effect-port/ninja-skills.md), on the
+		// target as the damage packet arrives. The client draws it with Earth Spike's code (79):
+		// the same spikes and camera shake, in effect/ice.tga, with one EF_IceArrow1-3.wav;
+		// its spikes live 240 ticks. So these are 79's rows with the ice texture. No STR.
 		{
-			//EF_HYOUSENSOU	   Lightning Spear Of Ice
-			type: 'STR',
-			file: 'freeze',
+			//Main spike
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.95, 1.5],
+			offsetX: [0.4, 0.6],
+			offsetY: [0.4, 0.6],
+			offsetZ: -0.1,
+			bottomSize: [0.5, 0.6],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-8.0, 8.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 120,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.0],
+			offsetY: [0.5, 0.5],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.5],
+			offsetY: [0.5, 1.0],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [1.0, 1.2],
+			offsetY: [0.5, 0.8],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [0.5, 0.7],
+			offsetY: [0.0, -0.2],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
 			wav: 'effect/ef_icearrow%d',
 			rand: [1, 3],
-			attachedEntity: true
+			attachedEntity: false
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const start = Params.Inst.startTick;
+				const duration = 200;
+				Camera.setQuake(start, duration);
+			}
 		}
 	],
 
