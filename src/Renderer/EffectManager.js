@@ -1434,6 +1434,23 @@ class EffectManager {
 			});
 		}
 
+		// Only on the first hit of a damage packet: the official client sends the
+		// hit-map effect with the first hit message of a multi-hit packet only
+		if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+			effects = Array.isArray(SkillEffect[skillId].firstHitEffectId)
+				? SkillEffect[skillId].firstHitEffectId
+				: [SkillEffect[skillId].firstHitEffectId];
+
+			effects.forEach(effectId => {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				});
+			});
+		}
+
 		if (SkillEffect[skillId].hitEffectIdOnCaster) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectIdOnCaster)
 				? SkillEffect[skillId].hitEffectIdOnCaster

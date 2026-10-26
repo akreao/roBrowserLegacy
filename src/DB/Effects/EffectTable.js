@@ -6015,13 +6015,13 @@ export default {
 
 	265: [
 		{
-			//EF_TANJI	   Throw Spirit Sphere
+			//EF_TANJI	   Throw Spirit Sphere: on the caster, thrown to the target
 			type: '3D',
 			file: 'effect/blue_ivy.bmp',
 			alphaMax: 1,
 			blendMode: 2,
 			duration: 150,
-			toSrc: true,
+			fromSrc: true,
 			rotateWithCamera: true,
 			rotateToTarget: true,
 			angle: 90,
