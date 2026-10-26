@@ -13244,9 +13244,10 @@ export default {
 
 	647: [
 		{
-			//EF_TRACKING	Tracking
+			//EF_TRACKING	Tracking. Official client: 2 ticks a frame, no sound.
 			type: 'SPR',
 			file: '\xc6\xae\xb7\xa1\xc5\xb7',
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
