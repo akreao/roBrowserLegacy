@@ -7270,6 +7270,8 @@ export default {
 	317: [
 		{
 			//Warp Portal Animation 2	//EF_PORTAL2	Warp Portal Animation 2
+			// Official client: the open portal plays EF_Portal.wav once when it appears and no
+			// EF_ReadyPortal.wav (that is the waiting portal, 316). See effect-port/acolyte-skills.md.
 			alphaMax: 0.4,
 			animation: 4,
 			attachedEntity: true,
@@ -7288,7 +7290,6 @@ export default {
 			repeat: true,
 			repeatDelay: -300,
 			topSize: 3.9,
-			wav: 'effect/ef_readyportal',
 			type: 'CYLINDER'
 		},
 		{
