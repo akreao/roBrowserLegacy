@@ -172,12 +172,13 @@ SkillEffect[SK.AC_DOUBLE] = {
 	damageEffectIdOnTarget: 'ef_arrow_projectile',
 	hitEffectId: [0, 1]
 }; //Double Strafe
-// Official client: arrows to the 8 cells around the ground cell from the ground packet; arrows to the
-// damaged actor and the 8 cells around it from each damage packet; each hit that lands plays 0 (the
-// standard hit flash) and 1 (EF_HIT2). See effect-port/archer-skills.md.
+// Official client (kRO 2025-07-16): nothing from the ground packet; arrows to the damaged actor and the
+// 8 cells around it from each damage packet; the bow arrow of the caster's attack motion from each
+// damage packet that is not splash; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2).
+// See effect-port/archer-skills.md.
 SkillEffect[SK.AC_SHOWER] = {
-	groundEffectIdByLevel: ['ef_arrow_shower_ground'],
 	damageEffectIdOnTarget: 'ef_arrow_shower_target',
+	releaseEffectId: 'ef_arrow_projectile',
 	hitEffectId: [0, 1]
 }; //Arrow Shower
 // Thief
