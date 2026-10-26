@@ -273,7 +273,9 @@ SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnTarget: '
 SkillEffect[SK.TF_SPRINKLESAND] = { damageEffectIdOnTarget: 310, hitEffectId: 0, hitEffectOnce: true }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
-SkillEffect[SK.TF_THROWSTONE] = { beforeHitEffectId: 308 }; //Stone Fling
+// Official client: 308 (the stone) from the caster at the target as each damage packet arrives; the hit
+// plays the standard hit flash (0) once per packet. See effect-port/thief-skills.md.
+SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0, hitEffectOnce: true }; //Stone Fling
 SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar

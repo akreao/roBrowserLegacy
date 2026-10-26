@@ -45,6 +45,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
@@ -6672,27 +6673,8 @@ export default {
 
 	//307: [{}],	//EF_FORESTLIGHT	   Forest Light 1
 
-	308: [
-		{
-			//EF_THROWITEM3	   Throw Stone
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 0.5,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM3, Throw Stone: the client's thrown stone with its trail (ThrowStoneEffect.js)
+	308: throwStoneEffect,
 
 	309: [
 		{
