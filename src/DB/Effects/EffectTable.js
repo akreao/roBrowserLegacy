@@ -3398,8 +3398,11 @@ export default {
 	94: [
 		{
 			//EF_YUFITELHIT	Jupitel Thunder (Hit)
+			// Official client: the hit lives 250 ticks; a flash starts every 20 ticks (13 in all)
 			type: '3D',
 			file: 'effect/thunder_pang.bmp',
+			duplicate: 13,
+			timeBetweenDupli: 1000 / 3, // 20 ticks
 			duration: 167, // 10 ticks of the official 60 Hz effect clock
 			sizeStart: 0,
 			sizeEnd: 25, // widthSpeed 2.5f (Growing up)
@@ -3418,8 +3421,9 @@ export default {
 				'effect/thunder_ball_e.bmp',
 				'effect/thunder_ball_f.bmp'
 			],
-			frameDelay: 10,
-			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
+			frameDelay: 1000 / 60, // one frame a tick
+			delayStart: 1000 / 6, // from tick 10...
+			duration: 4000, // ...to the hit's end on tick 250
 			size: 75, // widthSize 7.5f * 10
 			blendMode: 2, // RF_EMISSIVE (Aprox. Additive)
 			overlay: true,
@@ -9857,8 +9861,9 @@ export default {
 				'effect/thunder_ball_c.bmp',
 				'effect/twirl_soft.bmp'
 			],
-			frameDelay: 10,
-			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
+			frameDelay: 1000 / 60, // one frame a tick
+			delayStart: 1000 / 6, // from tick 10...
+			duration: 4000, // ...to the hit's end on tick 250
 			size: 75, // widthSize 7.5f * 10
 			blendMode: 2, // RF_EMISSIVE (Aprox. Additive)
 			overlay: true,
