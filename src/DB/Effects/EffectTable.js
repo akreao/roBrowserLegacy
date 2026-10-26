@@ -10604,6 +10604,13 @@ export default {
 		}
 	],
 
+	// Taekwon Mission (TK_MISSION): the sound the official client plays when the skill works.
+	ef_tk_mission: [
+		{
+			wav: 'effect/t_\xc7\xc7\xb8\xb5' // t_피링
+		}
+	],
+
 	//474: [{}],	//EF_AURABLADE2	   (Nothing)
 	//475: [{}],	//EF_DEVIL1	   Demon of The Sun Moon And Stars (Level 1)
 	//476: [{}],	//EF_DEVIL2	   Demon of The Sun Moon And Stars (Level 2)
