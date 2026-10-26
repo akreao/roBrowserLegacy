@@ -46,6 +46,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
+import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
@@ -1315,31 +1316,8 @@ export default {
 	],
 
 	21: [
-		{
-			//EF_DETOXICATION	Detoxify
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1000,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: 0.7,
-			size: 100,
-			sizeRand: 20,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			attachedEntity: true,
-			wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
-		}
+		// EF_DETOXICATION, Detoxify: the client's 20 rising particle2 bubbles (DetoxifyEffect.js)
+		...detoxifyEffect
 	],
 
 	22: [
