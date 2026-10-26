@@ -127,7 +127,9 @@ SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49, hit
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
-SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwach
+// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash) and 1 (EF_HIT2).
+// The status look (33) comes from the effect state. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_RUWACH] = { hitEffectId: [0, 1] }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
