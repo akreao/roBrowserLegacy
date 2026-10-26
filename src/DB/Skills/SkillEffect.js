@@ -23,6 +23,9 @@
  *	- hitEffectId: 				Triggers on every hit with damage (including every hit of a multi hit skill) on the receiving entity.
  *								Can be used to create damage effects.
  *
+ *	- hitEffectOnce: 			true: hitEffectId and hitEffectIdOnCaster trigger on the first hit of each damage
+ *								packet only, as the official client plays them when a character deals the damage.
+ *
  *	- beforeHitEffectId: 		Triggers before every hit (including every hit of a multi hit skill) and after the cast.
  *								Can be used to create pre-damage effects like flying balls and others.
  *								Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.
