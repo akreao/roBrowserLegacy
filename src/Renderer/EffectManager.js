@@ -1416,7 +1416,8 @@ class EffectManager {
 			return;
 		}
 
-		if (SkillEffect[skillId].hitEffectId) {
+		// 0 is an effect too: the hit flash (EF_HIT1)
+		if (SkillEffect[skillId].hitEffectId != null) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectId)
 				? SkillEffect[skillId].hitEffectId
 				: [SkillEffect[skillId].hitEffectId];
