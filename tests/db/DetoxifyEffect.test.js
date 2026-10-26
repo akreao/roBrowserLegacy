@@ -13,8 +13,8 @@ let seed = 9;
 const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
 describe('Detoxify bubbles', () => {
-	it('plays 21 on the target only on success', () => {
-		expect(source).toMatch(/SkillEffect\[SK\.TF_DETOXIFY\] = \{ successEffectId: 21 \};/);
+	it('plays 21 on the target', () => {
+		expect(source).toMatch(/SkillEffect\[SK\.TF_DETOXIFY\] = \{ effectId: 21 \};/);
 	});
 
 	it('makes 20 bubbles, one every 5 ticks, within the client ranges', () => {

@@ -153,8 +153,7 @@ SkillEffect[SK.AC_SHOWER] = {
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
 SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
 SkillEffect[SK.TF_POISON] = { hitEffectId: 20 }; //Envenom
-// Official client: 21 on the target when the use packet's result is set. See effect-port/thief-skills.md.
-SkillEffect[SK.TF_DETOXIFY] = { successEffectId: 21 }; //Detoxify
+SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
 // Knight
