@@ -152,7 +152,9 @@ SkillEffect[SK.AC_SHOWER] = {
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
 SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
-SkillEffect[SK.TF_POISON] = { hitEffectId: 20 }; //Envenom
+// Official client: 16 (EF_BASH) on the caster as each damage packet arrives; the hit plays 0 (the standard
+// hit flash) and 1 (EF_HIT2) on the target, once per packet. 20 is not played. See effect-port/thief-skills.md.
+SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: [0, 1], hitEffectOnce: true }; //Envenom
 SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
