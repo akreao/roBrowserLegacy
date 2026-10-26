@@ -8177,16 +8177,17 @@ export default {
 
 	329: [
 		{
-			//EF_TRIPLEATTACK	   Triple Strike
-			wav: 'effect/ef_hit2'
+			//EF_TRIPLEATTACK	   Triple Strike: the official client plays its sounds on ticks 10, 20 and 30
+			wav: 'effect/ef_hit2',
+			delayWav: 167
 		},
 		{
 			wav: 'effect/ef_hit4',
-			delayWav: 200
+			delayWav: 333
 		},
 		{
 			wav: 'effect/ef_hit2',
-			delayWav: 400
+			delayWav: 500
 		}
 	],
 
