@@ -679,7 +679,9 @@ SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdO
 // Official client: 644 on the target as each damage packet arrives; the hit plays the standard hit
 // flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_MAGICALBULLET] = { damageEffectIdOnTarget: 644, hitEffectId: 0, hitEffectOnce: true }; //Magical Bullet
-SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
+// Official client: effect\크래커.wav when the use packet's result is set, not positioned (heard as
+// at the player). See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_CRACKER] = { successEffectIdOnCaster: 'ef_gs_cracker' }; //Cracker
 // Official client: 647 on the target as each damage packet arrives; the hit plays the standard hit
 // flash (0) once per packet. 646 (the tracking STR) is not launched by Tracking.
 // See effect-port/gunslinger-skills.md.

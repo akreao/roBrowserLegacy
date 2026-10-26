@@ -7440,6 +7440,14 @@ export default {
 		}
 	],
 
+	// Cracker (GS_CRACKER): the official client's use-packet sound. See effect-port/gunslinger-skills.md.
+	ef_gs_cracker: [
+		{
+			wav: 'effect/\xc5\xa9\xb7\xa1\xc4\xbf', // 크래커
+			attachedEntity: true
+		}
+	],
+
 	ef_coldbolt: [
 		{
 			//coldbolt falling objects
