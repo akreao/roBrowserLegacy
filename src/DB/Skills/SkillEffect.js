@@ -24,7 +24,8 @@
  *								Can be used to create damage effects.
  *
  *	- hitEffectOnce: 			true: hitEffectId and hitEffectIdOnCaster trigger on the first hit of each damage
- *								packet only, as the official client plays them when a character deals the damage.
+ *								packet only. The official client plays the hit flash on every hit of a multi-hit
+ *								packet and the hit-map effect on the first one only.
  *
  *	- hitDelay: 				ms added to attackMT for the hit (damage number, hit motion, hitEffectId), for
  *								skills whose hit the official client queues later (Heel Drop, Roundhouse: 300).
@@ -111,8 +112,8 @@ SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 // damage packet whatever the hit count. See effect-port/mage-audit.md.
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: [0, 1], hitEffectOnce: true }; //Soul Strike
 // Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
-// then 51 (cold hit) once when the damage lands. See effect-port/bolts.md.
-SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51, hitEffectOnce: true }; //Cold Bolt
+// then 51 (cold hit) on every hit as it lands, 200 ms apart. See effect-port/bolts.md.
+SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51 }; //Cold Bolt
 // Official client: 27 on the caster as the damage packet arrives (ice spikes along the line to the target),
 // then 51 (cold hit) and 28 (ice spikes bursting from the target) when the damage lands.
 // See effect-port/frost-diver.md.
