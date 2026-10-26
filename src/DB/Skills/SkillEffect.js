@@ -27,6 +27,9 @@
  *								packet only. The official client plays the hit flash on every hit of a multi-hit
  *								packet and the hit-map effect on the first one only.
  *
+ *	- firstHitEffectId: 		Like hitEffectId, on the first hit of each damage packet only (the official
+ *								client's hit-map effect on a multi-hit packet; the hit flash goes in hitEffectId).
+ *
  *	- hitDelay: 				ms added to attackMT for the hit (damage number, hit motion, hitEffectId), for
  *								skills whose hit the official client queues later (Heel Drop, Roundhouse: 300).
  *
@@ -400,10 +403,10 @@ SkillEffect[SK.CR_SPEARQUICKEN] = { effectId: 250 }; //Spear Quicken
 // Monk
 SkillEffect[SK.MO_CALLSPIRITS] = {}; //Summon Spirit Sphere
 SkillEffect[SK.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 }; //Absorb Spirit Sphere
-SkillEffect[SK.MO_TRIPLEATTACK] = { effectId: 329 }; //Triple Attack
+SkillEffect[SK.MO_TRIPLEATTACK] = { damageEffectIdOnCaster: 329, hitEffectId: 0 }; //Triple Attack
 SkillEffect[SK.MO_BODYRELOCATION] = { effectId: 166 }; //Snap (EF_MAKEBLUR)
-SkillEffect[SK.MO_INVESTIGATE] = { effectId: 267 }; //Occult Impaction
-SkillEffect[SK.MO_FINGEROFFENSIVE] = { effectId: 265, hitEffectId: 1 }; //Throw Spirit Sphere
+SkillEffect[SK.MO_INVESTIGATE] = { damageEffectIdOnCaster: 267, hitEffectId: 0 }; //Occult Impaction
+SkillEffect[SK.MO_FINGEROFFENSIVE] = { damageEffectIdOnCaster: 265, hitEffectId: 0, firstHitEffectId: 1 }; //Throw Spirit Sphere
 SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { beginCastEffectId: 12, effectIdOnCaster: [261, 'quake'] }; //Fury

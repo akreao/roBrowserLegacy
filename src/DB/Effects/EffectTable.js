@@ -6017,13 +6017,13 @@ export default {
 
 	265: [
 		{
-			//EF_TANJI	   Throw Spirit Sphere
+			//EF_TANJI	   Throw Spirit Sphere: on the caster, thrown to the target
 			type: '3D',
 			file: 'effect/blue_ivy.bmp',
 			alphaMax: 1,
 			blendMode: 2,
 			duration: 150,
-			toSrc: true,
+			fromSrc: true,
 			rotateWithCamera: true,
 			rotateToTarget: true,
 			angle: 90,
@@ -8179,16 +8179,17 @@ export default {
 
 	329: [
 		{
-			//EF_TRIPLEATTACK	   Triple Strike
-			wav: 'effect/ef_hit2'
+			//EF_TRIPLEATTACK	   Triple Strike: the official client plays its sounds on ticks 10, 20 and 30
+			wav: 'effect/ef_hit2',
+			delayWav: 167
 		},
 		{
 			wav: 'effect/ef_hit4',
-			delayWav: 200
+			delayWav: 333
 		},
 		{
 			wav: 'effect/ef_hit2',
-			delayWav: 400
+			delayWav: 500
 		}
 	],
 
