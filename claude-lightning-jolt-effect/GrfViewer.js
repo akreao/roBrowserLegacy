@@ -343139,14 +343139,11 @@ var init_EntityState = __esmMin((() => {
 	_stateToVirtue[StatusState_default.Status.DA_CONTRACT] = StatusState_default.OPT3.CONTRACT;
 	_stateToVirtue[StatusState_default.Status.HALLUCINATIONWALK] = StatusState_default.OPT3.HALLUCINATIONWALK;
 }));
-// src/Renderer/Entity/EntityAttachments.js
+// src/Renderer/Entity/ScaledLayer.js
 /**
-* A layer as drawn at size factor `scale`: its offset grows with it, as the
-* official client scales an effect sprite's whole frame. Scale 1 keeps the layer.
-*
-* @param {object} layer
-* @param {number} scale
-* @return {object}
+* @param {object} layer ACT layer
+* @param {number} scale size factor
+* @return {object} the layer itself at scale 1, else a reused scaled copy
 */
 function scaledLayer(layer, scale) {
 	if (scale === 1) return layer;
@@ -343156,13 +343153,19 @@ function scaledLayer(layer, scale) {
 	_scaledLayer.pos = _scaledPos;
 	return _scaledLayer;
 }
+var _scaledPos, _scaledLayer;
+var init_ScaledLayer = __esmMin((() => {
+	_scaledPos = [0, 0];
+	_scaledLayer = {};
+}));
+// src/Renderer/Entity/EntityAttachments.js
 /**
 * Export
 */
 function init$6() {
 	this.attachments = new AttachmentManager(this);
 }
-var _scaledPos, _scaledLayer, _defaultFog, _effectColor, _position, AttachmentManager;
+var _defaultFog, _effectColor, _position, AttachmentManager;
 var init_EntityAttachments = __esmMin((() => {
 	init_Client();
 	init_SpriteRenderer();
@@ -343170,8 +343173,7 @@ var init_EntityAttachments = __esmMin((() => {
 	init_Ground();
 	init_StrEffect();
 	init_Renderer();
-	_scaledPos = [0, 0];
-	_scaledLayer = {};
+	init_ScaledLayer();
 	_defaultFog = {
 		use: false,
 		exist: false,
@@ -343404,7 +343406,7 @@ var init_EntityAttachments = __esmMin((() => {
 			});
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				SpriteRenderer.zIndex = zIdx;
-				for (i = 0, count = layers.length; i < count; ++i) self.entity.renderLayer(scaledLayer(layers[i], attachment.scale), spr, spr, attachment.scale, _position, false);
+				for (i = 0, count = layers.length; i < count; ++i) self.entity.renderLayer(attachment.scale === 1 ? layers[i] : scaledLayer(layers[i], attachment.scale), spr, spr, attachment.scale, _position, false);
 			});
 			return clean;
 		}
