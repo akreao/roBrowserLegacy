@@ -3988,9 +3988,9 @@ export default {
 	139: [
 		{
 			//EF_SANDMAN	Sandman Trap
+			// No sound: the official client never plays hunter_sandman.wav
 			type: 'STR',
 			file: 'sandman',
-			wav: 'effect/hunter_sandman',
 			attachedEntity: false
 		}
 	],

@@ -110,3 +110,11 @@ describe('Freezing Trap', () => {
 		expect(skillRow('HT_FREEZINGTRAP')).toEqual({ hitEffectId: [0] });
 	});
 });
+
+describe('Sandman', () => {
+	it('puts SandMan.str at the trap (139, silent); the sleep has no hit effect', () => {
+		expect(triggers().table[0x95]).toEqual([139]);
+		expect(skillRow('HT_SANDMAN')).toEqual({});
+		expect(effectRow(139)).toEqual([{ type: 'STR', file: 'sandman', attachedEntity: false }]);
+	});
+});
