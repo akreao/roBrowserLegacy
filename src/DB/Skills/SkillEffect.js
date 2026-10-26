@@ -691,7 +691,10 @@ SkillEffect[SK.GS_PIERCINGSHOT] = { damageEffectIdOnCaster: 623, hitEffectId: 0,
 // Official client: 643 on the target as each damage packet arrives; the hit plays the standard hit
 // flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_RAPIDSHOWER] = { damageEffectIdOnTarget: 643, hitEffectId: 0, hitEffectOnce: true }; //Rapid Shower
-SkillEffect[SK.GS_DESPERADO] = { effectId: 637 }; //Desperado
+// Official client: 637 once on the caster when Desperado is used (the server sends it as a ground
+// skill); its damage comes from the skill's unit, which plays no hit effect. See
+// effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_DESPERADO] = { groundEffectIdByLevel: [637] }; //Desperado
 SkillEffect[SK.GS_GATLINGFEVER] = { successEffectId: 626 }; //Gatling Fever
 // Official client: 628 on the target as each damage packet arrives; the hit plays the standard hit
 // flash (0) once per packet. See effect-port/gunslinger-skills.md.

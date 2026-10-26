@@ -13160,10 +13160,12 @@ export default {
 
 	637: [
 		{
-			//EF_DESPERADO	Desperado
+			//EF_DESPERADO	Desperado. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 10.
 			type: 'SPR',
 			file: '\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
 			wav: 'effect/\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
+			delayWav: 167, // tick 10
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true
 		}
 	],
