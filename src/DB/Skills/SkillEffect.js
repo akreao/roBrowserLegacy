@@ -128,7 +128,9 @@ SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wa
 // Official client: 31 on the target as the damage packet arrives, one fire bolt per hit (BoltRain.js),
 // then 49 (fire hit) on every hit as it lands, 200 ms apart. See effect-port/bolts.md.
 SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49 }; //Fire Bolt
-SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt
+// Official client: 29 (Lightning.str) on the target as the damage packet arrives, then 52 (wind hit)
+// on every hit as it lands, 200 ms apart. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52 }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
 // Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash) and 1 (EF_HIT2).
