@@ -223482,7 +223482,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 51,
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.NJ_SUITON] = { groundEffectId: 620 };
+	SkillEffect[SkillConst_default.NJ_SUITON] = { effectId: "ef_watery_evasion_sound" };
 	SkillEffect[SkillConst_default.NJ_HYOUSYOURAKU] = { effectId: 636 };
 	SkillEffect[SkillConst_default.NJ_HUUJIN] = { effectId: 621 };
 	SkillEffect[SkillConst_default.NJ_RAIGEKISAI] = { effectId: 622 };
@@ -302407,6 +302407,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/Æø¿°·æ",
 			attachedEntity: false
 		}],
+		ef_watery_evasion_sound: [{ wav: "effect/¼öµÐ" }],
 		636: [{
 			type: "STR",
 			file: "icy",
