@@ -223345,7 +223345,11 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 442
 	};
 	SkillEffect[SkillConst_default.TK_READYSTORM] = {};
-	SkillEffect[SkillConst_default.TK_STORMKICK] = { effectId: 435 };
+	SkillEffect[SkillConst_default.TK_STORMKICK] = {
+		successEffectIdOnCaster: 435,
+		hitEffectId: [0],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.TK_READYDOWN] = {};
 	SkillEffect[SkillConst_default.TK_DOWNKICK] = {
 		damageEffectIdOnTarget: 413,
@@ -223354,13 +223358,24 @@ var init_SkillEffect = __esmMin((() => {
 		hitDelay: 300
 	};
 	SkillEffect[SkillConst_default.TK_READYTURN] = {};
-	SkillEffect[SkillConst_default.TK_TURNKICK] = { effectId: 414 };
+	SkillEffect[SkillConst_default.TK_TURNKICK] = {
+		damageEffectIdOnTarget: 466,
+		hitEffectId: [0],
+		hitEffectOnce: true,
+		hitDelay: 300
+	};
 	SkillEffect[SkillConst_default.TK_READYCOUNTER] = {};
-	SkillEffect[SkillConst_default.TK_COUNTER] = { effectId: "ef_tk_counter" };
+	SkillEffect[SkillConst_default.TK_COUNTER] = {
+		damageEffectIdOnTarget: 415,
+		hitEffectId: [0],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.TK_DODGE] = {};
 	SkillEffect[SkillConst_default.TK_JUMPKICK] = {
-		effectId: 439,
-		hitEffectId: 457
+		damageEffectIdOnCaster: 457,
+		damageEffectIdOnTarget: 458,
+		hitEffectId: [0],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.TK_SEVENWIND] = {};
 	SkillEffect[SkillConst_default.TK_HIGHJUMP] = {
@@ -223368,6 +223383,12 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 411,
 		effectIdOnCaster: 445
 	};
+	SkillEffect[SkillConst_default.TK_READYSTORM].effectIdOnCaster = 449;
+	SkillEffect[SkillConst_default.TK_READYDOWN].effectIdOnCaster = 449;
+	SkillEffect[SkillConst_default.TK_READYTURN].effectIdOnCaster = 449;
+	SkillEffect[SkillConst_default.TK_READYCOUNTER].effectIdOnCaster = 449;
+	SkillEffect[SkillConst_default.TK_DODGE].effectIdOnCaster = 449;
+	SkillEffect[SkillConst_default.TK_DODGE].successEffectIdOnCaster = "ef_tk_dodge";
 	SkillEffect[SkillConst_default.SG_FEEL] = { effectId: 432 };
 	SkillEffect[SkillConst_default.SG_SUN_WARM] = { effectId: 488 };
 	SkillEffect[SkillConst_default.SG_MOON_WARM] = { effectId: 488 };
@@ -223432,7 +223453,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_ACIDDEMONSTRATION] = { effectId: 537 };
 	SkillEffect[SkillConst_default.CR_CULTIVATION] = {};
 	SkillEffect[SkillConst_default.ITEM_ENCHANTARMS] = {};
-	SkillEffect[SkillConst_default.TK_MISSION] = {};
+	SkillEffect[SkillConst_default.TK_MISSION] = { successEffectIdOnCaster: "ef_tk_mission" };
 	SkillEffect[SkillConst_default.SL_HIGH] = { effectId: [424, 503] };
 	SkillEffect[SkillConst_default.KN_ONEHAND] = SkillEffect[SkillConst_default.KN_TWOHANDQUICKEN];
 	SkillEffect[SkillConst_default.AM_TWILIGHT1] = { effectId: 497 };
@@ -292155,6 +292176,63 @@ var init_CasterMarks = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/FacingTurn.js
+/**
+* The entity direction on tick `age` of the turn, from direction `start`.
+*
+* @param {number} start roBrowser direction (0-7) when the turn began
+* @param {number} age ticks since the turn began
+* @return {number} roBrowser direction (0-7)
+*/
+function turnedDirection(start, age) {
+	const ticks = Math.min(Math.max(0, age) + 1, 48);
+	const steps = Math.floor(ticks * 30 % 360 / 45);
+	return DIR_MAP[(DIR_MAP[start & 7] + steps) % 8];
+}
+var DIR_MAP, FacingTurn;
+var init_FacingTurn = __esmMin((() => {
+	init_EntityManager();
+	init_EffectPrimSim();
+	DIR_MAP = [
+		4,
+		3,
+		2,
+		1,
+		0,
+		7,
+		6,
+		5
+	];
+	FacingTurn = class {
+		static ready = true;
+		static renderBeforeEntities = true;
+		static beforeRender() {}
+		static afterRender() {}
+		/**
+		* @param {Entity} owner
+		* @param {number} startTick
+		*/
+		constructor(owner, startTick) {
+			this.owner = owner || null;
+			this.startTick = startTick || 0;
+			this.start = owner ? owner.direction : 0;
+			this.ready = true;
+		}
+		render(gl, tick) {
+			if (!this.owner || EntityManager.get(this.owner.GID) !== this.owner) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (tick < this.startTick) return;
+			const age = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
+			this.owner.direction = turnedDirection(this.start, age);
+			if (age >= 47) this.needCleanUp = true;
+		}
+		free() {
+			this.owner = null;
+		}
+	};
+}));
 // src/DB/Effects/EffectTable.js
 var EffectTable_exports = /* @__PURE__ */ __exportAll({ default: () => EffectTable_default });
 var ServiceEffects, getBragiSpellNote, DissonanceEffects, LullabyEffects, MrKimEffects, EtChaosEffects, DrumEffects, NibelungEffects, LokiEffects, AbyssEffects, SiegfiedEffects, WhistleEffects, SinEffects, AppleEffects, UglyEffects, HummingEffects, ForgetEffects, FortuneEffects, GospelEffects, FogEffects, GravityEffects, EvillandEffects, EffectTable_default;
@@ -292212,6 +292290,7 @@ var init_EffectTable = __esmMin((() => {
 	init_IceSpikes();
 	init_IceSpikesSim();
 	init_CasterMarks();
+	init_FacingTurn();
 	init_Altitude();
 	init_Renderer();
 	init_ChatBox();
@@ -299725,6 +299804,17 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/º¹È£°Ý",
 			attachedEntity: true
 		}],
+		435: [{
+			wav: "effect/t_È¸¿À¸®Â÷±â",
+			delayWav: 83,
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new FacingTurn(Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
+		}],
 		440: [{
 			type: "STR",
 			file: "asum",
@@ -299756,6 +299846,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/t_È¸ÇÇ2",
 			attachedEntity: true
 		}],
+		ef_tk_dodge: [{ wav: "effect/t_³«¹ý" }],
 		450: [{}],
 		451: [{
 			alphaMax: 1,
@@ -299849,6 +299940,7 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		457: [{
 			wav: "effect/t_³¯¶óÂ÷±â",
+			delayWav: 83,
 			attachedEntity: true
 		}],
 		467: [
@@ -300502,6 +300594,7 @@ var init_EffectTable = __esmMin((() => {
 				file: "effect/hanmoon6.tga"
 			}
 		],
+		ef_tk_mission: [{ wav: "effect/t_ÇÇ¸µ" }],
 		491: [{
 			type: "STR",
 			file: "Âý½Ò¶±",
@@ -310330,16 +310423,6 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "suicide",
 			texturePath: ""
-		}],
-		ef_tk_counter: [{
-			type: "STR",
-			file: "new_counter_slash/new_counter_slash/new_counter_slash",
-			texturePath: "new_counter_slash/new_counter_slash/"
-		}, {
-			type: "STR",
-			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
-			texturePath: "new_counter_slash/new_counter_slash_bottom/",
-			renderBeforeEntities: true
 		}],
 		ef_sl_assasin: [{
 			type: "STR",
