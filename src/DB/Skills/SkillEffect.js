@@ -78,20 +78,7 @@
  */
 
 import SK from 'DB/Skills/SkillConst.js';
-import EntityManager from 'Renderer/EntityManager.js';
-import JobId from 'DB/Jobs/JobConst.js';
 import { REPEAT_WINDOW_MS } from 'DB/Effects/HastyFireInTheHoleEffect.js';
-
-// _job dont store mount variants, just the real job, so it's ok to check like this
-// this is used on monk asura strike effect
-const CHAMPION_JOBS = new Set([
-	JobId.MONK_H, // 4016
-	JobId.SURA, // 4070
-	JobId.SURA_H, // 4077
-	JobId.SURA_B, // 4106
-	JobId.SURA_2ND, // 4342
-	JobId.INQUISITOR // 4262
-]);
 
 const SkillEffect = {};
 
@@ -409,14 +396,9 @@ SkillEffect[SK.MO_FINGEROFFENSIVE] = { damageEffectIdOnCaster: 265, hitEffectId:
 SkillEffect[SK.MO_STEELBODY] = { successEffectIdOnCaster: ['quake', 'monk_raging_thrust_sound', 261] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { successEffectIdOnCaster: ['quake', 'monk_fury_sound', 203, 261] }; //Fury
-SkillEffect[SK.MO_EXTREMITYFIST] = {
-	effectId: srcAID => {
-		const src = EntityManager.get(srcAID);
-		return src && CHAMPION_JOBS.has(src._job) ? [510, 'quake'] : [328, 'quake']; /* champion 510 */
-	},
-	hitEffectId: 266,
-	beginCastEffectId: 12
-}; //Asura Strike
+// Official client: as the damage packet arrives, the camera quake and 266 (with its sound) on the
+// target; the hit flash 0. No aura (328 / 510) and no cast-start effect. See effect-port/monk-skills.md.
+SkillEffect[SK.MO_EXTREMITYFIST] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 266, hitEffectId: 0 }; //Asura Strike
 SkillEffect[SK.MO_CHAINCOMBO] = { effectId: [262, 273], effectIdOnCaster: 263 }; //Raging Quadruple Blow
 SkillEffect[SK.MO_COMBOFINISH] = { effectId: [330, 'quake'] }; //Raging Thrust
 // Sage
