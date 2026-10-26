@@ -691,7 +691,9 @@ SkillEffect[SK.GS_PIERCINGSHOT] = {}; //Piercing Shot
 SkillEffect[SK.GS_RAPIDSHOWER] = { damageEffectIdOnTarget: 643, hitEffectId: 0, hitEffectOnce: true }; //Rapid Shower
 SkillEffect[SK.GS_DESPERADO] = { effectId: 637 }; //Desperado
 SkillEffect[SK.GS_GATLINGFEVER] = { successEffectId: 626 }; //Gatling Fever
-SkillEffect[SK.GS_DUST] = { effectId: 628 }; //Dust
+// Official client: 628 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_DUST] = { damageEffectIdOnTarget: 628, hitEffectId: 0, hitEffectOnce: true }; //Dust
 SkillEffect[SK.GS_FULLBUSTER] = { effectId: 584 }; //Full Buster
 SkillEffect[SK.GS_SPREADATTACK] = { effectId: 645 }; //Spread Attack
 SkillEffect[SK.GS_GROUNDDRIFT] = {}; //Ground Drift

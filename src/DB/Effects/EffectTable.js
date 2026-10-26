@@ -13013,8 +13013,8 @@ export default {
 
 	628: [
 		{
-			//dust	//EF_BASH3D5	   Dust
-			wav: 'effect/bash3d5', // incorrect wav name
+			//dust	//EF_BASH3D5	   Dust. Official client: effect\더스트샷.wav on tick 0, then six alpha_center sets.
+			wav: 'effect/\xb4\xf5\xbd\xba\xc6\xae\xbc\xa6', // 더스트샷
 			attachedEntity: true
 		},
 		{
