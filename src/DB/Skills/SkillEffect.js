@@ -1821,7 +1821,8 @@ SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shri
 // Power of Flock: on the use packet's target when it succeeds.
 SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //Power of Flock
 SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Savage
-SkillEffect[SK.SU_HISS] = { effectId: 'ef_su_hiss' }; //Hiss
+// Hiss: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_HISS] = { successEffectId: 'ef_su_hiss' }; //Hiss
 SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
 SkillEffect[SK.SU_GROOMING] = { effectId: 'ef_su_grooming' }; //Grooming
 SkillEffect[SK.SU_PURRING] = {}; //Purring

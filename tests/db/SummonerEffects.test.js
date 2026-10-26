@@ -35,4 +35,7 @@ describe('Summoner skill effects', () => {
 	it("Power of Flock plays on use success only", () => {
 		expect(row('SU_POWEROFFLOCK')).toBe("{ successEffectId: 'ef_su_powerofflock' }");
 	});
+	it("Hiss plays on use success only", () => {
+		expect(row('SU_HISS')).toBe("{ successEffectId: 'ef_su_hiss' }");
+	});
 });
