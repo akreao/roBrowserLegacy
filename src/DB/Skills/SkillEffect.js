@@ -108,7 +108,9 @@ SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Sou
 // then 51 (cold hit) once when the damage lands. See effect-port/bolts.md.
 SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51, hitEffectOnce: true }; //Cold Bolt
 SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
-SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
+// Official client: when the use packet reports success, 23 (StoneCurse.str) on the target and
+// _stonecurse.wav at the target. Nothing on a failed attempt. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_STONECURSE] = { successEffectId: [23, 'stonecurse_sound'] }; //Stone Curse
 SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
 // Official client: 31 on the target as the damage packet arrives, one fire bolt per hit (BoltRain.js),
