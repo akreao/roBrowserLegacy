@@ -3211,9 +3211,23 @@ export default {
 
 	81: [
 		{
-			// default skill sound?	//EF_PIERCE	Skill hit
-			wav: 'effect/ef_bash',
-			attachedEntity: true
+			//EF_PIERCE	Pierce / Spear Stab hit: one ring_yellow cone band (official primitive 13)
+			//opening the way the target faces, 10 units up, drifting forward, 15 ticks. No sound.
+			type: 'PRIM',
+			prim: 'cone',
+			texture: 'ring_yellow',
+			attachedEntity: true,
+			duration: 15 * (1000 / 60),
+			frames: 15,
+			facing: true,
+			pitch: -90,
+			height: 10,
+			baseRadius: 6,
+			topRadius: 11,
+			coneHeight: 2.5,
+			drift: 0.7,
+			driftAccel: -(0.7 / 15) * 0.5,
+			fadeOutFrame: 8
 		}
 	],
 
