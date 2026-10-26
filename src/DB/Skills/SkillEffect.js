@@ -102,7 +102,9 @@ SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
-SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
+// Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
+// then 51 (cold hit) once when the damage lands. See effect-port/bolts.md.
+SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51, hitEffectOnce: true }; //Cold Bolt
 SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
 SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
 SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball

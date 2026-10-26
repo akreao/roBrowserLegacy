@@ -50,6 +50,7 @@ import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import BoltRain from 'Renderer/Effects/BoltRain.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -1440,11 +1441,23 @@ export default {
 
 	26: [
 		{
-			//EF_ICEARROW	A sound (a swipe?)
-			//type: 'FUNC',
-			wav: 'effect/ef_icearrow%d', // Or ef_icearrow2 & ef_icearrow3 . Seems to be random
+			//EF_ICEARROW	Cold Bolt, on the target: one ice bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_blue ring as it lands (BoltRainSim.js, effect-port/bolts.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.hitCount, 'cold'),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_icearrow%d',
 			rand: [1, 3],
-			attachedEntity: false
+			delayWav: 200,
+			attachedEntity: true
 		}
 	],
 
