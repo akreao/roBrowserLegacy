@@ -1795,7 +1795,9 @@ SkillEffect[SK.ALL_FULL_THROTTLE] = { effectId: 1042 }; //Full Throttle
 // Summoner
 SkillEffect[SK.SU_BITE] = { effectId: 'ef_su_bite' }; //Bite
 SkillEffect[SK.SU_HIDE] = {}; //Hide
-SkillEffect[SK.SU_SCRATCH] = { effectId: 'ef_su_scratch' }; //Scratch
+// Scratch: the official client plays it once, on the use packet's target when it succeeds
+// (the damage packets that follow add nothing).
+SkillEffect[SK.SU_SCRATCH] = { successEffectId: 'ef_su_scratch' }; //Scratch
 SkillEffect[SK.SU_STOOP] = {}; //Stoop
 SkillEffect[SK.SU_LOPE] = {}; //Lope
 SkillEffect[SK.SU_SV_STEMSPEAR] = { effectId: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
