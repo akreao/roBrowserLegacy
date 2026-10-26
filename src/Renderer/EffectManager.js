@@ -1410,13 +1410,13 @@ class EffectManager {
 		}
 
 		// Skills marked hitEffectOnce play their hit effects for the first hit
-		// of a damage packet only, like the official client does for damage a
-		// character deals: one hit message per packet, whatever the hit count.
+		// of a damage packet only.
 		if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) {
 			return;
 		}
 
-		if (SkillEffect[skillId].hitEffectId) {
+		// 0 is an effect too: the hit flash (EF_HIT1)
+		if (SkillEffect[skillId].hitEffectId != null) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectId)
 				? SkillEffect[skillId].hitEffectId
 				: [SkillEffect[skillId].hitEffectId];
@@ -1430,6 +1430,23 @@ class EffectManager {
 				};
 
 				EffectManager.spam(EF_Init_Par);
+			});
+		}
+
+		// Only on the first hit of a damage packet: the official client sends the
+		// hit-map effect with the first hit message of a multi-hit packet only
+		if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+			effects = Array.isArray(SkillEffect[skillId].firstHitEffectId)
+				? SkillEffect[skillId].firstHitEffectId
+				: [SkillEffect[skillId].firstHitEffectId];
+
+			effects.forEach(effectId => {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				});
 			});
 		}
 
