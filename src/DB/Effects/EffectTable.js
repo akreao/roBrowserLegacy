@@ -9895,7 +9895,15 @@ export default {
 	//459: [{}],	//EF_STORMKICK1	   Brown tornado that spins sprite (unused)
 	//460: [{}],	//EF_STORMKICK2	   Green tornado (unused)
 	//461: [{}],	//EF_STORMKICK3	   Blue tornado (unused)
-	//462: [{}],	//EF_STORMKICK4	   Kaupe Dodge Effect
+	462: [
+		{
+			//EF_STORMKICK4	Cicada Skin Shed dodge: official effect 462 (effect-port/ninja-skills.md), sent by
+			// the server when the shed blocks a hit: t_회피.wav on tick 15. Not ported: the Leap
+			// dust (whitelight.tga particles, the Taekwon audit's 411 follow-up).
+			wav: 'effect/t_\xc8\xb8\xc7\xc7',
+			delayWav: 15 * (1000 / 60)
+		}
+	],
 	//463: [{}],	//EF_STORMKICK5	   Kaupe Dodge Effect
 	//464: [{}],	//EF_STORMKICK6	   White tornado (unused)
 	//465: [{}],	//EF_STORMKICK7	   Purple tornado (unused)
