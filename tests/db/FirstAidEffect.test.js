@@ -23,8 +23,8 @@ function effectEntry(id) {
 describe('First Aid (effect 309)', () => {
 	const [sprite] = effectEntry(309);
 
-	it('is still the skill effect of NV_FIRSTAID', () => {
-		expect(read('DB/Skills/SkillEffect.js')).toMatch(/SkillEffect\[SK\.NV_FIRSTAID\] = \{ effectId: 309 \};/);
+	it('is the skill effect of NV_FIRSTAID, on the source of a successful use packet', () => {
+		expect(read('DB/Skills/SkillEffect.js')).toMatch(/SkillEffect\[SK\.NV_FIRSTAID\] = \{ successEffectIdOnCaster: 309 \};/);
 	});
 
 	it('is one additive pikapika2 billboard, 4 cells across, 2.4 cells up, tinted (150, 150, 250)', () => {
