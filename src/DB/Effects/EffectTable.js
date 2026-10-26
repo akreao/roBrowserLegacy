@@ -13105,10 +13105,13 @@ export default {
 
 	633: [
 		{
-			//EF_ISSEN	Final Strike
+			//EF_ISSEN	Final Strike: official effect 633 (effect-port/ninja-skills.md)
+			// 일섬 action 0, 2 ticks a frame, once, 6 units (42 px) up; its sound at the start.
 			type: 'SPR',
 			file: '\xc0\xcf\xbc\xb6',
 			wav: 'effect/\xc0\xcf\xbc\xb6',
+			delayFrame: 2 * (1000 / 60),
+			yOffset: -42,
 			attachedEntity: true
 		}
 	],

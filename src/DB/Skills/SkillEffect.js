@@ -699,7 +699,7 @@ SkillEffect[SK.NJ_HUUJIN] = { effectId: 621 }; //Wind Blade
 SkillEffect[SK.NJ_RAIGEKISAI] = { effectId: 622 }; //Lightning Strike of Destruction
 SkillEffect[SK.NJ_KAMAITACHI] = {}; //Kamaitachi
 SkillEffect[SK.NJ_NEN] = {}; //Soul
-SkillEffect[SK.NJ_ISSEN] = { effectId: 633 }; //Final Strike
+SkillEffect[SK.NJ_ISSEN] = { damageEffectIdOnTarget: 633 }; //Final Strike
 // Additional NPC Skills (Episode 11.3)
 SkillEffect[SK.NPC_EARTHQUAKE] = { effectIdOnCaster: 666 }; //Earthquake
 SkillEffect[SK.NPC_FIREBREATH] = { effectId: 'ef_firebreath', hitEffectId: 49 }; //Fire Breath
