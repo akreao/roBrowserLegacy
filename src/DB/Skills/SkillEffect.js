@@ -197,7 +197,13 @@ SkillEffect[SK.KN_TWOHANDQUICKEN] = { effectId: 130 }; //Twohand Quicken
 SkillEffect[SK.KN_AUTOCOUNTER] = {
 	hideCastAura: true /*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/
 }; //Counter Attack
-SkillEffect[SK.KN_BOWLINGBASH] = { hideCastBar: true, hideCastAura: true, effectIdOnCaster: 149, hitEffectId: 1 }; //Bowling Bash
+SkillEffect[SK.KN_BOWLINGBASH] = {
+	hideCastBar: true,
+	hideCastAura: true,
+	damageEffectIdOnCaster: 149,
+	hitEffectId: [0, 73],
+	hitEffectOnce: true
+}; //Bowling Bash
 // Priest
 SkillEffect[SK.PR_IMPOSITIO] = { effectId: 84 }; //Impositio Manus
 SkillEffect[SK.PR_SUFFRAGIUM] = { effectId: 88 }; //Suffragium
