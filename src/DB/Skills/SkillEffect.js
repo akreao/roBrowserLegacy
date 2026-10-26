@@ -100,7 +100,10 @@ SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
 SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
-SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
+// Official client: 27 on the caster as the damage packet arrives (ice spikes along the line to the target),
+// then 51 (cold hit) and 28 (ice spikes bursting from the target) when the damage lands.
+// See effect-port/frost-diver.md.
+SkillEffect[SK.MG_FROSTDIVER] = { damageEffectIdOnCaster: 27, hitEffectId: [51, 28] }; //Frost Diver
 SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
 SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
