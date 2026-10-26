@@ -52,6 +52,7 @@ import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { poisonAttackEffect } from 'DB/Effects/PoisonAttackEffect.js';
+import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -3715,24 +3716,8 @@ export default {
 	],
 
 	122: [
-		{
-			//EF_SONICBLOWHIT	   Multi hit effect
-			//wav:  'effect/assasin_sonicblow' // old
-
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				const entity = Params.Init.ownerEntity;
-				const delay = Params.Inst.startTick - Renderer.tick;
-
-				entity.animations.add(function (tick) {
-					if (tick >= delay) {
-						entity.direction = (entity.direction + 2) % 8; // Spinning around
-						return true;
-					}
-				});
-			}
-		}
+		// EF_SONICBLOWHIT: assasin_sonicblow.wav and a magic_red cone band (SonicBlowEffect.js)
+		...sonicBlowHitEffect
 	],
 
 	123: [
