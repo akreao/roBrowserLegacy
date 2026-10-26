@@ -96,7 +96,9 @@ SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, damageEffectIdOnCaste
 SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
-SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
+// Official client: no effect of its own (32 EF_NAPALMBEAT is never played for it); each hit that lands
+// plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: [0, 1] }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
 SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
