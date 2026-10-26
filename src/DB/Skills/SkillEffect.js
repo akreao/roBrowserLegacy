@@ -507,7 +507,7 @@ SkillEffect[SK.LK_FURY] = { effectId: [368, 'quake'] }; //Fury
 SkillEffect[SK.HP_ASSUMPTIO] = { effectId: 440 }; //Assumptio
 SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
-SkillEffect[SK.HW_MAGICCRASHER] = { effectId: 380 }; //Stave Crasher
+SkillEffect[SK.HW_MAGICCRASHER] = { damageEffectIdOnTarget: 380, hitEffectId: [0], hitEffectOnce: true }; //Stave Crasher
 SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, effectId: 'ef_magicpower' }; //Mystical Amplification
 SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
 // Paladin
