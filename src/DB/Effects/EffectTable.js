@@ -3994,13 +3994,10 @@ export default {
 		}
 	],
 
-	140: [
-		{
-			//EF_REVIVE	Ressurection Aura
-			wav: 'effect/priest_resurrection',
-			attachedEntity: true
-		}
-	],
+	//EF_REVIVE	Ressurection Aura
+	// Silent in the official client (77 plays the resurrection sound). Its look, ring_yellow cones
+	// (official primitive 13) every 25 ticks, is not drawn yet: effect-port/priest-audit.md.
+	140: [],
 
 	141: [
 		{

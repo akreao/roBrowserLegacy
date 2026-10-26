@@ -183,7 +183,9 @@ SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
 SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: [0, 1], hitEffectOnce: true }; //Envenom
 SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
-SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
+// Official client: on success, 77 then 140 on the revived player; on an undead the damage plays the
+// hit flash (0) and 140 once per packet. See effect-port/priest-audit.md.
+SkillEffect[SK.ALL_RESURRECTION] = { successEffectId: [77, 140], hitEffectId: [0, 140], hitEffectOnce: true }; //Resurrection
 // Knight
 SkillEffect[SK.KN_PIERCE] = { effectIdOnCaster: 148, hitEffectId: 147 }; //Pierce
 SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, effectId: 70, effectIdOnCaster: 144 }; //Brandish Spear
