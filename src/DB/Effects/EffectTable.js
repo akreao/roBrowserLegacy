@@ -5958,6 +5958,15 @@ export default {
 		}
 	],
 
+	monk_raging_thrust_sound: [
+		{
+			// mon_맹룡과강.wav: the official client plays it with Mental Strength's use packet
+			// and Raging Thrust's damage packet
+			wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad',
+			attachedEntity: true
+		}
+	],
+
 	monk_fury_sound: [
 		{
 			// mon_폭기.wav: the official client plays it with Fury's use packet, not with effect 261
