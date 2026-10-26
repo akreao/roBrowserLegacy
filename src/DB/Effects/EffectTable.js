@@ -4268,10 +4268,79 @@ export default {
 	170: [
 		{
 			//EF_CARTREVOLUTION	Cart Revolution
+			// Official client: the STR, and on ticks 7 and 20 the Magnum Break sound with a yellow ring and a
+			// fire sphere (smaller and fainter than Magnum Break's). See effect-port/merchant-skills.md.
 			type: 'STR',
 			file: 'cartrevolution',
-			wav: 'effect/ef_magnumbreak',
 			attachedEntity: true
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			delayStart: 7 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 20) * 0.5,
+			width: 5,
+			alpha: 0,
+			alphaSpeed: 180 / 15,
+			alphaMax: 180,
+			fadeOutFrame: 5,
+			wav: 'effect/ef_magnumbreak',
+			delayWav: 7 * (1000 / 60)
+		},
+		{
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			delayStart: 7 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.35,
+			radiusAccel: -(1.35 / 20) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 240 / 7,
+			alphaMax: 240,
+			fadeOutFrame: 5
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			delayStart: 20 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 20) * 0.5,
+			width: 5,
+			alpha: 0,
+			alphaSpeed: 180 / 15,
+			alphaMax: 180,
+			fadeOutFrame: 5,
+			wav: 'effect/ef_magnumbreak',
+			delayWav: 20 * (1000 / 60)
+		},
+		{
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			delayStart: 20 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.35,
+			radiusAccel: -(1.35 / 20) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 240 / 7,
+			alphaMax: 240,
+			fadeOutFrame: 5
 		}
 	],
 

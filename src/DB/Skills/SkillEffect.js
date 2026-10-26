@@ -270,7 +270,9 @@ SkillEffect[SK.TF_SPRINKLESAND] = { effectId: 310 }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
 SkillEffect[SK.TF_THROWSTONE] = { beforeHitEffectId: 308 }; //Stone Fling
-SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
+// Official client: 170 on the caster as each damage packet arrives; 0 and 170 on each target once per
+// damage packet when the hit lands. See effect-port/merchant-skills.md.
+SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: [0, 170], hitEffectOnce: true }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar
 SkillEffect[SK.AL_HOLYLIGHT] = { effectId: 152 }; //Holy Light
