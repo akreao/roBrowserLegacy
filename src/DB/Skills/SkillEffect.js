@@ -109,7 +109,10 @@ SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: [0, 1], hi
 // Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
 // then 51 (cold hit) once when the damage lands. See effect-port/bolts.md.
 SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51, hitEffectOnce: true }; //Cold Bolt
-SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
+// Official client: 27 on the caster as the damage packet arrives (ice spikes along the line to the target),
+// then 51 (cold hit) and 28 (ice spikes bursting from the target) when the damage lands.
+// See effect-port/frost-diver.md.
+SkillEffect[SK.MG_FROSTDIVER] = { damageEffectIdOnCaster: 27, hitEffectId: [51, 28] }; //Frost Diver
 // Official client: when the use packet reports success, 23 (StoneCurse.str) on the target and
 // _stonecurse.wav at the target. Nothing on a failed attempt. See effect-port/mage-audit.md.
 SkillEffect[SK.MG_STONECURSE] = { successEffectId: [23, 'stonecurse_sound'] }; //Stone Curse

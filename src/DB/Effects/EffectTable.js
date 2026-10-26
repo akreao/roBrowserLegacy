@@ -52,6 +52,13 @@ import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
+import IceSpikes from 'Renderer/Effects/IceSpikes.js';
+import {
+	planPath as planIcePath,
+	planShards as planIceShards,
+	PATH as ICE_PATH,
+	SHARDS as ICE_SHARDS
+} from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -1537,46 +1544,42 @@ export default {
 
 	27: [
 		{
-			//EF_FROSTDIVER	Frost Diver (ice spikes traveling from caster to target)
-			type: 'TRAIL',
-			attachedEntity: false,
-			duration: 2500,
-			speed: 24,
-			interval: 17,
-			stopAtTarget: true,
-			overshoot: 2,
-			spread: [0.1, 0.3],
-			spawn: [
-				{
-					type: 'QuadHorn',
-					textureFile: 'effect/ice.tga',
-					attachedEntity: false,
-					duration: 670,
-					height: [0.2, 1.8],
-					offsetX: 0,
-					offsetY: 0,
-					offsetZ: 0,
-					bottomSize: [0.06, 0.22],
-					blendMode: 8,
-					rotateX: [-15, 15],
-					rotateY: [0, 360],
-					color: [1.0, 1.0, 1.0, 1.0],
-					animation: 4,
-					animationSpeed: 330,
-					riseDistance: 2.0,
-					fadeOut: 170
+			//EF_FROSTDIVER	Frost Diver, on the caster: one thin ice spike a tick along the line to the
+			//target, pushing out of the ground (IceSpikesSim.js, effect-port/frost-diver.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!target) {
+					return;
 				}
-			]
+				const at = [caster.position[0], caster.position[1], caster.position[2]];
+				const spikes = planIcePath(
+					(target.position[0] - at[0]) * 5,
+					(target.position[1] - at[1]) * 5
+				);
+				this.add(new IceSpikes(at, Params.Inst.startTick, spikes, ICE_PATH.life), Params);
+			}
 		}
 	],
 
 	28: [
 		{
-			//Frost Diver target hit	//EF_FROSTDIVER2	Frost Diver (Hitting)
+			//EF_FROSTDIVER2	Frost Diver hit, on the target: 8 wide ice spikes bursting from the feet
+			//(IceSpikesSim.js, effect-port/frost-diver.md)
+			type: 'FUNC',
 			attachedEntity: true,
-			file: 'freeze', //effect/ice.tga
-			type: 'STR',
-			wav: 'effect/ef_frostdiver2'
+			func: function (Params) {
+				this.add(
+					new IceSpikes(Params.Init.ownerEntity.position, Params.Inst.startTick, planIceShards(), ICE_SHARDS.life),
+					Params
+				);
+			}
+		},
+		{
+			wav: 'effect/ef_frostdiver2',
+			attachedEntity: true
 		}
 	],
 
