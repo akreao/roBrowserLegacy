@@ -1534,9 +1534,50 @@ export default {
 
 	31: [
 		{
-			//EF_FIREARROW	Weird bubbles launching from feet
-			//type: 'FUNC',
-			wav: 'effect/ef_firearrow1',
+			//EF_FIREARROW	Fire Bolt, on the target: one fire bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_yellow ring as it lands, and a spark every 4 ticks from the newest
+			//bolt (BoltRainSim.js, effect-port/bolts.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const target = Params.Init.ownerEntity;
+				const spark = (s, startTick) => {
+					// A particle4 sprite flying from the bolt back up its line, shrinking away
+					const at = [target.position[0], target.position[1], target.position[2]];
+					this.spamEffect({
+						effect: {
+							type: '3D',
+							spriteName: 'particle4',
+							playSprite: true,
+							attachedEntity: false,
+							duration: (s.life * 1000) / 60,
+							posxStart: s.start.x / 5,
+							posyStart: s.start.y / 5,
+							poszStart: s.start.up / 5,
+							posxEnd: s.end.x / 5,
+							posyEnd: s.end.y / 5,
+							poszEnd: s.end.up / 5,
+							sizeStart: s.scale * 100,
+							sizeEnd: 1,
+							alphaMax: 1,
+							fadeOut: true,
+							zIndex: 1
+						},
+						Inst: { effectID: 31, duplicateID: 0, startTick },
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
+				};
+				this.add(
+					new BoltRain(target.position, Params.Inst.startTick, Params.Init.hitCount, 'fire', Math.random, spark),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 200,
 			attachedEntity: true
 		}
 	],

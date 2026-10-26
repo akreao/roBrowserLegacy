@@ -6,6 +6,9 @@
  * at the target's feet as it lands. The motion and geometry are in
  * BoltRainSim.js; this file only draws them.
  *
+ * Fire Bolt's sparks are sprites; BoltRain hands each to a callback on its tick
+ * (the effect table spawns them as 3D sprite effects).
+ *
  * Effect table entry (the damage packet's hit count arrives as Params.Init.hitCount):
  *   { type: 'FUNC', attachedEntity: true, func(Params) {
  *       this.add(new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick,
@@ -26,6 +29,7 @@ import {
 	BOLT_TICK_MS,
 	BOLT_VERTICES,
 	planBolts,
+	planSparks,
 	boltAt,
 	boltFrame,
 	buildBolt,
@@ -69,12 +73,16 @@ class BoltRain {
 	 * @param {number} count the damage packet's hit count
 	 * @param {string} kind 'cold' or 'fire'
 	 * @param {function} [random] returns a number in [0, 1)
+	 * @param {function} [onSpark] called with each Fire Bolt spark (BoltRainSim planSparks) on its tick
 	 */
-	constructor(position, startTick, count, kind, random = Math.random) {
+	constructor(position, startTick, count, kind, random = Math.random, onSpark = null) {
 		this.position = position;
 		this.startTick = startTick || 0;
 		this.kind = BOLT_KINDS[kind] || BOLT_KINDS.cold;
 		this.bolts = planBolts(count, random);
+		this.sparks = onSpark ? planSparks(this.bolts, random) : [];
+		this.nextSpark = 0;
+		this.onSpark = onSpark;
 		this.endTick = this.startTick + BOLT.effectLife * BOLT_TICK_MS;
 		this.boltVertices = new Float32Array(BOLT_VERTICES * 5);
 		this.ringVertices = new Float32Array(RING_VERTICES * 5);
@@ -118,6 +126,11 @@ class BoltRain {
 
 		const frame = Math.min(BOLT.effectLife, Math.floor((tick - this.startTick) / BOLT_TICK_MS));
 		const self = this;
+
+		while (this.nextSpark < this.sparks.length && this.sparks[this.nextSpark].tick <= frame) {
+			const spark = this.sparks[this.nextSpark++];
+			this.onSpark(spark, this.startTick + spark.tick * BOLT_TICK_MS);
+		}
 
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);

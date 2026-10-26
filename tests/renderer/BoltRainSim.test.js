@@ -11,6 +11,8 @@ import {
 	boltFrame,
 	buildBolt,
 	ringStart,
+	planSparks,
+	SPARK,
 	randomInt
 } from 'Renderer/Effects/BoltRainSim.js';
 import { createPrimState, advancePrim } from 'Renderer/Effects/EffectPrimSim.js';
@@ -113,5 +115,48 @@ describe('Cold Bolt wiring', () => {
 			/EffectManager\.spamSkillDamage\(pkt\.SKID, pkt\.targetID, Renderer\.tick, pkt\.AID, undefined, pkt\.count\);/
 		);
 		expect(read('Renderer/EffectManager.js')).toMatch(/otherAID: otherAID,\n\t\t\t\t\thitCount: hitCount/);
+	});
+});
+
+describe('Fire Bolt sparks', () => {
+	it('sheds one every 4 ticks from the newest bolt, once the first is out', () => {
+		const bolts = planBolts(3, fixed(0));
+		const sparks = planSparks(bolts, fixed(0));
+		expect(sparks[0].tick).toBe(12);
+		expect(sparks.map(s => s.tick).slice(0, 4)).toEqual([12, 16, 20, 24]);
+		expect(sparks[sparks.length - 1].tick).toBe(156);
+		// tick 24 belongs to the second bolt (out on tick 22), two ticks into its flight
+		const second = bolts[1];
+		expect(sparks[3].start.x).toBeCloseTo(second.start.x + second.step.x * 2, 6);
+		expect(sparks[3].start.up).toBeCloseTo(60 + second.step.up * 2, 6);
+	});
+
+	it('flies back up the bolt line, slowing to a third, for 6 to 29 ticks', () => {
+		const bolts = planBolts(1, fixed(0));
+		const [low] = planSparks(bolts, fixed(0));
+		expect(low.life).toBe(6);
+		expect(low.scale).toBeCloseTo(0.2, 6);
+		expect(low.end.up).toBeGreaterThan(low.start.up);
+		const [high] = planSparks(bolts, fixed(0.999));
+		expect(high.life).toBe(29);
+		expect(high.scale).toBeCloseTo(0.49, 6);
+		expect(SPARK).toMatchObject({ every: 4, speed: 60, speedSpread: 90, slow: 1.5, turn: 20, tilt: 10 });
+	});
+});
+
+describe('Fire Bolt wiring', () => {
+	it('plays 31 on the target per damage packet and 49 once on the hit', () => {
+		expect(read('DB/Skills/SkillEffect.js')).toMatch(
+			/SkillEffect\[SK\.MG_FIREBOLT\] = \{ damageEffectIdOnTarget: 31, hitEffectId: 49, hitEffectOnce: true \};/
+		);
+	});
+
+	it('draws 31 with BoltRain, its sparks as particle4 sprites, one sound on tick 12', () => {
+		const table = read('DB/Effects/EffectTable.js');
+		const start = table.indexOf('\n\t31: [');
+		const entry = table.slice(start, table.indexOf('\n\t],', start));
+		expect(entry).toMatch(/Params\.Init\.hitCount, 'fire', Math\.random, spark\)/);
+		expect(entry).toMatch(/spriteName: 'particle4'/);
+		expect(entry).toMatch(/wav: 'effect\/ef_firearrow%d',\n\t\t\trand: \[1, 3\],\n\t\t\tdelayWav: 200/);
 	});
 });
