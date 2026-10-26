@@ -558,7 +558,7 @@ SkillEffect[SK.TK_TURNKICK] = { effectId: 414 }; //Roundhouse Kick
 SkillEffect[SK.TK_READYCOUNTER] = {}; //Counter Kick Stance
 SkillEffect[SK.TK_COUNTER] = { effectId: 'ef_tk_counter' }; //Counter Kick
 SkillEffect[SK.TK_DODGE] = {}; //Tumbling
-SkillEffect[SK.TK_JUMPKICK] = { effectId: 439, hitEffectId: 457 }; //Flying Kick
+SkillEffect[SK.TK_JUMPKICK] = { damageEffectIdOnCaster: 457, damageEffectIdOnTarget: 458, hitEffectId: [0], hitEffectOnce: true }; //Flying Kick
 SkillEffect[SK.TK_SEVENWIND] = {/* 467 - 473 is done by entity */}; //Mild Wind
 SkillEffect[SK.TK_HIGHJUMP] = { hideCastAura: true, groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/ }; //Taekwon Jump
 // Star Gladiator
