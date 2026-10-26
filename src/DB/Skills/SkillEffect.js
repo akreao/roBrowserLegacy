@@ -162,7 +162,8 @@ SkillEffect[SK.MC_VENDING] = {}; //Vending
 // (EF_COIN) once per damage packet, nothing on a miss. See effect-port/merchant-skills.md.
 SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: [0, 10], hitEffectOnce: true }; //Mammonite
 // Archer
-SkillEffect[SK.AC_CONCENTRATION] = { effectId: 153 }; //Improve Concentration
+// Official client: 153 on the caster from the use packet, only when its result is set.
+SkillEffect[SK.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 }; //Improve Concentration
 // Official client: no effect of its own (16 EF_BASH is not played); one arrow per damage packet, as for
 // a normal bow attack; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target.
 // See effect-port/archer-skills.md.
