@@ -19,6 +19,9 @@
  *    length L and half width W, U from 0 at the tail to 1 at the head.
  *  - The ring (primitive 12) lives 30 ticks: radius speed 1.2 changing by
  *    (1.2 / 70) x -2 a tick, band 10 wide, alpha up 25.4 a tick, fading from tick 20.
+ *  - Fire Bolt also sheds a spark (primitive 5, particle4 sprite) every 4 ticks
+ *    from the newest bolt's point, flying back up its line, 20 degrees either
+ *    side and 10 up or down, slowing to a third, shrinking and fading to nothing.
  *
  * Units are the client's: world units (5 to a cell), ticks (60 a second).
  * r(k) is a whole number from 0 to k - 1.
@@ -240,4 +243,71 @@ export function buildBolt(out, offset, bolt, point, kind, center) {
  */
 export function boltFrame(kind, age) {
 	return Math.max(0, age) % kind.frames.length;
+}
+
+/** Fire Bolt's sparks. */
+export const SPARK = {
+	every: 4, // ticks between sparks
+	life: 6, // life is life + r(lifeSpread) ticks
+	lifeSpread: 24,
+	speed: 60, // start speed is (speed + r(speedSpread)) / 100 units a tick
+	speedSpread: 90,
+	slow: 1.5, // the speed falls by start speed / life / slow a tick
+	scale: 20, // scale is (scale + r(scaleSpread)) / 100, shrinking to 0
+	scaleSpread: 30,
+	turn: 20, // heading: the bolt's, -turn + r(2 turn) degrees, backward
+	tilt: 10 // elevation: the bolt's, -tilt + r(2 tilt) degrees
+};
+
+/**
+ * Plan Fire Bolt's sparks. One every 4 ticks while the effect lasts, from the newest
+ * bolt's point (where it flies, or where it stuck), once the first bolt is out.
+ *
+ * @param {Array} bolts from planBolts
+ * @param {function} [random] returns a number in [0, 1)
+ * @return {Array} sparks: tick, start and end points, life in ticks, scale
+ */
+export function planSparks(bolts, random = Math.random) {
+	const sparks = [];
+	const DEG = Math.PI / 180;
+
+	for (let tick = SPARK.every; tick < BOLT.effectLife; tick += SPARK.every) {
+		const bolt = bolts.filter(b => b.spawn <= tick).pop();
+		if (!bolt) {
+			continue;
+		}
+
+		const age = Math.min(tick - bolt.spawn, bolt.flight);
+		const start = {
+			x: bolt.start.x + bolt.step.x * age,
+			y: bolt.start.y + bolt.step.y * age,
+			up: bolt.start.up + bolt.step.up * age
+		};
+		const life = SPARK.life + randomInt(SPARK.lifeSpread, random);
+		const heading = Math.atan2(bolt.step.y, bolt.step.x) + (randomInt(2 * SPARK.turn, random) - SPARK.turn) * DEG;
+		const elevation =
+			Math.atan2(-bolt.step.up, Math.hypot(bolt.step.x, bolt.step.y)) +
+			(randomInt(2 * SPARK.tilt, random) - SPARK.tilt) * DEG;
+		const speed = (SPARK.speed + randomInt(SPARK.speedSpread, random)) / 100;
+		const scale = (SPARK.scale + randomInt(SPARK.scaleSpread, random)) / 100;
+
+		// Distance over its life: the speed falls first, then the spark moves.
+		const slow = speed / life / SPARK.slow;
+		const distance = speed * life - (slow * life * (life + 1)) / 2;
+		const flat = Math.cos(elevation) * distance;
+
+		sparks.push({
+			tick,
+			start,
+			end: {
+				x: start.x - Math.cos(heading) * flat,
+				y: start.y - Math.sin(heading) * flat,
+				up: start.up + Math.sin(elevation) * distance
+			},
+			life,
+			scale
+		});
+	}
+
+	return sparks;
 }
