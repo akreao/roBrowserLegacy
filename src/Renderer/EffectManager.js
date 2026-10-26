@@ -738,7 +738,13 @@ class EffectManager {
 		Params.Inst.repeatDelay = Params.effect.repeatDelay ? Params.effect.repeatDelay : Params.Init.repeatDelay; // Instance has priority
 
 		// BSON sound events repeat only when requested; legacy effects keep replaying.
-		if (Params.effect.wav && !(Params.Inst.noDelay && Params.effect.soundLoop === false)) {
+		// wavChance: the official client plays some sounds only now and then (Blaze Shield's
+		// units: 1 in 8).
+		if (
+			Params.effect.wav &&
+			!(Params.Inst.noDelay && Params.effect.soundLoop === false) &&
+			!(Params.effect.wavChance < 1 && Math.random() >= Params.effect.wavChance)
+		) {
 			filename = Params.effect.wav;
 
 			if (Params.effect.rand) {
