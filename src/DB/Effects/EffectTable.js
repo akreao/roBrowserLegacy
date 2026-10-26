@@ -3522,10 +3522,12 @@ export default {
 	97: [
 		{
 			//firepillar target hit	//EF_FIREPILLARBOMB	Fire Pillar/Land Mine hit
+			// Official client: played once by the active Fire Pillar unit (0x88), not repeated
 			type: 'STR',
 			file: 'firepillarbomb',
 			wav: 'effect/wizard_fire_pillar_b',
-			attachedEntity: false
+			attachedEntity: false,
+			repeat: false
 		}
 	],
 
