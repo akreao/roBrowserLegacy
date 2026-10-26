@@ -578,7 +578,7 @@ SkillEffect[SK.WE_CALLBABY] = {}; //Call Baby
 // Taekwon
 SkillEffect[SK.TK_RUN] = { effectId: 443, groundEffectId: 442 /*wallhit 458*/ }; //Running
 SkillEffect[SK.TK_READYSTORM] = {}; //Tornado Stance
-SkillEffect[SK.TK_STORMKICK] = { effectId: 435 }; //Tornado Kick
+SkillEffect[SK.TK_STORMKICK] = { successEffectIdOnCaster: 435, hitEffectId: [0], hitEffectOnce: true }; //Tornado Kick
 SkillEffect[SK.TK_READYDOWN] = {}; //Heel Drop Stance
 SkillEffect[SK.TK_DOWNKICK] = { damageEffectIdOnTarget: 413, hitEffectId: [0], hitEffectOnce: true, hitDelay: 300 }; //Heel Drop
 SkillEffect[SK.TK_READYTURN] = {}; //Roundhouse Stance

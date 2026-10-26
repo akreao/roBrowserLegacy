@@ -66,6 +66,7 @@ import {
 	SHARDS as ICE_SHARDS
 } from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -9700,7 +9701,22 @@ export default {
 	//432: [{}],	//EF_ELECTRIC	   Solar, Lunar and Stellar Perception (Visual Effect)
 	//433: [{}],	//EF_ELECTRIC2	   Solar, Lunar and Stellar Opposition (Visual Effect)
 	//434: [{}],	//EF_HITLINE7	   Taekwon Kick Hit 4
-	//435: [{}],	//EF_STORMKICK	   Whirlwind Kick
+	435: [
+		{
+			//EF_STORMKICK	Tornado Kick, on the caster
+			wav: 'effect/t_\xc8\xb8\xbf\xc0\xb8\xae\xc2\xf7\xb1\xe2', // t_회오리차기
+			delayWav: 83, // tick 5
+			attachedEntity: true
+		},
+		{
+			// The caster turns 30 degrees a tick for 48 ticks (FacingTurn.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new FacingTurn(Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
+		}
+	],
 	//436: [{}],	//EF_HALFSPHERE	   White Barrier (Unused)
 	//437: [{}],	//EF_ATTACKENERGY	   White barrier 2 (Unused)
 	//438: [{}],	//EF_ATTACKENERGY2	   Kaite Reflect Animation
