@@ -9686,6 +9686,13 @@ export default {
 	//448: [{}],	//EF_FOOT4	   Running Right Foot
 	//449: [{}],	//EF_TAE_READY	   KA-Spell (1st Part)
 
+	// Tumbling (TK_DODGE): the sound the official client plays when the skill works.
+	ef_tk_dodge: [
+		{
+			wav: 'effect/t_\xb3\xab\xb9\xfd' // t_낙법
+		}
+	],
+
 	450: [
 		{
 			// Dark cross	//EF_GRANDCROSS2	Darkcross

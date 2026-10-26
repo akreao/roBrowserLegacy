@@ -561,6 +561,14 @@ SkillEffect[SK.TK_DODGE] = {}; //Tumbling
 SkillEffect[SK.TK_JUMPKICK] = { effectId: 439, hitEffectId: 457 }; //Flying Kick
 SkillEffect[SK.TK_SEVENWIND] = {/* 467 - 473 is done by entity */}; //Mild Wind
 SkillEffect[SK.TK_HIGHJUMP] = { hideCastAura: true, groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/ }; //Taekwon Jump
+// Stances and Tumbling: each time the use packet arrives the official client puts the caster in
+// its ready pose with 449 (EF_TAE_READY, a blue glow); Tumbling also plays its sound on success.
+SkillEffect[SK.TK_READYSTORM].effectIdOnCaster = 449;
+SkillEffect[SK.TK_READYDOWN].effectIdOnCaster = 449;
+SkillEffect[SK.TK_READYTURN].effectIdOnCaster = 449;
+SkillEffect[SK.TK_READYCOUNTER].effectIdOnCaster = 449;
+SkillEffect[SK.TK_DODGE].effectIdOnCaster = 449;
+SkillEffect[SK.TK_DODGE].successEffectIdOnCaster = 'ef_tk_dodge';
 // Star Gladiator
 SkillEffect[SK.SG_FEEL] = { effectId: 432 }; //Feeling the Sun Moon and Stars
 SkillEffect[SK.SG_SUN_WARM] = { effectId: 488 }; //Warmth of the Sun
