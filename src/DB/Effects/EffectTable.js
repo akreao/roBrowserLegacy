@@ -5519,10 +5519,18 @@ export default {
 	],
 
 	227: [
+		// EF_INTIMIDATE	Intimidate / Snatch: where the caster stands as the damage packet
+		// arrives (the caster is then teleported away), EF_Bash.wav at once and
+		// rog_intimidate.wav on tick 35. The client's particle sets (prim 43)
+		// are not drawn here.
 		{
-			//Intimidate / Snatch	//EF_INTIMIDATE	Snatch
+			wav: 'effect/ef_bash',
+			attachedEntity: false
+		},
+		{
 			wav: 'effect/rog_intimidate',
-			attachedEntity: true
+			delayWav: 583,
+			attachedEntity: false
 		}
 	],
 
