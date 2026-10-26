@@ -1858,9 +1858,80 @@ export default {
 	40: [
 		{
 			//EF_SIGNUM	Signum Crucis
+			// Official client: the cross STR from the start; on tick 30 (500 ms) EF_Signum.wav, EF_Bash.wav
+			// and a bash burst (effect 16's look). See effect-port/acolyte-skills.md.
 			type: 'STR',
 			file: 'cross',
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/ef_signum',
+			delayWav: 500
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_down',
+			alphaMax: 0.6,
+			duration: 1000,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.1,
+			topSize: 2,
+			animation: 2,
+			zIndex: 1,
+			wav: 'effect/ef_bash',
+			delayWav: 500,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 10,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 2.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 8,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4,
+			animation: 2,
+			zIndex: 1.2,
 			attachedEntity: true
 		}
 	],
