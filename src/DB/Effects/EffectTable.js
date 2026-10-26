@@ -13017,8 +13017,11 @@ export default {
 
 	627: [
 		{
-			//EF_RG_COIN3	   Disarm (Sound Effect)
-			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf'
+			//EF_RG_COIN3	   Disarm. Official client: the sound on tick 21; also two thrown item
+			// icons (prim 43), not ported. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf', // 디스암
+			delayWav: 350, // tick 21
+			attachedEntity: true
 		}
 	],
 

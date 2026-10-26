@@ -684,7 +684,9 @@ SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
 // flash (0) once per packet. 646 (the tracking STR) is not launched by Tracking.
 // See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_TRACKING] = { damageEffectIdOnTarget: 647, hitEffectId: 0, hitEffectOnce: true }; //Tracking
-SkillEffect[SK.GS_DISARM] = { effectId: 627 }; //Disarm
+// Official client: 627 on the target when the use packet's result is set (sound on tick 21).
+// See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_DISARM] = { successEffectId: 627 }; //Disarm
 // Official client: 623 on the caster, aimed at the target, as each damage packet arrives; the hit plays
 // the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_PIERCINGSHOT] = { damageEffectIdOnCaster: 623, hitEffectId: 0, hitEffectOnce: true }; //Piercing Shot
