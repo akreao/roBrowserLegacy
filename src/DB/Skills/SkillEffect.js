@@ -1806,7 +1806,8 @@ SkillEffect[SK.SU_CN_METEOR] = {}; //Catnip Meteor
 SkillEffect[SK.SU_SV_ROOTTWIST] = {}; //Silvervine Root Twist
 SkillEffect[SK.SU_SV_ROOTTWIST_ATK] = {}; //Silver Vine Root Twist Attack
 SkillEffect[SK.SU_SCAROFTAROU] = { effectId: 'ef_su_scaroftarou' }; //Scar of Tarou
-SkillEffect[SK.SU_PICKYPECK] = { effectId: 'ef_su_pickypeck' }; //Picky Peck
+// Picky Peck: once, on the use packet's target when it succeeds (not again on the damage).
+SkillEffect[SK.SU_PICKYPECK] = { successEffectId: 'ef_su_pickypeck' }; //Picky Peck
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
 SkillEffect[SK.SU_ARCLOUSEDASH] = { effectId: 'ef_su_arclousedash' }; //Arclouse Dash
 SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat

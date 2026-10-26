@@ -15,4 +15,7 @@ describe('Summoner skill effects', () => {
 	it('Scratch plays once, on use success only', () => {
 		expect(row('SU_SCRATCH')).toBe("{ successEffectId: 'ef_su_scratch' }");
 	});
+	it("Picky Peck plays once, on use success only", () => {
+		expect(row('SU_PICKYPECK')).toBe("{ successEffectId: 'ef_su_pickypeck' }");
+	});
 });
