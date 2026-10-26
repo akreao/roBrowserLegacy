@@ -238,7 +238,9 @@ SkillEffect[SK.HN_RULEBREAK] = { effectId: 'ef_hn_rulebreak', castAuraEffectId: 
 SkillEffect[5505 /* HN_OVERCOMING_CRISIS */] = { effectId: 'ef_hn_overcoming_crisis' }; //Overcoming Crisis
 SkillEffect[SK.SM_AUTOBERSERK] = {}; //Auto Berserk
 SkillEffect[SK.AC_MAKINGARROW] = {}; //Arrow Crafting
-SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Arrow Repel
+// Official client: one arrow per damage packet, as for a normal bow attack; each hit that lands plays
+// 0 (the standard hit flash) on the target, nothing else (not in the hit map). See effect-port/archer-skills.md.
+SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Arrow Repel
 SkillEffect[SK.TF_SPRINKLESAND] = { effectId: 310 }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
