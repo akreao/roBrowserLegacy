@@ -106,7 +106,10 @@ SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
 SkillEffect[SK.MG_FIREBOLT] = { beforeHitEffectId: 'ef_firebolt', hitEffectId: 49 }; //Fire Bolt
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { effectId: 29, hitEffectId: 52 }; //Lightning Bolt
-SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
+// Official client: 30 (ThunderStorm.str + sound) once at the cell from the ground packet (any level plays
+// the one entry), nothing from the skill unit; the unit's damage plays the standard hit flash (0) per hit.
+// See effect-port/mage-audit.md.
+SkillEffect[SK.MG_THUNDERSTORM] = { groundEffectIdByLevel: [30], hitEffectId: [0] }; //Thunderstorm
 // Acolyte
 SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
