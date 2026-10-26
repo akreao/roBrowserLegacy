@@ -88,7 +88,9 @@ const SkillEffect = {};
 // Swordman
 SkillEffect[SK.SM_BASH] = { beginCastEffectId: 16, hitEffectId: 1 }; //Bash
 SkillEffect[SK.SM_PROVOKE] = { successEffectId: 67 }; //Provoke
-SkillEffect[SK.SM_MAGNUM] = { effectIdOnCaster: 17, effectId: 'quake_magnum' }; //Magnum Break
+// Official client: 17 on the caster from the use packet (result set); 16 on the caster as each damage packet
+// arrives; 49 (fire hit) and 17 on each target when the hit lands. No screen shake. See effect-port/swordman-skills.md.
+SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, damageEffectIdOnCaster: 16, hitEffectId: [49, 17] }; //Magnum Break
 SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
