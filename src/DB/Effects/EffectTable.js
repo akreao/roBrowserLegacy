@@ -13214,10 +13214,11 @@ export default {
 
 	644: [
 		{
-			//EF_MAGICALBULLET	Magic Bullet
+			//EF_MAGICALBULLET	Magic Bullet. Official client: sprite and sound on tick 0, 2 ticks a frame.
 			type: 'SPR',
 			file: '\xb8\xc5\xc1\xf6\xc4\xc3\xba\xd2\xb8\xb4',
 			wav: 'effect/\xb8\xc5\xc1\xf6\xc4\xc3\xba\xed\xb8\xb4',
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],

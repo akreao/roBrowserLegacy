@@ -676,7 +676,9 @@ SkillEffect[SK.GS_MADNESSCANCEL] = { successEffectId: 625 }; //Madness Canceller
 // tick in four for 1 s. Gatling Fever plays the same. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_ADJUSTMENT] = { successEffectId: 626 }; //AdJustment
 SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdOnCaster: 'ef_gs_increasing_cast' }; //Increasing Accuracy
-SkillEffect[SK.GS_MAGICALBULLET] = { effectId: 644 }; //Magical Bullet
+// Official client: 644 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_MAGICALBULLET] = { damageEffectIdOnTarget: 644, hitEffectId: 0, hitEffectOnce: true }; //Magical Bullet
 SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
 SkillEffect[SK.GS_TRACKING] = { effectId: 646, hitEffectId: 647 }; //Tracking
 SkillEffect[SK.GS_DISARM] = { effectId: 627 }; //Disarm
