@@ -222676,14 +222676,12 @@ var init_SkillEffect = __esmMin((() => {
 		JobConst_default.INQUISITOR
 	]);
 	SkillEffect = {};
-	SkillEffect[SkillConst_default.SM_BASH] = {
-		beginCastEffectId: 16,
-		hitEffectId: 1
-	};
+	SkillEffect[SkillConst_default.SM_BASH] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.SM_PROVOKE] = { successEffectId: 67 };
 	SkillEffect[SkillConst_default.SM_MAGNUM] = {
-		effectIdOnCaster: 17,
-		effectId: "quake_magnum"
+		successEffectIdOnCaster: 17,
+		damageEffectIdOnCaster: 16,
+		hitEffectId: [49, 17]
 	};
 	SkillEffect[SkillConst_default.SM_ENDURE] = { effectId: 11 };
 	SkillEffect[SkillConst_default.MG_SIGHT] = {};
@@ -292544,7 +292542,11 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "provoke",
 			wav: "effect/swordman_provoke",
+			delayWav: 83,
 			attachedEntity: true
+		}, {
+			wav: "effect/swordman_provoke",
+			delayWav: 500
 		}],
 		68: [{
 			type: "STR",
