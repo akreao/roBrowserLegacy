@@ -13192,46 +13192,63 @@ export default {
 
 	638: [
 		{
-			//EF_LIGHTNING_S	Ground Drift Grenade
+			//EF_LIGHTNING_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xb6\xf3\xc0\xcc\xc6\xae\xb4\xd7\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	639: [
 		{
-			//EF_BLIND_S	Ground Drift Grenade
+			//EF_BLIND_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xba\xed\xb6\xf3\xc0\xce\xb5\xe5\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	640: [
 		{
-			//EF_POISON_S	Ground Drift Grenade
+			//EF_POISON_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc6\xf7\xc0\xcc\xc1\xf0\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	641: [
 		{
-			//EF_FREEZING_S	Ground Drift Grenade
+			//EF_FREEZING_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc7\xc1\xb8\xae\xc2\xa1\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	642: [
 		{
-			//EF_FLARE_S	Ground Drift Grenade
+			//EF_FLARE_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc7\xc3\xb7\xb9\xbe\xee\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
+		}
+	],
+
+	1120: [
+		{
+			//Ground Drift grenade (neutral). Official client: looping sprite on the unit.
+			type: 'SPR',
+			file: '\xb1\xd7\xb6\xf3\xbf\xee\xb5\xe5\xb5\xe5\xb8\xae\xc7\xc1\xc6\xae', // 그라운드드리프트
+			attachedEntity: true
+		}
+	],
+
+	// Ground Drift (GS_GROUNDDRIFT): the official client's ground-packet sound, not positioned.
+	ef_gs_ground_drift: [
+		{
+			wav: 'effect/\xb1\xd7\xb6\xf3\xbf\xee\xb5\xe5', // 그라운드
+			attachedEntity: true
 		}
 	],
 

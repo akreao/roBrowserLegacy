@@ -712,7 +712,9 @@ SkillEffect[SK.GS_FULLBUSTER] = { damageEffectIdOnCaster: 584, hitEffectId: 0, h
 // Official client: 645 on the caster, aimed at the target, as each damage packet arrives; the hit plays
 // the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_SPREADATTACK] = { damageEffectIdOnCaster: 645, hitEffectId: 0, hitEffectOnce: true }; //Spread Attack
-SkillEffect[SK.GS_GROUNDDRIFT] = {}; //Ground Drift
+// Official client: effect\그라운드.wav from the ground packet; the grenades are the units' (SkillUnit.js).
+// See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_GROUNDDRIFT] = { groundEffectIdByLevel: ['ef_gs_ground_drift'] }; //Ground Drift
 // Ninja
 SkillEffect[SK.NJ_SYURIKEN] = { beforeHitEffectId: 613 }; //Throw Shuriken
 SkillEffect[SK.NJ_KUNAI] = { beforeHitEffectId: 614 }; //Throw Kunai
