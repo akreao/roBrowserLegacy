@@ -185,9 +185,9 @@ SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
 // Knight
-SkillEffect[SK.KN_PIERCE] = { effectIdOnCaster: 148, hitEffectId: 147 }; //Pierce
+SkillEffect[SK.KN_PIERCE] = { damageEffectIdOnCaster: 148, hitEffectId: 81, hitEffectOnce: true }; //Pierce
 SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, damageEffectIdOnTarget: 70 }; //Brandish Spear
-SkillEffect[SK.KN_SPEARSTAB] = { effectIdOnCaster: 150 }; //Spear Stab
+SkillEffect[SK.KN_SPEARSTAB] = { damageEffectIdOnCaster: 150, hitEffectId: 81, hitEffectOnce: true }; //Spear Stab
 SkillEffect[SK.KN_SPEARBOOMERANG] = {
 	effectIdOnCaster: 151,
 	beforeHitEffectId: 'ef_spear_projectile',
