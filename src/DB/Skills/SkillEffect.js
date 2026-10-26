@@ -292,7 +292,9 @@ SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
 // Official client: 308 (the stone) from the caster at the target as each damage packet arrives; the hit
 // plays the standard hit flash (0) once per packet. See effect-port/thief-skills.md.
 SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0, hitEffectOnce: true }; //Stone Fling
-SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
+// Official client: 170 on the caster as each damage packet arrives; 0 and 170 on each target once per
+// damage packet when the hit lands. See effect-port/merchant-skills.md.
+SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: [0, 170], hitEffectOnce: true }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar
 // Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
