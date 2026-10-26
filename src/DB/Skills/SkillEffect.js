@@ -27,6 +27,9 @@
  *								packet only. The official client plays the hit flash on every hit of a multi-hit
  *								packet and the hit-map effect on the first one only.
  *
+ *	- firstHitEffectId: 		Like hitEffectId, on the first hit of each damage packet only (the official
+ *								client's hit-map effect on a multi-hit packet; the hit flash goes in hitEffectId).
+ *
  *	- hitDelay: 				ms added to attackMT for the hit (damage number, hit motion, hitEffectId), for
  *								skills whose hit the official client queues later (Heel Drop, Roundhouse: 300).
  *
@@ -108,9 +111,9 @@ SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 // plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target. See effect-port/mage-audit.md.
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: [0, 1] }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
-// Official client: the damage lands with 0 (the standard hit flash) and 1 (EF_HIT2) on the target, once per
-// damage packet whatever the hit count. See effect-port/mage-audit.md.
-SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: [0, 1], hitEffectOnce: true }; //Soul Strike
+// Official client: 0 (the standard hit flash) on the target on every hit as it lands, 200 ms apart, and
+// 1 (EF_HIT2) with the first hit of each damage packet only. See effect-port/mage-audit.md.
+SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 0, firstHitEffectId: 1 }; //Soul Strike
 // Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
 // then 51 (cold hit) on every hit as it lands, 200 ms apart. See effect-port/bolts.md.
 SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51 }; //Cold Bolt
@@ -404,10 +407,10 @@ SkillEffect[SK.CR_SPEARQUICKEN] = { effectId: 250 }; //Spear Quicken
 // Monk
 SkillEffect[SK.MO_CALLSPIRITS] = {}; //Summon Spirit Sphere
 SkillEffect[SK.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 }; //Absorb Spirit Sphere
-SkillEffect[SK.MO_TRIPLEATTACK] = { effectId: 329 }; //Triple Attack
+SkillEffect[SK.MO_TRIPLEATTACK] = { damageEffectIdOnCaster: 329, hitEffectId: 0 }; //Triple Attack
 SkillEffect[SK.MO_BODYRELOCATION] = { effectId: 166 }; //Snap (EF_MAKEBLUR)
-SkillEffect[SK.MO_INVESTIGATE] = { effectId: 267 }; //Occult Impaction
-SkillEffect[SK.MO_FINGEROFFENSIVE] = { effectId: 265, hitEffectId: 1 }; //Throw Spirit Sphere
+SkillEffect[SK.MO_INVESTIGATE] = { damageEffectIdOnCaster: 267, hitEffectId: 0 }; //Occult Impaction
+SkillEffect[SK.MO_FINGEROFFENSIVE] = { damageEffectIdOnCaster: 265, hitEffectId: 0, firstHitEffectId: 1 }; //Throw Spirit Sphere
 SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { beginCastEffectId: 12, effectIdOnCaster: [261, 'quake'] }; //Fury
