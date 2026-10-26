@@ -215,7 +215,7 @@ SkillEffect[SK.PR_LEXAETERNA] = { effectId: 85 }; //Lex Aeterna
 SkillEffect[SK.PR_MAGNUS] = { effectId: 113, hitEffectId: 152, groundEffectId: 318 }; //Magnus Exorcismus
 // Wizard
 SkillEffect[SK.WZ_FIREPILLAR] = { groundEffectId: 138, hitEffectId: [0] }; //Fire Pillar
-SkillEffect[SK.WZ_SIGHTRASHER] = { effectId: 62, hitEffectId: 49 }; //Sightrasher
+SkillEffect[SK.WZ_SIGHTRASHER] = { successEffectId: 62, damageEffectIdOnCaster: 62, hitEffectId: [0, 49], hitEffectOnce: true }; //Sightrasher
 SkillEffect[SK.WZ_METEOR] = { effectId: 92, hitEffectId: [0] }; //Meteor Storm
 // Official client: the ball leaves when the skill packet arrives; the hit effect comes with the damage.
 SkillEffect[SK.WZ_JUPITEL] = { releaseEffectId: 93, hitEffectId: [0, 94], hitEffectOnce: true }; //Jupitel Thunder
