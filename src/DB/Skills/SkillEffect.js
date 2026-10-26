@@ -1818,7 +1818,8 @@ SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
 SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
 SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
-SkillEffect[SK.SU_POWEROFFLOCK] = { effectId: 'ef_su_powerofflock' }; //Power of Flock
+// Power of Flock: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //Power of Flock
 SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Savage
 SkillEffect[SK.SU_HISS] = { effectId: 'ef_su_hiss' }; //Hiss
 SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass

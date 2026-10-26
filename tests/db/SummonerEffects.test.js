@@ -32,4 +32,7 @@ describe('Summoner skill effects', () => {
 	it("Arclouse Dash plays on use success only", () => {
 		expect(row('SU_ARCLOUSEDASH')).toBe("{ successEffectId: 'ef_su_arclousedash' }");
 	});
+	it("Power of Flock plays on use success only", () => {
+		expect(row('SU_POWEROFFLOCK')).toBe("{ successEffectId: 'ef_su_powerofflock' }");
+	});
 });
