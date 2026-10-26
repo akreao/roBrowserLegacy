@@ -291,9 +291,10 @@ SkillEffect[SK.HN_RULEBREAK] = { effectId: 'ef_hn_rulebreak', castAuraEffectId: 
 SkillEffect[5505 /* HN_OVERCOMING_CRISIS */] = { effectId: 'ef_hn_overcoming_crisis' }; //Overcoming Crisis
 SkillEffect[SK.SM_AUTOBERSERK] = {}; //Auto Berserk
 SkillEffect[SK.AC_MAKINGARROW] = {}; //Arrow Crafting
-// Official client: one arrow per damage packet, as for a normal bow attack; each hit that lands plays
-// 0 (the standard hit flash) on the target, nothing else (not in the hit map). See effect-port/archer-skills.md.
-SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Arrow Repel
+// Official client (kRO 2025-07-16): 16 (EF_BASH) on the caster as each damage packet arrives; no arrow
+// (the skill uses action 7, not the bow attack); each hit that lands plays 0 (the standard hit flash) on
+// the target, nothing else (not in the hit map). See effect-port/archer-skills.md.
+SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnCaster: 16, hitEffectId: [0] }; //Arrow Repel
 // Official client (kRO 2025-07-16): 310 (sand) on the target as each damage packet arrives; every hit plays
 // the standard hit flash (0). See effect-port/thief-skills.md.
 SkillEffect[SK.TF_SPRINKLESAND] = { damageEffectIdOnTarget: 310, hitEffectId: 0 }; //Sand Attack
