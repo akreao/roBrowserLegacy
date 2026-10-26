@@ -137,9 +137,10 @@ SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
 // Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash), and 1 (EF_HIT2)
-// with the first hit of the packet. The status look (33) comes from the effect state.
+// with the first hit of the packet. Each damage packet also plays 12 (EF_BEGINSPELL) on the caster
+// (the client's per-skill motion effect). The status look (33) comes from the effect state.
 // See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_RUWACH] = { hitEffectId: 0, firstHitEffectId: 1 }; //Ruwach
+SkillEffect[SK.AL_RUWACH] = { damageEffectIdOnCaster: 12, hitEffectId: 0, firstHitEffectId: 1 }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
