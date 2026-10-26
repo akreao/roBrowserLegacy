@@ -13002,7 +13002,15 @@ export default {
 		}
 	],
 
-	//623: [{}],	//EF_CHEMICAL4	   Piercing Shot
+	623: [
+		{
+			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28; also 8 streak sets
+			// (prim 56, line3y.tga) along the shot, not ported. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xc7\xc7\xbe\xee\xbd\xcc\xbc\xa6', // 피어싱샷
+			delayWav: 467, // tick 28
+			attachedEntity: true
+		}
+	],
 	//624: [{}],	//EF_STIN5	   Kamaitachi
 	//625: [{}],	//EF_MADNESS_BLUE	   Madness Canceller
 	//626: [{}],	//EF_MADNESS_RED	   Adjustment
