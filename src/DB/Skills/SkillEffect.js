@@ -247,7 +247,7 @@ SkillEffect[SK.HT_BLASTMINE] = { hitEffectId: [0] }; //Blast Mine: 106 plays at 
 SkillEffect[SK.HT_CLAYMORETRAP] = { hitEffectId: [0] }; //Claymore Trap: 107 plays at the trap when it goes off (SkillUnitTrigger)
 SkillEffect[SK.HT_REMOVETRAP] = { effectId: 100 }; //Remove Trap
 SkillEffect[SK.HT_TALKIEBOX] = {}; //Talkie Box
-SkillEffect[SK.HT_BLITZBEAT] = { effectId: 115 }; //Blitz Beat
+SkillEffect[SK.HT_BLITZBEAT] = { hitEffectId: 115, hitEffectOnce: true }; //Blitz Beat: official hit map 115, once per damage packet (splash too), no hit flash
 SkillEffect[SK.HT_DETECTING] = { effectId: 119 }; //Detect
 SkillEffect[SK.HT_SPRINGTRAP] = { effectId: 111 }; //Spring Trap
 // Assassin
