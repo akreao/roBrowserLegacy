@@ -305,7 +305,9 @@ SkillEffect[SK.MC_LOUD] = { successEffectId: 311 }; //Crazy Uproar
 // Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
 // 152 (HolyHit.str) once, nothing on a miss. See effect-port/acolyte-skills.md.
 SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: [0, 152], hitEffectOnce: true }; //Holy Light
-SkillEffect[SK.MG_ENERGYCOAT] = { effectId: 169 }; //Energy Coat
+// Official client: 169 (EnergyCoat.str) on the caster from the use packet, only when its result is set.
+// See effect-port/mage-audit.md.
+SkillEffect[SK.MG_ENERGYCOAT] = { successEffectIdOnCaster: 169 }; //Energy Coat
 // NPC Skills
 SkillEffect[SK.NPC_PIERCINGATT] = { effectIdOnCaster: 148 }; //Piercing Attack
 SkillEffect[SK.NPC_MENTALBREAKER] = { effectId: 181 }; //Spirit Destruction
