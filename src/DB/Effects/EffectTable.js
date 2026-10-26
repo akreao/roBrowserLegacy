@@ -2817,10 +2817,16 @@ export default {
 	67: [
 		{
 			//EF_PROVOKE	Provoke
+			// The official client plays the sound twice: on tick 5 (83 ms) and tick 30 (500 ms)
 			type: 'STR',
 			file: 'provoke',
 			wav: 'effect/swordman_provoke',
+			delayWav: 83,
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/swordman_provoke',
+			delayWav: 500
 		}
 	],
 
