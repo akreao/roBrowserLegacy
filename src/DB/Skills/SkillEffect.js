@@ -213,7 +213,9 @@ SkillEffect[SK.PR_KYRIE] = { successEffectIdOnCaster: 112 }; //Kyrie Eleison
 SkillEffect[SK.PR_MAGNIFICAT] = { successEffectIdOnCaster: 76 }; //Magnificat
 SkillEffect[SK.PR_GLORIA] = { successEffectIdOnCaster: 75 }; //Gloria
 SkillEffect[SK.PR_LEXDIVINA] = { successEffectId: 87 }; //Lex Divina
-SkillEffect[SK.PR_TURNUNDEAD] = { hitEffectId: 152 }; //Turn Undead
+// Official client: 82 on the caster as each damage packet arrives; the hit plays the hit flash (0)
+// and HolyHit.str (152) once per packet.
+SkillEffect[SK.PR_TURNUNDEAD] = { damageEffectIdOnCaster: 82, hitEffectId: [0, 152], hitEffectOnce: true }; //Turn Undead
 SkillEffect[SK.PR_LEXAETERNA] = { successEffectId: 85 }; //Lex Aeterna
 SkillEffect[SK.PR_MAGNUS] = { effectId: 113, hitEffectId: 152, groundEffectId: 318 }; //Magnus Exorcismus
 // Wizard
