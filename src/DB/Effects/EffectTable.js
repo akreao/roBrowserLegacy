@@ -17,6 +17,8 @@ import Level99Bubble from 'Renderer/Effects/Level99Bubble.js';
 import LevelAuraEffects from 'DB/Effects/LevelAuraEffects.js';
 import CostumeSpriteEffects from 'DB/Effects/CostumeSpriteEffects.js';
 import BodyEffects from 'DB/Effects/BodyEffects.js';
+import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
+import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
 import SoundManager from 'Audio/SoundManager.js';
@@ -38,19 +40,34 @@ import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
+import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
+import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
+import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
+import { stealEffect } from 'DB/Effects/StealEffect.js';
+import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import BoltRain from 'Renderer/Effects/BoltRain.js';
+import IceSpikes from 'Renderer/Effects/IceSpikes.js';
+import {
+	planPath as planIcePath,
+	planShards as planIceShards,
+	PATH as ICE_PATH,
+	SHARDS as ICE_SHARDS
+} from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -966,14 +983,8 @@ export default {
 	],
 
 	10: [
-		{
-			//EF_COIN	Mammonite
-			type: 'STR',
-			file: 'maemor',
-			min: 'memor_min',
-			wav: 'effect/ef_coin2',
-			attachedEntity: true
-		}
+		// EF_COIN, Mammonite: Maemor.str and the client's 5 bouncing coins with their coin sounds (MammoniteEffect.js)
+		...mammoniteEffect
 	],
 
 	11: [
@@ -1134,7 +1145,7 @@ export default {
 			rotateToTarget: true,
 			sizeStart: 100.0,
 			sizeEnd: 500.0,
-			zOffsetStart: 3,
+			zOffset: 3,
 			arc: 4.0,
 			retreat: 3.0,
 			soulStrikePattern: true
@@ -1256,30 +1267,8 @@ export default {
 	],
 
 	18: [
-		{
-			//EF_STEAL	Steal
-			alphaMax: 1,
-			attachedEntity: false,
-			red: 1,
-			green: 1,
-			blue: 0.85,
-			duration: 500,
-			duplicate: 7,
-			timeBetweenDupli: 0,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			posxEndRand: 3.5,
-			posyEndRand: 3.5,
-			poszEndRand: 1,
-			poszEndRandMiddle: 3,
-			sizeEnd: 10,
-			sizeStart: 200,
-			type: '3D',
-			zIndex: 10
-		},
-		{
-			wav: 'effect/ef_steal'
-		}
+		// EF_STEAL, Steal: the client's 10 particle7 sparks and EF_Steal.wav (StealEffect.js)
+		...stealEffect
 	],
 
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
@@ -1313,31 +1302,8 @@ export default {
 	],
 
 	21: [
-		{
-			//EF_DETOXICATION	Detoxify
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1000,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: 0.7,
-			size: 100,
-			sizeRand: 20,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			attachedEntity: true,
-			wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
-		}
+		// EF_DETOXICATION, Detoxify: the client's 20 rising particle2 bubbles (DetoxifyEffect.js)
+		...detoxifyEffect
 	],
 
 	22: [
@@ -1399,29 +1365,102 @@ export default {
 		}
 	],
 
+	stonecurse_sound: [
+		{
+			// The sound the official client plays with Stone Curse's effect 23 (not part of 23 itself)
+			wav: '_stonecurse',
+			attachedEntity: true
+		}
+	],
+
 	24: [
 		{
-			//fireball caster effect (on target effect 49:)	//EF_FIREBALL	Fire Ball
+			//EF_FIREBALL	Fire Ball, played on the caster: the official client throws four fireball sprites at the
+			//target on ticks 20, 24, 28 and 32, each flying 20 ticks from 15 units up, each with its own sound.
+			//The first is plain, the next three tinted (246, 199, 76) and fainter (alpha 180, 130, 80).
 			type: '3D',
-			alphaMax: 0.2,
-			alphaMaxDelta: 0.2,
-			attachedEntity: true,
-			duration: 250,
-			delayOffset: 160,
-			delayOffsetDelta: -40,
 			spriteName: 'fireball',
 			playSprite: true,
-			duplicate: 5,
-			timeBetweenDupli: 0,
-			toSrc: true,
+			attachedEntity: false,
+			fromSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-			zOffset: 2,
-			size: 200,
+			zOffset: 3,
+			delayStart: 333,
+			duration: 333,
+			alphaMax: 1,
+			size: 130,
 			zIndex: 1
 		},
 		{
-			wav: 'effect/ef_fireball'
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 400,
+			duration: 333,
+			alphaMax: 180 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 467,
+			duration: 333,
+			alphaMax: 130 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 533,
+			duration: 333,
+			alphaMax: 80 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 333
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 400
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 467
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 533
 		}
 	],
 
@@ -1440,56 +1479,64 @@ export default {
 
 	26: [
 		{
-			//EF_ICEARROW	A sound (a swipe?)
-			//type: 'FUNC',
-			wav: 'effect/ef_icearrow%d', // Or ef_icearrow2 & ef_icearrow3 . Seems to be random
+			//EF_ICEARROW	Cold Bolt, on the target: one ice bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_blue ring as it lands (BoltRainSim.js, effect-port/bolts.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.hitCount, 'cold'),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_icearrow%d',
 			rand: [1, 3],
-			attachedEntity: false
+			delayWav: 200,
+			attachedEntity: true
 		}
 	],
 
 	27: [
 		{
-			//EF_FROSTDIVER	Frost Diver (ice spikes traveling from caster to target)
-			type: 'TRAIL',
-			attachedEntity: false,
-			duration: 2500,
-			speed: 24,
-			interval: 17,
-			stopAtTarget: true,
-			overshoot: 2,
-			spread: [0.1, 0.3],
-			spawn: [
-				{
-					type: 'QuadHorn',
-					textureFile: 'effect/ice.tga',
-					attachedEntity: false,
-					duration: 670,
-					height: [0.2, 1.8],
-					offsetX: 0,
-					offsetY: 0,
-					offsetZ: 0,
-					bottomSize: [0.06, 0.22],
-					blendMode: 8,
-					rotateX: [-15, 15],
-					rotateY: [0, 360],
-					color: [1.0, 1.0, 1.0, 1.0],
-					animation: 4,
-					animationSpeed: 330,
-					riseDistance: 2.0,
-					fadeOut: 170
+			//EF_FROSTDIVER	Frost Diver, on the caster: one thin ice spike a tick along the line to the
+			//target, pushing out of the ground (IceSpikesSim.js, effect-port/frost-diver.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!target) {
+					return;
 				}
-			]
+				const at = [caster.position[0], caster.position[1], caster.position[2]];
+				const spikes = planIcePath(
+					(target.position[0] - at[0]) * 5,
+					(target.position[1] - at[1]) * 5
+				);
+				this.add(new IceSpikes(at, Params.Inst.startTick, spikes, ICE_PATH.life), Params);
+			}
 		}
 	],
 
 	28: [
 		{
-			//Frost Diver target hit	//EF_FROSTDIVER2	Frost Diver (Hitting)
+			//EF_FROSTDIVER2	Frost Diver hit, on the target: 8 wide ice spikes bursting from the feet
+			//(IceSpikesSim.js, effect-port/frost-diver.md)
+			type: 'FUNC',
 			attachedEntity: true,
-			file: 'freeze', //effect/ice.tga
-			type: 'STR',
-			wav: 'effect/ef_frostdiver2'
+			func: function (Params) {
+				this.add(
+					new IceSpikes(Params.Init.ownerEntity.position, Params.Inst.startTick, planIceShards(), ICE_SHARDS.life),
+					Params
+				);
+			}
+		},
+		{
+			wav: 'effect/ef_frostdiver2',
+			attachedEntity: true
 		}
 	],
 
@@ -1515,9 +1562,50 @@ export default {
 
 	31: [
 		{
-			//EF_FIREARROW	Weird bubbles launching from feet
-			//type: 'FUNC',
-			wav: 'effect/ef_firearrow1',
+			//EF_FIREARROW	Fire Bolt, on the target: one fire bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_yellow ring as it lands, and a spark every 4 ticks from the newest
+			//bolt (BoltRainSim.js, effect-port/bolts.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const target = Params.Init.ownerEntity;
+				const spark = (s, startTick) => {
+					// A particle4 sprite flying from the bolt back up its line, shrinking away
+					const at = [target.position[0], target.position[1], target.position[2]];
+					this.spamEffect({
+						effect: {
+							type: '3D',
+							spriteName: 'particle4',
+							playSprite: true,
+							attachedEntity: false,
+							duration: (s.life * 1000) / 60,
+							posxStart: s.start.x / 5,
+							posyStart: s.start.y / 5,
+							poszStart: s.start.up / 5,
+							posxEnd: s.end.x / 5,
+							posyEnd: s.end.y / 5,
+							poszEnd: s.end.up / 5,
+							sizeStart: s.scale * 100,
+							sizeEnd: 1,
+							alphaMax: 1,
+							fadeOut: true,
+							zIndex: 1
+						},
+						Inst: { effectID: 31, duplicateID: 0, startTick },
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
+				};
+				this.add(
+					new BoltRain(target.position, Params.Inst.startTick, Params.Init.hitCount, 'fire', Math.random, spark),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 200,
 			attachedEntity: true
 		}
 	],
@@ -1762,9 +1850,80 @@ export default {
 	40: [
 		{
 			//EF_SIGNUM	Signum Crucis
+			// Official client: the cross STR from the start; on tick 30 (500 ms) EF_Signum.wav, EF_Bash.wav
+			// and a bash burst (effect 16's look). See effect-port/acolyte-skills.md.
 			type: 'STR',
 			file: 'cross',
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/ef_signum',
+			delayWav: 500
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_down',
+			alphaMax: 0.6,
+			duration: 1000,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.1,
+			topSize: 2,
+			animation: 2,
+			zIndex: 1,
+			wav: 'effect/ef_bash',
+			delayWav: 500,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 10,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 2.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 8,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4,
+			animation: 2,
+			zIndex: 1.2,
 			attachedEntity: true
 		}
 	],
@@ -4131,10 +4290,79 @@ export default {
 	170: [
 		{
 			//EF_CARTREVOLUTION	Cart Revolution
+			// Official client: the STR, and on ticks 7 and 20 the Magnum Break sound with a yellow ring and a
+			// fire sphere (smaller and fainter than Magnum Break's). See effect-port/merchant-skills.md.
 			type: 'STR',
 			file: 'cartrevolution',
-			wav: 'effect/ef_magnumbreak',
 			attachedEntity: true
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			delayStart: 7 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 20) * 0.5,
+			width: 5,
+			alpha: 0,
+			alphaSpeed: 180 / 15,
+			alphaMax: 180,
+			fadeOutFrame: 5,
+			wav: 'effect/ef_magnumbreak',
+			delayWav: 7 * (1000 / 60)
+		},
+		{
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			delayStart: 7 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.35,
+			radiusAccel: -(1.35 / 20) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 240 / 7,
+			alphaMax: 240,
+			fadeOutFrame: 5
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			delayStart: 20 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 20) * 0.5,
+			width: 5,
+			alpha: 0,
+			alphaSpeed: 180 / 15,
+			alphaMax: 180,
+			fadeOutFrame: 5,
+			wav: 'effect/ef_magnumbreak',
+			delayWav: 20 * (1000 / 60)
+		},
+		{
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			delayStart: 20 * (1000 / 60),
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			radiusSpeed: 1.35,
+			radiusAccel: -(1.35 / 20) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 240 / 7,
+			alphaMax: 240,
+			fadeOutFrame: 5
 		}
 	],
 
@@ -6534,27 +6762,8 @@ export default {
 
 	//307: [{}],	//EF_FORESTLIGHT	   Forest Light 1
 
-	308: [
-		{
-			//EF_THROWITEM3	   Throw Stone
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 0.5,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM3, Throw Stone: the client's thrown stone with its trail (ThrowStoneEffect.js)
+	308: throwStoneEffect,
 
 	309: [
 		{
@@ -6742,7 +6951,8 @@ export default {
 		}
 	],
 
-	//310: [{}],	//EF_SPRINKLESAND	   Sprinkle Sand
+	// EF_SPRINKLESAND, Sand Attack: the client's 80 rising sand grains (SandAttackEffect.js)
+	310: sandAttackEffect,
 
 	311: [
 		{
@@ -6876,8 +7086,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
@@ -7122,6 +7331,8 @@ export default {
 	317: [
 		{
 			//Warp Portal Animation 2	//EF_PORTAL2	Warp Portal Animation 2
+			// Official client: the open portal plays EF_Portal.wav once when it appears and no
+			// EF_ReadyPortal.wav (that is the waiting portal, 316). See effect-port/acolyte-skills.md.
 			alphaMax: 0.4,
 			animation: 4,
 			attachedEntity: true,
@@ -7140,7 +7351,6 @@ export default {
 			repeat: true,
 			repeatDelay: -300,
 			topSize: 3.9,
-			wav: 'effect/ef_readyportal',
 			type: 'CYLINDER'
 		},
 		{
@@ -7583,8 +7793,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
@@ -9487,7 +9696,22 @@ export default {
 	//432: [{}],	//EF_ELECTRIC	   Solar, Lunar and Stellar Perception (Visual Effect)
 	//433: [{}],	//EF_ELECTRIC2	   Solar, Lunar and Stellar Opposition (Visual Effect)
 	//434: [{}],	//EF_HITLINE7	   Taekwon Kick Hit 4
-	//435: [{}],	//EF_STORMKICK	   Whirlwind Kick
+	435: [
+		{
+			//EF_STORMKICK	Tornado Kick, on the caster
+			wav: 'effect/t_\xc8\xb8\xbf\xc0\xb8\xae\xc2\xf7\xb1\xe2', // t_회오리차기
+			delayWav: 83, // tick 5
+			attachedEntity: true
+		},
+		{
+			// The caster turns 30 degrees a tick for 48 ticks (FacingTurn.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new FacingTurn(Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
+		}
+	],
 	//436: [{}],	//EF_HALFSPHERE	   White Barrier (Unused)
 	//437: [{}],	//EF_ATTACKENERGY	   White barrier 2 (Unused)
 	//438: [{}],	//EF_ATTACKENERGY2	   Kaite Reflect Animation
@@ -9548,6 +9772,13 @@ export default {
 	//448: [{}],	//EF_FOOT4	   Running Right Foot
 	//449: [{}],	//EF_TAE_READY	   KA-Spell (1st Part)
 
+	// Tumbling (TK_DODGE): the sound the official client plays when the skill works.
+	ef_tk_dodge: [
+		{
+			wav: 'effect/t_\xb3\xab\xb9\xfd' // t_낙법
+		}
+	],
+
 	450: [
 		{
 			// Dark cross	//EF_GRANDCROSS2	Darkcross
@@ -9590,7 +9821,7 @@ export default {
 			rotateToTarget: true,
 			sizeStart: 100.0,
 			sizeEnd: 500.0,
-			zOffsetStart: 3,
+			zOffset: 3,
 			arc: 4.0,
 			retreat: 4.0, //soulstrike2 have a little retreat upper
 			soulStrikePattern: true
@@ -9672,8 +9903,9 @@ export default {
 
 	457: [
 		{
-			//flying kick on target	//EF_JUMPKICK	Flying Side Kick (2nd Part)
-			wav: 'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
+			//EF_JUMPKICK	Flying Kick, on the caster
+			wav: 'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', // t_날라차기
+			delayWav: 83, // tick 5
 			attachedEntity: true
 		}
 	],
@@ -10364,6 +10596,13 @@ export default {
 			type: '3D',
 			zIndex: 10,
 			file: 'effect/hanmoon6.tga'
+		}
+	],
+
+	// Taekwon Mission (TK_MISSION): the sound the official client plays when the skill works.
+	ef_tk_mission: [
+		{
+			wav: 'effect/t_\xc7\xc7\xb8\xb5' // t_피링
 		}
 	],
 
@@ -22877,28 +23116,8 @@ export default {
 		}
 	],
 
-	ef_arrow_shower_projectile: [
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: false,
-			duration: 140,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			fadeIn: true,
-			fadeOut: true,
-			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1,
-			posxEndRand: 1.5,
-			posyEndRand: 1.5
-		}
-	],
+	// Arrow Shower (AC_SHOWER): the client's arrows to the cells around a point, ArrowShowerEffects.js.
+	...arrowShowerEffects(),
 
 	// Wind Sign (WH_WIND_SIGN), from the client's own effect folders.
 	ef_wh_wind_sign: [
@@ -24365,21 +24584,6 @@ export default {
 			type: 'STR',
 			file: 'suicide',
 			texturePath: ''
-		}
-	],
-
-	// Counter Kick (TK_COUNTER), from the client's own effect folders.
-	ef_tk_counter: [
-		{
-			type: 'STR',
-			file: 'new_counter_slash/new_counter_slash/new_counter_slash',
-			texturePath: 'new_counter_slash/new_counter_slash/'
-		},
-		{
-			type: 'STR',
-			file: 'new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom',
-			texturePath: 'new_counter_slash/new_counter_slash_bottom/',
-			renderBeforeEntities: true
 		}
 	],
 
@@ -27415,5 +27619,11 @@ export default {
 	...CostumeSpriteEffects,
 
 	// The effects that change how their owner's body is drawn: BodyEffects.js.
-	...BodyEffects
+	...BodyEffects,
+
+	// The Taekwon body effects (press, spin, kick, quake, ready glow): TaekwonBodyEffects.js.
+	...TaekwonBodyEffects,
+
+	// The Gunslinger body glows (Fling, Madness Canceller, Adjustment, Gatling Fever): GunslingerBodyEffects.js.
+	...GunslingerBodyEffects
 };

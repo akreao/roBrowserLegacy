@@ -1066,9 +1066,12 @@ class EffectManager {
 		}
 
 		if (SkillEffect[skillId].successEffectId) {
-			effects = Array.isArray(SkillEffect[skillId].successEffectId)
-				? SkillEffect[skillId].successEffectId
-				: [SkillEffect[skillId].successEffectId];
+			// A function picks the effect from the packet's level field (Heal: the healed amount)
+			effects =
+				typeof SkillEffect[skillId].successEffectId === 'function'
+					? SkillEffect[skillId].successEffectId(level)
+					: SkillEffect[skillId].successEffectId;
+			effects = Array.isArray(effects) ? effects : [effects];
 
 			effects.forEach(effectId => {
 				EF_Init_Par = {
@@ -1318,8 +1321,9 @@ class EffectManager {
 	 * @param {number} tick
 	 * @param {number} srcAID caster aid
 	 * @param {function} [random] returns a number in [0, 1)
+	 * @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
 	 */
-	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random) {
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
 		const skill = SkillEffect[skillId];
 		if (!skill) {
 			return;
@@ -1336,7 +1340,8 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: ownerAID,
 					startTick: tick,
-					otherAID: otherAID
+					otherAID: otherAID,
+					hitCount: hitCount
 				});
 			});
 		};

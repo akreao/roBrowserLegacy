@@ -1552,7 +1552,10 @@ function onEntityUseSkill(pkt) {
 		// In healing skill, the level parameter stored the healed value
 		if (pkt.SKID === SkillId.AL_HEAL || pkt.SKID === SkillId.AB_HIGHNESSHEAL || pkt.SKID === SkillId.AB_CHEAL) {
 			Damage.add(pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL);
-			Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
+			// Heal's effect plays the sound itself, as in the official client
+			if (pkt.SKID !== SkillId.AL_HEAL) {
+				Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
+			}
 		}
 
 		// Steal Coin zeny
@@ -1743,10 +1746,13 @@ function onEntityUseSkillToAttack(pkt) {
 
 	if (dstEntity) {
 		const target = pkt.damage ? dstEntity : srcEntity;
+		// Skills whose hit the official client queues later than attackMT (hitDelay, ms)
+		const hitDelay = (SkillEffect[pkt.SKID] && SkillEffect[pkt.SKID].hitDelay) || 0;
+		const hitPkt = hitDelay ? { ...pkt, attackMT: pkt.attackMT + hitDelay } : pkt;
 
 		if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 			// Will be hit actions
-			onEntityWillBeHitSub(pkt, dstEntity);
+			onEntityWillBeHitSub(hitPkt, dstEntity);
 
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
@@ -1786,7 +1792,7 @@ function onEntityUseSkillToAttack(pkt) {
 
 			for (let i = 0; i < pkt.count; ++i) {
 				EffectManager.spamSkillBeforeHit(pkt.SKID, pkt.targetID, Renderer.tick + C_MULTIHIT_DELAY * i, pkt.AID);
-				addDamage(i, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY * i);
+				addDamage(i, Renderer.tick + hitPkt.attackMT + C_MULTIHIT_DELAY * i);
 			}
 		}
 
@@ -1799,7 +1805,7 @@ function onEntityUseSkillToAttack(pkt) {
 	}
 
 	// Effects the official client plays as each damage packet arrives
-	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, undefined, pkt.count);
 
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
@@ -2099,19 +2105,13 @@ function onEntityStatusChange(pkt) {
 			}
 			break;
 
-		case StatusConst.HIDING: {
-			const EF_Init_Par = {
-				effectId: EffectConst.EF_SUMMONSLAVE,
-				ownerAID: pkt.AID
-			};
-
-			if (pkt.state == 1) {
-				EF_Init_Par.effectId = EffectConst.EF_BASH;
+		case StatusConst.HIDING:
+			// Official client: going into hiding plays EF_BASH (16) on the actor, except for
+			// Ninja and Baby Ninja; coming out plays nothing. See effect-port/thief-skills.md.
+			if (pkt.state == 1 && entity.job != JobId.NINJA && entity.job != JobId.NINJA_B) {
+				EffectManager.spam({ effectId: EffectConst.EF_BASH, ownerAID: pkt.AID });
 			}
-
-			EffectManager.spam(EF_Init_Par);
 			break;
-		}
 
 		case StatusConst.FALCON:
 			if (pkt.state || !pkt.hasOwnProperty('state')) {

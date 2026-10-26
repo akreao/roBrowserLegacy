@@ -31,6 +31,7 @@ import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
+import { applyMarks, glowLayers, marksOf } from 'Renderer/Effects/BodyMotionSim.js';
 
 /**
  * Load dependencies
@@ -750,6 +751,40 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 }
 
 /**
+ * Body glow (BodyMotion.js: Taekwon ready glow, Gunslinger blue and red
+ * glows): the layers drawn twice more, added, in one colour at one alpha.
+ *
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {object} spr
+ * @param {object} pal
+ * @param {object} files
+ * @param {number[]} _position
+ * @param {number[]} glowColor [r, g, b] 0-255
+ * @param {number} alpha 0-255
+ */
+function renderReadyGlow(entity, layers, spr, pal, files, _position, glowColor, alpha) {
+	const color = entity.effectColor;
+	const r = color[0];
+	const g = color[1];
+	const b = color[2];
+	const a = color[3];
+	color[0] = glowColor[0] / 255;
+	color[1] = glowColor[1] / 255;
+	color[2] = glowColor[2] / 255;
+	color[3] = alpha / 255;
+	for (let k = 0; k < 2; k++) {
+		for (let i = 0; i < layers.length; ++i) {
+			entity.renderLayer(layers[i], spr, pal, files.size, _position, 'glow', true);
+		}
+	}
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
+	color[3] = a;
+}
+
+/**
  * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
  * @param {Entity} entity
  * @param {Array} layers
@@ -1080,6 +1115,14 @@ const renderElement = (function renderElementClosure() {
 			entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 		}
 
+		// Body glows (BodyMotion.js): two more added copies per glow, blue then red
+		if (type !== 'shadow' && type !== 'cartshadow' && entity._bodyMotions && entity._bodyMotions.size) {
+			const glows = glowLayers(marksOf(entity));
+			for (let g = 0; g < glows.length; g++) {
+				renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
+			}
+		}
+
 		if (is_main && type === 'body' && entity.waterDepthFrame === null) {
 			const frame =
 				entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: new Int32Array(2) });
@@ -1369,6 +1412,20 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.offset[1] = layer.pos[1] + pos[1];
 	SpriteRenderer.xSize = this.xSize;
 	SpriteRenderer.ySize = this.ySize;
+
+	// Taekwon body effects (BodyMotion.js): press, spin, kick, quake
+	if (type !== 'shadow' && type !== 'cartshadow' && this._bodyMotions && this._bodyMotions.size) {
+		const marks = marksOf(this);
+		if (marks.length) {
+			const quad = applyMarks(marks, SpriteRenderer.offset[0], SpriteRenderer.offset[1], width, height);
+			SpriteRenderer.offset[0] = quad.ox;
+			SpriteRenderer.offset[1] = quad.oy;
+			SpriteRenderer.size[0] = quad.w;
+			SpriteRenderer.size[1] = quad.h;
+			SpriteRenderer.angle = layer.angle + quad.angle;
+		}
+	}
+
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;

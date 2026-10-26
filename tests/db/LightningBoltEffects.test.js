@@ -4,15 +4,15 @@ import { join } from 'node:path';
 
 // Lightning Bolt (MG_LIGHTNINGBOLT, skill 20), as the official client plays it:
 // effect 29 (Lightning.str, nothing else) on the target as the damage packet arrives,
-// then effect 52 (wind hit) once when the damage lands, whatever the hit count.
+// then effect 52 (wind hit) on every hit as it lands (2025-07-16 client).
 // Spec: effect-port/mage-audit.md.
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 describe('Lightning Bolt effects', () => {
-	it('plays 29 at packet arrival and 52 once on the hit', () => {
+	it('plays 29 at packet arrival and 52 on every hit', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
-			/SkillEffect\[SK\.MG_LIGHTNINGBOLT\] = \{ damageEffectIdOnTarget: 29, hitEffectId: 52, hitEffectOnce: true \};/
+			/SkillEffect\[SK\.MG_LIGHTNINGBOLT\] = \{ damageEffectIdOnTarget: 29, hitEffectId: 52 \};/
 		);
 	});
 
