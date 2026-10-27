@@ -25,6 +25,7 @@ import EffectManager from 'Renderer/EffectManager.js';
 import { CHARM_ORB_EFFECTS, ALL_CHARM_ORB_EFFECTS } from 'Renderer/Effects/EnergyOrbSim.js';
 import { SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS } from 'Renderer/Effects/SoulCollectSim.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import { sendFalcon } from 'Engine/MapEngine/FalconFlight.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
@@ -143,6 +144,11 @@ function onSkillToGround(pkt) {
 	position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 
 	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID, pkt.level);
+
+	// Detect sends the falcon to the cell (official client)
+	if (pkt.SKID === SkillId.HT_DETECTING) {
+		sendFalcon(EntityManager.get(pkt.AID), pkt.xPos, pkt.yPos);
+	}
 
 	// Ground Truth / Canonical C++ (GameActorMsgHandler.cpp line 1069):
 	// Relocation skills on ground: SKID_MO_BODYRELOCATION, SKID_NJ_SHADOWJUMP, SKID_RL_FALLEN_ANGEL, SKID_SU_LOPE

@@ -23,7 +23,7 @@ describe('Jupitel Thunder timing', () => {
 	it.each(['WZ_JUPITEL', 'NPC_DARKTHUNDER'])('%s releases the ball at once and shows the hit with the damage', skill => {
 		const line = skillEffect.split('\n').find(l => l.startsWith(`SkillEffect[SK.${skill}] =`));
 		expect(line).toContain('releaseEffectId: 93');
-		expect(line).toContain('hitEffectId: 94');
+		expect(line).toMatch(/hitEffectId: (\[0, )?94\]?/);
 		expect(line).not.toMatch(/\beffectId: 93|beforeHitEffectId/);
 	});
 
@@ -33,6 +33,6 @@ describe('Jupitel Thunder timing', () => {
 	});
 
 	it('shows each hit flash for 10 ticks', () => {
-		expect(entry(94)).toMatch(/thunder_pang\.bmp',\n\t\t\tduration: 167,/);
+		expect(entry(94)).toMatch(/thunder_pang\.bmp',[^\]]*?duration: 167,/);
 	});
 });
