@@ -154,13 +154,14 @@ SkillEffect[SK.AL_HEAL] = {
 	firstHitEffectId: 1
 }; //Heal
 // Official client: the use packet shows these only when its result is set (a resisted Decrease AGI
-// shows nothing). See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_INCAGI] = { successEffectId: 37 }; //Increase AGI
+// shows nothing). On a player under Change Undead, Increase AGI and Blessing also deal damage: 0 on
+// every hit and 1 (EF_HIT2) with the first, like any Acolyte hit. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_INCAGI] = { successEffectId: 37, hitEffectId: 0, firstHitEffectId: 1 }; //Increase AGI
 SkillEffect[SK.AL_DECAGI] = { successEffectId: 38 }; //Decrease AGI
 SkillEffect[SK.AL_HOLYWATER] = { successEffectId: 39 }; //Aqua Benedicta
 SkillEffect[SK.AL_CRUCIS] = { successEffectId: 40 }; //Signum Crucis
 SkillEffect[SK.AL_ANGELUS] = { successEffectId: 41 }; //Angelus
-SkillEffect[SK.AL_BLESSING] = { successEffectId: 42 }; //Blessing
+SkillEffect[SK.AL_BLESSING] = { successEffectId: 42, hitEffectId: 0, firstHitEffectId: 1 }; //Blessing
 SkillEffect[SK.AL_CURE] = { successEffectId: 66 }; //Cure
 // Merchant
 SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
