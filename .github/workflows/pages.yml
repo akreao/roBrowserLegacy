@@ -6,7 +6,9 @@ concurrency:
 
 on:
   push:
-    branches: ["**"]
+    # The fork only publishes its own branch. Deploying every branch made
+    # parallel pushes race for gh-pages and fail.
+    branches: ["ragnarokoffline"]
 
 permissions:
   contents: write
