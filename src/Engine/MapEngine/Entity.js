@@ -1600,6 +1600,11 @@ function onEntityUseSkill(pkt) {
 
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
+		// Spring Trap sends the falcon to the trap (official client)
+		if (pkt.SKID === SkillId.HT_SPRINGTRAP && dstEntity) {
+			sendFalcon(srcEntity, dstEntity.position[0], dstEntity.position[1]);
+		}
+
 		if (pkt.result == 1) {
 			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 		}

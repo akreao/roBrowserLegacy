@@ -72,4 +72,11 @@ describe('the falcon', () => {
 		const skill = read('Engine/MapEngine/Skill.js');
 		expect(skill).toMatch(/pkt\.SKID === SkillId\.HT_DETECTING\) \{\n\t\tsendFalcon\(EntityManager\.get\(pkt\.AID\), pkt\.xPos, pkt\.yPos\);/);
 	});
+
+	it('goes for Spring Trap to the trap, from the use packet', () => {
+		const entity = read('Engine/MapEngine/Entity.js');
+		expect(entity).toMatch(
+			/pkt\.SKID === SkillId\.HT_SPRINGTRAP && dstEntity\) \{\n\t\t\tsendFalcon\(srcEntity, dstEntity\.position\[0\], dstEntity\.position\[1\]\);/
+		);
+	});
 });
