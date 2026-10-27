@@ -13094,14 +13094,20 @@ export default {
 
 	634: [
 		{
-			//EF_KAEN	Crimson Fire Formation
+			//EF_KAEN	Blaze Shield unit: official effect 634 (effect-port/ninja-skills.md)
+			// 화염진 action 0, looping while the unit stands, 1 unit (7 px) up. The client relaunches
+			// it every 23 ticks at 3-7 ticks a frame (random); drawn here at the mean, 5 ticks.
 			type: 'SPR',
 			file: '\xc8\xad\xbf\xb0\xc1\xf8',
+			delayFrame: 5 * (1000 / 60),
+			yOffset: -7,
 			repeat: true,
 			attachedEntity: true
 		},
 		{
-			wav: 'effect/\xc8\xad\xbf\xb0\xc1\xf8'
+			// The client plays 화염진.wav when a unit appears, 1 time in 8.
+			wav: 'effect/\xc8\xad\xbf\xb0\xc1\xf8',
+			wavChance: 1 / 8
 		}
 	],
 
