@@ -60,6 +60,7 @@ import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import { GANBANTEIN_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
 import {
@@ -5238,7 +5239,21 @@ export default {
 		}
 	],
 
-	//223: [{}],	//EF_GANBANTEIN	   Holy Cast Aura
+	223: [
+		{
+			//EF_GANBANTEIN	   Ganbantein
+			// Official client: four rings of ring_white.tga opening out round the cell, the funnel's
+			// variant 2 (CastFunnelSim.js GANBANTEIN_FUNNEL); the effect lives 300 ticks.
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(Params.Inst.position, Params.Inst.startTick, 300, 'ring_white.tga', GANBANTEIN_FUNNEL),
+					Params
+				);
+			}
+		}
+	],
 	//224: [{}],	//EF_WIND	   Wind (Map effect)
 	//225: [{}],	//EF_VOLCANO	   Volcano casting effect
 
@@ -9288,13 +9303,14 @@ export default {
 					}
 				});
 			},
-			wav: 'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac'
+			wav: 'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac',
+			delayWav: 25 * (1000 / 60) // official client: sound on tick 25
 		},
 		{
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 300;
+				const start = Params.Inst.startTick + 30 * (1000 / 60); // quake on tick 30
 				Camera.setQuake(start);
 			}
 		}
@@ -9623,7 +9639,36 @@ export default {
 		}
 	],
 
-	//401: [{}],	//EF_NAPALMVALCAN	   Napalm Vulcan Sound
+	401: [
+		//EF_NAPALMVALCAN	   Napalm Vulcan Sound
+		// Official client: on the target, EF_NapalmBeat.wav on ticks 20, 30, 40, 50 and 60. Its
+		// EF_HIT2 calls on those ticks draw nothing (that code only works on its own first tick).
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 20 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 30 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 40 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 50 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 60 * (1000 / 60),
+			attachedEntity: true
+		}
+	],
 	402: [
 		//EF_PORTAL5	   Dangerous Soul Collect
 		{
@@ -19390,6 +19435,13 @@ export default {
 					}
 				});
 			}
+		}
+	],
+
+	// Ganbantein's ground packet: the official client plays EF_FireWall.wav at the cell with effect 223.
+	ef_ganbantein_wav: [
+		{
+			wav: 'effect/ef_firewall'
 		}
 	],
 
