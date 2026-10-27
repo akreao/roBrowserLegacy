@@ -56,10 +56,17 @@ export const NINJA_ITEM = Object.assign({}, STONE, {
 /** Stone image, under data/texture (유저인터페이스/item/돌.bmp). */
 export const STONE_TEXTURE = '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp';
 
+/** Throw Venom Knife's knife (effect 600): the Ninja's thrown item with the knife's image. */
+export const VENOM_KNIFE = Object.assign({}, NINJA_ITEM, {
+	// 유저인터페이스/item/베넘나이프.bmp
+	texture:
+		'\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xba\xa3\xb3\xd1\xb3\xaa\xc0\xcc\xc7\xc1.bmp'
+});
+
 /**
  * @param {number[]} from start [x, y, height] in units
  * @param {number[]} to end [x, y, height] in units
- * @param {object} [kind] STONE or NINJA_ITEM
+ * @param {object} [kind] STONE, NINJA_ITEM or VENOM_KNIFE
  * @return {object} the throw
  */
 export function planThrow(from, to, kind = STONE) {

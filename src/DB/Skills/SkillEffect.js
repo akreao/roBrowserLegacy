@@ -832,7 +832,7 @@ SkillEffect[SK.NPC_MAXPAIN_ATK] = {}; //Max Pain Attack
 SkillEffect[SK.KN_CHARGEATK] = { beginCastEffectId: 'white_pulse', hitEffectId: 1, hitEffectOnce: true }; //Charge Attack
 // Official client: 599 on the Crusader, from the use packet when its result is set.
 SkillEffect[SK.CR_SHRINK] = { successEffectIdOnCaster: 599 }; //Shrink
-SkillEffect[SK.AS_VENOMKNIFE] = { beforeHitEffectId: 600 }; //Throw Venom Knife
+SkillEffect[SK.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 }; //Throw Venom Knife
 SkillEffect[SK.RG_CLOSECONFINE] = { effectId: 602, groundEffectId: 604 }; //Close Confine
 SkillEffect[SK.WZ_SIGHTBLASTER] = { effectId: 601 }; //Sight Blaster
 SkillEffect[SK.SA_CREATECON] = {}; //Create Elemental Converter

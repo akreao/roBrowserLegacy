@@ -5,15 +5,24 @@
  * position as the damage packet arrives, with three fainter copies trailing:
  *  - 308 (EF_THROWITEM3), Throw Stone's stone, in a low arc, spinning;
  *  - 613-616 (EF_THROWITEM7-10), the Ninja's shuriken, kunai, huuma and coin,
- *    bigger, faster, flat and spinning fast, tinted pink.
+ *    bigger, faster, flat and spinning fast, tinted pink;
+ *  - 600 (EF_THROWITEM6), Throw Venom Knife's knife, the Ninja's flight.
  * Motion in Renderer/Effects/ThrownStoneSim.js. Specs: effect-port/thief-skills.md,
- * effect-port/ninja-skills.md.
+ * effect-port/ninja-skills.md, effect-port/assassin-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
-import { NINJA_ITEM, STONE, STONE_TEXTURE, planThrow, stoneAt, trailAt } from 'Renderer/Effects/ThrownStoneSim.js';
+import {
+	NINJA_ITEM,
+	STONE,
+	STONE_TEXTURE,
+	VENOM_KNIFE,
+	planThrow,
+	stoneAt,
+	trailAt
+} from 'Renderer/Effects/ThrownStoneSim.js';
 
 /** roBrowser 3D size units across one official unit (35 to a cell). */
 const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
@@ -42,10 +51,10 @@ export function lastStoneTick(t) {
  *
  * @param {object} t from planThrow, in units from the caster
  * @param {number} copy
- * @param {string} [file] texture
+ * @param {string} [file] texture (default: the kind's own, else the stone)
  * @return {object}
  */
-export function stoneEffect(t, copy, file = STONE_TEXTURE) {
+export function stoneEffect(t, copy, file = t.kind.texture || STONE_TEXTURE) {
 	const color = t.kind.color;
 	return Object.assign(
 		{
@@ -114,6 +123,9 @@ export function thrownItemRow(effectID, file, kind) {
 
 /** EffectTable row for 308. */
 export const throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
+
+/** EffectTable row for 600 (EF_THROWITEM6): Throw Venom Knife's knife. */
+export const throwVenomKnifeEffect = thrownItemRow(600, VENOM_KNIFE.texture, VENOM_KNIFE);
 
 /** EffectTable rows for 613-616 (Throw Shuriken, Kunai, Huuma, Zeny): no sound of their own. */
 export const ninjaThrowEffects = Object.fromEntries(
