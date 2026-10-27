@@ -3236,8 +3236,10 @@ export default {
 	82: [
 		{
 			//turn undead caster	//EF_TURNUNDEAD	Turn Undead
-			//type: 'FUNC',
+			// The official client plays EF_Bash.wav on tick 37 (617 ms). Its rings and rays are not drawn
+			// yet (effect-port/priest-audit.md).
 			wav: 'effect/ef_bash',
+			delayWav: 617,
 			attachedEntity: true
 		}
 	],
