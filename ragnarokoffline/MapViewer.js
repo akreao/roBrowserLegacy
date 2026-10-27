@@ -223612,7 +223612,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NJ_KUNAI] = { damageEffectIdOnCaster: 614 };
 	SkillEffect[SkillConst_default.NJ_HUUMA] = { damageEffectIdOnCaster: 615 };
 	SkillEffect[SkillConst_default.NJ_ZENYNAGE] = { damageEffectIdOnCaster: 616 };
-	SkillEffect[SkillConst_default.NJ_TATAMIGAESHI] = { groundEffectId: 631 };
+	SkillEffect[SkillConst_default.NJ_TATAMIGAESHI] = { successEffectId: "ef_flip_tatami_sound" };
 	SkillEffect[SkillConst_default.NJ_KASUMIKIRI] = { damageEffectIdOnTarget: 632 };
 	SkillEffect[SkillConst_default.NJ_SHADOWJUMP] = {};
 	SkillEffect[SkillConst_default.NJ_KIRIKAGE] = { damageEffectIdOnTarget: 630 };
@@ -303578,10 +303578,13 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		631: [{
 			type: "SPR",
-			file: "´Ù´Ù¹Ì µÚÁý±â",
-			wav: "effect/´Ù´Ù¹ÌµÚÁý±â",
+			file: "´Ù´Ù¹Ì",
+			delayFrame: 100,
+			yOffset: -42,
+			repeat: false,
 			attachedEntity: true
 		}],
+		ef_flip_tatami_sound: [{ wav: "effect/´Ù´Ù¹ÌµÚÁý±â" }],
 		632: [{
 			type: "SPR",
 			file: "¾È°³º£±â",
