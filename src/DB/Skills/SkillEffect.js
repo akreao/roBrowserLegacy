@@ -541,7 +541,7 @@ SkillEffect[SK.PA_GOSPEL] = { effectId: 370, groundEffectId: '370_ground' }; //B
 // Champion
 SkillEffect[SK.CH_PALMSTRIKE] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 376, hitEffectId: 0 }; //Raging Palm Strike
 SkillEffect[SK.CH_TIGERFIST] = { damageEffectIdOnCaster: ['quake', 377, 263], hitEffectId: [0, 1] }; //Glacier Fist
-SkillEffect[SK.CH_CHAINCRUSH] = { effectId: 512 }; //Chain Crush Combo
+SkillEffect[SK.CH_CHAINCRUSH] = { damageEffectIdOnCaster: [263, 512], hitEffectId: 0, firstHitEffectId: 1 }; //Chain Crush Combo
 // Professor
 SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378, successEffectIdOnCaster: 379 }; //Indulge
 SkillEffect[SK.PF_SOULCHANGE] = { effectId: 384, successEffectId: 385 }; //Soul Exhale
