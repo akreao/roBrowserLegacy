@@ -13111,8 +13111,7 @@ export default {
 			wav: 'effect/ef_thunderstorm',
 			delayFrame: 2 * (1000 / 60),
 			scale: 2.5,
-			yOffset: -31,
-			attachedEntity: true
+			yOffset: -31
 		}
 	],
 

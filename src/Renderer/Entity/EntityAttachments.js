@@ -378,6 +378,7 @@ class AttachmentManager {
 				depth: SpriteRenderer.depth,
 				zIndex: zIdx,
 				opacity: attachment.opacity,
+				scale: attachment.scale,
 				position: [SpriteRenderer.position[0], SpriteRenderer.position[1], SpriteRenderer.position[2]]
 			});
 		}
