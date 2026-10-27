@@ -3490,10 +3490,75 @@ export default {
 	90: [
 		{
 			//EF_LORD	Lord of Vermilion
+			// Official client: Lord.str with eleven sounds over its first 200 ticks and a camera
+			// quake every 50 ticks from tick 50 to 250
 			type: 'STR',
 			file: 'lord',
-			wav: 'effect/wizard_fire_ivy',
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 0,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			delayWav: 0,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			delayWav: 10 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 20 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 50 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 80 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 100 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 130 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 140 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 180 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 200 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				for (let tick = 50; tick <= 250; tick += 50) {
+					Camera.setQuake(Params.Inst.startTick + tick * (1000 / 60));
+				}
+			}
 		}
 	],
 
