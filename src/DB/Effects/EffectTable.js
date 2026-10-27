@@ -3005,11 +3005,71 @@ export default {
 
 	70: [
 		{
-			//EF_BRANDISHSPEAR	Brandish Spear
+			//EF_BRANDISHSPEAR	Brandish Spear, on each target as its damage packet arrives (no sound)
 			attachedEntity: false,
 			file: 'brandish',
-			type: 'STR',
-			wav: 'effect/knight_brandish_spear'
+			type: 'STR'
+		}
+	],
+
+	73: [
+		{
+			//Bowling Bash hit (official client): two upright ring_blue cone bands (primitive 13) on
+			//ticks 0 and 5, the second turned 100 degrees further and fainter, and a faint flat
+			//ring_yellow ring (primitive 12) slowing until tick 20, then growing slowly. No sound.
+			type: 'PRIM',
+			prim: 'cone',
+			texture: 'ring_blue',
+			attachedEntity: true,
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			facing: true,
+			baseRadius: 3,
+			baseSpeed: 0.5,
+			baseAccel: -0.03,
+			topRadius: 8,
+			topSpeed: 0.5,
+			topAccel: -0.03,
+			coneHeight: 3.5,
+			alpha: 240,
+			fadeOutFrame: 10
+		},
+		{
+			type: 'PRIM',
+			prim: 'cone',
+			texture: 'ring_blue',
+			attachedEntity: true,
+			delayStart: 5 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			frames: 15,
+			facing: true,
+			yaw: 100,
+			baseRadius: 3,
+			baseSpeed: 0.5,
+			baseAccel: -0.03,
+			topRadius: 8,
+			topSpeed: 0.5,
+			topAccel: -0.03,
+			coneHeight: 3.5,
+			alpha: 205,
+			fadeOutFrame: 8
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 50 * (1000 / 60),
+			frames: 50,
+			radius: 8,
+			radiusSpeed: 0.7,
+			radiusAccel: -0.7 / 30,
+			radiusChangeFrame: 20,
+			radiusChangeSpeed: 0.08,
+			radiusChangeAccel: 0,
+			width: 5,
+			alpha: 45,
+			fadeOutFrame: 35
 		}
 	],
 
@@ -3218,26 +3278,115 @@ export default {
 
 	80: [
 		{
-			//spear boomerang hit on target	//EF_SPEARBMR	Spear Boomerang
-			//type: 'FUNC',
+			//EF_SPEARBMR	Spear Boomerang, played on the caster as each damage packet arrives: the
+			//official client throws four spear sprites (이팩트\창) at the target on ticks 0, 4, 8 and 12,
+			//each flying 15 ticks from 15 units up, each with EF_FireBall.wav; alpha 254, 180, 130, 80.
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 0,
+			duration: 15 * (1000 / 60),
+			alphaMax: 1,
+			size: 100,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 4 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			alphaMax: 180 / 255,
+			size: 100,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 8 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			alphaMax: 130 / 255,
+			size: 100,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 12 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			alphaMax: 80 / 255,
+			size: 100,
+			zIndex: 1
+		},
+		{
 			wav: 'effect/ef_fireball',
-			attachedEntity: true
+			delayWav: 0
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 4 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 8 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 12 * (1000 / 60)
 		}
 	],
 
 	81: [
 		{
-			// default skill sound?	//EF_PIERCE	Skill hit
-			wav: 'effect/ef_bash',
-			attachedEntity: true
+			//EF_PIERCE	Pierce / Spear Stab hit: one ring_yellow cone band (official primitive 13)
+			//opening the way the target faces, 10 units up, drifting forward, 15 ticks. No sound.
+			type: 'PRIM',
+			prim: 'cone',
+			texture: 'ring_yellow',
+			attachedEntity: true,
+			duration: 15 * (1000 / 60),
+			frames: 15,
+			facing: true,
+			pitch: -90,
+			height: 10,
+			baseRadius: 6,
+			topRadius: 11,
+			coneHeight: 2.5,
+			drift: 0.7,
+			driftAccel: -(0.7 / 15) * 0.5,
+			fadeOutFrame: 8
 		}
 	],
 
 	82: [
 		{
 			//turn undead caster	//EF_TURNUNDEAD	Turn Undead
-			//type: 'FUNC',
+			// The official client plays EF_Bash.wav on tick 37 (617 ms). Its rings and rays are not drawn
+			// yet (effect-port/priest-audit.md).
 			wav: 'effect/ef_bash',
+			delayWav: 617,
 			attachedEntity: true
 		}
 	],
@@ -3255,9 +3404,11 @@ export default {
 	84: [
 		{
 			//EF_IMPOSITIO	Impositio Manus
+			// The official client plays the sound on tick 60 (1000 ms)
 			type: 'STR',
 			file: 'impositio',
 			wav: 'effect/priest_impositio',
+			delayWav: 1000,
 			attachedEntity: true
 		}
 	],
@@ -3265,9 +3416,11 @@ export default {
 	85: [
 		{
 			//EF_LEXAETERNA	Lex Aeterna
+			// The official client plays the sound on tick 15 (250 ms)
 			type: 'STR',
 			file: 'lexaeterna',
 			wav: 'effect/priest_lexaeterna',
+			delayWav: 250,
 			min: 'lexaeterna_min',
 			attachedEntity: true
 		}
@@ -3276,9 +3429,11 @@ export default {
 	86: [
 		{
 			//EF_ASPERSIO	Aspersio
+			// The official client plays the sound on tick 70 (1167 ms)
 			type: 'STR',
 			file: 'aspersio',
 			wav: 'effect/priest_aspersio',
+			delayWav: 1167,
 			attachedEntity: true
 		}
 	],
@@ -3286,10 +3441,27 @@ export default {
 	87: [
 		{
 			//EF_LEXDIVINA	Lex Divina
+			// The official client plays the sound five times: ticks 0, 20, 35, 60 and 70
 			type: 'STR',
 			file: 'lexdivina',
 			wav: 'effect/priest_lexdivina',
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 333
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 583
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 1000
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 1167
 		}
 	],
 
@@ -3318,10 +3490,75 @@ export default {
 	90: [
 		{
 			//EF_LORD	Lord of Vermilion
+			// Official client: Lord.str with eleven sounds over its first 200 ticks and a camera
+			// quake every 50 ticks from tick 50 to 250
 			type: 'STR',
 			file: 'lord',
-			wav: 'effect/wizard_fire_ivy',
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 0,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			delayWav: 0,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			delayWav: 10 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 20 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 50 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 80 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 100 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 130 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 140 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 180 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wizard_meteo',
+			delayWav: 200 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				for (let tick = 50; tick <= 250; tick += 50) {
+					Camera.setQuake(Params.Inst.startTick + tick * (1000 / 60));
+				}
+			}
 		}
 	],
 
@@ -3338,17 +3575,18 @@ export default {
 	92: [
 		{
 			//EF_METEORSTORM	Meteor Storm
+			// Official client: one of Meteor1-3.str at random (meteor4.str is unused), quake on tick 40
 			type: 'STR',
 			file: 'meteor%d',
 			wav: 'effect/wizard_meteor',
-			rand: [1, 4],
+			rand: [1, 3],
 			attachedEntity: true
 		},
 		{
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 600;
+				const start = Params.Inst.startTick + 2000 / 3;
 				Camera.setQuake(start);
 			}
 		}
@@ -3392,8 +3630,11 @@ export default {
 	94: [
 		{
 			//EF_YUFITELHIT	Jupitel Thunder (Hit)
+			// Official client: the hit lives 250 ticks; a flash starts every 20 ticks (13 in all)
 			type: '3D',
 			file: 'effect/thunder_pang.bmp',
+			duplicate: 13,
+			timeBetweenDupli: 1000 / 3, // 20 ticks
 			duration: 167, // 10 ticks of the official 60 Hz effect clock
 			sizeStart: 0,
 			sizeEnd: 25, // widthSpeed 2.5f (Growing up)
@@ -3412,8 +3653,9 @@ export default {
 				'effect/thunder_ball_e.bmp',
 				'effect/thunder_ball_f.bmp'
 			],
-			frameDelay: 10,
-			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
+			frameDelay: 1000 / 60, // one frame a tick
+			delayStart: 1000 / 6, // from tick 10...
+			duration: 4000, // ...to the hit's end on tick 250
 			size: 75, // widthSize 7.5f * 10
 			blendMode: 2, // RF_EMISSIVE (Aprox. Additive)
 			overlay: true,
@@ -3446,10 +3688,12 @@ export default {
 	97: [
 		{
 			//firepillar target hit	//EF_FIREPILLARBOMB	Fire Pillar/Land Mine hit
+			// Official client: played once by the active Fire Pillar unit (0x88), not repeated
 			type: 'STR',
 			file: 'firepillarbomb',
 			wav: 'effect/wizard_fire_pillar_b',
-			attachedEntity: false
+			attachedEntity: false,
+			repeat: false
 		}
 	],
 
@@ -3616,12 +3860,17 @@ export default {
 
 	112: [
 		{
-			//kyrie caster	//EF_KYRIE	Kyrie Eleison
+			//EF_KYRIE	Kyrie Eleison
+			// The official client plays priest_kyrie_eleison_b on tick 0 and _a on tick 15 (250 ms)
 			type: 'STR',
 			file: 'kyrie',
-			wav: 'effect/priest_kyrie_eleison_a', //on target its priest_kyrie_eleison_b
+			wav: 'effect/priest_kyrie_eleison_b',
 			min: 'kyrie_min',
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/priest_kyrie_eleison_a',
+			delayWav: 250
 		}
 	],
 
@@ -3666,10 +3915,9 @@ export default {
 	117: [
 		{
 			//EF_WATERBALL2	waterball moving to target
+			// Official client: one Waterball.spr ball and one sound per launch (one per damage packet)
 			type: '3D',
 			duration: 500,
-			duplicate: 20,
-			timeBetweenDupli: 50,
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/waterball',
 			playSprite: true,
 			fromSrc: true,
@@ -3934,9 +4182,9 @@ export default {
 	136: [
 		{
 			//EF_SLOWPOISON	Slow Poison
+			// No sound in the official client (it plays priest_slowpoison only for Tarot Card of Fate)
 			type: 'STR',
 			file: 'slowp',
-			wav: 'effect/priest_slowpoison',
 			attachedEntity: false
 		}
 	],
@@ -3988,13 +4236,10 @@ export default {
 		}
 	],
 
-	140: [
-		{
-			//EF_REVIVE	Ressurection Aura
-			wav: 'effect/priest_resurrection',
-			attachedEntity: true
-		}
-	],
+	//EF_REVIVE	Ressurection Aura
+	// Silent in the official client (77 plays the resurrection sound). Its look, ring_yellow cones
+	// (official primitive 13) every 25 ticks, is not drawn yet: effect-port/priest-audit.md.
+	140: [],
 
 	141: [
 		{
@@ -4128,10 +4373,9 @@ export default {
 
 	149: [
 		{
-			//EF_BOWLINGSELF	Bowling Bash
+			//EF_BOWLINGSELF	Bowling Bash, on the caster as each damage packet arrives (no sound)
 			type: 'STR',
 			file: 'bowling',
-			wav: '_enemy_hit_normal1', //'effect/knight_bowling_bash', fake
 			head: true,
 			attachedEntity: true
 		}
@@ -4139,10 +4383,9 @@ export default {
 
 	150: [
 		{
-			//EF_SPEARSTABSELF	Pierce Cast Animation
+			//EF_SPEARSTABSELF	Spear Stab, on the caster as each damage packet arrives (no sound)
 			type: 'STR',
 			file: 'spearstab',
-			wav: '_enemy_hit_normal1',
 			attachedEntity: true
 			// attach animation at middle of body
 		}
@@ -4150,10 +4393,9 @@ export default {
 
 	151: [
 		{
-			//spear boomerang caster	//EF_SPEARBMRSELF	Spear Boomerang Cast
+			//EF_SPEARBMRSELF	Spear Boomerang, on the caster after the throw (80), no sound
 			type: 'STR',
 			file: 'spearboomerang',
-			wav: 'effect/knight_spear_boomerang',
 			head: true,
 			attachedEntity: true
 		}
@@ -8840,7 +9082,18 @@ export default {
 		}
 	],
 
-	//375: [{}],	//EF_ASSUMPTIO	   Assumptio (Visual Effect)
+	375: [
+		{
+			//EF_ASSUMPTIO	Assumptio (status look)
+			// The official client draws a glow copy round the actor on every tick while 375 lives: it is
+			// launched with the status and removed when the status ends (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 99999, 375), Params);
+			}
+		}
+	],
 	376: [
 		{
 			//EF_HITLINE2	   Palm Strike
@@ -9869,8 +10122,9 @@ export default {
 				'effect/thunder_ball_c.bmp',
 				'effect/twirl_soft.bmp'
 			],
-			frameDelay: 10,
-			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
+			frameDelay: 1000 / 60, // one frame a tick
+			delayStart: 1000 / 6, // from tick 10...
+			duration: 4000, // ...to the hit's end on tick 250
 			size: 75, // widthSize 7.5f * 10
 			blendMode: 2, // RF_EMISSIVE (Aprox. Additive)
 			overlay: true,
