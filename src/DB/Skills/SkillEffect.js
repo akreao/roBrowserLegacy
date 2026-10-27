@@ -251,7 +251,7 @@ SkillEffect[SK.WZ_FIREPILLAR] = { effectId: 96, groundEffectId: 138, hitEffectId
 SkillEffect[SK.WZ_SIGHTRASHER] = { effectId: 62, hitEffectId: 49 }; //Sightrasher
 SkillEffect[SK.WZ_METEOR] = { effectId: 92, hitEffectId: 49 }; //Meteor Storm
 // Official client: the ball leaves when the skill packet arrives; the hit effect comes with the damage.
-SkillEffect[SK.WZ_JUPITEL] = { releaseEffectId: 93, hitEffectId: 94 }; //Jupitel Thunder
+SkillEffect[SK.WZ_JUPITEL] = { releaseEffectId: 93, hitEffectId: [0, 94], hitEffectOnce: true }; //Jupitel Thunder
 SkillEffect[SK.WZ_VERMILION] = { effectId: 90, hitEffectId: 52 }; //Lord of Vermilion
 SkillEffect[SK.WZ_WATERBALL] = { beforeHitEffectIdOnCaster: 116, hitEffectIdOnCaster: 117 }; //Water Ball
 SkillEffect[SK.WZ_ICEWALL] = { groundEffectId: 74 }; //Ice Wall
@@ -525,7 +525,7 @@ SkillEffect[SK.ITM_TOMAHAWK] = { beforeHitEffectId: 'ef_tomahawk_projectile', ef
 SkillEffect[SK.NPC_DARKCROSS] = { effectId: 450 }; //Cross of Darkness
 SkillEffect[SK.NPC_GRANDDARKNESS] = {}; //Grand cross of Darkness
 SkillEffect[SK.NPC_DARKSTRIKE] = { effectId: 451 }; //Soul Strike of Darkness
-SkillEffect[SK.NPC_DARKTHUNDER] = { releaseEffectId: 93, hitEffectId: 94 }; //Darkness Jupitel
+SkillEffect[SK.NPC_DARKTHUNDER] = { releaseEffectId: 93, hitEffectId: 94, hitEffectOnce: true }; //Darkness Jupitel
 SkillEffect[SK.NPC_STOP] = { effectId: 453 }; //Stop
 SkillEffect[SK.NPC_WEAPONBRAKER] = {}; //Break weapon
 SkillEffect[SK.NPC_ARMORBRAKE] = {}; //Break armor
