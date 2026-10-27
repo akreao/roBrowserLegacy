@@ -52,6 +52,7 @@ import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
+import { poisonAttackEffect } from 'DB/Effects/PoisonAttackEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -1276,31 +1277,8 @@ export default {
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
 
 	20: [
-		{
-			//EF_PATTACK	Envenom/Poison
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1000,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			green: 0.7,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: 1,
-			size: 100,
-			sizeRand: 20,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			attachedEntity: true,
-			wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
-		}
+		// EF_PATTACK: the client's poison particles, 100 ticks (PoisonAttackEffect.js)
+		...poisonAttackEffect(20)
 	],
 
 	21: [
@@ -4056,6 +4034,11 @@ export default {
 			wav: 'effect/assasin_poisonreact', //effect/assasin_venomdust'
 			attachedEntity: false
 		}
+	],
+
+	125: [
+		// Enchant Poison / Venom Splasher on the target: effect 20's particles for 250 ticks (PoisonAttackEffect.js)
+		...poisonAttackEffect(125)
 	],
 
 	126: [
