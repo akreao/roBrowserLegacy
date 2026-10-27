@@ -48,6 +48,8 @@ import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { ninjaThrowEffects, throwStoneEffect, throwVenomKnifeEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
+import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
@@ -71,6 +73,7 @@ import {
 	SHARDS as ICE_SHARDS
 } from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import CirclePower from 'Renderer/Effects/CirclePower.js';
 import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -6255,8 +6258,21 @@ export default {
 			textureName: 'ring_yellow',
 			topSize: 5,
 			attachedEntity: true
-		},
+		}
+	],
+
+	monk_raging_thrust_sound: [
 		{
+			// mon_맹룡과강.wav: the official client plays it with Mental Strength's use packet
+			// and Raging Thrust's damage packet
+			wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad',
+			attachedEntity: true
+		}
+	],
+
+	monk_fury_sound: [
+		{
+			// mon_폭기.wav: the official client plays it with Fury's use packet, not with effect 261
 			wav: 'effect/mon_\xc6\xf8\xb1\xe2',
 			attachedEntity: true
 		}
@@ -9166,7 +9182,9 @@ export default {
 	377: [
 		{
 			//martyr's reckoning 2	//EF_BASH3D2	   Martyr's Reckoning 2
-			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_¿¬È¯? can be incorrect wav name
+			// mon_맹룡과강.wav on tick 5, as the official client
+			wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad',
+			delayWav: 83,
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
@@ -9483,7 +9501,10 @@ export default {
 	393: [
 		{
 			//EF_TRIPLEATTACK3	   Arrow Vulcan
-			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad'
+			// On the caster as each damage packet arrives; the client plays the sound on its tick 30.
+			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad',
+			delayWav: 500,
+			attachedEntity: true
 		}
 	],
 
@@ -9491,7 +9512,8 @@ export default {
 		{
 			// Moonlit water mill/sheltering bliss	//EF_SPHEREWIND2	Sheltering Bliss
 			type: 'FUNC',
-			wav: 'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5',
+			// The client plays its own sound, effect/\xb4\xde\xba\xfb.wav (dal-bit), from the use packet.
+			wav: 'effect/\xb4\xde\xba\xfb',
 			attachedEntity: false,
 			func: function (Params) {
 				const BlueTile = FlatColorTile('salmon', { r: 0xff / 255, g: 0x8a / 255, b: 0xbb / 255, a: 0.6 });
@@ -11921,6 +11943,22 @@ export default {
 		}
 	],
 
+	// Longing for Freedom's use sound (the official client plays it with the white cone 843)
+	ef_longing_freedom_sound: [
+		{
+			wav: 'effect/ac_concentration',
+			attachedEntity: true
+		}
+	],
+
+	// Tarot Card of Fate's use sound
+	ef_tarot_card_sound: [
+		{
+			wav: 'effect/priest_slowpoison',
+			attachedEntity: true
+		}
+	],
+
 	//518: [{}],	//EF_CARTTER	   Cart Termination
 
 	519: [
@@ -13150,7 +13188,20 @@ export default {
 		}
 	],
 
-	//599: [{}],	//EF_SHRINK	   Cast Time Sound and Flashing Animation on Player
+	599: [
+		{
+			//EF_SHRINK	   Cast Time Sound and Flashing Animation on Player
+			// Shrink (official client): EF_BeginSpell.wav on tick 5, then to tick 25 the
+			// Crusader flickers yellow (drawn adding light) and white each tick (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			delayWav: 5 * (1000 / 60),
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 26, 599), Params);
+			}
+		}
+	],
 
 	600: [
 		// EF_THROWITEM6: Throw Venom Knife's knife, the Throw Stone flight with the knife's numbers (ThrowStoneEffect.js)
@@ -16199,7 +16250,23 @@ export default {
 			}
 		}
 	],
-	//844: [{}],	//EF_BEGINSPELL_N7	   Purple cone
+	844: [
+		{
+			//EF_BEGINSPELL_N7	   Purple cone cast aura (Eternal Chaos, A Whistle, Humming, Please Don't Forget Me)
+			// The official client's bubble cone in purple, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 7
+					}),
+					Params
+				);
+			}
+		}
+	],
 	845: [
 		{
 			//EF_BEGINSPELL_N8	   Turquoise cone cast aura (All in the Sky)
@@ -16791,8 +16858,13 @@ export default {
 
 	861: [
 		{
-			//EF_CIRCLEPOWER2	   Green aura (from Circle of Life's Melody)
-			wav: 'effect/\xbc\xf8\xc8\xaf\xc7\xcf\xb4\xc2\xc0\xda\xbf\xac\xc0\xc7\xbc\xd2\xb8\xae'
+			//EF_CIRCLEPOWER2	   Green aura (Apple of Idun)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 2), Params);
+			}
 		}
 	],
 
@@ -16985,8 +17057,28 @@ export default {
 	],
 
 	//863: [{}],	//EF_CHEMICAL_V3	   Dominion Impulse (two spears of light)
-	//864: [{}],	//EF_ENERVATION7	   Gloomy Day (colorful lines)
-	//865: [{}],	//EF_CIRCLEPOWER3	   Blue aura (from Song of Mana)
+	864: [
+		{
+			//EF_ENERVATION7	   Purple flicker (Eternal Chaos, Loki's Veil)
+			// The actor flickers purple (added) and white on ticks 4-90 (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 100, 864), Params);
+			}
+		}
+	],
+	865: [
+		{
+			//EF_CIRCLEPOWER3	   Blue aura (A Whistle, Humming, Into the Abyss)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 3), Params);
+			}
+		}
+	],
 
 	866: [
 		{
@@ -16995,7 +17087,17 @@ export default {
 		}
 	],
 
-	//867: [{}],	//EF_CIRCLEPOWER4	   Yellow aura (from Dance with a Warg)
+	867: [
+		{
+			//EF_CIRCLEPOWER4	   Yellow aura (Mr. Kim A Rich Man)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 4), Params);
+			}
+		}
+	],
 
 	868: [
 		{
@@ -17013,7 +17115,17 @@ export default {
 		}
 	],
 
-	//871: [{}],	//EF_CIRCLEPOWER5	   Red aura (from Lerad's Dew)
+	871: [
+		{
+			//EF_CIRCLEPOWER5	   Red aura (Fortune's Kiss, Drum on the Battlefield)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 5), Params);
+			}
+		}
+	],
 
 	872: [
 		{
@@ -17022,7 +17134,17 @@ export default {
 		}
 	],
 
-	//873: [{}],	//EF_CIRCLEPOWER6	   Stargate-wormhole stuff (bright purple)
+	873: [
+		{
+			//EF_CIRCLEPOWER6	   Magenta aura (Assassin Cross of Sunset, Service for You)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 6), Params);
+			}
+		}
+	],
 
 	874: [
 		{
@@ -17031,7 +17153,17 @@ export default {
 		}
 	],
 
-	//875: [{}],	//EF_CIRCLEPOWER7	   Stargate-wormhole stuff (bright turquoise)
+	875: [
+		{
+			//EF_CIRCLEPOWER7	   Cyan aura (Ring of Nibelungen, Invulnerable Siegfried)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 7), Params);
+			}
+		}
+	],
 
 	876: [
 		{
@@ -17040,7 +17172,17 @@ export default {
 		}
 	],
 
-	//877: [{}],	//EF_CIRCLEPOWER8	   Stargate-wormhole stuff (white)
+	877: [
+		{
+			//EF_CIRCLEPOWER8	   White aura (Poem of Bragi)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 8), Params);
+			}
+		}
+	],
 
 	878: [
 		{
@@ -26310,12 +26452,14 @@ export default {
 		}
 	],
 
-	// Silvervine Stem Spear (SU_SV_STEMSPEAR), from the client's own effect folders.
+	// Silvervine Stem Spear (SU_SV_STEMSPEAR): effect 1101, left where the caster
+	// stands when the damage packet arrives, start sound su_stemspear.wav.
 	ef_su_sv_stemspear: [
 		{
 			type: 'STR',
 			file: 'su_sv_stemspear/su_sv_stemspear',
-			texturePath: 'su_sv_stemspear/'
+			texturePath: 'su_sv_stemspear/',
+			wav: 'effect/su_stemspear'
 		}
 	],
 
@@ -26326,6 +26470,66 @@ export default {
 			file: 'su_scaroftarou/su_scaroftarou',
 			texturePath: 'su_scaroftarou/',
 			wav: 'effect/su_scaroftarou'
+		}
+	],
+
+	// Bite scar (status BITESCAR, from Scar of Tarou): effect 1119, bite_scar.str
+	// once on the actor when the status starts, removed when it ends.
+	ef_su_bitescar: [
+		{
+			type: 'STR',
+			file: 'bite_scar/bite_scar',
+			texturePath: 'bite_scar/',
+			attachedEntity: true
+		}
+	],
+
+	// Catnip Meteor (SU_CN_METEOR): effect 1106 at each meteor's cell, one ground
+	// packet per meteor. The official client plays su_cn_meteor.spr once, 4 ticks a
+	// frame, at alpha 100 of 255, and shakes the camera when it is 48 ticks old.
+	ef_su_cn_meteor: [
+		{
+			type: 'SPR',
+			file: 'su_cn_meteor/su_cn_meteor',
+			delayFrame: (4 * 1000) / 60,
+			opacity: 100 / 255
+		},
+		{
+			type: 'FUNC',
+			func: Params => {
+				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
+			}
+		}
+	],
+
+	// Catnip Meteor with the item (SU_CN_METEOR2): effect 1112, the same meteor at
+	// full alpha.
+	ef_su_cn_meteor2: [
+		{
+			type: 'SPR',
+			file: 'su_cn_meteor/su_cn_meteor',
+			delayFrame: (4 * 1000) / 60
+		},
+		{
+			type: 'FUNC',
+			func: Params => {
+				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
+			}
+		}
+	],
+
+	// Silvervine Root Twist (status SV_ROOTTWIST): effect 1110, the official client's
+	// su_sv_roottwist.spr on the actor for as long as the status lasts, 3 units below
+	// it, 8 ticks a frame, with su_roottwist.wav when it starts.
+	ef_su_roottwist: [
+		{
+			type: 'SPR',
+			file: 'su_sv_roottwist/su_sv_roottwist',
+			wav: 'effect/su_roottwist',
+			attachedEntity: true,
+			repeat: true,
+			delayFrame: (8 * 1000) / 60,
+			yOffset: 3 * 7
 		}
 	],
 
@@ -26348,27 +26552,25 @@ export default {
 		}
 	],
 
-	// Tuna Belly (SU_TUNABELLY), from the client's own effect folders.
+	// Tuna Belly (SU_TUNABELLY): the official client plays su_tunabelly.str only
+	// (effect 1102, start sound su_tunabelly.wav); the folder's su_scratch.str is unused.
 	ef_su_tunabelly: [
 		{
 			type: 'STR',
-			file: 'su_tunabelly/su_scratch',
+			file: 'su_tunabelly/su_tunabelly',
 			texturePath: 'su_tunabelly/',
 			wav: 'effect/su_tunabelly'
-		},
-		{
-			type: 'STR',
-			file: 'su_tunabelly/su_tunabelly',
-			texturePath: 'su_tunabelly/'
 		}
 	],
 
-	// Bunch of Shrimp (SU_BUNCHOFSHRIMP), from the client's own effect folders.
+	// Bunch of Shrimp (SU_BUNCHOFSHRIMP): effect 1116; the official client's start
+	// sound is spelled su_brunchofshrimp.wav.
 	ef_su_bunchofshrimp: [
 		{
 			type: 'STR',
 			file: 'su_bunchofshrimp/su_bunchofshrimp',
-			texturePath: 'su_bunchofshrimp/'
+			texturePath: 'su_bunchofshrimp/',
+			wav: 'effect/su_brunchofshrimp'
 		}
 	],
 
@@ -26378,6 +26580,17 @@ export default {
 			type: 'STR',
 			file: 'su_freshshrimp/su_freshshrimp',
 			texturePath: 'su_freshshrimp/'
+		}
+	],
+
+	// Tasty Shrimp Party (SU_SHRIMPARTY): the official client plays Fresh Shrimp's
+	// STR (effect 1098) with su_shrimpparty.wav, from skilleffectinfo.
+	ef_su_shrimparty: [
+		{
+			type: 'STR',
+			file: 'su_freshshrimp/su_freshshrimp',
+			texturePath: 'su_freshshrimp/',
+			wav: 'effect/su_shrimpparty'
 		}
 	],
 
@@ -26411,15 +26624,12 @@ export default {
 		}
 	],
 
-	// Nyang Grass (SU_NYANGGRASS), from the client's own effect folders.
-	ef_su_nyanggrass: [
-		{
-			type: 'STR',
-			file: 'su_nyanggrass/su_nyanggrass',
-			texturePath: 'su_nyanggrass/',
-			wav: 'effect/su_nyanggrass'
-		}
-	],
+	// Lunatic Carrot Beat (SU_LUNATICCARROTBEAT / 2): the falling carrots
+	// (DB/Effects/CarrotBeatEffect.js).
+	...carrotBeatEffects,
+
+	// Nyang Grass (SU_NYANGGRASS): the field the unit draws (DB/Effects/NyangGrassEffect.js).
+	...nyangGrassEffects,
 
 	// Grooming (SU_GROOMING), from the client's own effect folders.
 	ef_su_grooming: [

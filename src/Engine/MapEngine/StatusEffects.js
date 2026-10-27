@@ -44,6 +44,10 @@ export function updateStatusEffects(AID, status, state, values) {
 
 	if (state == 1) {
 		(row.start || []).forEach(effectId => play(effectId));
+		(row.restart || []).forEach(effectId => {
+			EffectManager.remove(null, AID, effectId);
+			play(effectId);
+		});
 		loops.forEach(effectId => {
 			if (!EffectManager.has(AID, effectId)) {
 				play(effectId, true);
