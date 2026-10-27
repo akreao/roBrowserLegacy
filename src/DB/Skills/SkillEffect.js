@@ -171,7 +171,7 @@ SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
 SkillEffect[SK.MC_VENDING] = {}; //Vending
 // Official client: nothing at use or as the packet arrives; when the hit lands, 0 (hit flash) and 10
 // (EF_COIN) once per damage packet, nothing on a miss. See effect-port/merchant-skills.md.
-SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: [0, 10], hitEffectOnce: true }; //Mammonite
+SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: 0, firstHitEffectId: 10 }; //Mammonite
 // Archer
 // Official client: 153 on the caster from the use packet, only when its result is set.
 SkillEffect[SK.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 }; //Improve Concentration
