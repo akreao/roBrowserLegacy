@@ -39,6 +39,18 @@ describe('Lunatic Carrot Beat carrots', () => {
 		expect(spam.mock.calls[0][0].effectId).toBe('ef_su_lunaticcarrotbeat_carrot');
 	});
 
+	it('drops the carrots still queued when the map changes', () => {
+		const shower = carrotBeatEffects.ef_su_lunaticcarrotbeat[0];
+		const manager = { spam: vi.fn(), generation: 3 };
+		const queued = [];
+		Events.setTimeout.mockImplementation(callback => queued.push(callback));
+		shower.func.call(manager, { Init: { ownerAID: 9, skillLevel: 1 }, Inst: { position: [10, 20, 0] } });
+		queued[0]();
+		manager.generation++;
+		queued.slice(1).forEach(callback => callback());
+		expect(manager.spam).toHaveBeenCalledTimes(1);
+	});
+
 	it('draws a carrot at 4 ticks a frame, faded without the item, with a shake at 48 ticks', () => {
 		const [sprite, quake] = carrotBeatEffects.ef_su_lunaticcarrotbeat_carrot;
 		expect(sprite.file).toBe('su_lunaticcarrotbeat/su_lunaticcarrotbeat');

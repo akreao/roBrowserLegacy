@@ -7,7 +7,8 @@
  * levels 1-2, 5 for 3-4 and 7 for 5, each at a random point of a 5n-unit
  * square, the i-th one i * trunc(105 / 2n) ticks late. Each plays once at
  * 4 ticks a frame and shakes the camera when it is 48 ticks old. Without the
- * item the carrots are drawn at alpha 100 of 255.
+ * item the carrots are drawn at alpha 100 of 255. Carrots still queued when
+ * the map changes are dropped.
  * Spec: effect-port/summoner-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -71,8 +72,12 @@ function carrotShower(carrotRow) {
 		func: function (Params) {
 			const at = Params.Inst.position;
 			const position = [at[0], at[1], at[2]];
+			const generation = this.generation;
 			planCarrots(Params.Init.skillLevel).forEach(drop => {
 				Events.setTimeout(() => {
+					if (this.generation !== generation) {
+						return;
+					}
 					this.spam({
 						effectId: carrotRow,
 						ownerAID: Params.Init.ownerAID,

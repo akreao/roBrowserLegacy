@@ -402,6 +402,13 @@ function actionFrames(entity) {
 
 class EffectManager {
 	/**
+	 * Goes up each time every effect is destroyed (a map change). An effect
+	 * that spawns more of itself later can compare it to drop what it had
+	 * queued for the old map.
+	 */
+	static generation = 0;
+
+	/**
 	 * Initialize effects manager
 	 */
 	static init(gl) {
@@ -490,6 +497,8 @@ class EffectManager {
 
 			delete _list[key];
 		});
+
+		EffectManager.generation++;
 	}
 
 	/**
