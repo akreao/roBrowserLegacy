@@ -226,8 +226,11 @@ SkillEffect[SK.KN_BOWLINGBASH] = { hideCastBar: true, hideCastAura: true, effect
 SkillEffect[SK.PR_IMPOSITIO] = { successEffectId: 84 }; //Impositio Manus
 SkillEffect[SK.PR_SUFFRAGIUM] = { successEffectId: 88 }; //Suffragium
 SkillEffect[SK.PR_ASPERSIO] = { successEffectId: 86, hitEffectId: [0, 152], hitEffectOnce: true }; //Aspersio
-SkillEffect[SK.PR_BENEDICTIO] = { effectId: 91 }; //B.S. Sacramenti
-SkillEffect[SK.PR_SANCTUARY] = { effectId: 83, groundEffectId: 319 }; //Sanctuary
+// Official client: B.S. Sacramenti plays 91 at the cell from the ground packet only (nothing from the
+// use packets of the actors it buffs); its damage on undead and demons plays the hit flash once per
+// packet. Sanctuary's unit hits play the hit flash.
+SkillEffect[SK.PR_BENEDICTIO] = { groundEffectIdByLevel: [91], hitEffectId: [0], hitEffectOnce: true }; //B.S. Sacramenti
+SkillEffect[SK.PR_SANCTUARY] = { effectId: 83, groundEffectId: 319, hitEffectId: [0] }; //Sanctuary
 SkillEffect[SK.PR_SLOWPOISON] = { successEffectId: 136 }; //Slow Poison
 SkillEffect[SK.PR_STRECOVERY] = { successEffectId: 78 }; //Status Recovery
 SkillEffect[SK.PR_KYRIE] = { successEffectIdOnCaster: 112 }; //Kyrie Eleison
