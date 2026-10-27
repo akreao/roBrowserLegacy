@@ -224,6 +224,9 @@ function spamSprite(Params) {
 		yOffset: Params.effect.yOffset,
 		frame: Params.effect.frame,
 		delay: Params.effect.delayFrame,
+		// A number delayStart (ms) holds the sprite back, as the official client
+		// starts some sprites a few ticks into their effect (Triple Action)
+		startDelay: typeof Params.effect.delayStart === 'number' ? Params.effect.delayStart : 0,
 		renderBefore: !!Params.effect.renderBeforeEntities
 	});
 

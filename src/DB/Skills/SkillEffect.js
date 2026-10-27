@@ -692,26 +692,61 @@ SkillEffect[SK.AM_TWILIGHT3] = { effectId: 499 }; //Twilight Alchemy 3
 SkillEffect[SK.HT_POWER] = {}; //Beast Strafing
 // Gunslinger
 SkillEffect[SK.GS_GLITTERING] = { effectId: 'gunslinger_coin' }; //Flip the Coin
-SkillEffect[SK.GS_FLING] = {}; //Fling
-SkillEffect[SK.GS_TRIPLEACTION] = { effectId: 648 }; //Triple Action
-SkillEffect[SK.GS_BULLSEYE] = { effectId: 649 }; //Bulls Eye
+// Official client: 548 (red body glow) on the target as each damage packet arrives; the hit plays the
+// standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_FLING] = { damageEffectIdOnTarget: 548, hitEffectId: 0, hitEffectOnce: true }; //Fling
+// Official client: 648 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_TRIPLEACTION] = { damageEffectIdOnTarget: 648, hitEffectId: 0, hitEffectOnce: true }; //Triple Action
+// Official client: 649 (bullseye STR) on the target as each damage packet arrives; the hit plays the
+// standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_BULLSEYE] = { damageEffectIdOnTarget: 649, hitEffectId: 0, hitEffectOnce: true }; //Bulls Eye
 // Official client: 625 on the caster when the use packet's result is set: a blue body glow on one
 // tick in four for 1 s. See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_MADNESSCANCEL] = { successEffectId: 625 }; //Madness Canceller
-SkillEffect[SK.GS_ADJUSTMENT] = { effectId: 626 }; //AdJustment
-SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdOnCaster: 'ef_gs_increasing_cast' }; //Increasing Accuracy
-SkillEffect[SK.GS_MAGICALBULLET] = { effectId: 644 }; //Magical Bullet
-SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
-SkillEffect[SK.GS_TRACKING] = { effectId: 646, hitEffectId: 647 }; //Tracking
-SkillEffect[SK.GS_DISARM] = { effectId: 627 }; //Disarm
-SkillEffect[SK.GS_PIERCINGSHOT] = {}; //Piercing Shot
-SkillEffect[SK.GS_RAPIDSHOWER] = { effectId: 643 }; //Rapid Shower
-SkillEffect[SK.GS_DESPERADO] = { effectId: 637 }; //Desperado
-SkillEffect[SK.GS_GATLINGFEVER] = { effectId: 626 }; //Gatling Fever
-SkillEffect[SK.GS_DUST] = { effectId: 628 }; //Dust
-SkillEffect[SK.GS_FULLBUSTER] = { effectId: 584 }; //Full Buster
-SkillEffect[SK.GS_SPREADATTACK] = { effectId: 645 }; //Spread Attack
-SkillEffect[SK.GS_GROUNDDRIFT] = {}; //Ground Drift
+// Official client: 626 on the caster when the use packet's result is set: a red body glow on one
+// tick in four for 1 s. Gatling Fever plays the same. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_ADJUSTMENT] = { successEffectId: 626 }; //AdJustment
+// Official client: 456 on the caster when the use packet's result is set: effect\EF_IncAgility.wav and
+// rising ac_center2 streaks (not ported). The increasing_activity STRs are Elemental Master's
+// Increasing Activity, not this skill. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_INCREASING] = { successEffectId: 'ef_gs_increasing_accuracy' }; //Increasing Accuracy
+// Official client: 644 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_MAGICALBULLET] = { damageEffectIdOnTarget: 644, hitEffectId: 0, hitEffectOnce: true }; //Magical Bullet
+// Official client: effect\크래커.wav when the use packet's result is set, not positioned (heard as
+// at the player). See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_CRACKER] = { successEffectIdOnCaster: 'ef_gs_cracker' }; //Cracker
+// Official client: 647 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. 646 (the tracking STR) is not launched by Tracking.
+// See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_TRACKING] = { damageEffectIdOnTarget: 647, hitEffectId: 0, hitEffectOnce: true }; //Tracking
+// Official client: 627 on the target when the use packet's result is set (sound on tick 21).
+// See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_DISARM] = { successEffectId: 627 }; //Disarm
+// Official client: 623 on the caster, aimed at the target, as each damage packet arrives; the hit plays
+// the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_PIERCINGSHOT] = { damageEffectIdOnCaster: 623, hitEffectId: 0, hitEffectOnce: true }; //Piercing Shot
+// Official client: 643 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_RAPIDSHOWER] = { damageEffectIdOnTarget: 643, hitEffectId: 0, hitEffectOnce: true }; //Rapid Shower
+// Official client: 637 once on the caster when Desperado is used (the server sends it as a ground
+// skill); its damage comes from the skill's unit, which plays no hit effect. See
+// effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_DESPERADO] = { groundEffectIdByLevel: [637] }; //Desperado
+SkillEffect[SK.GS_GATLINGFEVER] = { successEffectId: 626 }; //Gatling Fever
+// Official client: 628 on the target as each damage packet arrives; the hit plays the standard hit
+// flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_DUST] = { damageEffectIdOnTarget: 628, hitEffectId: 0, hitEffectOnce: true }; //Dust
+// Official client: 584 on the caster, aimed at the target, as each damage packet arrives; the hit plays
+// the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_FULLBUSTER] = { damageEffectIdOnCaster: 584, hitEffectId: 0, hitEffectOnce: true }; //Full Buster
+// Official client: 645 on the caster, aimed at the target, as each damage packet arrives; the hit plays
+// the standard hit flash (0) once per packet. See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_SPREADATTACK] = { damageEffectIdOnCaster: 645, hitEffectId: 0, hitEffectOnce: true }; //Spread Attack
+// Official client: effect\그라운드.wav from the ground packet; the grenades are the units' (SkillUnit.js).
+// See effect-port/gunslinger-skills.md.
+SkillEffect[SK.GS_GROUNDDRIFT] = { groundEffectIdByLevel: ['ef_gs_ground_drift'] }; //Ground Drift
 // Ninja
 SkillEffect[SK.NJ_SYURIKEN] = { beforeHitEffectId: 613 }; //Throw Shuriken
 SkillEffect[SK.NJ_KUNAI] = { beforeHitEffectId: 614 }; //Throw Kunai

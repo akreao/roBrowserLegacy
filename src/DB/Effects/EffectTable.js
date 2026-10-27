@@ -7435,6 +7435,23 @@ export default {
 		}
 	],
 
+	// Increasing Accuracy (GS_INCREASING): the sound of the official client's effect 456 (its rising
+	// streaks are not ported). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
+	ef_gs_increasing_accuracy: [
+		{
+			wav: 'effect/ef_incagility',
+			attachedEntity: true
+		}
+	],
+
+	// Cracker (GS_CRACKER): the official client's use-packet sound. See effect-port/gunslinger-skills.md.
+	ef_gs_cracker: [
+		{
+			wav: 'effect/\xc5\xa9\xb7\xa1\xc4\xbf', // 크래커
+			attachedEntity: true
+		}
+	],
+
 	ef_coldbolt: [
 		{
 			//coldbolt falling objects
@@ -12042,9 +12059,12 @@ export default {
 
 	584: [
 		{
-			//EF_M02	Full Buster
+			//EF_M02	Full Buster. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 5.
 			type: 'SPR',
 			file: 'm_ef02',
+			wav: 'effect/\xc7\xae\xb9\xf6\xbd\xba\xc5\xcd', // 풀버스터
+			delayWav: 83, // tick 5
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true,
 			direction: true
 		}
@@ -13025,22 +13045,33 @@ export default {
 		}
 	],
 
-	//623: [{}],	//EF_CHEMICAL4	   Piercing Shot
+	623: [
+		{
+			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28; also 8 streak sets
+			// (prim 56, line3y.tga) along the shot, not ported. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xc7\xc7\xbe\xee\xbd\xcc\xbc\xa6', // 피어싱샷
+			delayWav: 467, // tick 28
+			attachedEntity: true
+		}
+	],
 	//624: [{}],	//EF_STIN5	   Kamaitachi
 	//625: [{}],	//EF_MADNESS_BLUE	   Madness Canceller
 	//626: [{}],	//EF_MADNESS_RED	   Adjustment
 
 	627: [
 		{
-			//EF_RG_COIN3	   Disarm (Sound Effect)
-			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf'
+			//EF_RG_COIN3	   Disarm. Official client: the sound on tick 21; also two thrown item
+			// icons (prim 43), not ported. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf', // 디스암
+			delayWav: 350, // tick 21
+			attachedEntity: true
 		}
 	],
 
 	628: [
 		{
-			//dust	//EF_BASH3D5	   Dust
-			wav: 'effect/bash3d5', // incorrect wav name
+			//dust	//EF_BASH3D5	   Dust. Official client: effect\더스트샷.wav on tick 0, then six alpha_center sets.
+			wav: 'effect/\xb4\xf5\xbd\xba\xc6\xae\xbc\xa6', // 더스트샷
 			attachedEntity: true
 		},
 		{
@@ -13175,84 +13206,107 @@ export default {
 
 	637: [
 		{
-			//EF_DESPERADO	Desperado
+			//EF_DESPERADO	Desperado. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 10.
 			type: 'SPR',
 			file: '\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
 			wav: 'effect/\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
+			delayWav: 167, // tick 10
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true
 		}
 	],
 
 	638: [
 		{
-			//EF_LIGHTNING_S	Ground Drift Grenade
+			//EF_LIGHTNING_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xb6\xf3\xc0\xcc\xc6\xae\xb4\xd7\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	639: [
 		{
-			//EF_BLIND_S	Ground Drift Grenade
+			//EF_BLIND_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xba\xed\xb6\xf3\xc0\xce\xb5\xe5\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	640: [
 		{
-			//EF_POISON_S	Ground Drift Grenade
+			//EF_POISON_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc6\xf7\xc0\xcc\xc1\xf0\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	641: [
 		{
-			//EF_FREEZING_S	Ground Drift Grenade
+			//EF_FREEZING_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc7\xc1\xb8\xae\xc2\xa1\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	642: [
 		{
-			//EF_FLARE_S	Ground Drift Grenade
+			//EF_FLARE_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc7\xc3\xb7\xb9\xbe\xee\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
+		}
+	],
+
+	1120: [
+		{
+			//Ground Drift grenade (neutral). Official client: looping sprite on the unit.
+			type: 'SPR',
+			file: '\xb1\xd7\xb6\xf3\xbf\xee\xb5\xe5\xb5\xe5\xb8\xae\xc7\xc1\xc6\xae', // 그라운드드리프트
+			attachedEntity: true
+		}
+	],
+
+	// Ground Drift (GS_GROUNDDRIFT): the official client's ground-packet sound, not positioned.
+	ef_gs_ground_drift: [
+		{
+			wav: 'effect/\xb1\xd7\xb6\xf3\xbf\xee\xb5\xe5', // 그라운드
+			attachedEntity: true
 		}
 	],
 
 	643: [
 		{
-			//EF_RAPIDSHOWER	Rapid Shower
+			//EF_RAPIDSHOWER	Rapid Shower. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 20.
 			type: 'SPR',
 			file: '\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
 			wav: 'effect/\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
+			delayWav: 333, // tick 20
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true
 		}
 	],
 
 	644: [
 		{
-			//EF_MAGICALBULLET	Magic Bullet
+			//EF_MAGICALBULLET	Magic Bullet. Official client: sprite and sound on tick 0, 2 ticks a frame.
 			type: 'SPR',
 			file: '\xb8\xc5\xc1\xf6\xc4\xc3\xba\xd2\xb8\xb4',
 			wav: 'effect/\xb8\xc5\xc1\xf6\xc4\xc3\xba\xed\xb8\xb4',
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
 
 	645: [
 		{
-			//EF_SPREADATTACK	Spread Attack
+			//EF_SPREADATTACK	Spread Attack. Official client: sprite from tick 0 at 4 ticks a frame, no sound.
 			type: 'SPR',
 			file: '\xbd\xba\xc7\xc1\xb7\xb9\xb5\xe5',
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true,
 			direction: true
 		}
@@ -13269,19 +13323,27 @@ export default {
 
 	647: [
 		{
-			//EF_TRACKING	Tracking
+			//EF_TRACKING	Tracking. Official client: 2 ticks a frame, no sound.
 			type: 'SPR',
 			file: '\xc6\xae\xb7\xa1\xc5\xb7',
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
 
 	648: [
 		{
-			//EF_TRIPLEACTION	Triple Action
+			//EF_TRIPLEACTION	Triple Action. Official client: the sound on tick 25, the sprite from
+			// tick 30 at 2 ticks a frame. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7', // 트리플액션
+			delayWav: 417, // tick 25
+			attachedEntity: true
+		},
+		{
 			type: 'SPR',
 			file: '\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
-			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
+			delayStart: 500, // tick 30
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
