@@ -175,10 +175,15 @@ SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: [0, 10], hitEffectOnce: true }; //
 // Archer
 // Official client: 153 on the caster from the use packet, only when its result is set.
 SkillEffect[SK.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 }; //Improve Concentration
-// Official client: no effect of its own (16 EF_BASH is not played); one arrow per damage packet, as for
-// a normal bow attack; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target.
-// See effect-port/archer-skills.md.
-SkillEffect[SK.AC_DOUBLE] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1] }; //Double Strafe
+// Official client (kRO 2025-07-16): as each damage packet arrives, 16 (EF_BASH) on the caster and one
+// arrow from the bow attack motion; every hit that lands plays 0 (the standard hit flash), the first hit
+// of each packet also 1 (EF_HIT2, the hit map). See effect-port/archer-skills.md.
+SkillEffect[SK.AC_DOUBLE] = {
+	damageEffectIdOnCaster: 16,
+	damageEffectIdOnTarget: 'ef_arrow_projectile',
+	hitEffectId: 0,
+	firstHitEffectId: 1
+}; //Double Strafe
 // Official client: arrows to the 8 cells around the ground cell from the ground packet; arrows to the
 // damaged actor and the 8 cells around it from each damage packet; each hit that lands plays 0 (the
 // standard hit flash) and 1 (EF_HIT2). See effect-port/archer-skills.md.
