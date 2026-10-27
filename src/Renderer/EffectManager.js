@@ -46,6 +46,7 @@ import GraphicsSettings from 'Preferences/Graphics.js';
 import { isRepeatGroundPacket } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import { motionSpeed } from 'DB/Effects/StormSlashEffect.js';
 import { raptorHit, lowFlight, lowFlightDelay, hailShots, gustSpray } from 'Renderer/Effects/DruidWindSim.js';
+import { spriteAction } from 'Renderer/Effects/SpriteAction.js';
 
 /**
  * @type {object} saved webgl context
@@ -222,7 +223,7 @@ function spamSprite(Params) {
 		stopAtEnd: Params.effect.stopAtEnd,
 		xOffset: Params.effect.xOffset,
 		yOffset: Params.effect.yOffset,
-		frame: Params.effect.frame,
+		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
 		// A number delayStart (ms) holds the sprite back, as the official client
 		// starts some sprites a few ticks into their effect (Triple Action)

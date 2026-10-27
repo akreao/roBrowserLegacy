@@ -13045,10 +13045,13 @@ export default {
 
 	630: [
 		{
-			//EF_KIRIKAGE	Shadow Slash
+			//EF_KIRIKAGE	Shadow Slash: official effect 630 (effect-port/ninja-skills.md)
+			// 그림자베기 action 0 or 4 at random, 4 ticks a frame, once; its sound at the start.
 			type: 'SPR',
 			file: '\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
 			wav: 'effect/\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
+			frame: [0, 4],
+			delayFrame: 4 * (1000 / 60),
 			attachedEntity: true
 		}
 	],
