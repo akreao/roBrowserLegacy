@@ -80,6 +80,7 @@ class AttachmentManager {
 		attachment.duration = attachment.duration || 0;
 		attachment.stopAtEnd = attachment.stopAtEnd || false;
 		attachment.delay = attachment.delay || false;
+		attachment.startDelay = attachment.startDelay || 0;
 		attachment.renderBefore = attachment.renderBefore || false;
 
 		if (attachment.completeFile) {
@@ -118,7 +119,7 @@ class AttachmentManager {
 		Client.loadFile(
 			attachment.spr,
 			function onLoad() {
-				attachment.startTick = Renderer.tick || Date.now();
+				attachment.startTick = (Renderer.tick || Date.now()) + attachment.startDelay;
 				this.list.push(attachment);
 			}.bind(this),
 			null,

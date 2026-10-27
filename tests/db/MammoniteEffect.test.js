@@ -4,8 +4,9 @@ import { join } from 'node:path';
 import { COIN, planCoins, flyCoin, coinAt, coinTrailAt } from '../../src/Renderer/Effects/MammoniteCoinSim.js';
 import { mammoniteEffect, coinEffect } from '../../src/DB/Effects/MammoniteEffect.js';
 
-// Mammonite (MC_MAMMONITE, skill 42): 0 and 10 on the target once per damage packet when the hit
-// lands. 10 is Maemor.str and, on tick 20, 5 coins thrown up that bounce with EF_Coin1-3.wav.
+// Mammonite (MC_MAMMONITE, skill 42): when the hit lands, 0 (hit flash) on the target on every hit
+// and 10 with the first hit of the damage packet (kRO 2025-07-16).
+// 10 is Maemor.str and, on tick 20, 5 coins thrown up that bounce with EF_Coin1-3.wav.
 // Spec: effect-port/merchant-skills.md.
 
 const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
@@ -15,8 +16,8 @@ let seed = 7;
 const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
 describe('Mammonite coins', () => {
-	it('plays 0 and 10 once when the hit lands, nothing at use', () => {
-		expect(source).toMatch(/SkillEffect\[SK\.MC_MAMMONITE\] = \{ hitEffectId: \[0, 10\], hitEffectOnce: true \};/);
+	it('plays 0 on every hit and 10 with the first, nothing at use', () => {
+		expect(source).toMatch(/SkillEffect\[SK\.MC_MAMMONITE\] = \{ hitEffectId: 0, firstHitEffectId: 10 \};/);
 	});
 
 	it('throws 5 coins within the client ranges', () => {
