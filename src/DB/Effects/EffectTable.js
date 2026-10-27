@@ -5050,6 +5050,17 @@ export default {
 		}
 	],
 
+	// Chase Walk (ST_CHASEWALK): the official client puts a smoke puff (message
+	// effect, 이팩트\smoke.spr) where the caster stands when the skill
+	// works, going into and out of hiding.
+	ef_chase_walk_smoke: [
+		{
+			type: 'SPR',
+			file: 'smoke',
+			attachedEntity: false
+		}
+	],
+
 	216: [
 		{
 			//EF_BLOODDRAIN (Dracula / Beast Strafe)
