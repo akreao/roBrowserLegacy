@@ -4,12 +4,13 @@ precision highp float;
 
 in vec2 vTextureCoord;
 uniform sampler2D uDiffuse;
+uniform float uAlpha;
 out vec4 fragColor;
+
 void main(void) {
     vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {
+    if (textureSample.a == 0.0) {
         discard;
     }
-    textureSample.a = 0.7;
-    fragColor = textureSample;
+    fragColor = vec4(textureSample.rgb, textureSample.a * uAlpha);
 }

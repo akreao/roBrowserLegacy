@@ -32,6 +32,7 @@ import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 import { applyMarks, glowLayers, marksOf } from 'Renderer/Effects/BodyMotionSim.js';
+import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
 /**
  * Load dependencies
@@ -667,7 +668,14 @@ function renderWaterDepth() {
 			_attachmentPosition[1] = item.y;
 			SpriteRenderer.runWithDepth(true, true, false, function () {
 				for (let i = 0, count = item.layers.length; i < count; ++i) {
-					self.renderLayer(item.layers[i], item.spr, item.spr, 1.0, _attachmentPosition, false);
+					self.renderLayer(
+						item.scale === 1 ? item.layers[i] : scaledLayer(item.layers[i], item.scale),
+						item.spr,
+						item.spr,
+						item.scale,
+						_attachmentPosition,
+						false
+					);
 				}
 			});
 		}

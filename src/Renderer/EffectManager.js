@@ -13,7 +13,7 @@ import EffectDB from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import { motionEffectForPacket } from 'DB/Skills/SkillMotionEffect.js';
 import JobId from 'DB/Jobs/JobConst.js';
-import SkillUnit, { SkillUnitEnd } from 'DB/Skills/SkillUnit.js';
+import SkillUnit, { SkillUnitEnd, SkillUnitTrigger } from 'DB/Skills/SkillUnit.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
 import ItemEffect from 'DB/Items/ItemEffect.js';
 import Commands from 'Controls/ProcessCommand.js';
@@ -229,7 +229,8 @@ function spamSprite(Params) {
 		// A number delayStart (ms) holds the sprite back, as the official client
 		// starts some sprites a few ticks into their effect (Triple Action)
 		startDelay: typeof Params.effect.delayStart === 'number' ? Params.effect.delayStart : 0,
-		renderBefore: !!Params.effect.renderBeforeEntities
+		renderBefore: !!Params.effect.renderBeforeEntities,
+		scale: Params.effect.scale
 	});
 
 	if (isNewEntity) {
@@ -975,6 +976,30 @@ class EffectManager {
 
 		const position = [entity.position[0], entity.position[1], entity.position[2]];
 		SkillUnitEnd[entity.skillUnitId].forEach(effectId => EffectManager.spam({ effectId, position }));
+	}
+
+	/**
+	 * Play a trap's effect where it stands when it goes off (its unit turns
+	 * into a used trap), once, like the official client.
+	 *
+	 * @param {number} uid skill unit id
+	 * @param {number} unitId the unit's new look
+	 */
+	static spamSkillUnitTrigger(uid, unitId) {
+		const entity = EntityManager.get(uid);
+		if (!entity || unitId !== SU.UNT_USED_TRAPS || entity.skillUnitId === unitId) {
+			return;
+		}
+
+		const trapId = entity.skillUnitId;
+		entity.skillUnitId = unitId;
+
+		if (!Preferences.effect || !(trapId in SkillUnitTrigger)) {
+			return;
+		}
+
+		const position = [entity.position[0], entity.position[1], entity.position[2]];
+		SkillUnitTrigger[trapId].forEach(effectId => EffectManager.spam({ effectId, position }));
 	}
 
 	/**

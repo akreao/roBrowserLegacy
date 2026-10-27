@@ -56,6 +56,7 @@ import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { startFootprints } from 'Renderer/Effects/Footprints.js';
 import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
+import { sendFalcon } from 'Engine/MapEngine/FalconFlight.js';
 
 // Excludes for skill name display
 const SkillNameDisplayExclude = [
@@ -1335,6 +1336,7 @@ function onEntityViewChange(pkt) {
 				entity.objecttype === Entity.TYPE_UNIT ||
 				entity.objecttype === Entity.TYPE_TRAP
 			) {
+				EffectManager.spamSkillUnitTrigger(pkt.GID, pkt.value);
 				EffectManager.spamSkillZone(
 					pkt.value,
 					entity.position[0],
@@ -1598,6 +1600,11 @@ function onEntityUseSkill(pkt) {
 
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
+		// Spring Trap sends the falcon to the trap (official client)
+		if (pkt.SKID === SkillId.HT_SPRINGTRAP && dstEntity) {
+			sendFalcon(srcEntity, dstEntity.position[0], dstEntity.position[1]);
+		}
+
 		if (pkt.result == 1) {
 			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 		}
@@ -1720,21 +1727,8 @@ function onEntityUseSkillToAttack(pkt) {
 			}
 		}
 
-		if (srcEntity.falcon) {
-			if (pkt.SKID == SkillId.HT_BLITZBEAT || pkt.SKID == SkillId.SN_FALCONASSAULT) {
-				srcEntity.falcon.action = srcEntity.action;
-				srcEntity.falcon.walk.speed = 35;
-
-				srcEntity.falcon.walkToNonWalkableGround(
-					srcEntity.falcon.position[0],
-					srcEntity.falcon.position[1],
-					dstEntity.position[0],
-					dstEntity.position[1],
-					0,
-					true,
-					true
-				);
-			}
+		if (pkt.SKID == SkillId.HT_BLITZBEAT || pkt.SKID == SkillId.SN_FALCONASSAULT) {
+			sendFalcon(srcEntity, dstEntity.position[0], dstEntity.position[1]);
 		}
 
 		if (srcEntity.wug) {
