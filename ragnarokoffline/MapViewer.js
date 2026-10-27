@@ -223743,7 +223743,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.BS_GREED] = { effectId: "ef_greed_sound" };
 	SkillEffect[SkillConst_default.PR_REDEMPTIO] = {};
 	SkillEffect[SkillConst_default.MO_KITRANSLATION] = {};
-	SkillEffect[SkillConst_default.MO_BALKYOUNG] = { effectId: 514 };
+	SkillEffect[SkillConst_default.MO_BALKYOUNG] = { hitEffectId: 2 };
 	SkillEffect[SkillConst_default.SA_ELEMENTGROUND] = { successEffectId: 258 };
 	SkillEffect[SkillConst_default.SA_ELEMENTFIRE] = { successEffectId: 255 };
 	SkillEffect[SkillConst_default.SA_ELEMENTWIND] = { successEffectId: 257 };
