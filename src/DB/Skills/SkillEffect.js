@@ -82,20 +82,7 @@
  */
 
 import SK from 'DB/Skills/SkillConst.js';
-import EntityManager from 'Renderer/EntityManager.js';
-import JobId from 'DB/Jobs/JobConst.js';
 import { REPEAT_WINDOW_MS } from 'DB/Effects/HastyFireInTheHoleEffect.js';
-
-// _job dont store mount variants, just the real job, so it's ok to check like this
-// this is used on monk asura strike effect
-const CHAMPION_JOBS = new Set([
-	JobId.MONK_H, // 4016
-	JobId.SURA, // 4070
-	JobId.SURA_H, // 4077
-	JobId.SURA_B, // 4106
-	JobId.SURA_2ND, // 4342
-	JobId.INQUISITOR // 4262
-]);
 
 const SkillEffect = {};
 
@@ -447,19 +434,14 @@ SkillEffect[SK.MO_TRIPLEATTACK] = { damageEffectIdOnCaster: 329, hitEffectId: 0 
 SkillEffect[SK.MO_BODYRELOCATION] = { effectId: 166 }; //Snap (EF_MAKEBLUR)
 SkillEffect[SK.MO_INVESTIGATE] = { damageEffectIdOnCaster: 267, hitEffectId: 0 }; //Occult Impaction
 SkillEffect[SK.MO_FINGEROFFENSIVE] = { damageEffectIdOnCaster: 265, hitEffectId: 0, firstHitEffectId: 1 }; //Throw Spirit Sphere
-SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
+SkillEffect[SK.MO_STEELBODY] = { successEffectIdOnCaster: ['quake', 'monk_raging_thrust_sound', 261] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
-SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { beginCastEffectId: 12, effectIdOnCaster: [261, 'quake'] }; //Fury
-SkillEffect[SK.MO_EXTREMITYFIST] = {
-	effectId: srcAID => {
-		const src = EntityManager.get(srcAID);
-		return src && CHAMPION_JOBS.has(src._job) ? [510, 'quake'] : [328, 'quake']; /* champion 510 */
-	},
-	hitEffectId: 266,
-	beginCastEffectId: 12
-}; //Asura Strike
-SkillEffect[SK.MO_CHAINCOMBO] = { effectId: [262, 273], effectIdOnCaster: 263 }; //Raging Quadruple Blow
-SkillEffect[SK.MO_COMBOFINISH] = { effectId: [330, 'quake'] }; //Raging Thrust
+SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { successEffectIdOnCaster: ['quake', 'monk_fury_sound', 203, 261] }; //Fury
+// Official client: as the damage packet arrives, the camera quake and 266 (with its sound) on the
+// target; the hit flash 0. No aura (328 / 510) and no cast-start effect. See effect-port/monk-skills.md.
+SkillEffect[SK.MO_EXTREMITYFIST] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 266, hitEffectId: 0 }; //Asura Strike
+SkillEffect[SK.MO_CHAINCOMBO] = { damageEffectIdOnTarget: [262, 273], damageEffectIdOnCaster: 263, hitEffectId: [0, 122] }; //Raging Quadruple Blow
+SkillEffect[SK.MO_COMBOFINISH] = { damageEffectIdOnCaster: ['quake', 'monk_raging_thrust_sound', 263], hitEffectId: [0, 1] }; //Raging Thrust
 // Sage
 SkillEffect[SK.SA_CASTCANCEL] = {}; //Cast Cancel
 SkillEffect[SK.SA_MAGICROD] = { successEffectId: 244 }; //Magic Rod
@@ -491,30 +473,30 @@ SkillEffect[SK.SA_COMA] = {}; //Coma
 // Bard & Dancer
 SkillEffect[SK.BD_ADAPTATION] = {}; //Amp
 SkillEffect[SK.BD_ENCORE] = {}; //Encore
-SkillEffect[SK.BD_LULLABY] = { effectId: 278, groundEffectId: '278_ground' }; //Lullaby
-SkillEffect[SK.BD_RICHMANKIM] = { effectId: 279, groundEffectId: '279_ground' }; //Mental Sensing
-SkillEffect[SK.BD_ETERNALCHAOS] = { effectId: 280, groundEffectId: '280_ground' }; //Down Tempo
-SkillEffect[SK.BD_DRUMBATTLEFIELD] = { effectId: 281, groundEffectId: '281_ground' }; //Battle Theme
-SkillEffect[SK.BD_RINGNIBELUNGEN] = { effectId: 282, groundEffectId: '282_ground' }; //Harmonic Lick
-SkillEffect[SK.BD_ROKISWEIL] = { effectId: 283, groundEffectId: '283_ground' }; //Classical Pluck
-SkillEffect[SK.BD_INTOABYSS] = { effectId: 284, groundEffectId: '284_ground' }; //Power Chord
-SkillEffect[SK.BD_SIEGFRIED] = { effectId: 285, groundEffectId: '285_ground' }; //Acoustic Rhythm
+SkillEffect[SK.BD_LULLABY] = { successEffectId: [278, 845], groundEffectId: '278_ground' }; //Lullaby
+SkillEffect[SK.BD_RICHMANKIM] = { successEffectId: [279, 842], groundEffectId: '279_ground' }; //Mental Sensing
+SkillEffect[SK.BD_ETERNALCHAOS] = { successEffectId: [280, 844], groundEffectId: '280_ground' }; //Down Tempo
+SkillEffect[SK.BD_DRUMBATTLEFIELD] = { successEffectId: [281, 842], groundEffectId: '281_ground' }; //Battle Theme
+SkillEffect[SK.BD_RINGNIBELUNGEN] = { successEffectId: [282, 842], groundEffectId: '282_ground' }; //Harmonic Lick
+SkillEffect[SK.BD_ROKISWEIL] = { successEffectId: [283, 845], groundEffectId: '283_ground' }; //Classical Pluck
+SkillEffect[SK.BD_INTOABYSS] = { successEffectId: [284, 842], groundEffectId: '284_ground' }; //Power Chord
+SkillEffect[SK.BD_SIEGFRIED] = { successEffectId: [285, 842], groundEffectId: '285_ground' }; //Acoustic Rhythm
 // Bard
-SkillEffect[SK.BA_MUSICALSTRIKE] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Melody Strike
-SkillEffect[SK.BA_DISSONANCE] = { groundEffectId: '277_ground' }; //Unchained Serenade
-SkillEffect[SK.BA_FROSTJOKE] = { beginCastEffectId: 295 }; //Unbarring Octave
-SkillEffect[SK.BA_WHISTLE] = { effectId: 286, groundEffectId: '286_ground' }; //Perfect Tablature
-SkillEffect[SK.BA_ASSASSINCROSS] = { effectId: 287, groundEffectId: '287_ground' }; //Impressive Riff
-SkillEffect[SK.BA_POEMBRAGI] = { effectId: 288, groundEffectId: '288_ground' }; //Magic Strings
-SkillEffect[SK.BA_APPLEIDUN] = { effectId: 289, groundEffectId: '289_ground' }; //Song of Lutie
+SkillEffect[SK.BA_MUSICALSTRIKE] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Melody Strike
+SkillEffect[SK.BA_DISSONANCE] = { successEffectId: 843, groundEffectId: '277_ground' }; //Unchained Serenade
+SkillEffect[SK.BA_FROSTJOKE] = { successEffectId: 295 }; //Unbarring Octave
+SkillEffect[SK.BA_WHISTLE] = { successEffectId: 844, groundEffectId: '286_ground' }; //Perfect Tablature
+SkillEffect[SK.BA_ASSASSINCROSS] = { successEffectId: [287, 840], groundEffectId: '287_ground' }; //Impressive Riff
+SkillEffect[SK.BA_POEMBRAGI] = { successEffectId: [288, 843], groundEffectId: '288_ground' }; //Magic Strings
+SkillEffect[SK.BA_APPLEIDUN] = { successEffectId: [289, 841], groundEffectId: '289_ground' }; //Song of Lutie
 // Dancer
-SkillEffect[SK.DC_THROWARROW] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Slinging Arrow
-SkillEffect[SK.DC_UGLYDANCE] = { groundEffectId: '290_ground' }; //Hip Shaker
-SkillEffect[SK.DC_SCREAM] = { beginCastEffectId: 296 }; //Dazzler
-SkillEffect[SK.DC_HUMMING] = { effectId: 291, groundEffectId: '291_ground' }; //Focus Ballet
-SkillEffect[SK.DC_DONTFORGETME] = { effectId: 292, groundEffectId: '292_ground' }; //Slow Grace
-SkillEffect[SK.DC_FORTUNEKISS] = { effectId: 293, groundEffectId: '293_ground' }; //Lady Luck
-SkillEffect[SK.DC_SERVICEFORYOU] = { effectId: 294, groundEffectId: '294_ground' }; //Gypsy's Kiss
+SkillEffect[SK.DC_THROWARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Slinging Arrow
+SkillEffect[SK.DC_UGLYDANCE] = { successEffectId: 843, groundEffectId: '290_ground' }; //Hip Shaker
+SkillEffect[SK.DC_SCREAM] = { successEffectId: 296 }; //Dazzler
+SkillEffect[SK.DC_HUMMING] = { successEffectId: [291, 844], groundEffectId: '291_ground' }; //Focus Ballet
+SkillEffect[SK.DC_DONTFORGETME] = { successEffectId: [292, 844], groundEffectId: '292_ground' }; //Slow Grace
+SkillEffect[SK.DC_FORTUNEKISS] = { successEffectId: [293, 840], groundEffectId: '293_ground' }; //Lady Luck
+SkillEffect[SK.DC_SERVICEFORYOU] = { successEffectId: [294, 840], groundEffectId: '294_ground' }; //Gypsy's Kiss
 // NPC Skills
 SkillEffect[SK.NPC_RANDOMMOVE] = {}; //Random Move
 SkillEffect[SK.NPC_SPEEDUP] = {}; //Speed UP
@@ -560,9 +542,9 @@ SkillEffect[SK.PA_PRESSURE] = { beforeHitEffectId: 365 }; //Gloria Domini
 SkillEffect[SK.PA_SACRIFICE] = { effectId: 366 }; // Martyr's Reckoning
 SkillEffect[SK.PA_GOSPEL] = { effectId: 370, groundEffectId: '370_ground' }; //Battle Chant
 // Champion
-SkillEffect[SK.CH_PALMSTRIKE] = { hitEffectId: [376, 'quake'] }; //Raging Palm Strike
-SkillEffect[SK.CH_TIGERFIST] = { effectIdOnCaster: 263, effectId: [377, 'quake'] }; //Glacier Fist
-SkillEffect[SK.CH_CHAINCRUSH] = { effectId: 512 }; //Chain Crush Combo
+SkillEffect[SK.CH_PALMSTRIKE] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 376, hitEffectId: 0 }; //Raging Palm Strike
+SkillEffect[SK.CH_TIGERFIST] = { damageEffectIdOnCaster: ['quake', 377, 263], hitEffectId: [0, 1] }; //Glacier Fist
+SkillEffect[SK.CH_CHAINCRUSH] = { damageEffectIdOnCaster: [263, 512], hitEffectId: 0, firstHitEffectId: 1 }; //Chain Crush Combo
 // Professor
 SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378, successEffectIdOnCaster: 379 }; //Indulge
 SkillEffect[SK.PF_SOULCHANGE] = { effectId: 384, successEffectId: 385 }; //Soul Exhale
@@ -599,8 +581,8 @@ SkillEffect[SK.ST_REJECTSWORD] = { effectId: 392 }; //Counter Instinct
 SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
 SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
 // Clown & Gypsy
-SkillEffect[SK.CG_ARROWVULCAN] = { effectId: 393, beforeHitEffectId: 'ef_arrow_projectile' }; //Vulcan Arrow
-SkillEffect[SK.CG_MOONLIT] = { effectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
+SkillEffect[SK.CG_ARROWVULCAN] = { damageEffectIdOnCaster: 393, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1], hitEffectOnce: true }; //Vulcan Arrow
+SkillEffect[SK.CG_MOONLIT] = { successEffectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
 SkillEffect[SK.CG_MARIONETTE] = { effectId: 395, hitEffectId: 396 }; //Marionette Control
 // Lord Knight
 SkillEffect[SK.LK_SPIRALPIERCE] = {
@@ -614,7 +596,7 @@ SkillEffect[SK.LK_JOINTBEAT] = { beginCastEffectId: 400, hitEffectId: 'enemy_hit
 // High Wizard
 SkillEffect[SK.HW_NAPALMVULCAN] = { damageEffectIdOnTarget: 401, hitEffectId: [0], hitEffectOnce: true }; //Napalm Vulcan
 // Champion
-SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: [402, 12] }; //Zen
+SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: 402 }; //Zen
 // Professor
 SkillEffect[SK.PF_MINDBREAKER] = { successEffectId: 403 }; //Mind Breaker
 SkillEffect[SK.PF_MEMORIZE] = { effectId: 505 }; //Foresight
@@ -705,9 +687,9 @@ SkillEffect[SK.HW_GANBANTEIN] = { effectId: [223, 'ef_ganbantein_wav'] }; //Ganb
 SkillEffect[SK.HW_GRAVITATION] = { groundEffectIdByLevel: ['ef_gravitation_wav'], groundEffectId: '522_ground', hitEffectId: [0] }; //Gravitation Field
 SkillEffect[SK.WS_CARTTERMINATION] = { effectId: 518 }; //Cart Termination
 SkillEffect[SK.WS_OVERTHRUSTMAX] = SkillEffect[SK.BS_OVERTHRUST]; //Maximum Power Thrust
-SkillEffect[SK.CG_LONGINGFREEDOM] = { effectId: 500 }; //Longing for Freedom
-SkillEffect[SK.CG_HERMODE] = { effectId: '517_music', groundEffectId: 517 }; //Wand of Hermode
-SkillEffect[SK.CG_TAROTCARD] = { successEffectId: 500 }; //Tarot Card of Fate
+SkillEffect[SK.CG_LONGINGFREEDOM] = { successEffectId: ['ef_longing_freedom_sound', 843] }; //Longing for Freedom
+SkillEffect[SK.CG_HERMODE] = { successEffectId: '517_music', groundEffectId: 517 }; //Wand of Hermode
+SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500] }; //Tarot Card of Fate
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
@@ -848,7 +830,8 @@ SkillEffect[SK.NPC_MAXPAIN] = {}; //Max Pain
 SkillEffect[SK.NPC_MAXPAIN_ATK] = {}; //Max Pain Attack
 // 2nd Quest Skills
 SkillEffect[SK.KN_CHARGEATK] = { beginCastEffectId: 'white_pulse', hitEffectId: 1, hitEffectOnce: true }; //Charge Attack
-SkillEffect[SK.CR_SHRINK] = { effectId: 599 }; //Shrink
+// Official client: 599 on the Crusader, from the use packet when its result is set.
+SkillEffect[SK.CR_SHRINK] = { successEffectIdOnCaster: 599 }; //Shrink
 SkillEffect[SK.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 }; //Throw Venom Knife
 SkillEffect[SK.RG_CLOSECONFINE] = { effectId: 602, groundEffectId: 604 }; //Close Confine
 SkillEffect[SK.WZ_SIGHTBLASTER] = { effectId: 601 }; //Sight Blaster
@@ -860,7 +843,7 @@ SkillEffect[SK.DC_WINKCHARM] = { successEffectId: 607 }; //Wink of Charm
 SkillEffect[SK.BS_GREED] = { effectId: 'ef_greed_sound' }; //Greed
 SkillEffect[SK.PR_REDEMPTIO] = {}; //Redemptio
 SkillEffect[SK.MO_KITRANSLATION] = {}; //Ki Translation
-SkillEffect[SK.MO_BALKYOUNG] = { effectId: 514 }; //Ki Explosion
+SkillEffect[SK.MO_BALKYOUNG] = { hitEffectId: 2 }; //Ki Explosion
 SkillEffect[SK.SA_ELEMENTGROUND] = { successEffectId: 258 }; //Elemental Change Earth
 SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fire
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
@@ -1889,30 +1872,53 @@ SkillEffect[SK.SU_HIDE] = {}; //Hide
 SkillEffect[SK.SU_SCRATCH] = { successEffectId: 'ef_su_scratch' }; //Scratch
 SkillEffect[SK.SU_STOOP] = {}; //Stoop
 SkillEffect[SK.SU_LOPE] = {}; //Lope
-SkillEffect[SK.SU_SV_STEMSPEAR] = { effectId: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
+// Silvervine Stem Spear: the official client plays 1101 at the caster as each damage
+// packet arrives (and flies 4 spear sprites to the target, effect 1100, not ported).
+SkillEffect[SK.SU_SV_STEMSPEAR] = { damageEffectIdOnCaster: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
 SkillEffect[SK.SU_CN_POWDERING] = {}; //Catnip Powdering
-SkillEffect[SK.SU_CN_METEOR] = {}; //Catnip Meteor
+// Catnip Meteor: one falling meteor at the cell of each ground packet (the server sends
+// one per meteor); only from the ground packet, not from the damage.
+SkillEffect[SK.SU_CN_METEOR] = { groundEffectIdByLevel: ['ef_su_cn_meteor'] }; //Catnip Meteor
+SkillEffect[SK.SU_CN_METEOR2] = { groundEffectIdByLevel: ['ef_su_cn_meteor2'] }; //Catnip Meteor (with the item)
 SkillEffect[SK.SU_SV_ROOTTWIST] = {}; //Silvervine Root Twist
 SkillEffect[SK.SU_SV_ROOTTWIST_ATK] = {}; //Silver Vine Root Twist Attack
 SkillEffect[SK.SU_SCAROFTAROU] = { effectId: 'ef_su_scaroftarou' }; //Scar of Tarou
-SkillEffect[SK.SU_PICKYPECK] = { effectId: 'ef_su_pickypeck' }; //Picky Peck
+// Picky Peck: once, on the use packet's target when it succeeds (not again on the damage).
+SkillEffect[SK.SU_PICKYPECK] = { successEffectId: 'ef_su_pickypeck' }; //Picky Peck
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
-SkillEffect[SK.SU_ARCLOUSEDASH] = { effectId: 'ef_su_arclousedash' }; //Arclouse Dash
-SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
-SkillEffect[SK.SU_TUNABELLY] = { effectId: 'ef_su_tunabelly' }; //Tuna Belly
+// Arclouse Dash: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_ARCLOUSEDASH] = { successEffectId: 'ef_su_arclousedash' }; //Arclouse Dash
+// Lunatic Carrot Beat: carrots fall around the target when the use packet succeeds, more
+// for higher levels (DB/Effects/CarrotBeatEffect.js); the _2 version is the one with the item.
+SkillEffect[SK.SU_LUNATICCARROTBEAT] = { successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat'] }; //Lunatic Carrot Beat
+SkillEffect[SK.SU_LUNATICCARROTBEAT2] = { successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat2'] }; //Lunatic Carrot Beat (with the item)
+// Tuna Belly: once, on the use packet's target when it succeeds.
+SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
-SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
-SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
+// Bunch of Shrimp: on each party member's use packet when it succeeds (effect 1116).
+SkillEffect[SK.SU_BUNCHOFSHRIMP] = { successEffectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
+// Fresh Shrimp: on the use packet's target when it succeeds, silent (effect 1098).
+SkillEffect[SK.SU_FRESHSHRIMP] = { successEffectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
-SkillEffect[SK.SU_POWEROFFLOCK] = { effectId: 'ef_su_powerofflock' }; //Power of Flock
-SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Savage
-SkillEffect[SK.SU_HISS] = { effectId: 'ef_su_hiss' }; //Hiss
-SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
-SkillEffect[SK.SU_GROOMING] = { effectId: 'ef_su_grooming' }; //Grooming
-SkillEffect[SK.SU_PURRING] = {}; //Purring
-SkillEffect[SK.SU_SHRIMPARTY] = {}; //Tasty Shrimp Party
-SkillEffect[SK.SU_MEOWMEOW] = {}; //Meow Meow
-SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering
+// Power of Flock: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //Power of Flock
+// Spirit of Savage: the official client plays 1129 on each target as its damage packet
+// arrives (and flies the svg_spirit sprite from the caster, effect 1128, not ported).
+SkillEffect[SK.SU_SVG_SPIRIT] = { damageEffectIdOnTarget: 'ef_su_svg_spirit' }; //Spirit of Savage
+// Hiss: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_HISS] = { successEffectId: 'ef_su_hiss' }; //Hiss
+// Nyang Grass: nothing for the ground packet; the field comes with its unit (SkillUnit.js).
+SkillEffect[SK.SU_NYANGGRASS] = {}; //Nyang Grass
+// Grooming: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_GROOMING] = { successEffectId: 'ef_su_grooming' }; //Grooming
+// Purring: the official client plays Grooming's effect (1123, su_grooming.wav) for it.
+SkillEffect[SK.SU_PURRING] = { successEffectId: 'ef_su_grooming' }; //Purring
+// Tasty Shrimp Party: Fresh Shrimp's STR with su_shrimpparty.wav, on use success.
+SkillEffect[SK.SU_SHRIMPARTY] = { successEffectId: 'ef_su_shrimparty' }; //Tasty Shrimp Party
+// Meow Meow: the official client plays Chattering's effect (1124) with su_chattering.wav.
+SkillEffect[SK.SU_MEOWMEOW] = { successEffectId: 'ef_su_chattering' }; //Meow Meow
+// Chattering: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_CHATTERING] = { successEffectId: 'ef_su_chattering' }; //Chattering
 // Wedding Skills 3
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever

@@ -225,6 +225,7 @@ function spamSprite(Params) {
 		yOffset: Params.effect.yOffset,
 		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
+		opacity: Params.effect.opacity,
 		// A number delayStart (ms) holds the sprite back, as the official client
 		// starts some sprites a few ticks into their effect (Triple Action)
 		startDelay: typeof Params.effect.delayStart === 'number' ? Params.effect.delayStart : 0,
@@ -402,6 +403,13 @@ function actionFrames(entity) {
 
 class EffectManager {
 	/**
+	 * Goes up each time every effect is destroyed (a map change). An effect
+	 * that spawns more of itself later can compare it to drop what it had
+	 * queued for the old map.
+	 */
+	static generation = 0;
+
+	/**
 	 * Initialize effects manager
 	 */
 	static init(gl) {
@@ -490,6 +498,8 @@ class EffectManager {
 
 			delete _list[key];
 		});
+
+		EffectManager.generation++;
 	}
 
 	/**
