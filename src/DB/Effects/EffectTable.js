@@ -47,7 +47,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { ninjaThrowEffects, throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
@@ -12902,105 +12902,17 @@ export default {
 		}
 	],
 
-	613: [
-		{
-			//EF_THROWITEM7	   Throw Shuriken
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xbc\xf6\xb8\xae\xb0\xcb.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM7, Throw Shuriken: the client's thrown item with its trail (ThrowStoneEffect.js)
+	613: ninjaThrowEffects[613],
 
-	614: [
-		{
-			//EF_THROWITEM8	   Throw Kunai
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xc4\xed\xb3\xaa\xc0\xcc\x5f\xb5\xb6.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM8, Throw Kunai: the client's thrown item with its trail (ThrowStoneEffect.js)
+	614: ninjaThrowEffects[614],
 
-	615: [
-		{
-			//EF_THROWITEM9	   Throw Fumma Shuriken
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xc7\xb3\xb8\xb6\x5f\xb3\xfa\xbf\xec.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM9, Throw Huuma Shuriken: the client's thrown item with its trail (ThrowStoneEffect.js)
+	615: ninjaThrowEffects[615],
 
-	616: [
-		{
-			//EF_THROWITEM10	   Throw Money
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/coin_a.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM10, Throw Zeny: the client's thrown item with its trail (ThrowStoneEffect.js)
+	616: ninjaThrowEffects[616],
 
 	//617: [{}],	//EF_BUNSINJYUTSU	   Illusionary Shadow
 

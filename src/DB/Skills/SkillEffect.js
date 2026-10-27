@@ -748,10 +748,10 @@ SkillEffect[SK.GS_SPREADATTACK] = { damageEffectIdOnCaster: 645, hitEffectId: 0,
 // See effect-port/gunslinger-skills.md.
 SkillEffect[SK.GS_GROUNDDRIFT] = { groundEffectIdByLevel: ['ef_gs_ground_drift'] }; //Ground Drift
 // Ninja
-SkillEffect[SK.NJ_SYURIKEN] = { beforeHitEffectId: 613 }; //Throw Shuriken
-SkillEffect[SK.NJ_KUNAI] = { beforeHitEffectId: 614 }; //Throw Kunai
-SkillEffect[SK.NJ_HUUMA] = { beforeHitEffectId: 615 }; //Throw Huuma Shuriken
-SkillEffect[SK.NJ_ZENYNAGE] = { beforeHitEffectId: 616 }; //Throw Zeny
+SkillEffect[SK.NJ_SYURIKEN] = { damageEffectIdOnCaster: 613 }; //Throw Shuriken
+SkillEffect[SK.NJ_KUNAI] = { damageEffectIdOnCaster: 614 }; //Throw Kunai
+SkillEffect[SK.NJ_HUUMA] = { damageEffectIdOnCaster: 615 }; //Throw Huuma Shuriken
+SkillEffect[SK.NJ_ZENYNAGE] = { damageEffectIdOnCaster: 616 }; //Throw Zeny
 SkillEffect[SK.NJ_TATAMIGAESHI] = { groundEffectId: 631 }; //Improvised Defense
 SkillEffect[SK.NJ_KASUMIKIRI] = { effectId: 632 }; //Vanishing Slash
 SkillEffect[SK.NJ_SHADOWJUMP] = {}; //Shadow Leap
