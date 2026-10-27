@@ -80217,7 +80217,6 @@ var init_SessionStorage = __esmMin((() => {
 		showsAdmin(entity, part) {
 			return Boolean(entity?.isAdmin) && this.AdminLook?.[part] !== false;
 		},
-		underAutoCounter: false,
 		moveAction: null,
 		/**
 		* Player money, stored on the player entity.
@@ -150854,6 +150853,7 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_MAGNUS] = EffectConst_default.EF_BOTTOM_MAG;
 	SkillUnit[SkillUnitConst_default.UNT_PNEUMA] = EffectConst_default.EF_PNEUMA;
 	SkillUnit[SkillUnitConst_default.UNT_FIREPILLAR_WAITING] = EffectConst_default.EF_FIREPILLARON;
+	SkillUnit[SkillUnitConst_default.UNT_FIREPILLAR_ACTIVE] = EffectConst_default.EF_FIREPILLARBOMB;
 	SkillUnit[SkillUnitConst_default.UNT_ICEWALL] = EffectConst_default.EF_ICEWALL;
 	SkillUnit[SkillUnitConst_default.UNT_QUAGMIRE] = EffectConst_default.EF_QUAGMIRE;
 	SkillUnit[SkillUnitConst_default.UNT_BLASTMINE] = "ef_trap_03_3";
@@ -222751,28 +222751,33 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.KN_PIERCE] = {
-		effectIdOnCaster: 148,
-		hitEffectId: 147
+		damageEffectIdOnCaster: 148,
+		hitEffectId: 81,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.KN_BRANDISHSPEAR] = {
 		hideCastBar: true,
 		hideCastAura: true,
-		effectId: 70,
-		effectIdOnCaster: 144
+		damageEffectIdOnTarget: 70
 	};
-	SkillEffect[SkillConst_default.KN_SPEARSTAB] = { effectIdOnCaster: 150 };
+	SkillEffect[SkillConst_default.KN_SPEARSTAB] = {
+		damageEffectIdOnCaster: 150,
+		hitEffectId: 81,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.KN_SPEARBOOMERANG] = {
-		effectIdOnCaster: 151,
-		beforeHitEffectId: "ef_spear_projectile",
-		hitEffectId: 80
+		damageEffectIdOnCaster: [80, 151],
+		hitEffectId: 3,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.KN_TWOHANDQUICKEN] = { effectId: 130 };
 	SkillEffect[SkillConst_default.KN_AUTOCOUNTER] = { hideCastAura: true };
 	SkillEffect[SkillConst_default.KN_BOWLINGBASH] = {
 		hideCastBar: true,
 		hideCastAura: true,
-		effectIdOnCaster: 149,
-		hitEffectId: 1
+		damageEffectIdOnCaster: 149,
+		hitEffectId: [0, 73],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.PR_IMPOSITIO] = { successEffectId: 84 };
 	SkillEffect[SkillConst_default.PR_SUFFRAGIUM] = { successEffectId: 88 };
@@ -222809,46 +222814,51 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 318
 	};
 	SkillEffect[SkillConst_default.WZ_FIREPILLAR] = {
-		effectId: 96,
 		groundEffectId: 138,
-		hitEffectId: 97
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.WZ_SIGHTRASHER] = {
-		effectId: 62,
-		hitEffectId: 49
+		successEffectId: 62,
+		damageEffectIdOnCaster: 62,
+		hitEffectId: [0, 49],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.WZ_METEOR] = {
 		effectId: 92,
-		hitEffectId: 49
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.WZ_JUPITEL] = {
 		releaseEffectId: 93,
-		hitEffectId: 94
+		hitEffectId: [0, 94],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.WZ_VERMILION] = {
 		effectId: 90,
 		hitEffectId: 52
 	};
 	SkillEffect[SkillConst_default.WZ_WATERBALL] = {
-		beforeHitEffectIdOnCaster: 116,
-		hitEffectIdOnCaster: 117
+		damageEffectIdOnCaster: 117,
+		hitEffectId: [0],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.WZ_ICEWALL] = { groundEffectId: 74 };
 	SkillEffect[SkillConst_default.WZ_FROSTNOVA] = {
-		effectIdOnCaster: 28,
-		hitEffectId: 51
+		successEffectId: 28,
+		hitEffectId: [0, 28],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.WZ_STORMGUST] = {
 		effectId: 89,
 		hitEffectId: 51
 	};
 	SkillEffect[SkillConst_default.WZ_EARTHSPIKE] = {
-		effectId: 79,
-		hitEffectId: 147
+		damageEffectIdOnTarget: 79,
+		hitEffectId: [147, 147],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.WZ_HEAVENDRIVE] = {
 		effectId: 142,
-		hitEffectId: 147
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.WZ_QUAGMIRE] = { groundEffectId: 95 };
 	SkillEffect[SkillConst_default.WZ_ESTIMATION] = {};
@@ -222982,8 +222992,8 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.MC_CARTREVOLUTION] = {
 		damageEffectIdOnCaster: 170,
-		hitEffectId: [0, 170],
-		hitEffectOnce: true
+		hitEffectId: 0,
+		firstHitEffectId: 170
 	};
 	SkillEffect[SkillConst_default.MC_CHANGECART] = {};
 	SkillEffect[SkillConst_default.MC_LOUD] = { successEffectId: 311 };
@@ -223071,19 +223081,31 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AM_CALLHOMUN] = {};
 	SkillEffect[SkillConst_default.AM_REST] = {};
 	SkillEffect[SkillConst_default.AM_RESURRECTHOMUN] = {};
-	SkillEffect[SkillConst_default.CR_AUTOGUARD] = { effectId: 336 };
-	SkillEffect[SkillConst_default.CR_SHIELDCHARGE] = { effectId: 246 };
+	SkillEffect[SkillConst_default.CR_AUTOGUARD] = { successEffectIdOnCaster: 336 };
+	SkillEffect[SkillConst_default.CR_SHIELDCHARGE] = {
+		damageEffectIdOnTarget: 246,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.CR_SHIELDBOOMERANG] = {
 		beforeHitEffectId: "ef_shield_projectile",
 		effectId: 249
 	};
-	SkillEffect[SkillConst_default.CR_REFLECTSHIELD] = { effectId: 252 };
-	SkillEffect[SkillConst_default.CR_HOLYCROSS] = { effectId: 245 };
-	SkillEffect[SkillConst_default.CR_GRANDCROSS] = { effectId: 226 };
-	SkillEffect[SkillConst_default.CR_DEVOTION] = { effectId: 251 };
-	SkillEffect[SkillConst_default.CR_PROVIDENCE] = { effectId: 248 };
-	SkillEffect[SkillConst_default.CR_DEFENDER] = { effectId: 222 };
-	SkillEffect[SkillConst_default.CR_SPEARQUICKEN] = { effectId: 250 };
+	SkillEffect[SkillConst_default.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 };
+	SkillEffect[SkillConst_default.CR_HOLYCROSS] = {
+		damageEffectIdOnTarget: 245,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.CR_GRANDCROSS] = {
+		successEffectIdOnCaster: 226,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.CR_DEVOTION] = { successEffectIdOnCaster: 251 };
+	SkillEffect[SkillConst_default.CR_PROVIDENCE] = { successEffectId: 248 };
+	SkillEffect[SkillConst_default.CR_DEFENDER] = { successEffectIdOnCaster: 222 };
+	SkillEffect[SkillConst_default.CR_SPEARQUICKEN] = { successEffectIdOnCaster: 250 };
 	SkillEffect[SkillConst_default.MO_CALLSPIRITS] = {};
 	SkillEffect[SkillConst_default.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 };
 	SkillEffect[SkillConst_default.MO_TRIPLEATTACK] = {
@@ -223251,7 +223273,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NPC_DARKSTRIKE] = { effectId: 451 };
 	SkillEffect[SkillConst_default.NPC_DARKTHUNDER] = {
 		releaseEffectId: 93,
-		hitEffectId: 94
+		hitEffectId: 94,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.NPC_STOP] = { effectId: 453 };
 	SkillEffect[SkillConst_default.NPC_WEAPONBRAKER] = {};
@@ -223275,7 +223298,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.LK_FURY] = { effectId: [368, "quake"] };
 	SkillEffect[SkillConst_default.HP_ASSUMPTIO] = { successEffectId: [375, 440] };
 	SkillEffect[SkillConst_default.HP_BASILICA] = { groundEffectId: 374 };
-	SkillEffect[SkillConst_default.HW_MAGICCRASHER] = { effectId: 380 };
+	SkillEffect[SkillConst_default.HW_MAGICCRASHER] = {
+		damageEffectIdOnTarget: 380,
+		hitEffectId: [0],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.HW_MAGICPOWER] = {
 		hideCastAura: true,
 		beginCastEffectId: 16,
@@ -223352,7 +223379,11 @@ var init_SkillEffect = __esmMin((() => {
 		beginCastEffectId: 400,
 		hitEffectId: "enemy_hit_normal1"
 	};
-	SkillEffect[SkillConst_default.HW_NAPALMVULCAN] = { effectId: 401 };
+	SkillEffect[SkillConst_default.HW_NAPALMVULCAN] = {
+		damageEffectIdOnTarget: 401,
+		hitEffectId: [0],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.CH_SOULCOLLECT] = { beginCastEffectId: [402, 12] };
 	SkillEffect[SkillConst_default.PF_MINDBREAKER] = { successEffectId: 403 };
 	SkillEffect[SkillConst_default.PF_MEMORIZE] = { effectId: 505 };
@@ -223373,35 +223404,30 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.TK_READYSTORM] = {};
 	SkillEffect[SkillConst_default.TK_STORMKICK] = {
 		successEffectIdOnCaster: 435,
-		hitEffectId: [0],
-		hitEffectOnce: true
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.TK_READYDOWN] = {};
 	SkillEffect[SkillConst_default.TK_DOWNKICK] = {
 		damageEffectIdOnTarget: 413,
 		hitEffectId: [0],
-		hitEffectOnce: true,
 		hitDelay: 300
 	};
 	SkillEffect[SkillConst_default.TK_READYTURN] = {};
 	SkillEffect[SkillConst_default.TK_TURNKICK] = {
 		damageEffectIdOnTarget: 466,
 		hitEffectId: [0],
-		hitEffectOnce: true,
 		hitDelay: 300
 	};
 	SkillEffect[SkillConst_default.TK_READYCOUNTER] = {};
 	SkillEffect[SkillConst_default.TK_COUNTER] = {
 		damageEffectIdOnTarget: 415,
-		hitEffectId: [0],
-		hitEffectOnce: true
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.TK_DODGE] = {};
 	SkillEffect[SkillConst_default.TK_JUMPKICK] = {
 		damageEffectIdOnCaster: 457,
 		damageEffectIdOnTarget: 458,
-		hitEffectId: [0],
-		hitEffectOnce: true
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.TK_SEVENWIND] = {};
 	SkillEffect[SkillConst_default.TK_HIGHJUMP] = {
@@ -223463,11 +223489,12 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_FULLPROTECTION] = { effectId: [300, 500] };
 	SkillEffect[SkillConst_default.PA_SHIELDCHAIN] = { beforeHitEffectId: "ef_shield_projectile" };
 	SkillEffect[SkillConst_default.PF_DOUBLECASTING] = { effectId: 521 };
-	SkillEffect[SkillConst_default.HW_GANBANTEIN] = {
-		effectId: 223,
-		groundEffectId: 224
+	SkillEffect[SkillConst_default.HW_GANBANTEIN] = { effectId: [223, "ef_ganbantein_wav"] };
+	SkillEffect[SkillConst_default.HW_GRAVITATION] = {
+		groundEffectIdByLevel: ["ef_gravitation_wav"],
+		groundEffectId: "522_ground",
+		hitEffectId: [0]
 	};
-	SkillEffect[SkillConst_default.HW_GRAVITATION] = { groundEffectId: "522_ground" };
 	SkillEffect[SkillConst_default.WS_CARTTERMINATION] = { effectId: 518 };
 	SkillEffect[SkillConst_default.WS_OVERTHRUSTMAX] = SkillEffect[SkillConst_default.BS_OVERTHRUST];
 	SkillEffect[SkillConst_default.CG_LONGINGFREEDOM] = { effectId: 500 };
@@ -223623,7 +223650,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NPC_MAXPAIN_ATK] = {};
 	SkillEffect[SkillConst_default.KN_CHARGEATK] = {
 		beginCastEffectId: "white_pulse",
-		hitEffectId: "enemy_hit_normal1"
+		hitEffectId: 1,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.CR_SHRINK] = { effectId: 599 };
 	SkillEffect[SkillConst_default.AS_VENOMKNIFE] = { beforeHitEffectId: 600 };
@@ -225127,7 +225155,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MA_CHARGEARROW] = SkillEffect[SkillConst_default.AC_CHARGEARROW];
 	SkillEffect[SkillConst_default.MA_SHARPSHOOTING] = SkillEffect[SkillConst_default.SN_SHARPSHOOTING];
 	SkillEffect[SkillConst_default.ML_PIERCE] = SkillEffect[SkillConst_default.KN_PIERCE];
-	SkillEffect[SkillConst_default.ML_BRANDISH] = SkillEffect[SkillConst_default.KN_BRANDISH];
+	SkillEffect[SkillConst_default.ML_BRANDISH] = SkillEffect[SkillConst_default.KN_BRANDISHSPEAR];
 	SkillEffect[SkillConst_default.ML_SPIRALPIERCE] = SkillEffect[SkillConst_default.LK_SPIRALPIERCE];
 	SkillEffect[SkillConst_default.ML_DEFENDER] = SkillEffect[SkillConst_default.CR_DEFENDER];
 	SkillEffect[SkillConst_default.ML_AUTOGUARD] = SkillEffect[SkillConst_default.CR_AUTOGUARD];
@@ -225552,8 +225580,8 @@ var init_SkillEffect = __esmMin((() => {
 * @return {?number}
 */
 function getMotionEffect(skillId) {
-	if (!(skillId > 0) || inRanges(UNKNOWN_RANGES, skillId) || inRanges(NONE_RANGES, skillId)) return null;
-	for (const [effectId, ranges] of Object.entries(MOTION_EFFECT_RANGES)) if (inRanges(ranges, skillId)) return Number(effectId);
+	if (!(skillId > 0) || inRanges$1(UNKNOWN_RANGES, skillId) || inRanges$1(NONE_RANGES, skillId)) return null;
+	for (const [effectId, ranges] of Object.entries(MOTION_EFFECT_RANGES)) if (inRanges$1(ranges, skillId)) return Number(effectId);
 	return 16;
 }
 /**
@@ -225572,10 +225600,10 @@ function motionEffectForPacket(skillId, damageType, level, targetFound) {
 		const stops = SPLASH_STOP_WITHOUT_TARGET[skillId];
 		if (!targetFound && stops && stops.includes(damageType)) return null;
 	}
-	if (level === -2 || inRanges(NO_MOTION_EFFECT_RANGES, skillId)) return null;
+	if (level === -2 || inRanges$1(NO_MOTION_EFFECT_RANGES, skillId)) return null;
 	return getMotionEffect(skillId);
 }
-var MOTION_DAMAGE_TYPES, SPLASH_DAMAGE_TYPES, SPLASH_AS_NORMAL, SPLASH_STOP_WITHOUT_TARGET, NO_MOTION_EFFECT_RANGES, UNKNOWN_RANGES, NONE_RANGES, MOTION_EFFECT_RANGES, inRanges;
+var MOTION_DAMAGE_TYPES, SPLASH_DAMAGE_TYPES, SPLASH_AS_NORMAL, SPLASH_STOP_WITHOUT_TARGET, NO_MOTION_EFFECT_RANGES, UNKNOWN_RANGES, NONE_RANGES, MOTION_EFFECT_RANGES, inRanges$1;
 var init_SkillMotionEffect = __esmMin((() => {
 	MOTION_DAMAGE_TYPES = [
 		4,
@@ -225944,7 +225972,7 @@ var init_SkillMotionEffect = __esmMin((() => {
 			[8409, 8409]
 		]
 	};
-	inRanges = (ranges, id) => ranges.some(([first, last]) => id >= first && id <= last);
+	inRanges$1 = (ranges, id) => ranges.some(([first, last]) => id >= first && id <= last);
 }));
 // src/DB/Items/ItemEffect.js
 var ItemEffect;
@@ -273084,8 +273112,69 @@ function createPrimState(effect) {
 		sizeAccel: num(effect.sizeAccel, 0),
 		sizeChangeFrame: num(effect.sizeChangeFrame, -1),
 		sizeChangeSpeed: num(effect.sizeChangeSpeed, 0),
-		sizeChangeAccel: num(effect.sizeChangeAccel, 0)
+		sizeChangeAccel: num(effect.sizeChangeAccel, 0),
+		radiusChangeFrame: num(effect.radiusChangeFrame, -1),
+		radiusChangeSpeed: num(effect.radiusChangeSpeed, 0),
+		radiusChangeAccel: num(effect.radiusChangeAccel, 0),
+		baseRadius: num(effect.baseRadius, 0),
+		baseSpeed: num(effect.baseSpeed, 0),
+		baseAccel: num(effect.baseAccel, 0),
+		topRadius: num(effect.topRadius, 0),
+		topSpeed: num(effect.topSpeed, 0),
+		topAccel: num(effect.topAccel, 0),
+		coneHeight: num(effect.coneHeight, 0),
+		coneHeightSpeed: num(effect.coneHeightSpeed, 0),
+		coneHeightAccel: num(effect.coneHeightAccel, 0),
+		coneHeightMax: num(effect.coneHeightMax, 100),
+		pitch: num(effect.pitch, 0),
+		drift: num(effect.drift, 0),
+		driftAccel: num(effect.driftAccel, 0),
+		driftOffset: 0
 	};
+}
+/**
+* Facing angle of an owner in the official client's convention, from a roBrowser
+* direction (0 south, then clockwise: 1 south-west ... 7 south-east).
+* The client measures it as atan2(dx, -dz) in degrees, 0..360; with the map's
+* y taken as the client's z that puts 0 on south and 90 on east.
+*
+* @param {number} direction roBrowser direction 0-7
+* @return {number} degrees
+*/
+function facingAngle(direction) {
+	const DX = [
+		0,
+		-1,
+		-1,
+		-1,
+		0,
+		1,
+		1,
+		1
+	];
+	const DY = [
+		-1,
+		-1,
+		0,
+		1,
+		1,
+		1,
+		0,
+		-1
+	];
+	const d = ((Math.round(direction) || 0) % 8 + 8) % 8;
+	return (Math.atan2(DX[d], -DY[d]) * 180 / Math.PI + 360) % 360;
+}
+/**
+* Turn a primitive by its owner's facing, the way the client sets up a hit
+* band: yaw = 180 - facing (kept in 0..360), plus the effect's own yaw.
+*
+* @param {object} state from createPrimState
+* @param {object} effect description
+* @param {number} direction roBrowser direction 0-7
+*/
+function applyFacing(state, effect, direction) {
+	if (effect.facing) state.yaw = (180 - facingAngle(direction) + 360) % 360 + num(effect.yaw, 0);
 }
 /**
 * Advance a primitive by one tick
@@ -273095,8 +273184,20 @@ function createPrimState(effect) {
 function stepPrim(state) {
 	if (state.frame === state.fadeOutFrame && state.frames > state.frame) state.alphaSpeed = -state.alpha / (state.frames - state.frame);
 	state.alpha = Math.min(state.alphaMax, Math.max(0, state.alpha + state.alphaSpeed));
+	if (state.frame === state.radiusChangeFrame) {
+		state.radiusSpeed = state.radiusChangeSpeed;
+		state.radiusAccel = state.radiusChangeAccel;
+	}
 	state.radiusSpeed += state.radiusAccel;
 	state.radius += state.radiusSpeed;
+	state.baseSpeed += state.baseAccel;
+	state.baseRadius += state.baseSpeed;
+	state.topSpeed += state.topAccel;
+	state.topRadius += state.topSpeed;
+	state.coneHeightSpeed += state.coneHeightAccel;
+	state.coneHeight = Math.min(state.coneHeight + state.coneHeightSpeed, state.coneHeightMax);
+	state.drift += state.driftAccel;
+	state.driftOffset += state.drift;
 	state.yaw += state.spin;
 	if (state.frame === state.sizeChangeFrame) {
 		state.sizeSpeed = state.sizeChangeSpeed;
@@ -273145,6 +273246,86 @@ function primVertexCount(effect) {
 	if (effect.prim === "sphere") return segments * num(effect.bands, 5) * 6;
 	if (effect.prim === "quad") return 6;
 	return segments * 6;
+}
+/**
+* Turn a point of the cone's own frame into the world: tilt by pitch about the
+* side axis, then turn by yaw about the vertical (the client's row-vector
+* order). Frame: x and z level, y down (so negative y is up).
+*
+* @param {number} x
+* @param {number} y
+* @param {number} z
+* @param {number} pitch radians
+* @param {number} yaw radians
+* @return {Array} [x, y, z]
+*/
+function coneToWorld(x, y, z, pitch, yaw) {
+	const cp = Math.cos(pitch), sp = Math.sin(pitch);
+	const cy = Math.cos(yaw), sy = Math.sin(yaw);
+	const ty = y * cp - z * sp;
+	const tz = y * sp + z * cp;
+	return [
+		x * cy + tz * sy,
+		ty,
+		-x * sy + tz * cy
+	];
+}
+/**
+* Build the cone band: ten segments (by default) around the axis, from the base
+* circle (V = 1) to the top circle coneHeight away along the axis (V = 0).
+* U runs uStep per segment and starts again at 0 once it reaches 1.
+* The band sits `height` units above the position and has drifted
+* driftOffset units along its axis, toward the top.
+*
+* @param {Float32Array} out
+* @param {object} effect description
+* @param {object} state
+* @param {Array} center position, in cells
+*/
+function buildCone$1(out, effect, state, center) {
+	const segments = num(effect.segments, 10);
+	const step = 360 / segments;
+	const uStep = num(effect.uStep, .25);
+	const pitch = state.pitch / 180 * Math.PI;
+	const yaw = state.yaw / 180 * Math.PI;
+	const b = state.baseRadius;
+	const t = state.topRadius;
+	const h = state.coneHeight;
+	const lift = num(effect.height, 0);
+	const axis = coneToWorld(0, -1, 0, pitch, yaw);
+	const ox = axis[0] * state.driftOffset;
+	const oy = axis[1] * state.driftOffset;
+	const oz = axis[2] * state.driftOffset;
+	const point = (r, depth, deg, u, v) => {
+		const a = deg / 180 * Math.PI;
+		const p = coneToWorld(r * Math.cos(a), -depth, r * Math.sin(a), pitch, yaw);
+		return [
+			p[0] + ox,
+			p[2] + oz,
+			lift - (p[1] + oy),
+			u,
+			v
+		];
+	};
+	let u = 0;
+	let o = 0;
+	for (let i = 0; i < segments; ++i) {
+		const a0 = i * step;
+		const a1 = a0 + step;
+		const u0 = u;
+		const u1 = u + uStep;
+		const base0 = point(b, 0, a0, u0, 1);
+		const base1 = point(b, 0, a1, u1, 1);
+		const top0 = point(t, h, a0, u0, 0);
+		const top1 = point(t, h, a1, u1, 0);
+		o = vertex$7(out, o, center, ...base0);
+		o = vertex$7(out, o, center, ...base1);
+		o = vertex$7(out, o, center, ...top0);
+		o = vertex$7(out, o, center, ...top1);
+		o = vertex$7(out, o, center, ...top0);
+		o = vertex$7(out, o, center, ...base1);
+		u = u1 >= 1 ? 0 : u1;
+	}
 }
 /**
 * Build the ring: a band between radius and radius - width, lying on the ground.
@@ -273252,6 +273433,7 @@ function buildQuad(out, effect, state, center) {
 function buildPrimGeometry(out, effect, state, center) {
 	if (effect.prim === "sphere") buildSphere(out, effect, state, center);
 	else if (effect.prim === "quad") buildQuad(out, effect, state, center);
+	else if (effect.prim === "cone") buildCone$1(out, effect, state, center);
 	else buildRing$1(out, effect, state, center);
 }
 var PRIM_TICK_MS;
@@ -273282,12 +273464,15 @@ var init_EffectPrim = __esmMin((() => {
 		/**
 		* @param {object} effect description
 		* @param {object} EF_Inst_Par instance parameters
+		* @param {object} [EF_Init_Par] init parameters (owner entity, for `facing`)
 		*/
-		constructor(effect, EF_Inst_Par) {
+		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			this.effect = effect;
 			this.position = EF_Inst_Par.position;
 			this.startTick = EF_Inst_Par.startTick;
 			this.state = createPrimState(effect);
+			const owner = EF_Init_Par && EF_Init_Par.ownerEntity;
+			applyFacing(this.state, effect, owner ? owner.direction : EF_Inst_Par.direction);
 			this.endTick = this.startTick + this.state.frames * PRIM_TICK_MS;
 			this.vertexCount = primVertexCount(effect);
 			this.vertices = new Float32Array(this.vertexCount * 5);
@@ -278701,12 +278886,13 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} tick
 		* @param {number} srcAID caster aid
 		* @param {number} [hitIndex] which hit of the damage packet this is, from 0
+		* @param {boolean} [noTargetEffects] skip the effects on the target (a splash hit)
 		*/
-		static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0) {
+		static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0, noTargetEffects = false) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) return;
-			if (SkillEffect[skillId].hitEffectId != null) {
+			if (!noTargetEffects && SkillEffect[skillId].hitEffectId != null) {
 				effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
 				effects.forEach((effectId) => {
 					EF_Init_Par = {
@@ -278718,7 +278904,7 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.spam(EF_Init_Par);
 				});
 			}
-			if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+			if (!noTargetEffects && hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
 				effects = Array.isArray(SkillEffect[skillId].firstHitEffectId) ? SkillEffect[skillId].firstHitEffectId : [SkillEffect[skillId].firstHitEffectId];
 				effects.forEach((effectId) => {
 					EffectManager.spam({
@@ -291698,27 +291884,38 @@ var init_RotateLine = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastFunnelSim.js
 /**
+* Ticks a funnel shape shows: alpha is 0 from then on.
+*
+* @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
+* @return {number}
+*/
+function visibleTicks(shape = FUNNEL) {
+	return shape.riseTicks + shape.alphaUp * shape.riseTicks / shape.alphaDown;
+}
+/**
 * A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
 *
 * @param {number} t
+* @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
 * @return {number}
 */
-function funnelAlpha(t) {
-	if (t <= FUNNEL.riseTicks) return FUNNEL.alphaUp * Math.max(0, t);
-	return Math.max(0, FUNNEL.alphaUp * FUNNEL.riseTicks - FUNNEL.alphaDown * (t - FUNNEL.riseTicks));
+function funnelAlpha(t, shape = FUNNEL) {
+	if (t <= shape.riseTicks) return shape.alphaUp * Math.max(0, t);
+	return Math.max(0, shape.alphaUp * shape.riseTicks - shape.alphaDown * (t - shape.riseTicks));
 }
 /**
 * Band `b`'s state on tick `t`: start angle, lean and foot radius.
 *
 * @param {number} b band index
 * @param {number} t tick, 1 on the first
+* @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
 * @return {{angle: number, lean: number, foot: number}}
 */
-function bandState(b, t) {
+function bandState(b, t, shape = FUNNEL) {
 	return {
-		angle: (FUNNEL.turn * b + FUNNEL.spin * t) % 360,
-		lean: Math.max(FUNNEL.leanMin, FUNNEL.lean - FUNNEL.leanStep * t),
-		foot: FUNNEL.foot + b + FUNNEL.spread * t
+		angle: (shape.turn * b + shape.spin * t) % 360,
+		lean: Math.max(shape.leanMin, shape.lean - shape.leanStep * t),
+		foot: shape.foot + b + shape.spread * t
 	};
 }
 /**
@@ -291727,10 +291924,11 @@ function bandState(b, t) {
 * @param {number} b
 * @param {number} j 0 to 20
 * @param {number} t
+* @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
 * @return {number}
 */
-function pointHeight(b, j, t) {
-	return FUNNEL.height * Math.sin(9 * j * DEG$1) * (1 + FUNNEL.breathe * Math.sin((t + FUNNEL.turn * b) % 360 * DEG$1));
+function pointHeight(b, j, t, shape = FUNNEL) {
+	return shape.height * Math.sin(9 * j * DEG$1) * (1 + shape.breathe * Math.sin((t + shape.turn * b) % 360 * DEG$1));
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -291750,13 +291948,14 @@ function vertex$2(out, i, center, x, y, up, u, v) {
 * @param {Float32Array} out FUNNEL_VERTICES * 5 floats
 * @param {number} t tick, 1 on the first
 * @param {Array} center position, in cells
+* @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
 * @return {number} vertices written
 */
-function buildFunnel(out, t, center) {
+function buildFunnel(out, t, center, shape = FUNNEL) {
 	const step = 18;
 	let o = 0;
 	for (let b = 0; b < 4; b++) {
-		const band = bandState(b, t);
+		const band = bandState(b, t, shape);
 		const lean = Math.cos(band.lean * DEG$1);
 		const rise = Math.sin(band.lean * DEG$1);
 		let prev = null;
@@ -291764,7 +291963,7 @@ function buildFunnel(out, t, center) {
 			const angle = (j === 20 ? band.angle : band.angle + j * step) * DEG$1;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
-			const h = pointHeight(b, j, t);
+			const h = pointHeight(b, j, t, shape);
 			const point = {
 				fx: band.foot * cos,
 				fy: band.foot * sin,
@@ -291787,7 +291986,7 @@ function buildFunnel(out, t, center) {
 	}
 	return o / 5;
 }
-var DEG$1, FUNNEL;
+var DEG$1, FUNNEL, GANBANTEIN_FUNNEL;
 var init_CastFunnelSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DEG$1 = Math.PI / 180;
@@ -291805,7 +292004,12 @@ var init_CastFunnelSim = __esmMin((() => {
 		riseTicks: 10,
 		alphaDown: 5
 	};
-	FUNNEL.riseTicks + FUNNEL.alphaUp * FUNNEL.riseTicks / FUNNEL.alphaDown;
+	GANBANTEIN_FUNNEL = Object.freeze({
+		...FUNNEL,
+		lean: 70,
+		alphaDown: 8
+	});
+	visibleTicks(FUNNEL);
 }));
 // src/Renderer/Effects/CastFunnel.js
 function loadTexture$2(gl, name) {
@@ -291837,13 +292041,15 @@ var init_CastFunnel = __esmMin((() => {
 		* @param {number} startTick
 		* @param {number} frames lifetime in ticks (1/60 s)
 		* @param {string} texture file under data/texture/effect/
+		* @param {object} [shape] FUNNEL (variant 4) or GANBANTEIN_FUNNEL (variant 2)
 		*/
-		constructor(position, startTick, frames, texture) {
+		constructor(position, startTick, frames, texture, shape = FUNNEL) {
 			this.position = position;
 			this.startTick = startTick || 0;
 			this.frames = Math.max(1, Math.floor(frames));
 			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
 			this.texture = texture;
+			this.shape = shape;
 			this.vertices = /* @__PURE__ */ new Float32Array(2400);
 			this.color = new Float32Array([
 				1,
@@ -291873,9 +292079,9 @@ var init_CastFunnel = __esmMin((() => {
 			const texture = _textures$2.get(this.texture);
 			if (!texture) return;
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
-			const alpha = funnelAlpha(t);
+			const alpha = funnelAlpha(t, this.shape);
 			if (alpha <= 0) return;
-			const count = buildFunnel(this.vertices, t, this.position);
+			const count = buildFunnel(this.vertices, t, this.position, this.shape);
 			const attribute = _program$3.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
@@ -292910,6 +293116,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SoulCollect();
 	init_RotateLine();
 	init_CastFunnel();
+	init_CastFunnelSim();
 	init_BoltRain();
 	init_IceSpikes();
 	init_IceSpikesSim();
@@ -295157,9 +295364,65 @@ var init_EffectTable = __esmMin((() => {
 		70: [{
 			attachedEntity: false,
 			file: "brandish",
-			type: "STR",
-			wav: "effect/knight_brandish_spear"
+			type: "STR"
 		}],
+		73: [
+			{
+				type: "PRIM",
+				prim: "cone",
+				texture: "ring_blue",
+				attachedEntity: true,
+				duration: 20 * (1e3 / 60),
+				frames: 20,
+				facing: true,
+				baseRadius: 3,
+				baseSpeed: .5,
+				baseAccel: -.03,
+				topRadius: 8,
+				topSpeed: .5,
+				topAccel: -.03,
+				coneHeight: 3.5,
+				alpha: 240,
+				fadeOutFrame: 10
+			},
+			{
+				type: "PRIM",
+				prim: "cone",
+				texture: "ring_blue",
+				attachedEntity: true,
+				delayStart: 5 * (1e3 / 60),
+				duration: 15 * (1e3 / 60),
+				frames: 15,
+				facing: true,
+				yaw: 100,
+				baseRadius: 3,
+				baseSpeed: .5,
+				baseAccel: -.03,
+				topRadius: 8,
+				topSpeed: .5,
+				topAccel: -.03,
+				coneHeight: 3.5,
+				alpha: 205,
+				fadeOutFrame: 8
+			},
+			{
+				type: "PRIM",
+				prim: "ring",
+				texture: "ring_yellow",
+				attachedEntity: false,
+				duration: 50 * (1e3 / 60),
+				frames: 50,
+				radius: 8,
+				radiusSpeed: .7,
+				radiusAccel: -.7 / 30,
+				radiusChangeFrame: 20,
+				radiusChangeSpeed: .08,
+				radiusChangeAccel: 0,
+				width: 5,
+				alpha: 45,
+				fadeOutFrame: 35
+			}
+		],
 		74: [
 			{
 				type: "QuadHorn",
@@ -295379,13 +295642,100 @@ var init_EffectTable = __esmMin((() => {
 				}
 			}
 		],
-		80: [{
-			wav: "effect/ef_fireball",
-			attachedEntity: true
-		}],
+		80: [
+			{
+				type: "3D",
+				spriteName: "Ã¢",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 0,
+				duration: 15 * (1e3 / 60),
+				alphaMax: 1,
+				size: 100,
+				zIndex: 1
+			},
+			{
+				type: "3D",
+				spriteName: "Ã¢",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 4 * (1e3 / 60),
+				duration: 15 * (1e3 / 60),
+				alphaMax: 180 / 255,
+				size: 100,
+				zIndex: 1
+			},
+			{
+				type: "3D",
+				spriteName: "Ã¢",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 8 * (1e3 / 60),
+				duration: 15 * (1e3 / 60),
+				alphaMax: 130 / 255,
+				size: 100,
+				zIndex: 1
+			},
+			{
+				type: "3D",
+				spriteName: "Ã¢",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 200,
+				duration: 15 * (1e3 / 60),
+				alphaMax: 80 / 255,
+				size: 100,
+				zIndex: 1
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 0
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 4 * (1e3 / 60)
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 8 * (1e3 / 60)
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 200
+			}
+		],
 		81: [{
-			wav: "effect/ef_bash",
-			attachedEntity: true
+			type: "PRIM",
+			prim: "cone",
+			texture: "ring_yellow",
+			attachedEntity: true,
+			duration: 15 * (1e3 / 60),
+			frames: 15,
+			facing: true,
+			pitch: -90,
+			height: 10,
+			baseRadius: 6,
+			topRadius: 11,
+			coneHeight: 2.5,
+			drift: .7,
+			driftAccel: -.02333333333333333,
+			fadeOutFrame: 8
 		}],
 		82: [{
 			wav: "effect/ef_bash",
@@ -295458,12 +295808,75 @@ var init_EffectTable = __esmMin((() => {
 			min: "storm_min",
 			attachedEntity: true
 		}],
-		90: [{
-			type: "STR",
-			file: "lord",
-			wav: "effect/wizard_fire_ivy",
-			attachedEntity: true
-		}],
+		90: [
+			{
+				type: "STR",
+				file: "lord",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 0,
+				attachedEntity: true
+			},
+			{
+				wav: "effect/hunter_blastmine",
+				delayWav: 0,
+				attachedEntity: true
+			},
+			{
+				wav: "effect/hunter_blastmine",
+				delayWav: 10 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 20 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 50 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 80 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 100 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 130 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 140 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 3e3,
+				attachedEntity: true
+			},
+			{
+				wav: "effect/wizard_meteo",
+				delayWav: 200 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					for (let tick = 50; tick <= 250; tick += 50) Camera.setQuake(Params.Inst.startTick + tick * (1e3 / 60));
+				}
+			}
+		],
 		91: [{
 			type: "STR",
 			file: "benedictio",
@@ -295474,13 +295887,13 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "meteor%d",
 			wav: "effect/wizard_meteor",
-			rand: [1, 4],
+			rand: [1, 3],
 			attachedEntity: true
 		}, {
 			type: "FUNC",
 			attachedEntity: true,
 			func: function(Params) {
-				const start = Params.Inst.startTick + 600;
+				const start = Params.Inst.startTick + 2e3 / 3;
 				Camera.setQuake(start);
 			}
 		}],
@@ -295520,6 +295933,8 @@ var init_EffectTable = __esmMin((() => {
 		94: [{
 			type: "3D",
 			file: "effect/thunder_pang.bmp",
+			duplicate: 13,
+			timeBetweenDupli: 1e3 / 3,
 			duration: 167,
 			sizeStart: 0,
 			sizeEnd: 25,
@@ -295537,8 +295952,9 @@ var init_EffectTable = __esmMin((() => {
 				"effect/thunder_ball_e.bmp",
 				"effect/thunder_ball_f.bmp"
 			],
-			frameDelay: 10,
-			duration: 300,
+			frameDelay: 1e3 / 60,
+			delayStart: 1e3 / 6,
+			duration: 4e3,
 			size: 75,
 			blendMode: 2,
 			overlay: true,
@@ -295548,7 +295964,10 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "quagmire",
 			attachedEntity: false
-		}, { wav: "effect/wizard_quagmire" }],
+		}, {
+			wav: "effect/wizard_quagmire",
+			wavChance: 1 / 12
+		}],
 		96: [{
 			type: "STR",
 			file: "firepillar",
@@ -295559,7 +295978,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "firepillarbomb",
 			wav: "effect/wizard_fire_pillar_b",
-			attachedEntity: false
+			attachedEntity: false,
+			repeat: false
 		}],
 		98: [{
 			wav: "effect/black_adrenalinerush_b",
@@ -295697,8 +296117,6 @@ var init_EffectTable = __esmMin((() => {
 		117: [{
 			type: "3D",
 			duration: 500,
-			duplicate: 20,
-			timeBetweenDupli: 50,
 			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/waterball",
 			playSprite: true,
 			fromSrc: true,
@@ -296060,20 +296478,17 @@ var init_EffectTable = __esmMin((() => {
 		149: [{
 			type: "STR",
 			file: "bowling",
-			wav: "_enemy_hit_normal1",
 			head: true,
 			attachedEntity: true
 		}],
 		150: [{
 			type: "STR",
 			file: "spearstab",
-			wav: "_enemy_hit_normal1",
 			attachedEntity: true
 		}],
 		151: [{
 			type: "STR",
 			file: "spearboomerang",
-			wav: "effect/knight_spear_boomerang",
 			head: true,
 			attachedEntity: true
 		}],
@@ -296602,6 +297017,13 @@ var init_EffectTable = __esmMin((() => {
 			rotate: true,
 			textureName: "ring_black",
 			attachedEntity: true
+		}],
+		223: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 300, "ring_white.tga", GANBANTEIN_FUNNEL), Params);
+			}
 		}],
 		226: [
 			{
@@ -299960,12 +300382,13 @@ var init_EffectTable = __esmMin((() => {
 					}
 				});
 			},
-			wav: "effect/¸ÅÁ÷ Å©·¡½¬"
+			wav: "effect/¸ÅÁ÷ Å©·¡½¬",
+			delayWav: 25 * (1e3 / 60)
 		}, {
 			type: "FUNC",
 			attachedEntity: true,
 			func: function(Params) {
-				const start = Params.Inst.startTick + 300;
+				const start = Params.Inst.startTick + 30 * (1e3 / 60);
 				Camera.setQuake(start);
 			}
 		}],
@@ -300198,6 +300621,33 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		charge_attack: [{ attachedEntity: true }],
+		401: [
+			{
+				wav: "effect/ef_napalmbeat",
+				delayWav: 20 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_napalmbeat",
+				delayWav: 30 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_napalmbeat",
+				delayWav: 40 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_napalmbeat",
+				delayWav: 50 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ef_napalmbeat",
+				delayWav: 60 * (1e3 / 60),
+				attachedEntity: true
+			}
+		],
 		402: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -300563,8 +301013,9 @@ var init_EffectTable = __esmMin((() => {
 				"effect/thunder_ball_c.bmp",
 				"effect/twirl_soft.bmp"
 			],
-			frameDelay: 10,
-			duration: 300,
+			frameDelay: 1e3 / 60,
+			delayStart: 1e3 / 6,
+			duration: 4e3,
 			size: 75,
 			blendMode: 2,
 			overlay: true,
@@ -307310,6 +307761,8 @@ var init_EffectTable = __esmMin((() => {
 				}
 			}
 		],
+		ef_ganbantein_wav: [{ wav: "effect/ef_firewall" }],
+		ef_gravitation_wav: [{ wav: "effect/wizard_earthspike" }],
 		ef_magicpower: [{
 			wav: "effect/¸¶¹ý·Â ÁõÆø",
 			attachedEntity: true
@@ -359489,6 +359942,60 @@ var init_SkillAction = __esmMin((() => {
 	};
 	SkillAction[SkillConst_default.NV_BASIC] = SkillAction[SkillConst_default.TF_BACKSLIDING] = SkillAction[SkillConst_default.NV_TRICKDEAD] = SkillAction[SkillConst_default.TK_READYSTORM] = SkillAction[SkillConst_default.TK_READYDOWN] = SkillAction[SkillConst_default.TK_READYTURN] = SkillAction[SkillConst_default.TK_READYCOUNTER] = SkillAction[SkillConst_default.TK_HIGHJUMP] = SkillAction[SkillConst_default.TK_DODGE] = SkillAction[SkillConst_default.LK_TENSIONRELAX] = SkillAction[SkillConst_default.NC_F_SIDESLIDE] = SkillAction[SkillConst_default.NC_B_SIDESLIDE] = SkillAction[SkillConst_default.SU_HIDE] = SkillAction[SkillConst_default.SU_STOOP] = false;
 }));
+// src/DB/Skills/AutoCounterBar.js
+/**
+* Length of the stance bar for a use packet, or 0 for none.
+*
+* @param {number} level skill level from the packet
+* @param {boolean} isLocalPlayer whether the caster is the player's own character
+* @param {number} result the packet's result byte
+* @return {number} ms
+*/
+function autoCounterBarMs(level, isLocalPlayer, result) {
+	if (!isLocalPlayer || !result || !(level > 0)) return 0;
+	return level * 400;
+}
+var init_AutoCounterBar = __esmMin((() => {}));
+// src/DB/Skills/SplashHit.js
+/**
+* Does the hit of this damage packet, on a known target, play the skill's hit
+* effects?
+*
+* @param {number} skillId
+* @param {number} damageType the packet's action field
+* @return {boolean}
+*/
+function hitHasEffects(skillId, damageType) {
+	if (!SPLASH_DAMAGE_TYPES.includes(damageType)) return true;
+	return SPLASH_AS_NORMAL.includes(skillId) || SPLASH_HIT_OWN_EFFECTS.includes(skillId) || inRanges(UNKNOWN_RANGES, skillId);
+}
+var SPLASH_HIT_OWN_EFFECTS, inRanges;
+var init_SplashHit = __esmMin((() => {
+	init_SkillMotionEffect();
+	SPLASH_HIT_OWN_EFFECTS = [
+		5215,
+		5225,
+		5226,
+		5234,
+		5235,
+		5236,
+		5237,
+		5241,
+		5244,
+		5245,
+		5294,
+		5295,
+		5296,
+		5298,
+		5314,
+		5319,
+		5329,
+		5383,
+		5384,
+		5385
+	];
+	inRanges = (ranges, id) => ranges.some(([first, last]) => id >= first && id <= last);
+}));
 // src/DB/Monsters/AttackEffectTable.js
 var AE, JOB;
 var init_AttackEffectTable = __esmMin((() => {
@@ -360908,6 +361415,10 @@ function onEntityUseSkill(pkt) {
 	if (srcEntity && (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED || srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM || srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)) {
 		if (!SkillNameDisplayExclude.includes(pkt.SKID)) srcEntity.dialog.set((SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName || "Unknown Skill") + " !!", "white");
 	}
+	if (pkt.SKID === SkillConst_default.KN_AUTOCOUNTER && srcEntity) {
+		const barMs = autoCounterBarMs(pkt.level, srcEntity === SessionStorage_default.Entity, pkt.result);
+		if (barMs) srcEntity.cast.set(barMs);
+	}
 	if (srcEntity) {
 		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
 			if (pkt.SKID in SkillAction) {
@@ -361042,8 +361553,9 @@ function onEntityUseSkillToAttack(pkt) {
 			onEntityWillBeHitSub(hitPkt, dstEntity);
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
+			const targetHitEffects = !srcEntity || srcEntity.skillUnitId != null || hitHasEffects(pkt.SKID, pkt.action);
 			const addDamage = function(i, startTick) {
-				if (pkt.damage) EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i);
+				if (pkt.damage) EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i, !targetHitEffects);
 				if (!isCombo && isBlueCombo) Damage.add(pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | (i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0));
 				else Damage.add(pkt.damage / pkt.count, target, startTick, srcWeapon);
 				if (isCombo) Damage.add(pkt.damage / pkt.count * (i + 1), target, startTick, srcWeapon, (isBlueCombo ? Damage.TYPE.COMBO_B : Damage.TYPE.COMBO) | (i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0));
@@ -361101,10 +361613,6 @@ function onEntityCastSkill(pkt) {
 	}
 	SessionStorage_default.Entity.isCastingSkill = true;
 	SessionStorage_default.Entity.lastSKID = pkt.SKID;
-	if (pkt.SKID == SkillConst_default.KN_AUTOCOUNTER) {
-		srcEntity.cast.set(1e3);
-		if (srcEntity === SessionStorage_default.Entity) SessionStorage_default.underAutoCounter = true;
-	}
 	if (pkt.SKID == SkillConst_default.HT_DETECTING && srcEntity.falcon) {
 		srcEntity.falcon.walk.speed = 35;
 		srcEntity.falcon.walkToNonWalkableGround(srcEntity.falcon.position[0], srcEntity.falcon.position[1], pkt.xPos, pkt.yPos, 0, true, true);
@@ -361223,18 +361731,6 @@ function onEntityCastCancel(pkt) {
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
 		EffectManager.remove(MagicRing, entity.GID);
-		if (entity === SessionStorage_default.Entity) {
-			if (SessionStorage_default.underAutoCounter) {
-				if (SessionStorage_default.Entity.life.hp > 0) {
-					const EF_Init_Par = {
-						effectId: EffectConst_default.EF_AUTOCOUNTER,
-						ownerAID: pkt.AID
-					};
-					EffectManager.spam(EF_Init_Par);
-				}
-				SessionStorage_default.underAutoCounter = false;
-			}
-		}
 	}
 }
 /**
@@ -362023,9 +362519,11 @@ var init_Entity = __esmMin((() => {
 	init_SkillEffect();
 	init_CastAuraRule();
 	init_SkillAction();
+	init_AutoCounterBar();
 	init_EffectConst();
 	init_PetMessageConst();
 	init_JobConst();
+	init_SplashHit();
 	init_AttackEffectTable();
 	init_SoundManager();
 	init_Configs();
