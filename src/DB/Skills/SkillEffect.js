@@ -220,19 +220,22 @@ SkillEffect[SK.KN_AUTOCOUNTER] = {
 }; //Counter Attack
 SkillEffect[SK.KN_BOWLINGBASH] = { hideCastBar: true, hideCastAura: true, effectIdOnCaster: 149, hitEffectId: 1 }; //Bowling Bash
 // Priest
-SkillEffect[SK.PR_IMPOSITIO] = { effectId: 84 }; //Impositio Manus
-SkillEffect[SK.PR_SUFFRAGIUM] = { effectId: 88 }; //Suffragium
-SkillEffect[SK.PR_ASPERSIO] = { effectId: 86 }; //Aspersio
+// Official client: the use packet plays these only when its result is set; Kyrie, Magnificat and
+// Gloria play on the packet's source (the buffed actor itself, as rAthena sends them). Aspersio on
+// an undead or demon deals damage: hit flash 0 and 152 once per packet. See effect-port/priest-audit.md.
+SkillEffect[SK.PR_IMPOSITIO] = { successEffectId: 84 }; //Impositio Manus
+SkillEffect[SK.PR_SUFFRAGIUM] = { successEffectId: 88 }; //Suffragium
+SkillEffect[SK.PR_ASPERSIO] = { successEffectId: 86, hitEffectId: [0, 152], hitEffectOnce: true }; //Aspersio
 SkillEffect[SK.PR_BENEDICTIO] = { effectId: 91 }; //B.S. Sacramenti
 SkillEffect[SK.PR_SANCTUARY] = { effectId: 83, groundEffectId: 319 }; //Sanctuary
-SkillEffect[SK.PR_SLOWPOISON] = { effectId: 136 }; //Slow Poison
-SkillEffect[SK.PR_STRECOVERY] = { effectId: 78 }; //Status Recovery
-SkillEffect[SK.PR_KYRIE] = { effectId: 112 }; //Kyrie Eleison
-SkillEffect[SK.PR_MAGNIFICAT] = { effectId: 76 }; //Magnificat
-SkillEffect[SK.PR_GLORIA] = { effectId: 75 }; //Gloria
-SkillEffect[SK.PR_LEXDIVINA] = { effectId: 87 }; //Lex Divina
+SkillEffect[SK.PR_SLOWPOISON] = { successEffectId: 136 }; //Slow Poison
+SkillEffect[SK.PR_STRECOVERY] = { successEffectId: 78 }; //Status Recovery
+SkillEffect[SK.PR_KYRIE] = { successEffectIdOnCaster: 112 }; //Kyrie Eleison
+SkillEffect[SK.PR_MAGNIFICAT] = { successEffectIdOnCaster: 76 }; //Magnificat
+SkillEffect[SK.PR_GLORIA] = { successEffectIdOnCaster: 75 }; //Gloria
+SkillEffect[SK.PR_LEXDIVINA] = { successEffectId: 87 }; //Lex Divina
 SkillEffect[SK.PR_TURNUNDEAD] = { hitEffectId: 152 }; //Turn Undead
-SkillEffect[SK.PR_LEXAETERNA] = { effectId: 85 }; //Lex Aeterna
+SkillEffect[SK.PR_LEXAETERNA] = { successEffectId: 85 }; //Lex Aeterna
 SkillEffect[SK.PR_MAGNUS] = { effectId: 113, hitEffectId: 152, groundEffectId: 318 }; //Magnus Exorcismus
 // Wizard
 SkillEffect[SK.WZ_FIREPILLAR] = { effectId: 96, groundEffectId: 138, hitEffectId: 97 }; //Fire Pillar
