@@ -222919,20 +222919,22 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.HT_DETECTING] = { effectId: 119 };
 	SkillEffect[SkillConst_default.HT_SPRINGTRAP] = { effectId: 111 };
-	SkillEffect[SkillConst_default.AS_CLOAKING] = { effectId: 120 };
+	SkillEffect[SkillConst_default.AS_CLOAKING] = {};
 	SkillEffect[SkillConst_default.AS_SONICBLOW] = {
 		effectIdOnCaster: 121,
 		effectId: 143,
 		hitEffectId: 122
 	};
 	SkillEffect[SkillConst_default.AS_GRIMTOOTH] = {
-		releaseEffectId: 123,
-		hitEffectId: 132
+		damageEffectIdOnCaster: 123,
+		hitEffectId: [0, 132],
+		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.AS_ENCHANTPOISON] = { effectId: 20 };
+	SkillEffect[SkillConst_default.AS_ENCHANTPOISON] = { successEffectId: 125 };
 	SkillEffect[SkillConst_default.AS_POISONREACT] = {
-		effectId: 126,
-		hitEffectId: 127
+		successEffectId: 126,
+		hitEffectId: 0,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.AS_VENOMDUST] = {
 		effectId: 124,
@@ -223086,7 +223088,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NPC_REBIRTH] = {};
 	SkillEffect[SkillConst_default.NPC_SUMMONMONSTER] = {};
 	SkillEffect[SkillConst_default.RG_STEALCOIN] = { successEffectId: [268, 274] };
-	SkillEffect[SkillConst_default.RG_BACKSTAP] = { hitEffectId: 275 };
+	SkillEffect[SkillConst_default.RG_BACKSTAP] = {
+		damageEffectIdOnCaster: 275,
+		hitEffectId: [0],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.RG_RAID] = { effectIdOnCaster: 276 };
 	SkillEffect[SkillConst_default.RG_STRIPWEAPON] = { successEffectId: 269 };
 	SkillEffect[SkillConst_default.RG_STRIPSHIELD] = { successEffectId: 270 };
@@ -223368,7 +223374,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WS_CREATENUGGET] = {};
 	SkillEffect[SkillConst_default.WS_CARTBOOST] = { effectId: 391 };
 	SkillEffect[SkillConst_default.WS_SYSTEMCREATE] = {};
-	SkillEffect[SkillConst_default.ST_CHASEWALK] = { beginCastEffectId: 501 };
+	SkillEffect[SkillConst_default.ST_CHASEWALK] = { successEffectIdOnCaster: "ef_chase_walk_smoke" };
 	SkillEffect[SkillConst_default.ST_REJECTSWORD] = { effectId: 392 };
 	SkillEffect[SkillConst_default.CR_ALCHEMY] = {};
 	SkillEffect[SkillConst_default.CR_SYNTHESISPOTION] = {};
@@ -290818,11 +290824,12 @@ var init_StreakLines = __esmMin((() => {
 // src/Renderer/Effects/DetoxBubbleSim.js
 /**
 * @param {function} [random] returns a number in [0, 1)
+* @param {number} [count] how many bubbles (one every 5 ticks)
 * @return {Array<object>} the bubbles, in client units
 */
-function planBubbles(random = Math.random) {
+function planBubbles(random = Math.random, count = DETOX.count) {
 	const bubbles = [];
-	for (let i = 0; i < DETOX.count; i++) {
+	for (let i = 0; i < count; i++) {
 		const heading = r$2(random, 360) * Math.PI / 180;
 		const dist = 2 + r$2(random, 6);
 		bubbles.push({
@@ -290883,12 +290890,13 @@ var init_DetoxBubbleSim = __esmMin((() => {
 * bubble's own tick, so its age is the bubble's age.
 *
 * @param {object} bubble from planBubbles
+* @param {string} [spriteName] the sprite under data/sprite/이팩트
 * @return {object}
 */
-function detoxBubbleEffect(bubble) {
+function detoxBubbleEffect(bubble, spriteName = "particle2") {
 	return {
 		type: "3D",
-		spriteName: "particle2",
+		spriteName,
 		alphaMax: 1,
 		attachedEntity: true,
 		duration: DETOX.life * PRIM_TICK_MS,
@@ -290931,6 +290939,53 @@ var init_DetoxifyEffect = __esmMin((() => {
 		wav: "effect/ef_detoxication",
 		attachedEntity: true
 	}];
+}));
+// src/DB/Effects/PoisonAttackEffect.js
+/**
+* EffectTable rows for 20 or 125.
+*
+* @param {number} effectId 20 or 125
+* @return {Array<object>}
+*/
+function poisonAttackEffect(effectId) {
+	const count = Math.ceil(POISON_ATTACK_LIFE[effectId] / DETOX.every);
+	return [
+		{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				planBubbles(Math.random, count).forEach((bubble, i) => {
+					this.spamEffect({
+						effect: detoxBubbleEffect(bubble, "particle3"),
+						Inst: {
+							effectID: effectId,
+							duplicateID: i,
+							startTick: Params.Inst.startTick + bubble.spawn * PRIM_TICK_MS
+						},
+						Init: Params.Init
+					});
+				});
+			}
+		},
+		{
+			wav: "effect/assasin_enchantpoison",
+			attachedEntity: true
+		},
+		{
+			wav: "effect/ef_poisonattack",
+			attachedEntity: true
+		}
+	];
+}
+var POISON_ATTACK_LIFE;
+var init_PoisonAttackEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_DetoxBubbleSim();
+	init_DetoxifyEffect();
+	POISON_ATTACK_LIFE = {
+		20: 100,
+		125: 250
+	};
 }));
 // src/Renderer/Effects/CasterStrobe.js
 /**
@@ -293483,6 +293538,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastRing();
 	init_StreakLines();
 	init_DetoxifyEffect();
+	init_PoisonAttackEffect();
 	init_CasterStrobe();
 	init_StealEffect();
 	init_MammoniteEffect();
@@ -294254,29 +294310,7 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		18: [...stealEffect],
-		20: [{
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1e3,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/pok1.tga",
-			green: .7,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: 1,
-			size: 100,
-			sizeRand: 20,
-			type: "3D",
-			zIndex: 1
-		}, {
-			attachedEntity: true,
-			wav: "effect/ef_detoxication"
-		}],
+		20: [...poisonAttackEffect(20)],
 		21: [...detoxifyEffect],
 		22: [
 			{
@@ -296558,8 +296592,9 @@ var init_EffectTable = __esmMin((() => {
 			duration: 2500,
 			speed: 24,
 			interval: 50,
+			sourceIsOwner: true,
 			stopAtTarget: true,
-			overshoot: 3,
+			overshoot: -.5,
 			spawn: [{
 				type: "QuadHorn",
 				textureFile: "effect/stone.bmp",
@@ -296591,10 +296626,10 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/assasin_poisonreact",
 			attachedEntity: false
 		}],
+		125: [...poisonAttackEffect(125)],
 		126: [{
 			type: "STR",
 			file: "poisonreact_1st",
-			wav: "effect/assasin_poisonreact",
 			attachedEntity: true
 		}],
 		127: [{
@@ -297254,6 +297289,11 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "smoke",
 			attachedEntity: true
+		}],
+		ef_chase_walk_smoke: [{
+			type: "SPR",
+			file: "smoke",
+			attachedEntity: false
 		}],
 		216: [{
 			type: "3D",
@@ -298405,6 +298445,7 @@ var init_EffectTable = __esmMin((() => {
 		}, { wav: "effect/rog_steal coin" }],
 		275: [{
 			wav: "effect/rog_back stap",
+			delayWav: 333,
 			attachedEntity: true
 		}],
 		276: [{
