@@ -12917,13 +12917,29 @@ export default {
 	//617: [{}],	//EF_BUNSINJYUTSU	   Illusionary Shadow
 
 	618: [
+		// EF_KOUENKA	Flaming Petals: official effect 618 (effect-port/ninja-skills.md), on the
+		// target as the damage packet arrives: EF_FireArrow1-3.wav (random each) on ticks 12-15.
+		// No STR; the fire hit is the skill's hit effect 49. Not ported: the sakura01 petal
+		// sprites (prim 124) and the alpha_center rings (prim 89).
 		{
-			//EF_KOUENKA	   Crimson Fire Bolossom
-			type: 'STR',
-			file: 'firehit',
 			wav: 'effect/ef_firearrow%d',
 			rand: [1, 3],
-			attachedEntity: true
+			delayWav: 12 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 13 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 14 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 15 * (1000 / 60)
 		}
 	],
 
