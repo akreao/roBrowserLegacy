@@ -149530,6 +149530,11 @@ var init_StatusEffectTable = __esmMin((() => {
 			]
 		} },
 		[StatusConst_default.THUNDERING_ROD_MAX]: { loop: ["thundering_rod_full"] },
+		[StatusConst_default.BITESCAR]: {
+			start: ["ef_su_bitescar"],
+			stop: ["ef_su_bitescar"]
+		},
+		[StatusConst_default.SV_ROOTTWIST]: { loop: ["ef_su_roottwist"] },
 		[StatusConst_default.ASSUMPTIO]: { loop: [375] }
 	};
 }));
@@ -151030,6 +151035,7 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_CROSS_RAIN] = ["new_cross_rain_bottom", "ef_ig_cross_rain_field"];
 	SkillUnit[SkillUnitConst_default.UNT_KUNAIWAIKYOKU] = ["kunaiarea_01_start", "kunaiarea_01_loop"];
 	SkillUnit[SkillUnitConst_default.UNT_SHINKIROU] = ["shinkirou_idle_start", "shinkirou_idle_loop"];
+	SkillUnit[SkillUnitConst_default.UNT_NYANGGRASS] = "ef_su_nyanggrass_field";
 	SkillUnitEnd = {};
 	SkillUnitEnd[SkillUnitConst_default.UNT_JACK_FROST_NOVA] = ["jack_frost_nova_end"];
 	SkillUnitEnd[SkillUnitConst_default.UNT_TOTEM_OF_TUTELARY] = ["totem_of_tutelary_bottom_end", "totem_of_tutelary_end"];
@@ -222592,7 +222598,7 @@ var init_Sounds = __esmMin((() => {
 * @return {number} ms
 */
 function waveDelay(ms) {
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$3;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$4;
 }
 /**
 * One EZ2 row of the skill, at PosY 10.
@@ -222653,9 +222659,9 @@ function isRepeatGroundPacket(skillId, srcAID, position, windowMs, now = Date.no
 	lastBlast.set(key, now);
 	return false;
 }
-var TICK_MS$3, FOLDER$1, SIZES$1, WAVE_DELAY_MS, lastBlast;
+var TICK_MS$4, FOLDER$1, SIZES$1, WAVE_DELAY_MS, lastBlast;
 var init_HastyFireInTheHoleEffect = __esmMin((() => {
-	TICK_MS$3 = 1e3 / 60;
+	TICK_MS$4 = 1e3 / 60;
 	FOLDER$1 = "night_watch/nw_hasty_fire_in_the_hole/";
 	SIZES$1 = [
 		"5x5",
@@ -222671,20 +222677,10 @@ var init_HastyFireInTheHoleEffect = __esmMin((() => {
 }));
 // src/DB/Skills/SkillEffect.js
 var SkillEffect_exports = /* @__PURE__ */ __exportAll({ default: () => SkillEffect });
-var CHAMPION_JOBS, SkillEffect, healEffectByAmount;
+var SkillEffect, healEffectByAmount;
 var init_SkillEffect = __esmMin((() => {
 	init_SkillConst();
-	init_EntityManager();
-	init_JobConst();
 	init_HastyFireInTheHoleEffect();
-	CHAMPION_JOBS = /* @__PURE__ */ new Set([
-		JobConst_default.MONK_H,
-		JobConst_default.SURA,
-		JobConst_default.SURA_H,
-		JobConst_default.SURA_B,
-		JobConst_default.SURA_2ND,
-		JobConst_default.INQUISITOR
-	]);
 	SkillEffect = {};
 	SkillEffect[SkillConst_default.SM_BASH] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.SM_PROVOKE] = { successEffectId: 67 };
@@ -223171,25 +223167,36 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 0,
 		firstHitEffectId: 1
 	};
-	SkillEffect[SkillConst_default.MO_STEELBODY] = { effectId: [254, "quake"] };
+	SkillEffect[SkillConst_default.MO_STEELBODY] = { successEffectIdOnCaster: [
+		"quake",
+		"monk_raging_thrust_sound",
+		261
+	] };
 	SkillEffect[SkillConst_default.MO_BLADESTOP] = {};
-	SkillEffect[SkillConst_default.MO_EXPLOSIONSPIRITS] = {
-		beginCastEffectId: 12,
-		effectIdOnCaster: [261, "quake"]
-	};
+	SkillEffect[SkillConst_default.MO_EXPLOSIONSPIRITS] = { successEffectIdOnCaster: [
+		"quake",
+		"monk_fury_sound",
+		203,
+		261
+	] };
 	SkillEffect[SkillConst_default.MO_EXTREMITYFIST] = {
-		effectId: (srcAID) => {
-			const src = EntityManager.get(srcAID);
-			return src && CHAMPION_JOBS.has(src._job) ? [510, "quake"] : [328, "quake"];
-		},
-		hitEffectId: 266,
-		beginCastEffectId: 12
+		damageEffectIdOnCaster: "quake",
+		damageEffectIdOnTarget: 266,
+		hitEffectId: 0
 	};
 	SkillEffect[SkillConst_default.MO_CHAINCOMBO] = {
-		effectId: [262, 273],
-		effectIdOnCaster: 263
+		damageEffectIdOnTarget: [262, 273],
+		damageEffectIdOnCaster: 263,
+		hitEffectId: [0, 122]
 	};
-	SkillEffect[SkillConst_default.MO_COMBOFINISH] = { effectId: [330, "quake"] };
+	SkillEffect[SkillConst_default.MO_COMBOFINISH] = {
+		damageEffectIdOnCaster: [
+			"quake",
+			"monk_raging_thrust_sound",
+			263
+		],
+		hitEffectId: [0, 1]
+	};
 	SkillEffect[SkillConst_default.SA_CASTCANCEL] = {};
 	SkillEffect[SkillConst_default.SA_MAGICROD] = { successEffectId: 244 };
 	SkillEffect[SkillConst_default.SA_SPELLBREAKER] = { successEffectId: 234 };
@@ -223220,79 +223227,87 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.BD_ADAPTATION] = {};
 	SkillEffect[SkillConst_default.BD_ENCORE] = {};
 	SkillEffect[SkillConst_default.BD_LULLABY] = {
-		effectId: 278,
+		successEffectId: [278, 845],
 		groundEffectId: "278_ground"
 	};
 	SkillEffect[SkillConst_default.BD_RICHMANKIM] = {
-		effectId: 279,
+		successEffectId: [279, 842],
 		groundEffectId: "279_ground"
 	};
 	SkillEffect[SkillConst_default.BD_ETERNALCHAOS] = {
-		effectId: 280,
+		successEffectId: [280, 844],
 		groundEffectId: "280_ground"
 	};
 	SkillEffect[SkillConst_default.BD_DRUMBATTLEFIELD] = {
-		effectId: 281,
+		successEffectId: [281, 842],
 		groundEffectId: "281_ground"
 	};
 	SkillEffect[SkillConst_default.BD_RINGNIBELUNGEN] = {
-		effectId: 282,
+		successEffectId: [282, 842],
 		groundEffectId: "282_ground"
 	};
 	SkillEffect[SkillConst_default.BD_ROKISWEIL] = {
-		effectId: 283,
+		successEffectId: [283, 845],
 		groundEffectId: "283_ground"
 	};
 	SkillEffect[SkillConst_default.BD_INTOABYSS] = {
-		effectId: 284,
+		successEffectId: [284, 842],
 		groundEffectId: "284_ground"
 	};
 	SkillEffect[SkillConst_default.BD_SIEGFRIED] = {
-		effectId: 285,
+		successEffectId: [285, 842],
 		groundEffectId: "285_ground"
 	};
 	SkillEffect[SkillConst_default.BA_MUSICALSTRIKE] = {
 		hideCastAura: true,
-		beforeHitEffectId: "ef_arrow_projectile"
+		damageEffectIdOnTarget: "ef_arrow_projectile",
+		hitEffectId: [0]
 	};
-	SkillEffect[SkillConst_default.BA_DISSONANCE] = { groundEffectId: "277_ground" };
-	SkillEffect[SkillConst_default.BA_FROSTJOKE] = { beginCastEffectId: 295 };
+	SkillEffect[SkillConst_default.BA_DISSONANCE] = {
+		successEffectId: 843,
+		groundEffectId: "277_ground"
+	};
+	SkillEffect[SkillConst_default.BA_FROSTJOKE] = { successEffectId: 295 };
 	SkillEffect[SkillConst_default.BA_WHISTLE] = {
-		effectId: 286,
+		successEffectId: 844,
 		groundEffectId: "286_ground"
 	};
 	SkillEffect[SkillConst_default.BA_ASSASSINCROSS] = {
-		effectId: 287,
+		successEffectId: [287, 840],
 		groundEffectId: "287_ground"
 	};
 	SkillEffect[SkillConst_default.BA_POEMBRAGI] = {
-		effectId: 288,
+		successEffectId: [288, 843],
 		groundEffectId: "288_ground"
 	};
 	SkillEffect[SkillConst_default.BA_APPLEIDUN] = {
-		effectId: 289,
+		successEffectId: [289, 841],
 		groundEffectId: "289_ground"
 	};
 	SkillEffect[SkillConst_default.DC_THROWARROW] = {
 		hideCastAura: true,
-		beforeHitEffectId: "ef_arrow_projectile"
+		damageEffectIdOnTarget: "ef_arrow_projectile",
+		hitEffectId: [0]
 	};
-	SkillEffect[SkillConst_default.DC_UGLYDANCE] = { groundEffectId: "290_ground" };
-	SkillEffect[SkillConst_default.DC_SCREAM] = { beginCastEffectId: 296 };
+	SkillEffect[SkillConst_default.DC_UGLYDANCE] = {
+		successEffectId: 843,
+		groundEffectId: "290_ground"
+	};
+	SkillEffect[SkillConst_default.DC_SCREAM] = { successEffectId: 296 };
 	SkillEffect[SkillConst_default.DC_HUMMING] = {
-		effectId: 291,
+		successEffectId: [291, 844],
 		groundEffectId: "291_ground"
 	};
 	SkillEffect[SkillConst_default.DC_DONTFORGETME] = {
-		effectId: 292,
+		successEffectId: [292, 844],
 		groundEffectId: "292_ground"
 	};
 	SkillEffect[SkillConst_default.DC_FORTUNEKISS] = {
-		effectId: 293,
+		successEffectId: [293, 840],
 		groundEffectId: "293_ground"
 	};
 	SkillEffect[SkillConst_default.DC_SERVICEFORYOU] = {
-		effectId: 294,
+		successEffectId: [294, 840],
 		groundEffectId: "294_ground"
 	};
 	SkillEffect[SkillConst_default.NPC_RANDOMMOVE] = {};
@@ -223352,12 +223367,24 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: 370,
 		groundEffectId: "370_ground"
 	};
-	SkillEffect[SkillConst_default.CH_PALMSTRIKE] = { hitEffectId: [376, "quake"] };
-	SkillEffect[SkillConst_default.CH_TIGERFIST] = {
-		effectIdOnCaster: 263,
-		effectId: [377, "quake"]
+	SkillEffect[SkillConst_default.CH_PALMSTRIKE] = {
+		damageEffectIdOnCaster: "quake",
+		damageEffectIdOnTarget: 376,
+		hitEffectId: 0
 	};
-	SkillEffect[SkillConst_default.CH_CHAINCRUSH] = { effectId: 512 };
+	SkillEffect[SkillConst_default.CH_TIGERFIST] = {
+		damageEffectIdOnCaster: [
+			"quake",
+			377,
+			263
+		],
+		hitEffectId: [0, 1]
+	};
+	SkillEffect[SkillConst_default.CH_CHAINCRUSH] = {
+		damageEffectIdOnCaster: [263, 512],
+		hitEffectId: 0,
+		firstHitEffectId: 1
+	};
 	SkillEffect[SkillConst_default.PF_HPCONVERSION] = {
 		effectId: 383,
 		effectIdOnCaster: 378,
@@ -223393,11 +223420,13 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_ALCHEMY] = {};
 	SkillEffect[SkillConst_default.CR_SYNTHESISPOTION] = {};
 	SkillEffect[SkillConst_default.CG_ARROWVULCAN] = {
-		effectId: 393,
-		beforeHitEffectId: "ef_arrow_projectile"
+		damageEffectIdOnCaster: 393,
+		damageEffectIdOnTarget: "ef_arrow_projectile",
+		hitEffectId: [0, 1],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.CG_MOONLIT] = {
-		effectId: 394,
+		successEffectId: 394,
 		groundEffectId: "394_ground"
 	};
 	SkillEffect[SkillConst_default.CG_MARIONETTE] = {
@@ -223423,7 +223452,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: [0],
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.CH_SOULCOLLECT] = { beginCastEffectId: [402, 12] };
+	SkillEffect[SkillConst_default.CH_SOULCOLLECT] = { beginCastEffectId: 402 };
 	SkillEffect[SkillConst_default.PF_MINDBREAKER] = { successEffectId: 403 };
 	SkillEffect[SkillConst_default.PF_MEMORIZE] = { effectId: 505 };
 	SkillEffect[SkillConst_default.PF_FOGWALL] = { groundEffectId: "405_ground" };
@@ -223536,12 +223565,12 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.WS_CARTTERMINATION] = { effectId: 518 };
 	SkillEffect[SkillConst_default.WS_OVERTHRUSTMAX] = SkillEffect[SkillConst_default.BS_OVERTHRUST];
-	SkillEffect[SkillConst_default.CG_LONGINGFREEDOM] = { effectId: 500 };
+	SkillEffect[SkillConst_default.CG_LONGINGFREEDOM] = { successEffectId: ["ef_longing_freedom_sound", 843] };
 	SkillEffect[SkillConst_default.CG_HERMODE] = {
-		effectId: "517_music",
+		successEffectId: "517_music",
 		groundEffectId: 517
 	};
-	SkillEffect[SkillConst_default.CG_TAROTCARD] = { successEffectId: 500 };
+	SkillEffect[SkillConst_default.CG_TAROTCARD] = { successEffectId: ["ef_tarot_card_sound", 500] };
 	SkillEffect[SkillConst_default.CR_ACIDDEMONSTRATION] = { effectId: 537 };
 	SkillEffect[SkillConst_default.CR_CULTIVATION] = {};
 	SkillEffect[SkillConst_default.ITEM_ENCHANTARMS] = {};
@@ -225041,29 +225070,31 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SU_SCRATCH] = { successEffectId: "ef_su_scratch" };
 	SkillEffect[SkillConst_default.SU_STOOP] = {};
 	SkillEffect[SkillConst_default.SU_LOPE] = {};
-	SkillEffect[SkillConst_default.SU_SV_STEMSPEAR] = { effectId: "ef_su_sv_stemspear" };
+	SkillEffect[SkillConst_default.SU_SV_STEMSPEAR] = { damageEffectIdOnCaster: "ef_su_sv_stemspear" };
 	SkillEffect[SkillConst_default.SU_CN_POWDERING] = {};
-	SkillEffect[SkillConst_default.SU_CN_METEOR] = {};
+	SkillEffect[SkillConst_default.SU_CN_METEOR] = { groundEffectIdByLevel: ["ef_su_cn_meteor"] };
+	SkillEffect[SkillConst_default.SU_CN_METEOR2] = { groundEffectIdByLevel: ["ef_su_cn_meteor2"] };
 	SkillEffect[SkillConst_default.SU_SV_ROOTTWIST] = {};
 	SkillEffect[SkillConst_default.SU_SV_ROOTTWIST_ATK] = {};
 	SkillEffect[SkillConst_default.SU_SCAROFTAROU] = { effectId: "ef_su_scaroftarou" };
-	SkillEffect[SkillConst_default.SU_PICKYPECK] = { effectId: "ef_su_pickypeck" };
+	SkillEffect[SkillConst_default.SU_PICKYPECK] = { successEffectId: "ef_su_pickypeck" };
 	SkillEffect[SkillConst_default.SU_PICKYPECK_DOUBLE_ATK] = {};
-	SkillEffect[SkillConst_default.SU_ARCLOUSEDASH] = { effectId: "ef_su_arclousedash" };
-	SkillEffect[SkillConst_default.SU_LUNATICCARROTBEAT] = {};
-	SkillEffect[SkillConst_default.SU_TUNABELLY] = { effectId: "ef_su_tunabelly" };
+	SkillEffect[SkillConst_default.SU_ARCLOUSEDASH] = { successEffectId: "ef_su_arclousedash" };
+	SkillEffect[SkillConst_default.SU_LUNATICCARROTBEAT] = { successEffectIdOnTargetByLevel: ["ef_su_lunaticcarrotbeat"] };
+	SkillEffect[SkillConst_default.SU_LUNATICCARROTBEAT2] = { successEffectIdOnTargetByLevel: ["ef_su_lunaticcarrotbeat2"] };
+	SkillEffect[SkillConst_default.SU_TUNABELLY] = { successEffectId: "ef_su_tunabelly" };
 	SkillEffect[SkillConst_default.SU_TUNAPARTY] = {};
-	SkillEffect[SkillConst_default.SU_BUNCHOFSHRIMP] = { effectId: "ef_su_bunchofshrimp" };
-	SkillEffect[SkillConst_default.SU_FRESHSHRIMP] = { effectId: "ef_su_freshshrimp" };
-	SkillEffect[SkillConst_default.SU_POWEROFFLOCK] = { effectId: "ef_su_powerofflock" };
-	SkillEffect[SkillConst_default.SU_SVG_SPIRIT] = { effectId: "ef_su_svg_spirit" };
-	SkillEffect[SkillConst_default.SU_HISS] = { effectId: "ef_su_hiss" };
-	SkillEffect[SkillConst_default.SU_NYANGGRASS] = { effectId: "ef_su_nyanggrass" };
-	SkillEffect[SkillConst_default.SU_GROOMING] = { effectId: "ef_su_grooming" };
-	SkillEffect[SkillConst_default.SU_PURRING] = {};
-	SkillEffect[SkillConst_default.SU_SHRIMPARTY] = {};
-	SkillEffect[SkillConst_default.SU_MEOWMEOW] = {};
-	SkillEffect[SkillConst_default.SU_CHATTERING] = { effectId: "ef_su_chattering" };
+	SkillEffect[SkillConst_default.SU_BUNCHOFSHRIMP] = { successEffectId: "ef_su_bunchofshrimp" };
+	SkillEffect[SkillConst_default.SU_FRESHSHRIMP] = { successEffectId: "ef_su_freshshrimp" };
+	SkillEffect[SkillConst_default.SU_POWEROFFLOCK] = { successEffectId: "ef_su_powerofflock" };
+	SkillEffect[SkillConst_default.SU_SVG_SPIRIT] = { damageEffectIdOnTarget: "ef_su_svg_spirit" };
+	SkillEffect[SkillConst_default.SU_HISS] = { successEffectId: "ef_su_hiss" };
+	SkillEffect[SkillConst_default.SU_NYANGGRASS] = {};
+	SkillEffect[SkillConst_default.SU_GROOMING] = { successEffectId: "ef_su_grooming" };
+	SkillEffect[SkillConst_default.SU_PURRING] = { successEffectId: "ef_su_grooming" };
+	SkillEffect[SkillConst_default.SU_SHRIMPARTY] = { successEffectId: "ef_su_shrimparty" };
+	SkillEffect[SkillConst_default.SU_MEOWMEOW] = { successEffectId: "ef_su_chattering" };
+	SkillEffect[SkillConst_default.SU_CHATTERING] = { successEffectId: "ef_su_chattering" };
 	SkillEffect[SkillConst_default.WE_CALLALLFAMILY] = {};
 	SkillEffect[SkillConst_default.WE_ONEFOREVER] = {};
 	SkillEffect[SkillConst_default.WE_CHEERUP] = {};
@@ -273804,7 +273835,7 @@ var init_AreaSpawner = __esmMin((() => {
 * @return {number}
 */
 function pathLeft(elapsed) {
-	return 1 - STEP$1 * (elapsed / TICK_MS$2 + 1);
+	return 1 - STEP$1 * (elapsed / TICK_MS$3 + 1);
 }
 /**
 * A world point moved `cells` up the screen.
@@ -273914,9 +273945,9 @@ function fromWorld(point) {
 		-point[1]
 	];
 }
-var TICK_MS$2, STEP$1, TURN_NEAR, TURN_FAR;
+var TICK_MS$3, STEP$1, TURN_NEAR, TURN_FAR;
 var init_BezierArcThrowSim = __esmMin((() => {
-	TICK_MS$2 = 1e3 / 60;
+	TICK_MS$3 = 1e3 / 60;
 	STEP$1 = .07;
 	TURN_NEAR = 4 * Math.PI / 3;
 	TURN_FAR = 2 * Math.PI / 3;
@@ -277700,7 +277731,7 @@ function motionSpeed(entity) {
 */
 function startDelay(speed) {
 	const ms = Math.trunc(speed * 50 + 30);
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$1;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$2;
 }
 /**
 * delayStart of a stage layer, worked out from its caster.
@@ -277761,13 +277792,13 @@ function stormSlashEffects() {
 	for (let stage = 1; stage <= 5; ++stage) rows["ef_dk_stormslash_" + stage] = [stageLayer(stage), soundLayer(stage)];
 	return rows;
 }
-var TICK_MS$1, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
+var TICK_MS$2, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
 var init_StormSlashEffect = __esmMin((() => {
 	init_Client();
 	init_SoundManager();
 	init_Events();
-	TICK_MS$1 = 1e3 / 60;
-	SOUND_GAP_MS = 15 * TICK_MS$1;
+	TICK_MS$2 = 1e3 / 60;
+	SOUND_GAP_MS = 15 * TICK_MS$2;
 	DEFAULT_MOTION_SPEED = 4;
 	Array.from({ length: 5 }, (_, k) => "ef_dk_stormslash_" + (k + 1));
 }));
@@ -278062,6 +278093,7 @@ function spamSprite(Params) {
 		yOffset: Params.effect.yOffset,
 		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
+		opacity: Params.effect.opacity,
 		startDelay: typeof Params.effect.delayStart === "number" ? Params.effect.delayStart : 0,
 		renderBefore: !!Params.effect.renderBeforeEntities,
 		scale: Params.effect.scale
@@ -278216,6 +278248,12 @@ var init_EffectManager = __esmMin((() => {
 	];
 	EffectManager = class EffectManager {
 		/**
+		* Goes up each time every effect is destroyed (a map change). An effect
+		* that spawns more of itself later can compare it to drop what it had
+		* queued for the old map.
+		*/
+		static generation = 0;
+		/**
 		* Initialize effects manager
 		*/
 		static init(gl) {
@@ -278267,6 +278305,7 @@ var init_EffectManager = __esmMin((() => {
 				if (constructor.free) constructor.free(gl);
 				delete _list$3[key];
 			});
+			EffectManager.generation++;
 		}
 		/**
 		* Renderering all effects
@@ -288231,8 +288270,8 @@ var init_SpiritSphere = __esmMin((() => {
 function skySunBursts(random = Math.random) {
 	const bursts = [];
 	for (let k = 0; k < 6; ++k) {
-		const x = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$2;
-		const y = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$2;
+		const x = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$3;
+		const y = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$3;
 		bursts.push({
 			x,
 			y,
@@ -288266,9 +288305,9 @@ function spawnSkySunBursts(Params) {
 		});
 	});
 }
-var UNITS_PER_CELL$2, SKY_SUN_BURST;
+var UNITS_PER_CELL$3, SKY_SUN_BURST;
 var init_SkySunEffect = __esmMin((() => {
-	UNITS_PER_CELL$2 = 5;
+	UNITS_PER_CELL$3 = 5;
 	SKY_SUN_BURST = {
 		type: "STR",
 		file: "sky_emperor/ske_sunset_blast/sunset_blast_small",
@@ -288454,7 +288493,7 @@ var init_ArrowShowerEffects = __esmMin((() => {
 */
 function collectDelay(speed) {
 	const ms = Math.trunc(speed * 100 + 100);
-	return (Math.trunc(ms / 16) + 1) * TICK_MS;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$1;
 }
 /**
 * One EZ2 row of the skill, attached to its owner at PosY 8.
@@ -288493,10 +288532,10 @@ function servantDemolitionEffects() {
 		}]
 	};
 }
-var TICK_MS, FOLDER;
+var TICK_MS$1, FOLDER;
 var init_ServantDemolitionEffect = __esmMin((() => {
 	init_StormSlashEffect();
-	TICK_MS = 1e3 / 60;
+	TICK_MS$1 = 1e3 / 60;
 	FOLDER = "dragon_knight/dk_servant_w_demol/";
 }));
 // src/Renderer/Effects/WarlockSphere.vs?raw
@@ -289802,6 +289841,174 @@ var init_ThrowStoneEffect = __esmMin((() => {
 	};
 	throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
 	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
+}));
+// src/DB/Effects/NyangGrassEffect.js
+/**
+* Side of the square, in cells, for a skill level.
+*
+* Only ZC_SKILL_ENTRY5 carries the level. Older unit packets carry the unit's
+* range instead, which the server sets from the same table (2, 3 or 4 cells
+* out from the centre), so the side is 2 * range + 1.
+*
+* @param {number} [level]
+* @param {number} [range]
+* @return {number}
+*/
+function nyangGrassSize(level, range) {
+	if (!(level > 0) && range > 0) return 2 * Math.min(Math.max(range, 2), 4) + 1;
+	if (level >= 5) return 9;
+	if (level >= 3) return 7;
+	return 5;
+}
+/**
+* Cell offsets [x, y] of the copies, from the unit's cell.
+*
+* @param {number} [level]
+* @param {number} [range]
+* @return {number[][]}
+*/
+function nyangGrassCells(level, range) {
+	const size = nyangGrassSize(level, range);
+	const half = Math.floor(size / 2);
+	const cells = [];
+	for (let row = 0; row < size; ++row) for (let col = 0; col < size; ++col) cells.push([col - half, row - half]);
+	return cells;
+}
+var nyangGrassEffects;
+var init_NyangGrassEffect = __esmMin((() => {
+	init_Altitude();
+	nyangGrassEffects = {
+		ef_su_nyanggrass_field: [{
+			type: "FUNC",
+			wav: "effect/su_nyanggrass",
+			func: function(Params) {
+				const at = Params.Inst.position;
+				nyangGrassCells(Params.Init.skillLevel, Params.Init.unitRange).forEach(([dx, dy]) => {
+					const x = at[0] + dx;
+					const y = at[1] + dy;
+					this.spam({
+						effectId: "ef_su_nyanggrass",
+						ownerAID: Params.Init.ownerAID,
+						position: [
+							x,
+							y,
+							Altitude.getCellHeight(x, y)
+						],
+						startTick: Params.Inst.startTick,
+						persistent: true
+					});
+				});
+			}
+		}],
+		ef_su_nyanggrass: [{
+			type: "STR",
+			file: "su_nyanggrass/su_nyanggrass",
+			texturePath: "su_nyanggrass/"
+		}]
+	};
+}));
+// src/DB/Effects/CarrotBeatEffect.js
+/**
+* Carrots per side of the square for a skill level (2n carrots are dropped).
+*
+* @param {number} level
+* @return {number}
+*/
+function carrotBeatSize(level) {
+	if (level >= 5) return 7;
+	if (level >= 3) return 5;
+	return 3;
+}
+/**
+* Where and when each carrot falls.
+*
+* @param {number} level skill level
+* @param {function} [random] numbers in [0, 1), Math.random by default
+* @return {object[]} { x, y } offset in cells, delay in ticks
+*/
+function planCarrots(level, random = Math.random) {
+	const n = carrotBeatSize(level);
+	const span = n * UNITS_PER_CELL$2;
+	const half = Math.floor(span / 2);
+	const step = Math.trunc(105 / (2 * n));
+	const carrots = [];
+	for (let i = 0; i < 2 * n; ++i) {
+		const x = Math.floor(random() * span) - half;
+		const y = Math.floor(random() * span) - half;
+		carrots.push({
+			x: x / UNITS_PER_CELL$2,
+			y: y / UNITS_PER_CELL$2,
+			delay: i * step
+		});
+	}
+	return carrots;
+}
+/**
+* The FUNC row dropping the carrots.
+*
+* @param {string} carrotRow EffectTable row of one carrot
+* @return {object}
+*/
+function carrotShower(carrotRow) {
+	return {
+		type: "FUNC",
+		func: function(Params) {
+			const at = Params.Inst.position;
+			const position = [
+				at[0],
+				at[1],
+				at[2]
+			];
+			const generation = this.generation;
+			planCarrots(Params.Init.skillLevel).forEach((drop) => {
+				Events.setTimeout(() => {
+					if (this.generation !== generation) return;
+					this.spam({
+						effectId: carrotRow,
+						ownerAID: Params.Init.ownerAID,
+						position: [
+							position[0] + drop.x,
+							position[1] + drop.y,
+							position[2]
+						]
+					});
+				}, drop.delay * TICK_MS);
+			});
+		}
+	};
+}
+/**
+* One carrot: the sprite once, 4 ticks a frame, and the camera shake at 48 ticks.
+*
+* @param {number} [opacity]
+* @return {object[]}
+*/
+function carrot(opacity) {
+	const sprite = {
+		type: "SPR",
+		file: "su_lunaticcarrotbeat/su_lunaticcarrotbeat",
+		delayFrame: 4 * TICK_MS
+	};
+	if (opacity !== void 0) sprite.opacity = opacity;
+	return [sprite, {
+		type: "FUNC",
+		func: function(Params) {
+			Camera.setQuake(Params.Inst.startTick + 48 * TICK_MS);
+		}
+	}];
+}
+var TICK_MS, UNITS_PER_CELL$2, carrotBeatEffects;
+var init_CarrotBeatEffect = __esmMin((() => {
+	init_Camera();
+	init_Events();
+	TICK_MS = 1e3 / 60;
+	UNITS_PER_CELL$2 = 5;
+	carrotBeatEffects = {
+		ef_su_lunaticcarrotbeat: [carrotShower("ef_su_lunaticcarrotbeat_carrot")],
+		ef_su_lunaticcarrotbeat_carrot: carrot(100 / 255),
+		ef_su_lunaticcarrotbeat2: [carrotShower("ef_su_lunaticcarrotbeat2_carrot")],
+		ef_su_lunaticcarrotbeat2_carrot: carrot()
+	};
 }));
 // src/Renderer/Effects/ShieldBoomerangSim.js
 /**
@@ -293558,6 +293765,8 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCone();
 	init_CastCircle();
 	init_ThrowStoneEffect();
+	init_NyangGrassEffect();
+	init_CarrotBeatEffect();
 	init_ShieldBoomerangEffect();
 	init_CastRing();
 	init_StreakLines();
@@ -298329,7 +298538,12 @@ var init_EffectTable = __esmMin((() => {
 			textureName: "ring_yellow",
 			topSize: 5,
 			attachedEntity: true
-		}, {
+		}],
+		monk_raging_thrust_sound: [{
+			wav: "effect/mon_¸Í·æ°ú°­",
+			attachedEntity: true
+		}],
+		monk_fury_sound: [{
 			wav: "effect/mon_Æø±â",
 			attachedEntity: true
 		}],
@@ -300715,7 +300929,8 @@ var init_EffectTable = __esmMin((() => {
 		376: [{ wav: "effect/¸ÍÈ£°æÆÄ»ê" }],
 		377: [
 			{
-				wav: "effect/mon_Æø±â",
+				wav: "effect/mon_¸Í·æ°ú°­",
+				delayWav: 83,
 				type: "FUNC",
 				attachedEntity: true,
 				func: function(Params) {
@@ -300942,10 +301157,14 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/kyrie_guard",
 			attachedEntity: true
 		}],
-		393: [{ wav: "effect/¾Ö·Î¿ì ¹ßÄ­" }],
+		393: [{
+			wav: "effect/¾Ö·Î¿ì ¹ßÄ­",
+			delayWav: 500,
+			attachedEntity: true
+		}],
 		394: [{
 			type: "FUNC",
-			wav: "effect/´Þºû¼¼·¹³ªµ¥",
+			wav: "effect/´Þºû",
 			attachedEntity: false,
 			func: function(Params) {
 				const BlueTile = FlatColorTile_default("salmon", {
@@ -302872,6 +303091,14 @@ var init_EffectTable = __esmMin((() => {
 		517: [{}],
 		"517_music": [{
 			wav: "effect/Çì¸£¸ðµåÀÇ ÁöÆÎÀÌ",
+			attachedEntity: true
+		}],
+		ef_longing_freedom_sound: [{
+			wav: "effect/ac_concentration",
+			attachedEntity: true
+		}],
+		ef_tarot_card_sound: [{
+			wav: "effect/priest_slowpoison",
 			attachedEntity: true
 		}],
 		519: [{
@@ -306023,6 +306250,14 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ef_beginspell",
 			func: function(Params) {
 				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 6 }), Params);
+			}
+		}],
+		844: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 7 }), Params);
 			}
 		}],
 		845: [{
@@ -312925,13 +313160,50 @@ var init_EffectTable = __esmMin((() => {
 		ef_su_sv_stemspear: [{
 			type: "STR",
 			file: "su_sv_stemspear/su_sv_stemspear",
-			texturePath: "su_sv_stemspear/"
+			texturePath: "su_sv_stemspear/",
+			wav: "effect/su_stemspear"
 		}],
 		ef_su_scaroftarou: [{
 			type: "STR",
 			file: "su_scaroftarou/su_scaroftarou",
 			texturePath: "su_scaroftarou/",
 			wav: "effect/su_scaroftarou"
+		}],
+		ef_su_bitescar: [{
+			type: "STR",
+			file: "bite_scar/bite_scar",
+			texturePath: "bite_scar/",
+			attachedEntity: true
+		}],
+		ef_su_cn_meteor: [{
+			type: "SPR",
+			file: "su_cn_meteor/su_cn_meteor",
+			delayFrame: 4e3 / 60,
+			opacity: 100 / 255
+		}, {
+			type: "FUNC",
+			func: (Params) => {
+				Camera.setQuake(Params.Inst.startTick + 800);
+			}
+		}],
+		ef_su_cn_meteor2: [{
+			type: "SPR",
+			file: "su_cn_meteor/su_cn_meteor",
+			delayFrame: 4e3 / 60
+		}, {
+			type: "FUNC",
+			func: (Params) => {
+				Camera.setQuake(Params.Inst.startTick + 800);
+			}
+		}],
+		ef_su_roottwist: [{
+			type: "SPR",
+			file: "su_sv_roottwist/su_sv_roottwist",
+			wav: "effect/su_roottwist",
+			attachedEntity: true,
+			repeat: true,
+			delayFrame: 8e3 / 60,
+			yOffset: 21
 		}],
 		ef_su_pickypeck: [{
 			type: "STR",
@@ -312946,23 +313218,26 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_su_tunabelly: [{
 			type: "STR",
-			file: "su_tunabelly/su_scratch",
+			file: "su_tunabelly/su_tunabelly",
 			texturePath: "su_tunabelly/",
 			wav: "effect/su_tunabelly"
-		}, {
-			type: "STR",
-			file: "su_tunabelly/su_tunabelly",
-			texturePath: "su_tunabelly/"
 		}],
 		ef_su_bunchofshrimp: [{
 			type: "STR",
 			file: "su_bunchofshrimp/su_bunchofshrimp",
-			texturePath: "su_bunchofshrimp/"
+			texturePath: "su_bunchofshrimp/",
+			wav: "effect/su_brunchofshrimp"
 		}],
 		ef_su_freshshrimp: [{
 			type: "STR",
 			file: "su_freshshrimp/su_freshshrimp",
 			texturePath: "su_freshshrimp/"
+		}],
+		ef_su_shrimparty: [{
+			type: "STR",
+			file: "su_freshshrimp/su_freshshrimp",
+			texturePath: "su_freshshrimp/",
+			wav: "effect/su_shrimpparty"
 		}],
 		ef_su_powerofflock: [{
 			type: "STR",
@@ -312982,12 +313257,8 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "su_hiss/",
 			wav: "effect/su_hiss"
 		}],
-		ef_su_nyanggrass: [{
-			type: "STR",
-			file: "su_nyanggrass/su_nyanggrass",
-			texturePath: "su_nyanggrass/",
-			wav: "effect/su_nyanggrass"
-		}],
+		...carrotBeatEffects,
+		...nyangGrassEffects,
 		ef_su_grooming: [{
 			type: "STR",
 			file: "su_grooming/su_grooming",
