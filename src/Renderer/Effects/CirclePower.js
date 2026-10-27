@@ -48,15 +48,22 @@ function loadTexture(gl) {
 		return;
 	}
 	_loading = true;
-	Client.loadFile(`data/texture/effect/${TEXTURE}`, buffer => {
-		WebGL.texture(gl, buffer, texture => {
-			if (!_loading) {
-				gl.deleteTexture(texture);
-				return;
-			}
-			_texture = texture;
-		});
-	});
+	Client.loadFile(
+		`data/texture/effect/${TEXTURE}`,
+		buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				if (!_loading) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				_texture = texture;
+			});
+		},
+		() => {
+			// Let a later aura try again
+			_loading = false;
+		}
+	);
 }
 
 class CirclePower {

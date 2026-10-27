@@ -133,7 +133,9 @@ export function splitAlpha(age) {
 }
 
 /**
- * Recover a colour on an entity by 8 a tick until it is back to normal
+ * Recover a colour on an entity by 8 a tick until it is back to normal.
+ * Stops as soon as a newer mark sets the entity's colour, so a restarted
+ * effect is not lightened by its earlier copy's recovery.
  *
  * @param {Entity} entity
  * @param {number[]} color 0-255 per channel
@@ -142,7 +144,12 @@ function recoverColor(entity, color) {
 	if (!entity.animations || !entity._flashColor) {
 		return;
 	}
+	const token = {};
+	entity._flashColorOwner = token;
 	entity.animations.add(tick => {
+		if (entity._flashColorOwner !== token) {
+			return true;
+		}
 		const steps = Math.floor(tick / PRIM_TICK_MS);
 		let done = true;
 		for (let i = 0; i < 3; i++) {
@@ -217,6 +224,7 @@ export default class CasterMarks {
 				owner._flashColor[1] = c[1] / 255;
 				owner._flashColor[2] = c[2] / 255;
 				owner.recalculateBlendingColor();
+				owner._flashColorOwner = this;
 				this.color = color;
 			}
 		}
