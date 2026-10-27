@@ -149516,7 +149516,8 @@ var init_StatusEffectTable = __esmMin((() => {
 				"thundering_rod_05"
 			]
 		} },
-		[StatusConst_default.THUNDERING_ROD_MAX]: { loop: ["thundering_rod_full"] }
+		[StatusConst_default.THUNDERING_ROD_MAX]: { loop: ["thundering_rod_full"] },
+		[StatusConst_default.ASSUMPTIO]: { loop: [375] }
 	};
 }));
 // src/DB/Skills/SkillUnitConst.js
@@ -222743,8 +222744,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MC_IDENTIFY] = {};
 	SkillEffect[SkillConst_default.MC_VENDING] = {};
 	SkillEffect[SkillConst_default.MC_MAMMONITE] = {
-		hitEffectId: [0, 10],
-		hitEffectOnce: true
+		hitEffectId: 0,
+		firstHitEffectId: 10
 	};
 	SkillEffect[SkillConst_default.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 };
 	SkillEffect[SkillConst_default.AC_DOUBLE] = {
@@ -222766,7 +222767,11 @@ var init_SkillEffect = __esmMin((() => {
 		firstHitEffectId: 1
 	};
 	SkillEffect[SkillConst_default.TF_DETOXIFY] = { successEffectId: 21 };
-	SkillEffect[SkillConst_default.ALL_RESURRECTION] = { effectId: [77, 140] };
+	SkillEffect[SkillConst_default.ALL_RESURRECTION] = {
+		successEffectId: [77, 140],
+		hitEffectId: [0, 140],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.KN_PIERCE] = {
 		effectIdOnCaster: 148,
 		hitEffectId: 147
@@ -222791,22 +222796,35 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: 149,
 		hitEffectId: 1
 	};
-	SkillEffect[SkillConst_default.PR_IMPOSITIO] = { effectId: 84 };
-	SkillEffect[SkillConst_default.PR_SUFFRAGIUM] = { effectId: 88 };
-	SkillEffect[SkillConst_default.PR_ASPERSIO] = { effectId: 86 };
-	SkillEffect[SkillConst_default.PR_BENEDICTIO] = { effectId: 91 };
+	SkillEffect[SkillConst_default.PR_IMPOSITIO] = { successEffectId: 84 };
+	SkillEffect[SkillConst_default.PR_SUFFRAGIUM] = { successEffectId: 88 };
+	SkillEffect[SkillConst_default.PR_ASPERSIO] = {
+		successEffectId: 86,
+		hitEffectId: [0, 152],
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.PR_BENEDICTIO] = {
+		groundEffectIdByLevel: [91],
+		hitEffectId: [0],
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.PR_SANCTUARY] = {
 		effectId: 83,
-		groundEffectId: 319
+		groundEffectId: 319,
+		hitEffectId: [0]
 	};
-	SkillEffect[SkillConst_default.PR_SLOWPOISON] = { effectId: 136 };
-	SkillEffect[SkillConst_default.PR_STRECOVERY] = { effectId: 78 };
-	SkillEffect[SkillConst_default.PR_KYRIE] = { effectId: 112 };
-	SkillEffect[SkillConst_default.PR_MAGNIFICAT] = { effectId: 76 };
-	SkillEffect[SkillConst_default.PR_GLORIA] = { effectId: 75 };
-	SkillEffect[SkillConst_default.PR_LEXDIVINA] = { effectId: 87 };
-	SkillEffect[SkillConst_default.PR_TURNUNDEAD] = { hitEffectId: 152 };
-	SkillEffect[SkillConst_default.PR_LEXAETERNA] = { effectId: 85 };
+	SkillEffect[SkillConst_default.PR_SLOWPOISON] = { successEffectId: 136 };
+	SkillEffect[SkillConst_default.PR_STRECOVERY] = { successEffectId: 78 };
+	SkillEffect[SkillConst_default.PR_KYRIE] = { successEffectIdOnCaster: 112 };
+	SkillEffect[SkillConst_default.PR_MAGNIFICAT] = { successEffectIdOnCaster: 76 };
+	SkillEffect[SkillConst_default.PR_GLORIA] = { successEffectIdOnCaster: 75 };
+	SkillEffect[SkillConst_default.PR_LEXDIVINA] = { successEffectId: 87 };
+	SkillEffect[SkillConst_default.PR_TURNUNDEAD] = {
+		damageEffectIdOnCaster: 82,
+		hitEffectId: [0, 152],
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.PR_LEXAETERNA] = { successEffectId: 85 };
 	SkillEffect[SkillConst_default.PR_MAGNUS] = {
 		effectId: 113,
 		hitEffectId: 152,
@@ -223277,7 +223295,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.LK_TENSIONRELAX] = {};
 	SkillEffect[SkillConst_default.LK_BERSERK] = { effectId: [368, "quake"] };
 	SkillEffect[SkillConst_default.LK_FURY] = { effectId: [368, "quake"] };
-	SkillEffect[SkillConst_default.HP_ASSUMPTIO] = { effectId: 440 };
+	SkillEffect[SkillConst_default.HP_ASSUMPTIO] = { successEffectId: [375, 440] };
 	SkillEffect[SkillConst_default.HP_BASILICA] = { groundEffectId: 374 };
 	SkillEffect[SkillConst_default.HW_MAGICCRASHER] = { effectId: 380 };
 	SkillEffect[SkillConst_default.HW_MAGICPOWER] = {
@@ -223549,27 +223567,35 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.GS_GROUNDDRIFT] = { groundEffectIdByLevel: ["ef_gs_ground_drift"] };
-	SkillEffect[SkillConst_default.NJ_SYURIKEN] = { beforeHitEffectId: 613 };
-	SkillEffect[SkillConst_default.NJ_KUNAI] = { beforeHitEffectId: 614 };
-	SkillEffect[SkillConst_default.NJ_HUUMA] = { beforeHitEffectId: 615 };
-	SkillEffect[SkillConst_default.NJ_ZENYNAGE] = { beforeHitEffectId: 616 };
+	SkillEffect[SkillConst_default.NJ_SYURIKEN] = { damageEffectIdOnCaster: 613 };
+	SkillEffect[SkillConst_default.NJ_KUNAI] = { damageEffectIdOnCaster: 614 };
+	SkillEffect[SkillConst_default.NJ_HUUMA] = { damageEffectIdOnCaster: 615 };
+	SkillEffect[SkillConst_default.NJ_ZENYNAGE] = { damageEffectIdOnCaster: 616 };
 	SkillEffect[SkillConst_default.NJ_TATAMIGAESHI] = { groundEffectId: 631 };
-	SkillEffect[SkillConst_default.NJ_KASUMIKIRI] = { effectId: 632 };
+	SkillEffect[SkillConst_default.NJ_KASUMIKIRI] = { damageEffectIdOnTarget: 632 };
 	SkillEffect[SkillConst_default.NJ_SHADOWJUMP] = {};
-	SkillEffect[SkillConst_default.NJ_KIRIKAGE] = { effectId: 630 };
+	SkillEffect[SkillConst_default.NJ_KIRIKAGE] = { damageEffectIdOnTarget: 630 };
 	SkillEffect[SkillConst_default.NJ_UTSUSEMI] = {};
 	SkillEffect[SkillConst_default.NJ_BUNSINJYUTSU] = { effectId: 617 };
-	SkillEffect[SkillConst_default.NJ_KOUENKA] = { effectId: 618 };
-	SkillEffect[SkillConst_default.NJ_KAENSIN] = { groundEffectId: 634 };
+	SkillEffect[SkillConst_default.NJ_KOUENKA] = {
+		damageEffectIdOnTarget: 618,
+		hitEffectId: 49,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.NJ_KAENSIN] = {};
 	SkillEffect[SkillConst_default.NJ_BAKUENRYU] = { effectId: 635 };
-	SkillEffect[SkillConst_default.NJ_HYOUSENSOU] = { effectId: 619 };
-	SkillEffect[SkillConst_default.NJ_SUITON] = { groundEffectId: 620 };
+	SkillEffect[SkillConst_default.NJ_HYOUSENSOU] = {
+		damageEffectIdOnTarget: 619,
+		hitEffectId: 51,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.NJ_SUITON] = { effectId: "ef_watery_evasion_sound" };
 	SkillEffect[SkillConst_default.NJ_HYOUSYOURAKU] = { effectId: 636 };
-	SkillEffect[SkillConst_default.NJ_HUUJIN] = { effectId: 621 };
+	SkillEffect[SkillConst_default.NJ_HUUJIN] = { damageEffectIdOnCaster: 621 };
 	SkillEffect[SkillConst_default.NJ_RAIGEKISAI] = { effectId: 622 };
 	SkillEffect[SkillConst_default.NJ_KAMAITACHI] = {};
 	SkillEffect[SkillConst_default.NJ_NEN] = {};
-	SkillEffect[SkillConst_default.NJ_ISSEN] = { effectId: 633 };
+	SkillEffect[SkillConst_default.NJ_ISSEN] = { damageEffectIdOnTarget: 633 };
 	SkillEffect[SkillConst_default.NPC_EARTHQUAKE] = { effectIdOnCaster: 666 };
 	SkillEffect[SkillConst_default.NPC_FIREBREATH] = {
 		effectId: "ef_firebreath",
@@ -224963,7 +224989,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.ALL_FULL_THROTTLE] = { effectId: 1042 };
 	SkillEffect[SkillConst_default.SU_BITE] = { effectId: "ef_su_bite" };
 	SkillEffect[SkillConst_default.SU_HIDE] = {};
-	SkillEffect[SkillConst_default.SU_SCRATCH] = { effectId: "ef_su_scratch" };
+	SkillEffect[SkillConst_default.SU_SCRATCH] = { successEffectId: "ef_su_scratch" };
 	SkillEffect[SkillConst_default.SU_STOOP] = {};
 	SkillEffect[SkillConst_default.SU_LOPE] = {};
 	SkillEffect[SkillConst_default.SU_SV_STEMSPEAR] = { effectId: "ef_su_sv_stemspear" };
@@ -277712,6 +277738,26 @@ var init_DruidWindSim = __esmMin((() => {
 		-.1
 	];
 }));
+// src/Renderer/Effects/SpriteAction.js
+/**
+* Renderer/Effects/SpriteAction.js
+*
+* Which action of an effect sprite an SPR row plays. A row's `frame` is a
+* number, or a list of actions to pick one from at random each time it plays:
+* the official client picks some effect sprites' action so (Shadow Slash's
+* 그림자베기 plays action 0 or 4). Spec: effect-port/ninja-skills.md.
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* @param {number|number[]} [frame] the row's frame
+* @param {function} [random] returns 0 <= x < 1
+* @return {number|undefined}
+*/
+function spriteAction(frame, random = Math.random) {
+	return Array.isArray(frame) ? frame[Math.floor(random() * frame.length)] : frame;
+}
+var init_SpriteAction = __esmMin((() => {}));
 // src/Renderer/EffectManager.js
 /**
 * Create a new EF_Init_Par object and attach existing call params
@@ -277808,7 +277854,7 @@ function spamSprite(Params) {
 		stopAtEnd: Params.effect.stopAtEnd,
 		xOffset: Params.effect.xOffset,
 		yOffset: Params.effect.yOffset,
-		frame: Params.effect.frame,
+		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
 		startDelay: typeof Params.effect.delayStart === "number" ? Params.effect.delayStart : 0,
 		renderBefore: !!Params.effect.renderBeforeEntities
@@ -277935,6 +277981,7 @@ var init_EffectManager = __esmMin((() => {
 	init_HastyFireInTheHoleEffect();
 	init_StormSlashEffect();
 	init_DruidWindSim();
+	init_SpriteAction();
 	_list$3 = {};
 	_uniqueId = 1;
 	targetableUnits = [SkillUnitConst_default.UNT_ICEWALL, SkillUnitConst_default.UNT_REVERBERATION];
@@ -278171,7 +278218,7 @@ var init_EffectManager = __esmMin((() => {
 			if (typeof Params.effect.repeat !== "undefined" && Params.effect.repeat !== null) Params.Inst.persistent = Params.effect.repeat;
 			Params.Inst.repeatEnd = Params.Init.repeatEnd ? Params.Init.repeatEnd : Params.effect.repeatEnd || 0;
 			Params.Inst.repeatDelay = Params.effect.repeatDelay ? Params.effect.repeatDelay : Params.Init.repeatDelay;
-			if (Params.effect.wav && !(Params.Inst.noDelay && Params.effect.soundLoop === false)) {
+			if (Params.effect.wav && !(Params.Inst.noDelay && Params.effect.soundLoop === false) && !(Params.effect.wavChance < 1 && Math.random() >= Params.effect.wavChance)) {
 				filename = Params.effect.wav;
 				if (Params.effect.rand) filename = filename.replace("%d", Math.round(Params.effect.rand[0] + (Params.effect.rand[1] - Params.effect.rand[0]) * Math.random()));
 				Events.setTimeout(function() {
@@ -289235,18 +289282,20 @@ var init_CastCircle = __esmMin((() => {
 /**
 * @param {number[]} from start [x, y, height] in units
 * @param {number[]} to end [x, y, height] in units
+* @param {object} [kind] STONE or NINJA_ITEM
 * @return {object} the throw
 */
-function planThrow(from, to) {
+function planThrow(from, to, kind = STONE) {
 	const dx = to[0] - from[0];
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
 	return {
+		kind,
 		from,
 		dist,
 		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
-		climb: dist > 0 ? STONE.speed / dist * (to[2] - from[2]) : 0,
-		ticks: Math.floor(dist / STONE.speed) + 1
+		climb: dist > 0 ? kind.speed / dist * (to[2] - from[2]) : 0,
+		ticks: Math.floor(dist / kind.speed) + 1
 	};
 }
 /**
@@ -289257,15 +289306,16 @@ function planThrow(from, to) {
 * @return {object} { x, y, up } in units (up from the caster's ground), alpha 0-255, angle
 */
 function stoneAt(t, k) {
+	const kind = t.kind;
 	let moves = 0;
-	while (moves < k && (moves + 1) / t.ticks <= STONE.moveUntil) moves++;
+	while (moves < k && (moves + 1) / t.ticks <= kind.moveUntil) moves++;
 	const s = Math.min(moves / t.ticks, 1);
 	return {
-		x: t.from[0] + t.dir[0] * STONE.speed * moves,
-		y: t.from[1] + t.dir[1] * STONE.speed * moves,
-		up: STONE.lift + t.climb * moves + STONE.arc * Math.sin(Math.PI * s),
-		alpha: Math.max(255 - STONE.fade * (k - moves), 0),
-		angle: STONE.spin * k % 360
+		x: t.from[0] + t.dir[0] * kind.speed * moves,
+		y: t.from[1] + t.dir[1] * kind.speed * moves,
+		up: kind.lift + t.climb * moves + kind.arc * Math.sin(Math.PI * s),
+		alpha: Math.max(255 - kind.fade * (k - moves), 0),
+		angle: (kind.startAngle + kind.spin * k) % 360
 	};
 }
 /**
@@ -289284,18 +289334,19 @@ function trailAt(t, i, k) {
 	if (j - 2 * i < 3) return null;
 	const p = stoneAt(t, j - 1 - 2 * i);
 	let alpha = p.alpha;
-	for (let n = 0; n <= i; n++) alpha -= STONE.trail[n];
+	for (let n = 0; n <= i; n++) alpha -= t.kind.trail[n];
 	if (alpha < 1) return null;
 	p.alpha = alpha;
 	return p;
 }
-var STONE, STONE_TEXTURE;
+var STONE, NINJA_ITEM, STONE_TEXTURE;
 var init_ThrownStoneSim = __esmMin((() => {
 	STONE = {
 		speed: 2,
 		lift: 8,
 		arc: 10,
 		spin: 10,
+		startAngle: 0,
 		moveUntil: 1.05,
 		fade: 20,
 		half: 2,
@@ -289305,29 +289356,43 @@ var init_ThrownStoneSim = __esmMin((() => {
 			25
 		]
 	};
+	NINJA_ITEM = Object.assign({}, STONE, {
+		speed: 3,
+		arc: 1,
+		spin: 45,
+		startAngle: 330,
+		half: 4,
+		color: [
+			255,
+			200,
+			255
+		]
+	});
 	STONE_TEXTURE = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp";
 }));
 // src/DB/Effects/ThrowStoneEffect.js
 /**
-* Last update the stone shows: it stops after floor(1.05 n) updates, then fades 20 a tick.
+* Last update the item shows: it stops after floor(1.05 n) updates, then fades 20 a tick.
 *
 * @param {object} t from planThrow
 * @return {number}
 */
 function lastStoneTick(t) {
-	return Math.floor(STONE.moveUntil * t.ticks) + Math.ceil(255 / STONE.fade);
+	return Math.floor(t.kind.moveUntil * t.ticks) + Math.ceil(255 / t.kind.fade);
 }
 /**
-* The 3D effect drawing the stone (copy -1) or trailing copy i.
+* The 3D effect drawing the item (copy -1) or trailing copy i.
 *
 * @param {object} t from planThrow, in units from the caster
 * @param {number} copy
+* @param {string} [file] texture
 * @return {object}
 */
-function stoneEffect(t, copy) {
-	return {
+function stoneEffect(t, copy, file = STONE_TEXTURE) {
+	const color = t.kind.color;
+	return Object.assign({
 		type: "3D",
-		file: STONE_TEXTURE,
+		file,
 		alphaMax: 1,
 		attachedEntity: false,
 		duration: (lastStoneTick(t) + 1) * PRIM_TICK_MS,
@@ -289340,19 +289405,27 @@ function stoneEffect(t, copy) {
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * STONE.half * SIZE_PER_UNIT,
+				size: 2 * t.kind.half * SIZE_PER_UNIT,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
 		}
-	};
+	}, color && {
+		red: color[0] / 255,
+		green: color[1] / 255,
+		blue: color[2] / 255
+	});
 }
-var SIZE_PER_UNIT, throwStoneEffect;
-var init_ThrowStoneEffect = __esmMin((() => {
-	init_EffectPrimSim();
-	init_ThrownStoneSim();
-	SIZE_PER_UNIT = 7;
-	throwStoneEffect = [{
+/**
+* EffectTable row for a thrown item.
+*
+* @param {number} effectID
+* @param {string} file texture
+* @param {object} kind STONE or NINJA_ITEM
+* @return {Array}
+*/
+function thrownItemRow(effectID, file, kind) {
+	return [{
 		type: "FUNC",
 		attachedEntity: true,
 		func: function(Params) {
@@ -289372,7 +289445,7 @@ var init_ThrowStoneEffect = __esmMin((() => {
 				0,
 				1,
 				2
-			].map((i) => (target[i] - caster[i]) * 5));
+			].map((i) => (target[i] - caster[i]) * 5), kind);
 			[
 				-1,
 				0,
@@ -289380,9 +289453,9 @@ var init_ThrowStoneEffect = __esmMin((() => {
 				2
 			].forEach((copy, i) => {
 				this.spamEffect({
-					effect: stoneEffect(t, copy),
+					effect: stoneEffect(t, copy, file),
 					Inst: {
-						effectID: 308,
+						effectID,
 						duplicateID: i,
 						startTick: Params.Inst.startTick
 					},
@@ -289391,6 +289464,21 @@ var init_ThrowStoneEffect = __esmMin((() => {
 			});
 		}
 	}];
+}
+var SIZE_PER_UNIT, ITEM, NINJA_TEXTURES, throwStoneEffect, ninjaThrowEffects;
+var init_ThrowStoneEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_ThrownStoneSim();
+	SIZE_PER_UNIT = 7;
+	ITEM = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/";
+	NINJA_TEXTURES = {
+		613: ITEM + "¼ö¸®°Ë.bmp",
+		614: ITEM + "Äí³ªÀÌ_µ¶.bmp",
+		615: ITEM + "Ç³¸¶_¿­È­.bmp",
+		616: "effect/coin_a.bmp"
+	};
+	throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
+	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
 }));
 // src/Renderer/Effects/CastRingSim.js
 /**
@@ -292636,6 +292724,12 @@ var init_CasterMarks = __esmMin((() => {
 				color: on ? RED : null
 			};
 		},
+		375: () => ({
+			add: false,
+			glow: true,
+			split: false,
+			color: null
+		}),
 		502: (age) => {
 			const on = age <= 140;
 			const even = age % 2 === 0;
@@ -292656,7 +292750,7 @@ var init_CasterMarks = __esmMin((() => {
 		* @param {Entity} owner the caster
 		* @param {number} startTick
 		* @param {number} frames lifetime in ticks (1/60 s)
-		* @param {number} effectId 934, 2373 or 502
+		* @param {number} effectId a key of SCHEDULES
 		*/
 		constructor(owner, startTick, frames, effectId) {
 			this.owner = owner || null;
@@ -295317,6 +295411,7 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		82: [{
 			wav: "effect/ef_bash",
+			delayWav: 617,
 			attachedEntity: true
 		}],
 		83: [{
@@ -295329,12 +295424,14 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "impositio",
 			wav: "effect/priest_impositio",
+			delayWav: 1e3,
 			attachedEntity: true
 		}],
 		85: [{
 			type: "STR",
 			file: "lexaeterna",
 			wav: "effect/priest_lexaeterna",
+			delayWav: 250,
 			min: "lexaeterna_min",
 			attachedEntity: true
 		}],
@@ -295342,14 +295439,33 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "aspersio",
 			wav: "effect/priest_aspersio",
+			delayWav: 1167,
 			attachedEntity: true
 		}],
-		87: [{
-			type: "STR",
-			file: "lexdivina",
-			wav: "effect/priest_lexdivina",
-			attachedEntity: true
-		}],
+		87: [
+			{
+				type: "STR",
+				file: "lexdivina",
+				wav: "effect/priest_lexdivina",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/priest_lexdivina",
+				delayWav: 333
+			},
+			{
+				wav: "effect/priest_lexdivina",
+				delayWav: 583
+			},
+			{
+				wav: "effect/priest_lexdivina",
+				delayWav: 1e3
+			},
+			{
+				wav: "effect/priest_lexdivina",
+				delayWav: 1167
+			}
+		],
 		88: [{
 			type: "STR",
 			file: "suffragium",
@@ -295563,9 +295679,12 @@ var init_EffectTable = __esmMin((() => {
 		112: [{
 			type: "STR",
 			file: "kyrie",
-			wav: "effect/priest_kyrie_eleison_a",
+			wav: "effect/priest_kyrie_eleison_b",
 			min: "kyrie_min",
 			attachedEntity: true
+		}, {
+			wav: "effect/priest_kyrie_eleison_a",
+			delayWav: 250
 		}],
 		113: [{
 			type: "STR",
@@ -295813,7 +295932,6 @@ var init_EffectTable = __esmMin((() => {
 		136: [{
 			type: "STR",
 			file: "slowp",
-			wav: "effect/priest_slowpoison",
 			attachedEntity: false
 		}],
 		138: [
@@ -295857,10 +295975,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/hunter_sandman",
 			attachedEntity: false
 		}],
-		140: [{
-			wav: "effect/priest_resurrection",
-			attachedEntity: true
-		}],
+		140: [],
 		141: [{
 			type: "STR",
 			file: "pneuma%d",
@@ -299707,6 +299822,13 @@ var init_EffectTable = __esmMin((() => {
 				attachedEntity: true
 			}
 		],
+		375: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 99999, 375), Params);
+			}
+		}],
 		376: [{ wav: "effect/¸ÍÈ£°æÆÄ»ê" }],
 		377: [
 			{
@@ -300500,6 +300622,10 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/t_³¯¶óÂ÷±â",
 			delayWav: 83,
 			attachedEntity: true
+		}],
+		462: [{
+			wav: "effect/t_È¸ÇÇ",
+			delayWav: 15 * (1e3 / 60)
 		}],
 		467: [
 			{ wav: "effect/t_¹Ù¶÷¹æÃâ" },
@@ -302747,92 +302873,162 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/itempokjuk",
 			attachedEntity: true
 		}],
-		613: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¼ö¸®°Ë.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		614: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Äí³ªÀÌ_µ¶.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		615: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Ç³¸¶_³ú¿ì.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		616: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/coin_a.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		618: [{
-			type: "STR",
-			file: "firehit",
-			wav: "effect/ef_firearrow%d",
-			rand: [1, 3],
-			attachedEntity: true
-		}],
-		619: [{
-			type: "STR",
-			file: "freeze",
-			wav: "effect/ef_icearrow%d",
-			rand: [1, 3],
-			attachedEntity: true
-		}],
+		613: ninjaThrowEffects[613],
+		614: ninjaThrowEffects[614],
+		615: ninjaThrowEffects[615],
+		616: ninjaThrowEffects[616],
+		618: [
+			{
+				wav: "effect/ef_firearrow%d",
+				rand: [1, 3],
+				delayWav: 200
+			},
+			{
+				wav: "effect/ef_firearrow%d",
+				rand: [1, 3],
+				delayWav: 13 * (1e3 / 60)
+			},
+			{
+				wav: "effect/ef_firearrow%d",
+				rand: [1, 3],
+				delayWav: 14 * (1e3 / 60)
+			},
+			{
+				wav: "effect/ef_firearrow%d",
+				rand: [1, 3],
+				delayWav: 15 * (1e3 / 60)
+			}
+		],
+		619: [
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 4e3,
+				height: [.95, 1.5],
+				offsetX: [.4, .6],
+				offsetY: [.4, .6],
+				offsetZ: -.1,
+				bottomSize: [.5, .6],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-8, 8],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 3,
+				animationSpeed: 120,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 4e3,
+				height: [.2, .4],
+				offsetX: [0, 0],
+				offsetY: [.5, .5],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 4e3,
+				height: [.2, .4],
+				offsetX: [0, .5],
+				offsetY: [.5, 1],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 4e3,
+				height: [.2, .4],
+				offsetX: [1, 1.2],
+				offsetY: [.5, .8],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 4e3,
+				height: [.2, .4],
+				offsetX: [.5, .7],
+				offsetY: [0, -.2],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				wav: "effect/ef_icearrow%d",
+				rand: [1, 3],
+				attachedEntity: false
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const start = Params.Inst.startTick;
+					Camera.setQuake(start, 200);
+				}
+			}
+		],
 		621: [{ wav: "effect/Ç³ÀÎ" }],
 		622: [{
 			type: "STR",
@@ -302911,6 +303107,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "±×¸²ÀÚº£±â",
 			wav: "effect/±×¸²ÀÚº£±â",
+			frame: [0, 4],
+			delayFrame: 4 * (1e3 / 60),
 			attachedEntity: true
 		}],
 		631: [{
@@ -302923,26 +303121,36 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "¾È°³º£±â",
 			wav: "effect/¾È°³º£±â",
+			frame: [0, 2],
+			delayFrame: 4 * (1e3 / 60),
 			attachedEntity: true
 		}],
 		633: [{
 			type: "SPR",
 			file: "ÀÏ¼¶",
 			wav: "effect/ÀÏ¼¶",
+			delayFrame: 2 * (1e3 / 60),
+			yOffset: -42,
 			attachedEntity: true
 		}],
 		634: [{
 			type: "SPR",
 			file: "È­¿°Áø",
+			delayFrame: 5 * (1e3 / 60),
+			yOffset: -7,
 			repeat: true,
 			attachedEntity: true
-		}, { wav: "effect/È­¿°Áø" }],
+		}, {
+			wav: "effect/È­¿°Áø",
+			wavChance: 1 / 8
+		}],
 		635: [{
 			type: "STR",
 			file: "fire dragon",
 			wav: "effect/Æø¿°·æ",
 			attachedEntity: false
 		}],
+		ef_watery_evasion_sound: [{ wav: "effect/¼öµÐ" }],
 		636: [{
 			type: "STR",
 			file: "icy",
