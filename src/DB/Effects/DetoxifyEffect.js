@@ -17,12 +17,13 @@ import { DETOX, planBubbles, bubbleAt } from 'Renderer/Effects/DetoxBubbleSim.js
  * bubble's own tick, so its age is the bubble's age.
  *
  * @param {object} bubble from planBubbles
+ * @param {string} [spriteName] the sprite under data/sprite/이팩트
  * @return {object}
  */
-export function detoxBubbleEffect(bubble) {
+export function detoxBubbleEffect(bubble, spriteName = 'particle2') {
 	return {
 		type: '3D',
-		spriteName: 'particle2',
+		spriteName: spriteName,
 		alphaMax: 1,
 		attachedEntity: true,
 		duration: DETOX.life * PRIM_TICK_MS,

@@ -270,25 +270,25 @@ SkillEffect[SK.BS_OVERTHRUST] = { effectId: 128 }; //Power-Thrust
 SkillEffect[SK.BS_MAXIMIZE] = { beginCastEffectId: 'maximize_power_sounds', effectId: 104 }; //Maximize Power
 // Hunter
 SkillEffect[SK.HT_SKIDTRAP] = { effectId: 69 }; //Skid Trap
-SkillEffect[SK.HT_LANDMINE] = { effectId: 'ef_ht_landmine' }; //Land Mine
+SkillEffect[SK.HT_LANDMINE] = { hitEffectId: [0] }; //Land Mine: nothing at the cell or on the target; the hit flash per hit
 SkillEffect[SK.HT_ANKLESNARE] = { groundEffectId: 'ef_anklesnare' }; //Ankle Snare
-SkillEffect[SK.HT_SHOCKWAVE] = { effectId: 145, hitEffectId: 146 }; //Shockwave Trap
-SkillEffect[SK.HT_SANDMAN] = { hitEffectId: 139 }; //Sandman
-SkillEffect[SK.HT_FLASHER] = { hitEffectId: 99 }; //Flasher
-SkillEffect[SK.HT_FREEZINGTRAP] = { hitEffectId: 108 }; //Freezing Trap
-SkillEffect[SK.HT_BLASTMINE] = { hitEffectId: 106 }; //Blast Mine
-SkillEffect[SK.HT_CLAYMORETRAP] = { hitEffectId: 107 }; //Claymore Trap
+SkillEffect[SK.HT_SHOCKWAVE] = { hitEffectId: [0] }; //Shockwave Trap: the unit holds 145 (SkillUnit)
+SkillEffect[SK.HT_SANDMAN] = {}; //Sandman: 139 plays at the trap when it goes off (SkillUnitTrigger)
+SkillEffect[SK.HT_FLASHER] = { hitEffectId: [0] }; //Flasher: 99 plays at the trap when it goes off (SkillUnitTrigger)
+SkillEffect[SK.HT_FREEZINGTRAP] = { hitEffectId: [0] }; //Freezing Trap: 108 plays at the trap when it goes off (SkillUnitTrigger)
+SkillEffect[SK.HT_BLASTMINE] = { hitEffectId: [0] }; //Blast Mine: 106 plays at the trap when it goes off (SkillUnitTrigger)
+SkillEffect[SK.HT_CLAYMORETRAP] = { hitEffectId: [0] }; //Claymore Trap: 107 plays at the trap when it goes off (SkillUnitTrigger)
 SkillEffect[SK.HT_REMOVETRAP] = { effectId: 100 }; //Remove Trap
 SkillEffect[SK.HT_TALKIEBOX] = {}; //Talkie Box
-SkillEffect[SK.HT_BLITZBEAT] = { effectId: 115 }; //Blitz Beat
+SkillEffect[SK.HT_BLITZBEAT] = { hitEffectId: 115, hitEffectOnce: true }; //Blitz Beat: official hit map 115, once per damage packet (splash too), no hit flash
 SkillEffect[SK.HT_DETECTING] = { effectId: 119 }; //Detect
 SkillEffect[SK.HT_SPRINGTRAP] = { effectId: 111 }; //Spring Trap
 // Assassin
-SkillEffect[SK.AS_CLOAKING] = { effectId: 120 }; //Cloaking
+SkillEffect[SK.AS_CLOAKING] = {}; //Cloaking: the official client plays nothing
 SkillEffect[SK.AS_SONICBLOW] = { effectIdOnCaster: 121, effectId: 143, hitEffectId: 122 }; //Sonic Blow
-SkillEffect[SK.AS_GRIMTOOTH] = { releaseEffectId: 123, hitEffectId: 132 }; //Grimtooth
-SkillEffect[SK.AS_ENCHANTPOISON] = { effectId: 20 }; //Enchant Poison
-SkillEffect[SK.AS_POISONREACT] = { effectId: 126, hitEffectId: 127 }; //Poison React
+SkillEffect[SK.AS_GRIMTOOTH] = { damageEffectIdOnCaster: 123, hitEffectId: [0, 132], hitEffectOnce: true }; //Grimtooth
+SkillEffect[SK.AS_ENCHANTPOISON] = { successEffectId: 125 }; //Enchant Poison
+SkillEffect[SK.AS_POISONREACT] = { successEffectId: 126, hitEffectId: 0, hitEffectOnce: true }; //Poison React
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
 SkillEffect[SK.AS_SPLASHER] = { effectId: 129 }; //Venom Splasher
 // 1st Class Quest
@@ -397,7 +397,7 @@ SkillEffect[SK.NPC_REBIRTH] = {}; //Rebirth
 SkillEffect[SK.NPC_SUMMONMONSTER] = {}; //Monster Summons
 // Rogue
 SkillEffect[SK.RG_STEALCOIN] = { successEffectId: [268, 274] }; //Mug
-SkillEffect[SK.RG_BACKSTAP] = { hitEffectId: 275 }; //Back Stab
+SkillEffect[SK.RG_BACKSTAP] = { damageEffectIdOnCaster: 275, hitEffectId: [0], hitEffectOnce: true }; //Back Stab
 SkillEffect[SK.RG_RAID] = { effectIdOnCaster: 276 }; //Sightless Mind
 SkillEffect[SK.RG_STRIPWEAPON] = { successEffectId: 269 }; //Divest Weapon
 SkillEffect[SK.RG_STRIPSHIELD] = { successEffectId: 270 }; //Divest Shield
@@ -426,7 +426,7 @@ SkillEffect[SK.AM_RESURRECTHOMUN] = {}; //Homunculus Resurrection
 // source (the Crusader) or, for Providence, its target. See effect-port/crusader-skills.md.
 SkillEffect[SK.CR_AUTOGUARD] = { successEffectIdOnCaster: 336 }; //Guard
 SkillEffect[SK.CR_SHIELDCHARGE] = { damageEffectIdOnTarget: 246, hitEffectId: 0, hitEffectOnce: true }; //Smite
-SkillEffect[SK.CR_SHIELDBOOMERANG] = { beforeHitEffectId: 'ef_shield_projectile', effectId: 249 }; //Shield Boomerang
+SkillEffect[SK.CR_SHIELDBOOMERANG] = { damageEffectIdOnCaster: 249, hitEffectId: 0, hitEffectOnce: true }; //Shield Boomerang
 SkillEffect[SK.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 }; //Shield Reflect
 SkillEffect[SK.CR_HOLYCROSS] = { damageEffectIdOnTarget: 245, hitEffectId: 0, hitEffectOnce: true }; //Holy Cross
 // Official client: 226 on the caster as each damage packet arrives (with its sound) and the hit
@@ -466,10 +466,10 @@ SkillEffect[SK.SA_FLAMELAUNCHER] = { successEffectId: 255 }; //Endow Blaze
 SkillEffect[SK.SA_FROSTWEAPON] = { successEffectId: 256 }; //Endow Tsunami
 SkillEffect[SK.SA_LIGHTNINGLOADER] = { successEffectId: 257 }; //Endow Tornado
 SkillEffect[SK.SA_SEISMICWEAPON] = { successEffectId: 258 }; //Endow Quake
-SkillEffect[SK.SA_VOLCANO] = { effectIdOnCaster: 225, groundEffectId: 239 }; //Volcano
-SkillEffect[SK.SA_DELUGE] = { effectIdOnCaster: 236, groundEffectId: 240 }; //Deluge
-SkillEffect[SK.SA_VIOLENTGALE] = { effectIdOnCaster: 237, groundEffectId: 241 }; //Whirlwind
-SkillEffect[SK.SA_LANDPROTECTOR] = { effectIdOnCaster: 238, groundEffectId: 242 }; //Magnetic Earth
+SkillEffect[SK.SA_VOLCANO] = { groundEffectIdByLevel: [225] }; //Volcano
+SkillEffect[SK.SA_DELUGE] = { groundEffectIdByLevel: [236] }; //Deluge
+SkillEffect[SK.SA_VIOLENTGALE] = { groundEffectIdByLevel: [237] }; //Whirlwind
+SkillEffect[SK.SA_LANDPROTECTOR] = { groundEffectIdByLevel: [238] }; //Magnetic Earth
 SkillEffect[SK.SA_DISPELL] = { successEffectId: 235 }; //Dispell
 SkillEffect[SK.SA_ABRACADABRA] = {}; //Hocus-pocus
 SkillEffect[SK.SA_MONOCELL] = {}; //Monocell
@@ -569,7 +569,14 @@ SkillEffect[SK.ASC_EDP] = { effectId: 493 }; //Enchant Deadly Poison
 SkillEffect[SK.ASC_BREAKER] = { beforeHitEffectId: 361 }; //Soul Destroyer
 // Sniper
 SkillEffect[SK.SN_SIGHT] = { effectId: 386 }; //Falcon Eyes
-SkillEffect[SK.SN_FALCONASSAULT] = { hideCastAura: true, effectId: 387 }; //Falcon Assault
+SkillEffect[SK.SN_FALCONASSAULT] = {
+	hideCastAura: true,
+	// Official client: 387 on the target as the damage packet arrives; the hit
+	// once per packet: hit flash 0 and Blitz Beat's 115.
+	damageEffectIdOnTarget: 387,
+	hitEffectId: [0, 115],
+	hitEffectOnce: true
+}; //Falcon Assault
 SkillEffect[SK.SN_SHARPSHOOTING] = {
 	hitEffectId: 388,
 	beforeHitEffectId: 'ef_arrow_projectile',
@@ -583,7 +590,7 @@ SkillEffect[SK.WS_CREATENUGGET] = {}; //Create Nuggets
 SkillEffect[SK.WS_CARTBOOST] = { effectId: 391 }; //Cart Boost
 SkillEffect[SK.WS_SYSTEMCREATE] = {}; //Auto Attack System
 // Stalker
-SkillEffect[SK.ST_CHASEWALK] = { beginCastEffectId: 501 }; //Stealth
+SkillEffect[SK.ST_CHASEWALK] = { successEffectIdOnCaster: 'ef_chase_walk_smoke' }; //Stealth
 SkillEffect[SK.ST_REJECTSWORD] = { effectId: 392 }; //Counter Instinct
 // Creator
 SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
@@ -692,7 +699,7 @@ SkillEffect[SK.CR_FULLPROTECTION] = { effectId: [300, 500] }; //Full Protection
 SkillEffect[SK.PA_SHIELDCHAIN] = { beforeHitEffectId: 'ef_shield_projectile' }; //Shield Chain
 SkillEffect[SK.PF_DOUBLECASTING] = { effectId: 521 }; //Double Casting
 SkillEffect[SK.HW_GANBANTEIN] = { effectId: [223, 'ef_ganbantein_wav'] }; //Ganbantein
-SkillEffect[SK.HW_GRAVITATION] = { groundEffectId: '522_ground' }; //Gravitation Field
+SkillEffect[SK.HW_GRAVITATION] = { groundEffectIdByLevel: ['ef_gravitation_wav'], groundEffectId: '522_ground', hitEffectId: [0] }; //Gravitation Field
 SkillEffect[SK.WS_CARTTERMINATION] = { effectId: 518 }; //Cart Termination
 SkillEffect[SK.WS_OVERTHRUSTMAX] = SkillEffect[SK.BS_OVERTHRUST]; //Maximum Power Thrust
 SkillEffect[SK.CG_LONGINGFREEDOM] = { effectId: 500 }; //Longing for Freedom
@@ -707,7 +714,7 @@ SkillEffect[SK.KN_ONEHAND] = SkillEffect[SK.KN_TWOHANDQUICKEN]; //Onehand Quicke
 SkillEffect[SK.AM_TWILIGHT1] = { effectId: 497 }; //Twilight Alchemy 1
 SkillEffect[SK.AM_TWILIGHT2] = { effectId: 498 }; //Twilight Alchemy 2
 SkillEffect[SK.AM_TWILIGHT3] = { effectId: 499 }; //Twilight Alchemy 3
-SkillEffect[SK.HT_POWER] = {}; //Beast Strafing
+SkillEffect[SK.HT_POWER] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: 1, hitEffectOnce: true }; //Beast Strafing: bow arrow per packet, official hit map 1 once per packet, no hit flash
 // Gunslinger
 SkillEffect[SK.GS_GLITTERING] = { effectId: 'gunslinger_coin' }; //Flip the Coin
 // Official client: 548 (red body glow) on the target as each damage packet arrives; the hit plays the
@@ -770,7 +777,7 @@ SkillEffect[SK.NJ_SYURIKEN] = { damageEffectIdOnCaster: 613 }; //Throw Shuriken
 SkillEffect[SK.NJ_KUNAI] = { damageEffectIdOnCaster: 614 }; //Throw Kunai
 SkillEffect[SK.NJ_HUUMA] = { damageEffectIdOnCaster: 615 }; //Throw Huuma Shuriken
 SkillEffect[SK.NJ_ZENYNAGE] = { damageEffectIdOnCaster: 616 }; //Throw Zeny
-SkillEffect[SK.NJ_TATAMIGAESHI] = { groundEffectId: 631 }; //Improvised Defense
+SkillEffect[SK.NJ_TATAMIGAESHI] = { successEffectId: 'ef_flip_tatami_sound' }; //Improvised Defense
 SkillEffect[SK.NJ_KASUMIKIRI] = { damageEffectIdOnTarget: 632 }; //Vanishing Slash
 SkillEffect[SK.NJ_SHADOWJUMP] = {}; //Shadow Leap
 SkillEffect[SK.NJ_KIRIKAGE] = { damageEffectIdOnTarget: 630 }; //Shadow Slash
@@ -784,7 +791,7 @@ SkillEffect[SK.NJ_SUITON] = { effectId: 'ef_watery_evasion_sound' }; //Hidden Wa
 SkillEffect[SK.NJ_HYOUSYOURAKU] = { effectId: 636 }; //Ice Meteor
 SkillEffect[SK.NJ_HUUJIN] = { damageEffectIdOnCaster: 621 }; //Wind Blade
 SkillEffect[SK.NJ_RAIGEKISAI] = { effectId: 622 }; //Lightning Strike of Destruction
-SkillEffect[SK.NJ_KAMAITACHI] = {}; //Kamaitachi
+SkillEffect[SK.NJ_KAMAITACHI] = { damageEffectIdOnCaster: 624 }; //Kamaitachi
 SkillEffect[SK.NJ_NEN] = {}; //Soul
 SkillEffect[SK.NJ_ISSEN] = { damageEffectIdOnTarget: 633 }; //Final Strike
 // Additional NPC Skills (Episode 11.3)
@@ -843,7 +850,7 @@ SkillEffect[SK.AS_VENOMKNIFE] = { beforeHitEffectId: 600 }; //Throw Venom Knife
 SkillEffect[SK.RG_CLOSECONFINE] = { effectId: 602, groundEffectId: 604 }; //Close Confine
 SkillEffect[SK.WZ_SIGHTBLASTER] = { effectId: 601 }; //Sight Blaster
 SkillEffect[SK.SA_CREATECON] = {}; //Create Elemental Converter
-SkillEffect[SK.SA_ELEMENTWATER] = { effectId: 256 }; //Elemental Change Water
+SkillEffect[SK.SA_ELEMENTWATER] = { successEffectId: 256 }; //Elemental Change Water
 SkillEffect[SK.HT_PHANTASMIC] = { beforeHitEffectId: 'ef_arrow_projectile', hitEffectId: 1 }; //Phantasmic Arrow
 SkillEffect[SK.BA_PANGVOICE] = { successEffectId: 606 }; //Pang Voice
 SkillEffect[SK.DC_WINKCHARM] = { successEffectId: 607 }; //Wink of Charm
@@ -851,9 +858,9 @@ SkillEffect[SK.BS_GREED] = { effectId: 'ef_greed_sound' }; //Greed
 SkillEffect[SK.PR_REDEMPTIO] = {}; //Redemptio
 SkillEffect[SK.MO_KITRANSLATION] = {}; //Ki Translation
 SkillEffect[SK.MO_BALKYOUNG] = { effectId: 514 }; //Ki Explosion
-SkillEffect[SK.SA_ELEMENTGROUND] = { effectId: 258 }; //Elemental Change Earth
-SkillEffect[SK.SA_ELEMENTFIRE] = { effectId: 255 }; //Elemental Change Fire
-SkillEffect[SK.SA_ELEMENTWIND] = { effectId: 257 }; //Elemental Change Wind
+SkillEffect[SK.SA_ELEMENTGROUND] = { successEffectId: 258 }; //Elemental Change Earth
+SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fire
+SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
 // RK Rune Knight
 SkillEffect[SK.RK_ENCHANTBLADE] = { effectId: 756 }; //Enchant Blade
 SkillEffect[SK.RK_SONICWAVE] = { effectId: 832 }; //Sonic Wave

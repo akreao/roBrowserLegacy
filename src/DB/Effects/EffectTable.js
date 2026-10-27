@@ -33,7 +33,7 @@ import MagicRing from 'Renderer/Effects/MagicRing.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
-import PropertyGround from 'Renderer/Effects/PropertyGround.js';
+import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
@@ -49,9 +49,11 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { ninjaThrowEffects, throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
+import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
+import { poisonAttackEffect } from 'DB/Effects/PoisonAttackEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -59,7 +61,7 @@ import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
-import { GANBANTEIN_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
+import { GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
 import {
@@ -1276,31 +1278,8 @@ export default {
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
 
 	20: [
-		{
-			//EF_PATTACK	Envenom/Poison
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1000,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok1.tga',
-			green: 0.7,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: 1,
-			size: 100,
-			sizeRand: 20,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			attachedEntity: true,
-			wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
-		}
+		// EF_PATTACK: the client's poison particles, 100 ticks (PoisonAttackEffect.js)
+		...poisonAttackEffect(20)
 	],
 
 	21: [
@@ -3673,7 +3652,9 @@ export default {
 			attachedEntity: false
 		},
 		{
-			wav: 'effect/wizard_quagmire'
+			// Official client: each launch (one per unit cell) plays the sound 1 time in 12
+			wav: 'effect/wizard_quagmire',
+			wavChance: 1 / 12
 		}
 	],
 
@@ -3806,6 +3787,7 @@ export default {
 			type: 'STR',
 			file: 'blastmine',
 			wav: 'effect/hunter_blastmine', //hun_blastmine
+			delayWav: 333, // official: the sound on tick 20
 			attachedEntity: false
 		}
 	],
@@ -3937,8 +3919,25 @@ export default {
 	119: [
 		{
 			//EF_DETECTING	Detect
+			// Official client, at the cell: a level square of white fashasha.tga
+			// streaks one cell up, spreading fast for 17 ticks and then slowly,
+			// fading out from tick 40 to its end on tick 57 (Kunai - Nightmare's
+			// flash, 812, with other timings and no tint).
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
 			wav: 'effect/hunter_detecting',
-			attachedEntity: true
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 17,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 40
 		}
 	],
 
@@ -3994,14 +3993,16 @@ export default {
 			attachedEntity: true
 		},
 		{
-			//EF_GRIMTOOTH	stone spikes traveling from caster past the target
+			//EF_GRIMTOOTH	stone spikes walking from the caster (the owner) toward the target: 2 units a
+			//tick, a spike every 3 ticks, stopping within 2.5 units (half a cell) of the target
 			type: 'TRAIL',
 			attachedEntity: false,
 			duration: 2500,
 			speed: 24,
 			interval: 50,
+			sourceIsOwner: true,
 			stopAtTarget: true,
-			overshoot: 3,
+			overshoot: -0.5,
 			spawn: [
 				{
 					type: 'QuadHorn',
@@ -4036,12 +4037,16 @@ export default {
 		}
 	],
 
+	125: [
+		// Enchant Poison / Venom Splasher on the target: effect 20's particles for 250 ticks (PoisonAttackEffect.js)
+		...poisonAttackEffect(125)
+	],
+
 	126: [
 		{
-			//EF_POISONREACT	Poison React
+			//EF_POISONREACT	Poison React: the STR only, no sound (the official client plays none)
 			type: 'STR',
 			file: 'poisonreact_1st',
-			wav: 'effect/assasin_poisonreact',
 			attachedEntity: true
 		}
 	],
@@ -4231,9 +4236,9 @@ export default {
 	139: [
 		{
 			//EF_SANDMAN	Sandman Trap
+			// No sound: the official client never plays hunter_sandman.wav
 			type: 'STR',
 			file: 'sandman',
-			wav: 'effect/hunter_sandman',
 			attachedEntity: false
 		}
 	],
@@ -4338,10 +4343,10 @@ export default {
 
 	145: [
 		{
-			type: 'SPR',
+			//EF_SHOCKWAVE	Shockwave Trap, held by the trap unit: ShockWave.str over and over, no sound
+			type: 'STR',
 			file: 'shockwave',
-			wav: 'effect/hunter_shockwavetrap',
-			attachedEntity: true
+			attachedEntity: false
 		}
 	],
 
@@ -5030,6 +5035,17 @@ export default {
 		}
 	],
 
+	// Chase Walk (ST_CHASEWALK): the official client puts a smoke puff (message
+	// effect, 이팩트\smoke.spr) where the caster stands when the skill
+	// works, going into and out of hiding.
+	ef_chase_walk_smoke: [
+		{
+			type: 'SPR',
+			file: 'smoke',
+			attachedEntity: false
+		}
+	],
+
 	216: [
 		{
 			//EF_BLOODDRAIN (Dracula / Beast Strafe)
@@ -5254,7 +5270,18 @@ export default {
 		}
 	],
 	//224: [{}],	//EF_WIND	   Wind (Map effect)
-	//225: [{}],	//EF_VOLCANO	   Volcano casting effect
+	225: [
+		{
+			//EF_VOLCANO	   Volcano casting effect
+			// Official client: from the ground packet, at the cell, the funnel primitive in ring_red.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 310, 'ring_red.tga', SAGE_GROUND_FUNNEL), Params);
+			}
+		}
+	],
 
 	226: [
 		{
@@ -5870,19 +5897,51 @@ export default {
 		}
 	],
 
-	//236: [{}],	//EF_DELUGE	   Deluge Cast Aura
-	//237: [{}],	//EF_VIOLENTGALE	   Violent Gale Cast Aura
-	//238: [{}],	//EF_LANDPROTECTOR	   Magnetic Earth Cast Aura
+	236: [
+		{
+			//EF_DELUGE	   Deluge Cast Aura
+			// Official client: from the ground packet, at the cell, the funnel primitive in ring_blue.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, 'ring_blue.tga', SAGE_GROUND_FUNNEL), Params);
+			}
+		}
+	],
+	237: [
+		{
+			//EF_VIOLENTGALE	   Violent Gale Cast Aura
+			// Official client: from the ground packet, at the cell, the funnel primitive in magic_green.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, 'magic_green.tga', SAGE_GROUND_FUNNEL), Params);
+			}
+		}
+	],
+	238: [
+		{
+			//EF_LANDPROTECTOR	   Magnetic Earth Cast Aura
+			// Official client: from the ground packet, at the cell, the funnel primitive in ring_white.tga,
+			// variant 0 (four rings opening out, fading 2 a tick: gone on tick 110).
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, 'ring_white.tga', SAGE_GROUND_FUNNEL), Params);
+			}
+		}
+	],
 	239: [
 		{
 			//EF_BOTTOM_VO	   Volcano (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
+			// Official client: one breathing band of ring_red.tga under the unit's cell for as long as
+			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
-				this.add(
-					new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_red', Params.Inst.startTick),
-					Params
-				);
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, 'ring_red.tga'), Params);
 			}
 		}
 	],
@@ -5891,11 +5950,10 @@ export default {
 			//EF_BOTTOM_DE	   Deluge (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
+			// Official client: one breathing band of ring_blue.tga under the unit's cell for as long as
+			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
-				this.add(
-					new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_blue', Params.Inst.startTick),
-					Params
-				);
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, 'ring_blue.tga'), Params);
 			}
 		}
 	],
@@ -5904,11 +5962,10 @@ export default {
 			//EF_BOTTOM_VI	   Violent Gale (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
+			// Official client: one breathing band of magic_green.tga under the unit's cell for as long as
+			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
-				this.add(
-					new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_yellow', Params.Inst.startTick),
-					Params
-				);
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, 'magic_green.tga'), Params);
 			}
 		}
 	],
@@ -5966,12 +6023,8 @@ export default {
 		}
 	],
 
-	249: [
-		{
-			//EF_SHIELDBOOMERANG	Shield Boomerang
-			wav: 'effect/cru_shield boomerang'
-		}
-	],
+	// EF_SHIELDBOOMERANG, Shield Boomerang: the client's thrown shield, out and back (ShieldBoomerangEffect.js)
+	249: shieldBoomerangEffect,
 
 	250: [
 		{
@@ -6154,7 +6207,9 @@ export default {
 			//EF_FLAMELAUNCHER	Elemental Endow (Fire)
 			type: 'STR',
 			file: 'enc_fire',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
 			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6164,7 +6219,9 @@ export default {
 			//EF_FROSTWEAPON	Elemental Endow (Water)
 			type: 'STR',
 			file: 'enc_ice',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
 			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6174,7 +6231,9 @@ export default {
 			//endow wind on target	//EF_LIGHTNINGLOADER	Elemental Endow (Wind)
 			type: 'STR',
 			file: 'enc_wind',
-			wav: 'effect/_enemy_hit_wind1',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
+			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6184,7 +6243,9 @@ export default {
 			//EF_SEISMICWEAPON	Elemental Endow (Earth)
 			type: 'STR',
 			file: 'enc_earth',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
 			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6407,8 +6468,9 @@ export default {
 
 	275: [
 		{
-			//backstab on target hit	//EF_BACKSTAP	Back Stab Animation
+			//EF_BACKSTAP	Back Stab: on the caster as the damage packet arrives, sound on tick 20
 			wav: 'effect/rog_back stap',
+			delayWav: 333,
 			attachedEntity: true
 		}
 	],
@@ -9376,16 +9438,14 @@ export default {
 
 	387: [
 		{
-			//EF_FALCONASSAULT	   Falcon Assault
-			wav: 'effect/hunter_blitzbeat',
-			attachedEntity: true
-		},
-		{
+			//EF_FALCONASSAULT	   Falcon Assault, on the target (official client): no sound of
+			// its own (the hit's 115 has them); on tick 30 the camera shakes, the target
+			// spins 30 degrees a tick to tick 54 and flashes adding light (CasterMarks.js).
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 300;
-				Camera.setQuake(start);
+				Camera.setQuake(Params.Inst.startTick + 500); // tick 30
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 55, 387), Params);
 			}
 		}
 	],
@@ -13376,11 +13436,15 @@ export default {
 
 	622: [
 		{
-			//EF_THUNDERSTORM2	   Lightning Crash
-			type: 'STR',
-			file: 'setsudan',
+			//EF_THUNDERSTORM2	Lightning Jolt: official effect 622 (effect-port/ninja-skills.md)
+			// The 썬더스톰 sprite (no STR), action 0, 2 ticks a frame, once, 2.5 times its size,
+			// 4.5 units (31 px) up; EF_ThunderStorm.wav at the start.
+			type: 'SPR',
+			file: '\xbd\xe3\xb4\xf5\xbd\xba\xc5\xe8',
 			wav: 'effect/ef_thunderstorm',
-			attachedEntity: true
+			delayFrame: 2 * (1000 / 60),
+			scale: 2.5,
+			yOffset: -31
 		}
 	],
 
@@ -13393,7 +13457,15 @@ export default {
 			attachedEntity: true
 		}
 	],
-	//624: [{}],	//EF_STIN5	   Kamaitachi
+	624: [
+		{
+			//EF_STIN5	First Wind: official effect 624 (effect-port/ninja-skills.md), on the caster as
+			// the damage packet arrives, aimed at the target: t_바람방출.wav on tick 1. Not ported:
+			// the 270바람.tga wind (prim 126) on ticks 0-4.
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2',
+			delayWav: 1000 / 60
+		}
+	],
 	//625: [{}],	//EF_MADNESS_BLUE	   Madness Canceller
 	//626: [{}],	//EF_MADNESS_RED	   Adjustment
 
@@ -13485,11 +13557,22 @@ export default {
 
 	631: [
 		{
-			//reverse tatami map unit	//EF_TATAMI	Reverse Tatami Map Unit
+			//EF_TATAMI	Flip Tatami unit: official effect 631 (effect-port/ninja-skills.md)
+			// 다다미 (not 다다미 뒤집기) action 0, 6 ticks a frame, once, 6 units (42 px) up, on
+			// each unit. No sound here: the skill's use packet plays it (ef_flip_tatami_sound).
 			type: 'SPR',
-			file: '\xb4\xd9\xb4\xd9\xb9\xcc\x20\xb5\xda\xc1\xfd\xb1\xe2',
-			wav: 'effect/\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2',
+			file: '\xb4\xd9\xb4\xd9\xb9\xcc',
+			delayFrame: 6 * (1000 / 60),
+			yOffset: -42,
+			repeat: false,
 			attachedEntity: true
+		}
+	],
+
+	// Flip Tatami (NJ_TATAMIGAESHI): the official client plays 다다미뒤집기.wav when the skill works.
+	ef_flip_tatami_sound: [
+		{
+			wav: 'effect/\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2'
 		}
 	],
 
@@ -19441,6 +19524,13 @@ export default {
 	ef_ganbantein_wav: [
 		{
 			wav: 'effect/ef_firewall'
+		}
+	],
+
+	// Gravitation Field's ground packet: the official client plays wizard_earthspike.wav at the cell.
+	ef_gravitation_wav: [
+		{
+			wav: 'effect/wizard_earthspike'
 		}
 	],
 

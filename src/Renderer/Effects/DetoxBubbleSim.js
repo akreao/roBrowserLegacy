@@ -15,6 +15,10 @@
  *  - Alpha rises from 0 to full over 10 ticks and fades out from tick 32 to 0
  *    at its end.
  *
+ * The poison attack particles (effects 20 and 125, Enchant Poison and Venom
+ * Splasher) are the same bubbles with the particle3 sprite, one every 5 ticks
+ * for the effect's whole life: see DB/Effects/PoisonAttackEffect.js.
+ *
  * Units are the client's: world units (5 to a cell), ticks (60 a second).
  * r(k) is a whole number from 0 to k - 1.
  *
@@ -35,11 +39,12 @@ const r = (random, k) => Math.floor(random() * k);
 
 /**
  * @param {function} [random] returns a number in [0, 1)
+ * @param {number} [count] how many bubbles (one every 5 ticks)
  * @return {Array<object>} the bubbles, in client units
  */
-export function planBubbles(random = Math.random) {
+export function planBubbles(random = Math.random, count = DETOX.count) {
 	const bubbles = [];
-	for (let i = 0; i < DETOX.count; i++) {
+	for (let i = 0; i < count; i++) {
 		const heading = (r(random, 360) * Math.PI) / 180;
 		const dist = 2 + r(random, 6);
 		bubbles.push({
