@@ -4014,14 +4014,16 @@ export default {
 			attachedEntity: true
 		},
 		{
-			//EF_GRIMTOOTH	stone spikes traveling from caster past the target
+			//EF_GRIMTOOTH	stone spikes walking from the caster (the owner) toward the target: 2 units a
+			//tick, a spike every 3 ticks, stopping within 2.5 units (half a cell) of the target
 			type: 'TRAIL',
 			attachedEntity: false,
 			duration: 2500,
 			speed: 24,
 			interval: 50,
+			sourceIsOwner: true,
 			stopAtTarget: true,
-			overshoot: 3,
+			overshoot: -0.5,
 			spawn: [
 				{
 					type: 'QuadHorn',

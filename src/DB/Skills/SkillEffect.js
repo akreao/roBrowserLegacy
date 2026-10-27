@@ -286,7 +286,7 @@ SkillEffect[SK.HT_SPRINGTRAP] = { effectId: 111 }; //Spring Trap
 // Assassin
 SkillEffect[SK.AS_CLOAKING] = {}; //Cloaking: the official client plays nothing
 SkillEffect[SK.AS_SONICBLOW] = { effectIdOnCaster: 121, effectId: 143, hitEffectId: 122 }; //Sonic Blow
-SkillEffect[SK.AS_GRIMTOOTH] = { releaseEffectId: 123, hitEffectId: 132 }; //Grimtooth
+SkillEffect[SK.AS_GRIMTOOTH] = { damageEffectIdOnCaster: 123, hitEffectId: [0, 132], hitEffectOnce: true }; //Grimtooth
 SkillEffect[SK.AS_ENCHANTPOISON] = { effectId: 20 }; //Enchant Poison
 SkillEffect[SK.AS_POISONREACT] = { effectId: 126, hitEffectId: 127 }; //Poison React
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
