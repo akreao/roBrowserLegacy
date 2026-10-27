@@ -68,9 +68,14 @@ SkillUnit[SU.UNT_HERMODE] = EC.EF_BOTTOM_HERMODE;
 SkillUnit[SU.UNT_SUITON] = EC.EF_BOTTOM_SUITON;
 SkillUnit[SU.UNT_TATAMIGAESHI] = EC.EF_TATAMI;
 SkillUnit[SU.UNT_KAEN] = EC.EF_KAEN;
-SkillUnit[SU.UNT_GROUNDDRIFT_WIND] = EC.EF_NONE; // Todo
-SkillUnit[SU.UNT_GROUNDDRIFT_WATER] = EC.EF_NONE; // Todo
-SkillUnit[SU.UNT_GROUNDDRIFT_FIRE] = EC.EF_NONE; // Todo
+// Ground Drift grenades: the official client relaunches one looping sprite per unit while it stands.
+// See effect-port/gunslinger-skills.md.
+SkillUnit[SU.UNT_GROUNDDRIFT_WIND] = 638;
+SkillUnit[SU.UNT_GROUNDDRIFT_DARK] = 639;
+SkillUnit[SU.UNT_GROUNDDRIFT_POISON] = 640;
+SkillUnit[SU.UNT_GROUNDDRIFT_WATER] = 641;
+SkillUnit[SU.UNT_GROUNDDRIFT_FIRE] = 642;
+SkillUnit[SU.UNT_GROUNDDRIFT_NEUTRAL] = 1120;
 SkillUnit[SU.UNT_DEATHWAVE] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_WATERATTACK] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_EVILLAND] = EC.EF_BOTTOM_EVILLAND;
