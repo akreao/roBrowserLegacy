@@ -9441,16 +9441,14 @@ export default {
 
 	387: [
 		{
-			//EF_FALCONASSAULT	   Falcon Assault
-			wav: 'effect/hunter_blitzbeat',
-			attachedEntity: true
-		},
-		{
+			//EF_FALCONASSAULT	   Falcon Assault, on the target (official client): no sound of
+			// its own (the hit's 115 has them); on tick 30 the camera shakes, the target
+			// spins 30 degrees a tick to tick 54 and flashes adding light (CasterMarks.js).
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 300;
-				Camera.setQuake(start);
+				Camera.setQuake(Params.Inst.startTick + 500); // tick 30
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 55, 387), Params);
 			}
 		}
 	],
