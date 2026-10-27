@@ -593,7 +593,7 @@ SkillEffect[SK.LK_JOINTBEAT] = { beginCastEffectId: 400, hitEffectId: 'enemy_hit
 // High Wizard
 SkillEffect[SK.HW_NAPALMVULCAN] = { damageEffectIdOnTarget: 401, hitEffectId: [0], hitEffectOnce: true }; //Napalm Vulcan
 // Champion
-SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: [402, 12] }; //Zen
+SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: 402 }; //Zen
 // Professor
 SkillEffect[SK.PF_MINDBREAKER] = { successEffectId: 403 }; //Mind Breaker
 SkillEffect[SK.PF_MEMORIZE] = { effectId: 505 }; //Foresight
