@@ -218038,7 +218038,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$4)) return {
+	if (u(s, r$5)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -220464,7 +220464,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$4, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$5, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -220484,7 +220484,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$4 = [
+	r$5 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -222763,9 +222763,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.HT_SPRINGTRAP] = { effectId: 111 };
 	SkillEffect[SkillConst_default.AS_CLOAKING] = {};
 	SkillEffect[SkillConst_default.AS_SONICBLOW] = {
-		effectIdOnCaster: 121,
-		effectId: 143,
-		hitEffectId: 122
+		damageEffectIdOnCaster: [121, 143],
+		hitEffectId: [0, 122],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.AS_GRIMTOOTH] = {
 		damageEffectIdOnCaster: 123,
@@ -223561,7 +223561,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.CR_SHRINK] = { successEffectIdOnCaster: 599 };
-	SkillEffect[SkillConst_default.AS_VENOMKNIFE] = { beforeHitEffectId: 600 };
+	SkillEffect[SkillConst_default.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 };
 	SkillEffect[SkillConst_default.RG_CLOSECONFINE] = {
 		effectId: 602,
 		groundEffectId: 604
@@ -273038,7 +273038,7 @@ function createPrimState(effect) {
 		pitch: num(effect.pitch, 0),
 		drift: num(effect.drift, 0),
 		driftAccel: num(effect.driftAccel, 0),
-		driftOffset: 0
+		driftOffset: num(effect.driftStart, 0)
 	};
 }
 /**
@@ -273202,9 +273202,9 @@ function buildCone$1(out, effect, state, center) {
 	const h = state.coneHeight;
 	const lift = num(effect.height, 0);
 	const axis = coneToWorld(0, -1, 0, pitch, yaw);
-	const ox = axis[0] * state.driftOffset;
+	const ox = axis[0] * state.driftOffset + num(effect.offsetX, 0);
 	const oy = axis[1] * state.driftOffset;
-	const oz = axis[2] * state.driftOffset;
+	const oz = axis[2] * state.driftOffset + num(effect.offsetY, 0);
 	const point = (r, depth, deg, u, v) => {
 		const a = deg / 180 * Math.PI;
 		const p = coneToWorld(r * Math.cos(a), -depth, r * Math.sin(a), pitch, yaw);
@@ -288184,13 +288184,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$3(random, 9) - 4,
-		y: r$3(random, 9) - 4,
-		counter: r$3(random, 10) - 10,
-		heading: r$3(random, 360),
-		rise: r$3(random, 40) / 100 + .2,
-		drift: r$3(random, 10) / 100,
-		half: r$3(random, 16) * .03 + .1
+		x: r$4(random, 9) - 4,
+		y: r$4(random, 9) - 4,
+		counter: r$4(random, 10) - 10,
+		heading: r$4(random, 360),
+		rise: r$4(random, 40) / 100 + .2,
+		drift: r$4(random, 10) / 100,
+		half: r$4(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -288227,7 +288227,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$3;
+var SAND_COLOR, SAND_TEXTURE, r$4;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -288235,7 +288235,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$3 = (random, k) => Math.floor(random() * k);
+	r$4 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -289502,7 +289502,7 @@ var init_CastCircle = __esmMin((() => {
 /**
 * @param {number[]} from start [x, y, height] in units
 * @param {number[]} to end [x, y, height] in units
-* @param {object} [kind] STONE or NINJA_ITEM
+* @param {object} [kind] STONE, NINJA_ITEM or VENOM_KNIFE
 * @return {object} the throw
 */
 function planThrow(from, to, kind = STONE) {
@@ -289559,7 +289559,7 @@ function trailAt$1(t, i, k) {
 	p.alpha = alpha;
 	return p;
 }
-var STONE, NINJA_ITEM, STONE_TEXTURE;
+var STONE, NINJA_ITEM, STONE_TEXTURE, VENOM_KNIFE;
 var init_ThrownStoneSim = __esmMin((() => {
 	STONE = {
 		speed: 2,
@@ -289589,6 +289589,7 @@ var init_ThrownStoneSim = __esmMin((() => {
 		]
 	});
 	STONE_TEXTURE = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp";
+	VENOM_KNIFE = Object.assign({}, NINJA_ITEM, { texture: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/º£³Ñ³ªÀÌÇÁ.bmp" });
 }));
 // src/DB/Effects/ThrowStoneEffect.js
 /**
@@ -289605,10 +289606,10 @@ function lastStoneTick(t) {
 *
 * @param {object} t from planThrow, in units from the caster
 * @param {number} copy
-* @param {string} [file] texture
+* @param {string} [file] texture (default: the kind's own, else the stone)
 * @return {object}
 */
-function stoneEffect(t, copy, file = STONE_TEXTURE) {
+function stoneEffect(t, copy, file = t.kind.texture || "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp") {
 	const color = t.kind.color;
 	return Object.assign({
 		type: "3D",
@@ -289685,7 +289686,7 @@ function thrownItemRow(effectID, file, kind) {
 		}
 	}];
 }
-var SIZE_PER_UNIT$1, ITEM, NINJA_TEXTURES, throwStoneEffect, ninjaThrowEffects;
+var SIZE_PER_UNIT$1, ITEM, NINJA_TEXTURES, throwStoneEffect, throwVenomKnifeEffect, ninjaThrowEffects;
 var init_ThrowStoneEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ThrownStoneSim();
@@ -289698,6 +289699,7 @@ var init_ThrowStoneEffect = __esmMin((() => {
 		616: "effect/coin_a.bmp"
 	};
 	throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
+	throwVenomKnifeEffect = thrownItemRow(600, VENOM_KNIFE.texture, VENOM_KNIFE);
 	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
 }));
 // src/DB/Effects/NyangGrassEffect.js
@@ -290909,14 +290911,14 @@ var init_StreakLines = __esmMin((() => {
 function planBubbles(random = Math.random, count = DETOX.count) {
 	const bubbles = [];
 	for (let i = 0; i < count; i++) {
-		const heading = r$2(random, 360) * Math.PI / 180;
-		const dist = 2 + r$2(random, 6);
+		const heading = r$3(random, 360) * Math.PI / 180;
+		const dist = 2 + r$3(random, 6);
 		bubbles.push({
 			spawn: i * DETOX.every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r$2(random, 30)) / 100,
-			scale: (40 + r$2(random, 50)) / 100
+			rise: (30 + r$3(random, 30)) / 100,
+			scale: (40 + r$3(random, 50)) / 100
 		});
 	}
 	return bubbles;
@@ -290951,7 +290953,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, r$2;
+var DETOX, r$3;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -290961,7 +290963,7 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		fadeStart: 32,
 		spin: 3
 	};
-	r$2 = (random, k) => Math.floor(random() * k);
+	r$3 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/DetoxifyEffect.js
 /**
@@ -291065,6 +291067,58 @@ var init_PoisonAttackEffect = __esmMin((() => {
 		20: 100,
 		125: 250
 	};
+}));
+// src/DB/Effects/SonicBlowEffect.js
+/**
+* The cone band of one Sonic Blow hit. The client places it 0-2 whole units
+* along the map's x from the target and raises it 1-11 whole units, at random.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {object} PRIM effect description
+*/
+function sonicBlowHitBand(random = Math.random) {
+	return {
+		type: "PRIM",
+		prim: "cone",
+		texture: "magic_red",
+		attachedEntity: true,
+		duration: 12 * PRIM_TICK_MS,
+		frames: 12,
+		facing: true,
+		pitch: -90,
+		offsetX: Math.floor((r$2(random, 10) + 1) / 4),
+		height: 11 - Math.floor((r$2(random, 20) + 1) / 2),
+		baseRadius: 4,
+		topRadius: 7,
+		coneHeight: 3.5,
+		driftStart: 2,
+		drift: .4,
+		driftAccel: -.016666666666666666,
+		fadeOutFrame: 6
+	};
+}
+var r$2, sonicBlowHitEffect;
+var init_SonicBlowEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	r$2 = (random, k) => Math.floor(random() * k);
+	sonicBlowHitEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.spamEffect({
+				effect: sonicBlowHitBand(),
+				Inst: {
+					effectID: 122,
+					duplicateID: 0,
+					startTick: Params.Inst.startTick
+				},
+				Init: Params.Init
+			});
+		}
+	}, {
+		wav: "effect/assasin_sonicblow",
+		attachedEntity: true
+	}];
 }));
 // src/Renderer/Effects/CasterStrobe.js
 /**
@@ -293954,6 +294008,7 @@ var init_EffectTable = __esmMin((() => {
 	init_StreakLines();
 	init_DetoxifyEffect();
 	init_PoisonAttackEffect();
+	init_SonicBlowEffect();
 	init_CasterStrobe();
 	init_StealEffect();
 	init_MammoniteEffect();
@@ -296985,20 +297040,7 @@ var init_EffectTable = __esmMin((() => {
 			zIndex: 10,
 			attachedEntity: true
 		}],
-		122: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				const delay = Params.Inst.startTick - Renderer.tick;
-				entity.animations.add(function(tick) {
-					if (tick >= delay) {
-						entity.direction = (entity.direction + 2) % 8;
-						return true;
-					}
-				});
-			}
-		}],
+		122: [...sonicBlowHitEffect],
 		123: [{
 			wav: "effect/ef_frostdiver",
 			attachedEntity: true
@@ -304140,24 +304182,7 @@ var init_EffectTable = __esmMin((() => {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 26, 599), Params);
 			}
 		}],
-		600: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/º£³Ñ³ªÀÌÇÁ.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
+		600: [...throwVenomKnifeEffect],
 		603: [{
 			type: "STR",
 			file: "firehit%d",
