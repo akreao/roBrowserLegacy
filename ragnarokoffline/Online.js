@@ -150936,9 +150936,12 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_SUITON] = EffectConst_default.EF_BOTTOM_SUITON;
 	SkillUnit[SkillUnitConst_default.UNT_TATAMIGAESHI] = EffectConst_default.EF_TATAMI;
 	SkillUnit[SkillUnitConst_default.UNT_KAEN] = EffectConst_default.EF_KAEN;
-	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_WIND] = EffectConst_default.EF_NONE;
-	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_WATER] = EffectConst_default.EF_NONE;
-	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_FIRE] = EffectConst_default.EF_NONE;
+	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_WIND] = 638;
+	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_DARK] = 639;
+	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_POISON] = 640;
+	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_WATER] = 641;
+	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_FIRE] = 642;
+	SkillUnit[SkillUnitConst_default.UNT_GROUNDDRIFT_NEUTRAL] = 1120;
 	SkillUnit[SkillUnitConst_default.UNT_DEATHWAVE] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_WATERATTACK] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_EVILLAND] = EffectConst_default.EF_BOTTOM_EVILLAND;
@@ -223319,30 +223322,64 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AM_TWILIGHT3] = { effectId: 499 };
 	SkillEffect[SkillConst_default.HT_POWER] = {};
 	SkillEffect[SkillConst_default.GS_GLITTERING] = { effectId: "gunslinger_coin" };
-	SkillEffect[SkillConst_default.GS_FLING] = {};
-	SkillEffect[SkillConst_default.GS_TRIPLEACTION] = { effectId: 648 };
-	SkillEffect[SkillConst_default.GS_BULLSEYE] = { effectId: 649 };
+	SkillEffect[SkillConst_default.GS_FLING] = {
+		damageEffectIdOnTarget: 548,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_TRIPLEACTION] = {
+		damageEffectIdOnTarget: 648,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_BULLSEYE] = {
+		damageEffectIdOnTarget: 649,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.GS_MADNESSCANCEL] = { successEffectId: 625 };
-	SkillEffect[SkillConst_default.GS_ADJUSTMENT] = { effectId: 626 };
-	SkillEffect[SkillConst_default.GS_INCREASING] = {
-		effectId: [456, "ef_gs_increasing"],
-		effectIdOnCaster: "ef_gs_increasing_cast"
+	SkillEffect[SkillConst_default.GS_ADJUSTMENT] = { successEffectId: 626 };
+	SkillEffect[SkillConst_default.GS_INCREASING] = { successEffectId: "ef_gs_increasing_accuracy" };
+	SkillEffect[SkillConst_default.GS_MAGICALBULLET] = {
+		damageEffectIdOnTarget: 644,
+		hitEffectId: 0,
+		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.GS_MAGICALBULLET] = { effectId: 644 };
-	SkillEffect[SkillConst_default.GS_CRACKER] = {};
+	SkillEffect[SkillConst_default.GS_CRACKER] = { successEffectIdOnCaster: "ef_gs_cracker" };
 	SkillEffect[SkillConst_default.GS_TRACKING] = {
-		effectId: 646,
-		hitEffectId: 647
+		damageEffectIdOnTarget: 647,
+		hitEffectId: 0,
+		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.GS_DISARM] = { effectId: 627 };
-	SkillEffect[SkillConst_default.GS_PIERCINGSHOT] = {};
-	SkillEffect[SkillConst_default.GS_RAPIDSHOWER] = { effectId: 643 };
-	SkillEffect[SkillConst_default.GS_DESPERADO] = { effectId: 637 };
-	SkillEffect[SkillConst_default.GS_GATLINGFEVER] = { effectId: 626 };
-	SkillEffect[SkillConst_default.GS_DUST] = { effectId: 628 };
-	SkillEffect[SkillConst_default.GS_FULLBUSTER] = { effectId: 584 };
-	SkillEffect[SkillConst_default.GS_SPREADATTACK] = { effectId: 645 };
-	SkillEffect[SkillConst_default.GS_GROUNDDRIFT] = {};
+	SkillEffect[SkillConst_default.GS_DISARM] = { successEffectId: 627 };
+	SkillEffect[SkillConst_default.GS_PIERCINGSHOT] = {
+		damageEffectIdOnCaster: 623,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_RAPIDSHOWER] = {
+		damageEffectIdOnTarget: 643,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_DESPERADO] = { groundEffectIdByLevel: [637] };
+	SkillEffect[SkillConst_default.GS_GATLINGFEVER] = { successEffectId: 626 };
+	SkillEffect[SkillConst_default.GS_DUST] = {
+		damageEffectIdOnTarget: 628,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_FULLBUSTER] = {
+		damageEffectIdOnCaster: 584,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_SPREADATTACK] = {
+		damageEffectIdOnCaster: 645,
+		hitEffectId: 0,
+		hitEffectOnce: true
+	};
+	SkillEffect[SkillConst_default.GS_GROUNDDRIFT] = { groundEffectIdByLevel: ["ef_gs_ground_drift"] };
 	SkillEffect[SkillConst_default.NJ_SYURIKEN] = { beforeHitEffectId: 613 };
 	SkillEffect[SkillConst_default.NJ_KUNAI] = { beforeHitEffectId: 614 };
 	SkillEffect[SkillConst_default.NJ_HUUMA] = { beforeHitEffectId: 615 };
@@ -277604,6 +277641,7 @@ function spamSprite(Params) {
 		yOffset: Params.effect.yOffset,
 		frame: Params.effect.frame,
 		delay: Params.effect.delayFrame,
+		startDelay: typeof Params.effect.delayStart === "number" ? Params.effect.delayStart : 0,
 		renderBefore: !!Params.effect.renderBeforeEntities
 	});
 	if (isNewEntity) EntityManager.add(entity);
@@ -298256,6 +298294,14 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ÇÃ¸³",
 			attachedEntity: true
 		}],
+		ef_gs_increasing_accuracy: [{
+			wav: "effect/ef_incagility",
+			attachedEntity: true
+		}],
+		ef_gs_cracker: [{
+			wav: "effect/Å©·¡Ä¿",
+			attachedEntity: true
+		}],
 		ef_coldbolt: [{
 			type: "3D",
 			alphaMax: 1,
@@ -301953,6 +301999,9 @@ var init_EffectTable = __esmMin((() => {
 		584: [{
 			type: "SPR",
 			file: "m_ef02",
+			wav: "effect/Ç®¹ö½ºÅÍ",
+			delayWav: 83,
+			delayFrame: 67,
 			attachedEntity: true,
 			direction: true
 		}],
@@ -302622,10 +302671,19 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ef_thunderstorm",
 			attachedEntity: true
 		}],
-		627: [{ wav: "effect/µð½º¾Ï" }],
+		623: [{
+			wav: "effect/ÇÇ¾î½Ì¼¦",
+			delayWav: 467,
+			attachedEntity: true
+		}],
+		627: [{
+			wav: "effect/µð½º¾Ï",
+			delayWav: 350,
+			attachedEntity: true
+		}],
 		628: [
 			{
-				wav: "effect/bash3d5",
+				wav: "effect/´õ½ºÆ®¼¦",
 				attachedEntity: true
 			},
 			{
@@ -302726,48 +302784,63 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "µ¥½ºÆä¶óµµ",
 			wav: "effect/µ¥½ºÆä¶óµµ",
+			delayWav: 167,
+			delayFrame: 67,
 			attachedEntity: true
 		}],
 		638: [{
 			type: "SPR",
 			file: "¶óÀÌÆ®´×½ºÇÇ¾î",
-			attachedEntity: false
+			attachedEntity: true
 		}],
 		639: [{
 			type: "SPR",
 			file: "ºí¶óÀÎµå½ºÇÇ¾î",
-			attachedEntity: false
+			attachedEntity: true
 		}],
 		640: [{
 			type: "SPR",
 			file: "Æ÷ÀÌÁð½ºÇÇ¾î",
-			attachedEntity: false
+			attachedEntity: true
 		}],
 		641: [{
 			type: "SPR",
 			file: "ÇÁ¸®Â¡½ºÇÇ¾î",
-			attachedEntity: false
+			attachedEntity: true
 		}],
 		642: [{
 			type: "SPR",
 			file: "ÇÃ·¹¾î½ºÇÇ¾î",
-			attachedEntity: false
+			attachedEntity: true
+		}],
+		1120: [{
+			type: "SPR",
+			file: "±×¶ó¿îµåµå¸®ÇÁÆ®",
+			attachedEntity: true
+		}],
+		ef_gs_ground_drift: [{
+			wav: "effect/±×¶ó¿îµå",
+			attachedEntity: true
 		}],
 		643: [{
 			type: "SPR",
 			file: "·¡ÇÇµå»þ¿ö",
 			wav: "effect/·¡ÇÇµå»þ¿ö",
+			delayWav: 333,
+			delayFrame: 67,
 			attachedEntity: true
 		}],
 		644: [{
 			type: "SPR",
 			file: "¸ÅÁöÄÃºÒ¸´",
 			wav: "effect/¸ÅÁöÄÃºí¸´",
+			delayFrame: 33,
 			attachedEntity: true
 		}],
 		645: [{
 			type: "SPR",
 			file: "½ºÇÁ·¹µå",
+			delayFrame: 67,
 			attachedEntity: true,
 			direction: true
 		}],
@@ -302779,12 +302852,18 @@ var init_EffectTable = __esmMin((() => {
 		647: [{
 			type: "SPR",
 			file: "Æ®·¡Å·",
+			delayFrame: 33,
 			attachedEntity: true
 		}],
 		648: [{
+			wav: "effect/Æ®¸®ÇÃ¾×¼Ç",
+			delayWav: 417,
+			attachedEntity: true
+		}, {
 			type: "SPR",
 			file: "Æ®¸®ÇÃ¾×¼Ç",
-			wav: "effect/Æ®¸®ÇÃ¾×¼Ç",
+			delayStart: 500,
+			delayFrame: 33,
 			attachedEntity: true
 		}],
 		649: [{
@@ -343608,6 +343687,7 @@ var init_EntityAttachments = __esmMin((() => {
 			attachment.duration = attachment.duration || 0;
 			attachment.stopAtEnd = attachment.stopAtEnd || false;
 			attachment.delay = attachment.delay || false;
+			attachment.startDelay = attachment.startDelay || 0;
 			attachment.renderBefore = attachment.renderBefore || false;
 			if (attachment.completeFile) {
 				attachment.spr = attachment.completeFile + ".spr";
@@ -343632,7 +343712,7 @@ var init_EntityAttachments = __esmMin((() => {
 				return;
 			}
 			Client.loadFile(attachment.spr, function onLoad() {
-				attachment.startTick = Renderer.tick || Date.now();
+				attachment.startTick = (Renderer.tick || Date.now()) + attachment.startDelay;
 				this.list.push(attachment);
 			}.bind(this), null, { to_rgba: true });
 		}
