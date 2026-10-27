@@ -1,8 +1,11 @@
 /**
  * Renderer/Effects/ThrownStoneSim.js
  *
- * The official client's Throw Stone stone (effect 308, EF_THROWITEM3), without
- * any WebGL, so it can be tested on its own. Spec: effect-port/thief-skills.md.
+ * The official client's thrown items, without any WebGL, so they can be tested
+ * on their own: Throw Stone's stone (effect 308, EF_THROWITEM3) and the Ninja's
+ * shuriken, kunai, huuma and coin (613-616, EF_THROWITEM7-10), which the client
+ * draws with the same code and other numbers (NINJA_ITEM). Specs:
+ * effect-port/thief-skills.md, effect-port/ninja-skills.md.
  *
  * As the official client plays it, on the caster as the damage packet arrives,
  * aimed at the target's position:
@@ -19,11 +22,6 @@
  *    stone's last position with alpha - 150, each next one the copy ahead's
  *    with 25 less again.
  *
- * Throw Venom Knife's knife (effect 600, EF_THROWITEM6) is the same flight with
- * its own numbers (VENOM_KNIFE): 8 x 8 units, tinted (255, 200, 255), 3 units
- * a tick, an arc of 1 unit, starting turned 330 degrees and spinning 45 a
- * tick. Spec: effect-port/assassin-skills.md.
- *
  * Units are the client's: world units (5 to a cell), ticks (60 a second).
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -35,25 +33,31 @@ export const STONE = {
 	lift: 8, // start and end height above the ground
 	arc: 10, // arc height
 	spin: 10, // degrees a tick
+	startAngle: 0, // roll on the first tick
 	moveUntil: 1.05, // t it stops at
 	fade: 20, // alpha lost a tick once stopped
 	half: 2, // half width
-	trail: [150, 25, 25], // alpha each trailing copy loses from the one ahead
-	startAngle: 0 // degrees on the first update
+	trail: [150, 25, 25] // alpha each trailing copy loses from the one ahead
 };
 
-/** Stone image, under data/texture (유저인터페이스/item/돌.bmp). */
-export const STONE_TEXTURE = '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp';
-STONE.texture = STONE_TEXTURE;
-
-/** Numbers of Throw Venom Knife's knife (effect 600): the stone's, with these changes. */
-export const VENOM_KNIFE = Object.assign({}, STONE, {
+/**
+ * The Ninja's thrown items (613-616): 8 x 8 units, 3 units a tick, almost no
+ * arc, spinning 45 degrees a tick from 330, tinted (255, 200, 255).
+ */
+export const NINJA_ITEM = Object.assign({}, STONE, {
 	speed: 3,
 	arc: 1,
 	spin: 45,
 	startAngle: 330,
 	half: 4,
-	tint: [255, 200, 255],
+	color: [255, 200, 255]
+});
+
+/** Stone image, under data/texture (유저인터페이스/item/돌.bmp). */
+export const STONE_TEXTURE = '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp';
+
+/** Throw Venom Knife's knife (effect 600): the Ninja's thrown item with the knife's image. */
+export const VENOM_KNIFE = Object.assign({}, NINJA_ITEM, {
 	// 유저인터페이스/item/베넘나이프.bmp
 	texture:
 		'\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xba\xa3\xb3\xd1\xb3\xaa\xc0\xcc\xc7\xc1.bmp'
@@ -62,7 +66,7 @@ export const VENOM_KNIFE = Object.assign({}, STONE, {
 /**
  * @param {number[]} from start [x, y, height] in units
  * @param {number[]} to end [x, y, height] in units
- * @param {object} [kind] STONE or VENOM_KNIFE
+ * @param {object} [kind] STONE, NINJA_ITEM or VENOM_KNIFE
  * @return {object} the throw
  */
 export function planThrow(from, to, kind = STONE) {
@@ -70,9 +74,9 @@ export function planThrow(from, to, kind = STONE) {
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
 	return {
+		kind,
 		from,
 		dist,
-		kind,
 		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
 		climb: dist > 0 ? (kind.speed / dist) * (to[2] - from[2]) : 0,
 		ticks: Math.floor(dist / kind.speed) + 1
@@ -87,7 +91,7 @@ export function planThrow(from, to, kind = STONE) {
  * @return {object} { x, y, up } in units (up from the caster's ground), alpha 0-255, angle
  */
 export function stoneAt(t, k) {
-	const kind = t.kind || STONE;
+	const kind = t.kind;
 	let moves = 0;
 	while (moves < k && (moves + 1) / t.ticks <= kind.moveUntil) {
 		moves++;
@@ -121,7 +125,7 @@ export function trailAt(t, i, k) {
 	const p = stoneAt(t, j - 1 - 2 * i);
 	let alpha = p.alpha;
 	for (let n = 0; n <= i; n++) {
-		alpha -= (t.kind || STONE).trail[n];
+		alpha -= t.kind.trail[n];
 	}
 	if (alpha < 1) {
 		return null;
