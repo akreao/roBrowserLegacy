@@ -223620,7 +223620,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NJ_HYOUSYOURAKU] = { effectId: 636 };
 	SkillEffect[SkillConst_default.NJ_HUUJIN] = { damageEffectIdOnCaster: 621 };
 	SkillEffect[SkillConst_default.NJ_RAIGEKISAI] = { effectId: 622 };
-	SkillEffect[SkillConst_default.NJ_KAMAITACHI] = {};
+	SkillEffect[SkillConst_default.NJ_KAMAITACHI] = { damageEffectIdOnCaster: 624 };
 	SkillEffect[SkillConst_default.NJ_NEN] = {};
 	SkillEffect[SkillConst_default.NJ_ISSEN] = { damageEffectIdOnTarget: 633 };
 	SkillEffect[SkillConst_default.NPC_EARTHQUAKE] = { effectIdOnCaster: 666 };
@@ -278042,7 +278042,8 @@ function spamSprite(Params) {
 		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
 		startDelay: typeof Params.effect.delayStart === "number" ? Params.effect.delayStart : 0,
-		renderBefore: !!Params.effect.renderBeforeEntities
+		renderBefore: !!Params.effect.renderBeforeEntities,
+		scale: Params.effect.scale
 	});
 	if (isNewEntity) EntityManager.add(entity);
 }
@@ -303482,15 +303483,21 @@ var init_EffectTable = __esmMin((() => {
 		],
 		621: [{ wav: "effect/Ç³ÀÎ" }],
 		622: [{
-			type: "STR",
-			file: "setsudan",
+			type: "SPR",
+			file: "½ã´õ½ºÅè",
 			wav: "effect/ef_thunderstorm",
-			attachedEntity: true
+			delayFrame: 2 * (1e3 / 60),
+			scale: 2.5,
+			yOffset: -31
 		}],
 		623: [{
 			wav: "effect/ÇÇ¾î½Ì¼¦",
 			delayWav: 467,
 			attachedEntity: true
+		}],
+		624: [{
+			wav: "effect/t_¹Ù¶÷¹æÃâ",
+			delayWav: 1e3 / 60
 		}],
 		627: [{
 			wav: "effect/µð½º¾Ï",
@@ -342990,6 +342997,25 @@ var init_EntityWalk = __esmMin((() => {
 	SETTLE_MAX_MS = 200;
 	_serverPath = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
 }));
+// src/Renderer/Entity/ScaledLayer.js
+/**
+* @param {object} layer ACT layer
+* @param {number} scale size factor
+* @return {object} the layer itself at scale 1, else a reused scaled copy
+*/
+function scaledLayer(layer, scale) {
+	if (scale === 1) return layer;
+	Object.assign(_scaledLayer, layer);
+	_scaledPos[0] = layer.pos[0] * scale;
+	_scaledPos[1] = layer.pos[1] * scale;
+	_scaledLayer.pos = _scaledPos;
+	return _scaledLayer;
+}
+var _scaledPos, _scaledLayer;
+var init_ScaledLayer = __esmMin((() => {
+	_scaledPos = [0, 0];
+	_scaledLayer = {};
+}));
 // src/Renderer/Entity/EntityRender.js
 function acquireSnapshotBuffers() {
 	const buf = _snapshotPool.pop();
@@ -343072,7 +343098,7 @@ function renderWaterDepth$1() {
 			_attachmentPosition[0] = item.x;
 			_attachmentPosition[1] = item.y;
 			SpriteRenderer.runWithDepth(true, true, false, function() {
-				for (let i = 0, count = item.layers.length; i < count; ++i) self.renderLayer(item.layers[i], item.spr, item.spr, 1, _attachmentPosition, false);
+				for (let i = 0, count = item.layers.length; i < count; ++i) self.renderLayer(item.scale === 1 ? item.layers[i] : scaledLayer(item.layers[i], item.scale), item.spr, item.spr, item.scale, _attachmentPosition, false);
 			});
 		}
 		this.effectColor[3] = alpha;
@@ -343481,6 +343507,7 @@ var init_EntityRender = __esmMin((() => {
 	init_Graphics();
 	init_GR2ModelRenderer();
 	init_BodyMotionSim();
+	init_ScaledLayer();
 	WALK_DIST_TO_MOTION = 170.2;
 	_snapshotPool = [];
 	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
@@ -344479,6 +344506,7 @@ var init_EntityAttachments = __esmMin((() => {
 	init_Ground();
 	init_StrEffect();
 	init_Renderer();
+	init_ScaledLayer();
 	_defaultFog = {
 		use: false,
 		exist: false,
@@ -344522,6 +344550,7 @@ var init_EntityAttachments = __esmMin((() => {
 			attachment.delay = attachment.delay || false;
 			attachment.startDelay = attachment.startDelay || 0;
 			attachment.renderBefore = attachment.renderBefore || false;
+			attachment.scale = attachment.scale || 1;
 			if (attachment.completeFile) {
 				attachment.spr = attachment.completeFile + ".spr";
 				attachment.act = attachment.completeFile + ".act";
@@ -344703,6 +344732,7 @@ var init_EntityAttachments = __esmMin((() => {
 				depth: SpriteRenderer.depth,
 				zIndex: zIdx,
 				opacity: attachment.opacity,
+				scale: attachment.scale,
 				position: [
 					SpriteRenderer.position[0],
 					SpriteRenderer.position[1],
@@ -344711,7 +344741,7 @@ var init_EntityAttachments = __esmMin((() => {
 			});
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				SpriteRenderer.zIndex = zIdx;
-				for (i = 0, count = layers.length; i < count; ++i) self.entity.renderLayer(layers[i], spr, spr, 1, _position, false);
+				for (i = 0, count = layers.length; i < count; ++i) self.entity.renderLayer(attachment.scale === 1 ? layers[i] : scaledLayer(layers[i], attachment.scale), spr, spr, attachment.scale, _position, false);
 			});
 			return clean;
 		}
