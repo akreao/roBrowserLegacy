@@ -21,6 +21,7 @@ SkillUnit[SU.UNT_SANCTUARY] = EC.EF_BOTTOM_SANC;
 SkillUnit[SU.UNT_MAGNUS] = EC.EF_BOTTOM_MAG;
 SkillUnit[SU.UNT_PNEUMA] = EC.EF_PNEUMA;
 SkillUnit[SU.UNT_FIREPILLAR_WAITING] = EC.EF_FIREPILLARON;
+SkillUnit[SU.UNT_FIREPILLAR_ACTIVE] = EC.EF_FIREPILLARBOMB; // once, when the pillar goes off
 SkillUnit[SU.UNT_ICEWALL] = EC.EF_ICEWALL;
 SkillUnit[SU.UNT_QUAGMIRE] = EC.EF_QUAGMIRE;
 SkillUnit[SU.UNT_BLASTMINE] = 'ef_trap_03_3';
@@ -28,7 +29,7 @@ SkillUnit[SU.UNT_SKIDTRAP] = 'ef_trap_02';
 SkillUnit[SU.UNT_ANKLESNARE] = 'ef_trap_01';
 SkillUnit[SU.UNT_VENOMDUST] = EC.EF_VENOMDUST2;
 SkillUnit[SU.UNT_LANDMINE] = 'ef_trap_03';
-SkillUnit[SU.UNT_SHOCKWAVE] = 'ef_trap_03_6';
+SkillUnit[SU.UNT_SHOCKWAVE] = ['ef_trap_03_6', EC.EF_SHOCKWAVE];
 SkillUnit[SU.UNT_SANDMAN] = 'ef_trap_03_4';
 SkillUnit[SU.UNT_FLASHER] = 'ef_trap_03_5';
 SkillUnit[SU.UNT_FREEZINGTRAP] = 'ef_trap_03_2';
@@ -68,9 +69,14 @@ SkillUnit[SU.UNT_HERMODE] = EC.EF_BOTTOM_HERMODE;
 SkillUnit[SU.UNT_SUITON] = EC.EF_BOTTOM_SUITON;
 SkillUnit[SU.UNT_TATAMIGAESHI] = EC.EF_TATAMI;
 SkillUnit[SU.UNT_KAEN] = EC.EF_KAEN;
-SkillUnit[SU.UNT_GROUNDDRIFT_WIND] = EC.EF_NONE; // Todo
-SkillUnit[SU.UNT_GROUNDDRIFT_WATER] = EC.EF_NONE; // Todo
-SkillUnit[SU.UNT_GROUNDDRIFT_FIRE] = EC.EF_NONE; // Todo
+// Ground Drift grenades: the official client relaunches one looping sprite per unit while it stands.
+// See effect-port/gunslinger-skills.md.
+SkillUnit[SU.UNT_GROUNDDRIFT_WIND] = 638;
+SkillUnit[SU.UNT_GROUNDDRIFT_DARK] = 639;
+SkillUnit[SU.UNT_GROUNDDRIFT_POISON] = 640;
+SkillUnit[SU.UNT_GROUNDDRIFT_WATER] = 641;
+SkillUnit[SU.UNT_GROUNDDRIFT_FIRE] = 642;
+SkillUnit[SU.UNT_GROUNDDRIFT_NEUTRAL] = 1120;
 SkillUnit[SU.UNT_DEATHWAVE] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_WATERATTACK] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_EVILLAND] = EC.EF_BOTTOM_EVILLAND;
@@ -177,5 +183,15 @@ SkillUnitEnd[SU.UNT_JACK_FROST_NOVA] = ['jack_frost_nova_end'];
 SkillUnitEnd[SU.UNT_TOTEM_OF_TUTELARY] = ['totem_of_tutelary_bottom_end', 'totem_of_tutelary_end'];
 SkillUnitEnd[SU.UNT_KUNAIWAIKYOKU] = ['kunaiarea_01_end'];
 SkillUnitEnd[SU.UNT_SHINKIROU] = ['shinkirou_idle_end'];
+
+// Played once where a trap stands when it goes off: the server turns the unit
+// into a used trap (UNT_USED_TRAPS), and the official client then plays the
+// trap's own effect at it. Keyed by the trap's unit id before the change.
+export const SkillUnitTrigger = {};
+SkillUnitTrigger[SU.UNT_BLASTMINE] = [EC.EF_BLASTMINEBOMB];
+SkillUnitTrigger[SU.UNT_CLAYMORETRAP] = [EC.EF_CLAYMORE];
+SkillUnitTrigger[SU.UNT_FREEZINGTRAP] = [EC.EF_FREEZING];
+SkillUnitTrigger[SU.UNT_SANDMAN] = [EC.EF_SANDMAN];
+SkillUnitTrigger[SU.UNT_FLASHER] = [EC.EF_FLASHER];
 
 export default SkillUnit;

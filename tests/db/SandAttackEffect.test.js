@@ -13,7 +13,7 @@ import {
 import { sandAttackEffect, sandGrainEffect } from '../../src/DB/Effects/SandAttackEffect.js';
 
 // Sand Attack (TF_SPRINKLESAND, skill 149): effect 310 on the target as the damage packet arrives,
-// 80 additive grains rising from the ground; the hit plays the hit flash (0). Spec: effect-port/thief-skills.md.
+// 80 additive grains rising from the ground; every hit plays the hit flash (0). Spec: effect-port/thief-skills.md.
 
 const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
 
@@ -21,10 +21,8 @@ let seed = 7;
 const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
 describe('Sand Attack', () => {
-	it('plays 310 as the damage packet arrives and the hit flash once', () => {
-		expect(source).toMatch(
-			/SkillEffect\[SK\.TF_SPRINKLESAND\] = \{ damageEffectIdOnTarget: 310, hitEffectId: 0, hitEffectOnce: true \};/
-		);
+	it('plays 310 as the damage packet arrives and the hit flash on every hit', () => {
+		expect(source).toMatch(/SkillEffect\[SK\.TF_SPRINKLESAND\] = \{ damageEffectIdOnTarget: 310, hitEffectId: 0 \};/);
 	});
 
 	it('throws 80 grains within the client ranges', () => {

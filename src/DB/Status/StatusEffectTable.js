@@ -314,5 +314,10 @@ export default {
 	},
 	[StatusConst.SIEGFRIED]: {
 		restart: [875]
+	},
+	// Assumptio (HP_ASSUMPTIO): the official client removes 375 and launches it again when the status
+	// starts, and removes it when the status ends.
+	[StatusConst.ASSUMPTIO]: {
+		loop: [375]
 	}
 };

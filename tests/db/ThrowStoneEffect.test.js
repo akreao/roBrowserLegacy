@@ -5,16 +5,14 @@ import { STONE, planThrow, stoneAt, trailAt } from '../../src/Renderer/Effects/T
 import { throwStoneEffect, stoneEffect, lastStoneTick } from '../../src/DB/Effects/ThrowStoneEffect.js';
 
 // Throw Stone (TF_THROWSTONE, skill 152): effect 308 from the caster at the target as the damage
-// packet arrives, a stone in a 10-unit arc at 2 units a tick with three trailing copies; the hit
+// packet arrives, a stone in a 10-unit arc at 2 units a tick with three trailing copies; every hit
 // plays the hit flash (0). Spec: effect-port/thief-skills.md.
 
 const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
 
 describe('Throw Stone', () => {
-	it('plays 308 from the caster as the damage packet arrives and the hit flash once', () => {
-		expect(source).toMatch(
-			/SkillEffect\[SK\.TF_THROWSTONE\] = \{ damageEffectIdOnCaster: 308, hitEffectId: 0, hitEffectOnce: true \};/
-		);
+	it('plays 308 from the caster as the damage packet arrives and the hit flash on every hit', () => {
+		expect(source).toMatch(/SkillEffect\[SK\.TF_THROWSTONE\] = \{ damageEffectIdOnCaster: 308, hitEffectId: 0 \};/);
 	});
 
 	it('flies at 2 units a tick and arrives after floor(d / 2) + 1 ticks', () => {
