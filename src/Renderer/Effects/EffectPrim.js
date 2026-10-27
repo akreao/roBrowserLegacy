@@ -1,18 +1,25 @@
 /**
  * Renderer/Effects/EffectPrim.js
  *
- * Draws one primitive of the official client's effect system (ring, sphere, quad),
+ * Draws one primitive of the official client's effect system (ring, sphere, quad, cone),
  * stepped on the official 60 ticks a second clock. The motion and geometry are
  * in EffectPrimSim.js; this file only uploads and draws them.
  *
- * Effect table entry: { type: 'PRIM', prim: 'ring' | 'sphere' | 'quad', texture, frames, ... },
+ * Effect table entry: { type: 'PRIM', prim: 'ring' | 'sphere' | 'quad' | 'cone', texture, frames, ... },
  * see EffectPrimSim.js for the keys.
  */
 
 import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import { PRIM_TICK_MS, createPrimState, advancePrim, buildPrimGeometry, primVertexCount } from './EffectPrimSim.js';
+import {
+	PRIM_TICK_MS,
+	createPrimState,
+	advancePrim,
+	buildPrimGeometry,
+	primVertexCount,
+	applyFacing
+} from './EffectPrimSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 
@@ -25,12 +32,17 @@ class EffectPrim {
 	/**
 	 * @param {object} effect description
 	 * @param {object} EF_Inst_Par instance parameters
+	 * @param {object} [EF_Init_Par] init parameters (owner entity, for `facing`)
 	 */
-	constructor(effect, EF_Inst_Par) {
+	constructor(effect, EF_Inst_Par, EF_Init_Par) {
 		this.effect = effect;
 		this.position = EF_Inst_Par.position;
 		this.startTick = EF_Inst_Par.startTick;
 		this.state = createPrimState(effect);
+
+		// Turned by the owner's facing as it is when the effect starts
+		const owner = EF_Init_Par && EF_Init_Par.ownerEntity;
+		applyFacing(this.state, effect, owner ? owner.direction : EF_Inst_Par.direction);
 		this.endTick = this.startTick + this.state.frames * PRIM_TICK_MS;
 		this.vertexCount = primVertexCount(effect);
 		this.vertices = new Float32Array(this.vertexCount * 5);

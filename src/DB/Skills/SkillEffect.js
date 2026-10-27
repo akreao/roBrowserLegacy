@@ -208,7 +208,7 @@ SkillEffect[SK.TF_DETOXIFY] = { successEffectId: 21 }; //Detoxify
 // hit flash (0) and 140 once per packet. See effect-port/priest-audit.md.
 SkillEffect[SK.ALL_RESURRECTION] = { successEffectId: [77, 140], hitEffectId: [0, 140], hitEffectOnce: true }; //Resurrection
 // Knight
-SkillEffect[SK.KN_PIERCE] = { effectIdOnCaster: 148, hitEffectId: 147 }; //Pierce
+SkillEffect[SK.KN_PIERCE] = { damageEffectIdOnCaster: 148, hitEffectId: 81, hitEffectOnce: true }; //Pierce
 SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, effectId: 70, effectIdOnCaster: 144 }; //Brandish Spear
 SkillEffect[SK.KN_SPEARSTAB] = { effectIdOnCaster: 150 }; //Spear Stab
 SkillEffect[SK.KN_SPEARBOOMERANG] = {
