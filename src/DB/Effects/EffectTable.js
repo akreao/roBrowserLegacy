@@ -26295,7 +26295,7 @@ export default {
 		},
 		{
 			type: 'FUNC',
-			func: function (Params) {
+			func: Params => {
 				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
 			}
 		}
@@ -26311,7 +26311,7 @@ export default {
 		},
 		{
 			type: 'FUNC',
-			func: function (Params) {
+			func: Params => {
 				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
 			}
 		}
