@@ -171,7 +171,7 @@ SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
 SkillEffect[SK.MC_VENDING] = {}; //Vending
 // Official client: nothing at use or as the packet arrives; when the hit lands, 0 (hit flash) and 10
 // (EF_COIN) once per damage packet, nothing on a miss. See effect-port/merchant-skills.md.
-SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: [0, 10], hitEffectOnce: true }; //Mammonite
+SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: 0, firstHitEffectId: 10 }; //Mammonite
 // Archer
 // Official client: 153 on the caster from the use packet, only when its result is set.
 SkillEffect[SK.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 }; //Improve Concentration
@@ -204,49 +204,61 @@ SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: 0, firstH
 // See effect-port/thief-skills.md.
 SkillEffect[SK.TF_DETOXIFY] = { successEffectId: 21 }; //Detoxify
 // All
-SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
+// Official client: on success, 77 then 140 on the revived player; on an undead the damage plays the
+// hit flash (0) and 140 once per packet. See effect-port/priest-audit.md.
+SkillEffect[SK.ALL_RESURRECTION] = { successEffectId: [77, 140], hitEffectId: [0, 140], hitEffectOnce: true }; //Resurrection
 // Knight
-SkillEffect[SK.KN_PIERCE] = { effectIdOnCaster: 148, hitEffectId: 147 }; //Pierce
-SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, effectId: 70, effectIdOnCaster: 144 }; //Brandish Spear
-SkillEffect[SK.KN_SPEARSTAB] = { effectIdOnCaster: 150 }; //Spear Stab
-SkillEffect[SK.KN_SPEARBOOMERANG] = {
-	effectIdOnCaster: 151,
-	beforeHitEffectId: 'ef_spear_projectile',
-	hitEffectId: 80
-}; //Spear Boomerang
+SkillEffect[SK.KN_PIERCE] = { damageEffectIdOnCaster: 148, hitEffectId: 81, hitEffectOnce: true }; //Pierce
+SkillEffect[SK.KN_BRANDISHSPEAR] = { hideCastBar: true, hideCastAura: true, damageEffectIdOnTarget: 70 }; //Brandish Spear
+SkillEffect[SK.KN_SPEARSTAB] = { damageEffectIdOnCaster: 150, hitEffectId: 81, hitEffectOnce: true }; //Spear Stab
+SkillEffect[SK.KN_SPEARBOOMERANG] = { damageEffectIdOnCaster: [80, 151], hitEffectId: 3, hitEffectOnce: true }; //Spear Boomerang
 SkillEffect[SK.KN_TWOHANDQUICKEN] = { effectId: 130 }; //Twohand Quicken
 SkillEffect[SK.KN_AUTOCOUNTER] = {
 	hideCastAura: true /*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/
 }; //Counter Attack
-SkillEffect[SK.KN_BOWLINGBASH] = { hideCastBar: true, hideCastAura: true, effectIdOnCaster: 149, hitEffectId: 1 }; //Bowling Bash
+SkillEffect[SK.KN_BOWLINGBASH] = {
+	hideCastBar: true,
+	hideCastAura: true,
+	damageEffectIdOnCaster: 149,
+	hitEffectId: [0, 73],
+	hitEffectOnce: true
+}; //Bowling Bash
 // Priest
-SkillEffect[SK.PR_IMPOSITIO] = { effectId: 84 }; //Impositio Manus
-SkillEffect[SK.PR_SUFFRAGIUM] = { effectId: 88 }; //Suffragium
-SkillEffect[SK.PR_ASPERSIO] = { effectId: 86 }; //Aspersio
-SkillEffect[SK.PR_BENEDICTIO] = { effectId: 91 }; //B.S. Sacramenti
-SkillEffect[SK.PR_SANCTUARY] = { effectId: 83, groundEffectId: 319 }; //Sanctuary
-SkillEffect[SK.PR_SLOWPOISON] = { effectId: 136 }; //Slow Poison
-SkillEffect[SK.PR_STRECOVERY] = { effectId: 78 }; //Status Recovery
-SkillEffect[SK.PR_KYRIE] = { effectId: 112 }; //Kyrie Eleison
-SkillEffect[SK.PR_MAGNIFICAT] = { effectId: 76 }; //Magnificat
-SkillEffect[SK.PR_GLORIA] = { effectId: 75 }; //Gloria
-SkillEffect[SK.PR_LEXDIVINA] = { effectId: 87 }; //Lex Divina
-SkillEffect[SK.PR_TURNUNDEAD] = { hitEffectId: 152 }; //Turn Undead
-SkillEffect[SK.PR_LEXAETERNA] = { effectId: 85 }; //Lex Aeterna
+// Official client: the use packet plays these only when its result is set; Kyrie, Magnificat and
+// Gloria play on the packet's source (the buffed actor itself, as rAthena sends them). Aspersio on
+// an undead or demon deals damage: hit flash 0 and 152 once per packet. See effect-port/priest-audit.md.
+SkillEffect[SK.PR_IMPOSITIO] = { successEffectId: 84 }; //Impositio Manus
+SkillEffect[SK.PR_SUFFRAGIUM] = { successEffectId: 88 }; //Suffragium
+SkillEffect[SK.PR_ASPERSIO] = { successEffectId: 86, hitEffectId: [0, 152], hitEffectOnce: true }; //Aspersio
+// Official client: B.S. Sacramenti plays 91 at the cell from the ground packet only (nothing from the
+// use packets of the actors it buffs); its damage on undead and demons plays the hit flash once per
+// packet. Sanctuary's unit hits play the hit flash.
+SkillEffect[SK.PR_BENEDICTIO] = { groundEffectIdByLevel: [91], hitEffectId: [0], hitEffectOnce: true }; //B.S. Sacramenti
+SkillEffect[SK.PR_SANCTUARY] = { effectId: 83, groundEffectId: 319, hitEffectId: [0] }; //Sanctuary
+SkillEffect[SK.PR_SLOWPOISON] = { successEffectId: 136 }; //Slow Poison
+SkillEffect[SK.PR_STRECOVERY] = { successEffectId: 78 }; //Status Recovery
+SkillEffect[SK.PR_KYRIE] = { successEffectIdOnCaster: 112 }; //Kyrie Eleison
+SkillEffect[SK.PR_MAGNIFICAT] = { successEffectIdOnCaster: 76 }; //Magnificat
+SkillEffect[SK.PR_GLORIA] = { successEffectIdOnCaster: 75 }; //Gloria
+SkillEffect[SK.PR_LEXDIVINA] = { successEffectId: 87 }; //Lex Divina
+// Official client: 82 on the caster as each damage packet arrives; the hit plays the hit flash (0)
+// and HolyHit.str (152) once per packet.
+SkillEffect[SK.PR_TURNUNDEAD] = { damageEffectIdOnCaster: 82, hitEffectId: [0, 152], hitEffectOnce: true }; //Turn Undead
+SkillEffect[SK.PR_LEXAETERNA] = { successEffectId: 85 }; //Lex Aeterna
 SkillEffect[SK.PR_MAGNUS] = { effectId: 113, hitEffectId: 152, groundEffectId: 318 }; //Magnus Exorcismus
 // Wizard
-SkillEffect[SK.WZ_FIREPILLAR] = { effectId: 96, groundEffectId: 138, hitEffectId: 97 }; //Fire Pillar
+SkillEffect[SK.WZ_FIREPILLAR] = { groundEffectId: 138, hitEffectId: [0] }; //Fire Pillar
 SkillEffect[SK.WZ_SIGHTRASHER] = { effectId: 62, hitEffectId: 49 }; //Sightrasher
-SkillEffect[SK.WZ_METEOR] = { effectId: 92, hitEffectId: 49 }; //Meteor Storm
+SkillEffect[SK.WZ_METEOR] = { effectId: 92, hitEffectId: [0] }; //Meteor Storm
 // Official client: the ball leaves when the skill packet arrives; the hit effect comes with the damage.
-SkillEffect[SK.WZ_JUPITEL] = { releaseEffectId: 93, hitEffectId: 94 }; //Jupitel Thunder
+SkillEffect[SK.WZ_JUPITEL] = { releaseEffectId: 93, hitEffectId: [0, 94], hitEffectOnce: true }; //Jupitel Thunder
 SkillEffect[SK.WZ_VERMILION] = { effectId: 90, hitEffectId: 52 }; //Lord of Vermilion
-SkillEffect[SK.WZ_WATERBALL] = { beforeHitEffectIdOnCaster: 116, hitEffectIdOnCaster: 117 }; //Water Ball
+SkillEffect[SK.WZ_WATERBALL] = { damageEffectIdOnCaster: 117, hitEffectId: [0], hitEffectOnce: true }; //Water Ball
 SkillEffect[SK.WZ_ICEWALL] = { groundEffectId: 74 }; //Ice Wall
 SkillEffect[SK.WZ_FROSTNOVA] = { effectIdOnCaster: 28, hitEffectId: 51 }; //Frost Nova
 SkillEffect[SK.WZ_STORMGUST] = { effectId: 89, hitEffectId: 51 }; //Storm Gust
-SkillEffect[SK.WZ_EARTHSPIKE] = { effectId: 79, hitEffectId: 147 }; //Earth Spike
-SkillEffect[SK.WZ_HEAVENDRIVE] = { effectId: 142, hitEffectId: 147 }; //Heaven's Drive
+SkillEffect[SK.WZ_EARTHSPIKE] = { damageEffectIdOnTarget: 79, hitEffectId: [147, 147], hitEffectOnce: true }; //Earth Spike
+SkillEffect[SK.WZ_HEAVENDRIVE] = { effectId: 142, hitEffectId: [0] }; //Heaven's Drive
 SkillEffect[SK.WZ_QUAGMIRE] = { groundEffectId: 95 }; //Quagmire
 SkillEffect[SK.WZ_ESTIMATION] = {}; //Sense
 // Blacksmith
@@ -319,7 +331,7 @@ SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
 SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0 }; //Stone Fling
 // Official client: 170 on the caster as each damage packet arrives; 0 and 170 on each target once per
 // damage packet when the hit lands. See effect-port/merchant-skills.md.
-SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: [0, 170], hitEffectOnce: true }; //Cart Revolution
+SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: 0, firstHitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 // Official client: 311 on the caster from the use packet, only when its result is set.
 // See effect-port/merchant-skills.md.
@@ -410,16 +422,21 @@ SkillEffect[SK.AM_CALLHOMUN] = {}; //Call Homunculus
 SkillEffect[SK.AM_REST] = {}; //Vaporize
 SkillEffect[SK.AM_RESURRECTHOMUN] = {}; //Homunculus Resurrection
 // Crusader
-SkillEffect[SK.CR_AUTOGUARD] = { effectId: 336 }; //Guard
-SkillEffect[SK.CR_SHIELDCHARGE] = { effectId: 246 }; //Smite
+// Official client: the use packet shows these only when its result is set, on the packet's
+// source (the Crusader) or, for Providence, its target. See effect-port/crusader-skills.md.
+SkillEffect[SK.CR_AUTOGUARD] = { successEffectIdOnCaster: 336 }; //Guard
+SkillEffect[SK.CR_SHIELDCHARGE] = { damageEffectIdOnTarget: 246, hitEffectId: 0, hitEffectOnce: true }; //Smite
 SkillEffect[SK.CR_SHIELDBOOMERANG] = { beforeHitEffectId: 'ef_shield_projectile', effectId: 249 }; //Shield Boomerang
-SkillEffect[SK.CR_REFLECTSHIELD] = { effectId: 252 }; //Shield Reflect
-SkillEffect[SK.CR_HOLYCROSS] = { effectId: 245 }; //Holy Cross
-SkillEffect[SK.CR_GRANDCROSS] = { effectId: 226 }; //Grand Cross
-SkillEffect[SK.CR_DEVOTION] = { effectId: 251 }; //Sacrifice
-SkillEffect[SK.CR_PROVIDENCE] = { effectId: 248 }; //Resistant Souls
-SkillEffect[SK.CR_DEFENDER] = { effectId: 222 }; //Defending Aura
-SkillEffect[SK.CR_SPEARQUICKEN] = { effectId: 250 }; //Spear Quicken
+SkillEffect[SK.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 }; //Shield Reflect
+SkillEffect[SK.CR_HOLYCROSS] = { damageEffectIdOnTarget: 245, hitEffectId: 0, hitEffectOnce: true }; //Holy Cross
+// Official client: 226 on the caster as each damage packet arrives (with its sound) and the hit
+// flash 0 once per packet. roBrowser's 226 is one big cross over the whole area, so it plays once,
+// on the Crusader, from the use packet, until the client's 226 look is ported.
+SkillEffect[SK.CR_GRANDCROSS] = { successEffectIdOnCaster: 226, hitEffectId: 0, hitEffectOnce: true }; //Grand Cross
+SkillEffect[SK.CR_DEVOTION] = { successEffectIdOnCaster: 251 }; //Sacrifice
+SkillEffect[SK.CR_PROVIDENCE] = { successEffectId: 248 }; //Resistant Souls
+SkillEffect[SK.CR_DEFENDER] = { successEffectIdOnCaster: 222 }; //Defending Aura
+SkillEffect[SK.CR_SPEARQUICKEN] = { successEffectIdOnCaster: 250 }; //Spear Quicken
 // Monk
 SkillEffect[SK.MO_CALLSPIRITS] = {}; //Summon Spirit Sphere
 SkillEffect[SK.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 }; //Absorb Spirit Sphere
@@ -508,7 +525,7 @@ SkillEffect[SK.ITM_TOMAHAWK] = { beforeHitEffectId: 'ef_tomahawk_projectile', ef
 SkillEffect[SK.NPC_DARKCROSS] = { effectId: 450 }; //Cross of Darkness
 SkillEffect[SK.NPC_GRANDDARKNESS] = {}; //Grand cross of Darkness
 SkillEffect[SK.NPC_DARKSTRIKE] = { effectId: 451 }; //Soul Strike of Darkness
-SkillEffect[SK.NPC_DARKTHUNDER] = { releaseEffectId: 93, hitEffectId: 94 }; //Darkness Jupitel
+SkillEffect[SK.NPC_DARKTHUNDER] = { releaseEffectId: 93, hitEffectId: 94, hitEffectOnce: true }; //Darkness Jupitel
 SkillEffect[SK.NPC_STOP] = { effectId: 453 }; //Stop
 SkillEffect[SK.NPC_WEAPONBRAKER] = {}; //Break weapon
 SkillEffect[SK.NPC_ARMORBRAKE] = {}; //Break armor
@@ -528,7 +545,8 @@ SkillEffect[SK.LK_TENSIONRELAX] = {}; //Relax
 SkillEffect[SK.LK_BERSERK] = { effectId: [368, 'quake'] }; //Frenzy
 SkillEffect[SK.LK_FURY] = { effectId: [368, 'quake'] }; //Fury
 // High Priest
-SkillEffect[SK.HP_ASSUMPTIO] = { effectId: 440 }; //Assumptio
+// Official client: on success, 375 (the status look, see StatusEffectTable) and 440 on the target.
+SkillEffect[SK.HP_ASSUMPTIO] = { successEffectId: [375, 440] }; //Assumptio
 SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
 SkillEffect[SK.HW_MAGICCRASHER] = { effectId: 380 }; //Stave Crasher
@@ -602,15 +620,15 @@ SkillEffect[SK.WE_CALLBABY] = {}; //Call Baby
 // Taekwon
 SkillEffect[SK.TK_RUN] = { effectId: 443, groundEffectId: 442 /*wallhit 458*/ }; //Running
 SkillEffect[SK.TK_READYSTORM] = {}; //Tornado Stance
-SkillEffect[SK.TK_STORMKICK] = { successEffectIdOnCaster: 435, hitEffectId: [0], hitEffectOnce: true }; //Tornado Kick
+SkillEffect[SK.TK_STORMKICK] = { successEffectIdOnCaster: 435, hitEffectId: [0] }; //Tornado Kick
 SkillEffect[SK.TK_READYDOWN] = {}; //Heel Drop Stance
-SkillEffect[SK.TK_DOWNKICK] = { damageEffectIdOnTarget: 413, hitEffectId: [0], hitEffectOnce: true, hitDelay: 300 }; //Heel Drop
+SkillEffect[SK.TK_DOWNKICK] = { damageEffectIdOnTarget: 413, hitEffectId: [0], hitDelay: 300 }; //Heel Drop
 SkillEffect[SK.TK_READYTURN] = {}; //Roundhouse Stance
-SkillEffect[SK.TK_TURNKICK] = { damageEffectIdOnTarget: 466, hitEffectId: [0], hitEffectOnce: true, hitDelay: 300 }; //Roundhouse Kick
+SkillEffect[SK.TK_TURNKICK] = { damageEffectIdOnTarget: 466, hitEffectId: [0], hitDelay: 300 }; //Roundhouse Kick
 SkillEffect[SK.TK_READYCOUNTER] = {}; //Counter Kick Stance
-SkillEffect[SK.TK_COUNTER] = { damageEffectIdOnTarget: 415, hitEffectId: [0], hitEffectOnce: true }; //Counter Kick
+SkillEffect[SK.TK_COUNTER] = { damageEffectIdOnTarget: 415, hitEffectId: [0] }; //Counter Kick
 SkillEffect[SK.TK_DODGE] = {}; //Tumbling
-SkillEffect[SK.TK_JUMPKICK] = { damageEffectIdOnCaster: 457, damageEffectIdOnTarget: 458, hitEffectId: [0], hitEffectOnce: true }; //Flying Kick
+SkillEffect[SK.TK_JUMPKICK] = { damageEffectIdOnCaster: 457, damageEffectIdOnTarget: 458, hitEffectId: [0] }; //Flying Kick
 SkillEffect[SK.TK_SEVENWIND] = {/* 467 - 473 is done by entity */}; //Mild Wind
 SkillEffect[SK.TK_HIGHJUMP] = { hideCastAura: true, groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/ }; //Taekwon Jump
 // Stances and Tumbling: each time the use packet arrives the official client puts the caster in
@@ -819,7 +837,7 @@ SkillEffect[SK.NPC_VENOMFOG] = { effectId: 1020 }; //Venom Fog
 SkillEffect[SK.NPC_MAXPAIN] = {}; //Max Pain
 SkillEffect[SK.NPC_MAXPAIN_ATK] = {}; //Max Pain Attack
 // 2nd Quest Skills
-SkillEffect[SK.KN_CHARGEATK] = { beginCastEffectId: 'white_pulse', hitEffectId: 'enemy_hit_normal1' }; //Charge Attack
+SkillEffect[SK.KN_CHARGEATK] = { beginCastEffectId: 'white_pulse', hitEffectId: 1, hitEffectOnce: true }; //Charge Attack
 SkillEffect[SK.CR_SHRINK] = { effectId: 599 }; //Shrink
 SkillEffect[SK.AS_VENOMKNIFE] = { beforeHitEffectId: 600 }; //Throw Venom Knife
 SkillEffect[SK.RG_CLOSECONFINE] = { effectId: 602, groundEffectId: 604 }; //Close Confine
@@ -2018,7 +2036,7 @@ SkillEffect[SK.MA_REMOVETRAP] = SkillEffect[SK.HT_REMOVETRAP]; //Remove_Trap
 SkillEffect[SK.MA_CHARGEARROW] = SkillEffect[SK.AC_CHARGEARROW]; //Arrow_Repel
 SkillEffect[SK.MA_SHARPSHOOTING] = SkillEffect[SK.SN_SHARPSHOOTING]; //Focused_Arrow_Strike
 SkillEffect[SK.ML_PIERCE] = SkillEffect[SK.KN_PIERCE]; //Pierce
-SkillEffect[SK.ML_BRANDISH] = SkillEffect[SK.KN_BRANDISH]; //Brandish_Spear
+SkillEffect[SK.ML_BRANDISH] = SkillEffect[SK.KN_BRANDISHSPEAR]; //Brandish_Spear
 SkillEffect[SK.ML_SPIRALPIERCE] = SkillEffect[SK.LK_SPIRALPIERCE]; //Spiral_Pierce
 SkillEffect[SK.ML_DEFENDER] = SkillEffect[SK.CR_DEFENDER]; //Defending_Aura
 SkillEffect[SK.ML_AUTOGUARD] = SkillEffect[SK.CR_AUTOGUARD]; //Guard
