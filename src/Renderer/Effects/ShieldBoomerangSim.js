@@ -15,6 +15,8 @@
  *    the target.
  *  - Out: while (tick x 2) is at most the distance it flies straight, its height
  *    following the ground from the caster's to the target's.
+ *    It flies at least one step (2 units) out, so a target on or next to
+ *    the caster's cell still gets a throw of the usual length (about 1.5 s).
  *  - Turn: then it keeps flying and turns 5 degrees a tick until its heading is
  *    within 4 degrees of the way back to the caster. The height stays.
  *  - Back: then it flies straight, its height going back, and loses 12 alpha a
@@ -89,7 +91,8 @@ export function planBoomerang(from, to) {
 			s.dir = dist > 0 ? heading(dx, dy) : 180;
 		}
 		if (s.phase === 0) {
-			if (n * SHIELD.speed > dist) {
+			// At least one step out, so the turn never starts on the caster's own spot
+			if (n * SHIELD.speed > Math.max(dist, SHIELD.speed)) {
 				s.phase = 1;
 			}
 			s.up += climb;

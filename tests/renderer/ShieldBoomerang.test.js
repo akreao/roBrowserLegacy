@@ -62,6 +62,16 @@ describe('thrown shield (primitive 42)', () => {
 		expect(shieldAt(plan, plan.last)).toBe(null);
 	});
 
+	it('comes back as quickly on a target next to or under the caster', () => {
+		const far = planBoomerang([0, 0, 0], [25, 0, 0]).last;
+		for (const d of [0, 0.5, 1.5]) {
+			const near = planBoomerang([0, 0, 0], [d, 0, 0]);
+			expect(near.states[1].phase).toBe(0); // one step out first
+			expect(near.last).toBeLessThan(120); // about 1.5 s, not the 499-tick limit
+			expect(Math.abs(near.last - far)).toBeLessThanOrEqual(10);
+		}
+	});
+
 	it('follows the ground out and back', () => {
 		const up = planBoomerang([0, 0, 0], [20, 0, 5]);
 		expect(up.states[1].up).toBeCloseTo(8 + 0.5);
