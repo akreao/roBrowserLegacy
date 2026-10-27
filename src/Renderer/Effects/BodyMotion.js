@@ -18,7 +18,9 @@
  *  - quake (458 EF_QUAKEBODY2 and 426 EF_QUAKEBODY, Flying Kick): each edge of
  *    the layer moves by a random -5..+5 pixels every frame;
  *  - ready (449 EF_TAE_READY, stances and Tumbling): the layers are drawn twice
- *    more, added, in blue, fading in and out.
+ *    more, added, in blue, fading in and out;
+ *  - Gunslinger glows (548 Fling, 625 Madness Canceller, 626 Adjustment and
+ *    Gatling Fever): the same glow in blue or red, on some ticks only.
  *
  * Effect table entry:
  *   { type: 'FUNC', attachedEntity: true, func(Params) {
@@ -42,7 +44,7 @@ export default class BodyMotion {
 	/**
 	 * @param {Entity} owner
 	 * @param {number} startTick
-	 * @param {number} effectId 413, 414, 415, 426, 449, 458 or 466
+	 * @param {number} effectId 413, 414, 415, 426, 449, 458, 466, 548, 625 or 626
 	 * @param {number} frames lifetime in ticks (1/60 s)
 	 */
 	constructor(owner, startTick, effectId, frames) {
