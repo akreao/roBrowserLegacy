@@ -481,7 +481,7 @@ SkillEffect[SK.BD_SIEGFRIED] = { successEffectId: [285, 842], groundEffectId: '2
 // Bard
 SkillEffect[SK.BA_MUSICALSTRIKE] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Melody Strike
 SkillEffect[SK.BA_DISSONANCE] = { successEffectId: 843, groundEffectId: '277_ground' }; //Unchained Serenade
-SkillEffect[SK.BA_FROSTJOKE] = { beginCastEffectId: 295 }; //Unbarring Octave
+SkillEffect[SK.BA_FROSTJOKE] = { successEffectId: 295 }; //Unbarring Octave
 SkillEffect[SK.BA_WHISTLE] = { successEffectId: 844, groundEffectId: '286_ground' }; //Perfect Tablature
 SkillEffect[SK.BA_ASSASSINCROSS] = { successEffectId: [287, 840], groundEffectId: '287_ground' }; //Impressive Riff
 SkillEffect[SK.BA_POEMBRAGI] = { successEffectId: [288, 843], groundEffectId: '288_ground' }; //Magic Strings
@@ -489,7 +489,7 @@ SkillEffect[SK.BA_APPLEIDUN] = { successEffectId: [289, 841], groundEffectId: '2
 // Dancer
 SkillEffect[SK.DC_THROWARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Slinging Arrow
 SkillEffect[SK.DC_UGLYDANCE] = { successEffectId: 843, groundEffectId: '290_ground' }; //Hip Shaker
-SkillEffect[SK.DC_SCREAM] = { beginCastEffectId: 296 }; //Dazzler
+SkillEffect[SK.DC_SCREAM] = { successEffectId: 296 }; //Dazzler
 SkillEffect[SK.DC_HUMMING] = { successEffectId: [291, 844], groundEffectId: '291_ground' }; //Focus Ballet
 SkillEffect[SK.DC_DONTFORGETME] = { successEffectId: [292, 844], groundEffectId: '292_ground' }; //Slow Grace
 SkillEffect[SK.DC_FORTUNEKISS] = { successEffectId: [293, 840], groundEffectId: '293_ground' }; //Lady Luck
