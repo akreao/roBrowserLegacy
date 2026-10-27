@@ -1,13 +1,12 @@
 /**
  * DB/Effects/ArrowShowerEffects.js
  *
- * Arrow Shower (AC_SHOWER), played like the official client: arrows fly from
- * the caster to the centre of the cells around a point. From the ground
- * packet: the 8 cells around the target cell (the client's arrow to the
- * centre has no length, so nothing shows). From each damage packet: the
- * damaged actor and the 8 cells around it. Each arrow waits 18 frames of
- * 24 ms before it shows, then flies 8 frames, 2 cells (10 official units)
- * above the ground. Spec: effect-port/archer-skills.md.
+ * Arrow Shower (AC_SHOWER), played like the official client (kRO 2025-07-16):
+ * from each damage packet, arrows fly from the caster to the damaged actor and
+ * to the centre of the 8 cells around it. The ground packet plays none. Each
+ * arrow waits 18 frames of 24 ms before it shows, then flies 8 frames, from 2
+ * cells (10 official units) up to 4 cells (20 units) up at the end point.
+ * Spec: effect-port/archer-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
@@ -53,6 +52,7 @@ function arrow(offset) {
 		rotateWithCamera: true,
 		size: 100,
 		zOffset: 2,
+		zOffsetEnd: 2,
 		zIndex: 1
 	};
 }
@@ -60,8 +60,6 @@ function arrow(offset) {
 /** EffectTable rows. */
 export function arrowShowerEffects() {
 	return {
-		// Ground packet: the 8 cells around the target cell
-		ef_arrow_shower_ground: NEIGHBOUR_CELLS.map(arrow),
 		// Each damage packet: the damaged actor and the 8 cells around it
 		ef_arrow_shower_target: [arrow([0, 0]), ...NEIGHBOUR_CELLS.map(arrow)]
 	};

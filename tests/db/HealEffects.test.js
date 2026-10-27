@@ -6,7 +6,7 @@ import vm from 'node:vm';
 // Heal (AL_HEAL, skill 28) as the official client shows it. Spec: effect-port/acolyte-skills.md.
 // - use packet, result set: by the healed amount (level field) 7 / 312 / 313 / 325 on the target;
 //   the effect plays the one heal sound
-// - on an undead: 320 on the target as the damage packet arrives, then 0 and 1 once on the hit
+// - on an undead: 320 on the target as the damage packet arrives, then 0 on every hit and 1 with the first
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skills = read('DB/Skills/SkillEffect.js');
@@ -29,7 +29,7 @@ describe('Heal effects', () => {
 
 	it('plays it on success, and the undead damage effects', () => {
 		expect(skills).toMatch(
-			/SkillEffect\[SK\.AL_HEAL\] = \{\n\tsuccessEffectId: healEffectByAmount,\n\tdamageEffectIdOnTarget: 320,\n\thitEffectId: \[0, 1\],\n\thitEffectOnce: true\n\};/
+			/SkillEffect\[SK\.AL_HEAL\] = \{\n\tsuccessEffectId: healEffectByAmount,\n\tdamageEffectIdOnTarget: 320,\n\thitEffectId: 0,\n\tfirstHitEffectId: 1\n\};/
 		);
 	});
 
