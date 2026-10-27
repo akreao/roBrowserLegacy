@@ -319,7 +319,7 @@ SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
 SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0 }; //Stone Fling
 // Official client: 170 on the caster as each damage packet arrives; 0 and 170 on each target once per
 // damage packet when the hit lands. See effect-port/merchant-skills.md.
-SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: [0, 170], hitEffectOnce: true }; //Cart Revolution
+SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: 0, firstHitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 // Official client: 311 on the caster from the use packet, only when its result is set.
 // See effect-port/merchant-skills.md.
