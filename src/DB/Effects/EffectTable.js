@@ -13377,11 +13377,15 @@ export default {
 
 	622: [
 		{
-			//EF_THUNDERSTORM2	   Lightning Crash
-			type: 'STR',
-			file: 'setsudan',
+			//EF_THUNDERSTORM2	Lightning Jolt: official effect 622 (effect-port/ninja-skills.md)
+			// The 썬더스톰 sprite (no STR), action 0, 2 ticks a frame, once, 2.5 times its size,
+			// 4.5 units (31 px) up; EF_ThunderStorm.wav at the start.
+			type: 'SPR',
+			file: '\xbd\xe3\xb4\xf5\xbd\xba\xc5\xe8',
 			wav: 'effect/ef_thunderstorm',
-			attachedEntity: true
+			delayFrame: 2 * (1000 / 60),
+			scale: 2.5,
+			yOffset: -31
 		}
 	],
 
