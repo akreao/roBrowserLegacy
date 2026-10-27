@@ -97,13 +97,15 @@ const CHAMPION_JOBS = new Set([
 const SkillEffect = {};
 
 // Swordman
-// Official client: no effect of its own (16 EF_BASH is not played for Bash); each hit that lands plays
-// 0 (the standard hit flash) and 1 (EF_HIT2) on the target. See effect-port/swordman-skills.md.
+// Official client: 16 (EF_BASH) on the caster as each damage packet arrives, the default caster motion
+// effect (DB/Skills/SkillMotionEffect.js); each hit that lands plays 0 (the standard hit flash) and 1
+// (EF_HIT2) on the target. See effect-port/swordman-skills.md and effect-port/caster-motion-effect.md.
 SkillEffect[SK.SM_BASH] = { hitEffectId: [0, 1] }; //Bash
 SkillEffect[SK.SM_PROVOKE] = { successEffectId: 67 }; //Provoke
-// Official client: 17 on the caster from the use packet (result set); 16 on the caster as each damage packet
-// arrives; 49 (fire hit) and 17 on each target when the hit lands. No screen shake. See effect-port/swordman-skills.md.
-SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, damageEffectIdOnCaster: 16, hitEffectId: [49, 17] }; //Magnum Break
+// Official client: 17 on the caster from the use packet (result set); 16 on the caster from each damage packet
+// that is not a splash packet that hit (the caster motion effect, DB/Skills/SkillMotionEffect.js); 49 (fire hit)
+// and 17 on each target when the hit lands. No screen shake. See effect-port/swordman-skills.md.
+SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, hitEffectId: [49, 17] }; //Magnum Break
 SkillEffect[SK.SM_ENDURE] = { successEffectIdOnCaster: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
@@ -136,30 +138,33 @@ SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49 }; /
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52 }; //Lightning Bolt
 SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
 // Acolyte
-// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash) and 1 (EF_HIT2).
-// The status look (33) comes from the effect state. See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_RUWACH] = { hitEffectId: [0, 1] }; //Ruwach
+// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash), and 1 (EF_HIT2)
+// with the first hit of the packet. Each damage packet also plays 12 (EF_BEGINSPELL) on the caster
+// (the client's per-skill motion effect). The status look (33) comes from the effect state.
+// See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_RUWACH] = { damageEffectIdOnCaster: 12, hitEffectId: 0, firstHitEffectId: 1 }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
 // Official client: the use packet picks the heal effect by the healed amount (the packet's level
 // field) on the target, which plays the heal sound; on an undead, 320 on the target as the damage
-// packet arrives, then 0 and 1 once when the damage lands. See effect-port/acolyte-skills.md.
+// packet arrives, then 0 on every hit and 1 with the first one. See effect-port/acolyte-skills.md.
 const healEffectByAmount = amount => (amount >= 4000 ? 325 : amount >= 2000 ? 313 : amount >= 200 ? 312 : 7);
 SkillEffect[SK.AL_HEAL] = {
 	successEffectId: healEffectByAmount,
 	damageEffectIdOnTarget: 320,
-	hitEffectId: [0, 1],
-	hitEffectOnce: true
+	hitEffectId: 0,
+	firstHitEffectId: 1
 }; //Heal
 // Official client: the use packet shows these only when its result is set (a resisted Decrease AGI
-// shows nothing). See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_INCAGI] = { successEffectId: 37 }; //Increase AGI
+// shows nothing). On a player under Change Undead, Increase AGI and Blessing also deal damage: 0 on
+// every hit and 1 (EF_HIT2) with the first, like any Acolyte hit. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_INCAGI] = { successEffectId: 37, hitEffectId: 0, firstHitEffectId: 1 }; //Increase AGI
 SkillEffect[SK.AL_DECAGI] = { successEffectId: 38 }; //Decrease AGI
 SkillEffect[SK.AL_HOLYWATER] = { successEffectId: 39 }; //Aqua Benedicta
 SkillEffect[SK.AL_CRUCIS] = { successEffectId: 40 }; //Signum Crucis
 SkillEffect[SK.AL_ANGELUS] = { successEffectId: 41 }; //Angelus
-SkillEffect[SK.AL_BLESSING] = { successEffectId: 42 }; //Blessing
+SkillEffect[SK.AL_BLESSING] = { successEffectId: 42, hitEffectId: 0, firstHitEffectId: 1 }; //Blessing
 SkillEffect[SK.AL_CURE] = { successEffectId: 66 }; //Cure
 // Merchant
 SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
@@ -170,25 +175,34 @@ SkillEffect[SK.MC_MAMMONITE] = { hitEffectId: [0, 10], hitEffectOnce: true }; //
 // Archer
 // Official client: 153 on the caster from the use packet, only when its result is set.
 SkillEffect[SK.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 }; //Improve Concentration
-// Official client: no effect of its own (16 EF_BASH is not played); one arrow per damage packet, as for
-// a normal bow attack; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2) on the target.
+// Official client (kRO 2025-07-16): as each damage packet arrives, 16 (EF_BASH) on the caster and one
+// arrow from the bow attack motion; every hit that lands plays 0 (the standard hit flash), the first hit
+// of each packet also 1 (EF_HIT2, the hit map). See effect-port/archer-skills.md.
+SkillEffect[SK.AC_DOUBLE] = {
+	damageEffectIdOnCaster: 16,
+	damageEffectIdOnTarget: 'ef_arrow_projectile',
+	hitEffectId: 0,
+	firstHitEffectId: 1
+}; //Double Strafe
+// Official client (kRO 2025-07-16): nothing from the ground packet; arrows to the damaged actor and the
+// 8 cells around it from each damage packet; the bow arrow of the caster's attack motion from each
+// damage packet that is not splash; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2).
 // See effect-port/archer-skills.md.
-SkillEffect[SK.AC_DOUBLE] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1] }; //Double Strafe
-// Official client: arrows to the 8 cells around the ground cell from the ground packet; arrows to the
-// damaged actor and the 8 cells around it from each damage packet; each hit that lands plays 0 (the
-// standard hit flash) and 1 (EF_HIT2). See effect-port/archer-skills.md.
 SkillEffect[SK.AC_SHOWER] = {
-	groundEffectIdByLevel: ['ef_arrow_shower_ground'],
 	damageEffectIdOnTarget: 'ef_arrow_shower_target',
+	releaseEffectId: 'ef_arrow_projectile',
 	hitEffectId: [0, 1]
 }; //Arrow Shower
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
 SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
-// Official client: 16 (EF_BASH) on the caster as each damage packet arrives; the hit plays 0 (the standard
-// hit flash) and 1 (EF_HIT2) on the target, once per packet. 20 is not played. See effect-port/thief-skills.md.
-SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: [0, 1], hitEffectOnce: true }; //Envenom
-SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
+// Official client (kRO 2025-07-16): 16 (EF_BASH) on the caster as each damage packet arrives; each hit plays
+// 0 (the standard hit flash) on the target, and 1 (EF_HIT2) with the first hit of the packet. 20 is not played.
+// See effect-port/thief-skills.md.
+SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: 0, firstHitEffectId: 1 }; //Envenom
+// Official client: 21 on the target from the use packet, only when its result is set.
+// See effect-port/thief-skills.md.
+SkillEffect[SK.TF_DETOXIFY] = { successEffectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
 // Knight
@@ -300,9 +314,9 @@ SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnCaster: 1
 SkillEffect[SK.TF_SPRINKLESAND] = { damageEffectIdOnTarget: 310, hitEffectId: 0 }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone
-// Official client: 308 (the stone) from the caster at the target as each damage packet arrives; the hit
-// plays the standard hit flash (0) once per packet. See effect-port/thief-skills.md.
-SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0, hitEffectOnce: true }; //Stone Fling
+// Official client (kRO 2025-07-16): 308 (the stone) from the caster at the target as each damage packet
+// arrives; every hit plays the standard hit flash (0). See effect-port/thief-skills.md.
+SkillEffect[SK.TF_THROWSTONE] = { damageEffectIdOnCaster: 308, hitEffectId: 0 }; //Stone Fling
 // Official client: 170 on the caster as each damage packet arrives; 0 and 170 on each target once per
 // damage packet when the hit lands. See effect-port/merchant-skills.md.
 SkillEffect[SK.MC_CARTREVOLUTION] = { damageEffectIdOnCaster: 170, hitEffectId: [0, 170], hitEffectOnce: true }; //Cart Revolution
@@ -310,9 +324,9 @@ SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 // Official client: 311 on the caster from the use packet, only when its result is set.
 // See effect-port/merchant-skills.md.
 SkillEffect[SK.MC_LOUD] = { successEffectId: 311 }; //Crazy Uproar
-// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) and
-// 152 (HolyHit.str) once, nothing on a miss. See effect-port/acolyte-skills.md.
-SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: [0, 152], hitEffectOnce: true }; //Holy Light
+// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) on
+// every hit and 152 (HolyHit.str) with the first one, nothing on a miss. See effect-port/acolyte-skills.md.
+SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: 0, firstHitEffectId: 152 }; //Holy Light
 // Official client: 169 (EnergyCoat.str) on the caster from the use packet, only when its result is set.
 // See effect-port/mage-audit.md.
 SkillEffect[SK.MG_ENERGYCOAT] = { successEffectIdOnCaster: 169 }; //Energy Coat
