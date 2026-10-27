@@ -16,6 +16,9 @@ export const QUAKE_PX = 5;
 /** Ready glow colour (0-255). */
 export const READY_COLOR = [5, 5, 255];
 
+/** Red glow colour (0-255): the client's second glow bit, same counter and alpha as the blue one. */
+export const RED_COLOR = [255, 5, 5];
+
 /**
  * Press: share of its height a layer keeps on tick n of the press.
  *
@@ -106,7 +109,13 @@ export const SCHEDULES = {
 	// EF_QUAKEBODY2: quake all along.
 	458: () => ({ quake: true }),
 	// EF_SPINEDBODY2: spin from age 14 to 49.
-	466: age => (age >= 14 && age < 50 ? { spin: age - 14 } : null)
+	466: age => (age >= 14 && age < 50 ? { spin: age - 14 } : null),
+	// EF_RED_HIT (Fling): red glow on ticks 0 to 16, counter 3 x age.
+	548: age => (age <= 16 ? { red: age * 3 } : null),
+	// EF_MADNESS_BLUE (Madness Canceller): blue glow, counter 20, on one tick in four.
+	625: age => (age % 4 === 0 ? { ready: 20 } : null),
+	// EF_MADNESS_RED (Adjustment, Gatling Fever): the same in red.
+	626: age => (age % 4 === 0 ? { red: 20 } : null)
 };
 
 /**
@@ -180,6 +189,34 @@ export function glowAlpha(marks) {
 		}
 	}
 	return alpha;
+}
+
+/**
+ * The glows the owner's marks ask for this tick, blue first, as the client
+ * draws them: each { color: [r, g, b] 0-255, alpha: 0-255 }.
+ *
+ * @param {object[]} marks
+ * @return {object[]}
+ */
+export function glowLayers(marks) {
+	let blue = 0;
+	let red = 0;
+	for (let i = 0; i < marks.length; i++) {
+		if (marks[i].ready !== undefined) {
+			blue = Math.max(blue, readyAlpha(marks[i].ready));
+		}
+		if (marks[i].red !== undefined) {
+			red = Math.max(red, readyAlpha(marks[i].red));
+		}
+	}
+	const layers = [];
+	if (blue > 0) {
+		layers.push({ color: READY_COLOR, alpha: blue });
+	}
+	if (red > 0) {
+		layers.push({ color: RED_COLOR, alpha: red });
+	}
+	return layers;
 }
 
 /**

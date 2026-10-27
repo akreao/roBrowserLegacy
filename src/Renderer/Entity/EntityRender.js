@@ -31,7 +31,7 @@ import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
-import { applyMarks, glowAlpha, marksOf, READY_COLOR } from 'Renderer/Effects/BodyMotionSim.js';
+import { applyMarks, glowLayers, marksOf } from 'Renderer/Effects/BodyMotionSim.js';
 
 /**
  * Load dependencies
@@ -751,8 +751,8 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 }
 
 /**
- * Taekwon ready glow (EF_TAE_READY, BodyMotion.js): the layers drawn twice
- * more, added, in blue at the given alpha.
+ * Body glow (BodyMotion.js: Taekwon ready glow, Gunslinger blue and red
+ * glows): the layers drawn twice more, added, in one colour at one alpha.
  *
  * @param {Entity} entity
  * @param {Array} layers
@@ -760,17 +760,18 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
  * @param {object} pal
  * @param {object} files
  * @param {number[]} _position
+ * @param {number[]} glowColor [r, g, b] 0-255
  * @param {number} alpha 0-255
  */
-function renderReadyGlow(entity, layers, spr, pal, files, _position, alpha) {
+function renderReadyGlow(entity, layers, spr, pal, files, _position, glowColor, alpha) {
 	const color = entity.effectColor;
 	const r = color[0];
 	const g = color[1];
 	const b = color[2];
 	const a = color[3];
-	color[0] = READY_COLOR[0] / 255;
-	color[1] = READY_COLOR[1] / 255;
-	color[2] = READY_COLOR[2] / 255;
+	color[0] = glowColor[0] / 255;
+	color[1] = glowColor[1] / 255;
+	color[2] = glowColor[2] / 255;
 	color[3] = alpha / 255;
 	for (let k = 0; k < 2; k++) {
 		for (let i = 0; i < layers.length; ++i) {
@@ -1114,11 +1115,11 @@ const renderElement = (function renderElementClosure() {
 			entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 		}
 
-		// Taekwon ready glow (BodyMotion.js): two more added copies, in blue
+		// Body glows (BodyMotion.js): two more added copies per glow, blue then red
 		if (type !== 'shadow' && type !== 'cartshadow' && entity._bodyMotions && entity._bodyMotions.size) {
-			const alpha = glowAlpha(marksOf(entity));
-			if (alpha > 0) {
-				renderReadyGlow(entity, layers, spr, pal, files, _position, alpha);
+			const glows = glowLayers(marksOf(entity));
+			for (let g = 0; g < glows.length; g++) {
+				renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
 			}
 		}
 
