@@ -13059,7 +13059,9 @@ export default {
 
 	621: [
 		{
-			//EF_STIN4	   Wind Blade
+			//EF_STIN4	Wind Blade: official effect 621 (effect-port/ninja-skills.md), on the caster as
+			// the damage packet arrives: 풍인.wav at the start. Not ported: one set of 270바람.tga
+			// blades (prim 125) per hit, flying at the target.
 			wav: 'effect/\xc7\xb3\xc0\xce'
 		}
 	],
