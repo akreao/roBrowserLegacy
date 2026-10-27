@@ -7,6 +7,7 @@ let current;
 vi.mock('Renderer/EntityManager.js', () => ({ default: { get: () => current } }));
 
 import CasterMarks, { SCHEDULES, TURN_STEP, turnedDirection } from 'Renderer/Effects/CasterMarks.js';
+import { turnedDirection as facingTurn } from 'Renderer/Effects/FacingTurn.js';
 
 // Falcon Assault (SN_FALCONASSAULT 381) as the official client (kRO 2020-12-29)
 // plays it: effect 387 on the target as the damage packet arrives (no sound;
@@ -60,15 +61,27 @@ describe('Falcon Assault on its target (387)', () => {
 		expect(lit).toEqual([30, 31, 32, 33, 34, 40, 41, 42, 43, 44, 50]);
 	});
 
+	it('turns the way Tornado Kick turns, a step every whole 45 degrees', () => {
+		for (let start = 0; start < 8; start++) {
+			for (let age = 0; age < 48; age++) {
+				expect(turnedDirection(start, ((age + 1) * TURN_STEP) % 360)).toBe(facingTurn(start, age));
+			}
+		}
+	});
+
 	it('turns the owner from where it faced and lights it', () => {
-		expect(turnedDirection(7, 90)).toBe(1);
 		const marks = new CasterMarks(current, 0, 55, 387);
 		marks.render(null, (30 * 1000) / 60 + 1);
 		expect(current._additiveBody).toBe(1);
-		expect(current.direction).toBe(3);
+		expect(current.direction).toBe(2);
+		marks.render(null, (31 * 1000) / 60 + 1);
+		expect(current.direction).toBe(1);
 		marks.render(null, (35 * 1000) / 60 + 1);
 		expect(current._additiveBody).toBe(0);
 		expect(current.direction).toBe(turnedDirection(2, 180));
+		// The last turn (750 degrees) draws the facing it started from.
+		marks.render(null, (54 * 1000) / 60 + 1);
+		expect(current.direction).toBe(2);
 		marks.render(null, (55 * 1000) / 60 + 1);
 		expect(marks.needCleanUp).toBe(true);
 	});

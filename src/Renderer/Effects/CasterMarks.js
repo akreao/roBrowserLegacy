@@ -91,16 +91,21 @@ export function colorAt(schedule, age) {
 	return null;
 }
 
+/** roBrowser direction <-> server direction (the same table both ways). */
+const DIR_MAP = [4, 3, 2, 1, 0, 7, 6, 5];
+
 /**
- * The facing (0-7, roBrowser's directions are 45 degrees apart) after turning
- * `degrees` from `direction`.
+ * The facing (roBrowser direction, 0-7) after turning `degrees` from
+ * `direction`: one step every whole 45 degrees, the way the server's direction
+ * numbers go round, as Tornado Kick's turn does (FacingTurn.js).
  *
  * @param {number} direction
  * @param {number} degrees
  * @return {number}
  */
 export function turnedDirection(direction, degrees) {
-	return (((direction + Math.round(degrees / 45)) % 8) + 8) % 8;
+	const steps = ((Math.floor(degrees / 45) % 8) + 8) % 8;
+	return DIR_MAP[(DIR_MAP[direction & 7] + steps) % 8];
 }
 
 /**
