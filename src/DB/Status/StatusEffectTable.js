@@ -264,5 +264,11 @@ export default {
 	},
 	[StatusConst.THUNDERING_ROD_MAX]: {
 		loop: ['thundering_rod_full']
+	},
+
+	// Assumptio (HP_ASSUMPTIO): the official client removes 375 and launches it again when the status
+	// starts, and removes it when the status ends.
+	[StatusConst.ASSUMPTIO]: {
+		loop: [375]
 	}
 };

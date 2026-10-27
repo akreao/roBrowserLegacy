@@ -538,7 +538,8 @@ SkillEffect[SK.LK_TENSIONRELAX] = {}; //Relax
 SkillEffect[SK.LK_BERSERK] = { effectId: [368, 'quake'] }; //Frenzy
 SkillEffect[SK.LK_FURY] = { effectId: [368, 'quake'] }; //Fury
 // High Priest
-SkillEffect[SK.HP_ASSUMPTIO] = { effectId: 440 }; //Assumptio
+// Official client: on success, 375 (the status look, see StatusEffectTable) and 440 on the target.
+SkillEffect[SK.HP_ASSUMPTIO] = { successEffectId: [375, 440] }; //Assumptio
 SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
 SkillEffect[SK.HW_MAGICCRASHER] = { effectId: 380 }; //Stave Crasher
