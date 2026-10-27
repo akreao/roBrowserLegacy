@@ -216,7 +216,13 @@ SkillEffect[SK.KN_TWOHANDQUICKEN] = { effectId: 130 }; //Twohand Quicken
 SkillEffect[SK.KN_AUTOCOUNTER] = {
 	hideCastAura: true /*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/
 }; //Counter Attack
-SkillEffect[SK.KN_BOWLINGBASH] = { hideCastBar: true, hideCastAura: true, effectIdOnCaster: 149, hitEffectId: 1 }; //Bowling Bash
+SkillEffect[SK.KN_BOWLINGBASH] = {
+	hideCastBar: true,
+	hideCastAura: true,
+	damageEffectIdOnCaster: 149,
+	hitEffectId: [0, 73],
+	hitEffectOnce: true
+}; //Bowling Bash
 // Priest
 // Official client: the use packet plays these only when its result is set; Kyrie, Magnificat and
 // Gloria play on the packet's source (the buffed actor itself, as rAthena sends them). Aspersio on

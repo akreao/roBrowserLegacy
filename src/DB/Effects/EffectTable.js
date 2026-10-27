@@ -3012,6 +3012,67 @@ export default {
 		}
 	],
 
+	73: [
+		{
+			//Bowling Bash hit (official client): two upright ring_blue cone bands (primitive 13) on
+			//ticks 0 and 5, the second turned 100 degrees further and fainter, and a faint flat
+			//ring_yellow ring (primitive 12) slowing until tick 20, then growing slowly. No sound.
+			type: 'PRIM',
+			prim: 'cone',
+			texture: 'ring_blue',
+			attachedEntity: true,
+			duration: 20 * (1000 / 60),
+			frames: 20,
+			facing: true,
+			baseRadius: 3,
+			baseSpeed: 0.5,
+			baseAccel: -0.03,
+			topRadius: 8,
+			topSpeed: 0.5,
+			topAccel: -0.03,
+			coneHeight: 3.5,
+			alpha: 240,
+			fadeOutFrame: 10
+		},
+		{
+			type: 'PRIM',
+			prim: 'cone',
+			texture: 'ring_blue',
+			attachedEntity: true,
+			delayStart: 5 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			frames: 15,
+			facing: true,
+			yaw: 100,
+			baseRadius: 3,
+			baseSpeed: 0.5,
+			baseAccel: -0.03,
+			topRadius: 8,
+			topSpeed: 0.5,
+			topAccel: -0.03,
+			coneHeight: 3.5,
+			alpha: 205,
+			fadeOutFrame: 8
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 50 * (1000 / 60),
+			frames: 50,
+			radius: 8,
+			radiusSpeed: 0.7,
+			radiusAccel: -0.7 / 30,
+			radiusChangeFrame: 20,
+			radiusChangeSpeed: 0.08,
+			radiusChangeAccel: 0,
+			width: 5,
+			alpha: 45,
+			fadeOutFrame: 35
+		}
+	],
+
 	74: [
 		{
 			//EF_ICEWALL	Ice Wall
@@ -4241,10 +4302,9 @@ export default {
 
 	149: [
 		{
-			//EF_BOWLINGSELF	Bowling Bash
+			//EF_BOWLINGSELF	Bowling Bash, on the caster as each damage packet arrives (no sound)
 			type: 'STR',
 			file: 'bowling',
-			wav: '_enemy_hit_normal1', //'effect/knight_bowling_bash', fake
 			head: true,
 			attachedEntity: true
 		}
