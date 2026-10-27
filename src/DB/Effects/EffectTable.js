@@ -9286,13 +9286,14 @@ export default {
 					}
 				});
 			},
-			wav: 'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac'
+			wav: 'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac',
+			delayWav: 25 * (1000 / 60) // official client: sound on tick 25
 		},
 		{
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 300;
+				const start = Params.Inst.startTick + 30 * (1000 / 60); // quake on tick 30
 				Camera.setQuake(start);
 			}
 		}
