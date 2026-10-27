@@ -223331,7 +223331,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SN_SIGHT] = { effectId: 386 };
 	SkillEffect[SkillConst_default.SN_FALCONASSAULT] = {
 		hideCastAura: true,
-		effectId: 387
+		damageEffectIdOnTarget: 387,
+		hitEffectId: [0, 115],
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.SN_SHARPSHOOTING] = {
 		hitEffectId: 388,
@@ -293164,6 +293166,19 @@ function colorAt(schedule, age) {
 	return null;
 }
 /**
+* The facing (roBrowser direction, 0-7) after turning `degrees` from
+* `direction`: one step every whole 45 degrees, the way the server's direction
+* numbers go round, as Tornado Kick's turn does (FacingTurn.js).
+*
+* @param {number} direction
+* @param {number} degrees
+* @return {number}
+*/
+function turnedDirection$1(direction, degrees) {
+	const steps = (Math.floor(degrees / 45) % 8 + 8) % 8;
+	return DIR_MAP$1[(DIR_MAP$1[direction & 7] + steps) % 8];
+}
+/**
 * Recover a colour on an entity by 8 a tick until it is back to normal
 *
 * @param {Entity} entity
@@ -293183,7 +293198,7 @@ function recoverColor(entity, color) {
 		return done;
 	});
 }
-var RED, YELLOW, WHITE, SCHEDULES, CasterMarks;
+var RED, YELLOW, WHITE, SCHEDULES, DIR_MAP$1, CasterMarks;
 var init_CasterMarks = __esmMin((() => {
 	init_EntityManager();
 	init_EffectPrimSim();
@@ -293221,6 +293236,15 @@ var init_CasterMarks = __esmMin((() => {
 				color: on ? RED : null
 			};
 		},
+		387: (age) => {
+			return {
+				add: age >= 30 && age <= 50 && (age - 30) % 10 < 5,
+				glow: false,
+				split: false,
+				color: null,
+				turn: age >= 30 && age <= 54 ? (age - 29) * 30 % 360 : null
+			};
+		},
 		375: () => ({
 			add: false,
 			glow: true,
@@ -293238,6 +293262,16 @@ var init_CasterMarks = __esmMin((() => {
 			};
 		}
 	};
+	DIR_MAP$1 = [
+		4,
+		3,
+		2,
+		1,
+		0,
+		7,
+		6,
+		5
+	];
 	CasterMarks = class {
 		static ready = true;
 		static renderBeforeEntities = true;
@@ -293283,6 +293317,10 @@ var init_CasterMarks = __esmMin((() => {
 			} else if (this._split) {
 				owner._splitImageAge = void 0;
 				this._split = false;
+			}
+			if (state.turn !== null && state.turn !== void 0) {
+				if (this.turnFrom === void 0) this.turnFrom = owner.direction;
+				owner.direction = turnedDirection$1(this.turnFrom, state.turn);
 			}
 			if (age !== null && owner._flashColor) {
 				const color = colorAt(this.schedule, age);
@@ -300785,14 +300823,11 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		387: [{
-			wav: "effect/hunter_blitzbeat",
-			attachedEntity: true
-		}, {
 			type: "FUNC",
 			attachedEntity: true,
 			func: function(Params) {
-				const start = Params.Inst.startTick + 300;
-				Camera.setQuake(start);
+				Camera.setQuake(Params.Inst.startTick + 500);
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 55, 387), Params);
 			}
 		}],
 		388: [{
