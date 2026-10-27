@@ -58,6 +58,7 @@ import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import { GANBANTEIN_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
 import {
@@ -5236,7 +5237,21 @@ export default {
 		}
 	],
 
-	//223: [{}],	//EF_GANBANTEIN	   Holy Cast Aura
+	223: [
+		{
+			//EF_GANBANTEIN	   Ganbantein
+			// Official client: four rings of ring_white.tga opening out round the cell, the funnel's
+			// variant 2 (CastFunnelSim.js GANBANTEIN_FUNNEL); the effect lives 300 ticks.
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(Params.Inst.position, Params.Inst.startTick, 300, 'ring_white.tga', GANBANTEIN_FUNNEL),
+					Params
+				);
+			}
+		}
+	],
 	//224: [{}],	//EF_WIND	   Wind (Map effect)
 	//225: [{}],	//EF_VOLCANO	   Volcano casting effect
 
@@ -19418,6 +19433,13 @@ export default {
 					}
 				});
 			}
+		}
+	],
+
+	// Ganbantein's ground packet: the official client plays EF_FireWall.wav at the cell with effect 223.
+	ef_ganbantein_wav: [
+		{
+			wav: 'effect/ef_firewall'
 		}
 	],
 
