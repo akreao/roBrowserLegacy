@@ -150876,7 +150876,7 @@ var init_EffectConst = __esmMin((() => {
 	};
 }));
 // src/DB/Skills/SkillUnit.js
-var SkillUnit, SkillUnitEnd;
+var SkillUnit, SkillUnitEnd, SkillUnitTrigger;
 var init_SkillUnit = __esmMin((() => {
 	init_SkillUnitConst();
 	init_EffectConst();
@@ -150897,7 +150897,7 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_ANKLESNARE] = "ef_trap_01";
 	SkillUnit[SkillUnitConst_default.UNT_VENOMDUST] = EffectConst_default.EF_VENOMDUST2;
 	SkillUnit[SkillUnitConst_default.UNT_LANDMINE] = "ef_trap_03";
-	SkillUnit[SkillUnitConst_default.UNT_SHOCKWAVE] = "ef_trap_03_6";
+	SkillUnit[SkillUnitConst_default.UNT_SHOCKWAVE] = ["ef_trap_03_6", EffectConst_default.EF_SHOCKWAVE];
 	SkillUnit[SkillUnitConst_default.UNT_SANDMAN] = "ef_trap_03_4";
 	SkillUnit[SkillUnitConst_default.UNT_FLASHER] = "ef_trap_03_5";
 	SkillUnit[SkillUnitConst_default.UNT_FREEZINGTRAP] = "ef_trap_03_2";
@@ -151035,6 +151035,12 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnitEnd[SkillUnitConst_default.UNT_TOTEM_OF_TUTELARY] = ["totem_of_tutelary_bottom_end", "totem_of_tutelary_end"];
 	SkillUnitEnd[SkillUnitConst_default.UNT_KUNAIWAIKYOKU] = ["kunaiarea_01_end"];
 	SkillUnitEnd[SkillUnitConst_default.UNT_SHINKIROU] = ["shinkirou_idle_end"];
+	SkillUnitTrigger = {};
+	SkillUnitTrigger[SkillUnitConst_default.UNT_BLASTMINE] = [EffectConst_default.EF_BLASTMINEBOMB];
+	SkillUnitTrigger[SkillUnitConst_default.UNT_CLAYMORETRAP] = [EffectConst_default.EF_CLAYMORE];
+	SkillUnitTrigger[SkillUnitConst_default.UNT_FREEZINGTRAP] = [EffectConst_default.EF_FREEZING];
+	SkillUnitTrigger[SkillUnitConst_default.UNT_SANDMAN] = [EffectConst_default.EF_SANDMAN];
+	SkillUnitTrigger[SkillUnitConst_default.UNT_FLASHER] = [EffectConst_default.EF_FLASHER];
 }));
 // src/DB/Status/StateIconMods.js
 /**
@@ -222728,20 +222734,20 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: 104
 	};
 	SkillEffect[SkillConst_default.HT_SKIDTRAP] = { effectId: 69 };
-	SkillEffect[SkillConst_default.HT_LANDMINE] = { effectId: "ef_ht_landmine" };
+	SkillEffect[SkillConst_default.HT_LANDMINE] = { hitEffectId: [0] };
 	SkillEffect[SkillConst_default.HT_ANKLESNARE] = { groundEffectId: "ef_anklesnare" };
-	SkillEffect[SkillConst_default.HT_SHOCKWAVE] = {
-		effectId: 145,
-		hitEffectId: 146
-	};
-	SkillEffect[SkillConst_default.HT_SANDMAN] = { hitEffectId: 139 };
-	SkillEffect[SkillConst_default.HT_FLASHER] = { hitEffectId: 99 };
-	SkillEffect[SkillConst_default.HT_FREEZINGTRAP] = { hitEffectId: 108 };
-	SkillEffect[SkillConst_default.HT_BLASTMINE] = { hitEffectId: 106 };
-	SkillEffect[SkillConst_default.HT_CLAYMORETRAP] = { hitEffectId: 107 };
+	SkillEffect[SkillConst_default.HT_SHOCKWAVE] = { hitEffectId: [0] };
+	SkillEffect[SkillConst_default.HT_SANDMAN] = {};
+	SkillEffect[SkillConst_default.HT_FLASHER] = { hitEffectId: [0] };
+	SkillEffect[SkillConst_default.HT_FREEZINGTRAP] = { hitEffectId: [0] };
+	SkillEffect[SkillConst_default.HT_BLASTMINE] = { hitEffectId: [0] };
+	SkillEffect[SkillConst_default.HT_CLAYMORETRAP] = { hitEffectId: [0] };
 	SkillEffect[SkillConst_default.HT_REMOVETRAP] = { effectId: 100 };
 	SkillEffect[SkillConst_default.HT_TALKIEBOX] = {};
-	SkillEffect[SkillConst_default.HT_BLITZBEAT] = { effectId: 115 };
+	SkillEffect[SkillConst_default.HT_BLITZBEAT] = {
+		hitEffectId: 115,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.HT_DETECTING] = { effectId: 119 };
 	SkillEffect[SkillConst_default.HT_SPRINGTRAP] = { effectId: 111 };
 	SkillEffect[SkillConst_default.AS_CLOAKING] = { effectId: 120 };
@@ -222941,8 +222947,9 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.CR_SHIELDBOOMERANG] = {
-		beforeHitEffectId: "ef_shield_projectile",
-		effectId: 249
+		damageEffectIdOnCaster: 249,
+		hitEffectId: 0,
+		hitEffectOnce: true
 	};
 	SkillEffect[SkillConst_default.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 };
 	SkillEffect[SkillConst_default.CR_HOLYCROSS] = {
@@ -223002,22 +223009,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SA_FROSTWEAPON] = { successEffectId: 256 };
 	SkillEffect[SkillConst_default.SA_LIGHTNINGLOADER] = { successEffectId: 257 };
 	SkillEffect[SkillConst_default.SA_SEISMICWEAPON] = { successEffectId: 258 };
-	SkillEffect[SkillConst_default.SA_VOLCANO] = {
-		effectIdOnCaster: 225,
-		groundEffectId: 239
-	};
-	SkillEffect[SkillConst_default.SA_DELUGE] = {
-		effectIdOnCaster: 236,
-		groundEffectId: 240
-	};
-	SkillEffect[SkillConst_default.SA_VIOLENTGALE] = {
-		effectIdOnCaster: 237,
-		groundEffectId: 241
-	};
-	SkillEffect[SkillConst_default.SA_LANDPROTECTOR] = {
-		effectIdOnCaster: 238,
-		groundEffectId: 242
-	};
+	SkillEffect[SkillConst_default.SA_VOLCANO] = { groundEffectIdByLevel: [225] };
+	SkillEffect[SkillConst_default.SA_DELUGE] = { groundEffectIdByLevel: [236] };
+	SkillEffect[SkillConst_default.SA_VIOLENTGALE] = { groundEffectIdByLevel: [237] };
+	SkillEffect[SkillConst_default.SA_LANDPROTECTOR] = { groundEffectIdByLevel: [238] };
 	SkillEffect[SkillConst_default.SA_DISPELL] = { successEffectId: 235 };
 	SkillEffect[SkillConst_default.SA_ABRACADABRA] = {};
 	SkillEffect[SkillConst_default.SA_MONOCELL] = {};
@@ -223365,7 +223360,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AM_TWILIGHT1] = { effectId: 497 };
 	SkillEffect[SkillConst_default.AM_TWILIGHT2] = { effectId: 498 };
 	SkillEffect[SkillConst_default.AM_TWILIGHT3] = { effectId: 499 };
-	SkillEffect[SkillConst_default.HT_POWER] = {};
+	SkillEffect[SkillConst_default.HT_POWER] = {
+		damageEffectIdOnTarget: "ef_arrow_projectile",
+		hitEffectId: 1,
+		hitEffectOnce: true
+	};
 	SkillEffect[SkillConst_default.GS_GLITTERING] = { effectId: "gunslinger_coin" };
 	SkillEffect[SkillConst_default.GS_FLING] = {
 		damageEffectIdOnTarget: 548,
@@ -278370,6 +278369,29 @@ var init_EffectManager = __esmMin((() => {
 			}));
 		}
 		/**
+		* Play a trap's effect where it stands when it goes off (its unit turns
+		* into a used trap), once, like the official client.
+		*
+		* @param {number} uid skill unit id
+		* @param {number} unitId the unit's new look
+		*/
+		static spamSkillUnitTrigger(uid, unitId) {
+			const entity = EntityManager.get(uid);
+			if (!entity || unitId !== SkillUnitConst_default.UNT_USED_TRAPS || entity.skillUnitId === unitId) return;
+			const trapId = entity.skillUnitId;
+			entity.skillUnitId = unitId;
+			if (!Map_default.effect || !(trapId in SkillUnitTrigger)) return;
+			const position = [
+				entity.position[0],
+				entity.position[1],
+				entity.position[2]
+			];
+			SkillUnitTrigger[trapId].forEach((effectId) => EffectManager.spam({
+				effectId,
+				position
+			}));
+		}
+		/**
 		* Spam a skill on a target
 		*
 		* @param {number} skill id
@@ -288153,18 +288175,18 @@ function sandGrainEffect(grain) {
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * p.half * SIZE_PER_UNIT$1,
+				size: 2 * p.half * SIZE_PER_UNIT$2,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
 		}
 	};
 }
-var SIZE_PER_UNIT$1, sandAttackEffect;
+var SIZE_PER_UNIT$2, sandAttackEffect;
 var init_SandAttackEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_SandGrainSim();
-	SIZE_PER_UNIT$1 = 7;
+	SIZE_PER_UNIT$2 = 7;
 	sandAttackEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
@@ -289439,7 +289461,7 @@ function stoneAt(t, k) {
 * @param {number} k
 * @return {?object}
 */
-function trailAt(t, i, k) {
+function trailAt$1(t, i, k) {
 	const j = k % 2 === 1 ? k : k - 1;
 	if (j - 2 * i < 3) return null;
 	const p = stoneAt(t, j - 1 - 2 * i);
@@ -289509,13 +289531,13 @@ function stoneEffect(t, copy, file = STONE_TEXTURE) {
 		zIndex: 1,
 		track(age) {
 			const k = Math.floor(age);
-			const p = copy < 0 ? stoneAt(t, k) : trailAt(t, copy, k);
+			const p = copy < 0 ? stoneAt(t, k) : trailAt$1(t, copy, k);
 			if (!p || p.alpha < 1) return null;
 			return {
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * t.kind.half * SIZE_PER_UNIT,
+				size: 2 * t.kind.half * SIZE_PER_UNIT$1,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
@@ -289575,11 +289597,11 @@ function thrownItemRow(effectID, file, kind) {
 		}
 	}];
 }
-var SIZE_PER_UNIT, ITEM, NINJA_TEXTURES, throwStoneEffect, ninjaThrowEffects;
+var SIZE_PER_UNIT$1, ITEM, NINJA_TEXTURES, throwStoneEffect, ninjaThrowEffects;
 var init_ThrowStoneEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ThrownStoneSim();
-	SIZE_PER_UNIT = 7;
+	SIZE_PER_UNIT$1 = 7;
 	ITEM = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/";
 	NINJA_TEXTURES = {
 		613: ITEM + "¼ö¸®°Ë.bmp",
@@ -289589,6 +289611,200 @@ var init_ThrowStoneEffect = __esmMin((() => {
 	};
 	throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
 	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
+}));
+// src/Renderer/Effects/ShieldBoomerangSim.js
+/**
+* Heading from (dx, dy) as the client takes it: the first whole degree in
+* 0..180 whose cosine is at most the x share, mirrored to 360 minus it when
+* the y share is negative (so straight along +x below the axis gives 360).
+*
+* @param {number} dx
+* @param {number} dy
+* @return {number} degrees, 0..360
+*/
+function heading(dx, dy) {
+	const len = Math.sqrt(dx * dx + dy * dy);
+	for (let a = 0; a <= 180; a++) if (Math.cos(a * RAD) <= dx / len + 1e-9) return dy / len < 0 ? 360 - a : a;
+	return 180;
+}
+/**
+* Every state of the shield, from its launch to its last visible tick.
+*
+* @param {number[]} from start [x, y, ground height] in units (the caster)
+* @param {number[]} to target [x, y, ground height] in units
+* @return {object} { states, last }
+*/
+function planBoomerang(from, to) {
+	const dx = to[0] - from[0];
+	const dy = to[1] - from[1];
+	const dist = Math.sqrt(dx * dx + dy * dy);
+	const climb = SHIELD.speed / Math.max(dist, SHIELD.speed) * (to[2] - from[2]);
+	let s = {
+		x: from[0],
+		y: from[1],
+		up: SHIELD.lift,
+		alpha: 255,
+		angle: 0,
+		dir: 0,
+		phase: 0
+	};
+	const states = [s];
+	for (let n = 1; n < SHIELD.life && s.alpha > 0; n++) {
+		s = Object.assign({}, s);
+		s.angle = (s.angle + SHIELD.spin + 360) % 360;
+		if (n === 1) s.dir = dist > 0 ? heading(dx, dy) : 180;
+		if (s.phase === 0) {
+			if (n * SHIELD.speed > Math.max(dist, SHIELD.speed)) s.phase = 1;
+			s.up += climb;
+		} else if (s.phase === 1) {
+			const back = heading(from[0] - s.x, from[1] - s.y);
+			if (s.dir < back - SHIELD.aim || s.dir > back + SHIELD.aim) {
+				s.dir += SHIELD.turn;
+				if (s.dir >= 360) s.dir -= 360;
+			} else s.phase = 2;
+		} else {
+			s.alpha = Math.max(0, s.alpha - SHIELD.fade);
+			s.up -= climb;
+		}
+		s.x += Math.cos(s.dir * RAD) * SHIELD.speed;
+		s.y += Math.sin(s.dir * RAD) * SHIELD.speed;
+		states.push(s);
+	}
+	return {
+		from,
+		states,
+		last: states.length - 1
+	};
+}
+/**
+* The shield after k updates, or null past its end.
+*
+* @param {object} plan from planBoomerang
+* @param {number} k
+* @return {?object} { x, y, up, alpha, angle } in units, alpha 0-255
+*/
+function shieldAt(plan, k) {
+	const s = plan.states[k];
+	return s && s.alpha > 0 ? s : null;
+}
+/**
+* Trailing copy i (0 nearest) after k updates, or null when it does not show.
+* On update j (j a multiple of 3) copy 2 takes copy 1, copy 1 copy 0, and
+* copy 0 the shield as it was before update j. So after the refresh on j, copy
+* i is the shield after j - 1 - 3i updates, valid once j - 3i >= 3.
+*
+* @param {object} plan from planBoomerang
+* @param {number} i
+* @param {number} k
+* @return {?object}
+*/
+function trailAt(plan, i, k) {
+	const j = k - k % SHIELD.trailEvery;
+	if (j - SHIELD.trailEvery * i < SHIELD.trailEvery || k > plan.last) return null;
+	const p = plan.states[j - 1 - SHIELD.trailEvery * i];
+	let alpha = p.alpha;
+	for (let n = 0; n <= i; n++) alpha = Math.max(0, alpha - SHIELD.trail[n]);
+	return alpha > 0 ? Object.assign({}, p, { alpha }) : null;
+}
+var SHIELD, SHIELD_TEXTURE, RAD;
+var init_ShieldBoomerangSim = __esmMin((() => {
+	SHIELD = {
+		speed: 2,
+		lift: 8,
+		spin: -15,
+		turn: 5,
+		aim: 4,
+		fade: 12,
+		half: 7,
+		trailEvery: 3,
+		trail: [
+			150,
+			25,
+			25
+		],
+		life: 499
+	};
+	SHIELD_TEXTURE = "effect/shield_boomerang.bmp";
+	RAD = Math.PI / 180;
+}));
+// src/DB/Effects/ShieldBoomerangEffect.js
+/**
+* The 3D effect drawing the shield (copy -1) or trailing copy i.
+*
+* @param {object} plan from planBoomerang, in units from the caster
+* @param {number} copy
+* @return {object}
+*/
+function shieldEffect(plan, copy) {
+	return {
+		type: "3D",
+		file: SHIELD_TEXTURE,
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: (plan.last + 1) * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const k = Math.floor(age);
+			const p = copy < 0 ? shieldAt(plan, k) : trailAt(plan, copy, k);
+			if (!p || p.alpha < 1) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: 2 * SHIELD.half * SIZE_PER_UNIT,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+var SIZE_PER_UNIT, shieldBoomerangEffect;
+var init_ShieldBoomerangEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_ShieldBoomerangSim();
+	SIZE_PER_UNIT = 7;
+	shieldBoomerangEffect = [{
+		wav: "effect/cru_shield boomerang",
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const caster = Params.Init.ownerEntity.position;
+			const target = Params.Init.otherEntity && Params.Init.otherEntity.position;
+			if (!target) return;
+			const at = [
+				caster[0],
+				caster[1],
+				caster[2]
+			];
+			const plan = planBoomerang([
+				0,
+				0,
+				0
+			], [
+				0,
+				1,
+				2
+			].map((i) => (target[i] - caster[i]) * 5));
+			[
+				-1,
+				0,
+				1,
+				2
+			].forEach((copy, i) => {
+				this.spamEffect({
+					effect: shieldEffect(plan, copy),
+					Inst: {
+						effectID: 249,
+						duplicateID: i,
+						startTick: Params.Inst.startTick
+					},
+					Init: Object.assign({}, Params.Init, { position: at })
+				});
+			});
+		}
+	}];
 }));
 // src/Renderer/Effects/CastRingSim.js
 /**
@@ -291932,7 +292148,7 @@ function buildFunnel(out, t, center, shape = FUNNEL) {
 	}
 	return o / 5;
 }
-var DEG$1, FUNNEL, GANBANTEIN_FUNNEL;
+var DEG$1, FUNNEL, GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL;
 var init_CastFunnelSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DEG$1 = Math.PI / 180;
@@ -291954,6 +292170,10 @@ var init_CastFunnelSim = __esmMin((() => {
 		...FUNNEL,
 		lean: 70,
 		alphaDown: 8
+	});
+	SAGE_GROUND_FUNNEL = Object.freeze({
+		...FUNNEL,
+		alphaDown: 2
 	});
 	visibleTicks(FUNNEL);
 }));
@@ -291987,7 +292207,7 @@ var init_CastFunnel = __esmMin((() => {
 		* @param {number} startTick
 		* @param {number} frames lifetime in ticks (1/60 s)
 		* @param {string} texture file under data/texture/effect/
-		* @param {object} [shape] FUNNEL (variant 4) or GANBANTEIN_FUNNEL (variant 2)
+		* @param {object} [shape] FUNNEL (variant 4), GANBANTEIN_FUNNEL (variant 2) or SAGE_GROUND_FUNNEL (variant 0)
 		*/
 		constructor(position, startTick, frames, texture, shape = FUNNEL) {
 			this.position = position;
@@ -293052,6 +293272,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCone();
 	init_CastCircle();
 	init_ThrowStoneEffect();
+	init_ShieldBoomerangEffect();
 	init_CastRing();
 	init_StreakLines();
 	init_DetoxifyEffect();
@@ -295989,6 +296210,7 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "blastmine",
 			wav: "effect/hunter_blastmine",
+			delayWav: 333,
 			attachedEntity: false
 		}],
 		107: [{
@@ -296076,8 +296298,21 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/wizard_waterball_chulung"
 		}],
 		119: [{
+			type: "PRIM",
+			prim: "quad",
+			texture: "fashasha",
 			wav: "effect/hunter_detecting",
-			attachedEntity: true
+			attachedEntity: false,
+			duration: 950,
+			frames: 57,
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 17,
+			sizeChangeSpeed: .1,
+			sizeChangeAccel: .1 / 30,
+			alpha: 254,
+			fadeOutFrame: 40
 		}],
 		120: [{ wav: "effect/assasin_cloaking" }],
 		121: [{
@@ -296314,7 +296549,6 @@ var init_EffectTable = __esmMin((() => {
 		139: [{
 			type: "STR",
 			file: "sandman",
-			wav: "effect/hunter_sandman",
 			attachedEntity: false
 		}],
 		140: [],
@@ -296401,10 +296635,9 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		145: [{
-			type: "SPR",
+			type: "STR",
 			file: "shockwave",
-			wav: "effect/hunter_shockwavetrap",
-			attachedEntity: true
+			attachedEntity: false
 		}],
 		146: [{
 			type: "STR",
@@ -296969,6 +297202,13 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: false,
 			func: function(Params) {
 				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 300, "ring_white.tga", GANBANTEIN_FUNNEL), Params);
+			}
+		}],
+		225: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 310, "ring_red.tga", SAGE_GROUND_FUNNEL), Params);
 			}
 		}],
 		226: [
@@ -297547,6 +297787,27 @@ var init_EffectTable = __esmMin((() => {
 			file: "µð½ºÆç",
 			attachedEntity: true
 		}],
+		236: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, "ring_blue.tga", SAGE_GROUND_FUNNEL), Params);
+			}
+		}],
+		237: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, "magic_green.tga", SAGE_GROUND_FUNNEL), Params);
+			}
+		}],
+		238: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Inst.position, Params.Inst.startTick, 1009, "ring_white.tga", SAGE_GROUND_FUNNEL), Params);
+			}
+		}],
 		239: [{
 			type: "FUNC",
 			attachedEntity: false,
@@ -297597,7 +297858,7 @@ var init_EffectTable = __esmMin((() => {
 			file: "providence",
 			attachedEntity: true
 		}],
-		249: [{ wav: "effect/cru_shield boomerang" }],
+		249: shieldBoomerangEffect,
 		250: [{
 			type: "STR",
 			file: "twohand",
@@ -361408,6 +361669,32 @@ var init_StatusEffects = __esmMin((() => {
 	init_StatusEffectTable();
 	init_EffectManager();
 }));
+// src/Engine/MapEngine/FalconFlight.js
+/**
+* Engine/MapEngine/FalconFlight.js
+*
+* The official client sends a Hunter's falcon to a spot (actor message 0x1d)
+* for Blitz Beat and Falcon Assault (the target), Detect (the cell) and
+* Spring Trap (the trap): it flies there in its attack pose and comes back.
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* Send the owner's falcon to a cell
+*
+* @param {Entity} owner the falcon's master
+* @param {number} x
+* @param {number} y
+* @return {boolean} whether a falcon flew
+*/
+function sendFalcon(owner, x, y) {
+	if (!owner || !owner.falcon) return false;
+	owner.falcon.action = owner.action;
+	owner.falcon.walk.speed = 35;
+	owner.falcon.walkToNonWalkableGround(owner.falcon.position[0], owner.falcon.position[1], x, y, 0, true, true);
+	return true;
+}
+var init_FalconFlight = __esmMin((() => {}));
 // src/Engine/MapEngine/Entity.js
 function requestEntityGuildEmblem(entity) {
 	const actorId = entity.GID;
@@ -362162,8 +362449,10 @@ function onEntityViewChange(pkt) {
 	if (!entity) return;
 	switch (pkt.type) {
 		case 0:
-			if (entity.objecttype === Entity.TYPE_EFFECT || entity.objecttype === Entity.TYPE_UNIT || entity.objecttype === Entity.TYPE_TRAP) EffectManager.spamSkillZone(pkt.value, entity.position[0], entity.position[1], pkt.GID, entity.creatorGID);
-			else {
+			if (entity.objecttype === Entity.TYPE_EFFECT || entity.objecttype === Entity.TYPE_UNIT || entity.objecttype === Entity.TYPE_TRAP) {
+				EffectManager.spamSkillUnitTrigger(pkt.GID, pkt.value);
+				EffectManager.spamSkillZone(pkt.value, entity.position[0], entity.position[1], pkt.GID, entity.creatorGID);
+			} else {
 				if (entity._job_transform || entity._monster_transform || entity._active_monster_transform) entity._job = pkt.value;
 				else entity.job = pkt.value;
 				if (entity === SessionStorage_default.Entity) {
@@ -362330,6 +362619,7 @@ function onEntityUseSkill(pkt) {
 			}
 		}
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
+		if (pkt.SKID === SkillConst_default.HT_SPRINGTRAP && dstEntity) sendFalcon(srcEntity, dstEntity.position[0], dstEntity.position[1]);
 		if (pkt.result == 1) EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 	}
 }
@@ -362402,13 +362692,7 @@ function onEntityUseSkillToAttack(pkt) {
 				}
 			}
 		}
-		if (srcEntity.falcon) {
-			if (pkt.SKID == SkillConst_default.HT_BLITZBEAT || pkt.SKID == SkillConst_default.SN_FALCONASSAULT) {
-				srcEntity.falcon.action = srcEntity.action;
-				srcEntity.falcon.walk.speed = 35;
-				srcEntity.falcon.walkToNonWalkableGround(srcEntity.falcon.position[0], srcEntity.falcon.position[1], dstEntity.position[0], dstEntity.position[1], 0, true, true);
-			}
-		}
+		if (pkt.SKID == SkillConst_default.HT_BLITZBEAT || pkt.SKID == SkillConst_default.SN_FALCONASSAULT) sendFalcon(srcEntity, dstEntity.position[0], dstEntity.position[1]);
 		if (srcEntity.wug) {
 			if (pkt.SKID == SkillConst_default.RA_WUGSTRIKE || pkt.SKID == SkillConst_default.RA_WUGBITE) {
 				srcEntity.wug.action = srcEntity.action;
@@ -363432,6 +363716,7 @@ var init_Entity = __esmMin((() => {
 	init_ScreenEffectManager();
 	init_Footprints();
 	init_StatusEffects();
+	init_FalconFlight();
 	SkillNameDisplayExclude = [
 		SkillConst_default.TF_HIDING,
 		SkillConst_default.AS_CLOAKING,
@@ -366791,6 +367076,7 @@ function onSkillToGround(pkt) {
 	position[1] = pkt.yPos;
 	position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID, pkt.level);
+	if (pkt.SKID === SkillConst_default.HT_DETECTING) sendFalcon(EntityManager.get(pkt.AID), pkt.xPos, pkt.yPos);
 	switch (pkt.SKID) {
 		case SkillConst_default.MO_BODYRELOCATION: {
 			const entity = EntityManager.get(pkt.AID);
@@ -367390,6 +367676,7 @@ var init_Skill = __esmMin((() => {
 	init_EnergyOrbSim();
 	init_SoulCollectSim();
 	init_Altitude();
+	init_FalconFlight();
 	init_ShortCut();
 	init_ChatBox();
 	init_SkillTargetSelection();
