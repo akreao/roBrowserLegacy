@@ -579,7 +579,7 @@ SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
 SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
 // Clown & Gypsy
 SkillEffect[SK.CG_ARROWVULCAN] = { damageEffectIdOnCaster: 393, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1], hitEffectOnce: true }; //Vulcan Arrow
-SkillEffect[SK.CG_MOONLIT] = { effectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
+SkillEffect[SK.CG_MOONLIT] = { successEffectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
 SkillEffect[SK.CG_MARIONETTE] = { effectId: 395, hitEffectId: 396 }; //Marionette Control
 // Lord Knight
 SkillEffect[SK.LK_SPIRALPIERCE] = {
@@ -684,9 +684,9 @@ SkillEffect[SK.HW_GANBANTEIN] = { effectId: [223, 'ef_ganbantein_wav'] }; //Ganb
 SkillEffect[SK.HW_GRAVITATION] = { groundEffectIdByLevel: ['ef_gravitation_wav'], groundEffectId: '522_ground', hitEffectId: [0] }; //Gravitation Field
 SkillEffect[SK.WS_CARTTERMINATION] = { effectId: 518 }; //Cart Termination
 SkillEffect[SK.WS_OVERTHRUSTMAX] = SkillEffect[SK.BS_OVERTHRUST]; //Maximum Power Thrust
-SkillEffect[SK.CG_LONGINGFREEDOM] = { effectId: 500 }; //Longing for Freedom
-SkillEffect[SK.CG_HERMODE] = { effectId: '517_music', groundEffectId: 517 }; //Wand of Hermode
-SkillEffect[SK.CG_TAROTCARD] = { successEffectId: 500 }; //Tarot Card of Fate
+SkillEffect[SK.CG_LONGINGFREEDOM] = { successEffectId: ['ef_longing_freedom_sound', 843] }; //Longing for Freedom
+SkillEffect[SK.CG_HERMODE] = { successEffectId: '517_music', groundEffectId: 517 }; //Wand of Hermode
+SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500] }; //Tarot Card of Fate
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
