@@ -18,6 +18,7 @@ import LevelAuraEffects from 'DB/Effects/LevelAuraEffects.js';
 import CostumeSpriteEffects from 'DB/Effects/CostumeSpriteEffects.js';
 import BodyEffects from 'DB/Effects/BodyEffects.js';
 import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
+import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
 import SoundManager from 'Audio/SoundManager.js';
@@ -46,7 +47,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import { throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { ninjaThrowEffects, throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
 import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
@@ -1542,16 +1543,10 @@ export default {
 
 	29: [
 		{
-			//EF_LIGHTBOLT	Lightning Bolt
+			//EF_LIGHTBOLT	Lightning Bolt (the official client plays Lightning.str only; the wind hit is 52)
 			attachedEntity: true,
 			duplicate: 1,
 			file: 'lightning',
-			type: 'STR'
-		},
-		{
-			attachedEntity: true,
-			file: 'windhit%d',
-			rand: [1, 3],
 			type: 'STR'
 		}
 	],
@@ -6017,13 +6012,13 @@ export default {
 
 	265: [
 		{
-			//EF_TANJI	   Throw Spirit Sphere
+			//EF_TANJI	   Throw Spirit Sphere: on the caster, thrown to the target
 			type: '3D',
 			file: 'effect/blue_ivy.bmp',
 			alphaMax: 1,
 			blendMode: 2,
 			duration: 150,
-			toSrc: true,
+			fromSrc: true,
 			rotateWithCamera: true,
 			rotateToTarget: true,
 			angle: 90,
@@ -7441,6 +7436,23 @@ export default {
 		}
 	],
 
+	// Increasing Accuracy (GS_INCREASING): the sound of the official client's effect 456 (its rising
+	// streaks are not ported). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
+	ef_gs_increasing_accuracy: [
+		{
+			wav: 'effect/ef_incagility',
+			attachedEntity: true
+		}
+	],
+
+	// Cracker (GS_CRACKER): the official client's use-packet sound. See effect-port/gunslinger-skills.md.
+	ef_gs_cracker: [
+		{
+			wav: 'effect/\xc5\xa9\xb7\xa1\xc4\xbf', // 크래커
+			attachedEntity: true
+		}
+	],
+
 	ef_coldbolt: [
 		{
 			//coldbolt falling objects
@@ -8179,16 +8191,17 @@ export default {
 
 	329: [
 		{
-			//EF_TRIPLEATTACK	   Triple Strike
-			wav: 'effect/ef_hit2'
+			//EF_TRIPLEATTACK	   Triple Strike: the official client plays its sounds on ticks 10, 20 and 30
+			wav: 'effect/ef_hit2',
+			delayWav: 167
 		},
 		{
 			wav: 'effect/ef_hit4',
-			delayWav: 200
+			delayWav: 333
 		},
 		{
 			wav: 'effect/ef_hit2',
-			delayWav: 400
+			delayWav: 500
 		}
 	],
 
@@ -9920,7 +9933,15 @@ export default {
 	//459: [{}],	//EF_STORMKICK1	   Brown tornado that spins sprite (unused)
 	//460: [{}],	//EF_STORMKICK2	   Green tornado (unused)
 	//461: [{}],	//EF_STORMKICK3	   Blue tornado (unused)
-	//462: [{}],	//EF_STORMKICK4	   Kaupe Dodge Effect
+	462: [
+		{
+			//EF_STORMKICK4	Cicada Skin Shed dodge: official effect 462 (effect-port/ninja-skills.md), sent by
+			// the server when the shed blocks a hit: t_회피.wav on tick 15. Not ported: the Leap
+			// dust (whitelight.tga particles, the Taekwon audit's 411 follow-up).
+			wav: 'effect/t_\xc8\xb8\xc7\xc7',
+			delayWav: 15 * (1000 / 60)
+		}
+	],
 	//463: [{}],	//EF_STORMKICK5	   Kaupe Dodge Effect
 	//464: [{}],	//EF_STORMKICK6	   White tornado (unused)
 	//465: [{}],	//EF_STORMKICK7	   Purple tornado (unused)
@@ -12047,9 +12068,12 @@ export default {
 
 	584: [
 		{
-			//EF_M02	Full Buster
+			//EF_M02	Full Buster. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 5.
 			type: 'SPR',
 			file: 'm_ef02',
+			wav: 'effect/\xc7\xae\xb9\xf6\xbd\xba\xc5\xcd', // 풀버스터
+			delayWav: 83, // tick 5
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true,
 			direction: true
 		}
@@ -12887,127 +12911,156 @@ export default {
 		}
 	],
 
-	613: [
-		{
-			//EF_THROWITEM7	   Throw Shuriken
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xbc\xf6\xb8\xae\xb0\xcb.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM7, Throw Shuriken: the client's thrown item with its trail (ThrowStoneEffect.js)
+	613: ninjaThrowEffects[613],
 
-	614: [
-		{
-			//EF_THROWITEM8	   Throw Kunai
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xc4\xed\xb3\xaa\xc0\xcc\x5f\xb5\xb6.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM8, Throw Kunai: the client's thrown item with its trail (ThrowStoneEffect.js)
+	614: ninjaThrowEffects[614],
 
-	615: [
-		{
-			//EF_THROWITEM9	   Throw Fumma Shuriken
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xc7\xb3\xb8\xb6\x5f\xb3\xfa\xbf\xec.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM9, Throw Huuma Shuriken: the client's thrown item with its trail (ThrowStoneEffect.js)
+	615: ninjaThrowEffects[615],
 
-	616: [
-		{
-			//EF_THROWITEM10	   Throw Money
-			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
-		},
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/coin_a.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM10, Throw Zeny: the client's thrown item with its trail (ThrowStoneEffect.js)
+	616: ninjaThrowEffects[616],
 
 	//617: [{}],	//EF_BUNSINJYUTSU	   Illusionary Shadow
 
 	618: [
+		// EF_KOUENKA	Flaming Petals: official effect 618 (effect-port/ninja-skills.md), on the
+		// target as the damage packet arrives: EF_FireArrow1-3.wav (random each) on ticks 12-15.
+		// No STR; the fire hit is the skill's hit effect 49. Not ported: the sakura01 petal
+		// sprites (prim 124) and the alpha_center rings (prim 89).
 		{
-			//EF_KOUENKA	   Crimson Fire Bolossom
-			type: 'STR',
-			file: 'firehit',
 			wav: 'effect/ef_firearrow%d',
 			rand: [1, 3],
-			attachedEntity: true
+			delayWav: 12 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 13 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 14 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 15 * (1000 / 60)
 		}
 	],
 
 	619: [
+		// EF_HYOUSENSOU	Freezing Spear: official effect 619 (effect-port/ninja-skills.md), on the
+		// target as the damage packet arrives. The client draws it with Earth Spike's code (79):
+		// the same spikes and camera shake, in effect/ice.tga, with one EF_IceArrow1-3.wav;
+		// its spikes live 240 ticks. So these are 79's rows with the ice texture. No STR.
 		{
-			//EF_HYOUSENSOU	   Lightning Spear Of Ice
-			type: 'STR',
-			file: 'freeze',
+			//Main spike
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.95, 1.5],
+			offsetX: [0.4, 0.6],
+			offsetY: [0.4, 0.6],
+			offsetZ: -0.1,
+			bottomSize: [0.5, 0.6],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-8.0, 8.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 120,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.0],
+			offsetY: [0.5, 0.5],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.5],
+			offsetY: [0.5, 1.0],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [1.0, 1.2],
+			offsetY: [0.5, 0.8],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/ice.tga',
+			attachedEntity: false,
+			duration: 4000,
+			height: [0.2, 0.4],
+			offsetX: [0.5, 0.7],
+			offsetY: [0.0, -0.2],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 2,
+			animationSpeed: 100,
+			animationOut: true
+		},
+		{
 			wav: 'effect/ef_icearrow%d',
 			rand: [1, 3],
-			attachedEntity: true
+			attachedEntity: false
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const start = Params.Inst.startTick;
+				const duration = 200;
+				Camera.setQuake(start, duration);
+			}
 		}
 	],
 
@@ -13015,7 +13068,9 @@ export default {
 
 	621: [
 		{
-			//EF_STIN4	   Wind Blade
+			//EF_STIN4	Wind Blade: official effect 621 (effect-port/ninja-skills.md), on the caster as
+			// the damage packet arrives: 풍인.wav at the start. Not ported: one set of 270바람.tga
+			// blades (prim 125) per hit, flying at the target.
 			wav: 'effect/\xc7\xb3\xc0\xce'
 		}
 	],
@@ -13030,22 +13085,33 @@ export default {
 		}
 	],
 
-	//623: [{}],	//EF_CHEMICAL4	   Piercing Shot
+	623: [
+		{
+			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28; also 8 streak sets
+			// (prim 56, line3y.tga) along the shot, not ported. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xc7\xc7\xbe\xee\xbd\xcc\xbc\xa6', // 피어싱샷
+			delayWav: 467, // tick 28
+			attachedEntity: true
+		}
+	],
 	//624: [{}],	//EF_STIN5	   Kamaitachi
 	//625: [{}],	//EF_MADNESS_BLUE	   Madness Canceller
 	//626: [{}],	//EF_MADNESS_RED	   Adjustment
 
 	627: [
 		{
-			//EF_RG_COIN3	   Disarm (Sound Effect)
-			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf'
+			//EF_RG_COIN3	   Disarm. Official client: the sound on tick 21; also two thrown item
+			// icons (prim 43), not ported. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf', // 디스암
+			delayWav: 350, // tick 21
+			attachedEntity: true
 		}
 	],
 
 	628: [
 		{
-			//dust	//EF_BASH3D5	   Dust
-			wav: 'effect/bash3d5', // incorrect wav name
+			//dust	//EF_BASH3D5	   Dust. Official client: effect\더스트샷.wav on tick 0, then six alpha_center sets.
+			wav: 'effect/\xb4\xf5\xbd\xba\xc6\xae\xbc\xa6', // 더스트샷
 			attachedEntity: true
 		},
 		{
@@ -13107,10 +13173,13 @@ export default {
 
 	630: [
 		{
-			//EF_KIRIKAGE	Shadow Slash
+			//EF_KIRIKAGE	Shadow Slash: official effect 630 (effect-port/ninja-skills.md)
+			// 그림자베기 action 0 or 4 at random, 4 ticks a frame, once; its sound at the start.
 			type: 'SPR',
 			file: '\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
 			wav: 'effect/\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
+			frame: [0, 4],
+			delayFrame: 4 * (1000 / 60),
 			attachedEntity: true
 		}
 	],
@@ -13127,34 +13196,46 @@ export default {
 
 	632: [
 		{
-			//EF_KASUMIKIRI	Mist Slash
+			//EF_KASUMIKIRI	Haze Slasher: official effect 632 (effect-port/ninja-skills.md)
+			// 안개베기 action 0 or 2 at random, 4 ticks a frame, once; its sound at the start.
 			type: 'SPR',
 			file: '\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2',
 			wav: 'effect/\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2',
+			frame: [0, 2],
+			delayFrame: 4 * (1000 / 60),
 			attachedEntity: true
 		}
 	],
 
 	633: [
 		{
-			//EF_ISSEN	Final Strike
+			//EF_ISSEN	Final Strike: official effect 633 (effect-port/ninja-skills.md)
+			// 일섬 action 0, 2 ticks a frame, once, 6 units (42 px) up; its sound at the start.
 			type: 'SPR',
 			file: '\xc0\xcf\xbc\xb6',
 			wav: 'effect/\xc0\xcf\xbc\xb6',
+			delayFrame: 2 * (1000 / 60),
+			yOffset: -42,
 			attachedEntity: true
 		}
 	],
 
 	634: [
 		{
-			//EF_KAEN	Crimson Fire Formation
+			//EF_KAEN	Blaze Shield unit: official effect 634 (effect-port/ninja-skills.md)
+			// 화염진 action 0, looping while the unit stands, 1 unit (7 px) up. The client relaunches
+			// it every 23 ticks at 3-7 ticks a frame (random); drawn here at the mean, 5 ticks.
 			type: 'SPR',
 			file: '\xc8\xad\xbf\xb0\xc1\xf8',
+			delayFrame: 5 * (1000 / 60),
+			yOffset: -7,
 			repeat: true,
 			attachedEntity: true
 		},
 		{
-			wav: 'effect/\xc8\xad\xbf\xb0\xc1\xf8'
+			// The client plays 화염진.wav when a unit appears, 1 time in 8.
+			wav: 'effect/\xc8\xad\xbf\xb0\xc1\xf8',
+			wavChance: 1 / 8
 		}
 	],
 
@@ -13165,6 +13246,14 @@ export default {
 			file: 'fire dragon',
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6',
 			attachedEntity: false
+		}
+	],
+
+	// Watery Evasion (NJ_SUITON): the official client plays 수둔.wav from the ground packet. The units'
+	// water (620, EF_BOTTOM_SUITON: ring_blue.tga ripples, prim 36) is not ported yet.
+	ef_watery_evasion_sound: [
+		{
+			wav: 'effect/\xbc\xf6\xb5\xd0'
 		}
 	],
 
@@ -13180,84 +13269,107 @@ export default {
 
 	637: [
 		{
-			//EF_DESPERADO	Desperado
+			//EF_DESPERADO	Desperado. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 10.
 			type: 'SPR',
 			file: '\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
 			wav: 'effect/\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
+			delayWav: 167, // tick 10
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true
 		}
 	],
 
 	638: [
 		{
-			//EF_LIGHTNING_S	Ground Drift Grenade
+			//EF_LIGHTNING_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xb6\xf3\xc0\xcc\xc6\xae\xb4\xd7\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	639: [
 		{
-			//EF_BLIND_S	Ground Drift Grenade
+			//EF_BLIND_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xba\xed\xb6\xf3\xc0\xce\xb5\xe5\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	640: [
 		{
-			//EF_POISON_S	Ground Drift Grenade
+			//EF_POISON_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc6\xf7\xc0\xcc\xc1\xf0\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	641: [
 		{
-			//EF_FREEZING_S	Ground Drift Grenade
+			//EF_FREEZING_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc7\xc1\xb8\xae\xc2\xa1\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
 		}
 	],
 
 	642: [
 		{
-			//EF_FLARE_S	Ground Drift Grenade
+			//EF_FLARE_S	Ground Drift grenade. Official client: looping sprite on the unit.
 			type: 'SPR',
 			file: '\xc7\xc3\xb7\xb9\xbe\xee\xbd\xba\xc7\xc7\xbe\xee',
-			attachedEntity: false
+			attachedEntity: true
+		}
+	],
+
+	1120: [
+		{
+			//Ground Drift grenade (neutral). Official client: looping sprite on the unit.
+			type: 'SPR',
+			file: '\xb1\xd7\xb6\xf3\xbf\xee\xb5\xe5\xb5\xe5\xb8\xae\xc7\xc1\xc6\xae', // 그라운드드리프트
+			attachedEntity: true
+		}
+	],
+
+	// Ground Drift (GS_GROUNDDRIFT): the official client's ground-packet sound, not positioned.
+	ef_gs_ground_drift: [
+		{
+			wav: 'effect/\xb1\xd7\xb6\xf3\xbf\xee\xb5\xe5', // 그라운드
+			attachedEntity: true
 		}
 	],
 
 	643: [
 		{
-			//EF_RAPIDSHOWER	Rapid Shower
+			//EF_RAPIDSHOWER	Rapid Shower. Official client: sprite from tick 0 at 4 ticks a frame, sound on tick 20.
 			type: 'SPR',
 			file: '\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
 			wav: 'effect/\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
+			delayWav: 333, // tick 20
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true
 		}
 	],
 
 	644: [
 		{
-			//EF_MAGICALBULLET	Magic Bullet
+			//EF_MAGICALBULLET	Magic Bullet. Official client: sprite and sound on tick 0, 2 ticks a frame.
 			type: 'SPR',
 			file: '\xb8\xc5\xc1\xf6\xc4\xc3\xba\xd2\xb8\xb4',
 			wav: 'effect/\xb8\xc5\xc1\xf6\xc4\xc3\xba\xed\xb8\xb4',
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
 
 	645: [
 		{
-			//EF_SPREADATTACK	Spread Attack
+			//EF_SPREADATTACK	Spread Attack. Official client: sprite from tick 0 at 4 ticks a frame, no sound.
 			type: 'SPR',
 			file: '\xbd\xba\xc7\xc1\xb7\xb9\xb5\xe5',
+			delayFrame: 67, // 4 ticks
 			attachedEntity: true,
 			direction: true
 		}
@@ -13274,19 +13386,27 @@ export default {
 
 	647: [
 		{
-			//EF_TRACKING	Tracking
+			//EF_TRACKING	Tracking. Official client: 2 ticks a frame, no sound.
 			type: 'SPR',
 			file: '\xc6\xae\xb7\xa1\xc5\xb7',
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
 
 	648: [
 		{
-			//EF_TRIPLEACTION	Triple Action
+			//EF_TRIPLEACTION	Triple Action. Official client: the sound on tick 25, the sprite from
+			// tick 30 at 2 ticks a frame. See effect-port/gunslinger-skills.md.
+			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7', // 트리플액션
+			delayWav: 417, // tick 25
+			attachedEntity: true
+		},
+		{
 			type: 'SPR',
 			file: '\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
-			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
+			delayStart: 500, // tick 30
+			delayFrame: 33, // 2 ticks
 			attachedEntity: true
 		}
 	],
@@ -27677,5 +27797,8 @@ export default {
 	...BodyEffects,
 
 	// The Taekwon body effects (press, spin, kick, quake, ready glow): TaekwonBodyEffects.js.
-	...TaekwonBodyEffects
+	...TaekwonBodyEffects,
+
+	// The Gunslinger body glows (Fling, Madness Canceller, Adjustment, Gatling Fever): GunslingerBodyEffects.js.
+	...GunslingerBodyEffects
 };
