@@ -270,7 +270,7 @@ SkillEffect[SK.BS_OVERTHRUST] = { effectId: 128 }; //Power-Thrust
 SkillEffect[SK.BS_MAXIMIZE] = { beginCastEffectId: 'maximize_power_sounds', effectId: 104 }; //Maximize Power
 // Hunter
 SkillEffect[SK.HT_SKIDTRAP] = { effectId: 69 }; //Skid Trap
-SkillEffect[SK.HT_LANDMINE] = { effectId: 'ef_ht_landmine' }; //Land Mine
+SkillEffect[SK.HT_LANDMINE] = { hitEffectId: [0] }; //Land Mine: nothing at the cell or on the target; the hit flash per hit
 SkillEffect[SK.HT_ANKLESNARE] = { groundEffectId: 'ef_anklesnare' }; //Ankle Snare
 SkillEffect[SK.HT_SHOCKWAVE] = { effectId: 145, hitEffectId: 146 }; //Shockwave Trap
 SkillEffect[SK.HT_SANDMAN] = {}; //Sandman: 139 plays at the trap when it goes off (SkillUnitTrigger)
