@@ -248,14 +248,14 @@ SkillEffect[SK.PR_LEXAETERNA] = { successEffectId: 85 }; //Lex Aeterna
 SkillEffect[SK.PR_MAGNUS] = { effectId: 113, hitEffectId: 152, groundEffectId: 318 }; //Magnus Exorcismus
 // Wizard
 SkillEffect[SK.WZ_FIREPILLAR] = { groundEffectId: 138, hitEffectId: [0] }; //Fire Pillar
-SkillEffect[SK.WZ_SIGHTRASHER] = { effectId: 62, hitEffectId: 49 }; //Sightrasher
+SkillEffect[SK.WZ_SIGHTRASHER] = { successEffectId: 62, damageEffectIdOnCaster: 62, hitEffectId: [0, 49], hitEffectOnce: true }; //Sightrasher
 SkillEffect[SK.WZ_METEOR] = { effectId: 92, hitEffectId: [0] }; //Meteor Storm
 // Official client: the ball leaves when the skill packet arrives; the hit effect comes with the damage.
 SkillEffect[SK.WZ_JUPITEL] = { releaseEffectId: 93, hitEffectId: [0, 94], hitEffectOnce: true }; //Jupitel Thunder
 SkillEffect[SK.WZ_VERMILION] = { effectId: 90, hitEffectId: 52 }; //Lord of Vermilion
 SkillEffect[SK.WZ_WATERBALL] = { damageEffectIdOnCaster: 117, hitEffectId: [0], hitEffectOnce: true }; //Water Ball
 SkillEffect[SK.WZ_ICEWALL] = { groundEffectId: 74 }; //Ice Wall
-SkillEffect[SK.WZ_FROSTNOVA] = { effectIdOnCaster: 28, hitEffectId: 51 }; //Frost Nova
+SkillEffect[SK.WZ_FROSTNOVA] = { successEffectId: 28, hitEffectId: [0, 28], hitEffectOnce: true }; //Frost Nova
 SkillEffect[SK.WZ_STORMGUST] = { effectId: 89, hitEffectId: 51 }; //Storm Gust
 SkillEffect[SK.WZ_EARTHSPIKE] = { damageEffectIdOnTarget: 79, hitEffectId: [147, 147], hitEffectOnce: true }; //Earth Spike
 SkillEffect[SK.WZ_HEAVENDRIVE] = { effectId: 142, hitEffectId: [0] }; //Heaven's Drive
@@ -549,7 +549,7 @@ SkillEffect[SK.LK_FURY] = { effectId: [368, 'quake'] }; //Fury
 SkillEffect[SK.HP_ASSUMPTIO] = { successEffectId: [375, 440] }; //Assumptio
 SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
-SkillEffect[SK.HW_MAGICCRASHER] = { effectId: 380 }; //Stave Crasher
+SkillEffect[SK.HW_MAGICCRASHER] = { damageEffectIdOnTarget: 380, hitEffectId: [0], hitEffectOnce: true }; //Stave Crasher
 SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, effectId: 'ef_magicpower' }; //Mystical Amplification
 SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
 // Paladin
@@ -602,7 +602,7 @@ SkillEffect[SK.LK_SPIRALPIERCE] = {
 SkillEffect[SK.LK_HEADCRUSH] = { beginCastEffectId: 399, hitEffectId: 'enemy_hit_normal1' }; //Traumatic Blow
 SkillEffect[SK.LK_JOINTBEAT] = { beginCastEffectId: 400, hitEffectId: 'enemy_hit_normal1' }; //Vital Strike
 // High Wizard
-SkillEffect[SK.HW_NAPALMVULCAN] = { effectId: 401 }; //Napalm Vulcan
+SkillEffect[SK.HW_NAPALMVULCAN] = { damageEffectIdOnTarget: 401, hitEffectId: [0], hitEffectOnce: true }; //Napalm Vulcan
 // Champion
 SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: [402, 12] }; //Zen
 // Professor
@@ -691,7 +691,7 @@ SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion
 SkillEffect[SK.CR_FULLPROTECTION] = { effectId: [300, 500] }; //Full Protection
 SkillEffect[SK.PA_SHIELDCHAIN] = { beforeHitEffectId: 'ef_shield_projectile' }; //Shield Chain
 SkillEffect[SK.PF_DOUBLECASTING] = { effectId: 521 }; //Double Casting
-SkillEffect[SK.HW_GANBANTEIN] = { effectId: 223, groundEffectId: 224 }; //Ganbantein
+SkillEffect[SK.HW_GANBANTEIN] = { effectId: [223, 'ef_ganbantein_wav'] }; //Ganbantein
 SkillEffect[SK.HW_GRAVITATION] = { groundEffectId: '522_ground' }; //Gravitation Field
 SkillEffect[SK.WS_CARTTERMINATION] = { effectId: 518 }; //Cart Termination
 SkillEffect[SK.WS_OVERTHRUSTMAX] = SkillEffect[SK.BS_OVERTHRUST]; //Maximum Power Thrust
