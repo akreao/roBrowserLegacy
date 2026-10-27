@@ -3915,10 +3915,9 @@ export default {
 	117: [
 		{
 			//EF_WATERBALL2	waterball moving to target
+			// Official client: one Waterball.spr ball and one sound per launch (one per damage packet)
 			type: '3D',
 			duration: 500,
-			duplicate: 20,
-			timeBetweenDupli: 50,
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/waterball',
 			playSprite: true,
 			fromSrc: true,
