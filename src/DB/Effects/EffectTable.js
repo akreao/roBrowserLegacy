@@ -3217,10 +3217,83 @@ export default {
 
 	80: [
 		{
-			//spear boomerang hit on target	//EF_SPEARBMR	Spear Boomerang
-			//type: 'FUNC',
+			//EF_SPEARBMR	Spear Boomerang, played on the caster as each damage packet arrives: the
+			//official client throws four spear sprites (이팩트\창) at the target on ticks 0, 4, 8 and 12,
+			//each flying 15 ticks from 15 units up, each with EF_FireBall.wav; alpha 254, 180, 130, 80.
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 0,
+			duration: 15 * (1000 / 60),
+			alphaMax: 1,
+			size: 100,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 4 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			alphaMax: 180 / 255,
+			size: 100,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 8 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			alphaMax: 130 / 255,
+			size: 100,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: '\xc3\xa2',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 12 * (1000 / 60),
+			duration: 15 * (1000 / 60),
+			alphaMax: 80 / 255,
+			size: 100,
+			zIndex: 1
+		},
+		{
 			wav: 'effect/ef_fireball',
-			attachedEntity: true
+			delayWav: 0
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 4 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 8 * (1000 / 60)
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 12 * (1000 / 60)
 		}
 	],
 
@@ -4189,10 +4262,9 @@ export default {
 
 	151: [
 		{
-			//spear boomerang caster	//EF_SPEARBMRSELF	Spear Boomerang Cast
+			//EF_SPEARBMRSELF	Spear Boomerang, on the caster after the throw (80), no sound
 			type: 'STR',
 			file: 'spearboomerang',
-			wav: 'effect/knight_spear_boomerang',
 			head: true,
 			attachedEntity: true
 		}
