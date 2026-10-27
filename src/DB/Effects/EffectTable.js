@@ -6155,7 +6155,9 @@ export default {
 			//EF_FLAMELAUNCHER	Elemental Endow (Fire)
 			type: 'STR',
 			file: 'enc_fire',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
 			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6165,7 +6167,9 @@ export default {
 			//EF_FROSTWEAPON	Elemental Endow (Water)
 			type: 'STR',
 			file: 'enc_ice',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
 			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6175,7 +6179,9 @@ export default {
 			//endow wind on target	//EF_LIGHTNINGLOADER	Elemental Endow (Wind)
 			type: 'STR',
 			file: 'enc_wind',
-			wav: 'effect/_enemy_hit_wind1',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
+			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
@@ -6185,7 +6191,9 @@ export default {
 			//EF_SEISMICWEAPON	Elemental Endow (Earth)
 			type: 'STR',
 			file: 'enc_earth',
+			// The client plays the sound 10 ticks in, from data/wav/ (not wav/effect/)
 			wav: '_enemy_hit_wind1',
+			delayWav: 167,
 			attachedEntity: true
 		}
 	],
