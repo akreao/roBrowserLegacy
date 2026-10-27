@@ -133,6 +133,29 @@ describe('caster marks', () => {
 		expect(current.animations.add).toHaveBeenCalledTimes(1);
 	});
 
+	it("stops an earlier copy's colour recovery once a new copy sets the colour", () => {
+		const old = new CasterMarks(current, 0, 100, 864);
+		old.render(null, (4 * 1000) / 60 + 1); // purple tick
+		old.free();
+		const recover = current.animations.add.mock.calls[0][0];
+		const fresh = new CasterMarks(current, 0, 100, 864);
+		fresh.render(null, (4 * 1000) / 60 + 1);
+		const purple = Array.from(current._flashColor.slice(0, 3));
+		// the old recovery ends without touching the new purple
+		expect(recover(100)).toBe(true);
+		expect(Array.from(current._flashColor.slice(0, 3))).toEqual(purple);
+	});
+
+	it('keeps recovering while no other mark sets the colour', () => {
+		const old = new CasterMarks(current, 0, 100, 864);
+		old.render(null, (4 * 1000) / 60 + 1);
+		old.free();
+		const recover = current.animations.add.mock.calls[0][0];
+		expect(recover(0)).toBe(false);
+		expect(recover(1000)).toBe(true);
+		expect(Array.from(current._flashColor.slice(0, 3))).toEqual([1, 1, 1]);
+	});
+
 	it('ends with its lifetime or its owner', () => {
 		const marks = new CasterMarks(current, 0, 10, 934);
 		marks.render(null, 100);

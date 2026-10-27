@@ -72,6 +72,7 @@ import {
 	SHARDS as ICE_SHARDS
 } from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import CirclePower from 'Renderer/Effects/CirclePower.js';
 import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -16888,8 +16889,13 @@ export default {
 
 	861: [
 		{
-			//EF_CIRCLEPOWER2	   Green aura (from Circle of Life's Melody)
-			wav: 'effect/\xbc\xf8\xc8\xaf\xc7\xcf\xb4\xc2\xc0\xda\xbf\xac\xc0\xc7\xbc\xd2\xb8\xae'
+			//EF_CIRCLEPOWER2	   Green aura (Apple of Idun)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 2), Params);
+			}
 		}
 	],
 
@@ -17082,8 +17088,28 @@ export default {
 	],
 
 	//863: [{}],	//EF_CHEMICAL_V3	   Dominion Impulse (two spears of light)
-	//864: [{}],	//EF_ENERVATION7	   Gloomy Day (colorful lines)
-	//865: [{}],	//EF_CIRCLEPOWER3	   Blue aura (from Song of Mana)
+	864: [
+		{
+			//EF_ENERVATION7	   Purple flicker (Eternal Chaos, Loki's Veil)
+			// The actor flickers purple (added) and white on ticks 4-90 (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 100, 864), Params);
+			}
+		}
+	],
+	865: [
+		{
+			//EF_CIRCLEPOWER3	   Blue aura (A Whistle, Humming, Into the Abyss)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 3), Params);
+			}
+		}
+	],
 
 	866: [
 		{
@@ -17092,7 +17118,17 @@ export default {
 		}
 	],
 
-	//867: [{}],	//EF_CIRCLEPOWER4	   Yellow aura (from Dance with a Warg)
+	867: [
+		{
+			//EF_CIRCLEPOWER4	   Yellow aura (Mr. Kim A Rich Man)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 4), Params);
+			}
+		}
+	],
 
 	868: [
 		{
@@ -17110,7 +17146,17 @@ export default {
 		}
 	],
 
-	//871: [{}],	//EF_CIRCLEPOWER5	   Red aura (from Lerad's Dew)
+	871: [
+		{
+			//EF_CIRCLEPOWER5	   Red aura (Fortune's Kiss, Drum on the Battlefield)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 5), Params);
+			}
+		}
+	],
 
 	872: [
 		{
@@ -17119,7 +17165,17 @@ export default {
 		}
 	],
 
-	//873: [{}],	//EF_CIRCLEPOWER6	   Stargate-wormhole stuff (bright purple)
+	873: [
+		{
+			//EF_CIRCLEPOWER6	   Magenta aura (Assassin Cross of Sunset, Service for You)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 6), Params);
+			}
+		}
+	],
 
 	874: [
 		{
@@ -17128,7 +17184,17 @@ export default {
 		}
 	],
 
-	//875: [{}],	//EF_CIRCLEPOWER7	   Stargate-wormhole stuff (bright turquoise)
+	875: [
+		{
+			//EF_CIRCLEPOWER7	   Cyan aura (Ring of Nibelungen, Invulnerable Siegfried)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 7), Params);
+			}
+		}
+	],
 
 	876: [
 		{
@@ -17137,7 +17203,17 @@ export default {
 		}
 	],
 
-	//877: [{}],	//EF_CIRCLEPOWER8	   Stargate-wormhole stuff (white)
+	877: [
+		{
+			//EF_CIRCLEPOWER8	   White aura (Poem of Bragi)
+			// Rising squares of freeze_a.bmp (CirclePowerSim.js), on an actor a song's status starts on.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CirclePower(Params.Init.ownerEntity.position, Params.Inst.startTick, 8), Params);
+			}
+		}
+	],
 
 	878: [
 		{
