@@ -200,7 +200,9 @@ SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
 // 0 (the standard hit flash) on the target, and 1 (EF_HIT2) with the first hit of the packet. 20 is not played.
 // See effect-port/thief-skills.md.
 SkillEffect[SK.TF_POISON] = { damageEffectIdOnCaster: 16, hitEffectId: 0, firstHitEffectId: 1 }; //Envenom
-SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
+// Official client: 21 on the target from the use packet, only when its result is set.
+// See effect-port/thief-skills.md.
+SkillEffect[SK.TF_DETOXIFY] = { successEffectId: 21 }; //Detoxify
 // All
 SkillEffect[SK.ALL_RESURRECTION] = { effectId: [77, 140] }; //Resurrection
 // Knight
