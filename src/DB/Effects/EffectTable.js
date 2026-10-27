@@ -4341,10 +4341,10 @@ export default {
 
 	145: [
 		{
-			type: 'SPR',
+			//EF_SHOCKWAVE	Shockwave Trap, held by the trap unit: ShockWave.str over and over, no sound
+			type: 'STR',
 			file: 'shockwave',
-			wav: 'effect/hunter_shockwavetrap',
-			attachedEntity: true
+			attachedEntity: false
 		}
 	],
 
