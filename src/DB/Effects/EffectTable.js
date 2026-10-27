@@ -9621,7 +9621,36 @@ export default {
 		}
 	],
 
-	//401: [{}],	//EF_NAPALMVALCAN	   Napalm Vulcan Sound
+	401: [
+		//EF_NAPALMVALCAN	   Napalm Vulcan Sound
+		// Official client: on the target, EF_NapalmBeat.wav on ticks 20, 30, 40, 50 and 60. Its
+		// EF_HIT2 calls on those ticks draw nothing (that code only works on its own first tick).
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 20 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 30 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 40 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 50 * (1000 / 60),
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_napalmbeat',
+			delayWav: 60 * (1000 / 60),
+			attachedEntity: true
+		}
+	],
 	402: [
 		//EF_PORTAL5	   Dangerous Soul Collect
 		{
