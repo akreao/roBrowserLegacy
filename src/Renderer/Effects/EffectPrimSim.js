@@ -54,6 +54,8 @@
  *  - facing {boolean}       yaw is 180 minus the owner's facing angle (with pitch -90 the band
  *                           opens the way the owner faces); yaw is then added on top
  *  - drift, driftAccel {number}  speed along the axis, toward the top circle, and its change
+ *  - driftStart {number}    distance already drifted along the axis on the first tick (default 0)
+ *  - offsetX, offsetY {number}  shift from the position along the map's x and y, in units (default 0)
  */
 
 /**
@@ -118,7 +120,7 @@ export function createPrimState(effect) {
 		pitch: num(effect.pitch, 0),
 		drift: num(effect.drift, 0),
 		driftAccel: num(effect.driftAccel, 0),
-		driftOffset: 0
+		driftOffset: num(effect.driftStart, 0)
 	};
 }
 
@@ -302,9 +304,9 @@ function buildCone(out, effect, state, center) {
 
 	// The axis (from base toward top) is the frame's -y; drift moves along it.
 	const axis = coneToWorld(0, -1, 0, pitch, yaw);
-	const ox = axis[0] * state.driftOffset;
+	const ox = axis[0] * state.driftOffset + num(effect.offsetX, 0);
 	const oy = axis[1] * state.driftOffset;
-	const oz = axis[2] * state.driftOffset;
+	const oz = axis[2] * state.driftOffset + num(effect.offsetY, 0);
 
 	// Client x / z are the map's x / y; client y points down.
 	const point = (r, depth, deg, u, v) => {
