@@ -23,6 +23,9 @@
  * Ganbantein's effect 223 draws variant 2 (GANBANTEIN_FUNNEL) with ring_white.tga: the
  * same funnel, but its bands start leaning 70 degrees and fade 8 a tick after tick 10.
  *
+ * The Sage ground skills' cast rings (effects 225 and 236-238) draw variant 0
+ * (SAGE_GROUND_FUNNEL): the same funnel, but it loses only 2 a tick, so it lasts until tick 110.
+ *
  * Units are the client's: world units (5 to a cell), ticks (60 a second), degrees.
  */
 
@@ -54,6 +57,9 @@ export const FUNNEL = {
 
 /** Numbers of variant 2 (Ganbantein): only the start lean and the fade differ. */
 export const GANBANTEIN_FUNNEL = Object.freeze({ ...FUNNEL, lean: 70, alphaDown: 8 });
+
+/** Numbers of variant 0 (Volcano, Deluge, Violent Gale, Land Protector): only the fade differs. */
+export const SAGE_GROUND_FUNNEL = Object.freeze({ ...FUNNEL, alphaDown: 2 });
 
 /**
  * Ticks a funnel shape shows: alpha is 0 from then on.

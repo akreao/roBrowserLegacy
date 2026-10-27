@@ -54,7 +54,7 @@ class CastFunnel {
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
 	 * @param {string} texture file under data/texture/effect/
-	 * @param {object} [shape] FUNNEL (variant 4) or GANBANTEIN_FUNNEL (variant 2)
+	 * @param {object} [shape] FUNNEL (variant 4), GANBANTEIN_FUNNEL (variant 2) or SAGE_GROUND_FUNNEL (variant 0)
 	 */
 	constructor(position, startTick, frames, texture, shape = FUNNEL) {
 		this.position = position;
