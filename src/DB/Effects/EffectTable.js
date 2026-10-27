@@ -4180,10 +4180,9 @@ export default {
 
 	150: [
 		{
-			//EF_SPEARSTABSELF	Pierce Cast Animation
+			//EF_SPEARSTABSELF	Spear Stab, on the caster as each damage packet arrives (no sound)
 			type: 'STR',
 			file: 'spearstab',
-			wav: '_enemy_hit_normal1',
 			attachedEntity: true
 			// attach animation at middle of body
 		}
