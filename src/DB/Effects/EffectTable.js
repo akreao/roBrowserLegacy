@@ -3257,9 +3257,11 @@ export default {
 	84: [
 		{
 			//EF_IMPOSITIO	Impositio Manus
+			// The official client plays the sound on tick 60 (1000 ms)
 			type: 'STR',
 			file: 'impositio',
 			wav: 'effect/priest_impositio',
+			delayWav: 1000,
 			attachedEntity: true
 		}
 	],
@@ -3267,9 +3269,11 @@ export default {
 	85: [
 		{
 			//EF_LEXAETERNA	Lex Aeterna
+			// The official client plays the sound on tick 15 (250 ms)
 			type: 'STR',
 			file: 'lexaeterna',
 			wav: 'effect/priest_lexaeterna',
+			delayWav: 250,
 			min: 'lexaeterna_min',
 			attachedEntity: true
 		}
@@ -3278,9 +3282,11 @@ export default {
 	86: [
 		{
 			//EF_ASPERSIO	Aspersio
+			// The official client plays the sound on tick 70 (1167 ms)
 			type: 'STR',
 			file: 'aspersio',
 			wav: 'effect/priest_aspersio',
+			delayWav: 1167,
 			attachedEntity: true
 		}
 	],
@@ -3288,10 +3294,27 @@ export default {
 	87: [
 		{
 			//EF_LEXDIVINA	Lex Divina
+			// The official client plays the sound five times: ticks 0, 20, 35, 60 and 70
 			type: 'STR',
 			file: 'lexdivina',
 			wav: 'effect/priest_lexdivina',
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 333
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 583
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 1000
+		},
+		{
+			wav: 'effect/priest_lexdivina',
+			delayWav: 1167
 		}
 	],
 
@@ -3618,12 +3641,17 @@ export default {
 
 	112: [
 		{
-			//kyrie caster	//EF_KYRIE	Kyrie Eleison
+			//EF_KYRIE	Kyrie Eleison
+			// The official client plays priest_kyrie_eleison_b on tick 0 and _a on tick 15 (250 ms)
 			type: 'STR',
 			file: 'kyrie',
-			wav: 'effect/priest_kyrie_eleison_a', //on target its priest_kyrie_eleison_b
+			wav: 'effect/priest_kyrie_eleison_b',
 			min: 'kyrie_min',
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/priest_kyrie_eleison_a',
+			delayWav: 250
 		}
 	],
 
@@ -3936,9 +3964,9 @@ export default {
 	136: [
 		{
 			//EF_SLOWPOISON	Slow Poison
+			// No sound in the official client (it plays priest_slowpoison only for Tarot Card of Fate)
 			type: 'STR',
 			file: 'slowp',
-			wav: 'effect/priest_slowpoison',
 			attachedEntity: false
 		}
 	],
