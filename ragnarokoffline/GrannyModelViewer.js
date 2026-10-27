@@ -223671,7 +223671,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 1,
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.CR_SHRINK] = { effectId: 599 };
+	SkillEffect[SkillConst_default.CR_SHRINK] = { successEffectIdOnCaster: 599 };
 	SkillEffect[SkillConst_default.AS_VENOMKNIFE] = { beforeHitEffectId: 600 };
 	SkillEffect[SkillConst_default.RG_CLOSECONFINE] = {
 		effectId: 602,
@@ -293326,6 +293326,16 @@ var init_CasterMarks = __esmMin((() => {
 				split: false,
 				color: on ? even ? YELLOW : WHITE : null
 			};
+		},
+		599: (age) => {
+			const on = age >= 5 && age <= 25;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: false,
+				split: false,
+				color: on ? even ? YELLOW : WHITE : null
+			};
 		}
 	};
 	DIR_MAP$1 = [
@@ -303684,6 +303694,15 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/sky_emperor/ske_star_light_kick_hit",
 			attachedEntity: true,
 			yOffset: 7
+		}],
+		599: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			delayWav: 5 * (1e3 / 60),
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 26, 599), Params);
+			}
 		}],
 		600: [{
 			type: "3D",
