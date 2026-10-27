@@ -118,3 +118,10 @@ describe('Sandman', () => {
 		expect(effectRow(139)).toEqual([{ type: 'STR', file: 'sandman', attachedEntity: false }]);
 	});
 });
+
+describe('Flasher', () => {
+	it('flashes at the trap (99); a hit gets the hit flash only', () => {
+		expect(triggers().table[0x96]).toEqual([99]);
+		expect(skillRow('HT_FLASHER')).toEqual({ hitEffectId: [0] });
+	});
+});
