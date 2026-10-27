@@ -20,9 +20,11 @@
  *    tick to 200 over 10 ticks, then loses 5 a tick: it is gone on tick 50,
  *    whatever the effect's lifetime.
  *
- * The builder's variant only changes the fade-out step (FADE_OUT_BY_VARIANT):
- * variant 0, which the Sage ground skills' cast rings use (effects 225 and
- * 236-238), loses 2 a tick, so it lasts until tick 110.
+ * Ganbantein's effect 223 draws variant 2 (GANBANTEIN_FUNNEL) with ring_white.tga: the
+ * same funnel, but its bands start leaning 70 degrees and fade 8 a tick after tick 10.
+ *
+ * The Sage ground skills' cast rings (effects 225 and 236-238) draw variant 0
+ * (SAGE_GROUND_FUNNEL): the same funnel, but it loses only 2 a tick, so it lasts until tick 110.
  *
  * Units are the client's: world units (5 to a cell), ticks (60 a second), degrees.
  */
@@ -53,31 +55,24 @@ export const FUNNEL = {
 	alphaDown: 5 // a tick, afterwards
 };
 
-/** Alpha lost a tick after the rise, by builder variant (1 is not used here). */
-export const FADE_OUT_BY_VARIANT = { 0: 2, 2: 8, 3: 5, 4: 5, 5: 4 };
+/** Numbers of variant 2 (Ganbantein): only the start lean and the fade differ. */
+export const GANBANTEIN_FUNNEL = Object.freeze({ ...FUNNEL, lean: 70, alphaDown: 8 });
+
+/** Numbers of variant 0 (Volcano, Deluge, Violent Gale, Land Protector): only the fade differs. */
+export const SAGE_GROUND_FUNNEL = Object.freeze({ ...FUNNEL, alphaDown: 2 });
 
 /**
- * Fade-out step of a variant: 2 for any variant not in the table, as in the client.
+ * Ticks a funnel shape shows: alpha is 0 from then on.
  *
- * @param {number} variant
+ * @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
  * @return {number}
  */
-export function fadeOutStep(variant) {
-	return FADE_OUT_BY_VARIANT[variant] ?? 2;
+export function visibleTicks(shape = FUNNEL) {
+	return shape.riseTicks + (shape.alphaUp * shape.riseTicks) / shape.alphaDown;
 }
 
-/**
- * Ticks the funnel shows: alpha is 0 from then on.
- *
- * @param {number} [alphaDown] fade-out step
- * @return {number}
- */
-export function visibleTicks(alphaDown = FUNNEL.alphaDown) {
-	return FUNNEL.riseTicks + (FUNNEL.alphaUp * FUNNEL.riseTicks) / alphaDown;
-}
-
-/** Ticks variant 4 shows. */
-export const VISIBLE_TICKS = visibleTicks();
+/** Ticks the funnel shows: alpha is 0 from then on. */
+export const VISIBLE_TICKS = visibleTicks(FUNNEL);
 
 /** Number of vertices of the funnel (triangles, 5 floats each). */
 export const FUNNEL_VERTICES = BANDS * (POINTS - 1) * 6;
@@ -86,14 +81,14 @@ export const FUNNEL_VERTICES = BANDS * (POINTS - 1) * 6;
  * A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
  *
  * @param {number} t
- * @param {number} [alphaDown] fade-out step (variant 4's 5 by default)
+ * @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
  * @return {number}
  */
-export function funnelAlpha(t, alphaDown = FUNNEL.alphaDown) {
-	if (t <= FUNNEL.riseTicks) {
-		return FUNNEL.alphaUp * Math.max(0, t);
+export function funnelAlpha(t, shape = FUNNEL) {
+	if (t <= shape.riseTicks) {
+		return shape.alphaUp * Math.max(0, t);
 	}
-	return Math.max(0, FUNNEL.alphaUp * FUNNEL.riseTicks - alphaDown * (t - FUNNEL.riseTicks));
+	return Math.max(0, shape.alphaUp * shape.riseTicks - shape.alphaDown * (t - shape.riseTicks));
 }
 
 /**
@@ -101,13 +96,14 @@ export function funnelAlpha(t, alphaDown = FUNNEL.alphaDown) {
  *
  * @param {number} b band index
  * @param {number} t tick, 1 on the first
+ * @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
  * @return {{angle: number, lean: number, foot: number}}
  */
-export function bandState(b, t) {
+export function bandState(b, t, shape = FUNNEL) {
 	return {
-		angle: (FUNNEL.turn * b + FUNNEL.spin * t) % 360,
-		lean: Math.max(FUNNEL.leanMin, FUNNEL.lean - FUNNEL.leanStep * t),
-		foot: FUNNEL.foot + b + FUNNEL.spread * t
+		angle: (shape.turn * b + shape.spin * t) % 360,
+		lean: Math.max(shape.leanMin, shape.lean - shape.leanStep * t),
+		foot: shape.foot + b + shape.spread * t
 	};
 }
 
@@ -117,11 +113,12 @@ export function bandState(b, t) {
  * @param {number} b
  * @param {number} j 0 to 20
  * @param {number} t
+ * @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
  * @return {number}
  */
-export function pointHeight(b, j, t) {
-	const hump = FUNNEL.height * Math.sin(9 * j * DEG);
-	return hump * (1 + FUNNEL.breathe * Math.sin(((t + FUNNEL.turn * b) % 360) * DEG));
+export function pointHeight(b, j, t, shape = FUNNEL) {
+	const hump = shape.height * Math.sin(9 * j * DEG);
+	return hump * (1 + shape.breathe * Math.sin(((t + shape.turn * b) % 360) * DEG));
 }
 
 /**
@@ -143,13 +140,14 @@ function vertex(out, i, center, x, y, up, u, v) {
  * @param {Float32Array} out FUNNEL_VERTICES * 5 floats
  * @param {number} t tick, 1 on the first
  * @param {Array} center position, in cells
+ * @param {object} [shape] FUNNEL or GANBANTEIN_FUNNEL
  * @return {number} vertices written
  */
-export function buildFunnel(out, t, center) {
+export function buildFunnel(out, t, center, shape = FUNNEL) {
 	const step = 360 / (POINTS - 1);
 	let o = 0;
 	for (let b = 0; b < BANDS; b++) {
-		const band = bandState(b, t);
+		const band = bandState(b, t, shape);
 		const lean = Math.cos(band.lean * DEG);
 		const rise = Math.sin(band.lean * DEG);
 		let prev = null;
@@ -157,7 +155,7 @@ export function buildFunnel(out, t, center) {
 			const angle = (j === POINTS - 1 ? band.angle : band.angle + j * step) * DEG;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
-			const h = pointHeight(b, j, t);
+			const h = pointHeight(b, j, t, shape);
 			const point = {
 				fx: band.foot * cos,
 				fy: band.foot * sin,

@@ -18,9 +18,11 @@ import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
+import { autoCounterBarMs } from 'DB/Skills/AutoCounterBar.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import { hitHasEffects } from 'DB/Skills/SplashHit.js';
 import AttackEffect from 'DB/Monsters/AttackEffectTable.js';
 import Sound from 'Audio/SoundManager.js';
 import Configs from 'Core/Configs.js';
@@ -1524,6 +1526,15 @@ function onEntityUseSkill(pkt) {
 		}
 	}
 
+	// Auto Counter's stance: a cast bar of level x 400 ms on the player's own
+	// character (official client); ZC_DISPEL closes it when the counter fires
+	if (pkt.SKID === SkillId.KN_AUTOCOUNTER && srcEntity) {
+		const barMs = autoCounterBarMs(pkt.level, srcEntity === Session.Entity, pkt.result);
+		if (barMs) {
+			srcEntity.cast.set(barMs);
+		}
+	}
+
 	//Action handling
 	if (srcEntity) {
 		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
@@ -1756,11 +1767,14 @@ function onEntityUseSkillToAttack(pkt) {
 
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
+			// A splash packet from an actor (not a ground skill unit) that hit
+			// shows no hit effects on the target, as the official client
+			const targetHitEffects = !srcEntity || srcEntity.skillUnitId != null || hitHasEffects(pkt.SKID, pkt.action);
 
 			const addDamage = function (i, startTick) {
 				if (pkt.damage) {
 					// Only if hits
-					EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i);
+					EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i, !targetHitEffects);
 				}
 
 				if (!isCombo && isBlueCombo) {
@@ -1806,6 +1820,7 @@ function onEntityUseSkillToAttack(pkt) {
 
 	// Effects the official client plays as each damage packet arrives
 	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, undefined, pkt.count);
+	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
 
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
@@ -1879,17 +1894,6 @@ function onEntityCastSkill(pkt) {
 
 	Session.Entity.isCastingSkill = true;
 	Session.Entity.lastSKID = pkt.SKID;
-
-	// Hardcoded version of Auto Counter casting bar
-	// It's dont gey any delayTime so we need to handle it diffrent:
-	// if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
-	// if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
-	if (pkt.SKID == SkillId.KN_AUTOCOUNTER) {
-		srcEntity.cast.set(1000);
-		if (srcEntity === Session.Entity) {
-			Session.underAutoCounter = true;
-		}
-	}
 
 	if (pkt.SKID == SkillId.HT_DETECTING && srcEntity.falcon) {
 		srcEntity.falcon.walk.speed = 35;
@@ -2029,19 +2033,6 @@ function onEntityCastCancel(pkt) {
 		EffectManager.remove(MagicTarget, entity.GID);
 		EffectManager.remove(MagicRing, entity.GID);
 
-		if (entity === Session.Entity) {
-			// Autocounter hardcoded animation (any better place to put this?)
-			if (Session.underAutoCounter) {
-				if (Session.Entity.life.hp > 0) {
-					const EF_Init_Par = {
-						effectId: EffectConst.EF_AUTOCOUNTER,
-						ownerAID: pkt.AID
-					};
-					EffectManager.spam(EF_Init_Par);
-				}
-				Session.underAutoCounter = false;
-			}
-		}
 	}
 }
 

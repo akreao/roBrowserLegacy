@@ -18,7 +18,7 @@
 import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import { FUNNEL_TICK_MS, FUNNEL_VERTICES, funnelAlpha, buildFunnel, fadeOutStep } from './CastFunnelSim.js';
+import { FUNNEL, FUNNEL_TICK_MS, FUNNEL_VERTICES, funnelAlpha, buildFunnel } from './CastFunnelSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 
@@ -54,15 +54,15 @@ class CastFunnel {
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
 	 * @param {string} texture file under data/texture/effect/
-	 * @param {number} [variant] the client builder's variant (4 by default; 0 fades out slower)
+	 * @param {object} [shape] FUNNEL (variant 4), GANBANTEIN_FUNNEL (variant 2) or SAGE_GROUND_FUNNEL (variant 0)
 	 */
-	constructor(position, startTick, frames, texture, variant = 4) {
+	constructor(position, startTick, frames, texture, shape = FUNNEL) {
 		this.position = position;
 		this.startTick = startTick || 0;
 		this.frames = Math.max(1, Math.floor(frames));
 		this.endTick = this.startTick + this.frames * FUNNEL_TICK_MS;
 		this.texture = texture;
-		this.alphaDown = fadeOutStep(variant);
+		this.shape = shape;
 		this.vertices = new Float32Array(FUNNEL_VERTICES * 5);
 		this.color = new Float32Array([1, 1, 1, 1]);
 	}
@@ -96,11 +96,11 @@ class CastFunnel {
 
 		// The client counts a tick before drawing, so the first frame is tick 1.
 		const t = Math.min(this.frames, Math.floor((tick - this.startTick) / FUNNEL_TICK_MS) + 1);
-		const alpha = funnelAlpha(t, this.alphaDown);
+		const alpha = funnelAlpha(t, this.shape);
 		if (alpha <= 0) {
 			return;
 		}
-		const count = buildFunnel(this.vertices, t, this.position);
+		const count = buildFunnel(this.vertices, t, this.position, this.shape);
 		const attribute = _program.attribute;
 		const self = this;
 

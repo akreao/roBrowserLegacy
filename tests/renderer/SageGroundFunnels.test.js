@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fadeOutStep, funnelAlpha, visibleTicks } from '../../src/Renderer/Effects/CastFunnelSim.js';
+import { FUNNEL, SAGE_GROUND_FUNNEL, funnelAlpha, visibleTicks } from '../../src/Renderer/Effects/CastFunnelSim.js';
 
 // Volcano, Deluge, Violent Gale and Land Protector: the official client's ground packet plays
 // 225 / 236 / 237 / 238 at the target cell, the funnel primitive (four rings opening out) in
@@ -18,11 +18,12 @@ function rowText(id) {
 
 describe('Sage ground skill funnels', () => {
 	it('variant 0 rises to 200 on tick 10 and loses 2 a tick, gone on tick 110', () => {
-		expect(fadeOutStep(0)).toBe(2);
-		expect(fadeOutStep(4)).toBe(5);
-		const down = fadeOutStep(0);
-		expect([1, 10, 11, 60, 109, 110, 500].map(t => funnelAlpha(t, down))).toEqual([20, 200, 198, 100, 2, 0, 0]);
-		expect(visibleTicks(down)).toBe(110);
+		expect({ ...SAGE_GROUND_FUNNEL, alphaDown: FUNNEL.alphaDown }).toEqual(FUNNEL);
+		expect(SAGE_GROUND_FUNNEL.alphaDown).toBe(2);
+		expect([1, 10, 11, 60, 109, 110, 500].map(t => funnelAlpha(t, SAGE_GROUND_FUNNEL))).toEqual([
+			20, 200, 198, 100, 2, 0, 0
+		]);
+		expect(visibleTicks(SAGE_GROUND_FUNNEL)).toBe(110);
 	});
 
 	it('variant 4 (Nightmare Erasion) is unchanged', () => {
@@ -42,7 +43,7 @@ describe('Sage ground skill funnels', () => {
 			);
 			const text = rowText(id);
 			expect(text).toContain('attachedEntity: false');
-			expect(text).toContain(`new CastFunnel(Params.Inst.position, Params.Inst.startTick, ${life}, '${texture}', 0)`);
+			expect(text).toContain(`new CastFunnel(Params.Inst.position, Params.Inst.startTick, ${life}, '${texture}', SAGE_GROUND_FUNNEL)`);
 		});
 	}
 });
