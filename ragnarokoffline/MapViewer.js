@@ -222987,8 +222987,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.TF_SPRINKLESAND] = {
 		damageEffectIdOnTarget: 310,
-		hitEffectId: 0,
-		hitEffectOnce: true
+		hitEffectId: 0
 	};
 	SkillEffect[SkillConst_default.TF_BACKSLIDING] = {};
 	SkillEffect[SkillConst_default.TF_PICKSTONE] = { hideCastAura: true };
