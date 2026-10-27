@@ -11,6 +11,7 @@
  */
 import EffectDB from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
+import { motionEffectForPacket } from 'DB/Skills/SkillMotionEffect.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import SkillUnit, { SkillUnitEnd } from 'DB/Skills/SkillUnit.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
@@ -224,6 +225,9 @@ function spamSprite(Params) {
 		yOffset: Params.effect.yOffset,
 		frame: spriteAction(Params.effect.frame),
 		delay: Params.effect.delayFrame,
+		// A number delayStart (ms) holds the sprite back, as the official client
+		// starts some sprites a few ticks into their effect (Triple Action)
+		startDelay: typeof Params.effect.delayStart === 'number' ? Params.effect.delayStart : 0,
 		renderBefore: !!Params.effect.renderBeforeEntities
 	});
 
@@ -739,7 +743,13 @@ class EffectManager {
 		Params.Inst.repeatDelay = Params.effect.repeatDelay ? Params.effect.repeatDelay : Params.Init.repeatDelay; // Instance has priority
 
 		// BSON sound events repeat only when requested; legacy effects keep replaying.
-		if (Params.effect.wav && !(Params.Inst.noDelay && Params.effect.soundLoop === false)) {
+		// wavChance: the official client plays some sounds only now and then (Blaze Shield's
+		// units: 1 in 8).
+		if (
+			Params.effect.wav &&
+			!(Params.Inst.noDelay && Params.effect.soundLoop === false) &&
+			!(Params.effect.wavChance < 1 && Math.random() >= Params.effect.wavChance)
+		) {
 			filename = Params.effect.wav;
 
 			if (Params.effect.rand) {
@@ -1396,6 +1406,37 @@ class EffectManager {
 	}
 
 	/**
+	 * Spam the caster's motion effect as a skill damage packet arrives: 16
+	 * (EF_BASH) for most skills, from the official client's table
+	 * (DB/Skills/SkillMotionEffect.js). Not played again when the skill's own
+	 * damageEffectIdOnCaster already lists it.
+	 *
+	 * @param {number} skillId skill id
+	 * @param {number} srcAID caster aid
+	 * @param {number} destAID target aid
+	 * @param {number} tick
+	 * @param {number} damageType the packet's action field
+	 * @param {number} level the packet's level field
+	 * @param {boolean} targetFound is the packet's target a known actor
+	 */
+	static spamSkillMotion(skillId, srcAID, destAID, tick, damageType, level, targetFound) {
+		const effectId = motionEffectForPacket(skillId, damageType, level, targetFound);
+		if (effectId === null || !srcAID) {
+			return;
+		}
+		const own = SkillEffect[skillId] && SkillEffect[skillId].damageEffectIdOnCaster;
+		if (own != null && (Array.isArray(own) ? own : [own]).includes(effectId)) {
+			return;
+		}
+		EffectManager.spam({
+			effectId: effectId,
+			ownerAID: srcAID,
+			startTick: tick,
+			otherAID: destAID
+		});
+	}
+
+	/**
 	 * Spam skill effect on hit with damage
 	 *
 	 * @param {number} skill id
@@ -1411,13 +1452,13 @@ class EffectManager {
 		}
 
 		// Skills marked hitEffectOnce play their hit effects for the first hit
-		// of a damage packet only, like the official client does for damage a
-		// character deals: one hit message per packet, whatever the hit count.
+		// of a damage packet only.
 		if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) {
 			return;
 		}
 
-		if (SkillEffect[skillId].hitEffectId) {
+		// 0 is an effect too: the hit flash (EF_HIT1)
+		if (SkillEffect[skillId].hitEffectId != null) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectId)
 				? SkillEffect[skillId].hitEffectId
 				: [SkillEffect[skillId].hitEffectId];
@@ -1431,6 +1472,23 @@ class EffectManager {
 				};
 
 				EffectManager.spam(EF_Init_Par);
+			});
+		}
+
+		// Only on the first hit of a damage packet: the official client sends the
+		// hit-map effect with the first hit message of a multi-hit packet only
+		if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+			effects = Array.isArray(SkillEffect[skillId].firstHitEffectId)
+				? SkillEffect[skillId].firstHitEffectId
+				: [SkillEffect[skillId].firstHitEffectId];
+
+			effects.forEach(effectId => {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				});
 			});
 		}
 
