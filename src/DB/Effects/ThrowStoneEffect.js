@@ -14,7 +14,15 @@
  */
 
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
-import { NINJA_ITEM, STONE, STONE_TEXTURE, VENOM_KNIFE, planThrow, stoneAt, trailAt } from 'Renderer/Effects/ThrownStoneSim.js';
+import {
+	NINJA_ITEM,
+	STONE,
+	STONE_TEXTURE,
+	VENOM_KNIFE,
+	planThrow,
+	stoneAt,
+	trailAt
+} from 'Renderer/Effects/ThrownStoneSim.js';
 
 /** roBrowser 3D size units across one official unit (35 to a cell). */
 const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
