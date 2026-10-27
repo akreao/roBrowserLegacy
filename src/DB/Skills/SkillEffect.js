@@ -397,7 +397,7 @@ SkillEffect[SK.NPC_REBIRTH] = {}; //Rebirth
 SkillEffect[SK.NPC_SUMMONMONSTER] = {}; //Monster Summons
 // Rogue
 SkillEffect[SK.RG_STEALCOIN] = { successEffectId: [268, 274] }; //Mug
-SkillEffect[SK.RG_BACKSTAP] = { hitEffectId: 275 }; //Back Stab
+SkillEffect[SK.RG_BACKSTAP] = { damageEffectIdOnCaster: 275, hitEffectId: [0], hitEffectOnce: true }; //Back Stab
 SkillEffect[SK.RG_RAID] = { effectIdOnCaster: 276 }; //Sightless Mind
 SkillEffect[SK.RG_STRIPWEAPON] = { successEffectId: 269 }; //Divest Weapon
 SkillEffect[SK.RG_STRIPSHIELD] = { successEffectId: 270 }; //Divest Shield

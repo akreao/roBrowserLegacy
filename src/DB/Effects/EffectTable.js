@@ -6472,8 +6472,9 @@ export default {
 
 	275: [
 		{
-			//backstab on target hit	//EF_BACKSTAP	Back Stab Animation
+			//EF_BACKSTAP	Back Stab: on the caster as the damage packet arrives, sound on tick 20
 			wav: 'effect/rog_back stap',
+			delayWav: 333,
 			attachedEntity: true
 		}
 	],
