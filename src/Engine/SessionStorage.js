@@ -52,8 +52,6 @@ export default {
 		return Boolean(entity?.isAdmin) && this.AdminLook?.[part] !== false;
 	},
 
-	underAutoCounter: false,
-
 	moveAction: null,
 
 	// weight and max_weight now live on the player entity (Session.Entity)
