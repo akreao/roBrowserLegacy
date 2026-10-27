@@ -48,6 +48,8 @@ import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { ninjaThrowEffects, throwStoneEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
+import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
@@ -26481,12 +26483,14 @@ export default {
 		}
 	],
 
-	// Silvervine Stem Spear (SU_SV_STEMSPEAR), from the client's own effect folders.
+	// Silvervine Stem Spear (SU_SV_STEMSPEAR): effect 1101, left where the caster
+	// stands when the damage packet arrives, start sound su_stemspear.wav.
 	ef_su_sv_stemspear: [
 		{
 			type: 'STR',
 			file: 'su_sv_stemspear/su_sv_stemspear',
-			texturePath: 'su_sv_stemspear/'
+			texturePath: 'su_sv_stemspear/',
+			wav: 'effect/su_stemspear'
 		}
 	],
 
@@ -26497,6 +26501,66 @@ export default {
 			file: 'su_scaroftarou/su_scaroftarou',
 			texturePath: 'su_scaroftarou/',
 			wav: 'effect/su_scaroftarou'
+		}
+	],
+
+	// Bite scar (status BITESCAR, from Scar of Tarou): effect 1119, bite_scar.str
+	// once on the actor when the status starts, removed when it ends.
+	ef_su_bitescar: [
+		{
+			type: 'STR',
+			file: 'bite_scar/bite_scar',
+			texturePath: 'bite_scar/',
+			attachedEntity: true
+		}
+	],
+
+	// Catnip Meteor (SU_CN_METEOR): effect 1106 at each meteor's cell, one ground
+	// packet per meteor. The official client plays su_cn_meteor.spr once, 4 ticks a
+	// frame, at alpha 100 of 255, and shakes the camera when it is 48 ticks old.
+	ef_su_cn_meteor: [
+		{
+			type: 'SPR',
+			file: 'su_cn_meteor/su_cn_meteor',
+			delayFrame: (4 * 1000) / 60,
+			opacity: 100 / 255
+		},
+		{
+			type: 'FUNC',
+			func: Params => {
+				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
+			}
+		}
+	],
+
+	// Catnip Meteor with the item (SU_CN_METEOR2): effect 1112, the same meteor at
+	// full alpha.
+	ef_su_cn_meteor2: [
+		{
+			type: 'SPR',
+			file: 'su_cn_meteor/su_cn_meteor',
+			delayFrame: (4 * 1000) / 60
+		},
+		{
+			type: 'FUNC',
+			func: Params => {
+				Camera.setQuake(Params.Inst.startTick + (48 * 1000) / 60);
+			}
+		}
+	],
+
+	// Silvervine Root Twist (status SV_ROOTTWIST): effect 1110, the official client's
+	// su_sv_roottwist.spr on the actor for as long as the status lasts, 3 units below
+	// it, 8 ticks a frame, with su_roottwist.wav when it starts.
+	ef_su_roottwist: [
+		{
+			type: 'SPR',
+			file: 'su_sv_roottwist/su_sv_roottwist',
+			wav: 'effect/su_roottwist',
+			attachedEntity: true,
+			repeat: true,
+			delayFrame: (8 * 1000) / 60,
+			yOffset: 3 * 7
 		}
 	],
 
@@ -26519,27 +26583,25 @@ export default {
 		}
 	],
 
-	// Tuna Belly (SU_TUNABELLY), from the client's own effect folders.
+	// Tuna Belly (SU_TUNABELLY): the official client plays su_tunabelly.str only
+	// (effect 1102, start sound su_tunabelly.wav); the folder's su_scratch.str is unused.
 	ef_su_tunabelly: [
 		{
 			type: 'STR',
-			file: 'su_tunabelly/su_scratch',
+			file: 'su_tunabelly/su_tunabelly',
 			texturePath: 'su_tunabelly/',
 			wav: 'effect/su_tunabelly'
-		},
-		{
-			type: 'STR',
-			file: 'su_tunabelly/su_tunabelly',
-			texturePath: 'su_tunabelly/'
 		}
 	],
 
-	// Bunch of Shrimp (SU_BUNCHOFSHRIMP), from the client's own effect folders.
+	// Bunch of Shrimp (SU_BUNCHOFSHRIMP): effect 1116; the official client's start
+	// sound is spelled su_brunchofshrimp.wav.
 	ef_su_bunchofshrimp: [
 		{
 			type: 'STR',
 			file: 'su_bunchofshrimp/su_bunchofshrimp',
-			texturePath: 'su_bunchofshrimp/'
+			texturePath: 'su_bunchofshrimp/',
+			wav: 'effect/su_brunchofshrimp'
 		}
 	],
 
@@ -26549,6 +26611,17 @@ export default {
 			type: 'STR',
 			file: 'su_freshshrimp/su_freshshrimp',
 			texturePath: 'su_freshshrimp/'
+		}
+	],
+
+	// Tasty Shrimp Party (SU_SHRIMPARTY): the official client plays Fresh Shrimp's
+	// STR (effect 1098) with su_shrimpparty.wav, from skilleffectinfo.
+	ef_su_shrimparty: [
+		{
+			type: 'STR',
+			file: 'su_freshshrimp/su_freshshrimp',
+			texturePath: 'su_freshshrimp/',
+			wav: 'effect/su_shrimpparty'
 		}
 	],
 
@@ -26582,15 +26655,12 @@ export default {
 		}
 	],
 
-	// Nyang Grass (SU_NYANGGRASS), from the client's own effect folders.
-	ef_su_nyanggrass: [
-		{
-			type: 'STR',
-			file: 'su_nyanggrass/su_nyanggrass',
-			texturePath: 'su_nyanggrass/',
-			wav: 'effect/su_nyanggrass'
-		}
-	],
+	// Lunatic Carrot Beat (SU_LUNATICCARROTBEAT / 2): the falling carrots
+	// (DB/Effects/CarrotBeatEffect.js).
+	...carrotBeatEffects,
+
+	// Nyang Grass (SU_NYANGGRASS): the field the unit draws (DB/Effects/NyangGrassEffect.js).
+	...nyangGrassEffects,
 
 	// Grooming (SU_GROOMING), from the client's own effect folders.
 	ef_su_grooming: [

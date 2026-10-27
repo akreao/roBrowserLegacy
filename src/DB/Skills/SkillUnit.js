@@ -177,6 +177,10 @@ SkillUnit[SU.UNT_CROSS_RAIN] = ['new_cross_rain_bottom', 'ef_ig_cross_rain_field
 SkillUnit[SU.UNT_KUNAIWAIKYOKU] = ['kunaiarea_01_start', 'kunaiarea_01_loop'];
 SkillUnit[SU.UNT_SHINKIROU] = ['shinkirou_idle_start', 'shinkirou_idle_loop'];
 
+// Nyang Grass: su_nyanggrass.wav and a square of su_nyanggrass STRs sized by level
+// (official effect 1125; the server sends only the centre unit).
+SkillUnit[SU.UNT_NYANGGRASS] = 'ef_su_nyanggrass_field';
+
 // Played once where a unit stood when it goes (official end rows).
 export const SkillUnitEnd = {};
 SkillUnitEnd[SU.UNT_JACK_FROST_NOVA] = ['jack_frost_nova_end'];

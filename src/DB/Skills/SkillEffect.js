@@ -840,7 +840,7 @@ SkillEffect[SK.DC_WINKCHARM] = { successEffectId: 607 }; //Wink of Charm
 SkillEffect[SK.BS_GREED] = { effectId: 'ef_greed_sound' }; //Greed
 SkillEffect[SK.PR_REDEMPTIO] = {}; //Redemptio
 SkillEffect[SK.MO_KITRANSLATION] = {}; //Ki Translation
-SkillEffect[SK.MO_BALKYOUNG] = { effectId: 514 }; //Ki Explosion
+SkillEffect[SK.MO_BALKYOUNG] = { hitEffectId: 2 }; //Ki Explosion
 SkillEffect[SK.SA_ELEMENTGROUND] = { successEffectId: 258 }; //Elemental Change Earth
 SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fire
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
@@ -1869,30 +1869,53 @@ SkillEffect[SK.SU_HIDE] = {}; //Hide
 SkillEffect[SK.SU_SCRATCH] = { successEffectId: 'ef_su_scratch' }; //Scratch
 SkillEffect[SK.SU_STOOP] = {}; //Stoop
 SkillEffect[SK.SU_LOPE] = {}; //Lope
-SkillEffect[SK.SU_SV_STEMSPEAR] = { effectId: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
+// Silvervine Stem Spear: the official client plays 1101 at the caster as each damage
+// packet arrives (and flies 4 spear sprites to the target, effect 1100, not ported).
+SkillEffect[SK.SU_SV_STEMSPEAR] = { damageEffectIdOnCaster: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
 SkillEffect[SK.SU_CN_POWDERING] = {}; //Catnip Powdering
-SkillEffect[SK.SU_CN_METEOR] = {}; //Catnip Meteor
+// Catnip Meteor: one falling meteor at the cell of each ground packet (the server sends
+// one per meteor); only from the ground packet, not from the damage.
+SkillEffect[SK.SU_CN_METEOR] = { groundEffectIdByLevel: ['ef_su_cn_meteor'] }; //Catnip Meteor
+SkillEffect[SK.SU_CN_METEOR2] = { groundEffectIdByLevel: ['ef_su_cn_meteor2'] }; //Catnip Meteor (with the item)
 SkillEffect[SK.SU_SV_ROOTTWIST] = {}; //Silvervine Root Twist
 SkillEffect[SK.SU_SV_ROOTTWIST_ATK] = {}; //Silver Vine Root Twist Attack
 SkillEffect[SK.SU_SCAROFTAROU] = { effectId: 'ef_su_scaroftarou' }; //Scar of Tarou
-SkillEffect[SK.SU_PICKYPECK] = { effectId: 'ef_su_pickypeck' }; //Picky Peck
+// Picky Peck: once, on the use packet's target when it succeeds (not again on the damage).
+SkillEffect[SK.SU_PICKYPECK] = { successEffectId: 'ef_su_pickypeck' }; //Picky Peck
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
-SkillEffect[SK.SU_ARCLOUSEDASH] = { effectId: 'ef_su_arclousedash' }; //Arclouse Dash
-SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
-SkillEffect[SK.SU_TUNABELLY] = { effectId: 'ef_su_tunabelly' }; //Tuna Belly
+// Arclouse Dash: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_ARCLOUSEDASH] = { successEffectId: 'ef_su_arclousedash' }; //Arclouse Dash
+// Lunatic Carrot Beat: carrots fall around the target when the use packet succeeds, more
+// for higher levels (DB/Effects/CarrotBeatEffect.js); the _2 version is the one with the item.
+SkillEffect[SK.SU_LUNATICCARROTBEAT] = { successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat'] }; //Lunatic Carrot Beat
+SkillEffect[SK.SU_LUNATICCARROTBEAT2] = { successEffectIdOnTargetByLevel: ['ef_su_lunaticcarrotbeat2'] }; //Lunatic Carrot Beat (with the item)
+// Tuna Belly: once, on the use packet's target when it succeeds.
+SkillEffect[SK.SU_TUNABELLY] = { successEffectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
-SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
-SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
+// Bunch of Shrimp: on each party member's use packet when it succeeds (effect 1116).
+SkillEffect[SK.SU_BUNCHOFSHRIMP] = { successEffectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
+// Fresh Shrimp: on the use packet's target when it succeeds, silent (effect 1098).
+SkillEffect[SK.SU_FRESHSHRIMP] = { successEffectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
-SkillEffect[SK.SU_POWEROFFLOCK] = { effectId: 'ef_su_powerofflock' }; //Power of Flock
-SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Savage
-SkillEffect[SK.SU_HISS] = { effectId: 'ef_su_hiss' }; //Hiss
-SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
-SkillEffect[SK.SU_GROOMING] = { effectId: 'ef_su_grooming' }; //Grooming
-SkillEffect[SK.SU_PURRING] = {}; //Purring
-SkillEffect[SK.SU_SHRIMPARTY] = {}; //Tasty Shrimp Party
-SkillEffect[SK.SU_MEOWMEOW] = {}; //Meow Meow
-SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering
+// Power of Flock: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_POWEROFFLOCK] = { successEffectId: 'ef_su_powerofflock' }; //Power of Flock
+// Spirit of Savage: the official client plays 1129 on each target as its damage packet
+// arrives (and flies the svg_spirit sprite from the caster, effect 1128, not ported).
+SkillEffect[SK.SU_SVG_SPIRIT] = { damageEffectIdOnTarget: 'ef_su_svg_spirit' }; //Spirit of Savage
+// Hiss: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_HISS] = { successEffectId: 'ef_su_hiss' }; //Hiss
+// Nyang Grass: nothing for the ground packet; the field comes with its unit (SkillUnit.js).
+SkillEffect[SK.SU_NYANGGRASS] = {}; //Nyang Grass
+// Grooming: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_GROOMING] = { successEffectId: 'ef_su_grooming' }; //Grooming
+// Purring: the official client plays Grooming's effect (1123, su_grooming.wav) for it.
+SkillEffect[SK.SU_PURRING] = { successEffectId: 'ef_su_grooming' }; //Purring
+// Tasty Shrimp Party: Fresh Shrimp's STR with su_shrimpparty.wav, on use success.
+SkillEffect[SK.SU_SHRIMPARTY] = { successEffectId: 'ef_su_shrimparty' }; //Tasty Shrimp Party
+// Meow Meow: the official client plays Chattering's effect (1124) with su_chattering.wav.
+SkillEffect[SK.SU_MEOWMEOW] = { successEffectId: 'ef_su_chattering' }; //Meow Meow
+// Chattering: on the use packet's target when it succeeds.
+SkillEffect[SK.SU_CHATTERING] = { successEffectId: 'ef_su_chattering' }; //Chattering
 // Wedding Skills 3
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever

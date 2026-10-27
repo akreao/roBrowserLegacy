@@ -315,6 +315,19 @@ export default {
 	[StatusConst.SIEGFRIED]: {
 		restart: [875]
 	},
+	// Bite scar (Scar of Tarou): bite_scar.str once when the status starts,
+	// removed when it ends (official effect 1119).
+	[StatusConst.BITESCAR]: {
+		start: ['ef_su_bitescar'],
+		stop: ['ef_su_bitescar']
+	},
+
+	// Silvervine Root Twist: the roots on the actor while the status lasts (official
+	// effect 1110).
+	[StatusConst.SV_ROOTTWIST]: {
+		loop: ['ef_su_roottwist']
+	},
+
 	// Assumptio (HP_ASSUMPTIO): the official client removes 375 and launches it again when the status
 	// starts, and removes it when the status ends.
 	[StatusConst.ASSUMPTIO]: {
