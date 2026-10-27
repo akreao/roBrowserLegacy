@@ -13486,11 +13486,22 @@ export default {
 
 	631: [
 		{
-			//reverse tatami map unit	//EF_TATAMI	Reverse Tatami Map Unit
+			//EF_TATAMI	Flip Tatami unit: official effect 631 (effect-port/ninja-skills.md)
+			// 다다미 (not 다다미 뒤집기) action 0, 6 ticks a frame, once, 6 units (42 px) up, on
+			// each unit. No sound here: the skill's use packet plays it (ef_flip_tatami_sound).
 			type: 'SPR',
-			file: '\xb4\xd9\xb4\xd9\xb9\xcc\x20\xb5\xda\xc1\xfd\xb1\xe2',
-			wav: 'effect/\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2',
+			file: '\xb4\xd9\xb4\xd9\xb9\xcc',
+			delayFrame: 6 * (1000 / 60),
+			yOffset: -42,
+			repeat: false,
 			attachedEntity: true
+		}
+	],
+
+	// Flip Tatami (NJ_TATAMIGAESHI): the official client plays 다다미뒤집기.wav when the skill works.
+	ef_flip_tatami_sound: [
+		{
+			wav: 'effect/\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2'
 		}
 	],
 
