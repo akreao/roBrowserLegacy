@@ -277,5 +277,11 @@ export default {
 	// effect 1110).
 	[StatusConst.SV_ROOTTWIST]: {
 		loop: ['ef_su_roottwist']
+	},
+
+	// Assumptio (HP_ASSUMPTIO): the official client removes 375 and launches it again when the status
+	// starts, and removes it when the status ends.
+	[StatusConst.ASSUMPTIO]: {
+		loop: [375]
 	}
 };
