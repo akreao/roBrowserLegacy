@@ -9,7 +9,7 @@ import FacingTurn, { turnedDirection, TURN_TICKS } from 'Renderer/Effects/Facing
 
 // Tornado Kick (TK_STORMKICK, skill 413): on success the official client plays 435
 // (EF_STORMKICK) on the caster: its sound on tick 5, and the caster's facing turned 30 degrees a
-// tick for 48 ticks. The hits play the hit flash 0 once. Spec: effect-port/taekwon-skills.md.
+// tick for 48 ticks. Every hit plays the hit flash 0. Spec: effect-port/taekwon-skills.md.
 
 const TICK = 1000 / 60;
 
@@ -47,10 +47,10 @@ describe('FacingTurn', () => {
 });
 
 describe('Tornado Kick skill row', () => {
-	it('plays 435 on the caster on success and one hit flash per packet', () => {
+	it('plays 435 on the caster on success and the hit flash on every hit', () => {
 		const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
 		expect(source).toMatch(
-			/SkillEffect\[SK\.TK_STORMKICK\] = \{ successEffectIdOnCaster: 435, hitEffectId: \[0\], hitEffectOnce: true \};/
+			/SkillEffect\[SK\.TK_STORMKICK\] = \{ successEffectIdOnCaster: 435, hitEffectId: \[0\] \};/
 		);
 	});
 });
