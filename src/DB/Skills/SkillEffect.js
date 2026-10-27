@@ -422,16 +422,18 @@ SkillEffect[SK.AM_CALLHOMUN] = {}; //Call Homunculus
 SkillEffect[SK.AM_REST] = {}; //Vaporize
 SkillEffect[SK.AM_RESURRECTHOMUN] = {}; //Homunculus Resurrection
 // Crusader
-SkillEffect[SK.CR_AUTOGUARD] = { effectId: 336 }; //Guard
+// Official client: the use packet shows these only when its result is set, on the packet's
+// source (the Crusader) or, for Providence, its target. See effect-port/crusader-skills.md.
+SkillEffect[SK.CR_AUTOGUARD] = { successEffectIdOnCaster: 336 }; //Guard
 SkillEffect[SK.CR_SHIELDCHARGE] = { effectId: 246 }; //Smite
 SkillEffect[SK.CR_SHIELDBOOMERANG] = { beforeHitEffectId: 'ef_shield_projectile', effectId: 249 }; //Shield Boomerang
-SkillEffect[SK.CR_REFLECTSHIELD] = { effectId: 252 }; //Shield Reflect
+SkillEffect[SK.CR_REFLECTSHIELD] = { successEffectIdOnCaster: 252 }; //Shield Reflect
 SkillEffect[SK.CR_HOLYCROSS] = { effectId: 245 }; //Holy Cross
 SkillEffect[SK.CR_GRANDCROSS] = { effectId: 226 }; //Grand Cross
-SkillEffect[SK.CR_DEVOTION] = { effectId: 251 }; //Sacrifice
-SkillEffect[SK.CR_PROVIDENCE] = { effectId: 248 }; //Resistant Souls
-SkillEffect[SK.CR_DEFENDER] = { effectId: 222 }; //Defending Aura
-SkillEffect[SK.CR_SPEARQUICKEN] = { effectId: 250 }; //Spear Quicken
+SkillEffect[SK.CR_DEVOTION] = { successEffectIdOnCaster: 251 }; //Sacrifice
+SkillEffect[SK.CR_PROVIDENCE] = { successEffectId: 248 }; //Resistant Souls
+SkillEffect[SK.CR_DEFENDER] = { successEffectIdOnCaster: 222 }; //Defending Aura
+SkillEffect[SK.CR_SPEARQUICKEN] = { successEffectIdOnCaster: 250 }; //Spear Quicken
 // Monk
 SkillEffect[SK.MO_CALLSPIRITS] = {}; //Summon Spirit Sphere
 SkillEffect[SK.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 }; //Absorb Spirit Sphere
