@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { hitHasEffects } from '../../src/DB/Skills/SplashHit.js';
 
 // Venom Splasher (AS_SPLASHER, skill 141), as the official client plays it: 125 (the poison
 // particles) on the target when the skill succeeds; when it bursts, 129 (VenomSplasher.str, the
 // sound on tick 10) on each target of a damage packet that carries skill level -1 (the server's
-// mark on the splashed targets; the central target gets -2), and the hit flash 0 once per packet.
+// mark on the splashed targets; the central target gets -2). Every damage packet is a splash packet, so no
+// hit flash (DB/Skills/SplashHit.js).
 // Spec: effect-port/assassin-skills.md.
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
@@ -41,9 +43,9 @@ function loadEffectManager(skillTable) {
 }
 
 describe('Venom Splasher effects', () => {
-	it('plays 125 on success, 129 on the splashed targets and the hit flash once', () => {
+	it('plays 125 on success and 129 on the splashed targets, with no hit flash', () => {
 		expect(skills).toMatch(
-			/SkillEffect\[SK\.AS_SPLASHER\] = \{ successEffectId: 125, splashEffectIdOnTarget: 129, hitEffectId: 0, hitEffectOnce: true \};/
+			/SkillEffect\[SK\.AS_SPLASHER\] = \{ successEffectId: 125, splashEffectIdOnTarget: 129 \};/
 		);
 	});
 
@@ -60,6 +62,11 @@ describe('Venom Splasher effects', () => {
 		expect(read('Engine/MapEngine/Entity.js')).toMatch(
 			/EffectManager\.spamSkillSplashMark\(pkt\.SKID, pkt\.targetID, Renderer\.tick, pkt\.AID, pkt\.level\);/
 		);
+	});
+
+	it('shows no hit effects on its splash hits, as every splash skill', () => {
+		expect(hitHasEffects(141, 5)).toBe(false);
+		expect(hitHasEffects(141, 14)).toBe(false);
 	});
 
 	it('plays the burst sound on tick 10', () => {
