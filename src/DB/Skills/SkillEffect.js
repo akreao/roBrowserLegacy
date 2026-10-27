@@ -479,7 +479,7 @@ SkillEffect[SK.BD_ROKISWEIL] = { successEffectId: [283, 845], groundEffectId: '2
 SkillEffect[SK.BD_INTOABYSS] = { successEffectId: [284, 842], groundEffectId: '284_ground' }; //Power Chord
 SkillEffect[SK.BD_SIEGFRIED] = { successEffectId: [285, 842], groundEffectId: '285_ground' }; //Acoustic Rhythm
 // Bard
-SkillEffect[SK.BA_MUSICALSTRIKE] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Melody Strike
+SkillEffect[SK.BA_MUSICALSTRIKE] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Melody Strike
 SkillEffect[SK.BA_DISSONANCE] = { successEffectId: 843, groundEffectId: '277_ground' }; //Unchained Serenade
 SkillEffect[SK.BA_FROSTJOKE] = { beginCastEffectId: 295 }; //Unbarring Octave
 SkillEffect[SK.BA_WHISTLE] = { successEffectId: 844, groundEffectId: '286_ground' }; //Perfect Tablature
@@ -487,7 +487,7 @@ SkillEffect[SK.BA_ASSASSINCROSS] = { successEffectId: [287, 840], groundEffectId
 SkillEffect[SK.BA_POEMBRAGI] = { successEffectId: [288, 843], groundEffectId: '288_ground' }; //Magic Strings
 SkillEffect[SK.BA_APPLEIDUN] = { successEffectId: [289, 841], groundEffectId: '289_ground' }; //Song of Lutie
 // Dancer
-SkillEffect[SK.DC_THROWARROW] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Slinging Arrow
+SkillEffect[SK.DC_THROWARROW] = { hideCastAura: true, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0] }; //Slinging Arrow
 SkillEffect[SK.DC_UGLYDANCE] = { successEffectId: 843, groundEffectId: '290_ground' }; //Hip Shaker
 SkillEffect[SK.DC_SCREAM] = { beginCastEffectId: 296 }; //Dazzler
 SkillEffect[SK.DC_HUMMING] = { successEffectId: [291, 844], groundEffectId: '291_ground' }; //Focus Ballet
