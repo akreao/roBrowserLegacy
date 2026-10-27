@@ -3005,11 +3005,10 @@ export default {
 
 	70: [
 		{
-			//EF_BRANDISHSPEAR	Brandish Spear
+			//EF_BRANDISHSPEAR	Brandish Spear, on each target as its damage packet arrives (no sound)
 			attachedEntity: false,
 			file: 'brandish',
-			type: 'STR',
-			wav: 'effect/knight_brandish_spear'
+			type: 'STR'
 		}
 	],
 
