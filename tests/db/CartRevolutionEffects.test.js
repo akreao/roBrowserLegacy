@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import vm from 'node:vm';
 
 // Cart Revolution (MC_CARTREVOLUTION, skill 153), as the official client plays it: effect 170 on
-// the caster as each damage packet arrives, and 0 + 170 on each target once per damage packet
-// when the hit lands. 170 is CartRevolution.str plus, on ticks 7 and 20, ef_magnumbreak.wav with
+// the caster as each damage packet arrives; when the hit lands, 0 (hit flash) on the target on
+// every hit and 170 with the first hit of the packet (kRO 2025-07-16). 170 is CartRevolution.str plus, on ticks 7 and 20, ef_magnumbreak.wav with
 // a yellow ring and a fire sphere (20 ticks each). Spec: effect-port/merchant-skills.md.
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
@@ -21,9 +21,9 @@ const TICK = 1000 / 60;
 const close = (a, b) => expect(Math.abs(a - b)).toBeLessThan(1e-6);
 
 describe('Cart Revolution effects', () => {
-	it('plays 170 on the caster per damage packet and 0 + 170 once on each hit', () => {
+	it('plays 170 on the caster per damage packet, 0 on every hit and 170 with the first', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
-			/SkillEffect\[SK\.MC_CARTREVOLUTION\] = \{ damageEffectIdOnCaster: 170, hitEffectId: \[0, 170\], hitEffectOnce: true \};/
+			/SkillEffect\[SK\.MC_CARTREVOLUTION\] = \{ damageEffectIdOnCaster: 170, hitEffectId: 0, firstHitEffectId: 170 \};/
 		);
 	});
 
