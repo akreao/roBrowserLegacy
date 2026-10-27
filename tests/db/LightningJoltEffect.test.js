@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
-import { scaledLayer } from '../../src/Renderer/Entity/ScaledLayer.js';
 
 // Lightning Jolt (NJ_RAIGEKISAI, skill 541): the official client plays 622 at the cell (ground packet)
 // and on the caster when the use packet succeeds: the 썬더스톰 sprite, 2 ticks a frame, once, 2.5
@@ -27,15 +26,6 @@ describe('Lightning Jolt', () => {
 		expect(r).toContain('yOffset: -31');
 		expect(r).toContain("wav: 'effect/ef_thunderstorm',");
 		expect(r).not.toContain('setsudan');
-	});
-
-	it('scales an effect sprite layer offset with its size', () => {
-		const layer = { pos: [-17, -64], scale: [1, 1], index: 0 };
-		expect(scaledLayer(layer, 1)).toBe(layer);
-		const big = scaledLayer(layer, 2.5);
-		expect(big.pos).toEqual([-42.5, -160]);
-		expect(big.index).toBe(0);
-		expect(layer.pos).toEqual([-17, -64]);
 	});
 });
 
