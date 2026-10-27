@@ -293,7 +293,7 @@ SkillEffect[SK.AS_GRIMTOOTH] = { damageEffectIdOnCaster: 123, hitEffectId: [0, 1
 SkillEffect[SK.AS_ENCHANTPOISON] = { successEffectId: 125 }; //Enchant Poison
 SkillEffect[SK.AS_POISONREACT] = { successEffectId: 126, hitEffectId: 0, hitEffectOnce: true }; //Poison React
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
-SkillEffect[SK.AS_SPLASHER] = { successEffectId: 125, splashEffectIdOnTarget: 129, hitEffectId: 0, hitEffectOnce: true }; //Venom Splasher
+SkillEffect[SK.AS_SPLASHER] = { successEffectId: 125, splashEffectIdOnTarget: 129 }; //Venom Splasher (splash packets only: no hit flash)
 // 1st Class Quest
 SkillEffect[SK.NV_FIRSTAID] = { successEffectIdOnCaster: 309 }; //First Aid: only when the use packet succeeds, on its source
 SkillEffect[SK.NV_TRICKDEAD] = {}; //Play Dead
