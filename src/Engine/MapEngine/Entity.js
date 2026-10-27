@@ -1335,6 +1335,7 @@ function onEntityViewChange(pkt) {
 				entity.objecttype === Entity.TYPE_UNIT ||
 				entity.objecttype === Entity.TYPE_TRAP
 			) {
+				EffectManager.spamSkillUnitTrigger(pkt.GID, pkt.value);
 				EffectManager.spamSkillZone(
 					pkt.value,
 					entity.position[0],

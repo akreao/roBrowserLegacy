@@ -184,4 +184,10 @@ SkillUnitEnd[SU.UNT_TOTEM_OF_TUTELARY] = ['totem_of_tutelary_bottom_end', 'totem
 SkillUnitEnd[SU.UNT_KUNAIWAIKYOKU] = ['kunaiarea_01_end'];
 SkillUnitEnd[SU.UNT_SHINKIROU] = ['shinkirou_idle_end'];
 
+// Played once where a trap stands when it goes off: the server turns the unit
+// into a used trap (UNT_USED_TRAPS), and the official client then plays the
+// trap's own effect at it. Keyed by the trap's unit id before the change.
+export const SkillUnitTrigger = {};
+SkillUnitTrigger[SU.UNT_BLASTMINE] = [EC.EF_BLASTMINEBOMB];
+
 export default SkillUnit;
