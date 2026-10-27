@@ -17,8 +17,8 @@ function effectEntry(name) {
 }
 
 describe('Help Angel', () => {
-	it('is the skill effect of NV_HELPANGEL', () => {
-		expect(read('Skills/SkillEffect.js')).toMatch(/SkillEffect\[SK\.NV_HELPANGEL\] = \{ effectId: 'ef_nv_helpangel' \};/);
+	it('is the skill effect of NV_HELPANGEL, on the source of a successful use packet', () => {
+		expect(read('Skills/SkillEffect.js')).toMatch(/SkillEffect\[SK\.NV_HELPANGEL\] = \{ successEffectIdOnCaster: 'ef_nv_helpangel' \};/);
 	});
 
 	it('plays the sanctuary sound with the angel, and the bottom ring on the floor', () => {
