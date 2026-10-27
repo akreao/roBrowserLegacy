@@ -1434,8 +1434,9 @@ class EffectManager {
 	 * @param {number} tick
 	 * @param {number} srcAID caster aid
 	 * @param {number} [hitIndex] which hit of the damage packet this is, from 0
+	 * @param {boolean} [noTargetEffects] skip the effects on the target (a splash hit)
 	 */
-	static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0) {
+	static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0, noTargetEffects = false) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -1448,7 +1449,7 @@ class EffectManager {
 		}
 
 		// 0 is an effect too: the hit flash (EF_HIT1)
-		if (SkillEffect[skillId].hitEffectId != null) {
+		if (!noTargetEffects && SkillEffect[skillId].hitEffectId != null) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectId)
 				? SkillEffect[skillId].hitEffectId
 				: [SkillEffect[skillId].hitEffectId];
@@ -1467,7 +1468,7 @@ class EffectManager {
 
 		// Only on the first hit of a damage packet: the official client sends the
 		// hit-map effect with the first hit message of a multi-hit packet only
-		if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+		if (!noTargetEffects && hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
 			effects = Array.isArray(SkillEffect[skillId].firstHitEffectId)
 				? SkillEffect[skillId].firstHitEffectId
 				: [SkillEffect[skillId].firstHitEffectId];

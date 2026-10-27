@@ -18,6 +18,7 @@ import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
+import { hitHasEffects } from 'DB/Skills/SplashHit.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
@@ -1756,11 +1757,14 @@ function onEntityUseSkillToAttack(pkt) {
 
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
+			// A splash packet from an actor (not a ground skill unit) that hit
+			// shows no hit effects on the target, as the official client
+			const targetHitEffects = !srcEntity || srcEntity.skillUnitId != null || hitHasEffects(pkt.SKID, pkt.action);
 
 			const addDamage = function (i, startTick) {
 				if (pkt.damage) {
 					// Only if hits
-					EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i);
+					EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i, !targetHitEffects);
 				}
 
 				if (!isCombo && isBlueCombo) {
