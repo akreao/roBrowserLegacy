@@ -1,8 +1,11 @@
 /**
  * Renderer/Effects/ThrownStoneSim.js
  *
- * The official client's Throw Stone stone (effect 308, EF_THROWITEM3), without
- * any WebGL, so it can be tested on its own. Spec: effect-port/thief-skills.md.
+ * The official client's thrown items, without any WebGL, so they can be tested
+ * on their own: Throw Stone's stone (effect 308, EF_THROWITEM3) and the Ninja's
+ * shuriken, kunai, huuma and coin (613-616, EF_THROWITEM7-10), which the client
+ * draws with the same code and other numbers (NINJA_ITEM). Specs:
+ * effect-port/thief-skills.md, effect-port/ninja-skills.md.
  *
  * As the official client plays it, on the caster as the damage packet arrives,
  * aimed at the target's position:
@@ -30,11 +33,25 @@ export const STONE = {
 	lift: 8, // start and end height above the ground
 	arc: 10, // arc height
 	spin: 10, // degrees a tick
+	startAngle: 0, // roll on the first tick
 	moveUntil: 1.05, // t it stops at
 	fade: 20, // alpha lost a tick once stopped
 	half: 2, // half width
 	trail: [150, 25, 25] // alpha each trailing copy loses from the one ahead
 };
+
+/**
+ * The Ninja's thrown items (613-616): 8 x 8 units, 3 units a tick, almost no
+ * arc, spinning 45 degrees a tick from 330, tinted (255, 200, 255).
+ */
+export const NINJA_ITEM = Object.assign({}, STONE, {
+	speed: 3,
+	arc: 1,
+	spin: 45,
+	startAngle: 330,
+	half: 4,
+	color: [255, 200, 255]
+});
 
 /** Stone image, under data/texture (유저인터페이스/item/돌.bmp). */
 export const STONE_TEXTURE = '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp';
@@ -42,18 +59,20 @@ export const STONE_TEXTURE = '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\x
 /**
  * @param {number[]} from start [x, y, height] in units
  * @param {number[]} to end [x, y, height] in units
+ * @param {object} [kind] STONE or NINJA_ITEM
  * @return {object} the throw
  */
-export function planThrow(from, to) {
+export function planThrow(from, to, kind = STONE) {
 	const dx = to[0] - from[0];
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
 	return {
+		kind,
 		from,
 		dist,
 		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
-		climb: dist > 0 ? (STONE.speed / dist) * (to[2] - from[2]) : 0,
-		ticks: Math.floor(dist / STONE.speed) + 1
+		climb: dist > 0 ? (kind.speed / dist) * (to[2] - from[2]) : 0,
+		ticks: Math.floor(dist / kind.speed) + 1
 	};
 }
 
@@ -65,17 +84,18 @@ export function planThrow(from, to) {
  * @return {object} { x, y, up } in units (up from the caster's ground), alpha 0-255, angle
  */
 export function stoneAt(t, k) {
+	const kind = t.kind;
 	let moves = 0;
-	while (moves < k && (moves + 1) / t.ticks <= STONE.moveUntil) {
+	while (moves < k && (moves + 1) / t.ticks <= kind.moveUntil) {
 		moves++;
 	}
 	const s = Math.min(moves / t.ticks, 1);
 	return {
-		x: t.from[0] + t.dir[0] * STONE.speed * moves,
-		y: t.from[1] + t.dir[1] * STONE.speed * moves,
-		up: STONE.lift + t.climb * moves + STONE.arc * Math.sin(Math.PI * s),
-		alpha: Math.max(255 - STONE.fade * (k - moves), 0),
-		angle: (STONE.spin * k) % 360
+		x: t.from[0] + t.dir[0] * kind.speed * moves,
+		y: t.from[1] + t.dir[1] * kind.speed * moves,
+		up: kind.lift + t.climb * moves + kind.arc * Math.sin(Math.PI * s),
+		alpha: Math.max(255 - kind.fade * (k - moves), 0),
+		angle: (kind.startAngle + kind.spin * k) % 360
 	};
 }
 
@@ -98,7 +118,7 @@ export function trailAt(t, i, k) {
 	const p = stoneAt(t, j - 1 - 2 * i);
 	let alpha = p.alpha;
 	for (let n = 0; n <= i; n++) {
-		alpha -= STONE.trail[n];
+		alpha -= t.kind.trail[n];
 	}
 	if (alpha < 1) {
 		return null;

@@ -53,6 +53,8 @@ export const SCHEDULES = {
 		const on = age <= 30;
 		return { add: on, glow: on, split: true, color: on ? RED : null };
 	},
+	// Assumptio (375): a glow copy on every tick, as long as the effect lives (the status).
+	375: () => ({ add: false, glow: true, split: false, color: null }),
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.
 	502: age => {
 		const on = age <= 140;
@@ -129,7 +131,7 @@ export default class CasterMarks {
 	 * @param {Entity} owner the caster
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
-	 * @param {number} effectId 934, 2373, 502 or 599
+	 * @param {number} effectId a key of SCHEDULES
 	 */
 	constructor(owner, startTick, frames, effectId) {
 		this.owner = owner || null;
