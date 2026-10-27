@@ -79,7 +79,8 @@ export function planBoomerang(from, to) {
 	const dx = to[0] - from[0];
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
-	const climb = dist > 0 ? (SHIELD.speed / dist) * (to[2] - from[2]) : 0;
+	// Over the one step it always flies, not the shorter distance, on a close target
+	const climb = (SHIELD.speed / Math.max(dist, SHIELD.speed)) * (to[2] - from[2]);
 
 	let s = { x: from[0], y: from[1], up: SHIELD.lift, alpha: 255, angle: 0, dir: 0, phase: 0 };
 	const states = [s];

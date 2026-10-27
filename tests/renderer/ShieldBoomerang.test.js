@@ -70,6 +70,8 @@ describe('thrown shield (primitive 42)', () => {
 			expect(near.last).toBeLessThan(120); // about 1.5 s, not the 499-tick limit
 			expect(Math.abs(near.last - far)).toBeLessThanOrEqual(10);
 		}
+		// A close target's height is spread over the step, not the shorter distance
+		expect(planBoomerang([0, 0, 0], [1, 0, 1]).states[1].up).toBeCloseTo(8 + 1); // not 8 + 2
 	});
 
 	it('follows the ground out and back', () => {
