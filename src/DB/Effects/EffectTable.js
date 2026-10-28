@@ -4048,7 +4048,13 @@ export default {
 	128: [
 		{
 			//EF_OVERTHRUST	Over Thrust
+			// The official client plays both sounds on tick 0. Its alpha_center burst (primitive 4,
+			// the EF_BASH burst) is not drawn yet.
 			wav: 'effect/black_overthrust',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/ef_stonecurse',
 			attachedEntity: true
 		}
 	],
