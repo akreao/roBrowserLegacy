@@ -25280,15 +25280,6 @@ export default {
 		}
 	],
 
-	// Advanced Adrenaline Rush (BS_ADRENALINE2), from the client's own effect folders.
-	ef_bs_adrenaline2: [
-		{
-			type: 'STR',
-			file: 'adrenaline',
-			texturePath: ''
-		}
-	],
-
 	// Spirit of the Hunter (SL_HUNTER), from the client's own effect folders.
 	ef_sl_hunter: [
 		{
