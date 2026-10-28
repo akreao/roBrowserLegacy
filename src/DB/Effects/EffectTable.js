@@ -12436,7 +12436,16 @@ export default {
 		}
 	],
 
-	//572: [{}],	//EF_HATED2	   Warmth Soul
+	572: [
+		{
+			//EF_HATED2	   Warmth Soul
+			// The official client plays T_따듯한마법.wav on tick 10 (167 ms). Its pok1 / pok3 sparks
+			// (primitive 59) are not drawn yet.
+			wav: 'effect/t_\xb5\xfb\xb5\xed\xc7\xd1\xb8\xb6\xb9\xfd',
+			delayWav: 10 * (1000 / 60),
+			attachedEntity: true
+		}
+	],
 	//573: [{}],	//EF_TWILIGHT1	   Twilight Alchemy 1
 	//574: [{}],	//EF_TWILIGHT2	   Twilight Alchemy 2
 	//575: [{}],	//EF_TWILIGHT3	   Twilight Alchemy 3

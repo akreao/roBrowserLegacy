@@ -644,9 +644,9 @@ SkillEffect[SK.TK_DODGE].effectIdOnCaster = 449;
 SkillEffect[SK.TK_DODGE].successEffectIdOnCaster = 'ef_tk_dodge';
 // Star Gladiator
 SkillEffect[SK.SG_FEEL] = { castAuraEffectId: 441 }; //Feeling the Sun Moon and Stars: the blue cast aura; the use packet plays nothing
-SkillEffect[SK.SG_SUN_WARM] = { effectId: 488 }; //Warmth of the Sun
-SkillEffect[SK.SG_MOON_WARM] = { effectId: 488 }; //Warmth of the Moon
-SkillEffect[SK.SG_STAR_WARM] = { effectId: 488 }; //Warmth of the Stars
+SkillEffect[SK.SG_SUN_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Sun: on the source, only on success
+SkillEffect[SK.SG_MOON_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Moon: on the source, only on success
+SkillEffect[SK.SG_STAR_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Stars: on the source, only on success
 SkillEffect[SK.SG_SUN_COMFORT] = { effectId: 441 }; //Comfort of the Sun
 SkillEffect[SK.SG_MOON_COMFORT] = { effectId: 441 }; //Comfort of the Moon
 SkillEffect[SK.SG_STAR_COMFORT] = { effectId: 441 }; //Comfort of the Stars
