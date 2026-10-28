@@ -4,14 +4,15 @@ import { join } from 'node:path';
 
 // Glacier Fist (CH_TIGERFIST, 371): as the damage packet arrives the official client
 // shakes the camera and launches 377 (mon_맹룡과강.wav on tick 5) and 263 on the caster;
-// the hit plays 0 and 1. Spec: effect-port/monk-skills.md.
+// each hit plays the hit flash 0 and the first hit also plays 1 (its hit-map effect).
+// Spec: effect-port/monk-skills.md, effect-port/champion-audit.md.
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 describe('Glacier Fist effects', () => {
-	it('plays the quake, 377 and 263 on the caster at packet arrival and 0 + 1 on the hit', () => {
+	it('plays the quake, 377 and 263 on the caster at packet arrival, 0 on every hit and 1 on the first', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
-			/SkillEffect\[SK\.CH_TIGERFIST\] = \{ damageEffectIdOnCaster: \['quake', 377, 263\], hitEffectId: \[0, 1\] \};/
+			/SkillEffect\[SK\.CH_TIGERFIST\] = \{ damageEffectIdOnCaster: \['quake', 377, 263\], hitEffectId: 0, firstHitEffectId: 1 \};/
 		);
 	});
 
