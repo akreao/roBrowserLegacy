@@ -29,7 +29,6 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
 import LPEffect from 'Renderer/Effects/LPEffect.js';
-import MagicRing from 'Renderer/Effects/MagicRing.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
@@ -9458,7 +9457,10 @@ export default {
 	388: [
 		{
 			//EF_TRIPLEATTACK2	   Focused Arrow Strike (Sound Effect)
+			// Official client: on the caster, 샤프슈팅.wav on tick 30. Its alpha_center streaks toward the
+			// target (ticks 0-3) are not drawn here.
 			wav: 'effect/\xbb\xfe\xc7\xc1\xbd\xb4\xc6\xc3',
+			delayWav: 30 * (1000 / 60),
 			attachedEntity: true
 		}
 	],
@@ -11503,17 +11505,6 @@ export default {
 
 	//494: [{}],	//EF_SHIELDBOOMERANG2	   Throwing Tomahawk
 	//495: [{}],	//EF_RG_COIN2	   Full Strip Sound
-
-	'496_beforecast': [
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				const entity = Params.Init.ownerEntity;
-				this.add(new MagicRing(entity, 2.45, 0.8, 2.8, 'ring_jadu', Params.Inst.startTick + 10000), Params);
-			}
-		}
-	],
 
 	496: [
 		{

@@ -583,10 +583,15 @@ SkillEffect[SK.SN_FALCONASSAULT] = {
 	hitEffectId: [0, 115],
 	hitEffectOnce: true
 }; //Falcon Assault
+// Official client: cast aura 58 whatever the element; 388 on the caster as each damage packet arrives
+// (splash too; 샤프슈팅.wav on tick 30); the bow arrow of the attack motion from each packet that is
+// not splash; each hit plays 0 and, with the first hit, 1. See effect-port/sniper-skills.md.
 SkillEffect[SK.SN_SHARPSHOOTING] = {
-	hitEffectId: 388,
-	beforeHitEffectId: 'ef_arrow_projectile',
-	beginCastEffectId: '496_beforecast'
+	castAuraEffectId: 58,
+	damageEffectIdOnCaster: 388,
+	releaseEffectId: 'ef_arrow_projectile',
+	hitEffectId: 0,
+	firstHitEffectId: 1
 }; //Focused Arrow Strike
 SkillEffect[SK.SN_WINDWALK] = { effectId: 389 }; //Wind Walker
 // Whitesmith
