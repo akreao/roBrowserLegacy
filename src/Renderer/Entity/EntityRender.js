@@ -29,6 +29,7 @@ import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
+import GarmentLayer from 'DB/Items/GarmentLayer.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 import { applyMarks, glowLayers, marksOf } from 'Renderer/Effects/BodyMotionSim.js';
@@ -332,6 +333,38 @@ function isLookingBack(direction) {
 }
 
 /**
+ * Whether the garment is drawn over the body this frame. The client decides it per job, sex,
+ * action, direction and frame (DB/Items/GarmentLayer.js); without its table, over the body when
+ * the entity looks away from the camera.
+ *
+ * @param {Entity} entity
+ * @param {number} direction sprite direction, camera included
+ * @return {boolean}
+ */
+function garmentOnTop(entity, direction) {
+	const fallback = isLookingBack(direction);
+
+	if (!GarmentLayer.isLoaded(entity.sex) || entity.action < 0) {
+		return fallback;
+	}
+
+	const files = entity.files.robe;
+	const act = files && files.act && Client.loadFile(files.act);
+
+	if (!act || !act.actions || !act.actions.length) {
+		return fallback;
+	}
+
+	// The same action and frame renderElement draws
+	const actNum = entity.action * 8 + direction;
+	const action = act.actions[actNum % act.actions.length];
+	const frame = calcAnimation(entity, action, 'robe', Date.now() - entity.animation.tick);
+	const onTop = GarmentLayer.drawOnTop(entity.sex, entity.job, actNum, frame);
+
+	return onTop === null ? fallback : onTop;
+}
+
+/**
  * Render Entity
  */
 const renderEntity = (function renderEntityClosure() {
@@ -423,6 +456,10 @@ const renderEntity = (function renderEntityClosure() {
 								StatusConst.EffectState.DRAGON5 |
 								StatusConst.EffectState.WUGRIDER) || self.allRidingState;
 
+					// Garment over or under the body: the client's own table when it was loaded, else the facing
+					const robeOnTop = self.robe > 0 && garmentOnTop(self, direction);
+					const robeFromTable = self.robe > 0 && GarmentLayer.isLoaded(self.sex);
+
 					function robeCorrection(lookingFront) {
 						if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
 							const HEAD_SIZE = 64;
@@ -437,6 +474,7 @@ const renderEntity = (function renderEntityClosure() {
 								self.bodyHeight + HEAD_SIZE
 							) {
 								if (
+									!robeFromTable &&
 									(self.action === self.ACTION.ATTACK ||
 										self.action === self.ACTION.ATTACK1 ||
 										self.action === self.ACTION.ATTACK2 ||
@@ -478,12 +516,12 @@ const renderEntity = (function renderEntityClosure() {
 								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 							});
 						}
+					}
 
-						// Draw Robe
-						if (self.robe > 0) {
-							SpriteRenderer.zIndex = robeCorrection(true);
-							renderElement(self, self.files.robe, 'robe', _position, true);
-						}
+					// Draw Robe, under the body
+					if (self.robe > 0 && !robeOnTop) {
+						SpriteRenderer.zIndex = robeCorrection(true);
+						renderElement(self, self.files.robe, 'robe', _position, true);
 					}
 
 					SpriteRenderer.zIndex = 150;
@@ -539,14 +577,14 @@ const renderEntity = (function renderEntityClosure() {
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
 
+					// Draw Robe, over the body
+					if (self.robe > 0 && robeOnTop) {
+						SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
+						renderElement(self, self.files.robe, 'robe', _position, true);
+					}
+
 					if (isLookingBack(direction)) {
 						// looking back
-
-						// Draw Robe
-						if (self.robe > 0) {
-							SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
-							renderElement(self, self.files.robe, 'robe', _position, true);
-						}
 
 						// Draw Cart
 						if (Session.Playing == true && self.hasCart == true) {
