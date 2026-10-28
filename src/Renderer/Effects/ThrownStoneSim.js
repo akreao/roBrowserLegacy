@@ -5,7 +5,7 @@
  * on their own: Throw Stone's stone (effect 308, EF_THROWITEM3) and the Ninja's
  * shuriken, kunai, huuma and coin (613-616, EF_THROWITEM7-10), which the client
  * draws with the same code and other numbers (NINJA_ITEM), and the Alchemist's
- * bottles (BOTTLE: Acid Terror's 298). Specs: effect-port/thief-skills.md,
+ * bottles (BOTTLE: Acid Terror's 298, Aid Potion's 299). Specs: effect-port/thief-skills.md,
  * effect-port/ninja-skills.md, effect-port/alchemist-skills.md.
  *
  * As the official client plays it, on the caster as the damage packet arrives,
@@ -83,6 +83,36 @@ export const ACID_BOTTLE = Object.assign({}, BOTTLE, {
 	texture: ITEM + '\xba\xf3\xba\xb4.bmp', // 빈병
 	color: [135, 255, 135]
 });
+
+/** Aid Potion's bottle (299, EF_THROWITEM2): 빈포션병.bmp, tinted by the skill level (potionBottle). */
+export const POTION_BOTTLE = Object.assign({}, BOTTLE, {
+	texture: ITEM + '\xba\xf3\xc6\xf7\xbc\xc7\xba\xb4.bmp' // 빈포션병
+});
+
+/** Aid Potion's tints for levels 1-5: red, orange, yellow, white and blue potions. */
+export const POTION_COLORS = [
+	[255, 135, 135],
+	[255, 205, 135],
+	[255, 255, 135],
+	[255, 255, 255],
+	[135, 135, 255]
+];
+
+/**
+ * Aid Potion's bottle for a skill level. The client clamps the level to 1-10
+ * and uses it as the colour: 1-5 tinted and alpha-blended, 6 white and
+ * additive, 7-10 not drawn.
+ *
+ * @param {number} level the use packet's level
+ * @return {?object} the kind, or null when nothing is drawn
+ */
+export function potionBottle(level) {
+	const colour = Math.min(Math.max(Math.floor(level) || 1, 1), 10);
+	if (colour <= POTION_COLORS.length) {
+		return Object.assign({}, POTION_BOTTLE, { color: POTION_COLORS[colour - 1] });
+	}
+	return colour === 6 ? Object.assign({}, POTION_BOTTLE, { blendMode: 2 }) : null;
+}
 
 /**
  * @param {number[]} from start [x, y, height] in units
