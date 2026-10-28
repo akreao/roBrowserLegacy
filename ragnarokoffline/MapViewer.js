@@ -104569,7 +104569,11 @@ function readItemPackages(lua, decode) {
 		items
 	});
 }
-/** Optional supplement is a separate Lua file; native box definitions always win. */
+/**
+* Optional supplements are separate Lua files, one path or a list of them.
+* Native box definitions always win; among the supplements, the first that
+* defines a box owns it.
+*/
 async function loadItemPackages(lua, luaPath, packetver, loadFile, decode, supplement = null) {
 	const base = `${luaPath}selectpackage/`;
 	const files = packetver >= 20250618 ? [
@@ -104598,9 +104602,8 @@ async function loadItemPackages(lua, luaPath, packetver, loadFile, decode, suppl
 		}
 	};
 	const packages = await attempt(files.map((file) => base + file));
-	if (supplement) {
-		for (const [box, groups] of await attempt([supplement])) if (!packages.has(box)) packages.set(box, groups);
-	}
+	const supplements = (Array.isArray(supplement) ? supplement : [supplement]).filter((path) => typeof path === "string" && path);
+	for (const path of supplements) for (const [box, groups] of await attempt([path])) if (!packages.has(box)) packages.set(box, groups);
 	if (!packages.size) console.warn("Selection package metadata unavailable; package boxes cannot be opened.");
 	return packages;
 }
