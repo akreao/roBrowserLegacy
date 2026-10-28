@@ -836,7 +836,7 @@ SkillEffect[SK.KN_CHARGEATK] = { beginCastEffectId: 'white_pulse', hitEffectId: 
 // Official client: 599 on the Crusader, from the use packet when its result is set.
 SkillEffect[SK.CR_SHRINK] = { successEffectIdOnCaster: 599 }; //Shrink
 SkillEffect[SK.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 }; //Throw Venom Knife
-SkillEffect[SK.RG_CLOSECONFINE] = { effectId: 602, groundEffectId: 604 }; //Close Confine
+SkillEffect[SK.RG_CLOSECONFINE] = { successEffectId: 602 }; //Close Confine
 SkillEffect[SK.WZ_SIGHTBLASTER] = { effectId: 601 }; //Sight Blaster
 SkillEffect[SK.SA_CREATECON] = {}; //Create Elemental Converter
 SkillEffect[SK.SA_ELEMENTWATER] = { successEffectId: 256 }; //Elemental Change Water

@@ -96,6 +96,11 @@ export const SCHEDULES = {
 		const on = age >= 5 && age <= 25;
 		const even = age % 2 === 0;
 		return { add: on && even, glow: false, split: false, color: on ? (even ? YELLOW : WHITE) : null };
+	},
+	// Close Confine (602, on the target): after tick 20, red on even ticks and white on odd ones.
+	602: age => {
+		const on = age > 20;
+		return { add: false, glow: false, split: false, color: on ? (age % 2 === 0 ? [250, 50, 50] : WHITE) : null };
 	}
 };
 

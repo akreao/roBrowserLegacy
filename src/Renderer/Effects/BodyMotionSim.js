@@ -115,7 +115,9 @@ export const SCHEDULES = {
 	// EF_MADNESS_BLUE (Madness Canceller): blue glow, counter 20, on one tick in four.
 	625: age => (age % 4 === 0 ? { ready: 20 } : null),
 	// EF_MADNESS_RED (Adjustment, Gatling Fever): the same in red.
-	626: age => (age % 4 === 0 ? { red: 20 } : null)
+	626: age => (age % 4 === 0 ? { red: 20 } : null),
+	// EF_QUAKEBODY4 (Close Confine, on the target): quake after tick 20.
+	602: age => (age > 20 ? { quake: true } : null)
 };
 
 /**
