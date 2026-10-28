@@ -252,7 +252,7 @@ SkillEffect[SK.WZ_HEAVENDRIVE] = { effectId: 142, hitEffectId: [0] }; //Heaven's
 SkillEffect[SK.WZ_QUAGMIRE] = { groundEffectId: 95 }; //Quagmire
 SkillEffect[SK.WZ_ESTIMATION] = {}; //Sense
 // Blacksmith
-SkillEffect[SK.BS_REPAIRWEAPON] = { effectId: 101 }; //Weapon Repair
+SkillEffect[SK.BS_REPAIRWEAPON] = { successEffectId: 101 }; //Weapon Repair: on the target, only when the use packet succeeds
 SkillEffect[SK.BS_HAMMERFALL] = { effectId: 102 }; //Hammer Fall
 SkillEffect[SK.BS_ADRENALINE] = { beginCastEffectId: '98_beforecast', effectId: 98 }; //Adrenaline Rush
 SkillEffect[SK.BS_WEAPONPERFECT] = { effectId: 103 }; //Weapon Perfection
