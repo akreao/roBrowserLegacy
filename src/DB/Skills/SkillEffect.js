@@ -601,8 +601,8 @@ SkillEffect[SK.LK_SPIRALPIERCE] = {
 	damageEffectIdOnTarget: 339,
 	firstHitEffectId: 81
 }; //Spiral Pierce: yellow caster flicker while casting, no hit flash
-SkillEffect[SK.LK_HEADCRUSH] = { beginCastEffectId: 399, hitEffectId: 'enemy_hit_normal1' }; //Traumatic Blow
-SkillEffect[SK.LK_JOINTBEAT] = { beginCastEffectId: 400, hitEffectId: 'enemy_hit_normal1' }; //Vital Strike
+SkillEffect[SK.LK_HEADCRUSH] = { hideCastAura: true, damageEffectIdOnCaster: 399, hitEffectId: 0 }; //Traumatic Blow
+SkillEffect[SK.LK_JOINTBEAT] = { hideCastAura: true, damageEffectIdOnCaster: 400, hitEffectId: 0 }; //Vital Strike
 // High Wizard
 SkillEffect[SK.HW_NAPALMVULCAN] = { damageEffectIdOnTarget: 401, hitEffectId: [0], hitEffectOnce: true }; //Napalm Vulcan
 // Champion
