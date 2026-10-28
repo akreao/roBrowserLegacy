@@ -404,10 +404,11 @@ SkillEffect[SK.AM_ACIDTERROR] = { beforeHitEffectId: 298 }; //Acid Terror
 SkillEffect[SK.AM_POTIONPITCHER] = { effectId: 299 }; //Aid Potion
 SkillEffect[SK.AM_CANNIBALIZE] = {}; //Summon Flora
 SkillEffect[SK.AM_SPHEREMINE] = {}; //Summon Marine Sphere
-SkillEffect[SK.AM_CP_WEAPON] = { effectId: 300 }; //Alchemical Weapon
-SkillEffect[SK.AM_CP_SHIELD] = { effectId: 300 }; //Synthesized Shield
-SkillEffect[SK.AM_CP_ARMOR] = { effectId: 300 }; //Synthetic Armor
-SkillEffect[SK.AM_CP_HELM] = { effectId: 300 }; //Biochemical Helm
+// Official client: 300 on the target only when the skill succeeds. See effect-port/alchemist-skills.md.
+SkillEffect[SK.AM_CP_WEAPON] = { successEffectId: 300 }; //Alchemical Weapon
+SkillEffect[SK.AM_CP_SHIELD] = { successEffectId: 300 }; //Synthesized Shield
+SkillEffect[SK.AM_CP_ARMOR] = { successEffectId: 300 }; //Synthetic Armor
+SkillEffect[SK.AM_CP_HELM] = { successEffectId: 300 }; //Biochemical Helm
 SkillEffect[SK.AM_CALLHOMUN] = {}; //Call Homunculus
 SkillEffect[SK.AM_REST] = {}; //Vaporize
 SkillEffect[SK.AM_RESURRECTHOMUN] = {}; //Homunculus Resurrection
