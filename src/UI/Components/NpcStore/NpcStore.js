@@ -750,8 +750,9 @@ function addItem(content, item) {
 					: '';
 		amountText = _type === NpcStore.Type.BUYING_STORE ? ' ea.' : '';
 		const amount = amountColumn(item);
+		const rowClass = _type === NpcStore.Type.VENDING_STORE ? 'item fitName' : 'item';
 		const html =
-			`<div class="item" draggable="true" data-index="${item.index}">` +
+			`<div class="${rowClass}" draggable="true" data-index="${item.index}">` +
 			`<div class="icon"></div>` +
 			`<div class="amount${amountClass}">` +
 			(amount === '' && _type === NpcStore.Type.BUYING_STORE ? 0 : amount) +

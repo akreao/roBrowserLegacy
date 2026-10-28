@@ -210,6 +210,20 @@
 	width: 115px;
 	white-space: nowrap;
 }
+/*
+ * The name used to run on under the price at 260px (and, in a buying store,
+ * under the quantity at 200px). It is cut to end before them with an ellipsis.
+ */
+#vending .content .item.output .name {
+	box-sizing: border-box;
+	width: 228px;
+	padding-right: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#vending .content .item.output .amount_ + .name {
+	width: 168px;
+}
 #vending .content .item .price {
 	position: absolute;
 	top: 13px;
