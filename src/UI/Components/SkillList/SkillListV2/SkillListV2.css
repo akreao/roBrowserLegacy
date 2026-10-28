@@ -190,6 +190,10 @@
 	padding-top: 7px;
 	margin-left: 10px;
 }
+/* tree view: right of the sitting character, 80 px from the window's left edge */
+#SkillListV2 .footer.tree .text {
+	margin-left: 77px;
+}
 #SkillListV2 .footer .btn {
 	position: absolute;
 	top: 5px;
@@ -232,12 +236,12 @@
 #SkillListV2 .contentbig {
 	position: relative;
 }
-/* behind the tree, so skill slots stay on top and clickable */
+/* the window's lower left corner, over the footer; clicks go through to what is below */
 #SkillListV2 canvas.sitting {
 	position: absolute;
 	left: 0;
-	bottom: 4px;
-	z-index: 0;
+	bottom: 0;
+	z-index: 1;
 	pointer-events: none;
 }
 

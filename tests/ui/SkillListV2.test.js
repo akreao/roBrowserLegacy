@@ -113,6 +113,8 @@ const mocks = vi.hoisted(() => {
 
 		constructor() {
 			this.ACTION = { IDLE: 0, SIT: 2 };
+			this.direction = 0;
+			this.headDir = 0;
 			this.effectColor = new Float32Array([1, 1, 1, 1]);
 			this.drawn = [];
 			MockEntity.made.push(this);
@@ -123,12 +125,25 @@ const mocks = vi.hoisted(() => {
 		}
 
 		renderEntity() {
-			this.drawn.push({ job: this.job, action: this.action, head: this.head, robe: this.robe });
+			this.drawn.push({
+				job: this.job,
+				action: this.action,
+				direction: this.direction,
+				headDir: this.headDir,
+				head: this.head,
+				robe: this.robe,
+				weapon: this.weapon,
+				alpha: this.effectColor[3],
+				camera: mocks.camera.direction
+			});
 		}
 	}
 
+	const camera = { direction: 0 };
+
 	return {
 		ids,
+		camera,
 		skillInfo,
 		skillTreeView,
 		MockGUIComponent,
@@ -169,7 +184,7 @@ vi.mock('Core/Preferences.js', () => ({
 }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800, render: vi.fn(), stop: vi.fn() } }));
 vi.mock('Renderer/Entity/Entity.js', () => ({ default: mocks.MockEntity }));
-vi.mock('Renderer/Camera.js', () => ({ default: { direction: 0 } }));
+vi.mock('Renderer/Camera.js', () => ({ default: mocks.camera }));
 vi.mock('Renderer/SpriteRenderer.js', () => ({ default: { bind2DContext: vi.fn() } }));
 vi.mock('Controls/MouseEventHandler.js', () => ({ default: { screen: { x: 0, y: 0 } } }));
 vi.mock('UI/GUIComponent.js', () => ({ default: mocks.MockGUIComponent }));
@@ -220,7 +235,6 @@ function getFixtureHTML() {
 				<table id="minitab2"></table>
 			</div>
 			<div class="contentbig">
-				<canvas class="sitting" width="80" height="100"></canvas>
 				<input type="radio" id="tab-1" class="tab-switch" checked />
 				<input type="radio" id="tab-2" class="tab-switch" />
 				<div id="positionSkills1">${cells([0, 7, 14, 21, 28])}</div>
@@ -233,6 +247,7 @@ function getFixtureHTML() {
 				<button class="btn reset"></button>
 				<div class="extend"></div>
 			</div>
+			<canvas class="sitting" width="96" height="110"></canvas>
 		</div>`;
 }
 
@@ -346,42 +361,73 @@ describe('SkillListV2 prerequisite planning', () => {
 });
 
 describe('SkillListV2 sitting character', () => {
-	it('draws the player sitting and gives their state back', () => {
-		const ctx = { canvas: { width: 60, height: 100 }, clearRect: vi.fn() };
-		vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx);
-		const drawn = [];
-		const animation = { frame: 3 };
-		const effectColor = new Float32Array([1, 1, 1, 0.5]);
-		mocks.session.Entity = {
+	function makePlayer(look = {}) {
+		return {
+			GID: 150000,
 			_job: mocks.ids.CRUSADER,
+			job: mocks.ids.CRUSADER,
+			costume: 0,
+			sex: 1,
+			body: 0,
+			head: 5,
+			headpalette: 2,
+			bodypalette: 0,
+			weapon: 1101,
+			robe: 20,
 			ACTION: { IDLE: 0, SIT: 2 },
 			action: 0,
 			direction: 6,
 			headDir: 1,
-			animation,
-			effectColor,
-			renderEntity() {
-				drawn.push({
-					action: this.action,
-					direction: this.direction,
-					headDir: this.headDir,
-					alpha: this.effectColor[3]
-				});
-			}
+			animation: { frame: 3 },
+			effectColor: new Float32Array([1, 1, 1, 0.5]),
+			renderEntity: vi.fn(),
+			...look
 		};
+	}
+
+	function mockCanvas() {
+		const ctx = { canvas: { width: 96, height: 110, style: {} }, clearRect: vi.fn() };
+		vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx);
+		return ctx;
+	}
+
+	it('draws only body and head, sitting down-right, the head turning every 900 ms', async () => {
+		const { default: SpriteRenderer } = await import('Renderer/SpriteRenderer.js');
+		const ctx = mockCanvas();
+		mocks.MockEntity.made.length = 0;
+		const player = makePlayer();
+		mocks.session.Entity = player;
+		mocks.camera.direction = 3;
 
 		const component = createComponent();
 		component.onAppend();
 		const render = Renderer.render.mock.calls.at(-1)[0];
-		render(0);
-		render(1000);
-		render(2000);
-		render(3000);
+		[5000, 5899, 5900, 6800, 7700].forEach(tick => render(tick));
 
-		expect(drawn.map(d => d.headDir)).toEqual([0, 1, 0, 2]);
-		expect(drawn[0]).toEqual({ action: 2, direction: 4, headDir: 0, alpha: 1 });
-		expect(mocks.session.Entity).toMatchObject({ action: 0, direction: 6, headDir: 1, animation });
-		expect(effectColor[3]).toBe(0.5);
+		// The player is left as it is: a copy with its body and head is drawn
+		expect(player.renderEntity).not.toHaveBeenCalled();
+		expect(player).toMatchObject({ action: 0, direction: 6, headDir: 1 });
+		expect(player.effectColor[3]).toBe(0.5);
+		expect(mocks.MockEntity.made).toHaveLength(1);
+
+		const drawn = mocks.MockEntity.made[0].drawn;
+		expect(drawn.map(d => d.headDir)).toEqual([0, 0, 1, 2, 0]);
+		expect(drawn[0]).toEqual({
+			job: mocks.ids.CRUSADER,
+			action: 2,
+			direction: 7,
+			headDir: 0,
+			head: 5,
+			robe: undefined,
+			weapon: undefined,
+			alpha: 1,
+			camera: 0
+		});
+		expect(mocks.camera.direction).toBe(3);
+
+		// Feet 48 px from the window's left edge, 25 px above its bottom edge
+		expect(SpriteRenderer.bind2DContext).toHaveBeenLastCalledWith(ctx, 47, 110 - 24);
+		expect(ctx.canvas.style.display).toBe('');
 
 		component.onRemove();
 		expect(Renderer.stop).toHaveBeenCalledWith(render);
@@ -389,28 +435,9 @@ describe('SkillListV2 sitting character', () => {
 
 	it('draws a riding player on foot, without the mount', () => {
 		const PECO_CRUSADER = 4015;
-		const ctx = { canvas: { width: 60, height: 100 }, clearRect: vi.fn() };
-		vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx);
+		mockCanvas();
 		mocks.MockEntity.made.length = 0;
-		const player = {
-			GID: 150000,
-			_job: mocks.ids.CRUSADER,
-			job: PECO_CRUSADER,
-			costume: PECO_CRUSADER,
-			sex: 1,
-			body: 0,
-			head: 5,
-			headpalette: 2,
-			bodypalette: 0,
-			robe: 20,
-			ACTION: { IDLE: 0, SIT: 2 },
-			action: 0,
-			direction: 6,
-			headDir: 1,
-			animation: {},
-			effectColor: new Float32Array([1, 1, 1, 1]),
-			renderEntity: vi.fn()
-		};
+		const player = makePlayer({ job: PECO_CRUSADER, costume: PECO_CRUSADER });
 		mocks.session.Entity = player;
 
 		const component = createComponent();
@@ -421,17 +448,76 @@ describe('SkillListV2 sitting character', () => {
 
 		expect(player.renderEntity).not.toHaveBeenCalled();
 		expect(mocks.MockEntity.made).toHaveLength(1);
-		expect(mocks.MockEntity.made[0].drawn).toEqual([
-			{ job: mocks.ids.CRUSADER, action: 2, head: 5, robe: 20 },
-			{ job: mocks.ids.CRUSADER, action: 2, head: 5, robe: 20 }
-		]);
+		expect(mocks.MockEntity.made[0].drawn.map(d => d.job)).toEqual([mocks.ids.CRUSADER, mocks.ids.CRUSADER]);
 
-		// Off the mount: the player is drawn again
-		player.costume = 0;
-		player.job = mocks.ids.CRUSADER;
+		// A new hair style makes a new copy
+		player.head = 7;
 		render(2000);
-		expect(player.renderEntity).toHaveBeenCalledTimes(1);
+		expect(mocks.MockEntity.made).toHaveLength(2);
+		expect(mocks.MockEntity.made[1].drawn[0].head).toBe(7);
 
+		component.onRemove();
+	});
+
+	it('hides in the list view and starts the head ahead again when the tree comes back', () => {
+		const ctx = mockCanvas();
+		mocks.MockEntity.made.length = 0;
+		mocks.session.Entity = makePlayer();
+
+		const component = createComponent();
+		component.onAppend();
+		const render = Renderer.render.mock.calls.at(-1)[0];
+		const contentbig = component.getRoot().querySelector('.contentbig');
+
+		render(0);
+		render(1000);
+		contentbig.style.display = 'none';
+		render(2000);
+		expect(ctx.canvas.style.display).toBe('none');
+
+		contentbig.style.display = '';
+		render(3000);
+		expect(ctx.canvas.style.display).toBe('');
+		expect(mocks.MockEntity.made[0].drawn.map(d => d.headDir)).toEqual([0, 1, 0]);
+
+		component.onRemove();
+	});
+
+	it('starts the head ahead again when the window opens again', () => {
+		mockCanvas();
+		mocks.MockEntity.made.length = 0;
+		mocks.session.Entity = makePlayer();
+
+		const component = createComponent();
+		component.onAppend();
+		let render = Renderer.render.mock.calls.at(-1)[0];
+		render(0);
+		render(1000);
+		component.onRemove();
+
+		component.onAppend();
+		render = Renderer.render.mock.calls.at(-1)[0];
+		render(5000);
+		expect(mocks.MockEntity.made[0].drawn.map(d => d.headDir)).toEqual([0, 1, 0]);
+
+		component.onRemove();
+	});
+
+	it('moves the skill points right of the character in the tree view only', () => {
+		mockCanvas();
+		mocks.session.Entity = makePlayer();
+		const component = createComponent();
+		component.onAppend();
+		const root = component.getRoot();
+		const footer = root.querySelector('.footer');
+		expect(footer.classList.contains('tree')).toBe(true);
+
+		root.querySelector('.titlebar .mini').click();
+		expect(root.querySelector('.contentbig').style.display).toBe('none');
+		expect(footer.classList.contains('tree')).toBe(false);
+
+		root.querySelector('.titlebar .mini').click();
+		expect(footer.classList.contains('tree')).toBe(true);
 		component.onRemove();
 	});
 });
