@@ -2,7 +2,8 @@
  * Renderer/Effects/CasterMarks.js
  *
  * What the official client's cast effects 934 (Nightmare Erasion), 2373
- * (Shinkirou) and 502 (Spiral Pierce Max) do to the caster's own sprite. It
+ * (Shinkirou) and 502 (Spiral Pierce Max), and Shrink's 599, do to the
+ * caster's own sprite. It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
  * the marks.
  *
@@ -16,7 +17,9 @@
  *  - split images (bit 0x1000, with the effect's age): four white copies of the
  *    sprite sliding out right, left, down and up, fading out by age 30;
  *  - colour: the caster's colour, which every actor's tick brings back by
- *    8 out of 255 a channel once nothing sets it.
+ *    8 out of 255 a channel once nothing sets it;
+ *  - turn: the owner's facing, turned by a number of degrees from where it
+ *    faced when the turning started (Falcon Assault spins its target).
  *
  * Effect table entry:
  *   { type: 'FUNC', attachedEntity: true, func(Params) {
@@ -32,10 +35,13 @@ import { PRIM_TICK_MS } from './EffectPrimSim.js';
 /** Colour recovery a tick, out of 255, and the split images' fade. */
 export const RECOVER_STEP = 8;
 export const SPLIT_TICKS = 30;
+/** Falcon Assault's turn a tick, in degrees. */
+export const TURN_STEP = 30;
 
 const RED = [255, 0, 0];
 const YELLOW = [250, 250, 100];
 const WHITE = [255, 255, 255];
+const PURPLE = [182, 89, 255];
 
 /**
  * What each effect sets on the caster on its tick `age` (0 on the first).
@@ -52,11 +58,32 @@ export const SCHEDULES = {
 		const on = age <= 30;
 		return { add: on, glow: on, split: true, color: on ? RED : null };
 	},
+	// Eternal Chaos / Loki's Veil status (EF_ENERVATION7): flickering purple (added) and white, ages 4 to 90.
+	864: age => {
+		const on = age >= 4 && age <= 90;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: false, split: false, color: on ? (even ? PURPLE : WHITE) : null };
+	},
+	// Falcon Assault, on its target: from age 30 the target spins 30 degrees a tick
+	// to age 54, and is drawn adding light on ages 30-34, 40-44 and 50.
+	387: age => {
+		const add = age >= 30 && age <= 50 && (age - 30) % 10 < 5;
+		const turn = age >= 30 && age <= 54 ? ((age - 29) * TURN_STEP) % 360 : null;
+		return { add, glow: false, split: false, color: null, turn };
+	},
+	// Assumptio (375): a glow copy on every tick, as long as the effect lives (the status).
+	375: () => ({ add: false, glow: true, split: false, color: null }),
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.
 	502: age => {
 		const on = age <= 140;
 		const even = age % 2 === 0;
 		return { add: on && even, glow: on, split: false, color: on ? (even ? YELLOW : WHITE) : null };
+	},
+	// Shrink: ticks 5 to 25 flickering yellow (added) and white, no glow copy.
+	599: age => {
+		const on = age >= 5 && age <= 25;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: false, split: false, color: on ? (even ? YELLOW : WHITE) : null };
 	}
 };
 
@@ -78,6 +105,23 @@ export function colorAt(schedule, age) {
 	return null;
 }
 
+/** roBrowser direction <-> server direction (the same table both ways). */
+const DIR_MAP = [4, 3, 2, 1, 0, 7, 6, 5];
+
+/**
+ * The facing (roBrowser direction, 0-7) after turning `degrees` from
+ * `direction`: one step every whole 45 degrees, the way the server's direction
+ * numbers go round, as Tornado Kick's turn does (FacingTurn.js).
+ *
+ * @param {number} direction
+ * @param {number} degrees
+ * @return {number}
+ */
+export function turnedDirection(direction, degrees) {
+	const steps = ((Math.floor(degrees / 45) % 8) + 8) % 8;
+	return DIR_MAP[(DIR_MAP[direction & 7] + steps) % 8];
+}
+
 /**
  * Split images' alpha (out of 255) at age `age`.
  *
@@ -89,7 +133,9 @@ export function splitAlpha(age) {
 }
 
 /**
- * Recover a colour on an entity by 8 a tick until it is back to normal
+ * Recover a colour on an entity by 8 a tick until it is back to normal.
+ * Stops as soon as a newer mark sets the entity's colour, so a restarted
+ * effect is not lightened by its earlier copy's recovery.
  *
  * @param {Entity} entity
  * @param {number[]} color 0-255 per channel
@@ -98,7 +144,12 @@ function recoverColor(entity, color) {
 	if (!entity.animations || !entity._flashColor) {
 		return;
 	}
+	const token = {};
+	entity._flashColorOwner = token;
 	entity.animations.add(tick => {
+		if (entity._flashColorOwner !== token) {
+			return true;
+		}
 		const steps = Math.floor(tick / PRIM_TICK_MS);
 		let done = true;
 		for (let i = 0; i < 3; i++) {
@@ -122,7 +173,7 @@ export default class CasterMarks {
 	 * @param {Entity} owner the caster
 	 * @param {number} startTick
 	 * @param {number} frames lifetime in ticks (1/60 s)
-	 * @param {number} effectId 934, 2373 or 502
+	 * @param {number} effectId a key of SCHEDULES
 	 */
 	constructor(owner, startTick, frames, effectId) {
 		this.owner = owner || null;
@@ -158,6 +209,13 @@ export default class CasterMarks {
 			this._split = false;
 		}
 
+		if (state.turn !== null && state.turn !== undefined) {
+			if (this.turnFrom === undefined) {
+				this.turnFrom = owner.direction;
+			}
+			owner.direction = turnedDirection(this.turnFrom, state.turn);
+		}
+
 		if (age !== null && owner._flashColor) {
 			const color = colorAt(this.schedule, age);
 			if (color || this.color) {
@@ -166,6 +224,7 @@ export default class CasterMarks {
 				owner._flashColor[1] = c[1] / 255;
 				owner._flashColor[2] = c[2] / 255;
 				owner.recalculateBlendingColor();
+				owner._flashColorOwner = this;
 				this.color = color;
 			}
 		}
