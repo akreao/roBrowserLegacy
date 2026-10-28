@@ -870,7 +870,9 @@ class DB {
 
 		// WoldMap
 		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
-		// Private Airship: where a flight may start and land, and what pays for it
+		// Private Airship: where a flight may start and land, and what pays for it.
+		// Cleared first, so a server without the file never keeps the last one's.
+		PrivateAirship.reset();
 		if (PACKETVER.value >= 20180321) {
 			tryLoadLuaAliases(
 				loadPrivateAirship,

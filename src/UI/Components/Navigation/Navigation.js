@@ -22,6 +22,12 @@ import htmlText from './Navigation.html?raw';
 import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
 import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+
+/**
+ * First client date with the Private Airship request (CZ_PRIVATE_AIRSHIP_REQUEST)
+ */
+const PRIVATE_AIRSHIP_PACKETVER = 20180321;
 
 /**
  * Create Navigation component
@@ -425,6 +431,7 @@ Navigation.onAppend = function onAppend() {
 	// Load the current map after initializing the worker
 	const mapName = getCurrentMap();
 	this.loadMap(mapName);
+	this.updateAirshipButton();
 
 	if (_finalTargetData) {
 		const currentPos = getPlayerPosition();
@@ -730,22 +737,26 @@ Navigation.clear = function clear() {
  */
 Navigation.updateAirshipButton = function updateAirshipButton() {
 	const root = Navigation.getRoot();
+	const bar = root && root.querySelector('.airship-bar');
 	const button = root && root.querySelector('.airship-move');
-	if (button) {
-		button.disabled = !_finalTargetData;
+	if (!bar || !button) {
+		return;
 	}
+	const supported = PACKETVER.value >= PRIVATE_AIRSHIP_PACKETVER;
+	bar.style.display = supported ? '' : 'none';
+	button.disabled = !supported || !_finalTargetData;
 };
 
 /**
  * Move button: fly to the target's map with the Private Airship
  */
 Navigation.onAirshipMove = function onAirshipMove() {
-	if (!_finalTargetData) {
+	if (!_finalTargetData || PACKETVER.value < PRIVATE_AIRSHIP_PACKETVER) {
 		return;
 	}
 
 	PrivateAirship.open({
-		targetMap: _finalTargetData.map,
+		targetMap: _finalTargetData.airshipMap || _finalTargetData.map,
 		toNpc: !!_finalTargetData.isNpc
 	});
 };
@@ -1319,12 +1330,25 @@ Navigation.navigateTo = function navigateTo(options) {
 		this.setTargetCoordinatesBlinking(true);
 	}
 
+	// Path refreshes pass the stored target back with its map already
+	// normalized, so keep what only the first call knew: the map's real name
+	// (izlude_a, not izlude) for the airship, and whether it is an NPC.
+	const sameTarget =
+		!!_finalTargetData &&
+		_finalTargetData.map === endMap &&
+		_finalTargetData.x === options.endX &&
+		_finalTargetData.y === options.endY;
+	const airshipMap = String(options.endMap || '')
+		.replace(/\.gat$/, '')
+		.toLowerCase();
+
 	_finalTargetData = {
 		map: endMap,
 		x: options.endX,
 		y: options.endY,
 		displayName: displayName,
-		isNpc: !!options.isNpc
+		airshipMap: sameTarget && airshipMap === endMap ? _finalTargetData.airshipMap : airshipMap,
+		isNpc: options.isNpc !== undefined ? !!options.isNpc : sameTarget && _finalTargetData.isNpc
 	};
 	this.updateAirshipButton();
 
