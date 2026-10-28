@@ -35,7 +35,7 @@ describe('Gloria Domini', () => {
 		const r = row('365');
 		expect(r).toMatch(/wav: 'effect\/\\xc7\\xc1\\xb7\\xb9\\xbc\\xc5',\n\t\t\tdelayWav: 50\n/);
 		expect(r).toMatch(/duration: 550,\n\t\t\trotate: true,\n\t\t\tangle: 0,\n\t\t\ttoAngle: -495,/);
-		expect(r).toMatch(/duration: 667,\n\t\t\tdelayOffset: 551,\n\t\t\tfadeOut: true,\n\t\t\tangle: -495,/);
+		expect(r).toMatch(/duration: 667,\n\t\t\tdelayStart: 551,\n\t\t\tfadeOut: true,\n\t\t\tangle: -495,/);
 		expect(r).toMatch(/Params\.Inst\.startTick \+ 550;\n\t\t\t\tCamera\.setQuake\(start\);/);
 	});
 });
