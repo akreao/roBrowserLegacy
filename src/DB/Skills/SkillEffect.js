@@ -650,7 +650,7 @@ SkillEffect[SK.SG_STAR_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the
 SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Sun: on the source, only on success
 SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Moon: on the source, only on success
 SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Stars: on the source, only on success
-SkillEffect[SK.SG_HATE] = { /*475 - 484*/ groundEffectId: 487 }; //Hatred of the Sun Moon and Stars
+SkillEffect[SK.SG_HATE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sg_hate_sound' }; //Hatred of the Sun Moon and Stars: blue cast aura; the sound on success, on the caster (the client plays it at the player)
 SkillEffect[SK.SG_FUSION] = { effectId: [433, 'quake'] }; //Union of the Sun Moon and Stars
 // Alchemist
 // Official client: when the skill succeeds, 541 (the bottle) thrown from the caster at the target and
