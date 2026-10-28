@@ -223713,7 +223713,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WS_WEAPONREFINE] = {};
 	SkillEffect[SkillConst_default.CR_SLIMPITCHER] = {};
 	SkillEffect[SkillConst_default.CR_FULLPROTECTION] = { effectId: [300, 500] };
-	SkillEffect[SkillConst_default.PA_SHIELDCHAIN] = { beforeHitEffectId: "ef_shield_projectile" };
+	SkillEffect[SkillConst_default.PA_SHIELDCHAIN] = {
+		castAuraEffectId: 58,
+		damageEffectIdOnTarget: 520,
+		hitEffectId: 0
+	};
 	SkillEffect[SkillConst_default.PF_DOUBLECASTING] = { effectId: 521 };
 	SkillEffect[SkillConst_default.HW_GANBANTEIN] = { effectId: [223, "ef_ganbantein_wav"] };
 	SkillEffect[SkillConst_default.HW_GRAVITATION] = {
@@ -289175,18 +289179,18 @@ function sandGrainEffect(grain) {
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * p.half * SIZE_PER_UNIT$2,
+				size: 2 * p.half * SIZE_PER_UNIT$3,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
 		}
 	};
 }
-var SIZE_PER_UNIT$2, sandAttackEffect;
+var SIZE_PER_UNIT$3, sandAttackEffect;
 var init_SandAttackEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_SandGrainSim();
-	SIZE_PER_UNIT$2 = 7;
+	SIZE_PER_UNIT$3 = 7;
 	sandAttackEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
@@ -290596,7 +290600,7 @@ function stoneEffect(t, copy, file = t.kind.texture || "À¯ÀúÀÎÅÍÆäÀÌ
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * t.kind.half * SIZE_PER_UNIT$1,
+				size: 2 * t.kind.half * SIZE_PER_UNIT$2,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
@@ -290658,11 +290662,11 @@ function thrownItemRow(effectID, file, kind) {
 		}
 	}];
 }
-var SIZE_PER_UNIT$1, ITEM, NINJA_TEXTURES, throwStoneEffect, throwVenomKnifeEffect, acidTerrorEffect, aidPotionEffect, berserkPotionThrowEffect, ninjaThrowEffects;
+var SIZE_PER_UNIT$2, ITEM, NINJA_TEXTURES, throwStoneEffect, throwVenomKnifeEffect, acidTerrorEffect, aidPotionEffect, berserkPotionThrowEffect, ninjaThrowEffects;
 var init_ThrowStoneEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ThrownStoneSim();
-	SIZE_PER_UNIT$1 = 7;
+	SIZE_PER_UNIT$2 = 7;
 	ITEM = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/";
 	NINJA_TEXTURES = {
 		613: ITEM + "¼ö¸®°Ë.bmp",
@@ -290676,6 +290680,321 @@ var init_ThrowStoneEffect = __esmMin((() => {
 	aidPotionEffect = thrownItemRow(299, POTION_BOTTLE.texture, potionBottle);
 	berserkPotionThrowEffect = thrownItemRow(541, BERSERK_POTION.texture, BERSERK_POTION);
 	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
+}));
+// src/Renderer/Effects/ShieldBoomerangSim.js
+/**
+* Heading from (dx, dy) as the client takes it: the first whole degree in
+* 0..180 whose cosine is at most the x share, mirrored to 360 minus it when
+* the y share is negative (so straight along +x below the axis gives 360).
+*
+* @param {number} dx
+* @param {number} dy
+* @return {number} degrees, 0..360
+*/
+function heading(dx, dy) {
+	const len = Math.sqrt(dx * dx + dy * dy);
+	for (let a = 0; a <= 180; a++) if (Math.cos(a * RAD$1) <= dx / len + 1e-9) return dy / len < 0 ? 360 - a : a;
+	return 180;
+}
+/**
+* Every state of the shield, from its launch to its last visible tick.
+*
+* @param {number[]} from start [x, y, ground height] in units (the caster)
+* @param {number[]} to target [x, y, ground height] in units
+* @return {object} { states, last }
+*/
+function planBoomerang(from, to) {
+	const dx = to[0] - from[0];
+	const dy = to[1] - from[1];
+	const dist = Math.sqrt(dx * dx + dy * dy);
+	const climb = SHIELD.speed / Math.max(dist, SHIELD.speed) * (to[2] - from[2]);
+	let s = {
+		x: from[0],
+		y: from[1],
+		up: SHIELD.lift,
+		alpha: 255,
+		angle: 0,
+		dir: 0,
+		phase: 0
+	};
+	const states = [s];
+	for (let n = 1; n < SHIELD.life && s.alpha > 0; n++) {
+		s = Object.assign({}, s);
+		s.angle = (s.angle + SHIELD.spin + 360) % 360;
+		if (n === 1) s.dir = dist > 0 ? heading(dx, dy) : 180;
+		if (s.phase === 0) {
+			if (n * SHIELD.speed > Math.max(dist, SHIELD.speed)) s.phase = 1;
+			s.up += climb;
+		} else if (s.phase === 1) {
+			const back = heading(from[0] - s.x, from[1] - s.y);
+			if (s.dir < back - SHIELD.aim || s.dir > back + SHIELD.aim) {
+				s.dir += SHIELD.turn;
+				if (s.dir >= 360) s.dir -= 360;
+			} else s.phase = 2;
+		} else {
+			s.alpha = Math.max(0, s.alpha - SHIELD.fade);
+			s.up -= climb;
+		}
+		s.x += Math.cos(s.dir * RAD$1) * SHIELD.speed;
+		s.y += Math.sin(s.dir * RAD$1) * SHIELD.speed;
+		states.push(s);
+	}
+	return {
+		from,
+		states,
+		last: states.length - 1
+	};
+}
+/**
+* The shield after k updates, or null past its end.
+*
+* @param {object} plan from planBoomerang
+* @param {number} k
+* @return {?object} { x, y, up, alpha, angle } in units, alpha 0-255
+*/
+function shieldAt$1(plan, k) {
+	const s = plan.states[k];
+	return s && s.alpha > 0 ? s : null;
+}
+/**
+* Trailing copy i (0 nearest) after k updates, or null when it does not show.
+* On update j (j a multiple of 3) copy 2 takes copy 1, copy 1 copy 0, and
+* copy 0 the shield as it was before update j. So after the refresh on j, copy
+* i is the shield after j - 1 - 3i updates, valid once j - 3i >= 3.
+*
+* @param {object} plan from planBoomerang
+* @param {number} i
+* @param {number} k
+* @return {?object}
+*/
+function trailAt(plan, i, k) {
+	const j = k - k % SHIELD.trailEvery;
+	if (j - SHIELD.trailEvery * i < SHIELD.trailEvery || k > plan.last) return null;
+	const p = plan.states[j - 1 - SHIELD.trailEvery * i];
+	let alpha = p.alpha;
+	for (let n = 0; n <= i; n++) alpha = Math.max(0, alpha - SHIELD.trail[n]);
+	return alpha > 0 ? Object.assign({}, p, { alpha }) : null;
+}
+var SHIELD, SHIELD_TEXTURE, RAD$1;
+var init_ShieldBoomerangSim = __esmMin((() => {
+	SHIELD = {
+		speed: 2,
+		lift: 8,
+		spin: -15,
+		turn: 5,
+		aim: 4,
+		fade: 12,
+		half: 7,
+		trailEvery: 3,
+		trail: [
+			150,
+			25,
+			25
+		],
+		life: 499
+	};
+	SHIELD_TEXTURE = "effect/shield_boomerang.bmp";
+	RAD$1 = Math.PI / 180;
+}));
+// src/Renderer/Effects/RapidSmitingSim.js
+/**
+* Every state of one shield, from its launch to its last visible update,
+* relative to the target's position.
+*
+* @param {number} dir heading, whole degrees
+* @return {object} { states, last } in the shape ShieldBoomerangSim.trailAt reads
+*/
+function planShield(dir) {
+	const dx = Math.cos(dir * RAD) * SMITE.speed;
+	const dy = Math.sin(dir * RAD) * SMITE.speed;
+	let s = {
+		x: -dx * SMITE.lead,
+		y: -dy * SMITE.lead,
+		up: SMITE.lift,
+		alpha: SMITE.alpha,
+		angle: 0,
+		dir
+	};
+	const states = [s];
+	for (let n = 1; n < SMITE.life && s.alpha > 0; n++) {
+		s = Object.assign({}, s);
+		s.angle = (s.angle + SMITE.spin + 360) % 360;
+		if (n <= SMITE.fadeInTicks) s.alpha = Math.min(SMITE.alphaMax, s.alpha + SMITE.fadeIn);
+		if (n >= SMITE.fadeFrom) s.alpha = Math.max(0, s.alpha - SMITE.fadeOut);
+		s.x += dx;
+		s.y += dy;
+		states.push(s);
+	}
+	return {
+		states,
+		last: states.length - 1
+	};
+}
+/**
+* The shield after k updates, or null outside its life.
+*
+* @param {object} plan from planShield
+* @param {number} k
+* @return {?object} { x, y, up, alpha, angle } in units, alpha 0-255
+*/
+function shieldAt(plan, k) {
+	const s = k >= 0 ? plan.states[k] : null;
+	return s && s.alpha > 0 ? s : null;
+}
+/**
+* Effect tick on which shield i is launched.
+*
+* @param {number} i
+* @return {number}
+*/
+function launchTick(i) {
+	return i * SMITE.every;
+}
+/**
+* A random whole-degree heading, as the client picks one.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {number}
+*/
+function randomHeading(random = Math.random) {
+	return Math.floor(random() * 360) % 360;
+}
+var SMITE, SMITE_TEXTURE, RAD;
+var init_RapidSmitingSim = __esmMin((() => {
+	SMITE = {
+		count: 5,
+		every: 3,
+		speed: 2.5,
+		lead: 15,
+		lift: 8,
+		alpha: 25,
+		fadeIn: 45,
+		fadeInTicks: 5,
+		alphaMax: 255,
+		fadeFrom: 15,
+		fadeOut: 10,
+		spin: -15,
+		half: 5,
+		life: 499
+	};
+	SMITE_TEXTURE = "effect/shield_boomerang.bmp";
+	RAD = Math.PI / 180;
+}));
+// src/DB/Effects/RapidSmitingEffect.js
+/**
+* Where a shield flies through: the target's position on the tick the shield
+* is launched, taken once and kept for its flight, as the client does. The
+* effect clock takes it (take(), on a timer for the launch tick), so a
+* texture still loading does not move it; if a sprite draws before the timer
+* runs, its first draw takes it instead. All four sprites of a shield share it.
+*
+* @param {?object} entity the target
+* @param {number[]} base the sprites' position (the target's at packet arrival)
+* @return {object}
+*/
+function launchCentre(entity, base) {
+	return {
+		at: null,
+		take() {
+			if (!this.at) {
+				const p = entity && entity.position ? entity.position : base;
+				this.at = [
+					p[0] - base[0],
+					p[1] - base[1],
+					p[2] - base[2]
+				];
+			}
+		},
+		offset() {
+			this.take();
+			return this.at;
+		}
+	};
+}
+/**
+* The 3D effect drawing one shield (copy -1) or its trailing copy i.
+*
+* @param {object} plan from planShield, in units from the target
+* @param {number} start effect tick the shield is launched on
+* @param {number} copy
+* @param {?object} [centre] from launchCentre; without it the shield flies through the sprites' position
+* @return {object}
+*/
+function smiteShieldEffect(plan, start, copy, centre = null) {
+	return {
+		type: "3D",
+		file: SMITE_TEXTURE,
+		sharedTexture: true,
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: (start + plan.last + 1) * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const k = Math.floor(age) - start;
+			if (k < 0) return null;
+			const p = copy < 0 ? shieldAt(plan, k) : trailAt(plan, copy, k);
+			if (!p || p.alpha < 1) return null;
+			const o = centre ? centre.offset() : [
+				0,
+				0,
+				0
+			];
+			return {
+				x: o[0] + p.x / 5,
+				y: o[1] + p.y / 5,
+				z: o[2] + p.up / 5,
+				size: 2 * SMITE.half * SIZE_PER_UNIT$1,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+var SIZE_PER_UNIT$1, rapidSmitingEffect;
+var init_RapidSmitingEffect = __esmMin((() => {
+	init_Events();
+	init_EffectPrimSim();
+	init_ShieldBoomerangSim();
+	init_RapidSmitingSim();
+	SIZE_PER_UNIT$1 = 7;
+	rapidSmitingEffect = [{
+		wav: "effect/cru_shield boomerang",
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const entity = Params.Init.ownerEntity;
+			const target = entity && entity.position;
+			if (!target) return;
+			const at = [
+				target[0],
+				target[1],
+				target[2]
+			];
+			for (let i = 0; i < SMITE.count; i++) {
+				const plan = planShield(randomHeading());
+				const centre = launchCentre(entity, at);
+				Events.setTimeout(() => centre.take(), launchTick(i) * PRIM_TICK_MS);
+				[
+					-1,
+					0,
+					1,
+					2
+				].forEach((copy, c) => {
+					this.spamEffect({
+						effect: smiteShieldEffect(plan, launchTick(i), copy, centre),
+						Inst: {
+							effectID: 520,
+							duplicateID: i * 4 + c,
+							startTick: Params.Inst.startTick
+						},
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
+				});
+			}
+		}
+	}];
 }));
 // src/DB/Effects/NyangGrassEffect.js
 /**
@@ -290894,121 +291213,6 @@ var init_MartyrsReckoningEffect = __esmMin((() => {
 		}
 	};
 }));
-// src/Renderer/Effects/ShieldBoomerangSim.js
-/**
-* Heading from (dx, dy) as the client takes it: the first whole degree in
-* 0..180 whose cosine is at most the x share, mirrored to 360 minus it when
-* the y share is negative (so straight along +x below the axis gives 360).
-*
-* @param {number} dx
-* @param {number} dy
-* @return {number} degrees, 0..360
-*/
-function heading(dx, dy) {
-	const len = Math.sqrt(dx * dx + dy * dy);
-	for (let a = 0; a <= 180; a++) if (Math.cos(a * RAD) <= dx / len + 1e-9) return dy / len < 0 ? 360 - a : a;
-	return 180;
-}
-/**
-* Every state of the shield, from its launch to its last visible tick.
-*
-* @param {number[]} from start [x, y, ground height] in units (the caster)
-* @param {number[]} to target [x, y, ground height] in units
-* @return {object} { states, last }
-*/
-function planBoomerang(from, to) {
-	const dx = to[0] - from[0];
-	const dy = to[1] - from[1];
-	const dist = Math.sqrt(dx * dx + dy * dy);
-	const climb = SHIELD.speed / Math.max(dist, SHIELD.speed) * (to[2] - from[2]);
-	let s = {
-		x: from[0],
-		y: from[1],
-		up: SHIELD.lift,
-		alpha: 255,
-		angle: 0,
-		dir: 0,
-		phase: 0
-	};
-	const states = [s];
-	for (let n = 1; n < SHIELD.life && s.alpha > 0; n++) {
-		s = Object.assign({}, s);
-		s.angle = (s.angle + SHIELD.spin + 360) % 360;
-		if (n === 1) s.dir = dist > 0 ? heading(dx, dy) : 180;
-		if (s.phase === 0) {
-			if (n * SHIELD.speed > Math.max(dist, SHIELD.speed)) s.phase = 1;
-			s.up += climb;
-		} else if (s.phase === 1) {
-			const back = heading(from[0] - s.x, from[1] - s.y);
-			if (s.dir < back - SHIELD.aim || s.dir > back + SHIELD.aim) {
-				s.dir += SHIELD.turn;
-				if (s.dir >= 360) s.dir -= 360;
-			} else s.phase = 2;
-		} else {
-			s.alpha = Math.max(0, s.alpha - SHIELD.fade);
-			s.up -= climb;
-		}
-		s.x += Math.cos(s.dir * RAD) * SHIELD.speed;
-		s.y += Math.sin(s.dir * RAD) * SHIELD.speed;
-		states.push(s);
-	}
-	return {
-		from,
-		states,
-		last: states.length - 1
-	};
-}
-/**
-* The shield after k updates, or null past its end.
-*
-* @param {object} plan from planBoomerang
-* @param {number} k
-* @return {?object} { x, y, up, alpha, angle } in units, alpha 0-255
-*/
-function shieldAt(plan, k) {
-	const s = plan.states[k];
-	return s && s.alpha > 0 ? s : null;
-}
-/**
-* Trailing copy i (0 nearest) after k updates, or null when it does not show.
-* On update j (j a multiple of 3) copy 2 takes copy 1, copy 1 copy 0, and
-* copy 0 the shield as it was before update j. So after the refresh on j, copy
-* i is the shield after j - 1 - 3i updates, valid once j - 3i >= 3.
-*
-* @param {object} plan from planBoomerang
-* @param {number} i
-* @param {number} k
-* @return {?object}
-*/
-function trailAt(plan, i, k) {
-	const j = k - k % SHIELD.trailEvery;
-	if (j - SHIELD.trailEvery * i < SHIELD.trailEvery || k > plan.last) return null;
-	const p = plan.states[j - 1 - SHIELD.trailEvery * i];
-	let alpha = p.alpha;
-	for (let n = 0; n <= i; n++) alpha = Math.max(0, alpha - SHIELD.trail[n]);
-	return alpha > 0 ? Object.assign({}, p, { alpha }) : null;
-}
-var SHIELD, SHIELD_TEXTURE, RAD;
-var init_ShieldBoomerangSim = __esmMin((() => {
-	SHIELD = {
-		speed: 2,
-		lift: 8,
-		spin: -15,
-		turn: 5,
-		aim: 4,
-		fade: 12,
-		half: 7,
-		trailEvery: 3,
-		trail: [
-			150,
-			25,
-			25
-		],
-		life: 499
-	};
-	SHIELD_TEXTURE = "effect/shield_boomerang.bmp";
-	RAD = Math.PI / 180;
-}));
 // src/DB/Effects/ShieldBoomerangEffect.js
 /**
 * The 3D effect drawing the shield (copy -1) or trailing copy i.
@@ -291027,7 +291231,7 @@ function shieldEffect(plan, copy) {
 		zIndex: 1,
 		track(age) {
 			const k = Math.floor(age);
-			const p = copy < 0 ? shieldAt(plan, k) : trailAt(plan, copy, k);
+			const p = copy < 0 ? shieldAt$1(plan, k) : trailAt(plan, copy, k);
 			if (!p || p.alpha < 1) return null;
 			return {
 				x: p.x / 5,
@@ -294974,6 +295178,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCone();
 	init_CastCircle();
 	init_ThrowStoneEffect();
+	init_RapidSmitingEffect();
 	init_NyangGrassEffect();
 	init_CarrotBeatEffect();
 	init_MartyrsReckoningEffect();
@@ -304314,6 +304519,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/fast",
 			attachedEntity: true
 		}],
+		520: rapidSmitingEffect,
 		"522_ground": [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -312824,24 +313030,6 @@ var init_EffectTable = __esmMin((() => {
 			rotateToTarget: true,
 			rotateWithCamera: true,
 			size: 100,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		ef_shield_projectile: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 140,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/shield_boomerang.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 50,
 			zOffset: 1,
 			zIndex: 1
 		}],
