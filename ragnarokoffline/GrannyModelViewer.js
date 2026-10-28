@@ -223468,7 +223468,11 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnTarget: 365,
 		hitEffectId: 0
 	};
-	SkillEffect[SkillConst_default.PA_SACRIFICE] = { effectId: 366 };
+	SkillEffect[SkillConst_default.PA_SACRIFICE] = {
+		hideCastAura: true,
+		damageEffectIdOnCaster: 366,
+		hitEffectId: 0
+	};
 	SkillEffect[SkillConst_default.PA_GOSPEL] = {
 		effectId: 370,
 		groundEffectId: "370_ground"
@@ -290841,6 +290845,55 @@ var init_CarrotBeatEffect = __esmMin((() => {
 		ef_su_lunaticcarrotbeat2_carrot: carrot()
 	};
 }));
+// src/DB/Effects/MartyrsReckoningEffect.js
+/**
+* The caster's body on a client tick of the effect.
+*
+* @param {number} tick
+* @return {?object} null before the body changes, else { halo, green, blue, done } (0-255)
+*/
+function sacrificeBodyAt(tick) {
+	if (tick < BODY.from) return null;
+	const back = Math.max(0, tick - BODY.to) * BODY.recover;
+	const green = Math.min(255, BODY.green + back);
+	const blue = Math.min(255, BODY.blue + back);
+	return {
+		halo: tick <= BODY.to,
+		green,
+		blue,
+		done: green >= 255 && blue >= 255
+	};
+}
+var BODY, martyrsReckoningBody;
+var init_MartyrsReckoningEffect = __esmMin((() => {
+	BODY = {
+		from: 20,
+		to: 40,
+		green: 200,
+		blue: 200,
+		recover: 8
+	};
+	martyrsReckoningBody = {
+		wav: "effect/¼¼Å©¸®ÆÄÀÌ½º",
+		delayWav: 367,
+		type: "FUNC",
+		attachedEntity: true,
+		func: (Params) => {
+			const entity = Params.Init.ownerEntity;
+			entity.animations.add((ms) => {
+				const body = sacrificeBodyAt(Math.floor(ms * 60 / 1e3));
+				if (!body) return false;
+				entity._enableHalo = body.halo;
+				entity._flashColor[0] = 1;
+				entity._flashColor[1] = body.green / 255;
+				entity._flashColor[2] = body.blue / 255;
+				entity._flashColor[3] = 1;
+				entity.recalculateBlendingColor();
+				return body.done;
+			});
+		}
+	};
+}));
 // src/Renderer/Effects/ShieldBoomerangSim.js
 /**
 * Heading from (dx, dy) as the client takes it: the first whole degree in
@@ -294923,6 +294976,7 @@ var init_EffectTable = __esmMin((() => {
 	init_ThrowStoneEffect();
 	init_NyangGrassEffect();
 	init_CarrotBeatEffect();
+	init_MartyrsReckoningEffect();
 	init_ShieldBoomerangEffect();
 	init_CastRing();
 	init_StreakLines();
@@ -301887,31 +301941,7 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		366: [
-			{
-				wav: "effect/bash3d",
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						entity._enableHalo = tick >= 150 && tick <= 450;
-						if (tick >= 150 && tick <= 450) {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = .78;
-							entity._flashColor[2] = .78;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						}
-						return tick > 500;
-					});
-				}
-			},
+			martyrsReckoningBody,
 			{
 				type: "CYLINDER",
 				textureName: "alpha_center",
