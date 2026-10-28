@@ -5,12 +5,16 @@ import EntityManager from 'Renderer/EntityManager.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
 import Entity from 'Renderer/Entity/Entity.js';
+import { sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
 
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 }
 
 const blendMode = {};
+
+// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance.
+const _sharedTextures = new Map();
 
 /**
  * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
@@ -37,6 +41,8 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
+		// Many instances of one row (particles): load the effect/ texture once and share it.
+		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 		this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
@@ -417,6 +423,11 @@ class ThreeDEffect {
 					});
 				});
 			}
+		} else if (this.sharedTexture) {
+			sharedTexture(_sharedTextures, gl, this.textureName.slice('effect/'.length), texture => {
+				this.texture = texture;
+				this.ready = true;
+			});
 		} else if (this.textureName) {
 			Client.loadFile(`data/texture/${this.textureName}`, buffer => {
 				WebGL.texture(gl, buffer, texture => {
@@ -848,6 +859,7 @@ class ThreeDEffect {
 
 	static free(gl) {
 		this.ready = false;
+		freeSharedTextures(_sharedTextures, gl);
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
