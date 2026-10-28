@@ -44,6 +44,7 @@ import { resetHiddenSkills, hideSkill, placeSkill } from './Skills/SkillTreeMods
 import JobHitSoundTable from './Jobs/JobHitSoundTable.js';
 import WeaponTrailTable from './Items/WeaponTrailTable.js';
 import TownInfo from './TownInfo.js';
+import PrivateAirship from './Map/PrivateAirship.js';
 import StatusInfo from './Status/StatusInfo.js';
 import SC from './Status/StatusConst.js';
 import StatusEffectTable from './Status/StatusEffectTable.js';
@@ -869,6 +870,16 @@ class DB {
 
 		// WoldMap
 		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
+		// Private Airship: where a flight may start and land, and what pays for it
+		if (PACKETVER.value >= 20180321) {
+			tryLoadLuaAliases(
+				loadPrivateAirship,
+				['System/PrivateAirplane_True.lub', ...getSystemAliases('System/PrivateAirplane.lub')],
+				null,
+				onLoad()
+			);
+		}
+
 		// Town Info
 		const onTownInfoEnd = onLoad();
 		loadTownInfoFile('System/Towninfo.lub', null, () => {
@@ -5361,6 +5372,51 @@ function loadTownInfoFile(filename, callback, onEnd) {
 			}
 		},
 		onEnd
+	);
+}
+
+/**
+ * Loads System/PrivateAirplane_True.lub into DB/Map/PrivateAirship.js
+ *
+ * @param {string} filename
+ * @param {function} callback - unused
+ * @param {function} onEnd - called with whether the file was read
+ */
+function loadPrivateAirship(filename, callback, onEnd) {
+	Client.loadFile(
+		filename,
+		async function (file) {
+			console.log('Loading file "' + filename + '"...');
+			let success = false;
+			try {
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const ctx = lua.ctx;
+				PrivateAirship.reset();
+				ctx.InsertStartableMap = mapName => {
+					PrivateAirship.addStartableMap(userStringDecoder.decode(mapName));
+					return 1;
+				};
+				ctx.InsertEndableMap = mapName => {
+					PrivateAirship.addEndableMap(userStringDecoder.decode(mapName));
+					return 1;
+				};
+				ctx.InsertNeedItem = itemId => {
+					PrivateAirship.addNeedItem(itemId);
+					return 1;
+				};
+				lua.mountFile(filename, buffer);
+				await lua.doFile(filename);
+				lua.doStringSync('main()');
+				success = PrivateAirship.isLoaded();
+			} catch (error) {
+				console.error('[loadPrivateAirship] Error: ', error);
+				PrivateAirship.reset();
+			} finally {
+				lua.unmountFile(filename);
+				onEnd(success);
+			}
+		},
+		() => onEnd(false)
 	);
 }
 

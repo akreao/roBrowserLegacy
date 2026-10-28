@@ -21,6 +21,7 @@ import DB from 'DB/DBManager.js';
 import htmlText from './Navigation.html?raw';
 import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
+import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
 
 /**
  * Create Navigation component
@@ -365,6 +366,7 @@ Navigation.init = function init() {
 	// Bind events
 	root.querySelector('.close').addEventListener('click', () => this.hide());
 	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
+	root.querySelector('.airship-move').addEventListener('click', () => this.onAirshipMove());
 
 	const searchInput = root.querySelector('.search-input');
 	searchInput.addEventListener('keypress', e => {
@@ -547,7 +549,8 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
 		endMap: result.mapName,
 		endX: result.x,
 		endY: result.y,
-		displayName: result.name
+		displayName: result.name,
+		isNpc: result.type === 'NPC'
 	});
 
 	// Hide the search results
@@ -718,6 +721,33 @@ Navigation.clear = function clear() {
 	if (currentMap) {
 		this.setLocationTitle(currentMap, null);
 	}
+
+	this.updateAirshipButton();
+};
+
+/**
+ * Enable the Private Airship Move button while there is a target
+ */
+Navigation.updateAirshipButton = function updateAirshipButton() {
+	const root = Navigation.getRoot();
+	const button = root && root.querySelector('.airship-move');
+	if (button) {
+		button.disabled = !_finalTargetData;
+	}
+};
+
+/**
+ * Move button: fly to the target's map with the Private Airship
+ */
+Navigation.onAirshipMove = function onAirshipMove() {
+	if (!_finalTargetData) {
+		return;
+	}
+
+	PrivateAirship.open({
+		targetMap: _finalTargetData.map,
+		toNpc: !!_finalTargetData.isNpc
+	});
 };
 
 Navigation.clearPath = function clearPath() {
@@ -1293,8 +1323,10 @@ Navigation.navigateTo = function navigateTo(options) {
 		map: endMap,
 		x: options.endX,
 		y: options.endY,
-		displayName: displayName
+		displayName: displayName,
+		isNpc: !!options.isNpc
 	};
+	this.updateAirshipButton();
 
 	// Get warp types based on Services checkbox
 	let warpTypes = [200, 201];
