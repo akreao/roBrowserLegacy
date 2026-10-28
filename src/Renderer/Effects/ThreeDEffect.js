@@ -13,8 +13,30 @@ function randBetween(minimum, maximum) {
 
 const blendMode = {};
 
-// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance.
+// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance, and the
+// number of instances using each one.
 const _sharedTextures = new Map();
+const _sharedUsers = new Map();
+
+/**
+ * One instance stops using a shared texture; the last one deletes it.
+ *
+ * @param {WebGL2RenderingContext} gl
+ * @param {string} name
+ */
+function releaseSharedTexture(gl, name) {
+	const users = (_sharedUsers.get(name) || 0) - 1;
+	if (users > 0) {
+		_sharedUsers.set(name, users);
+		return;
+	}
+	_sharedUsers.delete(name);
+	const entry = _sharedTextures.get(name);
+	if (entry && entry.texture) {
+		gl.deleteTexture(entry.texture);
+	}
+	_sharedTextures.delete(name);
+}
 
 /**
  * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
@@ -424,7 +446,9 @@ class ThreeDEffect {
 				});
 			}
 		} else if (this.sharedTexture) {
-			sharedTexture(_sharedTextures, gl, this.textureName.slice('effect/'.length), texture => {
+			this.sharedTextureName = this.textureName.slice('effect/'.length);
+			_sharedUsers.set(this.sharedTextureName, (_sharedUsers.get(this.sharedTextureName) || 0) + 1);
+			sharedTexture(_sharedTextures, gl, this.sharedTextureName, texture => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -442,6 +466,11 @@ class ThreeDEffect {
 
 	free(gl) {
 		this.ready = false;
+		// Also run when an owner's effects are removed (EffectManager.remove), not only on expiry.
+		if (this.sharedTextureName) {
+			releaseSharedTexture(gl, this.sharedTextureName);
+			this.sharedTextureName = null;
+		}
 	}
 
 	render(gl, tick) {
@@ -860,6 +889,7 @@ class ThreeDEffect {
 	static free(gl) {
 		this.ready = false;
 		freeSharedTextures(_sharedTextures, gl);
+		_sharedUsers.clear();
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
