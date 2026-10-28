@@ -727,7 +727,9 @@ SkillEffect[SK.ST_PRESERVE] = { effectId: 496 }; //Preserve
 SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion
-SkillEffect[SK.CR_FULLPROTECTION] = { effectId: [300, 500] }; //Full Protection
+// 500 (EF_CHEMICALBODY) is left out until the Creator audit checks it in the official client:
+// it had no row, so Full Chemical Protection never drew it, and Tarot's blue flicker is not its look.
+SkillEffect[SK.CR_FULLPROTECTION] = { effectId: 300 }; //Full Protection
 // Official client: the holy cast aura (58) whatever the element; 520 on the target as the damage packet arrives
 // (cru_shield boomerang.wav and five shields flying in from random sides); the hit flash 0 on every hit as
 // it lands, 200 ms apart. Nothing on the use packet. See effect-port/paladin-skills.md.
@@ -739,7 +741,10 @@ SkillEffect[SK.WS_CARTTERMINATION] = { effectId: 518 }; //Cart Termination
 SkillEffect[SK.WS_OVERTHRUSTMAX] = SkillEffect[SK.BS_OVERTHRUST]; //Maximum Power Thrust
 SkillEffect[SK.CG_LONGINGFREEDOM] = { successEffectId: ['ef_longing_freedom_sound', 843] }; //Longing for Freedom
 SkillEffect[SK.CG_HERMODE] = { successEffectId: '517_music', groundEffectId: 517 }; //Wand of Hermode
-SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500] }; //Tarot Card of Fate
+// Official client (kRO 2025-07-16): cast aura 58 whatever the element; from the use packet (result set)
+// priest_slowpoison.wav and 500 on the target (blue and white flicker with a glow copy).
+// See effect-port/clown-gypsy-skills.md.
+SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500], castAuraEffectId: 58 }; //Tarot Card of Fate
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment

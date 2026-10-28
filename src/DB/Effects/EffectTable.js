@@ -11534,7 +11534,18 @@ export default {
 	//497: [{}],	//EF_SLIM	   Twilight Alchemy 1
 	//498: [{}],	//EF_SLIM2	   Twilight Alchemy 2
 	//499: [{}],	//EF_SLIM3	   Twilight Alchemy 3
-	//500: [{}],	//EF_CHEMICALBODY	   Player Become Blue with Blue Aura
+	500: [
+		{
+			//EF_CHEMICALBODY	   Player Become Blue with Blue Aura (Tarot Card of Fate, on the target)
+			// The official client draws a glow copy round the actor on ticks 0-30, and the actor flickers
+			// blue (added) on even ticks and white on odd ones (CasterMarks.js). Life 120 ticks.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 120, 500), Params);
+			}
+		}
+	],
 
 	501: [
 		{

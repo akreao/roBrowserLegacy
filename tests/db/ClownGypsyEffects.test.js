@@ -17,7 +17,9 @@ describe('Clown and Gypsy use effects', () => {
 			/SkillEffect\[SK\.CG_LONGINGFREEDOM\] = \{ successEffectId: \['ef_longing_freedom_sound', 843\] \};/
 		);
 		expect(skills).toMatch(/SkillEffect\[SK\.CG_HERMODE\] = \{ successEffectId: '517_music', groundEffectId: 517 \};/);
-		expect(skills).toMatch(/SkillEffect\[SK\.CG_TAROTCARD\] = \{ successEffectId: \['ef_tarot_card_sound', 500\] \};/);
+		expect(skills).toMatch(
+			/SkillEffect\[SK\.CG_TAROTCARD\] = \{ successEffectId: \['ef_tarot_card_sound', 500\], castAuraEffectId: 58 \};/
+		);
 	});
 
 	it('uses the client sounds', () => {
