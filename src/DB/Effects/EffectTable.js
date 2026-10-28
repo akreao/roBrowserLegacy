@@ -11050,6 +11050,15 @@ export default {
 		}
 	],
 
+	// EF_RG_COIN2	Full Strip (ST_FULLSTRIP): on the target when it works, the strip sound on
+	// ticks 1, 11, 21 and 31. The client also flings shield.bmp and sword.bmp
+	// icons (prim 43), not drawn here.
+	495: [1, 11, 21, 31].map(tick => ({
+		wav: 'effect/\xba\xb9\xc8\xa3\xb0\xdd', // 복호격
+		delayWav: Math.round((tick * 1000) / 60),
+		attachedEntity: true
+	})),
+
 	// Chulho Sonic Claw (SH_CHUL_HO_SONIC_CLAW): the claw on the caster when the skill is used.
 	ef_sh_chul_ho_sonic_claw: [
 		{
