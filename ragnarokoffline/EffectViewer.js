@@ -223451,7 +223451,7 @@ var init_SkillEffect = __esmMin((() => {
 		beginCastEffectId: 16,
 		successEffectIdOnCaster: "ef_magicpower"
 	};
-	SkillEffect[SkillConst_default.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
+	SkillEffect[SkillConst_default.HW_SOULDRAIN] = { successEffectIdOnCaster: 378 };
 	SkillEffect[SkillConst_default.PA_PRESSURE] = {
 		castAuraEffectId: 58,
 		damageEffectIdOnTarget: 365,
@@ -223486,7 +223486,6 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.PF_HPCONVERSION] = {
 		effectId: 383,
-		effectIdOnCaster: 378,
 		successEffectIdOnCaster: 379
 	};
 	SkillEffect[SkillConst_default.PF_SOULCHANGE] = {
@@ -302368,14 +302367,15 @@ var init_EffectTable = __esmMin((() => {
 		],
 		378: [{
 			type: "3D",
-			duration: 600,
-			duplicate: 5,
+			duration: 1e3,
+			duplicate: 3,
 			timeBetweenDupli: 0,
 			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
 			playSprite: true,
 			fromSrc: true,
 			toSrc: true,
 			rotateToTarget: true,
+			blendMode: 2,
 			red: .8,
 			green: .8,
 			blue: 1,
@@ -302385,6 +302385,33 @@ var init_EffectTable = __esmMin((() => {
 			arc: 3,
 			retreat: 3,
 			drainPattern: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: (Params) => {
+				const entity = Params.Init.ownerEntity;
+				const from = 55e3 / 60;
+				const to = 1100;
+				let tinted = false;
+				entity.animations.add((tick) => {
+					if (tick < from) return false;
+					if (tick < to) {
+						if (!tinted) {
+							tinted = true;
+							entity._flashColor[0] = 100 / 255;
+							entity._flashColor[1] = 100 / 255;
+							entity._flashColor[2] = 1;
+							entity.recalculateBlendingColor();
+						}
+						return false;
+					}
+					entity._flashColor[0] = 1;
+					entity._flashColor[1] = 1;
+					entity._flashColor[2] = 1;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
 		}],
 		379: [{
 			type: "FUNC",
