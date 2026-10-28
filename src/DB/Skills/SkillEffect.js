@@ -547,7 +547,9 @@ SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
 SkillEffect[SK.HW_MAGICCRASHER] = { damageEffectIdOnTarget: 380, hitEffectId: [0], hitEffectOnce: true }; //Stave Crasher
 SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, successEffectIdOnCaster: 'ef_magicpower' }; //Mystical Amplification: the sound only on success
-SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
+// Official client: on success, 378 on the caster aimed at the target (three souls fly from the target to
+// the caster, the caster turns blue on ticks 55-65). See effect-port/high-wizard-audit.md.
+SkillEffect[SK.HW_SOULDRAIN] = { successEffectIdOnCaster: 378 }; //Soul Drain
 // Paladin
 SkillEffect[SK.PA_PRESSURE] = { beforeHitEffectId: 365 }; //Gloria Domini
 SkillEffect[SK.PA_SACRIFICE] = { effectId: 366 }; // Martyr's Reckoning
