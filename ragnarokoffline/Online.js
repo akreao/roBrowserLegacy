@@ -276011,6 +276011,15 @@ function twoDAlpha(fx, start, duration) {
 	else if (fx.fadeOut && start > duration / 2 + duration / 4) alpha = (duration - start) * fx.alphaMax / (duration / 4);
 	return Math.min(Math.max(alpha, 0), 1);
 }
+/**
+* Size factor of a pulsing 2D effect: 1 + amount * sin(phase), where the phase starts at
+* fx.pulsePhase (degrees) and advances fx.sizePulse.degPerTick each 60 Hz tick.
+*/
+function twoDPulse(fx, start) {
+	if (!fx.sizePulse) return 1;
+	const phase = fx.pulsePhase + start / (1e3 / 60) * fx.sizePulse.degPerTick;
+	return 1 + fx.sizePulse.amount * Math.sin(phase * Math.PI / 180);
+}
 var blendMode$2, shadow_index, TwoDEffect;
 var init_TwoDEffect = __esmMin((() => {
 	init_WebGL();
@@ -276237,6 +276246,8 @@ var init_TwoDEffect = __esmMin((() => {
 			if (effect.sizeRandStartY) this.sizeStartY = getRandomIntInclusive(effect.sizeRandStartY[0], effect.sizeRandStartY[1]);
 			if (effect.sizeRandEndY) this.sizeEndY = getRandomIntInclusive(effect.sizeRandEndY[0], effect.sizeRandEndY[1]);
 			if (effect.sizeRandEndX) this.sizeEndX = getRandomIntInclusive(effect.sizeRandEndX[0], effect.sizeRandEndX[1]);
+			this.sizePulse = effect.sizePulse || null;
+			this.pulsePhase = this.sizePulse ? getRandomIntInclusive(0, 359) : 0;
 			if (effect.durationRand) effect.duration = getRandomIntInclusive(effect.durationRand[0], effect.durationRand[1]);
 			if (this.ownerEntity && this.shadowTexture) this.ownerEntity.attachments.add({
 				completeFile: "data/sprite/shadow",
@@ -276380,8 +276391,9 @@ var init_TwoDEffect = __esmMin((() => {
 					currentYSize = steps * step + _start;
 				} else currentYSize = this.sizeStartY;
 			}
-			SpriteRenderer.size[0] = currentXSize;
-			SpriteRenderer.size[1] = currentYSize;
+			const pulse = twoDPulse(this, start);
+			SpriteRenderer.size[0] = currentXSize * pulse;
+			SpriteRenderer.size[1] = currentYSize * pulse;
 			if (this.rotate) {
 				const step = (this.toAngle - this.angle) / 100;
 				const startAngle = this.angle;
@@ -299634,6 +299646,10 @@ var init_EffectTable = __esmMin((() => {
 			fadeOutStartMs: 100 * (1e3 / 60),
 			duration: 3e3,
 			size: 140,
+			sizePulse: {
+				amount: .05,
+				degPerTick: 3
+			},
 			posz: 2.4,
 			wav: "_heal_effect"
 		}],
