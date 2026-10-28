@@ -5,7 +5,9 @@
  * the rotating square drawn on the target cell while a ground skill is cast.
  * No WebGL here, so it can be tested on its own.
  *
- * As the 2025 kRO client draws it:
+ * As the 2025 kRO client draws it (the 2026-02-11 client adds only the
+ * Druid skills Ice Pillar and Glacier Monolith; every other Druid skill,
+ * Thundering Orb among them, is 2 x 2):
  *
  *  - The square is N x N cells, N = area + 2, where "area" is a number the
  *    client keeps per skill. The skill level plays no part, so every caster's
@@ -83,7 +85,8 @@ const AREAS = {
 		'CD_PNEUMATICUS_PROCELLA',
 		'SOA_TOTEM_OF_TUTELARY',
 		'HN_METEOR_STORM_BUSTER',
-		'NW_MIDNIGHT_FALLEN'
+		'NW_MIDNIGHT_FALLEN',
+		'KR_ICE_PILLAR'
 	],
 	9: [
 		'WZ_METEOR',
@@ -106,7 +109,8 @@ const AREAS = {
 		'EM_TERRA_DRIVE',
 		'NW_MISSION_BOMBARD',
 		'SOA_TALISMAN_OF_BLACK_TORTOISE',
-		'SH_HYUN_ROKS_BREEZE'
+		'SH_HYUN_ROKS_BREEZE',
+		'AT_GLACIER_MONOLITH'
 	],
 	11: ['WZ_VERMILION', 'AG_MYSTERY_ILLUSION'],
 	18: ['NPC_COMET', 'WL_COMET'],
