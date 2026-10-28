@@ -8728,45 +8728,19 @@ export default {
 
 	//338: [{}],	//EF_ANGEL2	   Super Novice/Taekwon Level Up Angel
 
-	'339_beforecast': [
-		{
-			//EF_MAGNUM2	   Spiral Pierce
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity._flashColor[0] = 1.0;
-				entity._flashColor[1] = 1.0;
-				entity._flashColor[2] = 1.0;
-				entity._flashColor[3] = 1.0;
-				entity.recalculateBlendingColor();
-
-				entity.animations.add(function (tick) {
-					if (!entity.cast.display) {
-						//we don't know cast time here so.. let's hack
-						entity._flashColor[0] = 1.0;
-						entity._flashColor[1] = 1.0;
-						entity._flashColor[2] = 1.0;
-						entity._flashColor[3] = 1.0;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-					entity._flashColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
-					entity._flashColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
-					entity.recalculateBlendingColor();
-				});
-			}
-		}
-	],
-
 	339: [
 		{
-			//EF_MAGNUM2	   Spiral Pierce
-			wav: 'permeter_attack'
+			//EF_MAGNUM2	   Spiral Pierce, on the target as the damage packet arrives
+			// Official client: permeter_attack.wav on tick 20, EF_MagnumBreak.wav on tick 30.
+			// Its ring_yellow parts (ticks 25-55) are not drawn yet (effect-port/lord-knight-skills.md).
+			wav: 'permeter_attack',
+			delayWav: 20 * (1000 / 60),
+			attachedEntity: true
 		},
 		{
 			wav: 'effect/ef_magnumbreak',
-			delayWav: 300
+			delayWav: 30 * (1000 / 60),
+			attachedEntity: true
 		}
 	],
 
@@ -19452,13 +19426,6 @@ export default {
 	black_pulse: [
 		{
 			//type: 'FUNC',
-			attachedEntity: true
-		}
-	],
-
-	spear_hit_sound: [
-		{
-			wav: '_hit_spear',
 			attachedEntity: true
 		}
 	],
