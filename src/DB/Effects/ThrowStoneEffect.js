@@ -6,15 +6,18 @@
  *  - 308 (EF_THROWITEM3), Throw Stone's stone, in a low arc, spinning;
  *  - 613-616 (EF_THROWITEM7-10), the Ninja's shuriken, kunai, huuma and coin,
  *    bigger, faster, flat and spinning fast, tinted pink;
- *  - 600 (EF_THROWITEM6), Throw Venom Knife's knife, the Ninja's flight.
+ *  - 600 (EF_THROWITEM6), Throw Venom Knife's knife, the Ninja's flight;
+ *  - 298 (EF_THROWITEM), Acid Terror's green bottle, in a high arc, always
+ *    25 ticks in flight.
  * Motion in Renderer/Effects/ThrownStoneSim.js. Specs: effect-port/thief-skills.md,
- * effect-port/ninja-skills.md, effect-port/assassin-skills.md.
+ * effect-port/ninja-skills.md, effect-port/assassin-skills.md, effect-port/alchemist-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import {
+	ACID_BOTTLE,
 	NINJA_ITEM,
 	STONE,
 	STONE_TEXTURE,
@@ -126,6 +129,9 @@ export const throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
 
 /** EffectTable row for 600 (EF_THROWITEM6): Throw Venom Knife's knife. */
 export const throwVenomKnifeEffect = thrownItemRow(600, VENOM_KNIFE.texture, VENOM_KNIFE);
+
+/** EffectTable row for 298 (EF_THROWITEM): Acid Terror's bottle, no sound. */
+export const acidTerrorEffect = thrownItemRow(298, ACID_BOTTLE.texture, ACID_BOTTLE);
 
 /** EffectTable rows for 613-616 (Throw Shuriken, Kunai, Huuma, Zeny): no sound of their own. */
 export const ninjaThrowEffects = Object.fromEntries(

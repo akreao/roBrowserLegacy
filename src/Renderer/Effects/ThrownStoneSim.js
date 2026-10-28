@@ -4,8 +4,9 @@
  * The official client's thrown items, without any WebGL, so they can be tested
  * on their own: Throw Stone's stone (effect 308, EF_THROWITEM3) and the Ninja's
  * shuriken, kunai, huuma and coin (613-616, EF_THROWITEM7-10), which the client
- * draws with the same code and other numbers (NINJA_ITEM). Specs:
- * effect-port/thief-skills.md, effect-port/ninja-skills.md.
+ * draws with the same code and other numbers (NINJA_ITEM), and the Alchemist's
+ * bottles (BOTTLE: Acid Terror's 298). Specs: effect-port/thief-skills.md,
+ * effect-port/ninja-skills.md, effect-port/alchemist-skills.md.
  *
  * As the official client plays it, on the caster as the damage packet arrives,
  * aimed at the target's position:
@@ -63,23 +64,46 @@ export const VENOM_KNIFE = Object.assign({}, NINJA_ITEM, {
 		'\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xba\xa3\xb3\xd1\xb3\xaa\xc0\xcc\xc7\xc1.bmp'
 });
 
+/** Item images, under data/texture (유저인터페이스/item/). */
+const ITEM = '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/';
+
+/**
+ * The Alchemist's thrown bottles: 6 x 6 units, in a 30-unit arc, and always
+ * 25 ticks in flight: the speed is distance / 25, so a bottle arrives after
+ * 26 updates however far it goes. Spins 10 degrees a tick, as the stone.
+ */
+export const BOTTLE = Object.assign({}, STONE, {
+	flight: 25, // ticks in flight, whatever the distance
+	arc: 30,
+	half: 3
+});
+
+/** Acid Terror's bottle (298, EF_THROWITEM): 빈병.bmp tinted green, alpha-blended. */
+export const ACID_BOTTLE = Object.assign({}, BOTTLE, {
+	texture: ITEM + '\xba\xf3\xba\xb4.bmp', // 빈병
+	color: [135, 255, 135]
+});
+
 /**
  * @param {number[]} from start [x, y, height] in units
  * @param {number[]} to end [x, y, height] in units
- * @param {object} [kind] STONE, NINJA_ITEM or VENOM_KNIFE
+ * @param {object} [kind] STONE, NINJA_ITEM, VENOM_KNIFE or a BOTTLE
  * @return {object} the throw
  */
 export function planThrow(from, to, kind = STONE) {
 	const dx = to[0] - from[0];
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
+	// A bottle's speed comes from its flight time; with no distance it never moves
+	const speed = kind.flight ? dist / kind.flight : kind.speed;
 	return {
 		kind,
 		from,
 		dist,
+		speed,
 		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
-		climb: dist > 0 ? (kind.speed / dist) * (to[2] - from[2]) : 0,
-		ticks: Math.floor(dist / kind.speed) + 1
+		climb: dist > 0 ? (speed / dist) * (to[2] - from[2]) : 0,
+		ticks: kind.flight ? (dist > 0 ? kind.flight + 1 : 0) : Math.floor(dist / speed) + 1
 	};
 }
 
@@ -96,10 +120,10 @@ export function stoneAt(t, k) {
 	while (moves < k && (moves + 1) / t.ticks <= kind.moveUntil) {
 		moves++;
 	}
-	const s = Math.min(moves / t.ticks, 1);
+	const s = t.ticks > 0 ? Math.min(moves / t.ticks, 1) : 0;
 	return {
-		x: t.from[0] + t.dir[0] * kind.speed * moves,
-		y: t.from[1] + t.dir[1] * kind.speed * moves,
+		x: t.from[0] + t.dir[0] * t.speed * moves,
+		y: t.from[1] + t.dir[1] * t.speed * moves,
 		up: kind.lift + t.climb * moves + kind.arc * Math.sin(Math.PI * s),
 		alpha: Math.max(255 - kind.fade * (k - moves), 0),
 		angle: (kind.startAngle + kind.spin * k) % 360
