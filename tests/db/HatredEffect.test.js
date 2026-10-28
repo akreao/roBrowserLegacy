@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 // Hatred of the Sun, Moon and Stars (SG_HATE, skill 434): the official client casts it with the blue
 // aura 441 and, when the use packet succeeds, plays T_등록.wav at the player and 543 on the target
-// (kRO 2025-07-16). 543 (a body glow; its roBrowser row holds Kaahi's sound) is not drawn yet. No
+// (kRO 2025-07-16). 543 (a body glow) is not drawn yet. No
 // ground effect. Spec: effect-port/star-gladiator-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'latin1');

@@ -678,10 +678,12 @@ SkillEffect[SK.BS_ADRENALINE2] = SkillEffect[SK.BS_ADRENALINE]; //Advanced Adren
 // Soul Linker
 SkillEffect[SK.SL_HUNTER] = //↓		//Spirit of the Hunter
 	SkillEffect[SK.SL_SOULLINKER] = { castAuraEffectId: 441, successEffectId: [503, 424] }; //Spirit of the Soul Linker
-SkillEffect[SK.SL_KAIZEL] = { effectId: 590 }; //Kaizel
-SkillEffect[SK.SL_KAAHI] = { effectId: 543 }; //Kaahi
-SkillEffect[SK.SL_KAUPE] = { effectId: 546 }; //Kaupe
-SkillEffect[SK.SL_KAITE] = { effectId: 419 }; //Kaite
+// Ka-spells: blue cast aura; on success the client plays the skill's sound at the player and its
+// effects on the target (542 / 543 / 590 / 419 are not drawn yet).
+SkillEffect[SK.SL_KAIZEL] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaizel_sound', successEffectId: [543, 590] }; //Kaizel
+SkillEffect[SK.SL_KAAHI] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaahi_sound', successEffectId: 543 }; //Kaahi
+SkillEffect[SK.SL_KAUPE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaupe_sound', successEffectId: 542 }; //Kaupe
+SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: [419, 542] }; //Kaite
 SkillEffect[SK.SL_STIN] = { effectId: 547 }; //Estin
 SkillEffect[SK.SL_STUN] = { effectId: [555, 'ef_sl_stun'] }; //Estun
 SkillEffect[SK.SL_SMA] = { effectId: 553, successEffectId: 425 }; //Esma
