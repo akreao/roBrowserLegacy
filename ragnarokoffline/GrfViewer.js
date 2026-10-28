@@ -223644,29 +223644,73 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectIdOnCaster: 541,
 		successEffectId: 220
 	};
-	SkillEffect[SkillConst_default.SL_ALCHEMIST] = SkillEffect[SkillConst_default.SL_MONK] = SkillEffect[SkillConst_default.SL_STAR] = SkillEffect[SkillConst_default.SL_SAGE] = SkillEffect[SkillConst_default.SL_CRUSADER] = SkillEffect[SkillConst_default.SL_SUPERNOVICE] = SkillEffect[SkillConst_default.SL_KNIGHT] = SkillEffect[SkillConst_default.SL_WIZARD] = SkillEffect[SkillConst_default.SL_PRIEST] = SkillEffect[SkillConst_default.SL_BARDDANCER] = SkillEffect[SkillConst_default.SL_ROGUE] = SkillEffect[SkillConst_default.SL_ASSASIN] = SkillEffect[SkillConst_default.SL_BLACKSMITH] = { effectId: [424, 503] };
+	SkillEffect[SkillConst_default.SL_ALCHEMIST] = SkillEffect[SkillConst_default.SL_MONK] = SkillEffect[SkillConst_default.SL_STAR] = SkillEffect[SkillConst_default.SL_SAGE] = SkillEffect[SkillConst_default.SL_CRUSADER] = SkillEffect[SkillConst_default.SL_SUPERNOVICE] = SkillEffect[SkillConst_default.SL_KNIGHT] = SkillEffect[SkillConst_default.SL_WIZARD] = SkillEffect[SkillConst_default.SL_PRIEST] = SkillEffect[SkillConst_default.SL_BARDDANCER] = SkillEffect[SkillConst_default.SL_ROGUE] = SkillEffect[SkillConst_default.SL_ASSASIN] = SkillEffect[SkillConst_default.SL_BLACKSMITH] = {
+		castAuraEffectId: 441,
+		successEffectId: [503, 424]
+	};
 	SkillEffect[SkillConst_default.BS_ADRENALINE2] = SkillEffect[SkillConst_default.BS_ADRENALINE];
-	SkillEffect[SkillConst_default.SL_HUNTER] = SkillEffect[SkillConst_default.SL_SOULLINKER] = { effectId: [424, 503] };
-	SkillEffect[SkillConst_default.SL_KAIZEL] = { effectId: 590 };
-	SkillEffect[SkillConst_default.SL_KAAHI] = { effectId: 543 };
-	SkillEffect[SkillConst_default.SL_KAUPE] = { effectId: 546 };
-	SkillEffect[SkillConst_default.SL_KAITE] = { effectId: 419 };
-	SkillEffect[SkillConst_default.SL_STIN] = { effectId: 547 };
-	SkillEffect[SkillConst_default.SL_STUN] = { effectId: [555, "ef_sl_stun"] };
+	SkillEffect[SkillConst_default.SL_HUNTER] = SkillEffect[SkillConst_default.SL_SOULLINKER] = {
+		castAuraEffectId: 441,
+		successEffectId: [503, 424]
+	};
+	SkillEffect[SkillConst_default.SL_KAIZEL] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sl_kaizel_sound",
+		successEffectId: [543, 590]
+	};
+	SkillEffect[SkillConst_default.SL_KAAHI] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sl_kaahi_sound",
+		successEffectId: 543
+	};
+	SkillEffect[SkillConst_default.SL_KAUPE] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sl_kaupe_sound",
+		successEffectId: 542
+	};
+	SkillEffect[SkillConst_default.SL_KAITE] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sl_kaite_sound",
+		successEffectId: [419, 542]
+	};
+	SkillEffect[SkillConst_default.SL_STIN] = {
+		castAuraEffectId: 441,
+		damageEffectIdOnCaster: 547,
+		damageEffectIdOnTarget: 550
+	};
+	SkillEffect[SkillConst_default.SL_STUN] = {
+		castAuraEffectId: 441,
+		damageEffectIdOnCaster: 555,
+		damageEffectIdOnTarget: 429
+	};
 	SkillEffect[SkillConst_default.SL_SMA] = {
-		effectId: 553,
-		successEffectId: 425
+		castAuraEffectId: 441,
+		damageEffectIdOnCaster: 553,
+		damageEffectIdOnTarget: [
+			425,
+			431,
+			554
+		]
 	};
 	SkillEffect[SkillConst_default.SL_SWOO] = {
-		effectId: 589,
-		successEffectId: 420
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sl_swoo_sound",
+		successEffectId: [420, 589]
 	};
-	SkillEffect[SkillConst_default.SL_SKE] = { effectId: 427 };
-	SkillEffect[SkillConst_default.SL_SKA] = { effectId: [
-		254,
-		261,
-		"quake"
-	] };
+	SkillEffect[SkillConst_default.SL_SKE] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sl_ske_sound",
+		successEffectId: 427
+	};
+	SkillEffect[SkillConst_default.SL_SKA] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: ["sl_ska_sound", "quake"],
+		successEffectId: [
+			254,
+			1132,
+			261
+		]
+	};
 	SkillEffect[SkillConst_default.SM_SELFPROVOKE] = {};
 	SkillEffect[SkillConst_default.NPC_EMOTION_ON] = {};
 	SkillEffect[SkillConst_default.ST_PRESERVE] = { effectId: 496 };
@@ -223694,7 +223738,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_CULTIVATION] = {};
 	SkillEffect[SkillConst_default.ITEM_ENCHANTARMS] = {};
 	SkillEffect[SkillConst_default.TK_MISSION] = { successEffectIdOnCaster: "ef_tk_mission" };
-	SkillEffect[SkillConst_default.SL_HIGH] = { effectId: [424, 503] };
+	SkillEffect[SkillConst_default.SL_HIGH] = SkillEffect[SkillConst_default.SL_SOULLINKER];
+	SkillEffect[SkillConst_default.SL_DEATHKNIGHT] = SkillEffect[SkillConst_default.SL_SOULLINKER];
+	SkillEffect[SkillConst_default.SL_COLLECTOR] = SkillEffect[SkillConst_default.SL_SOULLINKER];
+	SkillEffect[SkillConst_default.SL_NINJA] = SkillEffect[SkillConst_default.SL_SOULLINKER];
+	SkillEffect[SkillConst_default.SL_GUNNER] = SkillEffect[SkillConst_default.SL_SOULLINKER];
 	SkillEffect[SkillConst_default.KN_ONEHAND] = SkillEffect[SkillConst_default.KN_TWOHANDQUICKEN];
 	SkillEffect[SkillConst_default.AM_TWILIGHT1] = { effectId: 497 };
 	SkillEffect[SkillConst_default.AM_TWILIGHT2] = { effectId: 498 };
@@ -225416,8 +225464,6 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GD_RESTORE] = {};
 	SkillEffect[SkillConst_default.GD_EMERGENCYCALL] = {};
 	SkillEffect[SkillConst_default.GD_ITEMEMERGENCYCALL] = {};
-	SkillEffect[SkillConst_default.SL_ASSASIN] = { effectId: "ef_sl_assasin" };
-	SkillEffect[SkillConst_default.SL_HUNTER] = { effectId: "ef_sl_hunter" };
 	SkillEffect[SkillConst_default.SJ_FULLMOONKICK] = { effectId: "ef_sj_fullmoonkick" };
 	SkillEffect[SkillConst_default.SJ_NEWMOONKICK] = { effectId: "ef_sj_newmoonkick" };
 	SkillEffect[SkillConst_default.SJ_FLASHKICK] = { effectId: "ef_sj_flashkick" };
@@ -299629,7 +299675,6 @@ var init_EffectTable = __esmMin((() => {
 				zIndex: 1
 			}
 		],
-		254: [{ wav: "effect/mon_±Ý°­ºÒ±«" }],
 		255: [{
 			type: "STR",
 			file: "enc_fire",
@@ -303921,6 +303966,14 @@ var init_EffectTable = __esmMin((() => {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502), Params);
 			}
 		}],
+		503: [{
+			wav: "effect/t_Ä³½ºÆÃ",
+			attachedEntity: true
+		}, {
+			wav: "effect/t_¿µÈ¥",
+			delayWav: 145 * (1e3 / 60),
+			attachedEntity: true
+		}],
 		504: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -304497,14 +304550,22 @@ var init_EffectTable = __esmMin((() => {
 			}
 		}],
 		541: berserkPotionThrowEffect,
-		543: [{ wav: "effect/t_º¸Á¶¸¶¹ý" }],
-		547: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
+		547: [{
+			wav: "effect/t_¹Ù¶÷¸¶¹ý",
+			delayWav: 10 * (1e3 / 60),
+			attachedEntity: true
+		}],
 		553: [{
 			duplicate: 5,
-			timeBetweenDupli: 200,
-			wav: "effect/t_³¯¶óÂ÷±â"
+			timeBetweenDupli: 15 * (1e3 / 60),
+			wav: "effect/t_³¯¶óÂ÷±â",
+			delayWav: 5 * (1e3 / 60),
+			attachedEntity: true
 		}],
-		555: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
+		555: [{
+			wav: "effect/t_¿¡³ÊÁö¹æÃâ",
+			attachedEntity: true
+		}],
 		563: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -304620,10 +304681,8 @@ var init_EffectTable = __esmMin((() => {
 		589: [{
 			type: "SPR",
 			file: "m_ef07",
-			wav: "effect/t_º¸Á¶¸¶¹ý",
 			attachedEntity: true
 		}],
-		590: [{ wav: "effect/priest_resurrection" }],
 		592: [{
 			type: "FUNC",
 			attachedEntity: false,
@@ -309480,6 +309539,34 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/t_º¯½Å",
 			attachedEntity: true
 		}],
+		sl_kaizel_sound: [{
+			wav: "effect/priest_resurrection",
+			attachedEntity: true
+		}],
+		sl_kaahi_sound: [{
+			wav: "effect/t_º¸Á¶¸¶¹ý",
+			attachedEntity: true
+		}],
+		sl_kaupe_sound: [{
+			wav: "effect/t_Ä¡À×",
+			attachedEntity: true
+		}],
+		sl_kaite_sound: [{
+			wav: "effect/t_¸¶¹ý¹Ý»ç",
+			attachedEntity: true
+		}],
+		sl_swoo_sound: [{
+			wav: "effect/t_½´¿ô",
+			attachedEntity: true
+		}],
+		sl_ske_sound: [{
+			wav: "effect/t_°ø°Ý·Â",
+			attachedEntity: true
+		}],
+		sl_ska_sound: [{
+			wav: "effect/t_¹æ¾îÇü",
+			attachedEntity: true
+		}],
 		ef_greed_sound: [{
 			wav: "effect/ef_entry",
 			attachedEntity: true
@@ -313574,38 +313661,6 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "suicide",
 			texturePath: ""
-		}],
-		ef_sl_assasin: [{
-			type: "STR",
-			file: "assasin_poisonreact",
-			texturePath: ""
-		}, {
-			type: "STR",
-			file: "assasin_poisonreact_1st",
-			texturePath: ""
-		}],
-		ef_sl_hunter: [
-			{
-				type: "STR",
-				file: "hunter_loud",
-				texturePath: ""
-			},
-			{
-				type: "STR",
-				file: "hunter_poison",
-				texturePath: ""
-			},
-			{
-				type: "STR",
-				file: "hunter_shockwave_blue",
-				texturePath: ""
-			}
-		],
-		ef_sl_stun: [{
-			type: "STR",
-			file: "stun",
-			texturePath: "",
-			wav: "effect/_stun"
 		}],
 		ef_gs_increasing: [{
 			type: "STR",
