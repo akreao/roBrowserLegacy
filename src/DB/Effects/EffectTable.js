@@ -50,6 +50,7 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import {
 	acidTerrorEffect,
 	aidPotionEffect,
+	berserkPotionThrowEffect,
 	ninjaThrowEffects,
 	throwStoneEffect,
 	throwVenomKnifeEffect
@@ -5239,16 +5240,21 @@ export default {
 	220: [
 		{
 			//EF_POTION_BERSERK	Berserk Potion
+			// The official client plays ac_concentration.wav and quakes the screen on tick 18 (300 ms).
 			type: 'STR',
 			file: '\xb9\xf6\xbc\xad\xc5\xa9',
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/ac_concentration',
+			delayWav: 300,
 			attachedEntity: true
 		},
 		{
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 200;
+				const start = Params.Inst.startTick + 18 * (1000 / 60);
 				const duration = 200;
 				Camera.setQuake(start, duration);
 			}
@@ -12308,7 +12314,8 @@ export default {
 	//538: [{}],	//EF_GREENBODY	   Player Become Green with Green Aura
 	//539: [{}],	//EF_THROWITEM4	   Throw Random Bottle
 	//540: [{}],	//EF_BABYBODY_BACK	   Instant Small->Normal
-	//541: [{}],	//EF_THROWITEM5	   (Nothing)
+	// EF_THROWITEM5, Aid Berserk Potion: the client's thrown bottle (ThrowStoneEffect.js)
+	541: berserkPotionThrowEffect,
 	//542: [{}],	//EF_BLUEBODY	   KA-Spell (1st Part)
 
 	543: [
