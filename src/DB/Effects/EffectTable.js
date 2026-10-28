@@ -6217,12 +6217,7 @@ export default {
 		}
 	],
 
-	254: [
-		{
-			//EF_STEELBODY	   Mental Strength (Visual Effect)
-			wav: 'effect/mon_\xb1\xdd\xb0\xad\xba\xd2\xb1\xab'
-		}
-	],
+	//254: [{}],	//EF_STEELBODY	   Mental Strength / Eska body look, not drawn yet; the official client plays no sound with it
 
 	255: [
 		{
@@ -12578,9 +12573,9 @@ export default {
 	589: [
 		{
 			//EF_M07	Eswoo
+			// No sound: the official client plays Eswoo's T_슈웃.wav from the use packet.
 			type: 'SPR',
 			file: 'm_ef07',
-			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd',
 			attachedEntity: true
 		}
 	],
@@ -19516,6 +19511,28 @@ export default {
 	sl_kaite_sound: [
 		{
 			wav: 'effect/t_\xb8\xb6\xb9\xfd\xb9\xdd\xbb\xe7',
+			attachedEntity: true
+		}
+	],
+
+	// Eswoo, Eske and Eska on success: the official client plays each one's sound at the player.
+	sl_swoo_sound: [
+		{
+			wav: 'effect/t_\xbd\xb4\xbf\xf4',
+			attachedEntity: true
+		}
+	],
+
+	sl_ske_sound: [
+		{
+			wav: 'effect/t_\xb0\xf8\xb0\xdd\xb7\xc2',
+			attachedEntity: true
+		}
+	],
+
+	sl_ska_sound: [
+		{
+			wav: 'effect/t_\xb9\xe6\xbe\xee\xc7\xfc',
 			attachedEntity: true
 		}
 	],

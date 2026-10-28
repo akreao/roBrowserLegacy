@@ -687,9 +687,11 @@ SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl
 SkillEffect[SK.SL_STIN] = { effectId: 547 }; //Estin
 SkillEffect[SK.SL_STUN] = { effectId: [555, 'ef_sl_stun'] }; //Estun
 SkillEffect[SK.SL_SMA] = { effectId: 553, successEffectId: 425 }; //Esma
-SkillEffect[SK.SL_SWOO] = { effectId: 589, successEffectId: 420 }; //Eswoo
-SkillEffect[SK.SL_SKE] = { effectId: 427 }; //Eske
-SkillEffect[SK.SL_SKA] = { effectId: [254, 261, 'quake'] }; //Eska
+// Eswoo, Eske, Eska: blue cast aura; on success the client plays the skill's sound at the player and
+// its effects on the target (Eska also quakes the screen; 427, 254 and 1132 are not drawn yet).
+SkillEffect[SK.SL_SWOO] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_swoo_sound', successEffectId: [420, 589] }; //Eswoo
+SkillEffect[SK.SL_SKE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_ske_sound', successEffectId: 427 }; //Eske
+SkillEffect[SK.SL_SKA] = { castAuraEffectId: 441, successEffectIdOnCaster: ['sl_ska_sound', 'quake'], successEffectId: [254, 1132, 261] }; //Eska
 // Other 2nd Skills
 SkillEffect[SK.SM_SELFPROVOKE] = {}; //Provoke Self
 SkillEffect[SK.NPC_EMOTION_ON] = {}; //Emotion ON
