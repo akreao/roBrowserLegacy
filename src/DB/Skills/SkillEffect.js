@@ -591,7 +591,10 @@ SkillEffect[SK.SN_SHARPSHOOTING] = {
 	hitEffectId: 0,
 	firstHitEffectId: 1
 }; //Focused Arrow Strike
-SkillEffect[SK.SN_WINDWALK] = { effectId: 389 }; //Wind Walker
+// Official client: cast aura 58 whatever the element; 389 on the caster from the use packet, only when its
+// result is set (윈드워크.wav on tick 0, the caster lit and light green on ticks 5-25).
+// See effect-port/sniper-skills.md.
+SkillEffect[SK.SN_WINDWALK] = { castAuraEffectId: 58, successEffectIdOnCaster: 389 }; //Wind Walker
 // Whitesmith
 SkillEffect[SK.WS_MELTDOWN] = { effectId: 390 }; //Shattering Strike
 SkillEffect[SK.WS_CREATECOIN] = {}; //Create Coins
