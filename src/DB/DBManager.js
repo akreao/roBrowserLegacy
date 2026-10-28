@@ -7048,12 +7048,6 @@ function loadGarmentLayers(path, onEnd) {
 			}
 			const ctx = lua.ctx;
 			ctx.__GARMENT_JOBID = jobId;
-			ctx.SetGarmentLayers = dump => {
-				if (generation !== garmentLayerGeneration) {
-					return;
-				}
-				GarmentLayer.parse(typeof dump === 'string' ? dump : new TextDecoder().decode(dump));
-			};
 
 			const run = [];
 			for (let i = 0; i < files.length; i++) {
@@ -7068,7 +7062,9 @@ function loadGarmentLayers(path, onEnd) {
 				run.push(`(__ro_orig_dofile or dofile)("${name}")`);
 			}
 
-			await lua.doString(`
+			// The chunk returns its own dump, so an overlapping load (a server switch) can't hand
+			// its tables to this one.
+			const dump = await lua.doString(`
 				local savedJobId = JOBID
 				JOBID = setmetatable({}, {
 					__index = function(t, k)
@@ -7079,16 +7075,21 @@ function loadGarmentLayers(path, onEnd) {
 						return id
 					end
 				})
-				local ok, err = pcall(function()
+				local ok, result = pcall(function()
 					${run.join('\n')}
 					${GarmentLayer.DUMP_LUA}
 				end)
 				JOBID = savedJobId
 				__GARMENT_JOBID = nil
 				if not ok then
-					error(err)
+					error(result)
 				end
+				return result
 			`);
+
+			if (generation === garmentLayerGeneration && dump) {
+				GarmentLayer.parse(typeof dump === 'string' ? dump : new TextDecoder().decode(dump));
+			}
 		} catch (error) {
 			console.error('[loadGarmentLayers] Error: ', error);
 		} finally {

@@ -85,11 +85,12 @@ const hasLua = spawnSync('lua5.1', ['-v']).status === 0;
 describe.skipIf(!hasLua)('GarmentLayer dump', () => {
 	it('hands over the tables, leaving out jobs the names did not resolve (-1)', () => {
 		const lua = `
-SetGarmentLayers = function(s) io.write(s) end
 _New_BigLayerDir_F = { [1] = { [36] = { 0, 1, 2 }, [37] = {} } }
 _New_BigLayerDir_M = { [4054] = { [32] = { 4 } } }
 LAYER_ALL_TABLE_LIST = { [4060] = 4054, [-1] = 4054, [4096] = -1 }
+io.write((function()
 ${GarmentLayer.DUMP_LUA}
+end)())
 assert(_New_BigLayerDir_F == nil and LAYER_ALL_TABLE_LIST == nil)`;
 		const r = spawnSync('lua5.1', ['-'], { input: lua, encoding: 'utf8' });
 		expect(r.stderr).toBe('');

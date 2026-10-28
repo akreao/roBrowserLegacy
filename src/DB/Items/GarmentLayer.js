@@ -153,7 +153,7 @@ export const OFFICIAL_JOB_ALIASES = {
 };
 
 /**
- * Lua run after the three files, to hand their tables to parse() in one string.
+ * Lua run after the three files: returns their tables as one string for parse(), and frees them.
  */
 export const DUMP_LUA = `
 	local out = {}
@@ -184,13 +184,14 @@ export const DUMP_LUA = `
 	end
 	dump(0, _New_BigLayerDir_F)
 	dump(1, _New_BigLayerDir_M)
-	SetGarmentLayers(table.concat(out, "\\n"))
+	local dump = table.concat(out, "\\n")
 	_New_BigLayerDir_F = nil
 	_New_BigLayerDir_M = nil
 	_New_SmallLayerDir_F = nil
 	_New_SmallLayerDir_M = nil
 	LAYER_ALL_TABLE_LIST = nil
 	collectgarbage()
+	return dump
 `;
 
 export default { clear, isLoaded, parse, drawOnTop, OFFICIAL_JOB_ALIASES, DUMP_LUA };
