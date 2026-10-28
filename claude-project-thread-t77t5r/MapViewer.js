@@ -227039,10 +227039,14 @@ var init_PrivateAirship$1 = __esmMin((() => {
 }));
 // src/UI/Components/PrivateAirship/PrivateAirship.js
 /**
-* @return {boolean} a request is on its way
+* A request is on its way until the server answers it, or until a map loads:
+* the server answers before it moves you, and a lost connection means a new
+* map load, so a request from an earlier load will not be answered.
+*
+* @return {boolean}
 */
 function isPending() {
-	return _pendingSince !== 0 && Date.now() - _pendingSince < PENDING_TIMEOUT;
+	return _pendingLoadId !== null && _pendingLoadId === MapRenderer._loadId;
 }
 /**
 * Text for a message id, without RO colour codes.
@@ -227072,7 +227076,7 @@ function itemName(itemId) {
 function currentMap() {
 	return PrivateAirship$1.normalize(MapRenderer.currentMap);
 }
-var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, BASE_ITEM_ROWS, PENDING_TIMEOUT, PrivateAirship, _targetMap, _pendingSince, PrivateAirship_default;
+var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, BASE_ITEM_ROWS, PrivateAirship, _targetMap, _pendingLoadId, PrivateAirship_default;
 var init_PrivateAirship = __esmMin((() => {
 	init_DBManager();
 	init_PrivateAirship$3();
@@ -227125,12 +227129,11 @@ var init_PrivateAirship = __esmMin((() => {
 	WINDOW_WIDTH = 208;
 	WINDOW_HEIGHT = 110;
 	BASE_ITEM_ROWS = 2;
-	PENDING_TIMEOUT = 1e4;
 	PrivateAirship = new GUIComponent("PrivateAirship", PrivateAirship_default$1);
 	PrivateAirship.render = () => PrivateAirship_default$2;
 	PrivateAirship.needFocus = true;
 	_targetMap = "";
-	_pendingSince = 0;
+	_pendingLoadId = null;
 	/**
 	* The checks the official client makes before it sends the request, in its order.
 	*
@@ -227248,7 +227251,7 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.sendRequest = function sendRequest(itemId) {
 		if (isPending() || !_targetMap) return;
-		_pendingSince = Date.now();
+		_pendingLoadId = MapRenderer._loadId;
 		const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 		pkt.mapName = _targetMap + ".gat";
 		pkt.ItemID = itemId;
@@ -227260,7 +227263,7 @@ var init_PrivateAirship = __esmMin((() => {
 	* @param {object} pkt
 	*/
 	PrivateAirship.onResponse = function onResponse(pkt) {
-		_pendingSince = 0;
+		_pendingLoadId = null;
 		if (!PrivateAirship.__active) return;
 		if (pkt.result === 0) {
 			PrivateAirship.remove();
