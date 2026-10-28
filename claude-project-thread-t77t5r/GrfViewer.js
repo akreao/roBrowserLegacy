@@ -227025,14 +227025,23 @@ var init_PrivateAirship$1 = __esmMin((() => {
 }));
 // src/UI/Components/PrivateAirship/PrivateAirship.js
 /**
-* A request is on its way until the server answers it, or until a map loads:
-* the server answers before it moves you, and a lost connection means a new
-* map load, so a request from an earlier load will not be answered.
-*
-* @return {boolean}
+* Forget the requests of an earlier map load: the server answers a refusal at
+* once and moves you on success, and a lost connection means a new map load.
+*/
+function syncRequests() {
+	if (_requests.loadId !== MapRenderer._loadId) Object.assign(_requests, {
+		loadId: MapRenderer._loadId,
+		sent: 0,
+		answered: 0,
+		lastSent: 0
+	});
+}
+/**
+* @return {boolean} a request is on its way
 */
 function isPending() {
-	return _pendingLoadId !== null && _pendingLoadId === MapRenderer._loadId;
+	syncRequests();
+	return _requests.answered < _requests.sent && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
 }
 /**
 * Text for a message id, without RO colour codes.
@@ -227062,7 +227071,7 @@ function itemName(itemId) {
 function currentMap() {
 	return PrivateAirship$1.normalize(MapRenderer.currentMap);
 }
-var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, BASE_ITEM_ROWS, PrivateAirship, _targetMap, _pendingLoadId, PrivateAirship_default;
+var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, BASE_ITEM_ROWS, PrivateAirship, _targetMap, _requests, PENDING_TIMEOUT, PrivateAirship_default;
 var init_PrivateAirship = __esmMin((() => {
 	init_DBManager();
 	init_PrivateAirship$3();
@@ -227119,7 +227128,13 @@ var init_PrivateAirship = __esmMin((() => {
 	PrivateAirship.render = () => PrivateAirship_default$2;
 	PrivateAirship.needFocus = true;
 	_targetMap = "";
-	_pendingLoadId = null;
+	_requests = {
+		loadId: null,
+		sent: 0,
+		answered: 0,
+		lastSent: 0
+	};
+	PENDING_TIMEOUT = 15e3;
 	/**
 	* The checks the official client makes before it sends the request, in its order.
 	*
@@ -227237,7 +227252,9 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.sendRequest = function sendRequest(itemId) {
 		if (isPending() || !_targetMap) return;
-		_pendingLoadId = MapRenderer._loadId;
+		syncRequests();
+		_requests.sent++;
+		_requests.lastSent = Date.now();
 		const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 		pkt.mapName = _targetMap + ".gat";
 		pkt.ItemID = itemId;
@@ -227249,7 +227266,8 @@ var init_PrivateAirship = __esmMin((() => {
 	* @param {object} pkt
 	*/
 	PrivateAirship.onResponse = function onResponse(pkt) {
-		_pendingLoadId = null;
+		syncRequests();
+		_requests.answered = Math.min(_requests.sent, _requests.answered + 1);
 		if (!PrivateAirship.__active) return;
 		if (pkt.result === 0) {
 			PrivateAirship.remove();
