@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { SMITE, launchTick, planShield, randomHeading, shieldAt } from 'Renderer/Effects/RapidSmitingSim.js';
 import { trailAt } from 'Renderer/Effects/ShieldBoomerangSim.js';
+import { launchCentre, smiteShieldEffect } from 'DB/Effects/RapidSmitingEffect.js';
 
 // Rapid Smiting (PA_SHIELDCHAIN, skill 480) as the official client (kRO 2025-07-16) plays it: the
 // holy cast aura 58, 520 on the target as the damage packet arrives (cru_shield boomerang.wav and
@@ -76,5 +77,22 @@ describe('one shield (primitive 116)', () => {
 		expect(trailAt(plan, 1, 12)).toMatchObject({ alpha: 75 });
 		expect(trailAt(plan, 1, 12).x).toBeCloseTo(shieldAt(plan, 8).x);
 		expect(trailAt(plan, 2, 15)).toMatchObject({ alpha: 50 });
+	});
+});
+
+describe('shield sprites', () => {
+	it('share the texture, so they release it when they end', () => {
+		expect(smiteShieldEffect(planShield(0), 0, -1).sharedTexture).toBe(true);
+	});
+
+	it('fly through the target where it stands when the shield is launched', () => {
+		const target = { position: [10, 10, 0] };
+		const centre = launchCentre(target, [10, 10, 0]);
+		const late = smiteShieldEffect(planShield(0), 12, -1, centre);
+		expect(late.track(5)).toBeNull(); // not launched yet
+		target.position = [11, 10, 0]; // walked a cell before the launch
+		expect(late.track(12 + 15).x).toBeCloseTo(1);
+		target.position = [12, 10, 0]; // the flight keeps its launch centre
+		expect(late.track(12 + 16).x).toBeCloseTo(1 + 2.5 / 5);
 	});
 });

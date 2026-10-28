@@ -26,17 +26,41 @@ import {
 const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
 
 /**
+ * Where a shield flies through: the target's position on the tick the shield
+ * is launched, taken once (by whichever of its four sprites draws first) and
+ * kept for its flight, as the client does.
+ *
+ * @param {?object} entity the target
+ * @param {number[]} base the sprites' position (the target's at packet arrival)
+ * @return {object}
+ */
+export function launchCentre(entity, base) {
+	return {
+		at: null,
+		offset() {
+			if (!this.at) {
+				const p = entity && entity.position ? entity.position : base;
+				this.at = [p[0] - base[0], p[1] - base[1], p[2] - base[2]];
+			}
+			return this.at;
+		}
+	};
+}
+
+/**
  * The 3D effect drawing one shield (copy -1) or its trailing copy i.
  *
  * @param {object} plan from planShield, in units from the target
  * @param {number} start effect tick the shield is launched on
  * @param {number} copy
+ * @param {?object} [centre] from launchCentre; without it the shield flies through the sprites' position
  * @return {object}
  */
-export function smiteShieldEffect(plan, start, copy) {
+export function smiteShieldEffect(plan, start, copy, centre = null) {
 	return {
 		type: '3D',
 		file: SMITE_TEXTURE,
+		sharedTexture: true,
 		alphaMax: 1,
 		attachedEntity: false,
 		duration: (start + plan.last + 1) * PRIM_TICK_MS,
@@ -50,10 +74,11 @@ export function smiteShieldEffect(plan, start, copy) {
 			if (!p || p.alpha < 1) {
 				return null;
 			}
+			const o = centre ? centre.offset() : [0, 0, 0];
 			return {
-				x: p.x / UNITS_PER_CELL,
-				y: p.y / UNITS_PER_CELL,
-				z: p.up / UNITS_PER_CELL,
+				x: o[0] + p.x / UNITS_PER_CELL,
+				y: o[1] + p.y / UNITS_PER_CELL,
+				z: o[2] + p.up / UNITS_PER_CELL,
 				size: 2 * SMITE.half * SIZE_PER_UNIT,
 				alpha: p.alpha / 255,
 				angle: p.angle
@@ -73,16 +98,18 @@ export const rapidSmitingEffect = [
 		type: 'FUNC',
 		attachedEntity: true,
 		func: function (Params) {
-			const target = Params.Init.ownerEntity && Params.Init.ownerEntity.position;
+			const entity = Params.Init.ownerEntity;
+			const target = entity && entity.position;
 			if (!target) {
 				return;
 			}
 			const at = [target[0], target[1], target[2]];
 			for (let i = 0; i < SMITE.count; i++) {
 				const plan = planShield(randomHeading());
+				const centre = launchCentre(entity, at);
 				[-1, 0, 1, 2].forEach((copy, c) => {
 					this.spamEffect({
-						effect: smiteShieldEffect(plan, launchTick(i), copy),
+						effect: smiteShieldEffect(plan, launchTick(i), copy, centre),
 						Inst: { effectID: 520, duplicateID: i * 4 + c, startTick: Params.Inst.startTick },
 						Init: Object.assign({}, Params.Init, { position: at })
 					});
