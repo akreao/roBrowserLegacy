@@ -21,7 +21,6 @@ import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
-import SoundManager from 'Audio/SoundManager.js';
 import Events from 'Core/Events.js';
 import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
