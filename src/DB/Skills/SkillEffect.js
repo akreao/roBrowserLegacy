@@ -126,7 +126,10 @@ SkillEffect[SK.MG_FIREBOLT] = { damageEffectIdOnTarget: 31, hitEffectId: 49 }; /
 // Official client: 29 (Lightning.str) on the target as the damage packet arrives, then 52 (wind hit)
 // on every hit as it lands, 200 ms apart. See effect-port/mage-audit.md.
 SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52 }; //Lightning Bolt
-SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderstorm
+// Official client: 30 (ThunderStorm.str + sound) once at the cell from the ground packet (any level plays
+// the one entry), nothing from the skill unit; the unit's damage plays the standard hit flash (0) per hit.
+// See effect-port/mage-audit.md.
+SkillEffect[SK.MG_THUNDERSTORM] = { groundEffectIdByLevel: [30], hitEffectId: [0] }; //Thunderstorm
 // Acolyte
 // Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash), and 1 (EF_HIT2)
 // with the first hit of the packet. Each damage packet also plays 12 (EF_BEGINSPELL) on the caster
