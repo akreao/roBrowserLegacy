@@ -3766,9 +3766,27 @@ export default {
 	104: [
 		{
 			//EF_MAXPOWER	Maximize Power
+			// The official client plays the circle sound on tick 0, the sword sound on ticks 40 and 47
+			// (667 and 783 ms) and sword_bic on tick 65 (1083 ms).
 			type: 'STR',
 			file: 'maximizepower',
 			min: 'maximize_min',
+			wav: 'effect/black_maximize_power_circle',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/black_maximize_power_sword',
+			delayWav: 667,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/black_maximize_power_sword',
+			delayWav: 783,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/black_maximize_power_sword_bic',
+			delayWav: 1083,
 			attachedEntity: true
 		}
 	],
@@ -19360,27 +19378,6 @@ export default {
 			type: 'STR',
 			file: 'ui_enchant/ui_fail/ui_reset_fail',
 			texturePath: 'ui_enchant/ui_fail/'
-		}
-	],
-
-	maximize_power_sounds: [
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function MaximizePowerSounds(Params) {
-				Events.setTimeout(function () {
-					SoundManager.play('effect/black_maximize_power_circle.wav');
-				}, 1);
-				Events.setTimeout(function () {
-					SoundManager.play('effect/black_maximize_power_sword.wav');
-				}, 550);
-				Events.setTimeout(function () {
-					SoundManager.play('effect/black_maximize_power_sword.wav');
-				}, 700);
-				Events.setTimeout(function () {
-					SoundManager.play('effect/black_maximize_power_sword_bic.wav');
-				}, 950);
-			}
 		}
 	],
 

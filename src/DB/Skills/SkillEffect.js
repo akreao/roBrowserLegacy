@@ -257,7 +257,7 @@ SkillEffect[SK.BS_HAMMERFALL] = { effectId: 102 }; //Hammer Fall
 SkillEffect[SK.BS_ADRENALINE] = { successEffectIdOnCaster: 98 }; //Adrenaline Rush: on the source, only when the use packet succeeds
 SkillEffect[SK.BS_WEAPONPERFECT] = { successEffectId: 103 }; //Weapon Perfection: on the target, only when the use packet succeeds
 SkillEffect[SK.BS_OVERTHRUST] = { successEffectIdOnCaster: 128 }; //Power-Thrust: on the source, only when the use packet succeeds
-SkillEffect[SK.BS_MAXIMIZE] = { beginCastEffectId: 'maximize_power_sounds', effectId: 104 }; //Maximize Power
+SkillEffect[SK.BS_MAXIMIZE] = { successEffectIdOnCaster: 104 }; //Maximize Power: on the source, only when the use packet succeeds
 // Hunter
 SkillEffect[SK.HT_SKIDTRAP] = { effectId: 69 }; //Skid Trap
 SkillEffect[SK.HT_LANDMINE] = { hitEffectId: [0] }; //Land Mine: nothing at the cell or on the target; the hit flash per hit
