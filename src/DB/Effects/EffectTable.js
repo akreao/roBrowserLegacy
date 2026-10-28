@@ -82,6 +82,7 @@ import {
 	SHARDS as ICE_SHARDS
 } from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
 import CirclePower from 'Renderer/Effects/CirclePower.js';
 import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -19229,7 +19230,12 @@ export default {
 			wav: 'effect/ef_beginspell',
 			func: function (Params) {
 				this.add(
-					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 1195),
+					new CasterMarks(
+						Params.Init.ownerEntity,
+						Params.Inst.startTick,
+						Math.round(Params.Init.duration / PRIM_TICK_MS),
+						1195
+					),
 					Params
 				);
 			}

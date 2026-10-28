@@ -77,6 +77,12 @@ describe('Chase Walk cast spin (1195)', () => {
 			Init: { ownerEntity: current, duration: 500 },
 			Inst: { startTick: 0 }
 		});
-		expect(added[0].frames).toBe(31);
+		// 60 ticks a second: a 0.5 s cast is 30 ticks, a 2 s cast 120
+		expect(added[0].frames).toBe(30);
+		row.func.call({ add: m => added.push(m) }, {
+			Init: { ownerEntity: current, duration: 2000 },
+			Inst: { startTick: 0 }
+		});
+		expect(added[1].frames).toBe(120);
 	});
 });
