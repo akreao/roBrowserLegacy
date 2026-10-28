@@ -3737,16 +3737,22 @@ export default {
 	102: [
 		{
 			//EF_CRASHEARTH	Hammerfall
+			// The official client plays wizard_fire_pillar_b.wav on tick 30 (500 ms) and quakes the
+			// screen on tick 35 (583 ms). It never loads black_hammerfall.wav.
 			type: 'STR',
 			file: 'crashearth',
-			wav: 'effect/black_hammerfall',
+			attachedEntity: false
+		},
+		{
+			wav: 'effect/wizard_fire_pillar_b',
+			delayWav: 500,
 			attachedEntity: false
 		},
 		{
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 350;
+				const start = Params.Inst.startTick + 35 * (1000 / 60);
 				Camera.setQuake(start);
 			}
 		}
