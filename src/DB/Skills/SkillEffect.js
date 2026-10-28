@@ -597,11 +597,10 @@ SkillEffect[SK.CG_MOONLIT] = { successEffectId: 394, groundEffectId: '394_ground
 SkillEffect[SK.CG_MARIONETTE] = { effectId: 395, hitEffectId: 396 }; //Marionette Control
 // Lord Knight
 SkillEffect[SK.LK_SPIRALPIERCE] = {
-	hideCastAura: true,
-	beginCastEffectId: '339_beforecast',
-	effectId: 339,
-	hitEffectId: 'spear_hit_sound'
-}; //Spiral Pierce
+	castAuraEffectId: 502,
+	damageEffectIdOnTarget: 339,
+	firstHitEffectId: 81
+}; //Spiral Pierce: yellow caster flicker while casting, no hit flash
 SkillEffect[SK.LK_HEADCRUSH] = { beginCastEffectId: 399, hitEffectId: 'enemy_hit_normal1' }; //Traumatic Blow
 SkillEffect[SK.LK_JOINTBEAT] = { beginCastEffectId: 400, hitEffectId: 'enemy_hit_normal1' }; //Vital Strike
 // High Wizard
