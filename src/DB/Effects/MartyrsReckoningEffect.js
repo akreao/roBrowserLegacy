@@ -36,9 +36,9 @@ export const martyrsReckoningBody = {
 	delayWav: 367, // tick 22
 	type: 'FUNC',
 	attachedEntity: true,
-	func: function (Params) {
+	func: Params => {
 		const entity = Params.Init.ownerEntity;
-		entity.animations.add(function (ms) {
+		entity.animations.add(ms => {
 			const body = sacrificeBodyAt(Math.floor((ms * 60) / 1000));
 			if (!body) {
 				return false;
