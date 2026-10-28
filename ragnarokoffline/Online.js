@@ -343654,6 +343654,12 @@ function suppressHeadSprites() {
 		this.files[part].act = null;
 		if (part === "head") this.files.head.pal = null;
 	}
+	for (let i = 0, count = EquipParts.length; i < count; ++i) {
+		const part = EquipParts[i];
+		this.files[part].spr = null;
+		this.files[part].act = null;
+		this.files[part].pal = null;
+	}
 }
 /**
 * Restore head and accessories
@@ -344042,7 +344048,7 @@ function UpdateGeneric(type, func, fallback) {
 			Client.loadFile(filepath + ".act");
 			Client.loadFile(filepath + ".spr", function() {
 				_this["_" + type] = _val;
-				if (!(type === "accessory" || type === "accessory2" || type === "accessory3") || !shouldSuppressHead.call(_this)) {
+				if (!shouldSuppressHead.call(_this)) {
 					_this.files[type].spr = filepath + ".spr";
 					_this.files[type].act = filepath + ".act";
 				}
@@ -344052,6 +344058,7 @@ function UpdateGeneric(type, func, fallback) {
 					if (trail_file) {
 						Client.loadFile(trail_file + ".act");
 						Client.loadFile(trail_file + ".spr", function() {
+							if (shouldSuppressHead.call(_this)) return;
 							_this.files["weapon_trail"].spr = trail_file + ".spr";
 							_this.files["weapon_trail"].act = trail_file + ".act";
 						});
@@ -344192,7 +344199,7 @@ function Init$5() {
 	createTransformationProperty("active_monster_transform");
 	createTransformationProperty("job_transform");
 }
-var GR2_MODEL_ROOT, GR2_FALLBACK_JOB, HeadParts, AllMountJobs;
+var GR2_MODEL_ROOT, GR2_FALLBACK_JOB, HeadParts, EquipParts, AllMountJobs;
 var init_EntityView = __esmMin((() => {
 	init_Client();
 	init_DBManager();
@@ -344211,6 +344218,12 @@ var init_EntityView = __esmMin((() => {
 		"accessory",
 		"accessory2",
 		"accessory3"
+	];
+	EquipParts = [
+		"robe",
+		"weapon",
+		"weapon_trail",
+		"shield"
 	];
 	AllMountJobs = {};
 	for (const baseJob in AllMountTable) AllMountJobs[AllMountTable[baseJob]] = true;
