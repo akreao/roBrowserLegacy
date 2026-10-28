@@ -45,11 +45,19 @@ describe('Sharp Shooting', () => {
 	});
 
 	it('no bow arrow from a splash packet, 5 or 14', async () => {
-		const { SPLASH_DAMAGE_TYPES } = await import('DB/Skills/SkillMotionEffect.js');
-		expect(SPLASH_DAMAGE_TYPES).toEqual([5, 14]);
+		const { packetLaunchesSkill } = await import('DB/Skills/SkillMotionEffect.js');
+		expect(packetLaunchesSkill(382, 5)).toBe(false);
+		expect(packetLaunchesSkill(382, 14)).toBe(false);
+		expect(packetLaunchesSkill(382, 8)).toBe(true);
 		expect(read('Engine/MapEngine/Entity.js')).toContain(
-			'if (srcEntity && dstEntity && !SPLASH_DAMAGE_TYPES.includes(pkt.action)) {'
+			'if (srcEntity && dstEntity && packetLaunchesSkill(pkt.SKID, pkt.action)) {'
 		);
+	});
+
+	it('a type 14 packet from a skill that takes splash as normal still plays its effect', async () => {
+		const { packetLaunchesSkill } = await import('DB/Skills/SkillMotionEffect.js');
+		expect(packetLaunchesSkill(2476, 14)).toBe(true); // Cart Tornado
+		expect(packetLaunchesSkill(2476, 5)).toBe(false); // type 5 skipped, as before
 	});
 
 	it('the old ring_jadu cast circle is gone', () => {

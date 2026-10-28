@@ -23,7 +23,7 @@ import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import { hitHasEffects } from 'DB/Skills/SplashHit.js';
-import { SPLASH_DAMAGE_TYPES } from 'DB/Skills/SkillMotionEffect.js';
+import { packetLaunchesSkill } from 'DB/Skills/SkillMotionEffect.js';
 import AttackEffect from 'DB/Monsters/AttackEffectTable.js';
 import Sound from 'Audio/SoundManager.js';
 import Configs from 'Core/Configs.js';
@@ -1818,8 +1818,8 @@ function onEntityUseSkillToAttack(pkt) {
 	EffectManager.spamSkillSplashMark(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, pkt.level);
 	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
 
-	// Not for splash packets (5 or 14): the official client drops them before the caster's motion
-	if (srcEntity && dstEntity && !SPLASH_DAMAGE_TYPES.includes(pkt.action)) {
+	// Not for splash packets (5, or 14 unless the skill takes them as normal ones)
+	if (srcEntity && dstEntity && packetLaunchesSkill(pkt.SKID, pkt.action)) {
 		// && pkt.action != SkillAction.MULTI_HIT
 		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
 		EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
