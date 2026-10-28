@@ -549,7 +549,10 @@ SkillEffect[SK.HW_MAGICCRASHER] = { damageEffectIdOnTarget: 380, hitEffectId: [0
 SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, effectId: 'ef_magicpower' }; //Mystical Amplification
 SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
 // Paladin
-SkillEffect[SK.PA_PRESSURE] = { beforeHitEffectId: 365 }; //Gloria Domini
+// Official client: the holy cast aura (58) whatever the element; 365 on the target as the damage packet
+// arrives (the falling cross, its sound on tick 3, a quake on tick 33); the hit flash 0 when it lands.
+// Nothing on the use packet. See effect-port/paladin-skills.md.
+SkillEffect[SK.PA_PRESSURE] = { castAuraEffectId: 58, damageEffectIdOnTarget: 365, hitEffectId: 0 }; //Gloria Domini
 SkillEffect[SK.PA_SACRIFICE] = { effectId: 366 }; // Martyr's Reckoning
 SkillEffect[SK.PA_GOSPEL] = { effectId: 370, groundEffectId: '370_ground' }; //Battle Chant
 // Champion

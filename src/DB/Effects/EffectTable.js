@@ -8917,30 +8917,34 @@ export default {
 	365: [
 		{
 			//EF_PRESSURE	   Gloria Domini
+			// Official client: on the target as the damage packet arrives. The cross falls for 33 ticks turning
+			// 15 degrees a tick, the screen quakes, then it fades; the sound plays on tick 3
+			// (effect-port/paladin-skills.md).
 			type: '3D',
 			alphaMax: 0.6,
 			attachedEntity: true,
 			blendMode: 2,
-			duration: 500,
+			duration: 550,
 			rotate: true,
 			angle: 0,
-			toAngle: -611,
+			toAngle: -495,
 			poszStart: 20,
 			poszEnd: 5,
 			size: 100,
 			zIndex: 1,
 			file: 'effect/cross_old.bmp',
-			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5',
+			delayWav: 50
 		},
 		{
 			type: '3D',
 			alphaMax: 0.6,
 			attachedEntity: true,
 			blendMode: 2,
-			duration: 500,
-			delayOffset: 501,
+			duration: 667,
+			delayOffset: 551,
 			fadeOut: true,
-			angle: -611,
+			angle: -495,
 			posz: 5,
 			size: 100,
 			zIndex: 1,
@@ -8950,7 +8954,7 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				const start = Params.Inst.startTick + 500;
+				const start = Params.Inst.startTick + 550;
 				Camera.setQuake(start);
 			}
 		}
