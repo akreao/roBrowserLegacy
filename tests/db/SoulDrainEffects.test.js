@@ -17,11 +17,30 @@ function effect378() {
 	return vm.runInNewContext(`(${text})`);
 }
 
+function loadEffectManager(skillTable) {
+	const source = read('Renderer/EffectManager.js')
+		.replace(/^import .*;$/gm, '')
+		.replace('export default EffectManager;', 'this.EffectManager = EffectManager;');
+	const context = vm.createContext({ console, Math, Number, Float32Array, SU: {}, SkillUnit: {}, SkillEffect: skillTable });
+	vm.runInContext(source, context);
+	const spammed = [];
+	context.EffectManager.spam = params => spammed.push(params);
+	return { EffectManager: context.EffectManager, spammed };
+}
+
 describe('Soul Drain effects', () => {
 	it('plays 378 on the caster on success only', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
 			/SkillEffect\[SK\.HW_SOULDRAIN\] = \{ successEffectIdOnCaster: 378 \};/
 		);
+	});
+
+	it('runs only from the success path, on the caster aimed at the target', () => {
+		const { EffectManager, spammed } = loadEffectManager({ 364: { successEffectIdOnCaster: 378 } });
+		EffectManager.spamSkill(364, 20, null, null, 10);
+		expect(spammed).toEqual([]);
+		EffectManager.spamSkillSuccess(364, 20, null, 10, 5);
+		expect(spammed.map(p => [p.effectId, p.ownerAID, p.otherAID])).toEqual([[378, 10, 20]]);
 	});
 
 	it('sends three souls from the target to the caster in one second', () => {
