@@ -351,6 +351,7 @@ export function createSkillList({
 
 		resize(this, _preferences.width, _preferences.height);
 		if (this.getRoot().querySelector('canvas.sitting')) {
+			renderSitting.restart();
 			Renderer.render(renderSitting);
 		}
 		this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 100)}px`;
@@ -1135,7 +1136,7 @@ export function createSkillList({
 			return _sitter;
 		}
 
-		return function renderSittingChar(tick) {
+		function renderSittingChar(tick) {
 			const root = Component.getRoot();
 			if (!_ctx) {
 				_ctx = root.querySelector('canvas.sitting')?.getContext('2d');
@@ -1174,7 +1175,14 @@ export function createSkillList({
 			sitter.renderEntity();
 
 			Camera.direction = cameraDirection;
+		}
+
+		// The head starts ahead again each time the window opens
+		renderSittingChar.restart = function restart() {
+			_start = -1;
 		};
+
+		return renderSittingChar;
 	})();
 
 	// Tree view: mark a skill's slot only while points can go into it,
@@ -1280,6 +1288,7 @@ export function createSkillList({
 			root.querySelectorAll('.footer .btn').forEach(el => {
 				el.style.display = 'none';
 			});
+			root.querySelector('.footer')?.classList.remove('tree');
 
 			if (content) {
 				content.style.width = `${width * 32}px`;
@@ -1324,6 +1333,8 @@ export function createSkillList({
 			root.querySelectorAll('.footer .btn').forEach(el => {
 				el.style.display = 'block';
 			});
+			// The skill points move right of the sitting character
+			root.querySelector('.footer')?.classList.add('tree');
 		}
 	}
 

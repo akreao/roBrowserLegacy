@@ -482,6 +482,44 @@ describe('SkillListV2 sitting character', () => {
 
 		component.onRemove();
 	});
+
+	it('starts the head ahead again when the window opens again', () => {
+		mockCanvas();
+		mocks.MockEntity.made.length = 0;
+		mocks.session.Entity = makePlayer();
+
+		const component = createComponent();
+		component.onAppend();
+		let render = Renderer.render.mock.calls.at(-1)[0];
+		render(0);
+		render(1000);
+		component.onRemove();
+
+		component.onAppend();
+		render = Renderer.render.mock.calls.at(-1)[0];
+		render(5000);
+		expect(mocks.MockEntity.made[0].drawn.map(d => d.headDir)).toEqual([0, 1, 0]);
+
+		component.onRemove();
+	});
+
+	it('moves the skill points right of the character in the tree view only', () => {
+		mockCanvas();
+		mocks.session.Entity = makePlayer();
+		const component = createComponent();
+		component.onAppend();
+		const root = component.getRoot();
+		const footer = root.querySelector('.footer');
+		expect(footer.classList.contains('tree')).toBe(true);
+
+		root.querySelector('.titlebar .mini').click();
+		expect(root.querySelector('.contentbig').style.display).toBe('none');
+		expect(footer.classList.contains('tree')).toBe(false);
+
+		root.querySelector('.titlebar .mini').click();
+		expect(footer.classList.contains('tree')).toBe(true);
+		component.onRemove();
+	});
 });
 
 describe('SkillListV2 upgradable highlight', () => {

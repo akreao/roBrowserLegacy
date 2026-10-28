@@ -190,6 +190,10 @@
 	padding-top: 7px;
 	margin-left: 10px;
 }
+/* tree view: right of the sitting character, 80 px from the window's left edge */
+#SkillListV2 .footer.tree .text {
+	margin-left: 77px;
+}
 #SkillListV2 .footer .btn {
 	position: absolute;
 	top: 5px;
