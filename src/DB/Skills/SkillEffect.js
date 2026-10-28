@@ -605,7 +605,7 @@ SkillEffect[SK.WS_CARTBOOST] = { effectId: 391 }; //Cart Boost
 SkillEffect[SK.WS_SYSTEMCREATE] = {}; //Auto Attack System
 // Stalker
 SkillEffect[SK.ST_CHASEWALK] = { castAuraEffectId: 1195, successEffectIdOnCaster: 'ef_chase_walk_smoke' }; //Stealth: the caster spins while casting (1195), smoke puff on success
-SkillEffect[SK.ST_REJECTSWORD] = { effectId: 392 }; //Counter Instinct
+SkillEffect[SK.ST_REJECTSWORD] = { successEffectIdOnCaster: 392 }; //Counter Instinct: 392 on the caster only when the use packet's result is set
 // Creator
 SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
 SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
