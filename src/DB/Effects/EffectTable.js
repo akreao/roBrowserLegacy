@@ -6398,7 +6398,8 @@ export default {
 			//EF_STRIPWEAPON	Divest Weapon
 			type: 'STR',
 			file: 'strip_weapon',
-			wav: 'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
+			wav: 'effect/\xba\xb9\xc8\xa3\xb0\xdd', // 복호격, on tick 6
+			delayWav: 100,
 			attachedEntity: true
 		}
 	],
@@ -6408,7 +6409,8 @@ export default {
 			//EF_STRIPSHIELD	Divest Shield
 			type: 'STR',
 			file: 'strip_shield',
-			wav: 'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
+			wav: 'effect/\xba\xb9\xc8\xa3\xb0\xdd', // 복호격, on tick 6
+			delayWav: 100,
 			attachedEntity: true
 		}
 	],
@@ -6418,7 +6420,8 @@ export default {
 			//EF_STRIPARMOR	Divest Armor
 			type: 'STR',
 			file: 'strip_armor',
-			wav: 'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
+			wav: 'effect/\xba\xb9\xc8\xa3\xb0\xdd', // 복호격, on tick 6
+			delayWav: 100,
 			attachedEntity: true
 		}
 	],
@@ -6428,7 +6431,8 @@ export default {
 			//EF_STRIPHELM	Divest Helm
 			type: 'STR',
 			file: 'strip_helm',
-			wav: 'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
+			wav: 'effect/\xba\xb9\xc8\xa3\xb0\xdd', // 복호격, on tick 6
+			delayWav: 100,
 			attachedEntity: true
 		}
 	],
