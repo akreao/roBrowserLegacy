@@ -4,11 +4,18 @@ import { describe, expect, it, vi } from 'vitest';
 // effect/ texture once and share it, and the class frees it when its last instance goes.
 
 const loads = vi.hoisted(() => []);
+// When `held` is an array, loads wait in it until the test runs them.
+const pending = vi.hoisted(() => ({ held: null }));
 vi.mock('Core/Client.js', () => ({
 	default: {
 		loadFile(path, onload) {
 			loads.push(path);
-			onload(new ArrayBuffer(4));
+			const done = () => onload(new ArrayBuffer(4));
+			if (pending.held) {
+				pending.held.push(done);
+			} else {
+				done();
+			}
 		}
 	}
 }));
@@ -78,5 +85,19 @@ describe('ThreeDEffect shared textures', () => {
 		expect(deleted).toHaveLength(1);
 		make({ file: 'effect/alpha_down.tga', sharedTexture: true }).init(gl);
 		expect(loads).toHaveLength(2);
+	});
+
+	it('deletes a texture that finishes loading after its last instance was freed', () => {
+		ThreeDEffect.free(gl);
+		deleted.length = 0;
+		pending.held = [];
+		const a = make({ file: 'effect/alpha_down.tga', sharedTexture: true });
+		a.init(gl);
+		a.free(gl);
+		expect(a.ready).toBe(false);
+		const held = pending.held;
+		pending.held = null;
+		held.forEach(run => run());
+		expect(deleted).toHaveLength(1);
 	});
 });
