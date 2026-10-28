@@ -107465,6 +107465,39 @@ function drawOnTop(sex, job, actNum, frame) {
 	if (!frames) return true;
 	return !frames.has(frame);
 }
+/**
+* The whole chunk the loader runs: JOBID set from __GARMENT_JOBID (an unknown name reads -1, which
+* the dump skips), the mounted files run with the plain dofile, the dump returned, JOBID put back.
+* One chunk, so no other loader runs in between.
+*
+* @param {string[]} files mounted file names, in order
+* @return {string} Lua returning the dump
+*/
+function loadChunk(files) {
+	return `
+local savedJobId = JOBID
+JOBID = setmetatable({}, {
+	__index = function(t, k)
+		local id = __GARMENT_JOBID[k]
+		if id == nil then
+			return -1
+		end
+		return id
+	end
+})
+local runFile = __ro_orig_dofile or dofile
+local ok, result = pcall(function()
+${files.map((name) => `runFile(${JSON.stringify(name)})`).join("\n")}
+${DUMP_LUA}
+end)
+JOBID = savedJobId
+__GARMENT_JOBID = nil
+if not ok then
+	error(result)
+end
+return result
+`;
+}
 var tables, inherit, loaded, OFFICIAL_JOB_ALIASES, DUMP_LUA, GarmentLayer_default;
 var init_GarmentLayer = __esmMin((() => {
 	tables = [/* @__PURE__ */ new Map(), /* @__PURE__ */ new Map()];
@@ -107538,6 +107571,7 @@ var init_GarmentLayer = __esmMin((() => {
 		isLoaded,
 		parse: parse$1,
 		drawOnTop,
+		loadChunk,
 		OFFICIAL_JOB_ALIASES,
 		DUMP_LUA
 	};
@@ -223632,7 +223666,8 @@ var init_SkillEffect = __esmMin((() => {
 			377,
 			263
 		],
-		hitEffectId: [0, 1]
+		hitEffectId: 0,
+		firstHitEffectId: 1
 	};
 	SkillEffect[SkillConst_default.CH_CHAINCRUSH] = {
 		damageEffectIdOnCaster: [263, 512],
@@ -224060,7 +224095,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.BS_GREED] = { effectId: "ef_greed_sound" };
 	SkillEffect[SkillConst_default.PR_REDEMPTIO] = {};
 	SkillEffect[SkillConst_default.MO_KITRANSLATION] = {};
-	SkillEffect[SkillConst_default.MO_BALKYOUNG] = { hitEffectId: 2 };
+	SkillEffect[SkillConst_default.MO_BALKYOUNG] = { firstHitEffectId: 2 };
 	SkillEffect[SkillConst_default.SA_ELEMENTGROUND] = { successEffectId: 258 };
 	SkillEffect[SkillConst_default.SA_ELEMENTFIRE] = { successEffectId: 255 };
 	SkillEffect[SkillConst_default.SA_ELEMENTWIND] = { successEffectId: 257 };
@@ -337549,38 +337584,20 @@ function loadGarmentLayers(path, onEnd) {
 			for (const [key, value] of Object.entries(JobConst_default)) jobId[`JT_${key}`] = value;
 			const ctx = lua.ctx;
 			ctx.__GARMENT_JOBID = jobId;
-			const run = [];
+			const names = [];
 			for (let i = 0; i < files.length; i++) {
 				if (!buffers[i]) continue;
 				const name = "garmentlayer_" + files[i];
 				const buffer = buffers[i] instanceof ArrayBuffer ? new Uint8Array(buffers[i]) : buffers[i];
 				lua.mountFile(name, buffer);
 				mounted.push(name);
-				run.push(`(__ro_orig_dofile or dofile)("${name}")`);
+				names.push(name);
 			}
-			const dump = await lua.doString(`
-				local savedJobId = JOBID
-				JOBID = setmetatable({}, {
-					__index = function(t, k)
-						local id = __GARMENT_JOBID[k]
-						if id == nil then
-							return -1
-						end
-						return id
-					end
-				})
-				local ok, result = pcall(function()
-					${run.join("\n")}
-					${GarmentLayer_default.DUMP_LUA}
-				end)
-				JOBID = savedJobId
-				__GARMENT_JOBID = nil
-				if not ok then
-					error(result)
-				end
-				return result
-			`);
-			if (generation === garmentLayerGeneration && dump) GarmentLayer_default.parse(typeof dump === "string" ? dump : new TextDecoder().decode(dump));
+			const dump = await lua.doString(GarmentLayer_default.loadChunk(names));
+			if (generation === garmentLayerGeneration && dump) {
+				GarmentLayer_default.parse(typeof dump === "string" ? dump : new TextDecoder().decode(dump));
+				console.log(`[loadGarmentLayers] garment tables: female ${GarmentLayer_default.isLoaded(0)}, male ${GarmentLayer_default.isLoaded(1)}`);
+			}
 		} catch (error) {
 			console.error("[loadGarmentLayers] Error: ", error);
 		} finally {
