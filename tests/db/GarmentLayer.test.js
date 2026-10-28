@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it } from 'vitest';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import GarmentLayer from 'DB/Items/GarmentLayer.js';
@@ -122,6 +122,7 @@ io.write(assert(loadstring(${JSON.stringify(
 		)}))())
 assert(JOBID == "before" and __GARMENT_JOBID == nil)`;
 		const r = spawnSync('lua5.1', ['-'], { input: lua, encoding: 'utf8', cwd: dir });
+		rmSync(dir, { recursive: true, force: true });
 		expect(r.stderr).toBe('');
 		expect(r.stdout.split('\n').sort()).toEqual(['F 0 1 36 0.1', 'I 4060 4054']);
 	});

@@ -7068,10 +7068,7 @@ function loadGarmentLayers(path, onEnd) {
 			if (generation === garmentLayerGeneration && dump) {
 				GarmentLayer.parse(typeof dump === 'string' ? dump : new TextDecoder().decode(dump));
 				console.log(
-					'[loadGarmentLayers] garment tables: female ' +
-						GarmentLayer.isLoaded(0) +
-						', male ' +
-						GarmentLayer.isLoaded(1)
+					`[loadGarmentLayers] garment tables: female ${GarmentLayer.isLoaded(0)}, male ${GarmentLayer.isLoaded(1)}`
 				);
 			}
 		} catch (error) {
