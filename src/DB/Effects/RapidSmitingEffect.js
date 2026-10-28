@@ -11,6 +11,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import Events from 'Core/Events.js';
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import { trailAt } from 'Renderer/Effects/ShieldBoomerangSim.js';
 import {
@@ -27,8 +28,10 @@ const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
 
 /**
  * Where a shield flies through: the target's position on the tick the shield
- * is launched, taken once (by whichever of its four sprites draws first) and
- * kept for its flight, as the client does.
+ * is launched, taken once and kept for its flight, as the client does. The
+ * effect clock takes it (take(), on a timer for the launch tick), so a
+ * texture still loading does not move it; if a sprite draws before the timer
+ * runs, its first draw takes it instead. All four sprites of a shield share it.
  *
  * @param {?object} entity the target
  * @param {number[]} base the sprites' position (the target's at packet arrival)
@@ -37,11 +40,14 @@ const SIZE_PER_UNIT = 35 / UNITS_PER_CELL;
 export function launchCentre(entity, base) {
 	return {
 		at: null,
-		offset() {
+		take() {
 			if (!this.at) {
 				const p = entity && entity.position ? entity.position : base;
 				this.at = [p[0] - base[0], p[1] - base[1], p[2] - base[2]];
 			}
+		},
+		offset() {
+			this.take();
 			return this.at;
 		}
 	};
@@ -107,6 +113,7 @@ export const rapidSmitingEffect = [
 			for (let i = 0; i < SMITE.count; i++) {
 				const plan = planShield(randomHeading());
 				const centre = launchCentre(entity, at);
+				Events.setTimeout(() => centre.take(), launchTick(i) * PRIM_TICK_MS);
 				[-1, 0, 1, 2].forEach((copy, c) => {
 					this.spamEffect({
 						effect: smiteShieldEffect(plan, launchTick(i), copy, centre),

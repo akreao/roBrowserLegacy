@@ -95,4 +95,14 @@ describe('shield sprites', () => {
 		target.position = [12, 10, 0]; // the flight keeps its launch centre
 		expect(late.track(12 + 16).x).toBeCloseTo(1 + 2.5 / 5);
 	});
+
+	it('take the launch centre on the effect clock, not when the texture is ready', () => {
+		const target = { position: [10, 10, 0] };
+		const centre = launchCentre(target, [10, 10, 0]);
+		const shield = smiteShieldEffect(planShield(0), 12, -1, centre);
+		target.position = [11, 10, 0];
+		centre.take(); // the launch-tick timer
+		target.position = [14, 10, 0]; // walked on while the texture loaded
+		expect(shield.track(12 + 15).x).toBeCloseTo(1);
+	});
 });
