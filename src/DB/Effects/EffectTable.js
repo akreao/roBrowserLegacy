@@ -49,6 +49,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import {
 	acidTerrorEffect,
+	aidPotionEffect,
 	ninjaThrowEffects,
 	throwStoneEffect,
 	throwVenomKnifeEffect
@@ -6942,7 +6943,8 @@ export default {
 	// EF_THROWITEM, Acid Terror: the client's thrown bottle with its trail (ThrowStoneEffect.js)
 	298: acidTerrorEffect,
 
-	//299: [{}],	//EF_THROWITEM2	   (Nothing)
+	// EF_THROWITEM2, Aid Potion: the client's thrown potion bottle, coloured by level (ThrowStoneEffect.js)
+	299: aidPotionEffect,
 
 	300: [
 		{

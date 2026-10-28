@@ -65,7 +65,8 @@
  *								A function gets the packet's level field and returns the effect(s).
  *
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
- *								Can be used for non-damaging skills that has an effect by a chance
+ *								Can be used for non-damaging skills that has an effect by a chance.
+ *								The effect gets the packet's level field as skillLevel.
  *
  *	- successEffectIdOnCasterByScreenDirection:
  *								12 effects; plays one on the caster when the skill succeeds, picked by where
@@ -403,7 +404,9 @@ SkillEffect[SK.AM_DEMONSTRATION] = { groundEffectId: 302 }; //Bomb
 // Official client: 298 (the bottle) thrown from the caster at the target as each damage packet
 // arrives, misses included; each hit that lands plays the hit flash (0). See effect-port/alchemist-skills.md.
 SkillEffect[SK.AM_ACIDTERROR] = { damageEffectIdOnCaster: 298, hitEffectId: 0 }; //Acid Terror
-SkillEffect[SK.AM_POTIONPITCHER] = { effectId: 299 }; //Aid Potion
+// Official client: when the skill succeeds, 299 (a potion bottle tinted by the skill level) thrown from
+// the caster at the target. See effect-port/alchemist-skills.md.
+SkillEffect[SK.AM_POTIONPITCHER] = { successEffectIdOnCaster: 299 }; //Aid Potion
 SkillEffect[SK.AM_CANNIBALIZE] = {}; //Summon Flora
 SkillEffect[SK.AM_SPHEREMINE] = {}; //Summon Marine Sphere
 SkillEffect[SK.AM_CP_WEAPON] = { effectId: 300 }; //Alchemical Weapon

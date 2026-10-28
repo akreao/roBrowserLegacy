@@ -1172,7 +1172,8 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: srcAID,
 					startTick: tick,
-					otherAID: destAID
+					otherAID: destAID,
+					skillLevel: level
 				};
 
 				EffectManager.spam(EF_Init_Par);

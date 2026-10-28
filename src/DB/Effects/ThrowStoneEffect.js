@@ -8,7 +8,9 @@
  *    bigger, faster, flat and spinning fast, tinted pink;
  *  - 600 (EF_THROWITEM6), Throw Venom Knife's knife, the Ninja's flight;
  *  - 298 (EF_THROWITEM), Acid Terror's green bottle, in a high arc, always
- *    25 ticks in flight.
+ *    25 ticks in flight;
+ *  - 299 (EF_THROWITEM2), Aid Potion's potion bottle, the same flight, tinted
+ *    by the skill level.
  * Motion in Renderer/Effects/ThrownStoneSim.js. Specs: effect-port/thief-skills.md,
  * effect-port/ninja-skills.md, effect-port/assassin-skills.md, effect-port/alchemist-skills.md.
  *
@@ -21,8 +23,10 @@ import {
 	NINJA_ITEM,
 	STONE,
 	STONE_TEXTURE,
+	POTION_BOTTLE,
 	VENOM_KNIFE,
 	planThrow,
+	potionBottle,
 	stoneAt,
 	trailAt
 } from 'Renderer/Effects/ThrownStoneSim.js';
@@ -83,7 +87,8 @@ export function stoneEffect(t, copy, file = t.kind.texture || STONE_TEXTURE) {
 				};
 			}
 		},
-		color && { red: color[0] / 255, green: color[1] / 255, blue: color[2] / 255 }
+		color && { red: color[0] / 255, green: color[1] / 255, blue: color[2] / 255 },
+		t.kind.blendMode && { blendMode: t.kind.blendMode }
 	);
 }
 
@@ -92,7 +97,8 @@ export function stoneEffect(t, copy, file = t.kind.texture || STONE_TEXTURE) {
  *
  * @param {number} effectID
  * @param {string} file texture
- * @param {object} kind STONE or NINJA_ITEM
+ * @param {object|function} kind STONE, NINJA_ITEM, a BOTTLE, or a function of
+ *   the skill level returning one (null: nothing is drawn)
  * @return {Array}
  */
 export function thrownItemRow(effectID, file, kind) {
@@ -103,14 +109,15 @@ export function thrownItemRow(effectID, file, kind) {
 			func: function (Params) {
 				const caster = Params.Init.ownerEntity.position;
 				const target = Params.Init.otherEntity && Params.Init.otherEntity.position;
-				if (!target) {
+				const thrown = typeof kind === 'function' ? kind(Params.Init.skillLevel) : kind;
+				if (!target || !thrown) {
 					return;
 				}
 				const at = [caster[0], caster[1], caster[2]];
 				const t = planThrow(
 					[0, 0, 0],
 					[0, 1, 2].map(i => (target[i] - caster[i]) * UNITS_PER_CELL),
-					kind
+					thrown
 				);
 				[-1, 0, 1, 2].forEach((copy, i) => {
 					this.spamEffect({
@@ -132,6 +139,9 @@ export const throwVenomKnifeEffect = thrownItemRow(600, VENOM_KNIFE.texture, VEN
 
 /** EffectTable row for 298 (EF_THROWITEM): Acid Terror's bottle, no sound. */
 export const acidTerrorEffect = thrownItemRow(298, ACID_BOTTLE.texture, ACID_BOTTLE);
+
+/** EffectTable row for 299 (EF_THROWITEM2): Aid Potion's bottle, its colour the skill level, no sound. */
+export const aidPotionEffect = thrownItemRow(299, POTION_BOTTLE.texture, potionBottle);
 
 /** EffectTable rows for 613-616 (Throw Shuriken, Kunai, Huuma, Zeny): no sound of their own. */
 export const ninjaThrowEffects = Object.fromEntries(
