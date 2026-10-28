@@ -223534,10 +223534,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_ALCHEMY] = {};
 	SkillEffect[SkillConst_default.CR_SYNTHESISPOTION] = {};
 	SkillEffect[SkillConst_default.CG_ARROWVULCAN] = {
+		castAuraEffectId: 58,
 		damageEffectIdOnCaster: 393,
 		damageEffectIdOnTarget: "ef_arrow_projectile",
-		hitEffectId: [0, 1],
-		hitEffectOnce: true
+		hitEffectId: 0,
+		firstHitEffectId: 1
 	};
 	SkillEffect[SkillConst_default.CG_MOONLIT] = {
 		successEffectId: 394,
