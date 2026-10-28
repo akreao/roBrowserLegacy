@@ -223509,7 +223509,10 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 0,
 		firstHitEffectId: 1
 	};
-	SkillEffect[SkillConst_default.SN_WINDWALK] = { effectId: 389 };
+	SkillEffect[SkillConst_default.SN_WINDWALK] = {
+		castAuraEffectId: 58,
+		successEffectIdOnCaster: 389
+	};
 	SkillEffect[SkillConst_default.WS_MELTDOWN] = { effectId: 390 };
 	SkillEffect[SkillConst_default.WS_CREATECOIN] = {};
 	SkillEffect[SkillConst_default.WS_CREATENUGGET] = {};
@@ -225799,6 +225802,19 @@ var init_SkillEffect = __esmMin((() => {
 	};
 }));
 // src/DB/Skills/SkillMotionEffect.js
+/**
+* Does this damage packet, on a known target, launch the skill's release and
+* main effects? Not for a type 5 splash packet, as before, and not for a
+* type 14 one unless the skill treats splash packets as normal ones.
+*
+* @param {number} skillId
+* @param {number} damageType the packet's action field
+* @return {boolean}
+*/
+function packetLaunchesSkill(skillId, damageType) {
+	if (damageType === 5) return false;
+	return damageType !== 14 || SPLASH_AS_NORMAL.includes(skillId);
+}
 /**
 * The skill's motion effect, or null when it has none (or roBrowser does not know it).
 *
@@ -287324,6 +287340,19 @@ var init_CasterMarks = __esmMin((() => {
 				color: on ? even ? YELLOW : WHITE : null
 			};
 		},
+		389: (age) => {
+			const on = age >= 5 && age <= 25;
+			return {
+				add: on,
+				glow: false,
+				split: false,
+				color: on ? [
+					220,
+					250,
+					220
+				] : null
+			};
+		},
 		599: (age) => {
 			const on = age >= 5 && age <= 25;
 			const even = age % 2 === 0;
@@ -302364,6 +302393,12 @@ var init_EffectTable = __esmMin((() => {
 		389: [{
 			wav: "effect/À©µå¿öÅ©",
 			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 200, 389), Params);
+			}
 		}],
 		390: [{
 			type: "STR",
@@ -363883,7 +363918,7 @@ function onEntityUseSkillToAttack(pkt) {
 	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, void 0, pkt.count);
 	EffectManager.spamSkillSplashMark(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, pkt.level);
 	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
-	if (srcEntity && dstEntity && !SPLASH_DAMAGE_TYPES.includes(pkt.action)) {
+	if (srcEntity && dstEntity && packetLaunchesSkill(pkt.SKID, pkt.action)) {
 		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
 		EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 	}
