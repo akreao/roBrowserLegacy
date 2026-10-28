@@ -3729,12 +3729,13 @@ export default {
 			attachedEntity: true
 		},
 		{
+			// The official client plays the sound on ticks 20 (333 ms) and 55 (917 ms)
 			wav: 'effect/black_weapon_repair_a',
-			delayWav: 480
+			delayWav: 333
 		},
 		{
 			wav: 'effect/black_weapon_repair_a',
-			delayWav: 1320
+			delayWav: 917
 		}
 	],
 
