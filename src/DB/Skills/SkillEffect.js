@@ -702,7 +702,10 @@ SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion
 SkillEffect[SK.CR_FULLPROTECTION] = { effectId: [300, 500] }; //Full Protection
-SkillEffect[SK.PA_SHIELDCHAIN] = { beforeHitEffectId: 'ef_shield_projectile' }; //Shield Chain
+// Official client: the holy cast aura (58) whatever the element; 520 on the target as the damage packet arrives
+// (cru_shield boomerang.wav and five shields flying in from random sides); the hit flash 0 on every hit as
+// it lands, 200 ms apart. Nothing on the use packet. See effect-port/paladin-skills.md.
+SkillEffect[SK.PA_SHIELDCHAIN] = { castAuraEffectId: 58, damageEffectIdOnTarget: 520, hitEffectId: 0 }; //Rapid Smiting
 SkillEffect[SK.PF_DOUBLECASTING] = { effectId: 521 }; //Double Casting
 SkillEffect[SK.HW_GANBANTEIN] = { effectId: [223, 'ef_ganbantein_wav'] }; //Ganbantein
 SkillEffect[SK.HW_GRAVITATION] = { groundEffectIdByLevel: ['ef_gravitation_wav'], groundEffectId: '522_ground', hitEffectId: [0] }; //Gravitation Field
