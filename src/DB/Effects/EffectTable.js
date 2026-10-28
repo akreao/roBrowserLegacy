@@ -29,7 +29,6 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
 import LPEffect from 'Renderer/Effects/LPEffect.js';
-import MagicRing from 'Renderer/Effects/MagicRing.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
