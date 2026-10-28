@@ -640,7 +640,7 @@ SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of 
 SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Moon: on the source, only on success
 SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Stars: on the source, only on success
 SkillEffect[SK.SG_HATE] = { castAuraEffectId: 441, successEffectId: 'sg_hate_sound' }; //Hatred of the Sun Moon and Stars: blue cast aura; the sound on success
-SkillEffect[SK.SG_FUSION] = { effectId: [433, 'quake'] }; //Union of the Sun Moon and Stars
+SkillEffect[SK.SG_FUSION] = { castAuraEffectId: 441, successEffectIdOnCaster: ['sg_fusion_sound', 'quake'] }; //Union of the Sun Moon and Stars: blue cast aura; sound and quake on success
 // Alchemist
 SkillEffect[SK.AM_BERSERKPITCHER] = { beforeHitEffectId: 541, effectId: 220 }; //Aid Berserk Potion
 // Soul Linker

@@ -19450,6 +19450,15 @@ export default {
 		}
 	],
 
+	// Union of the Sun, Moon and Stars on success: the official client plays T_변신.wav at the player
+	// (the screen quake is the separate 'quake' row).
+	sg_fusion_sound: [
+		{
+			wav: 'effect/t_\xba\xaf\xbd\xc5',
+			attachedEntity: true
+		}
+	],
+
 	ef_greed_sound: [
 		{
 			wav: 'effect/ef_entry',
