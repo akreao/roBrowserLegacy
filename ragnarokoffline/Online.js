@@ -223305,7 +223305,11 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: "ef_magicpower"
 	};
 	SkillEffect[SkillConst_default.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
-	SkillEffect[SkillConst_default.PA_PRESSURE] = { beforeHitEffectId: 365 };
+	SkillEffect[SkillConst_default.PA_PRESSURE] = {
+		castAuraEffectId: 58,
+		damageEffectIdOnTarget: 365,
+		hitEffectId: 0
+	};
 	SkillEffect[SkillConst_default.PA_SACRIFICE] = { effectId: 366 };
 	SkillEffect[SkillConst_default.PA_GOSPEL] = {
 		effectId: 370,
@@ -301689,26 +301693,27 @@ var init_EffectTable = __esmMin((() => {
 				alphaMax: .6,
 				attachedEntity: true,
 				blendMode: 2,
-				duration: 500,
+				duration: 550,
 				rotate: true,
 				angle: 0,
-				toAngle: -611,
+				toAngle: -495,
 				poszStart: 20,
 				poszEnd: 5,
 				size: 100,
 				zIndex: 1,
 				file: "effect/cross_old.bmp",
-				wav: "effect/ÇÁ·¹¼Å"
+				wav: "effect/ÇÁ·¹¼Å",
+				delayWav: 50
 			},
 			{
 				type: "3D",
 				alphaMax: .6,
 				attachedEntity: true,
 				blendMode: 2,
-				duration: 500,
-				delayOffset: 501,
+				duration: 667,
+				delayStart: 551,
 				fadeOut: true,
-				angle: -611,
+				angle: -495,
 				posz: 5,
 				size: 100,
 				zIndex: 1,
@@ -301718,7 +301723,7 @@ var init_EffectTable = __esmMin((() => {
 				type: "FUNC",
 				attachedEntity: true,
 				func: function(Params) {
-					const start = Params.Inst.startTick + 500;
+					const start = Params.Inst.startTick + 550;
 					Camera.setQuake(start);
 				}
 			}
