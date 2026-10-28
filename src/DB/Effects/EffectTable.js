@@ -8942,7 +8942,7 @@ export default {
 			attachedEntity: true,
 			blendMode: 2,
 			duration: 667,
-			delayOffset: 551,
+			delayStart: 551,
 			fadeOut: true,
 			angle: -495,
 			posz: 5,
