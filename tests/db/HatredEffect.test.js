@@ -11,9 +11,9 @@ const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'),
 const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
 
 describe('Hatred effects', () => {
-	it('casts with the blue aura and plays the sound only on success', () => {
+	it('casts with the blue aura and plays the sound on the caster only on success', () => {
 		expect(skills).toMatch(
-			/SkillEffect\[SK\.SG_HATE\] = \{ castAuraEffectId: 441, successEffectId: 'sg_hate_sound' \};/
+			/SkillEffect\[SK\.SG_HATE\] = \{ castAuraEffectId: 441, successEffectIdOnCaster: 'sg_hate_sound' \};/
 		);
 	});
 
