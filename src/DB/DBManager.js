@@ -34,6 +34,7 @@ import WeaponTypeExpansion from './Items/WeaponTypeExpansion.js';
 import WeaponSoundTable from './Items/WeaponSoundTable.js';
 import WeaponHitSoundTable from './Items/WeaponHitSoundTable.js';
 import RobeTable from './Items/RobeTable.js';
+import GarmentLayer from './Items/GarmentLayer.js';
 import RandomOption from 'DB/Items/ItemRandomOptionTable.js';
 import WorldMap from './Map/WorldMap.js';
 import SKID from './Skills/SkillConst.js';
@@ -547,6 +548,9 @@ class DB {
 					? loadWeaponTable(customWeapons[index], null, () => loadCustomWeapon(index + 1))
 					: onWeaponEnd();
 			loadWeaponTable(DB.LUA_PATH + 'datainfo/weapontable.lub', null, () => loadCustomWeapon());
+
+			// Garment over or under the body, per job, action, direction and frame
+			loadGarmentLayers(DB.LUA_PATH + 'spreditinfo/', onLoad());
 
 			// Title tables
 			if (PACKETVER.value >= 20170208) {
@@ -6998,6 +7002,91 @@ function loadWeaponTable(filename, callback, onEnd) {
 		},
 		onEnd
 	);
+}
+
+/**
+ * Load the client's garment layer tables (see DB/Items/GarmentLayer.js):
+ * spreditinfo/_new_2dlayerdir_f.lub, _new_biglayerdir_female.lub and _new_biglayerdir_male.lub.
+ * A missing file is skipped; with none, garments keep the built-in ordering.
+ *
+ * @param {string} path folder holding the three files
+ * @param {function} onEnd to run when done
+ */
+function loadGarmentLayers(path, onEnd) {
+	const files = ['_new_2dlayerdir_f.lub', '_new_biglayerdir_female.lub', '_new_biglayerdir_male.lub'];
+	const mounted = [];
+
+	const loadFile = name =>
+		new Promise(resolve => {
+			Client.loadFile(
+				path + name,
+				file => resolve(file),
+				() => resolve(null)
+			);
+		});
+
+	(async () => {
+		try {
+			const buffers = await Promise.all(files.map(loadFile));
+			if (!buffers.some(Boolean)) {
+				return;
+			}
+
+			// The tables name jobs with JOBID.JT_*; an unknown name gets -1, which the dump skips.
+			// One chunk sets JOBID, runs the files, dumps and puts JOBID back, so no other
+			// loader runs in between.
+			const jobId = { ...GarmentLayer.OFFICIAL_JOB_ALIASES };
+			for (const [key, value] of Object.entries(JobId)) {
+				jobId[`JT_${key}`] = value;
+			}
+			const ctx = lua.ctx;
+			ctx.__GARMENT_JOBID = jobId;
+			ctx.SetGarmentLayers = dump => {
+				GarmentLayer.parse(typeof dump === 'string' ? dump : new TextDecoder().decode(dump));
+			};
+
+			const run = [];
+			for (let i = 0; i < files.length; i++) {
+				if (!buffers[i]) {
+					continue;
+				}
+				const name = 'garmentlayer_' + files[i];
+				const buffer = buffers[i] instanceof ArrayBuffer ? new Uint8Array(buffers[i]) : buffers[i];
+				lua.mountFile(name, buffer);
+				mounted.push(name);
+				// the plain dofile: the file is mounted, nothing to look up
+				run.push(`(__ro_orig_dofile or dofile)("${name}")`);
+			}
+
+			GarmentLayer.clear();
+			await lua.doString(`
+				local savedJobId = JOBID
+				JOBID = setmetatable({}, {
+					__index = function(t, k)
+						local id = __GARMENT_JOBID[k]
+						if id == nil then
+							return -1
+						end
+						return id
+					end
+				})
+				local ok, err = pcall(function()
+					${run.join('\n')}
+					${GarmentLayer.DUMP_LUA}
+				end)
+				JOBID = savedJobId
+				__GARMENT_JOBID = nil
+				if not ok then
+					error(err)
+				end
+			`);
+		} catch (error) {
+			console.error('[loadGarmentLayers] Error: ', error);
+		} finally {
+			mounted.forEach(name => lua.unmountFile(name));
+			onEnd();
+		}
+	})();
 }
 
 /**
