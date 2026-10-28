@@ -14,6 +14,7 @@ import Camera from 'Renderer/Camera.js';
 import Ground from 'Renderer/Map/Ground.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import Renderer from 'Renderer/Renderer.js';
+import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
 // Default fog for STR attachments
 const _defaultFog = {
@@ -80,7 +81,10 @@ class AttachmentManager {
 		attachment.duration = attachment.duration || 0;
 		attachment.stopAtEnd = attachment.stopAtEnd || false;
 		attachment.delay = attachment.delay || false;
+		attachment.startDelay = attachment.startDelay || 0;
 		attachment.renderBefore = attachment.renderBefore || false;
+		// Size factor for effect sprites the official client scales up (Lightning Jolt's 2.5)
+		attachment.scale = attachment.scale || 1.0;
 
 		if (attachment.completeFile) {
 			attachment.spr = attachment.completeFile + '.spr';
@@ -118,7 +122,7 @@ class AttachmentManager {
 		Client.loadFile(
 			attachment.spr,
 			function onLoad() {
-				attachment.startTick = Renderer.tick || Date.now();
+				attachment.startTick = (Renderer.tick || Date.now()) + attachment.startDelay;
 				this.list.push(attachment);
 			}.bind(this),
 			null,
@@ -374,6 +378,7 @@ class AttachmentManager {
 				depth: SpriteRenderer.depth,
 				zIndex: zIdx,
 				opacity: attachment.opacity,
+				scale: attachment.scale,
 				position: [SpriteRenderer.position[0], SpriteRenderer.position[1], SpriteRenderer.position[2]]
 			});
 		}
@@ -381,7 +386,14 @@ class AttachmentManager {
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			SpriteRenderer.zIndex = zIdx;
 			for (i = 0, count = layers.length; i < count; ++i) {
-				self.entity.renderLayer(layers[i], spr, spr, 1.0, _position, false);
+				self.entity.renderLayer(
+					attachment.scale === 1 ? layers[i] : scaledLayer(layers[i], attachment.scale),
+					spr,
+					spr,
+					attachment.scale,
+					_position,
+					false
+				);
 			}
 		});
 

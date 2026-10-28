@@ -6,7 +6,7 @@ import vm from 'node:vm';
 // First Aid (NV_FIRSTAID, effect 309) as the official client draws it.
 // Spec: effect-port/first-aid.md.
 
-const { twoDAlpha } = await import('Renderer/Effects/TwoDEffect.js');
+const { twoDAlpha, twoDPulse } = await import('Renderer/Effects/TwoDEffect.js');
 
 const TICK = 1000 / 60;
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
@@ -23,8 +23,8 @@ function effectEntry(id) {
 describe('First Aid (effect 309)', () => {
 	const [sprite] = effectEntry(309);
 
-	it('is still the skill effect of NV_FIRSTAID', () => {
-		expect(read('DB/Skills/SkillEffect.js')).toMatch(/SkillEffect\[SK\.NV_FIRSTAID\] = \{ effectId: 309 \};/);
+	it('is the skill effect of NV_FIRSTAID, on the source of a successful use packet', () => {
+		expect(read('DB/Skills/SkillEffect.js')).toMatch(/SkillEffect\[SK\.NV_FIRSTAID\] = \{ successEffectIdOnCaster: 309 \};/);
 	});
 
 	it('is one additive pikapika2 billboard, 4 cells across, 2.4 cells up, tinted (150, 150, 250)', () => {
@@ -55,6 +55,20 @@ describe('First Aid (effect 309)', () => {
 		expect(at(100)).toBeCloseTo(80, 6);
 		expect(at(140)).toBeCloseTo(40, 6); // -1 a tick
 		expect(at(180)).toBeCloseTo(0, 6);
+	});
+	it('pulses its size by +-5 %, 3 deg a tick from a random phase (one pulse every 2 s)', () => {
+		expect(sprite.sizePulse).toEqual({ amount: 0.05, degPerTick: 3 });
+		const fx = { sizePulse: sprite.sizePulse, pulsePhase: 0 };
+		expect(twoDPulse(fx, 0)).toBeCloseTo(1, 6);
+		expect(twoDPulse(fx, 30 * TICK)).toBeCloseTo(1.05, 6); // 90 deg
+		expect(twoDPulse(fx, 90 * TICK)).toBeCloseTo(0.95, 6); // 270 deg
+		expect(twoDPulse(fx, 120 * TICK)).toBeCloseTo(1, 6); // full cycle
+		expect(twoDPulse({ sizePulse: sprite.sizePulse, pulsePhase: 90 }, 0)).toBeCloseTo(1.05, 6);
+		expect(twoDPulse({}, 500)).toBe(1);
+	});
+
+	it('stays where the caster stood at launch', () => {
+		expect(sprite.attachedEntity).toBeFalsy();
 	});
 });
 

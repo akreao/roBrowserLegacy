@@ -171,6 +171,44 @@
 	width: 115px;
 	white-space: nowrap;
 }
+/*
+ * A player's shop shows prices up to 1,000,000,000 z, and a long item name ran
+ * on under the price. In a vending shop the name and the price are laid out
+ * side by side instead: the price keeps its width and the name takes what is
+ * left, cut with an ellipsis. The icon, amount and Z stay where they were.
+ */
+#NpcStore .content .item.fitName {
+	display: flex;
+	box-sizing: border-box;
+	height: 32px;
+	padding: 13px 16px 0 32px;
+}
+#NpcStore .content .item.fitName .name,
+#NpcStore .content .item.fitName .price {
+	position: static;
+}
+#NpcStore .content .item.fitName .name {
+	flex: 1 1 auto;
+	width: auto;
+	min-width: 0;
+	padding-right: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#NpcStore .content .item.fitName .price {
+	flex: 0 0 auto;
+}
+/*
+ * A buying store puts its red quantity column at 160px, between the name and
+ * the price, so there the name is cut to end before that column.
+ */
+#NpcStore .content .item .amountBuying + .name {
+	box-sizing: border-box;
+	width: 128px;
+	padding-right: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 #NpcStore .content .item .price {
 	position: absolute;
 	top: 13px;

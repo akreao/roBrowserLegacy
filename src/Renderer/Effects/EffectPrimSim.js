@@ -12,6 +12,8 @@
  *  - 'ring':   a flat textured band (an outer and an inner circle), growing outwards.
  *  - 'sphere': a textured sphere, growing and spinning around the vertical axis.
  *  - 'quad':   a flat textured square lying level, centred on the position (official type 15).
+ *  - 'cone':   a textured band between two circles on one axis (official type 13), tilted and
+ *              turned, drifting along its axis.
  *
  * Effect description keys (all optional except prim and texture):
  *  - prim {string}          'ring', 'sphere' or 'quad'
@@ -36,7 +38,24 @@
  *  - sizeChangeFrame {number}  tick on which sizeSpeed and sizeAccel are replaced (default none)
  *  - sizeChangeSpeed {number}  sizeSpeed from that tick
  *  - sizeChangeAccel {number}  sizeAccel from that tick
- *  - height {number}        quad height above the ground (default 0)
+ *  - height {number}        quad or cone height above the ground (default 0)
+ *  - radiusChangeFrame {number}  tick on which the ring's radiusSpeed and radiusAccel are replaced
+ *  - radiusChangeSpeed {number}  radiusSpeed from that tick
+ *  - radiusChangeAccel {number}  radiusAccel from that tick
+ *
+ * Cone keys (the band runs from the base circle to the top circle):
+ *  - baseRadius, baseSpeed, baseAccel {number}   base circle radius and its growth
+ *  - topRadius, topSpeed, topAccel {number}      top circle radius and its growth
+ *  - coneHeight, coneHeightSpeed, coneHeightAccel {number}  distance between the circles and
+ *                           its growth, never over coneHeightMax (default 100)
+ *  - pitch {number}         tilt in degrees: 0 keeps the axis upright (top above base),
+ *                           -90 lays it level
+ *  - yaw {number}           turn in degrees around the vertical
+ *  - facing {boolean}       yaw is 180 minus the owner's facing angle (with pitch -90 the band
+ *                           opens the way the owner faces); yaw is then added on top
+ *  - drift, driftAccel {number}  speed along the axis, toward the top circle, and its change
+ *  - driftStart {number}    distance already drifted along the axis on the first tick (default 0)
+ *  - offsetX, offsetY {number}  shift from the position along the map's x and y, in units (default 0)
  */
 
 /**
@@ -84,8 +103,56 @@ export function createPrimState(effect) {
 		sizeAccel: num(effect.sizeAccel, 0),
 		sizeChangeFrame: num(effect.sizeChangeFrame, -1),
 		sizeChangeSpeed: num(effect.sizeChangeSpeed, 0),
-		sizeChangeAccel: num(effect.sizeChangeAccel, 0)
+		sizeChangeAccel: num(effect.sizeChangeAccel, 0),
+		radiusChangeFrame: num(effect.radiusChangeFrame, -1),
+		radiusChangeSpeed: num(effect.radiusChangeSpeed, 0),
+		radiusChangeAccel: num(effect.radiusChangeAccel, 0),
+		baseRadius: num(effect.baseRadius, 0),
+		baseSpeed: num(effect.baseSpeed, 0),
+		baseAccel: num(effect.baseAccel, 0),
+		topRadius: num(effect.topRadius, 0),
+		topSpeed: num(effect.topSpeed, 0),
+		topAccel: num(effect.topAccel, 0),
+		coneHeight: num(effect.coneHeight, 0),
+		coneHeightSpeed: num(effect.coneHeightSpeed, 0),
+		coneHeightAccel: num(effect.coneHeightAccel, 0),
+		coneHeightMax: num(effect.coneHeightMax, 100),
+		pitch: num(effect.pitch, 0),
+		drift: num(effect.drift, 0),
+		driftAccel: num(effect.driftAccel, 0),
+		driftOffset: num(effect.driftStart, 0)
 	};
+}
+
+/**
+ * Facing angle of an owner in the official client's convention, from a roBrowser
+ * direction (0 south, then clockwise: 1 south-west ... 7 south-east).
+ * The client measures it as atan2(dx, -dz) in degrees, 0..360; with the map's
+ * y taken as the client's z that puts 0 on south and 90 on east.
+ *
+ * @param {number} direction roBrowser direction 0-7
+ * @return {number} degrees
+ */
+export function facingAngle(direction) {
+	const DX = [0, -1, -1, -1, 0, 1, 1, 1];
+	const DY = [-1, -1, 0, 1, 1, 1, 0, -1];
+	const d = (((Math.round(direction) || 0) % 8) + 8) % 8;
+	const angle = (Math.atan2(DX[d], -DY[d]) * 180) / Math.PI;
+	return (angle + 360) % 360;
+}
+
+/**
+ * Turn a primitive by its owner's facing, the way the client sets up a hit
+ * band: yaw = 180 - facing (kept in 0..360), plus the effect's own yaw.
+ *
+ * @param {object} state from createPrimState
+ * @param {object} effect description
+ * @param {number} direction roBrowser direction 0-7
+ */
+export function applyFacing(state, effect, direction) {
+	if (effect.facing) {
+		state.yaw = ((180 - facingAngle(direction) + 360) % 360) + num(effect.yaw, 0);
+	}
 }
 
 /**
@@ -101,8 +168,24 @@ export function stepPrim(state) {
 
 	state.alpha = Math.min(state.alphaMax, Math.max(0, state.alpha + state.alphaSpeed));
 
+	// The ring's growth switches to new numbers once, on its change tick.
+	if (state.frame === state.radiusChangeFrame) {
+		state.radiusSpeed = state.radiusChangeSpeed;
+		state.radiusAccel = state.radiusChangeAccel;
+	}
+
 	state.radiusSpeed += state.radiusAccel;
 	state.radius += state.radiusSpeed;
+
+	// Cone: both circles, the height (capped) and the drift along the axis.
+	state.baseSpeed += state.baseAccel;
+	state.baseRadius += state.baseSpeed;
+	state.topSpeed += state.topAccel;
+	state.topRadius += state.topSpeed;
+	state.coneHeightSpeed += state.coneHeightAccel;
+	state.coneHeight = Math.min(state.coneHeight + state.coneHeightSpeed, state.coneHeightMax);
+	state.drift += state.driftAccel;
+	state.driftOffset += state.drift;
 
 	state.yaw += state.spin;
 
@@ -168,6 +251,94 @@ export function primVertexCount(effect) {
 	}
 
 	return segments * 6;
+}
+
+/**
+ * Turn a point of the cone's own frame into the world: tilt by pitch about the
+ * side axis, then turn by yaw about the vertical (the client's row-vector
+ * order). Frame: x and z level, y down (so negative y is up).
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {number} z
+ * @param {number} pitch radians
+ * @param {number} yaw radians
+ * @return {Array} [x, y, z]
+ */
+export function coneToWorld(x, y, z, pitch, yaw) {
+	const cp = Math.cos(pitch),
+		sp = Math.sin(pitch);
+	const cy = Math.cos(yaw),
+		sy = Math.sin(yaw);
+
+	// Tilt: (x, y, z) -> (x, y cos - z sin, y sin + z cos)
+	const ty = y * cp - z * sp;
+	const tz = y * sp + z * cp;
+
+	// Turn: (x, z) -> (x cos + z sin, -x sin + z cos)
+	return [x * cy + tz * sy, ty, -x * sy + tz * cy];
+}
+
+/**
+ * Build the cone band: ten segments (by default) around the axis, from the base
+ * circle (V = 1) to the top circle coneHeight away along the axis (V = 0).
+ * U runs uStep per segment and starts again at 0 once it reaches 1.
+ * The band sits `height` units above the position and has drifted
+ * driftOffset units along its axis, toward the top.
+ *
+ * @param {Float32Array} out
+ * @param {object} effect description
+ * @param {object} state
+ * @param {Array} center position, in cells
+ */
+function buildCone(out, effect, state, center) {
+	const segments = num(effect.segments, 10);
+	const step = 360 / segments;
+	const uStep = num(effect.uStep, 0.25);
+	const pitch = (state.pitch / 180) * Math.PI;
+	const yaw = (state.yaw / 180) * Math.PI;
+	const b = state.baseRadius;
+	const t = state.topRadius;
+	const h = state.coneHeight;
+	const lift = num(effect.height, 0);
+
+	// The axis (from base toward top) is the frame's -y; drift moves along it.
+	const axis = coneToWorld(0, -1, 0, pitch, yaw);
+	const ox = axis[0] * state.driftOffset + num(effect.offsetX, 0);
+	const oy = axis[1] * state.driftOffset;
+	const oz = axis[2] * state.driftOffset + num(effect.offsetY, 0);
+
+	// Client x / z are the map's x / y; client y points down.
+	const point = (r, depth, deg, u, v) => {
+		const a = (deg / 180) * Math.PI;
+		const p = coneToWorld(r * Math.cos(a), -depth, r * Math.sin(a), pitch, yaw);
+		return [p[0] + ox, p[2] + oz, lift - (p[1] + oy), u, v];
+	};
+
+	let u = 0;
+	let o = 0;
+
+	for (let i = 0; i < segments; ++i) {
+		const a0 = i * step;
+		const a1 = a0 + step;
+		const u0 = u;
+		const u1 = u + uStep;
+
+		const base0 = point(b, 0, a0, u0, 1);
+		const base1 = point(b, 0, a1, u1, 1);
+		const top0 = point(t, h, a0, u0, 0);
+		const top1 = point(t, h, a1, u1, 0);
+
+		o = vertex(out, o, center, ...base0);
+		o = vertex(out, o, center, ...base1);
+		o = vertex(out, o, center, ...top0);
+
+		o = vertex(out, o, center, ...top1);
+		o = vertex(out, o, center, ...top0);
+		o = vertex(out, o, center, ...base1);
+
+		u = u1 >= 1 ? 0 : u1;
+	}
 }
 
 /**
@@ -289,6 +460,8 @@ export function buildPrimGeometry(out, effect, state, center) {
 		buildSphere(out, effect, state, center);
 	} else if (effect.prim === 'quad') {
 		buildQuad(out, effect, state, center);
+	} else if (effect.prim === 'cone') {
+		buildCone(out, effect, state, center);
 	} else {
 		buildRing(out, effect, state, center);
 	}
