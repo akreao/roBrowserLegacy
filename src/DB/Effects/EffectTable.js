@@ -57,6 +57,7 @@ import {
 } from 'DB/Effects/ThrowStoneEffect.js';
 import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
 import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
+import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
@@ -8934,36 +8935,9 @@ export default {
 		}
 	],
 
+	// Martyr's Reckoning: sound and doubled light red body (MartyrsReckoningEffect.js)
 	366: [
-		{
-			//martyr's reckoning	//EF_BASH3D	   Martyr's Reckoning
-			wav: 'effect/bash3d', // incorrect wav name
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				const entity = Params.Init.ownerEntity;
-				entity.animations.add(function (tick) {
-					// Official: Halo (Double Body) is active between tick 20 and 40.
-					entity._enableHalo = tick >= 150 && tick <= 450;
-
-					if (tick >= 150 && tick <= 450) {
-						// SetArgb(-1, 255, 200, 200) -> Light Red
-						entity._flashColor[0] = 1.0;
-						entity._flashColor[1] = 0.78;
-						entity._flashColor[2] = 0.78;
-						entity._flashColor[3] = 1.0;
-						entity.recalculateBlendingColor();
-					} else {
-						entity._flashColor[0] = 1.0;
-						entity._flashColor[1] = 1.0;
-						entity._flashColor[2] = 1.0;
-						entity._flashColor[3] = 1.0;
-						entity.recalculateBlendingColor();
-					}
-					return tick > 500;
-				});
-			}
-		},
+		martyrsReckoningBody,
 		{
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
