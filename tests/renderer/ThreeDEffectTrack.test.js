@@ -21,7 +21,8 @@ const renderer = vi.hoisted(() => ({
 			position: renderer.position.slice(),
 			size: renderer.size.slice(),
 			alpha: renderer.color[3],
-			angle: renderer.angle
+			angle: renderer.angle,
+			offset: renderer.offset.slice()
 		});
 	}
 }));
@@ -59,7 +60,9 @@ describe('ThreeDEffect track', () => {
 		renderer.drawn.length = 0;
 		effect.render(gl, 1500);
 		expect(ages).toEqual([30]);
-		expect(renderer.drawn).toEqual([{ position: [11, 18, 3.5], size: [28, 28], alpha: 0.25, angle: 45 }]);
+		expect(renderer.drawn).toEqual([
+			{ position: [11, 18, 3.5], size: [28, 28], alpha: 0.25, angle: 45, offset: [0, 0] }
+		]);
 	});
 
 	it('draws nothing when the track returns null', () => {
@@ -75,5 +78,14 @@ describe('ThreeDEffect track', () => {
 		effect.render(gl, 1200);
 		expect(renderer.drawn[0].position).toEqual([10, 20, 4]);
 		expect(renderer.drawn[0].size).toEqual([50, 50]);
+	});
+
+	it('sets the two sides apart and moves the sprite on the screen plane for this sprite only', () => {
+		const effect = make(() => ({ sizeX: 3, sizeY: 80, offsetX: 12, offsetY: -20 }));
+		renderer.drawn.length = 0;
+		effect.render(gl, 1200);
+		expect(renderer.drawn[0].size).toEqual([3, 80]);
+		expect(renderer.drawn[0].offset).toEqual([12, -20]);
+		expect(renderer.offset).toEqual([0, 0]);
 	});
 });

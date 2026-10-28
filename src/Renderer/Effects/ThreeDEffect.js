@@ -338,7 +338,8 @@ class ThreeDEffect {
 		// track(age): optional per-frame path for effects ported from the official client. age is in
 		// client ticks (trackAge). Returns null to draw nothing this frame, or any of { x, y, z } (cells
 		// from the effect's position, z up), size, alpha (0..1), angle (degrees), each replacing the
-		// value the other options give.
+		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
+		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down).
 		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
@@ -699,6 +700,16 @@ class ThreeDEffect {
 				SpriteRenderer.size[0] = sizeX;
 				SpriteRenderer.size[1] = sizeY;
 			}
+			if (sample.sizeX !== undefined) {
+				sizeX = sample.sizeX;
+				SpriteRenderer.size[0] = sizeX;
+			}
+			if (sample.sizeY !== undefined) {
+				sizeY = sample.sizeY;
+				SpriteRenderer.size[1] = sizeY;
+			}
+			SpriteRenderer.offset[0] = sample.offsetX || 0;
+			SpriteRenderer.offset[1] = sample.offsetY || 0;
 			if (sample.alpha !== undefined) {
 				alpha = Math.min(Math.max(sample.alpha, 0), 1);
 				SpriteRenderer.color[3] = alpha;
@@ -803,6 +814,12 @@ class ThreeDEffect {
 			SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, () => {
 				SpriteRenderer.render();
 			});
+		}
+
+		// A track offset is for this sprite only.
+		if (this.track) {
+			SpriteRenderer.offset[0] = 0;
+			SpriteRenderer.offset[1] = 0;
 		}
 
 		this.needCleanUp = this.endTick < tick;

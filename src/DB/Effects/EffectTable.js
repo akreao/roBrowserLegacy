@@ -54,6 +54,7 @@ import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
+import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect } from 'DB/Effects/PoisonAttackEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
@@ -995,22 +996,8 @@ export default {
 	],
 
 	11: [
-		{
-			//EF_ENDURE	Endure
-			type: '3D',
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/endure.tga',
-			posz: 2,
-			sizeEnd: 70,
-			sizeSmooth: true,
-			sizeStart: 200,
-			wav: 'effect/ef_endure',
-			zIndex: 10
-		}
+		// EF_ENDURE, Endure: the client's shrinking endure.tga and alpha_down streaks (EndureEffect.js)
+		...endureEffect
 	],
 
 	12: [
