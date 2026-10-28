@@ -9633,7 +9633,9 @@ export default {
 	400: [
 		{
 			//joint beat caster	//EF_BASH3D4	Joint Beat
+			// Official client: its sound on tick 22 (effect-port/lord-knight-skills.md).
 			wav: 'effect/\xba\xf1\xc6\xae\x20\xc1\xb6\xc0\xce\xc6\xae', // ºñÆ® Á¶ÀÎÆ®
+			delayWav: 22 * (1000 / 60),
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
