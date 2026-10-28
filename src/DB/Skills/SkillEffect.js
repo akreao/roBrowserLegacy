@@ -643,7 +643,7 @@ SkillEffect[SK.TK_READYCOUNTER].effectIdOnCaster = 449;
 SkillEffect[SK.TK_DODGE].effectIdOnCaster = 449;
 SkillEffect[SK.TK_DODGE].successEffectIdOnCaster = 'ef_tk_dodge';
 // Star Gladiator
-SkillEffect[SK.SG_FEEL] = { effectId: 432 }; //Feeling the Sun Moon and Stars
+SkillEffect[SK.SG_FEEL] = { castAuraEffectId: 441 }; //Feeling the Sun Moon and Stars: the blue cast aura; the use packet plays nothing
 SkillEffect[SK.SG_SUN_WARM] = { effectId: 488 }; //Warmth of the Sun
 SkillEffect[SK.SG_MOON_WARM] = { effectId: 488 }; //Warmth of the Moon
 SkillEffect[SK.SG_STAR_WARM] = { effectId: 488 }; //Warmth of the Stars
