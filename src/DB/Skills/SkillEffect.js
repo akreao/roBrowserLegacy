@@ -553,7 +553,10 @@ SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
 // arrives (the falling cross, its sound on tick 3, a quake on tick 33); the hit flash 0 when it lands.
 // Nothing on the use packet. See effect-port/paladin-skills.md.
 SkillEffect[SK.PA_PRESSURE] = { castAuraEffectId: 58, damageEffectIdOnTarget: 365, hitEffectId: 0 }; //Gloria Domini
-SkillEffect[SK.PA_SACRIFICE] = { effectId: 366 }; // Martyr's Reckoning
+// Official client: no cast aura; nothing on the use packet; 366 on the caster as each damage packet arrives
+// (each attack while the status lasts): 세크리파이스.wav on tick 22 and a light red doubled body on
+// ticks 20-40; the hit flash 0 when it lands. See effect-port/paladin-skills.md.
+SkillEffect[SK.PA_SACRIFICE] = { hideCastAura: true, damageEffectIdOnCaster: 366, hitEffectId: 0 }; // Martyr's Reckoning
 SkillEffect[SK.PA_GOSPEL] = { effectId: 370, groundEffectId: '370_ground' }; //Battle Chant
 // Champion
 SkillEffect[SK.CH_PALMSTRIKE] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 376, hitEffectId: 0 }; //Raging Palm Strike
