@@ -727,7 +727,10 @@ SkillEffect[SK.WS_CARTTERMINATION] = { effectId: 518 }; //Cart Termination
 SkillEffect[SK.WS_OVERTHRUSTMAX] = SkillEffect[SK.BS_OVERTHRUST]; //Maximum Power Thrust
 SkillEffect[SK.CG_LONGINGFREEDOM] = { successEffectId: ['ef_longing_freedom_sound', 843] }; //Longing for Freedom
 SkillEffect[SK.CG_HERMODE] = { successEffectId: '517_music', groundEffectId: 517 }; //Wand of Hermode
-SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500] }; //Tarot Card of Fate
+// Official client (kRO 2025-07-16): cast aura 58 whatever the element; from the use packet (result set)
+// priest_slowpoison.wav and 500 on the target (blue and white flicker with a glow copy).
+// See effect-port/clown-gypsy-skills.md.
+SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500], castAuraEffectId: 58 }; //Tarot Card of Fate
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment

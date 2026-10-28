@@ -3,7 +3,8 @@
  *
  * What the official client's cast effects 934 (Nightmare Erasion), 2373
  * (Shinkirou) and 502 (Spiral Pierce Max), and Shrink's 599, do to the
- * caster's own sprite. It
+ * caster's own sprite (and a few effects to their target's, such as Tarot
+ * Card of Fate's 500). It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
  * the marks.
  *
@@ -42,6 +43,7 @@ const RED = [255, 0, 0];
 const YELLOW = [250, 250, 100];
 const WHITE = [255, 255, 255];
 const PURPLE = [182, 89, 255];
+const BLUE = [0, 0, 255];
 
 /**
  * What each effect sets on the caster on its tick `age` (0 on the first).
@@ -85,6 +87,12 @@ export const SCHEDULES = {
 	},
 	// Assumptio (375): a glow copy on every tick, as long as the effect lives (the status).
 	375: () => ({ add: false, glow: true, split: false, color: null }),
+	// Tarot Card of Fate (500, on the target): glow copy to age 30, flickering blue (added) and white.
+	500: age => {
+		const on = age <= 30;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: on, split: false, color: on ? (even ? BLUE : WHITE) : null };
+	},
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.
 	502: age => {
 		const on = age <= 140;
