@@ -227020,8 +227020,7 @@ var init_PrivateAirship$1 = __esmMin((() => {
 function syncRequests() {
 	if (_requests.loadId !== MapRenderer._loadId) Object.assign(_requests, {
 		loadId: MapRenderer._loadId,
-		sent: 0,
-		answered: 0,
+		waiting: false,
 		lastSent: 0
 	});
 }
@@ -227030,7 +227029,7 @@ function syncRequests() {
 */
 function isPending() {
 	syncRequests();
-	return _requests.answered < _requests.sent && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
+	return _requests.waiting && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
 }
 /**
 * Text for a message id, without RO colour codes.
@@ -227119,8 +227118,7 @@ var init_PrivateAirship = __esmMin((() => {
 	_targetMap = "";
 	_requests = {
 		loadId: null,
-		sent: 0,
-		answered: 0,
+		waiting: false,
 		lastSent: 0
 	};
 	PENDING_TIMEOUT = 15e3;
@@ -227242,7 +227240,7 @@ var init_PrivateAirship = __esmMin((() => {
 	PrivateAirship.sendRequest = function sendRequest(itemId) {
 		if (isPending() || !_targetMap) return;
 		syncRequests();
-		_requests.sent++;
+		_requests.waiting = true;
 		_requests.lastSent = Date.now();
 		const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 		pkt.mapName = _targetMap + ".gat";
@@ -227256,7 +227254,7 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.onResponse = function onResponse(pkt) {
 		syncRequests();
-		_requests.answered = Math.min(_requests.sent, _requests.answered + 1);
+		_requests.waiting = false;
 		if (!PrivateAirship.__active) return;
 		if (pkt.result === 0) {
 			PrivateAirship.remove();
