@@ -659,7 +659,7 @@ SkillEffect[SK.SL_ALCHEMIST] = //↓		//Spirit of the Alchemist
 	SkillEffect[SK.SL_BLACKSMITH] =
 		{ effectId: [424, 503] }; //Spirit of the Blacksmith
 // Blacksmith
-SkillEffect[SK.BS_ADRENALINE2] = SkillEffect[SK.BS_ADRENALINE]; //Advanced Adrenaline Rush
+SkillEffect[SK.BS_ADRENALINE2] = SkillEffect[SK.BS_ADRENALINE]; //Advanced Adrenaline Rush: the official client plays 98, as Adrenaline Rush
 // Soul Linker
 SkillEffect[SK.SL_HUNTER] = //↓		//Spirit of the Hunter
 	SkillEffect[SK.SL_SOULLINKER] = { effectId: [424, 503] }; //Spirit of the Soul Linker
@@ -2108,7 +2108,6 @@ SkillEffect[SK.GD_ITEMEMERGENCYCALL] = {}; //Item Emergency Call
 
 // Earlier classes: entries for skills that had none.
 SkillEffect[SK.SL_ASSASIN] = { effectId: 'ef_sl_assasin' }; //Spirit of the Assasin
-SkillEffect[SK.BS_ADRENALINE2] = { effectId: 'ef_bs_adrenaline2' }; //Advanced Adrenaline Rush
 SkillEffect[SK.SL_HUNTER] = { effectId: 'ef_sl_hunter' }; //Spirit of the Hunter
 SkillEffect[SK.SJ_FULLMOONKICK] = { effectId: 'ef_sj_fullmoonkick' }; //Full Moon Kick
 SkillEffect[SK.SJ_NEWMOONKICK] = { effectId: 'ef_sj_newmoonkick' }; //New Moon Kick
