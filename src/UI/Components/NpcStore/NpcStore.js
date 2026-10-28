@@ -752,13 +752,8 @@ function addItem(content, item) {
 		const amount = amountColumn(item);
 		const rowClass = _type === NpcStore.Type.VENDING_STORE ? 'item fitName' : 'item';
 		const amountShown = amount === '' && _type === NpcStore.Type.BUYING_STORE ? 0 : amount;
-		const html = `<div class="${rowClass}" draggable="true" data-index="${item.index}">
-			<div class="icon"></div>
-			<div class="amount${amountClass}">${amountShown}${amountText}</div>
-			<div class="name">${sanitizeHtml(DB.getItemName(item))}</div>
-			<div class="price">${price}</div>
-			<div class="unity">Z</div>
-		</div>`;
+		// No whitespace between the tags: onDragStart reads the icon as the row's firstChild.
+		const html = `<div class="${rowClass}" draggable="true" data-index="${item.index}"><div class="icon"></div><div class="amount${amountClass}">${amountShown}${amountText}</div><div class="name">${sanitizeHtml(DB.getItemName(item))}</div><div class="price">${price}</div><div class="unity">Z</div></div>`;
 		content.insertAdjacentHTML('beforeend', html);
 	} else if (_type === NpcStore.Type.BARTER_MARKET) {
 		const html =
