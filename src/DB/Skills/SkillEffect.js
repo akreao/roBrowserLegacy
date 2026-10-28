@@ -399,7 +399,9 @@ SkillEffect[SK.RG_FLAGGRAFFITI] = {}; //Piece
 SkillEffect[SK.RG_CLEANER] = {}; //Remover
 // Alchemist
 SkillEffect[SK.AM_PHARMACY] = {}; //Prepare Potion
-SkillEffect[SK.AM_DEMONSTRATION] = { groundEffectId: 302 }; //Bomb
+// Official client: nothing from the ground packet; the skill unit (0xb1) holds 302 (SkillUnit.js) and each
+// hit that lands plays the hit flash (0). See effect-port/alchemist-skills.md.
+SkillEffect[SK.AM_DEMONSTRATION] = { hitEffectId: 0 }; //Bomb
 // Official client: 298 (the bottle) thrown from the caster at the target as each damage packet
 // arrives, misses included; each hit that lands plays the hit flash (0). See effect-port/alchemist-skills.md.
 SkillEffect[SK.AM_ACIDTERROR] = { damageEffectIdOnCaster: 298, hitEffectId: 0 }; //Acid Terror
