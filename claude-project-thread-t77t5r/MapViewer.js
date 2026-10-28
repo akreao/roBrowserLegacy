@@ -78505,8 +78505,8 @@ var init_ClampToViewport = __esmMin((() => {}));
 function onIntersect(entries) {
 	for (const entry of entries) {
 		if (!entry.isIntersecting) continue;
-		const callbacks = _pending$3.get(entry.target);
-		_pending$3.delete(entry.target);
+		const callbacks = _pending$2.get(entry.target);
+		_pending$2.delete(entry.target);
 		_observer.unobserve(entry.target);
 		for (const callback of callbacks || []) try {
 			callback();
@@ -78525,7 +78525,7 @@ function onIntersect(entries) {
 function pendingWithin(host) {
 	const elements = [host, ...host.querySelectorAll("*")];
 	if (host.shadowRoot) elements.push(...host.shadowRoot.querySelectorAll("*"));
-	return elements.filter((element) => _pending$3.has(element));
+	return elements.filter((element) => _pending$2.has(element));
 }
 /**
 * @param {Element} element
@@ -78536,18 +78536,18 @@ function whenDrawn(element, callback) {
 		callback();
 		return;
 	}
-	const callbacks = _pending$3.get(element);
+	const callbacks = _pending$2.get(element);
 	if (callbacks) {
 		callbacks.push(callback);
 		return;
 	}
-	_pending$3.set(element, [callback]);
+	_pending$2.set(element, [callback]);
 	_observer ??= new IntersectionObserver(onIntersect);
 	_observer.observe(element);
 }
-var _pending$3, _observer;
+var _pending$2, _observer;
 var init_WhenDrawn = __esmMin((() => {
-	_pending$3 = /* @__PURE__ */ new WeakMap();
+	_pending$2 = /* @__PURE__ */ new WeakMap();
 	_observer = null;
 	/**
 	* Stop watching what waits under a window taken off the page, so the
@@ -221317,7 +221317,7 @@ function updateOverlay() {
 	const last = _marks.maps[_marks.maps.length - 1];
 	_overlay.textContent = (frames ? Math.round(frames * 1e3 / Math.max(elapsed, 1)) : 0) + " fps  " + (frames ? (elapsed / frames).toFixed(1) : "-") + " ms (max " + worst.toFixed(0) + ")\nwork " + (frames ? (work / frames).toFixed(1) : "-") + " ms  draws " + (frames ? Math.round(draws / frames) : 0) + "\n" + (last ? last.map + " load " + Math.round(last.loadMs) + " ms" : "") + (_marks.login !== null ? "  login " + Math.round(_marks.login) + " ms" : "") + (now - _lastFrameStart > 1e3 ? "\n(no frames)" : "");
 }
-var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$2, _windowStart, _frameStart, _frameTime, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady, _slow, _slowTotal, _marks, PerfProbe;
+var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$1, _windowStart, _frameStart, _frameTime, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady, _slow, _slowTotal, _marks, PerfProbe;
 var init_PerfProbe = __esmMin((() => {
 	init_Configs();
 	MAX_FRAMES = 36e3;
@@ -221335,7 +221335,7 @@ var init_PerfProbe = __esmMin((() => {
 	_work = new Float32Array(MAX_FRAMES);
 	_draws = new Uint32Array(MAX_FRAMES);
 	_total = 0;
-	_pending$2 = 0;
+	_pending$1 = 0;
 	_windowStart = 0;
 	_frameStart = 0;
 	_frameTime = 0;
@@ -221387,7 +221387,7 @@ var init_PerfProbe = __esmMin((() => {
 		static frameStart(now) {
 			_frameStart = performance.now();
 			_frameTime = now;
-			_pending$2 = _lastFrameStart ? now - _lastFrameStart : 0;
+			_pending$1 = _lastFrameStart ? now - _lastFrameStart : 0;
 			_lastFrameStart = now;
 			_frameDraws = 0;
 			_frameVertices = 0;
@@ -221397,15 +221397,15 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static frameEnd() {
 			if (!_frameStart) return;
-			if (_pending$2 > 0) {
+			if (_pending$1 > 0) {
 				const i = _total % MAX_FRAMES;
-				_interval[i] = _pending$2;
+				_interval[i] = _pending$1;
 				_work[i] = performance.now() - _frameStart;
 				_draws[i] = _frameDraws;
 				_totalVertices += _frameVertices;
-				if (_pending$2 > SLOW_MS) logSlow(_pending$2, _work[i], _frameDraws);
+				if (_pending$1 > SLOW_MS) logSlow(_pending$1, _work[i], _frameDraws);
 				_total++;
-				_pending$2 = 0;
+				_pending$1 = 0;
 			}
 			if (_mapReady) {
 				const map = _marks.maps[_marks.maps.length - 1];
@@ -221429,7 +221429,7 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static stop() {
 			_lastFrameStart = 0;
-			_pending$2 = 0;
+			_pending$1 = 0;
 		}
 		/**
 		* A map finished loading and is about to be drawn
@@ -221455,7 +221455,7 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static reset() {
 			_total = 0;
-			_pending$2 = 0;
+			_pending$1 = 0;
 			_lastFrameStart = 0;
 			_totalVertices = 0;
 			_slow.length = 0;
@@ -227035,9 +227035,15 @@ var init_PrivateAirship$2 = __esmMin((() => {
 // src/UI/Components/PrivateAirship/PrivateAirship.css?raw
 var PrivateAirship_default$1;
 var init_PrivateAirship$1 = __esmMin((() => {
-	PrivateAirship_default$1 = ":host {\r\n	width: 208px;\r\n	height: 110px;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.PrivateAirship {\r\n	position: relative;\r\n	width: 208px;\r\n	height: 110px;\r\n	background-color: #eef3fd;\r\n	background-repeat: no-repeat;\r\n	color: #000;\r\n	font-size: 12px;\r\n}\r\n\r\n.PrivateAirship .titlebar {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 208px;\r\n	height: 17px;\r\n	cursor: move;\r\n}\r\n\r\n.PrivateAirship .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 18px;\r\n	color: #000;\r\n	text-shadow: 1px 1px 0 #fff;\r\n	white-space: nowrap;\r\n}\r\n\r\n.PrivateAirship .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 4px;\r\n	width: 11px;\r\n	height: 11px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.PrivateAirship .items {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n\r\n.PrivateAirship .item {\r\n	position: absolute;\r\n	left: 8px;\r\n	width: 192px;\r\n	height: 20px;\r\n	padding: 0 4px;\r\n	box-sizing: border-box;\r\n	border: 1px solid #9eaecb;\r\n	border-radius: 3px;\r\n	background: linear-gradient(#ffffff, #dfe6f4);\r\n	color: #000;\r\n	font-size: 12px;\r\n	line-height: 18px;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	cursor: pointer;\r\n}\r\n\r\n.PrivateAirship .item:hover {\r\n	background: linear-gradient(#ffffff, #c9d6ef);\r\n}\r\n\r\n.PrivateAirship .item.disabled {\r\n	opacity: 0.5;\r\n	cursor: default;\r\n	pointer-events: none;\r\n}\r\n\r\n.PrivateAirship .notice {\r\n	display: none;\r\n}\r\n\r\n.PrivateAirship .notice.visible {\r\n	display: block;\r\n}\r\n\r\n.PrivateAirship .notice-icon {\r\n	position: absolute;\r\n	top: 86px;\r\n	left: 7px;\r\n	width: 14px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.PrivateAirship .notice-text {\r\n	position: absolute;\r\n	top: 80px;\r\n	left: 26px;\r\n	width: 164px;\r\n	height: 26px;\r\n	display: flex;\r\n	align-items: center;\r\n	color: #b51235;\r\n	line-height: 12px;\r\n	overflow: hidden;\r\n}\r\n";
+	PrivateAirship_default$1 = ":host {\r\n	width: 208px;\r\n	height: 110px;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.PrivateAirship {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background-color: #eef3fd;\r\n	background-repeat: no-repeat;\r\n	color: #000;\r\n	font-size: 12px;\r\n}\r\n\r\n.PrivateAirship .titlebar {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 208px;\r\n	height: 17px;\r\n	cursor: move;\r\n}\r\n\r\n.PrivateAirship .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 18px;\r\n	color: #000;\r\n	text-shadow: 1px 1px 0 #fff;\r\n	white-space: nowrap;\r\n}\r\n\r\n.PrivateAirship .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 4px;\r\n	width: 11px;\r\n	height: 11px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.PrivateAirship .items {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n\r\n.PrivateAirship .item {\r\n	position: absolute;\r\n	left: 8px;\r\n	width: 192px;\r\n	height: 20px;\r\n	padding: 0 4px;\r\n	box-sizing: border-box;\r\n	border: 1px solid #9eaecb;\r\n	border-radius: 3px;\r\n	background: linear-gradient(#ffffff, #dfe6f4);\r\n	color: #000;\r\n	font-size: 12px;\r\n	line-height: 18px;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	cursor: pointer;\r\n}\r\n\r\n.PrivateAirship .item:hover {\r\n	background: linear-gradient(#ffffff, #c9d6ef);\r\n}\r\n\r\n.PrivateAirship .item.disabled {\r\n	opacity: 0.5;\r\n	cursor: default;\r\n	pointer-events: none;\r\n}\r\n\r\n.PrivateAirship .notice {\r\n	display: none;\r\n}\r\n\r\n.PrivateAirship .notice.visible {\r\n	display: block;\r\n}\r\n\r\n.PrivateAirship .notice-icon {\r\n	position: absolute;\r\n	top: calc(86px + var(--extra-rows-height, 0px));\r\n	left: 7px;\r\n	width: 14px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.PrivateAirship .notice-text {\r\n	position: absolute;\r\n	top: calc(80px + var(--extra-rows-height, 0px));\r\n	left: 26px;\r\n	width: 164px;\r\n	height: 26px;\r\n	display: flex;\r\n	align-items: center;\r\n	color: #b51235;\r\n	line-height: 12px;\r\n	overflow: hidden;\r\n}\r\n";
 }));
 // src/UI/Components/PrivateAirship/PrivateAirship.js
+/**
+* @return {boolean} a request is on its way
+*/
+function isPending() {
+	return _pendingSince !== 0 && Date.now() - _pendingSince < PENDING_TIMEOUT;
+}
 /**
 * Text for a message id, without RO colour codes.
 *
@@ -227066,7 +227072,7 @@ function itemName(itemId) {
 function currentMap() {
 	return PrivateAirship$1.normalize(MapRenderer.currentMap);
 }
-var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, PrivateAirship, _targetMap, _pending$1, PrivateAirship_default;
+var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, BASE_ITEM_ROWS, PENDING_TIMEOUT, PrivateAirship, _targetMap, _pendingSince, PrivateAirship_default;
 var init_PrivateAirship = __esmMin((() => {
 	init_DBManager();
 	init_PrivateAirship$3();
@@ -227116,11 +227122,15 @@ var init_PrivateAirship = __esmMin((() => {
 		5: MSG.CANNOT_USE_ITEM
 	};
 	ITEM_ROW_HEIGHT = 26;
+	WINDOW_WIDTH = 208;
+	WINDOW_HEIGHT = 110;
+	BASE_ITEM_ROWS = 2;
+	PENDING_TIMEOUT = 1e4;
 	PrivateAirship = new GUIComponent("PrivateAirship", PrivateAirship_default$1);
 	PrivateAirship.render = () => PrivateAirship_default$2;
 	PrivateAirship.needFocus = true;
 	_targetMap = "";
-	_pending$1 = false;
+	_pendingSince = 0;
 	/**
 	* The checks the official client makes before it sends the request, in its order.
 	*
@@ -227149,15 +227159,9 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.onAppend = function onAppend() {
 		Object.assign(this._host.style, {
-			top: `${Math.max(0, Math.floor((Renderer.height - 110) / 2))}px`,
-			left: `${Math.max(0, Math.floor((Renderer.width - 208) / 2))}px`
+			top: `${Math.max(0, Math.floor((Renderer.height - WINDOW_HEIGHT) / 2))}px`,
+			left: `${Math.max(0, Math.floor((Renderer.width - WINDOW_WIDTH) / 2))}px`
 		});
-	};
-	/**
-	* Forget the request when it closes
-	*/
-	PrivateAirship.onRemove = function onRemove() {
-		_pending$1 = false;
 	};
 	/**
 	* Close on Escape
@@ -227165,10 +227169,9 @@ var init_PrivateAirship = __esmMin((() => {
 	PrivateAirship.onKeyDown = function onKeyDown(event) {
 		if (event.which === KEYS.ESCAPE || event.key === "Escape") {
 			this.remove();
+			event.preventDefault();
 			event.stopImmediatePropagation();
-			return false;
 		}
-		return true;
 	};
 	/**
 	* Open the window to fly to a map.
@@ -227179,7 +227182,6 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.open = function open(options) {
 		_targetMap = PrivateAirship$1.normalize(options && options.targetMap);
-		_pending$1 = false;
 		if (this.__active) this.remove();
 		this.append();
 		const failed = this.precheck(_targetMap);
@@ -227211,6 +227213,9 @@ var init_PrivateAirship = __esmMin((() => {
 			button.addEventListener("click", () => this.pay(itemId));
 			list.appendChild(button);
 		}
+		const extra = Math.max(0, row - BASE_ITEM_ROWS) * ITEM_ROW_HEIGHT;
+		this._host.style.height = `${WINDOW_HEIGHT + extra}px`;
+		this._host.style.setProperty("--extra-rows-height", `${extra}px`);
 	};
 	/**
 	* Show or clear the red notice line.
@@ -227229,7 +227234,7 @@ var init_PrivateAirship = __esmMin((() => {
 	* @param {number} itemId
 	*/
 	PrivateAirship.pay = function pay(itemId) {
-		if (_pending$1 || !_targetMap) return;
+		if (isPending() || !_targetMap) return;
 		if (itemId === NYANGVINE_FRUIT) {
 			UIManager.showPromptBox(message(MSG.NYANGVINE_NO_REFUND), "ok", "cancel", () => PrivateAirship.sendRequest(itemId));
 			return;
@@ -227242,8 +227247,8 @@ var init_PrivateAirship = __esmMin((() => {
 	* @param {number} itemId
 	*/
 	PrivateAirship.sendRequest = function sendRequest(itemId) {
-		if (_pending$1 || !_targetMap) return;
-		_pending$1 = true;
+		if (isPending() || !_targetMap) return;
+		_pendingSince = Date.now();
 		const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 		pkt.mapName = _targetMap + ".gat";
 		pkt.ItemID = itemId;
@@ -227255,7 +227260,7 @@ var init_PrivateAirship = __esmMin((() => {
 	* @param {object} pkt
 	*/
 	PrivateAirship.onResponse = function onResponse(pkt) {
-		_pending$1 = false;
+		_pendingSince = 0;
 		if (!PrivateAirship.__active) return;
 		if (pkt.result === 0) {
 			PrivateAirship.remove();
@@ -227680,7 +227685,8 @@ var init_Navigation = __esmMin((() => {
 			endMap: currentMap,
 			endX: mapCoords.x,
 			endY: mapCoords.y,
-			displayName: "Map Click"
+			displayName: "Map Click",
+			airshipMap: MapRenderer.currentMap
 		});
 	};
 	/**
@@ -228151,7 +228157,7 @@ var init_Navigation = __esmMin((() => {
 			this.setTargetCoordinatesText(options.endX, options.endY, { targetMap: endMap });
 			this.setTargetCoordinatesBlinking(true);
 		}
-		const airshipMap = String(options.endMap || "").replace(/\.gat$/, "").toLowerCase();
+		const airshipMap = String(options.airshipMap || options.endMap || "").replace(/\.gat$/, "").toLowerCase();
 		_finalTargetData = {
 			map: endMap,
 			x: options.endX,
