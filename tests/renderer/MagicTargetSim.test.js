@@ -5,7 +5,7 @@ const { CAST_AREA, castSize, spinAngle, targetAlpha } = await import('Renderer/E
 
 describe('ground cast circle (magic_target.tga)', () => {
 	it('knows every skill the client lists', () => {
-		expect(Object.keys(CAST_AREA)).toHaveLength(79);
+		expect(Object.keys(CAST_AREA)).toHaveLength(81);
 	});
 
 	it('is area + 2 cells across, by skill only', () => {
@@ -15,6 +15,12 @@ describe('ground cast circle (magic_target.tga)', () => {
 		expect(castSize(SkillId.WZ_STORMGUST)).toBe(11);
 		expect(castSize(SkillId.WZ_VERMILION)).toBe(13);
 		expect(castSize(SkillId.WL_COMET)).toBe(20);
+	});
+
+	it('sizes the two Druid skills the 2026 client lists, and no others', () => {
+		expect(castSize(SkillId.KR_ICE_PILLAR)).toBe(9);
+		expect(castSize(SkillId.AT_GLACIER_MONOLITH)).toBe(11);
+		expect(castSize(SkillId.KR_THUNDERING_ORB)).toBe(2);
 	});
 
 	it('is 2 x 2 for a skill the client does not list', () => {
