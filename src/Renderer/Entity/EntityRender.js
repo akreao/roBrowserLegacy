@@ -344,7 +344,7 @@ function isLookingBack(direction) {
 function garmentOnTop(entity, direction) {
 	const fallback = isLookingBack(direction);
 
-	if (!GarmentLayer.isLoaded() || entity.action < 0) {
+	if (!GarmentLayer.isLoaded(entity.sex) || entity.action < 0) {
 		return fallback;
 	}
 
@@ -458,7 +458,7 @@ const renderEntity = (function renderEntityClosure() {
 
 					// Garment over or under the body: the client's own table when it was loaded, else the facing
 					const robeOnTop = self.robe > 0 && garmentOnTop(self, direction);
-					const robeFromTable = self.robe > 0 && GarmentLayer.isLoaded();
+					const robeFromTable = self.robe > 0 && GarmentLayer.isLoaded(self.sex);
 
 					function robeCorrection(lookingFront) {
 						if (self.robe > 0 && self.robeHeight && self.bodyHeight) {

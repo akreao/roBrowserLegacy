@@ -21,7 +21,8 @@ const tables = [new Map(), new Map()];
 /** @type {Map<number, number>} job -> job whose table it uses */
 const inherit = new Map();
 
-let loaded = false;
+/** Which sex's table was read: each comes from its own file, and either may be missing */
+const loaded = [false, false];
 
 /**
  * Forget every table (tests, or before a reload).
@@ -30,14 +31,19 @@ export function clear() {
 	tables[0].clear();
 	tables[1].clear();
 	inherit.clear();
-	loaded = false;
+	loaded[0] = false;
+	loaded[1] = false;
 }
 
 /**
- * @return {boolean} true once a table has been read
+ * @param {number} [sex] 0 female, anything else male; left out, either
+ * @return {boolean} true once that sex's table has been read
  */
-export function isLoaded() {
-	return loaded;
+export function isLoaded(sex) {
+	if (sex === undefined) {
+		return loaded[0] || loaded[1];
+	}
+	return loaded[sex === 0 ? 0 : 1];
 }
 
 /**
@@ -55,7 +61,6 @@ export function parse(dump) {
 
 		if (parts[0] === 'I' && parts.length >= 3) {
 			inherit.set(Number(parts[1]), Number(parts[2]));
-			loaded = true;
 			continue;
 		}
 
@@ -81,7 +86,7 @@ export function parse(dump) {
 			tables[sex].set(job, byAct);
 		}
 		byAct.set(actNum, frames);
-		loaded = true;
+		loaded[sex] = true;
 	}
 }
 
@@ -92,14 +97,16 @@ export function parse(dump) {
  * @param {number} job the job the body sprite is drawn as (mounts included)
  * @param {number} actNum action * 8 + direction, as the act file is indexed
  * @param {number} frame the garment's frame in that action
- * @return {boolean|null} true over the body, false under it, null when no table was loaded
+ * @return {boolean|null} true over the body, false under it, null when that sex's table was not loaded
  */
 export function drawOnTop(sex, job, actNum, frame) {
-	if (!loaded) {
+	const index = sex === 0 ? 0 : 1;
+
+	if (!loaded[index]) {
 		return null;
 	}
 
-	const table = tables[sex === 0 ? 0 : 1];
+	const table = tables[index];
 	const byAct = table.get(inherit.has(job) ? inherit.get(job) : job);
 
 	if (!byAct) {

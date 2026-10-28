@@ -20,7 +20,8 @@ const DUMP = [
 	'F 0 4054 0 0.1.2',
 	'F 0 4054 3',
 	'I 4060 4054',
-	'I 4096 4054'
+	'I 4096 4054',
+	'F 1 1 0 0.1.2'
 ].join('\n');
 
 afterEach(() => GarmentLayer.clear());
@@ -63,6 +64,19 @@ describe('GarmentLayer', () => {
 		expect(GarmentLayer.drawOnTop(0, 4060, actNum(READYFIGHT, 0), 0)).toBe(false);
 		expect(GarmentLayer.drawOnTop(0, 4096, actNum(READYFIGHT, 4), 0)).toBe(true);
 		expect(GarmentLayer.drawOnTop(1, 1, actNum(READYFIGHT, 4), 0)).toBe(true);
+	});
+
+	it('leaves a sex whose file was missing to the renderer, even with the other sex and the inheritance read', () => {
+		GarmentLayer.parse('F 0 1 0 0.1.2\nI 4060 4054');
+		expect(GarmentLayer.isLoaded()).toBe(true);
+		expect(GarmentLayer.isLoaded(0)).toBe(true);
+		expect(GarmentLayer.isLoaded(1)).toBe(false);
+		expect(GarmentLayer.drawOnTop(1, 1, 0, 0)).toBe(null);
+		expect(GarmentLayer.drawOnTop(0, 1, 0, 0)).toBe(false);
+
+		GarmentLayer.clear();
+		GarmentLayer.parse('I 4060 4054');
+		expect(GarmentLayer.isLoaded()).toBe(false);
 	});
 });
 

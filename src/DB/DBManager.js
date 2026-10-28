@@ -7004,15 +7004,20 @@ function loadWeaponTable(filename, callback, onEnd) {
 	);
 }
 
+let garmentLayerGeneration = 0;
+
 /**
  * Load the client's garment layer tables (see DB/Items/GarmentLayer.js):
  * spreditinfo/_new_2dlayerdir_f.lub, _new_biglayerdir_female.lub and _new_biglayerdir_male.lub.
- * A missing file is skipped; with none, garments keep the built-in ordering.
+ * A missing file is skipped; without a sex's table, its garments keep the built-in ordering.
+ * Each call drops the previous archive's tables first, and a call overtaken by a newer one
+ * (a server switch) keeps nothing.
  *
  * @param {string} path folder holding the three files
  * @param {function} onEnd to run when done
  */
 function loadGarmentLayers(path, onEnd) {
+	const generation = ++garmentLayerGeneration;
 	const files = ['_new_2dlayerdir_f.lub', '_new_biglayerdir_female.lub', '_new_biglayerdir_male.lub'];
 	const mounted = [];
 
@@ -7025,10 +7030,12 @@ function loadGarmentLayers(path, onEnd) {
 			);
 		});
 
+	GarmentLayer.clear();
+
 	(async () => {
 		try {
 			const buffers = await Promise.all(files.map(loadFile));
-			if (!buffers.some(Boolean)) {
+			if (generation !== garmentLayerGeneration || !buffers.some(Boolean)) {
 				return;
 			}
 
@@ -7042,6 +7049,9 @@ function loadGarmentLayers(path, onEnd) {
 			const ctx = lua.ctx;
 			ctx.__GARMENT_JOBID = jobId;
 			ctx.SetGarmentLayers = dump => {
+				if (generation !== garmentLayerGeneration) {
+					return;
+				}
 				GarmentLayer.parse(typeof dump === 'string' ? dump : new TextDecoder().decode(dump));
 			};
 
@@ -7058,7 +7068,6 @@ function loadGarmentLayers(path, onEnd) {
 				run.push(`(__ro_orig_dofile or dofile)("${name}")`);
 			}
 
-			GarmentLayer.clear();
 			await lua.doString(`
 				local savedJobId = JOBID
 				JOBID = setmetatable({}, {
