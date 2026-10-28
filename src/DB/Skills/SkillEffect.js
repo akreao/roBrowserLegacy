@@ -684,9 +684,11 @@ SkillEffect[SK.SL_KAIZEL] = { castAuraEffectId: 441, successEffectIdOnCaster: 's
 SkillEffect[SK.SL_KAAHI] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaahi_sound', successEffectId: 543 }; //Kaahi
 SkillEffect[SK.SL_KAUPE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaupe_sound', successEffectId: 542 }; //Kaupe
 SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: [419, 542] }; //Kaite
-SkillEffect[SK.SL_STIN] = { effectId: 547 }; //Estin
-SkillEffect[SK.SL_STUN] = { effectId: [555, 'ef_sl_stun'] }; //Estun
-SkillEffect[SK.SL_SMA] = { effectId: 553, successEffectId: 425 }; //Esma
+// Estin, Estun, Esma: blue cast aura; as each damage packet arrives the client plays one effect on the
+// caster and the rest on the target (550, 429, 425, 431 and 554 are not drawn yet).
+SkillEffect[SK.SL_STIN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 547, damageEffectIdOnTarget: 550 }; //Estin
+SkillEffect[SK.SL_STUN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 555, damageEffectIdOnTarget: 429 }; //Estun
+SkillEffect[SK.SL_SMA] = { castAuraEffectId: 441, damageEffectIdOnCaster: 553, damageEffectIdOnTarget: [425, 431, 554] }; //Esma
 // Eswoo, Eske, Eska: blue cast aura; on success the client plays the skill's sound at the player and
 // its effects on the target (Eska also quakes the screen; 427, 254 and 1132 are not drawn yet).
 SkillEffect[SK.SL_SWOO] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_swoo_sound', successEffectId: [420, 589] }; //Eswoo
