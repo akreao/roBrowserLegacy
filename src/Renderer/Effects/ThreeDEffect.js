@@ -5,12 +5,16 @@ import EntityManager from 'Renderer/EntityManager.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
 import Entity from 'Renderer/Entity/Entity.js';
+import { sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
 
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 }
 
 const blendMode = {};
+
+// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance.
+const _sharedTextures = new Map();
 
 /**
  * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
@@ -37,6 +41,8 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
+		// Many instances of one row (particles): load the effect/ texture once and share it.
+		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 		this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
@@ -338,7 +344,8 @@ class ThreeDEffect {
 		// track(age): optional per-frame path for effects ported from the official client. age is in
 		// client ticks (trackAge). Returns null to draw nothing this frame, or any of { x, y, z } (cells
 		// from the effect's position, z up), size, alpha (0..1), angle (degrees), each replacing the
-		// value the other options give.
+		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
+		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down).
 		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
@@ -416,6 +423,11 @@ class ThreeDEffect {
 					});
 				});
 			}
+		} else if (this.sharedTexture) {
+			sharedTexture(_sharedTextures, gl, this.textureName.slice('effect/'.length), texture => {
+				this.texture = texture;
+				this.ready = true;
+			});
 		} else if (this.textureName) {
 			Client.loadFile(`data/texture/${this.textureName}`, buffer => {
 				WebGL.texture(gl, buffer, texture => {
@@ -699,6 +711,16 @@ class ThreeDEffect {
 				SpriteRenderer.size[0] = sizeX;
 				SpriteRenderer.size[1] = sizeY;
 			}
+			if (sample.sizeX !== undefined) {
+				sizeX = sample.sizeX;
+				SpriteRenderer.size[0] = sizeX;
+			}
+			if (sample.sizeY !== undefined) {
+				sizeY = sample.sizeY;
+				SpriteRenderer.size[1] = sizeY;
+			}
+			SpriteRenderer.offset[0] = sample.offsetX || 0;
+			SpriteRenderer.offset[1] = sample.offsetY || 0;
 			if (sample.alpha !== undefined) {
 				alpha = Math.min(Math.max(sample.alpha, 0), 1);
 				SpriteRenderer.color[3] = alpha;
@@ -805,6 +827,12 @@ class ThreeDEffect {
 			});
 		}
 
+		// A track offset is for this sprite only.
+		if (this.track) {
+			SpriteRenderer.offset[0] = 0;
+			SpriteRenderer.offset[1] = 0;
+		}
+
 		this.needCleanUp = this.endTick < tick;
 	}
 
@@ -831,6 +859,7 @@ class ThreeDEffect {
 
 	static free(gl) {
 		this.ready = false;
+		freeSharedTextures(_sharedTextures, gl);
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
