@@ -546,7 +546,7 @@ SkillEffect[SK.HP_ASSUMPTIO] = { successEffectId: [375, 440] }; //Assumptio
 SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
 SkillEffect[SK.HW_MAGICCRASHER] = { damageEffectIdOnTarget: 380, hitEffectId: [0], hitEffectOnce: true }; //Stave Crasher
-SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, effectId: 'ef_magicpower' }; //Mystical Amplification
+SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, successEffectIdOnCaster: 'ef_magicpower' }; //Mystical Amplification: the sound only on success
 SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
 // Paladin
 SkillEffect[SK.PA_PRESSURE] = { beforeHitEffectId: 365 }; //Gloria Domini
