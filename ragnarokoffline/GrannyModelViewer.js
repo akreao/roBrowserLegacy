@@ -80876,8 +80876,8 @@ var init_UIScale = __esmMin((() => {
 function onIntersect(entries) {
 	for (const entry of entries) {
 		if (!entry.isIntersecting) continue;
-		const callbacks = _pending$5.get(entry.target);
-		_pending$5.delete(entry.target);
+		const callbacks = _pending$6.get(entry.target);
+		_pending$6.delete(entry.target);
 		_observer.unobserve(entry.target);
 		for (const callback of callbacks || []) try {
 			callback();
@@ -80896,7 +80896,7 @@ function onIntersect(entries) {
 function pendingWithin(host) {
 	const elements = [host, ...host.querySelectorAll("*")];
 	if (host.shadowRoot) elements.push(...host.shadowRoot.querySelectorAll("*"));
-	return elements.filter((element) => _pending$5.has(element));
+	return elements.filter((element) => _pending$6.has(element));
 }
 /**
 * @param {Element} element
@@ -80907,18 +80907,18 @@ function whenDrawn(element, callback) {
 		callback();
 		return;
 	}
-	const callbacks = _pending$5.get(element);
+	const callbacks = _pending$6.get(element);
 	if (callbacks) {
 		callbacks.push(callback);
 		return;
 	}
-	_pending$5.set(element, [callback]);
+	_pending$6.set(element, [callback]);
 	_observer ??= new IntersectionObserver(onIntersect);
 	_observer.observe(element);
 }
-var _pending$5, _observer;
+var _pending$6, _observer;
 var init_WhenDrawn = __esmMin((() => {
-	_pending$5 = /* @__PURE__ */ new WeakMap();
+	_pending$6 = /* @__PURE__ */ new WeakMap();
 	_observer = null;
 	/**
 	* Stop watching what waits under a window taken off the page, so the
@@ -144738,6 +144738,84 @@ var init_TownInfo = __esmMin((() => {
 		}
 	];
 }));
+// src/DB/Map/PrivateAirship.js
+/**
+* Map name as the tables hold it: lower case, no extension.
+*
+* @param {string} mapName
+* @return {string}
+*/
+function normalize(mapName) {
+	return String(mapName || "").trim().toLowerCase().replace(/\.(gat|rsw|gnd)$/, "");
+}
+var DEFAULT_NEED_ITEMS, _startable, _endable, _needItems, _loaded, PrivateAirship$1;
+var init_PrivateAirship$3 = __esmMin((() => {
+	DEFAULT_NEED_ITEMS = [6909, 25464];
+	_startable = /* @__PURE__ */ new Set();
+	_endable = /* @__PURE__ */ new Set();
+	_needItems = [];
+	_loaded = false;
+	PrivateAirship$1 = {
+		normalize,
+		/**
+		* Forget everything loaded so far.
+		*/
+		reset() {
+			_startable.clear();
+			_endable.clear();
+			_needItems.length = 0;
+			_loaded = false;
+		},
+		/**
+		* @param {string} mapName - a map a flight may start from
+		*/
+		addStartableMap(mapName) {
+			_startable.add(normalize(mapName));
+			_loaded = true;
+		},
+		/**
+		* @param {string} mapName - a map a flight may land on
+		*/
+		addEndableMap(mapName) {
+			_endable.add(normalize(mapName));
+			_loaded = true;
+		},
+		/**
+		* @param {number} itemId - an item that pays for a flight
+		*/
+		addNeedItem(itemId) {
+			itemId = Number(itemId);
+			if (itemId > 0 && _needItems.indexOf(itemId) === -1) _needItems.push(itemId);
+			_loaded = true;
+		},
+		/**
+		* @return {boolean} whether the client's table was read
+		*/
+		isLoaded() {
+			return _loaded;
+		},
+		/**
+		* @param {string} mapName
+		* @return {boolean} whether a flight may start on this map
+		*/
+		isStartableMap(mapName) {
+			return !_startable.size || _startable.has(normalize(mapName));
+		},
+		/**
+		* @param {string} mapName
+		* @return {boolean} whether a flight may land on this map
+		*/
+		isEndableMap(mapName) {
+			return !_endable.size || _endable.has(normalize(mapName));
+		},
+		/**
+		* @return {Array<number>} the items that pay for a flight, in the file's order
+		*/
+		getNeedItems() {
+			return _needItems.length ? _needItems.slice() : DEFAULT_NEED_ITEMS.slice();
+		}
+	};
+}));
 // src/DB/Status/StatusConst.js
 var StatusConst_default;
 var init_StatusConst = __esmMin((() => {
@@ -173268,6 +173346,22 @@ var init_PacketStructure = __esmMin((() => {
 		})();
 	};
 	PACKET.ZC.GROUP_LIST2.size = -1;
+	PACKET.CZ.PRIVATE_AIRSHIP_REQUEST = function PACKET_CZ_PRIVATE_AIRSHIP_REQUEST() {
+		this.mapName = "";
+		this.ItemID = 0;
+	};
+	PACKET.CZ.PRIVATE_AIRSHIP_REQUEST.prototype.build = function() {
+		const pkt_buf = new BinaryWriter(18 + (PacketVerManager_default.value >= 20181121 ? 4 : 2));
+		pkt_buf.writeShort(2633);
+		pkt_buf.writeString(this.mapName, 16);
+		if (PacketVerManager_default.value >= 20181121) pkt_buf.writeULong(this.ItemID);
+		else pkt_buf.writeUShort(this.ItemID);
+		return pkt_buf;
+	};
+	PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE = function PACKET_ZC_PRIVATE_AIRSHIP_RESPONSE(fp, end) {
+		this.result = fp.readULong();
+	};
+	PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE.size = 6;
 	PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN = function PACKET_ZC_RANDOM_COMBINE_ITEM_UI_OPEN(fp, end) {
 		this.itemId = PacketVerManager_default.value >= 20181121 ? fp.readLong() : fp.readShort();
 	};
@@ -209321,6 +209415,8 @@ var init_PacketRegister = __esmMin((() => {
 		2625: PACKET.ZC.SKILL_SCALE,
 		2627: PACKET.ZC.ADD_MEMBER_TO_GROUP3,
 		2628: PACKET.ZC.GROUP_LIST2,
+		2633: PACKET.CZ.PRIVATE_AIRSHIP_REQUEST,
+		2634: PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE,
 		2638: PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN,
 		2639: PACKET.CZ.REQ_RANDOM_COMBINE_ITEM,
 		2640: PACKET.ZC.ACK_RANDOM_COMBINE_ITEM,
@@ -227075,7 +227171,7 @@ function updateOverlay() {
 	const last = _marks.maps[_marks.maps.length - 1];
 	_overlay$1.textContent = (frames ? Math.round(frames * 1e3 / Math.max(elapsed, 1)) : 0) + " fps  " + (frames ? (elapsed / frames).toFixed(1) : "-") + " ms (max " + worst.toFixed(0) + ")\nwork " + (frames ? (work / frames).toFixed(1) : "-") + " ms  draws " + (frames ? Math.round(draws / frames) : 0) + "\n" + (last ? last.map + " load " + Math.round(last.loadMs) + " ms" : "") + (_marks.login !== null ? "  login " + Math.round(_marks.login) + " ms" : "") + (now - _lastFrameStart > 1e3 ? "\n(no frames)" : "");
 }
-var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$4, _windowStart, _frameStart, _frameTime$1, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay$1, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady$1, _slow, _slowTotal, _marks, PerfProbe;
+var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$5, _windowStart, _frameStart, _frameTime$1, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay$1, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady$1, _slow, _slowTotal, _marks, PerfProbe;
 var init_PerfProbe = __esmMin((() => {
 	init_Configs();
 	MAX_FRAMES = 36e3;
@@ -227093,7 +227189,7 @@ var init_PerfProbe = __esmMin((() => {
 	_work = new Float32Array(MAX_FRAMES);
 	_draws = new Uint32Array(MAX_FRAMES);
 	_total = 0;
-	_pending$4 = 0;
+	_pending$5 = 0;
 	_windowStart = 0;
 	_frameStart = 0;
 	_frameTime$1 = 0;
@@ -227155,7 +227251,7 @@ var init_PerfProbe = __esmMin((() => {
 		static frameStart(now) {
 			_frameStart = performance.now();
 			_frameTime$1 = now;
-			_pending$4 = _lastFrameStart ? now - _lastFrameStart : 0;
+			_pending$5 = _lastFrameStart ? now - _lastFrameStart : 0;
 			_lastFrameStart = now;
 			_frameDraws = 0;
 			_frameVertices = 0;
@@ -227165,15 +227261,15 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static frameEnd() {
 			if (!_frameStart) return;
-			if (_pending$4 > 0) {
+			if (_pending$5 > 0) {
 				const i = _total % MAX_FRAMES;
-				_interval[i] = _pending$4;
+				_interval[i] = _pending$5;
 				_work[i] = performance.now() - _frameStart;
 				_draws[i] = _frameDraws;
 				_totalVertices += _frameVertices;
-				if (_pending$4 > SLOW_MS) logSlow(_pending$4, _work[i], _frameDraws);
+				if (_pending$5 > SLOW_MS) logSlow(_pending$5, _work[i], _frameDraws);
 				_total++;
-				_pending$4 = 0;
+				_pending$5 = 0;
 			}
 			if (_mapReady$1) {
 				const map = _marks.maps[_marks.maps.length - 1];
@@ -227197,7 +227293,7 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static stop() {
 			_lastFrameStart = 0;
-			_pending$4 = 0;
+			_pending$5 = 0;
 		}
 		/**
 		* A map finished loading and is about to be drawn
@@ -227223,7 +227319,7 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static reset() {
 			_total = 0;
-			_pending$4 = 0;
+			_pending$5 = 0;
 			_lastFrameStart = 0;
 			_totalVertices = 0;
 			_slow.length = 0;
@@ -230884,12 +230980,12 @@ var init_WorldMap$1 = __esmMin((() => {
 // src/UI/Components/Navigation/Navigation.html?raw
 var Navigation_default$2;
 var init_Navigation$2 = __esmMin((() => {
-	Navigation_default$2 = "<div class=\"Navigation\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\" data-background=\"basic_interface/titlebar_left.bmp\"></div>\r\n		<div class=\"center\" data-background=\"basic_interface/titlebar_mid.bmp\"></div>\r\n		<div class=\"right\" data-background=\"basic_interface/titlebar_right.bmp\"></div>\r\n		<div class=\"title\">Navigation</div>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"content\">\r\n		<div class=\"search-container\">\r\n			<select class=\"search-type\">\r\n				<option value=\"ALL\">ALL</option>\r\n				<option value=\"NPC\">NPC</option>\r\n				<option value=\"MOB\">MOB</option>\r\n			</select>\r\n			<div class=\"search-left\" data-background=\"basic_interface/txtbox_l.bmp\"></div>\r\n			<div class=\"search-middle\" data-background=\"basic_interface/txtbox_m.bmp\"></div>\r\n			<div class=\"search-right\" data-background=\"basic_interface/txtbox_r.bmp\"></div>\r\n			<input type=\"text\" class=\"search-input\" placeholder=\"Search...\" />\r\n			<ui-button\r\n				class=\"search-button\"\r\n				bg=\"navigation_interface/navisearch_a.bmp\"\r\n				hover=\"navigation_interface/navisearch_b.bmp\"\r\n				down=\"navigation_interface/navisearch_c.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"map-container\">\r\n			<div class=\"services-toggle-container\">\r\n				<label class=\"services-checkbox\"> <input type=\"checkbox\" class=\"services-toggle\" /> Services </label>\r\n			</div>\r\n			<div class=\"location-title\"></div>\r\n			<div class=\"map-display\">\r\n				<!-- Map will be displayed here -->\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"footer\">\r\n		<div class=\"coordinates-bar\">\r\n			<div class=\"map-name\"></div>\r\n			<div class=\"mouse-info\">\r\n				<span class=\"mouse-label\">Mouse:</span>\r\n				<span class=\"mouse-coordinates\"></span>\r\n			</div>\r\n			<div class=\"target-info\">\r\n				<span class=\"target-label\">Target:</span>\r\n				<span class=\"target-coordinates\"></span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+	Navigation_default$2 = "<div class=\"Navigation\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\" data-background=\"basic_interface/titlebar_left.bmp\"></div>\r\n		<div class=\"center\" data-background=\"basic_interface/titlebar_mid.bmp\"></div>\r\n		<div class=\"right\" data-background=\"basic_interface/titlebar_right.bmp\"></div>\r\n		<div class=\"title\">Navigation</div>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"content\">\r\n		<div class=\"search-container\">\r\n			<select class=\"search-type\">\r\n				<option value=\"ALL\">ALL</option>\r\n				<option value=\"NPC\">NPC</option>\r\n				<option value=\"MOB\">MOB</option>\r\n			</select>\r\n			<div class=\"search-left\" data-background=\"basic_interface/txtbox_l.bmp\"></div>\r\n			<div class=\"search-middle\" data-background=\"basic_interface/txtbox_m.bmp\"></div>\r\n			<div class=\"search-right\" data-background=\"basic_interface/txtbox_r.bmp\"></div>\r\n			<input type=\"text\" class=\"search-input\" placeholder=\"Search...\" />\r\n			<ui-button\r\n				class=\"search-button\"\r\n				bg=\"navigation_interface/navisearch_a.bmp\"\r\n				hover=\"navigation_interface/navisearch_b.bmp\"\r\n				down=\"navigation_interface/navisearch_c.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"map-container\">\r\n			<div class=\"services-toggle-container\">\r\n				<label class=\"services-checkbox\"> <input type=\"checkbox\" class=\"services-toggle\" /> Services </label>\r\n			</div>\r\n			<div class=\"location-title\"></div>\r\n			<div class=\"map-display\">\r\n				<!-- Map will be displayed here -->\r\n			</div>\r\n		</div>\r\n		<div class=\"airship-bar\">\r\n			<ui-button\r\n				class=\"airship-move\"\r\n				bg=\"private_airplane/btn_move_normal.bmp\"\r\n				hover=\"private_airplane/btn_move_over.bmp\"\r\n				down=\"private_airplane/btn_move_press.bmp\"\r\n				disabled\r\n			></ui-button>\r\n		</div>\r\n	</div>\r\n	<div class=\"footer\">\r\n		<div class=\"coordinates-bar\">\r\n			<div class=\"map-name\"></div>\r\n			<div class=\"mouse-info\">\r\n				<span class=\"mouse-label\">Mouse:</span>\r\n				<span class=\"mouse-coordinates\"></span>\r\n			</div>\r\n			<div class=\"target-info\">\r\n				<span class=\"target-label\">Target:</span>\r\n				<span class=\"target-coordinates\"></span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/Navigation/Navigation.css?raw
 var Navigation_default$1;
 var init_Navigation$1 = __esmMin((() => {
-	Navigation_default$1 = ":host {\r\n	top: 200px;\r\n	left: 200px;\r\n}\r\n\r\n.Navigation {\r\n	width: 300px;\r\n	height: 300px;\r\n	z-index: 50;\r\n	background-repeat: repeat-y;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	position: relative;\r\n	z-index: 2;\r\n	cursor: move;\r\n}\r\n\r\n.Navigation .titlebar .left {\r\n	width: 15px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.Navigation .titlebar .center {\r\n	width: calc(100% - 20px);\r\n	height: 17px;\r\n	background-repeat: repeat-x;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 12px;\r\n}\r\n\r\n.Navigation .titlebar .right {\r\n	width: 12px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n}\r\n\r\n.Navigation .titlebar .title {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 10px;\r\n	height: 17px;\r\n	line-height: 17px;\r\n	white-space: nowrap;\r\n	text-shadow: 1px 1px white;\r\n	color: #000000;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation .titlebar .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	width: 13px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .content {\r\n	width: 100%;\r\n	height: calc(100% - 17px);\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	background-color: #f7f7f7;\r\n	border: 1px solid #d4d4d4;\r\n	border-top: none;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .search-container {\r\n	width: 100%;\r\n	height: 25px;\r\n	position: relative;\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 5px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .services-toggle-container {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 0;\r\n	margin: 0;\r\n	background-color: #f7f7f7;\r\n	position: absolute;\r\n	left: 6px;\r\n}\r\n\r\n.Navigation .services-checkbox {\r\n	color: #000;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .services-toggle {\r\n	margin-right: 4px;\r\n	margin-top: 3px;\r\n}\r\n\r\n.Navigation .search-type {\r\n	top: 3px;\r\n	height: 20px;\r\n	margin-right: 5px;\r\n	border: 1px solid #ccc;\r\n	background-color: #fff;\r\n	padding: 0 2px;\r\n	cursor: pointer;\r\n	width: 50px;\r\n	z-index: 2;\r\n	position: relative;\r\n}\r\n\r\n.Navigation .search-left {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 65px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-middle {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-right {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 35px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-input {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding: 0 5px;\r\n	z-index: 1;\r\n}\r\n\r\n.Navigation .search-button {\r\n	position: absolute;\r\n	top: 7px;\r\n	right: 5px;\r\n	width: 33px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .map-container {\r\n	width: 100%;\r\n	flex: 1;\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	padding: 0 10px 10px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .location-title {\r\n	width: 100%;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	text-align: center;\r\n	color: #000000;\r\n	text-shadow: none;\r\n	margin-bottom: 2px;\r\n	font-weight: bold;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .map-display {\r\n	width: 280px;\r\n	height: 230px;\r\n	margin: 0 auto;\r\n	position: relative;\r\n	background-color: #000000;\r\n	border: 1px solid #666666;\r\n	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .footer {\r\n	width: 100%;\r\n	position: relative;\r\n	height: 20px;\r\n	background-color: #f7f7f7;\r\n	border-top: 1px solid #d4d4d4;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .coordinates-bar {\r\n	position: relative;\r\n	width: 100%;\r\n	padding: 1px 5px;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 20px;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .map-name {\r\n	font-weight: bold;\r\n	color: #000;\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .mouse-info,\r\n.Navigation .target-info {\r\n	display: none;\r\n	align-items: center;\r\n	color: #000;\r\n	margin-left: 8px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.Navigation .mouse-label,\r\n.Navigation .target-label {\r\n	margin-right: 2px;\r\n}\r\n\r\n/* Path marker styles */\r\n.Navigation .start-marker,\r\n.Navigation .end-marker {\r\n	position: absolute;\r\n	width: 16px;\r\n	height: 16px;\r\n	transform: translate(-50%, -50%);\r\n}\r\n\r\n.Navigation .start-marker {\r\n	background-color: blue;\r\n}\r\n\r\n.Navigation .end-marker {\r\n	background-color: red;\r\n}\r\n\r\n.Navigation .path-line {\r\n	stroke: yellow;\r\n	stroke-width: 2;\r\n	fill: none;\r\n}\r\n\r\n.Navigation .search-results {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 10px;\r\n	right: 10px;\r\n	max-height: 200px;\r\n	background-color: #fff;\r\n	border: 1px solid #ccc;\r\n	z-index: 100;\r\n	overflow-y: auto;\r\n	display: none;\r\n	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .no-results {\r\n	padding: 10px;\r\n	text-align: center;\r\n	color: #666;\r\n}\r\n\r\n.Navigation .results-list {\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .result-item {\r\n	padding: 5px 10px;\r\n	border-bottom: 1px solid #eee;\r\n	cursor: pointer;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .result-item:last-child {\r\n	border-bottom: none;\r\n}\r\n\r\n.Navigation .result-item:hover {\r\n	background-color: #f0f0f0;\r\n}\r\n\r\n.Navigation .result-type {\r\n	margin-right: 5px;\r\n	font-weight: bold;\r\n	color: #666;\r\n	width: 30px;\r\n}\r\n\r\n.Navigation .npc_icon {\r\n	color: #0066cc;\r\n}\r\n\r\n.Navigation .mob_icon {\r\n	color: #cc0000;\r\n}\r\n\r\n.Navigation .result-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-map {\r\n	color: #666;\r\n	margin-left: 5px;\r\n}\r\n";
+	Navigation_default$1 = ":host {\r\n	top: 200px;\r\n	left: 200px;\r\n}\r\n\r\n.Navigation {\r\n	width: 300px;\r\n	height: 324px;\r\n	z-index: 50;\r\n	background-repeat: repeat-y;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	position: relative;\r\n	z-index: 2;\r\n	cursor: move;\r\n}\r\n\r\n.Navigation .titlebar .left {\r\n	width: 15px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.Navigation .titlebar .center {\r\n	width: calc(100% - 20px);\r\n	height: 17px;\r\n	background-repeat: repeat-x;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 12px;\r\n}\r\n\r\n.Navigation .titlebar .right {\r\n	width: 12px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n}\r\n\r\n.Navigation .titlebar .title {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 10px;\r\n	height: 17px;\r\n	line-height: 17px;\r\n	white-space: nowrap;\r\n	text-shadow: 1px 1px white;\r\n	color: #000000;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation .titlebar .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	width: 13px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .content {\r\n	width: 100%;\r\n	height: calc(100% - 17px);\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	background-color: #f7f7f7;\r\n	border: 1px solid #d4d4d4;\r\n	border-top: none;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .search-container {\r\n	width: 100%;\r\n	height: 25px;\r\n	position: relative;\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 5px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .services-toggle-container {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 0;\r\n	margin: 0;\r\n	background-color: #f7f7f7;\r\n	position: absolute;\r\n	left: 6px;\r\n}\r\n\r\n.Navigation .services-checkbox {\r\n	color: #000;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .services-toggle {\r\n	margin-right: 4px;\r\n	margin-top: 3px;\r\n}\r\n\r\n.Navigation .search-type {\r\n	top: 3px;\r\n	height: 20px;\r\n	margin-right: 5px;\r\n	border: 1px solid #ccc;\r\n	background-color: #fff;\r\n	padding: 0 2px;\r\n	cursor: pointer;\r\n	width: 50px;\r\n	z-index: 2;\r\n	position: relative;\r\n}\r\n\r\n.Navigation .search-left {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 65px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-middle {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-right {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 35px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-input {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding: 0 5px;\r\n	z-index: 1;\r\n}\r\n\r\n.Navigation .search-button {\r\n	position: absolute;\r\n	top: 7px;\r\n	right: 5px;\r\n	width: 33px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .map-container {\r\n	width: 100%;\r\n	flex: 1;\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	padding: 0 10px 10px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .location-title {\r\n	width: 100%;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	text-align: center;\r\n	color: #000000;\r\n	text-shadow: none;\r\n	margin-bottom: 2px;\r\n	font-weight: bold;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .map-display {\r\n	width: 280px;\r\n	height: 230px;\r\n	margin: 0 auto;\r\n	position: relative;\r\n	background-color: #000000;\r\n	border: 1px solid #666666;\r\n	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .airship-bar {\r\n	width: 100%;\r\n	height: 24px;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: flex-start;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .airship-move {\r\n	width: 120px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .footer {\r\n	width: 100%;\r\n	position: relative;\r\n	height: 20px;\r\n	background-color: #f7f7f7;\r\n	border-top: 1px solid #d4d4d4;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .coordinates-bar {\r\n	position: relative;\r\n	width: 100%;\r\n	padding: 1px 5px;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 20px;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .map-name {\r\n	font-weight: bold;\r\n	color: #000;\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .mouse-info,\r\n.Navigation .target-info {\r\n	display: none;\r\n	align-items: center;\r\n	color: #000;\r\n	margin-left: 8px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.Navigation .mouse-label,\r\n.Navigation .target-label {\r\n	margin-right: 2px;\r\n}\r\n\r\n/* Path marker styles */\r\n.Navigation .start-marker,\r\n.Navigation .end-marker {\r\n	position: absolute;\r\n	width: 16px;\r\n	height: 16px;\r\n	transform: translate(-50%, -50%);\r\n}\r\n\r\n.Navigation .start-marker {\r\n	background-color: blue;\r\n}\r\n\r\n.Navigation .end-marker {\r\n	background-color: red;\r\n}\r\n\r\n.Navigation .path-line {\r\n	stroke: yellow;\r\n	stroke-width: 2;\r\n	fill: none;\r\n}\r\n\r\n.Navigation .search-results {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 10px;\r\n	right: 10px;\r\n	max-height: 200px;\r\n	background-color: #fff;\r\n	border: 1px solid #ccc;\r\n	z-index: 100;\r\n	overflow-y: auto;\r\n	display: none;\r\n	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .no-results {\r\n	padding: 10px;\r\n	text-align: center;\r\n	color: #666;\r\n}\r\n\r\n.Navigation .results-list {\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .result-item {\r\n	padding: 5px 10px;\r\n	border-bottom: 1px solid #eee;\r\n	cursor: pointer;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .result-item:last-child {\r\n	border-bottom: none;\r\n}\r\n\r\n.Navigation .result-item:hover {\r\n	background-color: #f0f0f0;\r\n}\r\n\r\n.Navigation .result-type {\r\n	margin-right: 5px;\r\n	font-weight: bold;\r\n	color: #666;\r\n	width: 30px;\r\n}\r\n\r\n.Navigation .npc_icon {\r\n	color: #0066cc;\r\n}\r\n\r\n.Navigation .mob_icon {\r\n	color: #cc0000;\r\n}\r\n\r\n.Navigation .result-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-map {\r\n	color: #666;\r\n	margin-left: 5px;\r\n}\r\n";
 }));
 // src/UI/Components/Navigation/MapPathFinder.js
 var MapPathFinder;
@@ -231056,6 +231152,248 @@ var init_MapPathFinder = __esmMin((() => {
 		return path;
 	};
 }));
+// src/UI/Components/PrivateAirship/PrivateAirship.html?raw
+var PrivateAirship_default$2;
+var init_PrivateAirship$2 = __esmMin((() => {
+	PrivateAirship_default$2 = "<div class=\"PrivateAirship\" data-background=\"private_airplane/bg_pay.bmp\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"title\"><ui-text msg=\"3330\">Payment</ui-text></div>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"items\"></div>\r\n	<div class=\"notice\">\r\n		<div class=\"notice-icon\" data-background=\"private_airplane/ico_notic.bmp\"></div>\r\n		<div class=\"notice-text\"></div>\r\n	</div>\r\n</div>\r\n";
+}));
+// src/UI/Components/PrivateAirship/PrivateAirship.css?raw
+var PrivateAirship_default$1;
+var init_PrivateAirship$1 = __esmMin((() => {
+	PrivateAirship_default$1 = ":host {\r\n	width: 208px;\r\n	height: 110px;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.PrivateAirship {\r\n	position: relative;\r\n	width: 208px;\r\n	height: 110px;\r\n	background-color: #eef3fd;\r\n	background-repeat: no-repeat;\r\n	color: #000;\r\n	font-size: 12px;\r\n}\r\n\r\n.PrivateAirship .titlebar {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 208px;\r\n	height: 17px;\r\n	cursor: move;\r\n}\r\n\r\n.PrivateAirship .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 18px;\r\n	color: #000;\r\n	text-shadow: 1px 1px 0 #fff;\r\n	white-space: nowrap;\r\n}\r\n\r\n.PrivateAirship .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 4px;\r\n	width: 11px;\r\n	height: 11px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.PrivateAirship .items {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n\r\n.PrivateAirship .item {\r\n	position: absolute;\r\n	left: 8px;\r\n	width: 192px;\r\n	height: 20px;\r\n	padding: 0 4px;\r\n	box-sizing: border-box;\r\n	border: 1px solid #9eaecb;\r\n	border-radius: 3px;\r\n	background: linear-gradient(#ffffff, #dfe6f4);\r\n	color: #000;\r\n	font-size: 12px;\r\n	line-height: 18px;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	cursor: pointer;\r\n}\r\n\r\n.PrivateAirship .item:hover {\r\n	background: linear-gradient(#ffffff, #c9d6ef);\r\n}\r\n\r\n.PrivateAirship .item.disabled {\r\n	opacity: 0.5;\r\n	cursor: default;\r\n	pointer-events: none;\r\n}\r\n\r\n.PrivateAirship .notice {\r\n	display: none;\r\n}\r\n\r\n.PrivateAirship .notice.visible {\r\n	display: block;\r\n}\r\n\r\n.PrivateAirship .notice-icon {\r\n	position: absolute;\r\n	top: 86px;\r\n	left: 7px;\r\n	width: 14px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.PrivateAirship .notice-text {\r\n	position: absolute;\r\n	top: 80px;\r\n	left: 26px;\r\n	width: 164px;\r\n	height: 26px;\r\n	display: flex;\r\n	align-items: center;\r\n	color: #b51235;\r\n	line-height: 12px;\r\n	overflow: hidden;\r\n}\r\n";
+}));
+// src/UI/Components/PrivateAirship/PrivateAirship.js
+/**
+* Text for a message id, without RO colour codes.
+*
+* @param {number} id
+* @return {string}
+*/
+function message(id) {
+	return String(DB.getMessage(id, FALLBACK[id] || "")).replace(/\^[0-9a-fA-F]{6}/g, "");
+}
+/**
+* Item name, or '' when the client does not know the item.
+*
+* @param {number} itemId
+* @return {string}
+*/
+function itemName(itemId) {
+	const info = DB.getItemInfo(itemId);
+	if (!info || info === DB.getItemInfo(-1)) return "";
+	return info.identifiedDisplayName || "";
+}
+/**
+* Current map, without extension.
+*
+* @return {string}
+*/
+function currentMap() {
+	return PrivateAirship$1.normalize(MapRenderer.currentMap);
+}
+var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, PrivateAirship, _targetMap, _pending$4, PrivateAirship_default;
+var init_PrivateAirship = __esmMin((() => {
+	init_DBManager();
+	init_PrivateAirship$3();
+	init_NetworkManager();
+	init_PacketStructure();
+	init_Renderer();
+	init_MapRenderer();
+	init_SessionStorage();
+	init_KeyEventHandler();
+	init_UIManager();
+	init_GUIComponent();
+	init_Elements();
+	init_PrivateAirship$2();
+	init_PrivateAirship$1();
+	MSG = {
+		PAYMENT: 3330,
+		USE_ITEM: 3329,
+		NPC_RANDOM_CELL: 3387,
+		NOT_STARTABLE: 3331,
+		NOT_ENDABLE: 3332,
+		NOT_ENOUGH_ITEM: 3333,
+		CANNOT_USE_ITEM: 3352,
+		SAME_MAP: 3353,
+		DEAD: 3354,
+		TRY_AGAIN: 2825,
+		NYANGVINE_NO_REFUND: 4033
+	};
+	FALLBACK = {
+		[MSG.PAYMENT]: "Payment",
+		[MSG.USE_ITEM]: "Use %s",
+		[MSG.NPC_RANDOM_CELL]: "You will land at a random spot on the map.",
+		[MSG.NOT_STARTABLE]: "This map isn't available for teleport.",
+		[MSG.NOT_ENDABLE]: "You can't teleport in this map",
+		[MSG.NOT_ENOUGH_ITEM]: "Insufficient item.",
+		[MSG.CANNOT_USE_ITEM]: "You can not use items.",
+		[MSG.SAME_MAP]: "Can not move to the same map.",
+		[MSG.DEAD]: "It is impossible to move when your character KO'ed",
+		[MSG.TRY_AGAIN]: "Please try again in a moment.",
+		[MSG.NYANGVINE_NO_REFUND]: "Used Nyangvine Fruits cannot be refunded."
+	};
+	NYANGVINE_FRUIT = 6909;
+	RESULT_MESSAGE = {
+		1: MSG.TRY_AGAIN,
+		2: MSG.NOT_ENOUGH_ITEM,
+		3: MSG.NOT_ENDABLE,
+		4: MSG.NOT_STARTABLE,
+		5: MSG.CANNOT_USE_ITEM
+	};
+	ITEM_ROW_HEIGHT = 26;
+	PrivateAirship = new GUIComponent("PrivateAirship", PrivateAirship_default$1);
+	PrivateAirship.render = () => PrivateAirship_default$2;
+	PrivateAirship.needFocus = true;
+	_targetMap = "";
+	_pending$4 = false;
+	/**
+	* The checks the official client makes before it sends the request, in its order.
+	*
+	* @param {string} targetMap
+	* @return {number} message id of the first failed check, or 0
+	*/
+	PrivateAirship.precheck = function precheck(targetMap) {
+		const from = currentMap();
+		const to = PrivateAirship$1.normalize(targetMap);
+		if (!PrivateAirship$1.isStartableMap(from)) return MSG.NOT_STARTABLE;
+		if (!PrivateAirship$1.isEndableMap(to)) return MSG.NOT_ENDABLE;
+		if (!to || to === from) return MSG.SAME_MAP;
+		const entity = SessionStorage_default.Entity;
+		if (entity && entity.ACTION && entity.action === entity.ACTION.DIE) return MSG.DEAD;
+		return 0;
+	};
+	/**
+	* Initialize component
+	*/
+	PrivateAirship.init = function init() {
+		(this._shadow || this._host).querySelector(".close").addEventListener("click", () => this.remove());
+		this.draggable(".titlebar");
+	};
+	/**
+	* Center on screen when it opens
+	*/
+	PrivateAirship.onAppend = function onAppend() {
+		Object.assign(this._host.style, {
+			top: `${Math.max(0, Math.floor((Renderer.height - 110) / 2))}px`,
+			left: `${Math.max(0, Math.floor((Renderer.width - 208) / 2))}px`
+		});
+	};
+	/**
+	* Forget the request when it closes
+	*/
+	PrivateAirship.onRemove = function onRemove() {
+		_pending$4 = false;
+	};
+	/**
+	* Close on Escape
+	*/
+	PrivateAirship.onKeyDown = function onKeyDown(event) {
+		if (event.which === KEYS.ESCAPE || event.key === "Escape") {
+			this.remove();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		return true;
+	};
+	/**
+	* Open the window to fly to a map.
+	*
+	* @param {object} options
+	* @param {string} options.targetMap - map to fly to
+	* @param {boolean} [options.toNpc] - the navigation target is an NPC, which the flight does not reach
+	*/
+	PrivateAirship.open = function open(options) {
+		_targetMap = PrivateAirship$1.normalize(options && options.targetMap);
+		_pending$4 = false;
+		if (this.__active) this.remove();
+		this.append();
+		const failed = this.precheck(_targetMap);
+		this.buildItems(!failed);
+		if (failed) this.setNotice(message(failed));
+		else if (options && options.toNpc) this.setNotice(message(MSG.NPC_RANDOM_CELL));
+		else this.setNotice("");
+	};
+	/**
+	* One button per payment item the client knows.
+	*
+	* @param {boolean} enabled
+	*/
+	PrivateAirship.buildItems = function buildItems(enabled) {
+		const list = (this._shadow || this._host).querySelector(".items");
+		list.textContent = "";
+		const items = PrivateAirship$1.getNeedItems();
+		let row = 0;
+		for (let i = 0; i < items.length; i++) {
+			const itemId = items[i];
+			const name = itemName(itemId);
+			if (!name) continue;
+			row++;
+			const button = document.createElement("div");
+			button.className = "item" + (enabled ? "" : " disabled");
+			button.style.top = `${row * ITEM_ROW_HEIGHT}px`;
+			button.textContent = message(MSG.USE_ITEM).replace("%s", name);
+			button.dataset.itemId = String(itemId);
+			button.addEventListener("click", () => this.pay(itemId));
+			list.appendChild(button);
+		}
+	};
+	/**
+	* Show or clear the red notice line.
+	*
+	* @param {string} text
+	*/
+	PrivateAirship.setNotice = function setNotice(text) {
+		const root = this._shadow || this._host;
+		const notice = root.querySelector(".notice");
+		root.querySelector(".notice-text").textContent = text || "";
+		notice.classList.toggle("visible", !!text);
+	};
+	/**
+	* Pay with an item and send the request.
+	*
+	* @param {number} itemId
+	*/
+	PrivateAirship.pay = function pay(itemId) {
+		if (_pending$4 || !_targetMap) return;
+		if (itemId === NYANGVINE_FRUIT) {
+			UIManager.showPromptBox(message(MSG.NYANGVINE_NO_REFUND), "ok", "cancel", () => PrivateAirship.sendRequest(itemId));
+			return;
+		}
+		this.sendRequest(itemId);
+	};
+	/**
+	* Send CZ_PRIVATE_AIRSHIP_REQUEST.
+	*
+	* @param {number} itemId
+	*/
+	PrivateAirship.sendRequest = function sendRequest(itemId) {
+		if (_pending$4 || !_targetMap) return;
+		_pending$4 = true;
+		const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
+		pkt.mapName = _targetMap + ".gat";
+		pkt.ItemID = itemId;
+		Network.sendPacket(pkt);
+	};
+	/**
+	* ZC_PRIVATE_AIRSHIP_RESPONSE: close on success, otherwise say why.
+	*
+	* @param {object} pkt
+	*/
+	PrivateAirship.onResponse = function onResponse(pkt) {
+		_pending$4 = false;
+		if (!PrivateAirship.__active) return;
+		if (pkt.result === 0) {
+			PrivateAirship.remove();
+			return;
+		}
+		PrivateAirship.setNotice(message(RESULT_MESSAGE[pkt.result] || MSG.TRY_AGAIN));
+	};
+	/**
+	* Packet Hooks to functions
+	*/
+	Network.hookPacket(PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE, PrivateAirship.onResponse);
+	PrivateAirship_default = UIManager.addComponent(PrivateAirship);
+}));
 // src/UI/Components/Navigation/Navigation.js
 /**
 * Async image create helper
@@ -231184,7 +231522,7 @@ function resetPathFindingWorker() {
 	terminatePathFindingWorker();
 	initializePathFindingWorker();
 }
-var Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$3, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
+var PRIVATE_AIRSHIP_PACKETVER, Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$3, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
 var init_Navigation = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Renderer();
@@ -231199,6 +231537,9 @@ var init_Navigation = __esmMin((() => {
 	init_Navigation$2();
 	init_Navigation$1();
 	init_MapPathFinder();
+	init_PrivateAirship();
+	init_PacketVerManager();
+	PRIVATE_AIRSHIP_PACKETVER = 20180321;
 	Navigation = new GUIComponent("Navigation", Navigation_default$1);
 	Navigation.render = () => Navigation_default$2;
 	_arrow = createAsyncImage();
@@ -231288,6 +231629,7 @@ var init_Navigation = __esmMin((() => {
 		});
 		root.querySelector(".close").addEventListener("click", () => this.hide());
 		root.querySelector(".search-button").addEventListener("click", () => this.onSearch());
+		root.querySelector(".airship-move").addEventListener("click", () => this.onAirshipMove());
 		const searchInput = root.querySelector(".search-input");
 		searchInput.addEventListener("keypress", (e) => {
 			if (e.which === KEYS.ENTER || e.key === "Enter") this.onSearch();
@@ -231318,16 +231660,18 @@ var init_Navigation = __esmMin((() => {
 		initializePathFindingWorker();
 		const mapName = getCurrentMap();
 		this.loadMap(mapName);
+		this.updateAirshipButton();
 		if (_finalTargetData) {
 			const currentPos = getPlayerPosition();
 			this.navigateTo({
 				startMap: mapName,
 				startX: currentPos.x,
 				startY: currentPos.y,
-				endMap: _finalTargetData.map,
+				endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 				endX: _finalTargetData.x,
 				endY: _finalTargetData.y,
-				displayName: _finalTargetData.displayName
+				displayName: _finalTargetData.displayName,
+				isNpc: _finalTargetData.isNpc
 			});
 		}
 	};
@@ -231398,7 +231742,8 @@ var init_Navigation = __esmMin((() => {
 			endMap: result.mapName,
 			endX: result.x,
 			endY: result.y,
-			displayName: result.name
+			displayName: result.name,
+			isNpc: result.type === "NPC"
 		});
 		const resultsContainer = Navigation.getRoot().querySelector(".search-results");
 		if (resultsContainer) resultsContainer.style.display = "none";
@@ -231514,6 +231859,29 @@ var init_Navigation = __esmMin((() => {
 		if (targetInfo) targetInfo.style.display = "none";
 		const currentMap = getCurrentMap();
 		if (currentMap) this.setLocationTitle(currentMap, null);
+		this.updateAirshipButton();
+	};
+	/**
+	* Enable the Private Airship Move button while there is a target
+	*/
+	Navigation.updateAirshipButton = function updateAirshipButton() {
+		const root = Navigation.getRoot();
+		const bar = root && root.querySelector(".airship-bar");
+		const button = root && root.querySelector(".airship-move");
+		if (!bar || !button) return;
+		const supported = PacketVerManager_default.value >= PRIVATE_AIRSHIP_PACKETVER;
+		bar.style.display = supported ? "" : "none";
+		button.disabled = !supported || !_finalTargetData;
+	};
+	/**
+	* Move button: fly to the target's map with the Private Airship
+	*/
+	Navigation.onAirshipMove = function onAirshipMove() {
+		if (!_finalTargetData || PacketVerManager_default.value < PRIVATE_AIRSHIP_PACKETVER) return;
+		PrivateAirship_default.open({
+			targetMap: _finalTargetData.airshipMap || _finalTargetData.map,
+			toNpc: !!_finalTargetData.isNpc
+		});
 	};
 	Navigation.clearPath = function clearPath() {
 		_path = [];
@@ -231547,10 +231915,11 @@ var init_Navigation = __esmMin((() => {
 				startMap: currentMap,
 				startX: currentPos.x,
 				startY: currentPos.y,
-				endMap: _finalTargetData.map,
+				endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 				endX: _finalTargetData.x,
 				endY: _finalTargetData.y,
-				displayName: _finalTargetData.displayName
+				displayName: _finalTargetData.displayName,
+				isNpc: _finalTargetData.isNpc
 			});
 			_lastPathUpdate = tick;
 		}
@@ -231816,10 +232185,11 @@ var init_Navigation = __esmMin((() => {
 			startMap: mapName,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 		this.setMapNameText(mapName);
 		const locationTitle = root.querySelector(".location-title");
@@ -231906,12 +232276,16 @@ var init_Navigation = __esmMin((() => {
 			this.setTargetCoordinatesText(options.endX, options.endY, { targetMap: endMap });
 			this.setTargetCoordinatesBlinking(true);
 		}
+		const airshipMap = String(options.endMap || "").replace(/\.gat$/, "").toLowerCase();
 		_finalTargetData = {
 			map: endMap,
 			x: options.endX,
 			y: options.endY,
-			displayName
+			displayName,
+			airshipMap,
+			isNpc: !!options.isNpc
 		};
+		this.updateAirshipButton();
 		let warpTypes = [200, 201];
 		const servicesToggle = root.querySelector(".services-toggle");
 		if (servicesToggle && servicesToggle.checked) warpTypes = [
@@ -335084,6 +335458,46 @@ function loadTownInfoFile(filename, callback, onEnd) {
 		}
 	}, onEnd);
 }
+/**
+* Loads System/PrivateAirplane_True.lub into DB/Map/PrivateAirship.js
+*
+* @param {string} filename
+* @param {function} callback - unused
+* @param {function} onEnd - called with whether the file was read
+*/
+function loadPrivateAirship(filename, callback, onEnd) {
+	Client.loadFile(filename, async function(file) {
+		console.log("Loading file \"" + filename + "\"...");
+		let success = false;
+		try {
+			const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+			const ctx = lua.ctx;
+			PrivateAirship$1.reset();
+			ctx.InsertStartableMap = (mapName) => {
+				PrivateAirship$1.addStartableMap(userStringDecoder.decode(mapName));
+				return 1;
+			};
+			ctx.InsertEndableMap = (mapName) => {
+				PrivateAirship$1.addEndableMap(userStringDecoder.decode(mapName));
+				return 1;
+			};
+			ctx.InsertNeedItem = (itemId) => {
+				PrivateAirship$1.addNeedItem(itemId);
+				return 1;
+			};
+			lua.mountFile(filename, buffer);
+			await lua.doFile(filename);
+			lua.doStringSync("main()");
+			success = PrivateAirship$1.isLoaded();
+		} catch (error) {
+			console.error("[loadPrivateAirship] Error: ", error);
+			PrivateAirship$1.reset();
+		} finally {
+			lua.unmountFile(filename);
+			onEnd(success);
+		}
+	}, () => onEnd(false));
+}
 function loadQuestInfo(filename, callback, onEnd) {
 	new Promise((resolve, reject) => {
 		Client.loadFile(filename, resolve, reject);
@@ -337440,6 +337854,7 @@ var init_DBManager = __esmMin((() => {
 	init_JobHitSoundTable();
 	init_WeaponTrailTable();
 	init_TownInfo();
+	init_PrivateAirship$3();
 	init_StatusInfo();
 	init_StatusConst();
 	init_StatusEffectTable();
@@ -337773,6 +338188,8 @@ var init_DBManager = __esmMin((() => {
 			}
 			if (PacketVerManager_default.value >= 20150422) loadMoveInfoTable(onLoad());
 			loadWorldMapInfo(DB.LUA_PATH + "worldviewdata/", onLoad());
+			PrivateAirship$1.reset();
+			if (PacketVerManager_default.value >= 20180321) tryLoadLuaAliases(loadPrivateAirship, ["System/PrivateAirplane_True.lub", ...getSystemAliases("System/PrivateAirplane.lub")], null, onLoad());
 			const onTownInfoEnd = onLoad();
 			loadTownInfoFile("System/Towninfo.lub", null, () => {
 				loadTownInfoFile("SystemEN/Towninfo.lub", null, onTownInfoEnd);
