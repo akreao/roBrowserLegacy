@@ -11405,7 +11405,7 @@ function canBuild(filename) {
 * @param {function} callback - called with a 1024-byte Uint8Array, or null
 */
 function build(filename, callback) {
-	const job = parse$1(filename);
+	const job = parse$2(filename);
 	load$1(job, function(own, siblings, hair, hair0) {
 		if (pick$1(job) !== "data" && own && hair && hair0) {
 			const cloth = clothIndices([own, ...siblings.filter(Boolean)]);
@@ -11426,7 +11426,7 @@ function build(filename, callback) {
 * @param {function} callback - called with a replacement Uint8Array, or null to keep the file
 */
 function adjust(filename, data, callback) {
-	const job = parse$1(filename);
+	const job = parse$2(filename);
 	const choice = pick$1(job);
 	if (!job.colour || choice === "data" || data.byteLength < 1024) {
 		callback(null);
@@ -11451,7 +11451,7 @@ function adjust(filename, data, callback) {
 *
 * @param {string} filename - a body palette (canBuild)
 */
-function parse$1(filename) {
+function parse$2(filename) {
 	const match = filename.match(NAME);
 	const parts = match[1].slice(16, -1).split("_");
 	return {
@@ -107429,6 +107429,153 @@ var init_RobeTable = __esmMin((() => {
 		203: "C_Leticia",
 		204: "GreatDevilWing2",
 		999: "LAST"
+	};
+}));
+// src/DB/Items/GarmentLayer.js
+/**
+* Forget every table (tests, or before a reload).
+*/
+function clear$1() {
+	tables[0].clear();
+	tables[1].clear();
+	inherit.clear();
+	loaded[0] = false;
+	loaded[1] = false;
+}
+/**
+* @param {number} [sex] 0 female, anything else male; left out, either
+* @return {boolean} true once that sex's table has been read
+*/
+function isLoaded(sex) {
+	if (sex === void 0) return loaded[0] || loaded[1];
+	return loaded[sex === 0 ? 0 : 1];
+}
+/**
+* Read the dump the loader builds in Lua, one entry a line:
+*   "F <sex> <job> <actNum> <frame>.<frame>..."  frames that draw under the body
+*   "I <job> <job it uses>"                      LAYER_ALL_TABLE_LIST
+*
+* @param {string} dump
+*/
+function parse$1(dump) {
+	const lines = dump.split("\n");
+	for (let i = 0; i < lines.length; i++) {
+		const parts = lines[i].trim().split(" ");
+		if (parts[0] === "I" && parts.length >= 3) {
+			inherit.set(Number(parts[1]), Number(parts[2]));
+			continue;
+		}
+		if (parts[0] !== "F" || parts.length < 4) continue;
+		const sex = Number(parts[1]) === 0 ? 0 : 1;
+		const job = Number(parts[2]);
+		const actNum = Number(parts[3]);
+		const frames = /* @__PURE__ */ new Set();
+		if (parts[4]) {
+			const list = parts[4].split(".");
+			for (let j = 0; j < list.length; j++) frames.add(Number(list[j]));
+		}
+		let byAct = tables[sex].get(job);
+		if (!byAct) {
+			byAct = /* @__PURE__ */ new Map();
+			tables[sex].set(job, byAct);
+		}
+		byAct.set(actNum, frames);
+		loaded[sex] = true;
+	}
+}
+/**
+* The client's _New_DrawOnTop.
+*
+* @param {number} sex 0 female, anything else male
+* @param {number} job the job the body sprite is drawn as (mounts included)
+* @param {number} actNum action * 8 + direction, as the act file is indexed
+* @param {number} frame the garment's frame in that action
+* @return {boolean|null} true over the body, false under it, null when that sex's table was not loaded
+*/
+function drawOnTop(sex, job, actNum, frame) {
+	const index = sex === 0 ? 0 : 1;
+	if (!loaded[index]) return null;
+	const byAct = tables[index].get(inherit.has(job) ? inherit.get(job) : job);
+	if (!byAct) return true;
+	const frames = byAct.get(actNum);
+	if (!frames) return true;
+	return !frames.has(frame);
+}
+var tables, inherit, loaded, OFFICIAL_JOB_ALIASES, DUMP_LUA, GarmentLayer_default;
+var init_GarmentLayer = __esmMin((() => {
+	tables = [/* @__PURE__ */ new Map(), /* @__PURE__ */ new Map()];
+	inherit = /* @__PURE__ */ new Map();
+	loaded = [false, false];
+	OFFICIAL_JOB_ALIASES = {
+		JT_SANTA: 26,
+		JT_CHICKEN: 13,
+		JT_CHICKEN2: 21,
+		JT_CHICKEN_B: 4036,
+		JT_CHICKEN2_B: 4044,
+		JT_THIRDJOB_BEGIN: 4053,
+		JT_RUNE_CHICKEN: 4080,
+		JT_RUNE_CHICKEN_H: 4081,
+		JT_ROYAL_CHICKEN: 4082,
+		JT_ROYAL_CHICKEN_H: 4083,
+		JT_WOLF_RANGER: 4084,
+		JT_WOLF_RANGER_H: 4085,
+		JT_MADOGEAR: 4086,
+		JT_MADOGEAR_H: 4087,
+		JT_RUNE_CHICKEN_B: 4109,
+		JT_ROYAL_CHICKEN_B: 4110,
+		JT_WOLF_RANGER_B: 4111,
+		JT_MADOGEAR_B: 4112,
+		JT_THIRDJOB_END: 4113,
+		JT_DO_CART_SUMMONER: 4219,
+		JT_DO_CART_SUMMONER_B: 4221,
+		JT_STAR2_EMPEROR: 4243,
+		JT_STAR2_EMPEROR_B: 4244
+	};
+	DUMP_LUA = `
+	local out = {}
+	if type(LAYER_ALL_TABLE_LIST) == "table" then
+		for from, to in pairs(LAYER_ALL_TABLE_LIST) do
+			if type(from) == "number" and type(to) == "number" and from >= 0 and to >= 0 then
+				out[#out + 1] = "I " .. from .. " " .. to
+			end
+		end
+	end
+	local function dump(sex, tbl)
+		if type(tbl) ~= "table" then
+			return
+		end
+		for job, acts in pairs(tbl) do
+			if type(job) == "number" and type(acts) == "table" then
+				for act, frames in pairs(acts) do
+					if type(act) == "number" and type(frames) == "table" then
+						local list = {}
+						for _, frame in ipairs(frames) do
+							list[#list + 1] = frame
+						end
+						out[#out + 1] = "F " .. sex .. " " .. job .. " " .. act .. " " .. table.concat(list, ".")
+					end
+				end
+			end
+		end
+	end
+	dump(0, _New_BigLayerDir_F)
+	dump(1, _New_BigLayerDir_M)
+	local dump = table.concat(out, "\\n")
+	_New_BigLayerDir_F = nil
+	_New_BigLayerDir_M = nil
+	_New_SmallLayerDir_F = nil
+	_New_SmallLayerDir_M = nil
+	LAYER_ALL_TABLE_LIST = nil
+	collectgarbage()
+	return dump
+`;
+	GarmentLayer_default = {
+		clear: clear$1,
+		isLoaded,
+		parse: parse$1,
+		drawOnTop,
+		OFFICIAL_JOB_ALIASES,
+		DUMP_LUA
 	};
 }));
 // src/DB/Items/ItemRandomOptionTable.js
@@ -337409,6 +337556,76 @@ function loadWeaponTable(filename, callback, onEnd) {
 	}, onEnd);
 }
 /**
+* Load the client's garment layer tables (see DB/Items/GarmentLayer.js):
+* spreditinfo/_new_2dlayerdir_f.lub, _new_biglayerdir_female.lub and _new_biglayerdir_male.lub.
+* A missing file is skipped; without a sex's table, its garments keep the built-in ordering.
+* Each call drops the previous archive's tables first, and a call overtaken by a newer one
+* (a server switch) keeps nothing.
+*
+* @param {string} path folder holding the three files
+* @param {function} onEnd to run when done
+*/
+function loadGarmentLayers(path, onEnd) {
+	const generation = ++garmentLayerGeneration;
+	const files = [
+		"_new_2dlayerdir_f.lub",
+		"_new_biglayerdir_female.lub",
+		"_new_biglayerdir_male.lub"
+	];
+	const mounted = [];
+	const loadFile = (name) => new Promise((resolve) => {
+		Client.loadFile(path + name, (file) => resolve(file), () => resolve(null));
+	});
+	GarmentLayer_default.clear();
+	(async () => {
+		try {
+			const buffers = await Promise.all(files.map(loadFile));
+			if (generation !== garmentLayerGeneration || !buffers.some(Boolean)) return;
+			const jobId = { ...GarmentLayer_default.OFFICIAL_JOB_ALIASES };
+			for (const [key, value] of Object.entries(JobConst_default)) jobId[`JT_${key}`] = value;
+			const ctx = lua.ctx;
+			ctx.__GARMENT_JOBID = jobId;
+			const run = [];
+			for (let i = 0; i < files.length; i++) {
+				if (!buffers[i]) continue;
+				const name = "garmentlayer_" + files[i];
+				const buffer = buffers[i] instanceof ArrayBuffer ? new Uint8Array(buffers[i]) : buffers[i];
+				lua.mountFile(name, buffer);
+				mounted.push(name);
+				run.push(`(__ro_orig_dofile or dofile)("${name}")`);
+			}
+			const dump = await lua.doString(`
+				local savedJobId = JOBID
+				JOBID = setmetatable({}, {
+					__index = function(t, k)
+						local id = __GARMENT_JOBID[k]
+						if id == nil then
+							return -1
+						end
+						return id
+					end
+				})
+				local ok, result = pcall(function()
+					${run.join("\n")}
+					${GarmentLayer_default.DUMP_LUA}
+				end)
+				JOBID = savedJobId
+				__GARMENT_JOBID = nil
+				if not ok then
+					error(result)
+				end
+				return result
+			`);
+			if (generation === garmentLayerGeneration && dump) GarmentLayer_default.parse(typeof dump === "string" ? dump : new TextDecoder().decode(dump));
+		} catch (error) {
+			console.error("[loadGarmentLayers] Error: ", error);
+		} finally {
+			mounted.forEach((name) => lua.unmountFile(name));
+			onEnd();
+		}
+	})();
+}
+/**
 * Loads skillinfolist.lub which replaces part of DB/Skills/SkillInfo.js
 *
 * @param {string} filename - The name of the file to load.
@@ -338501,7 +338718,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, ModSkillDescription;
+var lua, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, garmentLayerGeneration, ModSkillDescription;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -338529,6 +338746,7 @@ var init_DBManager = __esmMin((() => {
 	init_WeaponSoundTable();
 	init_WeaponHitSoundTable();
 	init_RobeTable();
+	init_GarmentLayer();
 	init_ItemRandomOptionTable();
 	init_WorldMap$3();
 	init_SkillConst();
@@ -338753,6 +338971,7 @@ var init_DBManager = __esmMin((() => {
 				const customWeapons = customLuaTables("weapon");
 				const loadCustomWeapon = (index = 0) => index < customWeapons.length ? loadWeaponTable(customWeapons[index], null, () => loadCustomWeapon(index + 1)) : onWeaponEnd();
 				loadWeaponTable(DB.LUA_PATH + "datainfo/weapontable.lub", null, () => loadCustomWeapon());
+				loadGarmentLayers(DB.LUA_PATH + "spreditinfo/", onLoad());
 				if (PacketVerManager_default.value >= 20170208) loadTitleTable(DB.LUA_PATH + "datainfo/titletable.lub", null, onLoad());
 				const onSkillEnd = onLoad();
 				loadLuaValue(DB.LUA_PATH + "skillinfoz/skillid.lub", "SKID", (json) => {
@@ -341377,6 +341596,7 @@ var init_DBManager = __esmMin((() => {
 		abyss_flame_target: "hitEffectId"
 	};
 	EZ2_VARIANT_WORD = /^(\d+|\d+x\d+|earth|fire|water|wind|ice|saint|holy|dark|darkness|poison|ghost|undead|neutral|reset|leftdown|rightdown|leftup|rightup)$/;
+	garmentLayerGeneration = 0;
 	ModSkillDescription = {};
 }));
 // src/UI/Components/PetInformations/PetInformations.html?raw
@@ -345264,6 +345484,27 @@ function render$5(modelView, projection) {
 function isLookingBack(direction) {
 	return direction > 2 && direction < 6;
 }
+/**
+* Whether the garment is drawn over the body this frame. The client decides it per job, sex,
+* action, direction and frame (DB/Items/GarmentLayer.js); without its table, over the body when
+* the entity looks away from the camera.
+*
+* @param {Entity} entity
+* @param {number} direction sprite direction, camera included
+* @return {boolean}
+*/
+function garmentOnTop(entity, direction) {
+	const fallback = isLookingBack(direction);
+	if (!GarmentLayer_default.isLoaded(entity.sex) || entity.action < 0) return fallback;
+	const files = entity.files.robe;
+	const act = files && files.act && Client.loadFile(files.act);
+	if (!act || !act.actions || !act.actions.length) return fallback;
+	const actNum = entity.action * 8 + direction;
+	const action = act.actions[actNum % act.actions.length];
+	const frame = calcAnimation(entity, action, "robe", Date.now() - entity.animation.tick);
+	const onTop = GarmentLayer_default.drawOnTop(entity.sex, entity.job, actNum, frame);
+	return onTop === null ? fallback : onTop;
+}
 function renderWaterDepth$1() {
 	const frame = this.waterDepthFrame;
 	const attachments = this.waterDepthAttachments;
@@ -345698,6 +345939,7 @@ var init_EntityRender = __esmMin((() => {
 	init_Altitude();
 	init_SessionStorage();
 	init_DBManager();
+	init_GarmentLayer();
 	init_Graphics();
 	init_GR2ModelRenderer();
 	init_BodyMotionSim();
@@ -345863,10 +346105,12 @@ var init_EntityRender = __esmMin((() => {
 					SpriteRenderer.runWithDepth(true, true, false, function() {
 						let cartidx;
 						const RIDING_STATUS = self.effectState & (StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER) || self.allRidingState;
+						const robeOnTop = self.robe > 0 && garmentOnTop(self, direction);
+						const robeFromTable = self.robe > 0 && GarmentLayer_default.isLoaded(self.sex);
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
 								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? 50 : 25) > self.bodyHeight + 64) {
-									if ((self.action === self.ACTION.ATTACK || self.action === self.ACTION.ATTACK1 || self.action === self.ACTION.ATTACK2 || self.action === self.ACTION.ATTACK3) && !lookingFront) return -450;
+									if (!robeFromTable && (self.action === self.ACTION.ATTACK || self.action === self.ACTION.ATTACK1 || self.action === self.ACTION.ATTACK2 || self.action === self.ACTION.ATTACK3) && !lookingFront) return -450;
 									if (self.action === self.ACTION.SIT) return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 									return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
 								}
@@ -345888,10 +346132,10 @@ var init_EntityRender = __esmMin((() => {
 									renderElement(self, self.files.cart[cartidx], "cart", _position, false);
 								});
 							}
-							if (self.robe > 0) {
-								SpriteRenderer.zIndex = robeCorrection(true);
-								renderElement(self, self.files.robe, "robe", _position, true);
-							}
+						}
+						if (self.robe > 0 && !robeOnTop) {
+							SpriteRenderer.zIndex = robeCorrection(true);
+							renderElement(self, self.files.robe, "robe", _position, true);
 						}
 						SpriteRenderer.zIndex = 150;
 						if (RIDING_STATUS && !isLookingBack(direction) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
@@ -345915,11 +346159,11 @@ var init_EntityRender = __esmMin((() => {
 							SpriteRenderer.zIndex = bodyZOffset + 300;
 							renderElement(self, self.files.accessory, "head", _position, false);
 						}
+						if (self.robe > 0 && robeOnTop) {
+							SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
+							renderElement(self, self.files.robe, "robe", _position, true);
+						}
 						if (isLookingBack(direction)) {
-							if (self.robe > 0) {
-								SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
-								renderElement(self, self.files.robe, "robe", _position, true);
-							}
 							if (SessionStorage_default.Playing == true && self.hasCart == true) {
 								SpriteRenderer.zIndex = bodyZOffset + 500;
 								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
