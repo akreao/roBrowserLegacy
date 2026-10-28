@@ -223615,14 +223615,20 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.TK_DODGE].effectIdOnCaster = 449;
 	SkillEffect[SkillConst_default.TK_DODGE].successEffectIdOnCaster = "ef_tk_dodge";
 	SkillEffect[SkillConst_default.SG_FEEL] = { castAuraEffectId: 441 };
-	SkillEffect[SkillConst_default.SG_SUN_WARM] = { effectId: 488 };
-	SkillEffect[SkillConst_default.SG_MOON_WARM] = { effectId: 488 };
-	SkillEffect[SkillConst_default.SG_STAR_WARM] = { effectId: 488 };
-	SkillEffect[SkillConst_default.SG_SUN_COMFORT] = { effectId: 441 };
-	SkillEffect[SkillConst_default.SG_MOON_COMFORT] = { effectId: 441 };
-	SkillEffect[SkillConst_default.SG_STAR_COMFORT] = { effectId: 441 };
-	SkillEffect[SkillConst_default.SG_HATE] = { groundEffectId: 487 };
-	SkillEffect[SkillConst_default.SG_FUSION] = { effectId: [433, "quake"] };
+	SkillEffect[SkillConst_default.SG_SUN_WARM] = { successEffectIdOnCaster: 572 };
+	SkillEffect[SkillConst_default.SG_MOON_WARM] = { successEffectIdOnCaster: 572 };
+	SkillEffect[SkillConst_default.SG_STAR_WARM] = { successEffectIdOnCaster: 572 };
+	SkillEffect[SkillConst_default.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 };
+	SkillEffect[SkillConst_default.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 };
+	SkillEffect[SkillConst_default.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 };
+	SkillEffect[SkillConst_default.SG_HATE] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "sg_hate_sound"
+	};
+	SkillEffect[SkillConst_default.SG_FUSION] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: ["sg_fusion_sound", "quake"]
+	};
 	SkillEffect[SkillConst_default.AM_BERSERKPITCHER] = {
 		successEffectIdOnCaster: 541,
 		successEffectId: 220
@@ -303497,6 +303503,11 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		ef_tk_mission: [{ wav: "effect/t_ÇÇ¸µ" }],
+		488: [{
+			wav: "effect/t_¾È¶ôÇÑ¸¶¹ý",
+			delayWav: 5 * (1e3 / 60),
+			attachedEntity: true
+		}],
 		491: [{
 			type: "STR",
 			file: "Âý½Ò¶±",
@@ -304501,6 +304512,11 @@ var init_EffectTable = __esmMin((() => {
 		571: [{
 			type: "SPR",
 			file: "ºí·¯µå·¯½ºÆ®",
+			attachedEntity: true
+		}],
+		572: [{
+			wav: "effect/t_µûµíÇÑ¸¶¹ý",
+			delayWav: 10 * (1e3 / 60),
 			attachedEntity: true
 		}],
 		576: [{
@@ -309417,6 +309433,14 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_hit2_sound: [{
 			wav: "effect/ef_hit2",
+			attachedEntity: true
+		}],
+		sg_hate_sound: [{
+			wav: "effect/t_µî·Ï",
+			attachedEntity: true
+		}],
+		sg_fusion_sound: [{
+			wav: "effect/t_º¯½Å",
 			attachedEntity: true
 		}],
 		ef_greed_sound: [{
@@ -363701,6 +363725,7 @@ function onEntityCastCancel(pkt) {
 			57,
 			58,
 			59,
+			441,
 			830,
 			2368,
 			454,
