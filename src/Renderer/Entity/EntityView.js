@@ -173,6 +173,12 @@ function suppressHeadSprites() {
 			this.files.head.pal = null;
 		}
 	}
+	for (let i = 0, count = EquipParts.length; i < count; ++i) {
+		const part = EquipParts[i];
+		this.files[part].spr = null;
+		this.files[part].act = null;
+		this.files[part].pal = null;
+	}
 }
 
 /**
@@ -216,6 +222,14 @@ function getEffectiveJob() {
  * List of view parts that should be suppressed when transformed
  */
 const HeadParts = ['head', 'accessory', 'accessory2', 'accessory3'];
+
+/**
+ * Equipment sprites that are hidden along with the head. A transformed body (the
+ * Druid's Werewolf and Wereraptor, a monster form) has no garment, weapon or
+ * shield sprites of its own: kRO's data.grf has only the body files for them.
+ * The ones the class wore before must not stay on top of the new body.
+ */
+const EquipParts = ['robe', 'weapon', 'weapon_trail', 'shield'];
 
 /**
  * Returns true if head sprites should be suppressed for the current state
@@ -811,10 +825,8 @@ function UpdateGeneric(type, func, fallback) {
 				function () {
 					_this['_' + type] = _val;
 
-					// Head accessories should not be applied if they should be suppressed
-					const isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
-
-					if (!isAccessory || !shouldSuppressHead.call(_this)) {
+					// Head accessories and equipment are not drawn on a transformed body
+					if (!shouldSuppressHead.call(_this)) {
 						_this.files[type].spr = filepath + '.spr';
 						_this.files[type].act = filepath + '.act';
 					}
@@ -828,6 +840,9 @@ function UpdateGeneric(type, func, fallback) {
 						if (trail_file) {
 							Client.loadFile(trail_file + '.act');
 							Client.loadFile(trail_file + '.spr', function () {
+								if (shouldSuppressHead.call(_this)) {
+									return;
+								}
 								_this.files['weapon_trail'].spr = trail_file + '.spr';
 								_this.files['weapon_trail'].act = trail_file + '.act';
 							});
