@@ -59,6 +59,12 @@ export const SCHEDULES = {
 		const on = age >= 10 && age <= 34 && age % 4 < 2;
 		return { add: on, glow: on, split: false, color: null };
 	},
+	// Preserve (496): ticks 10 to 30, added body and colour 250 on even ticks, white on odd ones.
+	496: age => {
+		const on = age >= 10 && age <= 30;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: false, split: false, color: on ? (even ? [250, 250, 250] : WHITE) : null };
+	},
 	// Shinkirou: split images all along, red added body and glow copy to age 30.
 	2373: age => {
 		const on = age <= 30;
