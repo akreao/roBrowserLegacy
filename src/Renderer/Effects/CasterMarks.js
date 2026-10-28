@@ -48,6 +48,12 @@ const PURPLE = [182, 89, 255];
  * `color` is the colour it sets (0-255), or null to leave it.
  */
 export const SCHEDULES = {
+	// Counter Instinct (392): glow copy to tick 29, the caster grey (100) three ticks out of six, else 250.
+	392: age => {
+		const on = age < 30;
+		const c = age % 6 < 3 ? 100 : 250;
+		return { add: false, glow: on, split: false, color: on ? [c, c, c] : null };
+	},
 	// Nightmare Erasion: added body and glow copy two ticks out of four, ages 12 to 33.
 	934: age => {
 		const on = age >= 10 && age <= 34 && age % 4 < 2;
