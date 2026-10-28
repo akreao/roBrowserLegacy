@@ -19219,6 +19219,23 @@ export default {
 		}
 	],
 
+	// Chase Walk's cast aura (official client): EF_BeginSpell.wav, and for the cast time the
+	// caster turns round faster and faster while it can be seen; no ring (CasterMarks.js).
+	1195: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 1195),
+					Params
+				);
+			}
+		}
+	],
+
 	1225: [
 		{
 			// Soul energy orbs (Soul Reaper, Soul Ascetic), one per soul from ZC_SOULENERGY, newest five shown
