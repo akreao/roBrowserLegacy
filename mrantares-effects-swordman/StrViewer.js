@@ -259103,7 +259103,8 @@ function sharedTexture(gl, name, onload) {
 	if (!entry) {
 		entry = {
 			texture: null,
-			waiting: []
+			waiting: [],
+			users: 0
 		};
 		_sharedTextures.set(name, entry);
 		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
@@ -259117,8 +259118,21 @@ function sharedTexture(gl, name, onload) {
 			});
 		});
 	}
+	entry.users++;
 	if (entry.texture) onload(entry.texture);
 	else entry.waiting.push(onload);
+}
+/**
+* One instance stops using a shared texture; the last one deletes it.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {string} name
+*/
+function releaseSharedTexture(gl, name) {
+	const entry = _sharedTextures.get(name);
+	if (!entry || --entry.users > 0) return;
+	if (entry.texture) gl.deleteTexture(entry.texture);
+	_sharedTextures.delete(name);
 }
 /**
 * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
@@ -259419,11 +259433,13 @@ var init_ThreeDEffect = __esmMin((() => {
 						if (this.loadedTextures == textureCount) this.ready = true;
 					});
 				});
-			} else if (this.sharedTexture) sharedTexture(gl, this.textureName.slice(7), (texture) => {
-				this.texture = texture;
-				this.ready = true;
-			});
-			else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
+			} else if (this.sharedTexture) {
+				this.sharedTextureName = this.textureName.slice(7);
+				sharedTexture(gl, this.sharedTextureName, (texture) => {
+					this.texture = texture;
+					this.ready = true;
+				});
+			} else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					this.texture = texture;
 					this.ready = true;
@@ -259433,6 +259449,10 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 		free(gl) {
 			this.ready = false;
+			if (this.sharedTextureName) {
+				releaseSharedTexture(gl, this.sharedTextureName);
+				this.sharedTextureName = null;
+			}
 		}
 		render(gl, tick) {
 			if (this.startTick > tick) return;
