@@ -222655,8 +222655,8 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 52
 	};
 	SkillEffect[SkillConst_default.MG_THUNDERSTORM] = {
-		effectId: 30,
-		hitEffectId: 52
+		groundEffectIdByLevel: [30],
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.AL_RUWACH] = {
 		damageEffectIdOnCaster: 12,
