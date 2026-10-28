@@ -47,7 +47,12 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import { ninjaThrowEffects, throwStoneEffect, throwVenomKnifeEffect } from 'DB/Effects/ThrowStoneEffect.js';
+import {
+	acidTerrorEffect,
+	ninjaThrowEffects,
+	throwStoneEffect,
+	throwVenomKnifeEffect
+} from 'DB/Effects/ThrowStoneEffect.js';
 import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
 import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
@@ -6973,27 +6978,8 @@ export default {
 		}
 	],
 
-	298: [
-		{
-			//EF_THROWITEM	   Acid Terror Animnation
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 300,
-			fadeIn: true,
-			fadeOut: true,
-			file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xbf\xb0\xbb\xea\xba\xb4.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 0.5,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
+	// EF_THROWITEM, Acid Terror: the client's thrown bottle with its trail (ThrowStoneEffect.js)
+	298: acidTerrorEffect,
 
 	//299: [{}],	//EF_THROWITEM2	   (Nothing)
 

@@ -403,7 +403,9 @@ SkillEffect[SK.RG_CLEANER] = {}; //Remover
 // Alchemist
 SkillEffect[SK.AM_PHARMACY] = {}; //Prepare Potion
 SkillEffect[SK.AM_DEMONSTRATION] = { groundEffectId: 302 }; //Bomb
-SkillEffect[SK.AM_ACIDTERROR] = { beforeHitEffectId: 298 }; //Acid Terror
+// Official client: 298 (the bottle) thrown from the caster at the target as each damage packet
+// arrives, misses included; each hit that lands plays the hit flash (0). See effect-port/alchemist-skills.md.
+SkillEffect[SK.AM_ACIDTERROR] = { damageEffectIdOnCaster: 298, hitEffectId: 0 }; //Acid Terror
 SkillEffect[SK.AM_POTIONPITCHER] = { effectId: 299 }; //Aid Potion
 SkillEffect[SK.AM_CANNIBALIZE] = {}; //Summon Flora
 SkillEffect[SK.AM_SPHEREMINE] = {}; //Summon Marine Sphere
