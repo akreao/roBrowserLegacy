@@ -47,7 +47,7 @@ describe('Ganbantein funnel', () => {
 
 	it('plays 223 and EF_FireWall.wav from the ground packet', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
-			/SkillEffect\[SK\.HW_GANBANTEIN\] = \{ effectId: \[223, 'ef_ganbantein_wav'\] \};/
+			/SkillEffect\[SK\.HW_GANBANTEIN\] = \{ effectId: \[223, 'ef_ganbantein_wav'\], castAuraEffectId: 58 \};/
 		);
 		const table = read('DB/Effects/EffectTable.js');
 		const row = table.slice(table.indexOf('\n\t223: ['), table.indexOf('\n\t],', table.indexOf('\n\t223: [')));
