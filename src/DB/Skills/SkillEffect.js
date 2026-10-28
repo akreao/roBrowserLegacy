@@ -255,7 +255,7 @@ SkillEffect[SK.WZ_ESTIMATION] = {}; //Sense
 SkillEffect[SK.BS_REPAIRWEAPON] = { successEffectId: 101 }; //Weapon Repair: on the target, only when the use packet succeeds
 SkillEffect[SK.BS_HAMMERFALL] = { effectId: 102 }; //Hammer Fall
 SkillEffect[SK.BS_ADRENALINE] = { successEffectIdOnCaster: 98 }; //Adrenaline Rush: on the source, only when the use packet succeeds
-SkillEffect[SK.BS_WEAPONPERFECT] = { effectId: 103 }; //Weapon Perfection
+SkillEffect[SK.BS_WEAPONPERFECT] = { successEffectId: 103 }; //Weapon Perfection: on the target, only when the use packet succeeds
 SkillEffect[SK.BS_OVERTHRUST] = { effectId: 128 }; //Power-Thrust
 SkillEffect[SK.BS_MAXIMIZE] = { beginCastEffectId: 'maximize_power_sounds', effectId: 104 }; //Maximize Power
 // Hunter
