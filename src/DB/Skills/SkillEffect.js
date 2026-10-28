@@ -647,7 +647,9 @@ SkillEffect[SK.SG_STAR_COMFORT] = { effectId: 441 }; //Comfort of the Stars
 SkillEffect[SK.SG_HATE] = { /*475 - 484*/ groundEffectId: 487 }; //Hatred of the Sun Moon and Stars
 SkillEffect[SK.SG_FUSION] = { effectId: [433, 'quake'] }; //Union of the Sun Moon and Stars
 // Alchemist
-SkillEffect[SK.AM_BERSERKPITCHER] = { beforeHitEffectId: 541, effectId: 220 }; //Aid Berserk Potion
+// Official client: when the skill succeeds, 541 (the bottle) thrown from the caster at the target and
+// 220 on the target, both at once. See effect-port/alchemist-skills.md.
+SkillEffect[SK.AM_BERSERKPITCHER] = { successEffectIdOnCaster: 541, successEffectId: 220 }; //Aid Berserk Potion
 // Soul Linker
 SkillEffect[SK.SL_ALCHEMIST] = //↓		//Spirit of the Alchemist
 	SkillEffect[SK.SL_MONK] = //↓		//Spirit of the Monk

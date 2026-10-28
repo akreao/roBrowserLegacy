@@ -10,7 +10,8 @@
  *  - 298 (EF_THROWITEM), Acid Terror's green bottle, in a high arc, always
  *    25 ticks in flight;
  *  - 299 (EF_THROWITEM2), Aid Potion's potion bottle, the same flight, tinted
- *    by the skill level.
+ *    by the skill level;
+ *  - 541 (EF_THROWITEM5), Aid Berserk Potion's bottle, the same flight.
  * Motion in Renderer/Effects/ThrownStoneSim.js. Specs: effect-port/thief-skills.md,
  * effect-port/ninja-skills.md, effect-port/assassin-skills.md, effect-port/alchemist-skills.md.
  *
@@ -20,6 +21,7 @@
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import {
 	ACID_BOTTLE,
+	BERSERK_POTION,
 	NINJA_ITEM,
 	STONE,
 	STONE_TEXTURE,
@@ -142,6 +144,9 @@ export const acidTerrorEffect = thrownItemRow(298, ACID_BOTTLE.texture, ACID_BOT
 
 /** EffectTable row for 299 (EF_THROWITEM2): Aid Potion's bottle, its colour the skill level, no sound. */
 export const aidPotionEffect = thrownItemRow(299, POTION_BOTTLE.texture, potionBottle);
+
+/** EffectTable row for 541 (EF_THROWITEM5): Aid Berserk Potion's bottle, no sound. */
+export const berserkPotionThrowEffect = thrownItemRow(541, BERSERK_POTION.texture, BERSERK_POTION);
 
 /** EffectTable rows for 613-616 (Throw Shuriken, Kunai, Huuma, Zeny): no sound of their own. */
 export const ninjaThrowEffects = Object.fromEntries(

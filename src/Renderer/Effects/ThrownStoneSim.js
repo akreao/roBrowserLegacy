@@ -5,7 +5,8 @@
  * on their own: Throw Stone's stone (effect 308, EF_THROWITEM3) and the Ninja's
  * shuriken, kunai, huuma and coin (613-616, EF_THROWITEM7-10), which the client
  * draws with the same code and other numbers (NINJA_ITEM), and the Alchemist's
- * bottles (BOTTLE: Acid Terror's 298, Aid Potion's 299). Specs: effect-port/thief-skills.md,
+ * bottles (BOTTLE: Acid Terror's 298, Aid Potion's 299, Aid Berserk Potion's 541).
+ * Specs: effect-port/thief-skills.md,
  * effect-port/ninja-skills.md, effect-port/alchemist-skills.md.
  *
  * As the official client plays it, on the caster as the damage packet arrives,
@@ -87,6 +88,11 @@ export const ACID_BOTTLE = Object.assign({}, BOTTLE, {
 /** Aid Potion's bottle (299, EF_THROWITEM2): 빈포션병.bmp, tinted by the skill level (potionBottle). */
 export const POTION_BOTTLE = Object.assign({}, BOTTLE, {
 	texture: ITEM + '\xba\xf3\xc6\xf7\xbc\xc7\xba\xb4.bmp' // 빈포션병
+});
+
+/** Aid Berserk Potion's bottle (541, EF_THROWITEM5): 버서크포션.bmp, colour 4 (white, untinted). */
+export const BERSERK_POTION = Object.assign({}, BOTTLE, {
+	texture: ITEM + '\xb9\xf6\xbc\xad\xc5\xa9\xc6\xf7\xbc\xc7.bmp' // 버서크포션
 });
 
 /** Aid Potion's tints for levels 1-5: red, orange, yellow, white and blue potions. */
