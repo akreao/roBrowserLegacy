@@ -3686,18 +3686,14 @@ export default {
 	98: [
 		{
 			//EF_HASTEUP	Adrenaline Rush
-			//type: 'FUNC',
-			// This one is pretty messy... it somehow consists of two sprites, one is attached to the Entity, one isnt. additionally it consists of two sounds
-			// For the sake of simplicity, I propose just using one sprite and one sound - the _a sound is just some 'intro' while _b is a real effect
-			// black_adrenalinerush.wav what is this for?
-			wav: 'effect/black_adrenalinerush_b', // The original client plays _a first and then continues with b
-			attachedEntity: true
-		}
-	],
-
-	'98_beforecast': [
-		{
+			// The official client plays black_adrenalinerush_a.wav on tick 0 and _b on tick 30 (500 ms).
+			// Its particles (20 alpha_center sparks, 4 particle1.spr sprites) are not drawn yet.
 			wav: 'effect/black_adrenalinerush_a',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/black_adrenalinerush_b',
+			delayWav: 500,
 			attachedEntity: true
 		}
 	],
