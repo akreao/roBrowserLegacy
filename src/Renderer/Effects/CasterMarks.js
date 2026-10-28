@@ -2,7 +2,7 @@
  * Renderer/Effects/CasterMarks.js
  *
  * What the official client's cast effects 934 (Nightmare Erasion), 2373
- * (Shinkirou) and 502 (Spiral Pierce Max), and Shrink's 599, do to the
+ * (Shinkirou) and 502 (Spiral Pierce Max), Shrink's 599 and Wind Walk's 389, do to the
  * caster's own sprite (and a few effects to their target's, such as Tarot
  * Card of Fate's 500). It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
@@ -98,6 +98,11 @@ export const SCHEDULES = {
 		const on = age <= 140;
 		const even = age % 2 === 0;
 		return { add: on && even, glow: on, split: false, color: on ? (even ? YELLOW : WHITE) : null };
+	},
+	// Wind Walk (389): ticks 5 to 25 added body and light green (220, 250, 220) on every tick.
+	389: age => {
+		const on = age >= 5 && age <= 25;
+		return { add: on, glow: false, split: false, color: on ? [220, 250, 220] : null };
 	},
 	// Shrink: ticks 5 to 25 flickering yellow (added) and white, no glow copy.
 	599: age => {

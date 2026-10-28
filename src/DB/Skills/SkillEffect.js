@@ -593,7 +593,10 @@ SkillEffect[SK.SN_SHARPSHOOTING] = {
 	hitEffectId: 0,
 	firstHitEffectId: 1
 }; //Focused Arrow Strike
-SkillEffect[SK.SN_WINDWALK] = { effectId: 389 }; //Wind Walker
+// Official client: cast aura 58 whatever the element; 389 on the caster from the use packet, only when its
+// result is set (윈드워크.wav on tick 0, the caster lit and light green on ticks 5-25).
+// See effect-port/sniper-skills.md.
+SkillEffect[SK.SN_WINDWALK] = { castAuraEffectId: 58, successEffectIdOnCaster: 389 }; //Wind Walker
 // Whitesmith
 SkillEffect[SK.WS_MELTDOWN] = { effectId: 390 }; //Shattering Strike
 SkillEffect[SK.WS_CREATECOIN] = {}; //Create Coins
@@ -607,7 +610,16 @@ SkillEffect[SK.ST_REJECTSWORD] = { effectId: 392 }; //Counter Instinct
 SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
 SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
 // Clown & Gypsy
-SkillEffect[SK.CG_ARROWVULCAN] = { damageEffectIdOnCaster: 393, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1], hitEffectOnce: true }; //Vulcan Arrow
+// Official client (kRO 2025-07-16): cast aura 58 whatever the element; 393 on the caster as each damage
+// packet arrives (sound on its tick 30); one arrow per packet; the hit flash 0 on every hit as it lands,
+// 200 ms apart, and 1 with the first hit of the packet. See effect-port/clown-gypsy-skills.md.
+SkillEffect[SK.CG_ARROWVULCAN] = {
+	castAuraEffectId: 58,
+	damageEffectIdOnCaster: 393,
+	damageEffectIdOnTarget: 'ef_arrow_projectile',
+	hitEffectId: 0,
+	firstHitEffectId: 1
+}; //Vulcan Arrow
 SkillEffect[SK.CG_MOONLIT] = { successEffectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
 SkillEffect[SK.CG_MARIONETTE] = { effectId: 395, hitEffectId: 396 }; //Marionette Control
 // Lord Knight
