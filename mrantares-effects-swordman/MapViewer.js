@@ -259128,6 +259128,35 @@ function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 }
 /**
+* Load an effect/ texture once for every instance that asks for it.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {string} name file name under data/texture/effect/
+* @param {function} onload receives the texture
+*/
+function sharedTexture(gl, name, onload) {
+	let entry = _sharedTextures.get(name);
+	if (!entry) {
+		entry = {
+			texture: null,
+			waiting: []
+		};
+		_sharedTextures.set(name, entry);
+		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+			WebGL_default.texture(gl, buffer, (texture) => {
+				if (_sharedTextures.get(name) !== entry) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				entry.texture = texture;
+				entry.waiting.splice(0).forEach((fn) => fn(texture));
+			});
+		});
+	}
+	if (entry.texture) onload(entry.texture);
+	else entry.waiting.push(onload);
+}
+/**
 * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
 *
 * @param {number} startTick
@@ -259137,7 +259166,7 @@ function randBetween(minimum, maximum) {
 function trackAge(startTick, tick) {
 	return (tick - startTick) * 60 / 1e3;
 }
-var blendMode$1, _soulStrikeFirstEffect, ThreeDEffect;
+var blendMode$1, _sharedTextures, _soulStrikeFirstEffect, ThreeDEffect;
 var init_ThreeDEffect = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -259147,6 +259176,7 @@ var init_ThreeDEffect = __esmMin((() => {
 	init_Camera();
 	init_Entity$1();
 	blendMode$1 = {};
+	_sharedTextures = /* @__PURE__ */ new Map();
 	_soulStrikeFirstEffect = null;
 	ThreeDEffect = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
@@ -259159,6 +259189,7 @@ var init_ThreeDEffect = __esmMin((() => {
 			this.ownerEntity = EF_Init_Par.ownerEntity;
 			this.otherEntity = EF_Init_Par.otherEntity;
 			this.textureName = effect.file;
+			this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || "");
 			this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 			this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -259424,7 +259455,11 @@ var init_ThreeDEffect = __esmMin((() => {
 						if (this.loadedTextures == textureCount) this.ready = true;
 					});
 				});
-			} else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
+			} else if (this.sharedTexture) sharedTexture(gl, this.textureName.slice(7), (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			});
+			else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					this.texture = texture;
 					this.ready = true;
@@ -259704,6 +259739,8 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 		static free(gl) {
 			this.ready = false;
+			for (const entry of _sharedTextures.values()) if (entry.texture) gl.deleteTexture(entry.texture);
+			_sharedTextures.clear();
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -271205,6 +271242,7 @@ function primEffect(file, life, at) {
 	return {
 		type: "3D",
 		file,
+		sharedTexture: true,
 		alphaMax: 1,
 		attachedEntity: true,
 		duration: life * PRIM_TICK_MS,
