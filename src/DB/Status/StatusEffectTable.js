@@ -279,6 +279,17 @@ export default {
 		loop: ['thundering_rod_full']
 	},
 
+	// Marionette Control: on each change of the caster's (MARIONETTE_MASTER) or the target's
+	// (MARIONETTE) status the client removes every 396 on the actor, then starts it again while on.
+	[StatusConst.MARIONETTE_MASTER]: {
+		restart: [396],
+		stop: [396]
+	},
+	[StatusConst.MARIONETTE]: {
+		restart: [396],
+		stop: [396]
+	},
+
 	// Bard and Dancer songs (renewal): the client launches an aura on every actor
 	// the song's status starts on, removing its earlier copy first.
 	[StatusConst.WHISTLE]: {

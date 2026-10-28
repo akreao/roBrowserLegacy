@@ -31,6 +31,7 @@
  */
 
 import EntityManager from 'Renderer/EntityManager.js';
+import StatusState from 'DB/Status/StatusState.js';
 import { PRIM_TICK_MS } from './EffectPrimSim.js';
 
 /** Colour recovery a tick, out of 255, and the split images' fade. */
@@ -40,6 +41,7 @@ export const SPLIT_TICKS = 30;
 export const TURN_STEP = 30;
 
 const RED = [255, 0, 0];
+const PINK = [255, 89, 182];
 const YELLOW = [250, 250, 100];
 const WHITE = [255, 255, 255];
 const PURPLE = [182, 89, 255];
@@ -85,6 +87,10 @@ export const SCHEDULES = {
 		const turn = age >= 30 && age <= 54 ? ((age - 29) * TURN_STEP) % 360 : null;
 		return { add, glow: false, split: false, color: null, turn };
 	},
+	// Marionette Control (396, on the caster and the target): pink added body and a glow copy on
+	// every tick, as long as the effect lives (the status). While the Marionette status tint
+	// (EntityState) is on it already gives the pink, so 396 leaves the colour to it.
+	396: () => ({ add: true, glow: true, split: false, color: PINK, unlessVirtue: StatusState.OPT3.MARIONETTE }),
 	// Assumptio (375): a glow copy on every tick, as long as the effect lives (the status).
 	375: () => ({ add: false, glow: true, split: false, color: null }),
 	// Tarot Card of Fate (500, on the target): glow copy to age 30, flickering blue (added) and white.
@@ -246,7 +252,15 @@ export default class CasterMarks {
 			owner.direction = turnedDirection(this.turnFrom, state.turn);
 		}
 
-		if (age !== null && owner._flashColor) {
+		// A colour another tint on the owner already gives is not applied twice (they multiply)
+		const tinted = state.unlessVirtue && (owner._virtue & state.unlessVirtue) !== 0;
+		if (tinted && this.color && owner._flashColor && owner._flashColorOwner === this) {
+			// The tint came on after this effect's colour: hand the colour over to it at once
+			owner._flashColor[0] = owner._flashColor[1] = owner._flashColor[2] = 1;
+			owner.recalculateBlendingColor();
+			this.color = null;
+		}
+		if (age !== null && owner._flashColor && !tinted) {
 			const color = colorAt(this.schedule, age);
 			if (color || this.color) {
 				const c = color || WHITE;
@@ -278,6 +292,10 @@ export default class CasterMarks {
 
 	free() {
 		if (this.owner) {
+			const unless = this.schedule(0).unlessVirtue;
+			if (unless && (this.owner._virtue & unless) !== 0) {
+				this.mark(0); // the tint is on: hand the colour over to it at once
+			}
 			this.mark(null);
 			// The caster's own tick keeps bringing its colour back after the effect.
 			if (this.color && this.color.some(c => c < 255)) {
