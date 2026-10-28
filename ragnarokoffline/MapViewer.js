@@ -149520,6 +149520,14 @@ var init_StatusEffectTable = __esmMin((() => {
 			start: ["ef_ske_rising_moon_04"],
 			loop: ["ef_ske_rising_moon_05"]
 		},
+		[StatusConst_default.RG_CCONFINE_M]: {
+			restart: [604],
+			stop: [604]
+		},
+		[StatusConst_default.RG_CCONFINE_S]: {
+			restart: [604],
+			stop: [604]
+		},
 		[StatusConst_default.INTENSIVE_AIM_COUNT]: { stages: [
 			["ef_nw_intensive_aim_00"],
 			["ef_nw_intensive_aim_01"],
@@ -218320,7 +218328,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$5)) return {
+	if (u(s, r$6)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -220746,7 +220754,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$5, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$6, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -220766,7 +220774,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$5 = [
+	r$6 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -223232,15 +223240,18 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RG_FLAGGRAFFITI] = {};
 	SkillEffect[SkillConst_default.RG_CLEANER] = {};
 	SkillEffect[SkillConst_default.AM_PHARMACY] = {};
-	SkillEffect[SkillConst_default.AM_DEMONSTRATION] = { groundEffectId: 302 };
-	SkillEffect[SkillConst_default.AM_ACIDTERROR] = { beforeHitEffectId: 298 };
-	SkillEffect[SkillConst_default.AM_POTIONPITCHER] = { effectId: 299 };
+	SkillEffect[SkillConst_default.AM_DEMONSTRATION] = { hitEffectId: 0 };
+	SkillEffect[SkillConst_default.AM_ACIDTERROR] = {
+		damageEffectIdOnCaster: 298,
+		hitEffectId: 0
+	};
+	SkillEffect[SkillConst_default.AM_POTIONPITCHER] = { successEffectIdOnCaster: 299 };
 	SkillEffect[SkillConst_default.AM_CANNIBALIZE] = {};
 	SkillEffect[SkillConst_default.AM_SPHEREMINE] = {};
-	SkillEffect[SkillConst_default.AM_CP_WEAPON] = { effectId: 300 };
-	SkillEffect[SkillConst_default.AM_CP_SHIELD] = { effectId: 300 };
-	SkillEffect[SkillConst_default.AM_CP_ARMOR] = { effectId: 300 };
-	SkillEffect[SkillConst_default.AM_CP_HELM] = { effectId: 300 };
+	SkillEffect[SkillConst_default.AM_CP_WEAPON] = { successEffectId: 300 };
+	SkillEffect[SkillConst_default.AM_CP_SHIELD] = { successEffectId: 300 };
+	SkillEffect[SkillConst_default.AM_CP_ARMOR] = { successEffectId: 300 };
+	SkillEffect[SkillConst_default.AM_CP_HELM] = { successEffectId: 300 };
 	SkillEffect[SkillConst_default.AM_CALLHOMUN] = {};
 	SkillEffect[SkillConst_default.AM_REST] = {};
 	SkillEffect[SkillConst_default.AM_RESURRECTHOMUN] = {};
@@ -223628,7 +223639,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.TK_READYCOUNTER].effectIdOnCaster = 449;
 	SkillEffect[SkillConst_default.TK_DODGE].effectIdOnCaster = 449;
 	SkillEffect[SkillConst_default.TK_DODGE].successEffectIdOnCaster = "ef_tk_dodge";
-	SkillEffect[SkillConst_default.SG_FEEL] = { effectId: 432 };
+	SkillEffect[SkillConst_default.SG_FEEL] = { castAuraEffectId: 441 };
 	SkillEffect[SkillConst_default.SG_SUN_WARM] = { effectId: 488 };
 	SkillEffect[SkillConst_default.SG_MOON_WARM] = { effectId: 488 };
 	SkillEffect[SkillConst_default.SG_STAR_WARM] = { effectId: 488 };
@@ -223638,8 +223649,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SG_HATE] = { groundEffectId: 487 };
 	SkillEffect[SkillConst_default.SG_FUSION] = { effectId: [433, "quake"] };
 	SkillEffect[SkillConst_default.AM_BERSERKPITCHER] = {
-		beforeHitEffectId: 541,
-		effectId: 220
+		successEffectIdOnCaster: 541,
+		successEffectId: 220
 	};
 	SkillEffect[SkillConst_default.SL_ALCHEMIST] = SkillEffect[SkillConst_default.SL_MONK] = SkillEffect[SkillConst_default.SL_STAR] = SkillEffect[SkillConst_default.SL_SAGE] = SkillEffect[SkillConst_default.SL_CRUSADER] = SkillEffect[SkillConst_default.SL_SUPERNOVICE] = SkillEffect[SkillConst_default.SL_KNIGHT] = SkillEffect[SkillConst_default.SL_WIZARD] = SkillEffect[SkillConst_default.SL_PRIEST] = SkillEffect[SkillConst_default.SL_BARDDANCER] = SkillEffect[SkillConst_default.SL_ROGUE] = SkillEffect[SkillConst_default.SL_ASSASIN] = SkillEffect[SkillConst_default.SL_BLACKSMITH] = { effectId: [424, 503] };
 	SkillEffect[SkillConst_default.BS_ADRENALINE2] = SkillEffect[SkillConst_default.BS_ADRENALINE];
@@ -223843,10 +223854,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.CR_SHRINK] = { successEffectIdOnCaster: 599 };
 	SkillEffect[SkillConst_default.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 };
-	SkillEffect[SkillConst_default.RG_CLOSECONFINE] = {
-		effectId: 602,
-		groundEffectId: 604
-	};
+	SkillEffect[SkillConst_default.RG_CLOSECONFINE] = { successEffectId: 602 };
 	SkillEffect[SkillConst_default.WZ_SIGHTBLASTER] = { effectId: 601 };
 	SkillEffect[SkillConst_default.SA_CREATECON] = {};
 	SkillEffect[SkillConst_default.SA_ELEMENTWATER] = { successEffectId: 256 };
@@ -231193,8 +231201,7 @@ var init_PrivateAirship$1 = __esmMin((() => {
 function syncRequests() {
 	if (_requests.loadId !== MapRenderer._loadId) Object.assign(_requests, {
 		loadId: MapRenderer._loadId,
-		sent: 0,
-		answered: 0,
+		waiting: false,
 		lastSent: 0
 	});
 }
@@ -231203,7 +231210,7 @@ function syncRequests() {
 */
 function isPending$1() {
 	syncRequests();
-	return _requests.answered < _requests.sent && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
+	return _requests.waiting && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
 }
 /**
 * Text for a message id, without RO colour codes.
@@ -231292,8 +231299,7 @@ var init_PrivateAirship = __esmMin((() => {
 	_targetMap = "";
 	_requests = {
 		loadId: null,
-		sent: 0,
-		answered: 0,
+		waiting: false,
 		lastSent: 0
 	};
 	PENDING_TIMEOUT = 15e3;
@@ -231415,7 +231421,7 @@ var init_PrivateAirship = __esmMin((() => {
 	PrivateAirship.sendRequest = function sendRequest(itemId) {
 		if (isPending$1() || !_targetMap) return;
 		syncRequests();
-		_requests.sent++;
+		_requests.waiting = true;
 		_requests.lastSent = Date.now();
 		const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 		pkt.mapName = _targetMap + ".gat";
@@ -231429,7 +231435,7 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.onResponse = function onResponse(pkt) {
 		syncRequests();
-		_requests.answered = Math.min(_requests.sent, _requests.answered + 1);
+		_requests.waiting = false;
 		if (!PrivateAirship.__active) return;
 		if (pkt.result === 0) {
 			PrivateAirship.remove();
@@ -276664,6 +276670,531 @@ var init_TwoDEffect = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/AuraBatch.vs?raw
+var AuraBatch_default$1;
+var init_AuraBatch$2 = __esmMin((() => {
+	AuraBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\nin vec4 aColor;\r\nin float aDepthOffset;\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vColor;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nvoid main(void) {\r\n	gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);\r\n	gl_Position.z -= aDepthOffset;\r\n	vTextureCoord = aTextureCoord;\r\n	vColor = aColor;\r\n}\r\n";
+}));
+// src/Renderer/Effects/AuraBatch.fs?raw
+var AuraBatch_default;
+var init_AuraBatch$1 = __esmMin((() => {
+	AuraBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\n// AuraBatch.js puts its effect's defines here: FOG, DISCARD_CLEAR,\r\n// DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.\r\n\r\nin vec2 vTextureCoord;\r\nflat in vec4 vColor;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform bool uDarken;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n#ifdef DISCARD_CLEAR\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DISCARD_BLACK\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DARKEN\r\n	if (uDarken) {\r\n		float k = max(max(texColor.r, texColor.g), texColor.b) * vColor.a;\r\n		fragColor = vec4(k, k, k, 1.0);\r\n		return;\r\n	}\r\n#endif\r\n\r\n	fragColor = texColor * vColor;\r\n\r\n#ifdef FOG\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n#endif\r\n}\r\n";
+}));
+// src/Renderer/Effects/AuraBlend.js
+/**
+* Renderer/Effects/AuraBlend.js
+*
+* Colour and blending for the aura effects, shared by the level-99 aura's
+* three parts and the high-level aura (MaxLevelAura).
+*
+* The auras add light (SRC_ALPHA, ONE), which can make any colour but black:
+* black added is nothing. Two kinds of colour are drawn otherwise:
+*
+* - a hat-effect aura's (`hat`, which LevelAuraEffects sets): the client draws
+*   the coloured level-99 and level-160 hat auras with alpha blending, in any
+*   colour, where its level auras add light. An iRO Ragexe.exe (October 2026)
+*   sets that blending (5/6) for effects 1164-1183, 1291, 1292, 1325-1346 and
+*   2281-2284, beside their colour.
+* - a dark one (AuraTiers.auraColor marks it): black added would be nothing.
+*
+* How depends on the texture's shape:
+*
+* - 'alpha': a texture shaped by its alpha channel, bright in every pixel
+*   (ring_blue.tga, whitelight.tga, cir0002.tga). It is drawn in its own
+*   colour with alpha blending (SRC_ALPHA, ONE_MINUS_SRC_ALPHA). Darkening by
+*   its colour instead would darken the whole quad, and tint it with the
+*   opposite of the texture's colour.
+* - 'brightness': a texture with no alpha, shaped by how bright it is on black
+*   (pikapika2.bmp), which alpha blending would draw as a square. A hat colour
+*   keeps adding light; the client gives its hat auras a ready-coloured
+*   texture with alpha here instead (GroundAura's), and this is the fallback
+*   for a client without one. A dark colour darkens what is behind by that
+*   brightness (ZERO, ONE_MINUS_SRC_COLOR), which its shader gives as grey
+*   (uDarken in GroundAura.fs): darkening by the texture's own colour would
+*   leave the opposite colour behind, an orange fringe for pikapika2's blue.
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* The colour to give the shader's uColor for `color`.
+*
+* @param {{r: number, g: number, b: number, dark: boolean}} color
+* @param {number} alpha
+* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
+* @param {number[]} [out] written and returned instead of a new array
+* @return {number[]} r, g, b, a
+*/
+function auraUniform(color, alpha, shape = "brightness", out = new Array(4)) {
+	const white = color.dark && shape !== "alpha";
+	out[0] = white ? 1 : color.r;
+	out[1] = white ? 1 : color.g;
+	out[2] = white ? 1 : color.b;
+	out[3] = alpha;
+	return out;
+}
+/**
+* Switch to the blending `color` needs before drawing it. A no-op for every
+* colour but a hat aura's or a dark one.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {{dark: boolean, hat: boolean}} color
+* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
+*/
+function beginAuraBlend(gl, color, shape = "brightness") {
+	const blend = auraBlend(color, shape);
+	if (blend !== 0) setAuraBlend(gl, blend);
+}
+/**
+* The blending `color` needs, as beginAuraBlend switches to it.
+*
+* @param {{dark: boolean, hat: boolean}} color
+* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
+* @return {number} BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
+*/
+function auraBlend(color, shape = "brightness") {
+	if (!color) return 0;
+	if (shape === "alpha" && (color.hat || color.dark)) return 1;
+	if (shape !== "alpha" && color.dark) return 2;
+	return 0;
+}
+/**
+* Switch to one of the blendings above.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {number} blend BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
+*/
+function setAuraBlend(gl, blend) {
+	if (blend === 1) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	else if (blend === 2) gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_COLOR);
+	else gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+}
+/**
+* Put back the additive blending the auras share, after beginAuraBlend.
+*/
+function endAuraBlend(gl, color) {
+	if (color && (color.hat || color.dark)) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+}
+var init_AuraBlend = __esmMin((() => {}));
+// src/Renderer/Effects/AuraBatch.js
+/**
+* Load an effect texture once for every instance that asks for it, so they
+* share one GL texture (and one run in a batch). `cache` is the class's Map;
+* freeSharedTextures deletes what is in it.
+*
+* @param {Map} cache
+* @param {WebGL2RenderingContext} gl
+* @param {string} name file name under data/texture/effect/
+* @param {function} onload receives the texture
+* @param {function} [onerror] the file could not be loaded
+*/
+function sharedTexture(cache, gl, name, onload, onerror) {
+	let entry = cache.get(name);
+	if (!entry) {
+		entry = {
+			texture: null,
+			failed: false,
+			waiting: []
+		};
+		cache.set(name, entry);
+		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+			WebGL_default.texture(gl, buffer, (texture) => {
+				if (cache.get(name) !== entry) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				entry.texture = texture;
+				const waiting = entry.waiting;
+				entry.waiting = [];
+				waiting.forEach((w) => w.onload(texture));
+			});
+		}, () => {
+			entry.failed = true;
+			const waiting = entry.waiting;
+			entry.waiting = [];
+			waiting.forEach((w) => w.onerror && w.onerror());
+		});
+	}
+	if (entry.texture) onload(entry.texture);
+	else if (entry.failed) {
+		if (onerror) onerror();
+	} else entry.waiting.push({
+		onload,
+		onerror
+	});
+}
+/**
+* Delete the textures sharedTexture loaded into `cache`.
+*/
+function freeSharedTextures(cache, gl) {
+	for (const entry of cache.values()) if (entry.texture) gl.deleteTexture(entry.texture);
+	cache.clear();
+}
+var FLOATS, STRIDE, QUAD_UV, QUAD_FAN, AuraBatch;
+var init_AuraBatch = __esmMin((() => {
+	init_AuraBatch$2();
+	init_AuraBatch$1();
+	init_WebGL();
+	init_Client();
+	init_Configs();
+	init_SpriteRenderer();
+	init_AuraBlend();
+	FLOATS = 10;
+	STRIDE = 40;
+	QUAD_UV = [
+		0,
+		0,
+		1,
+		0,
+		1,
+		1,
+		0,
+		1
+	];
+	QUAD_FAN = [
+		0,
+		1,
+		2,
+		2,
+		3,
+		0
+	];
+	AuraBatch = class {
+		/**
+		* @param {object} options the effect's fragment shader, as defines
+		* @param {boolean} [options.fog] fog, as SpriteRenderer draws it
+		* @param {boolean} [options.discardClear] discard texels with alpha under 0.01
+		* @param {boolean} [options.discardBlack] discard black texels
+		* @param {boolean} [options.darken] BLEND_DARKEN draws grey from the texture's brightness
+		* @param {boolean} [options.mergeAdditive] draw each texture's additive triangles together (see above)
+		*/
+		constructor(options) {
+			const { mergeAdditive, ...defines } = options;
+			this.mergeAdditive = !!mergeAdditive;
+			this.defines = Object.keys(defines).filter((key) => defines[key]).map((key) => `#define ${key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase()}\n`).join("");
+			this.vertices = new Float32Array(FLOATS * 1024);
+			this.indices = /* @__PURE__ */ new Uint32Array(1536);
+			this.vertexCount = 0;
+			this.indexCount = 0;
+			this.runs = [];
+			this.runCount = 0;
+			this.mergedIndices = /* @__PURE__ */ new Uint32Array(0);
+			this.mergedRuns = [];
+			this.mergedRunCount = 0;
+			this.textureRun = /* @__PURE__ */ new Map();
+			this.modelView = /* @__PURE__ */ new Float32Array(16);
+			this.projection = /* @__PURE__ */ new Float32Array(16);
+			this.fog = {
+				use: false,
+				near: 0,
+				far: 0,
+				color: /* @__PURE__ */ new Float32Array(3)
+			};
+			this.active = false;
+			this.gl = null;
+			this.program = null;
+			this.vao = null;
+			this.vertexBuffer = null;
+			this.indexBuffer = null;
+		}
+		/**
+		* Start recording the frame's instances. Call in the class's beforeRender.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {mat4} modelView
+		* @param {mat4} projection
+		* @param {object} fog
+		*/
+		begin(gl, modelView, projection, fog) {
+			this.vertexCount = 0;
+			this.indexCount = 0;
+			this.runCount = 0;
+			this.active = Configs.get("auraBatching", true) !== false && typeof gl.createVertexArray === "function";
+			if (!this.active) return;
+			this.modelView.set(modelView);
+			this.projection.set(projection);
+			this.fog.use = !!(fog.use && fog.exist);
+			this.fog.near = fog.near;
+			this.fog.far = fog.far;
+			this.fog.color.set(fog.color);
+		}
+		/**
+		* Room for `vertices` more vertices and `indices` more indices, in the run
+		* of `texture` drawn with `blend`. Returns the index of the first new vertex.
+		*/
+		reserve(texture, blend, vertices, indices) {
+			if ((this.vertexCount + vertices) * FLOATS > this.vertices.length) {
+				const grown = new Float32Array(Math.max(this.vertices.length * 2, (this.vertexCount + vertices) * FLOATS));
+				grown.set(this.vertices.subarray(0, this.vertexCount * FLOATS));
+				this.vertices = grown;
+			}
+			if (this.indexCount + indices > this.indices.length) {
+				const grown = new Uint32Array(Math.max(this.indices.length * 2, this.indexCount + indices));
+				grown.set(this.indices.subarray(0, this.indexCount));
+				this.indices = grown;
+			}
+			let run = this.runCount ? this.runs[this.runCount - 1] : null;
+			if (!run || run.texture !== texture || run.blend !== blend) {
+				run = this.runs[this.runCount];
+				if (!run) run = this.runs[this.runCount] = {
+					texture: null,
+					blend: 0,
+					first: 0,
+					count: 0
+				};
+				run.texture = texture;
+				run.blend = blend;
+				run.first = this.indexCount;
+				run.count = 0;
+				this.runCount++;
+			}
+			run.count += indices;
+			return this.vertexCount;
+		}
+		/**
+		* Write one vertex.
+		*/
+		vertex(x, y, z, u, v, r, g, b, a, depth) {
+			const d = this.vertices;
+			let o = this.vertexCount * FLOATS;
+			d[o++] = x;
+			d[o++] = y;
+			d[o++] = z;
+			d[o++] = u;
+			d[o++] = v;
+			d[o++] = r;
+			d[o++] = g;
+			d[o++] = b;
+			d[o++] = a;
+			d[o] = depth;
+			this.vertexCount++;
+		}
+		/**
+		* Record a quad.
+		*
+		* @param {WebGLTexture} texture
+		* @param {number} blend AuraBlend's BLEND_*
+		* @param {Array} points four corners [x, y, z] in world space, textured (0,0) (1,0) (1,1) (0,1)
+		* @param {Array} order the six corners of its two triangles
+		* @param {number} r colour, as the effect gave its shader's uColor
+		* @param {number} g
+		* @param {number} b
+		* @param {number} a
+		* @param {number} depth what the effect took off gl_Position.z
+		*/
+		quad(texture, blend, points, order, r, g, b, a, depth) {
+			const base = this.reserve(texture, blend, 4, 6);
+			for (let k = 0; k < 4; k++) {
+				const p = points[k];
+				this.vertex(p[0], p[1], p[2], QUAD_UV[k * 2], QUAD_UV[k * 2 + 1], r, g, b, a, depth);
+			}
+			for (let i = 0; i < 6; i++) this.indices[this.indexCount++] = base + order[i];
+		}
+		/**
+		* Record an indexed mesh, moved by (x, y, z).
+		*
+		* @param {WebGLTexture} texture
+		* @param {number} blend AuraBlend's BLEND_*
+		* @param {Float32Array} vertices x, y, z, u, v each
+		* @param {number} vertexCount
+		* @param {Uint16Array} indices
+		* @param {number} x
+		* @param {number} y
+		* @param {number} z
+		* @param {number} r colour, as the effect gave its shader's uColor
+		* @param {number} g
+		* @param {number} b
+		* @param {number} a
+		* @param {number} depth what the effect took off gl_Position.z
+		*/
+		mesh(texture, blend, vertices, vertexCount, indices, x, y, z, r, g, b, a, depth) {
+			const base = this.reserve(texture, blend, vertexCount, indices.length);
+			for (let i = 0, o = 0; i < vertexCount; i++, o += 5) this.vertex(vertices[o] + x, vertices[o + 1] + y, vertices[o + 2] + z, vertices[o + 3], vertices[o + 4], r, g, b, a, depth);
+			for (let i = 0; i < indices.length; i++) this.indices[this.indexCount++] = base + indices[i];
+		}
+		/**
+		* Draw what was recorded. Call in the class's afterRender, which then puts
+		* its blending back.
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		flush(gl) {
+			if (!this.active) return;
+			this.active = false;
+			if (!this.runCount) return;
+			if (!this.program || this.gl !== gl) this.init(gl);
+			const uniform = this.program.uniform;
+			gl.useProgram(this.program);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, this.modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, this.projection);
+			gl.uniform1i(uniform.uFogUse, this.fog.use);
+			gl.uniform1f(uniform.uFogNear, this.fog.near);
+			gl.uniform1f(uniform.uFogFar, this.fog.far);
+			gl.uniform3fv(uniform.uFogColor, this.fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.bindVertexArray(this.vao);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.subarray(0, this.vertexCount * FLOATS), gl.STREAM_DRAW);
+			let runs = this.runs;
+			let runCount = this.runCount;
+			let indices = this.indices;
+			if (this.mergeAdditive && this.merge()) {
+				runs = this.mergedRuns;
+				runCount = this.mergedRunCount;
+				indices = this.mergedIndices;
+			}
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices.subarray(0, this.indexCount), gl.STREAM_DRAW);
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				let blend = -1;
+				for (let i = 0; i < runCount; i++) {
+					const run = runs[i];
+					if (run.blend !== blend) {
+						blend = run.blend;
+						setAuraBlend(gl, blend);
+						if (uniform.uDarken) gl.uniform1i(uniform.uDarken, blend === 2);
+					}
+					gl.bindTexture(gl.TEXTURE_2D, run.texture);
+					gl.drawElements(gl.TRIANGLES, run.count, gl.UNSIGNED_INT, run.first * 4);
+				}
+			});
+			gl.bindVertexArray(null);
+			for (let i = 0; i < this.runCount; i++) this.runs[i].texture = null;
+			for (let i = 0; i < this.mergedRunCount; i++) this.mergedRuns[i].texture = null;
+			this.runCount = 0;
+			this.mergedRunCount = 0;
+			this.vertexCount = 0;
+			this.indexCount = 0;
+		}
+		/**
+		* Regroup the recorded runs for mergeAdditive into mergedRuns and
+		* mergedIndices: each span of consecutive BLEND_ADD runs becomes one run
+		* per texture, in the order the textures first appear in it, with that
+		* texture's triangles in the order they were recorded. Other runs stay
+		* as they are, where they are. Returns false when nothing would merge.
+		*
+		* @return {boolean}
+		*/
+		merge() {
+			const runs = this.runs;
+			const runCount = this.runCount;
+			if (this.mergedIndices.length < this.indexCount) this.mergedIndices = new Uint32Array(this.indices.length);
+			const textureRun = this.textureRun;
+			let merged = 0;
+			let offset = 0;
+			for (let start = 0; start < runCount;) {
+				if (runs[start].blend !== 0) {
+					const run = runs[start];
+					const target = this.mergedRun(merged++, run.texture, run.blend, offset);
+					this.copyIndices(run, offset);
+					target.count = run.count;
+					offset += run.count;
+					start++;
+					continue;
+				}
+				let end = start;
+				const first = merged;
+				for (; end < runCount && runs[end].blend === 0; end++) {
+					const run = runs[end];
+					let target = textureRun.get(run.texture);
+					if (target === void 0) {
+						target = this.mergedRun(merged++, run.texture, 0, 0);
+						textureRun.set(run.texture, target);
+					}
+					target.count += run.count;
+				}
+				for (let i = first; i < merged; i++) {
+					const target = this.mergedRuns[i];
+					target.first = offset;
+					offset += target.count;
+					target.count = 0;
+				}
+				for (let i = start; i < end; i++) {
+					const run = runs[i];
+					const target = textureRun.get(run.texture);
+					this.copyIndices(run, target.first + target.count);
+					target.count += run.count;
+				}
+				textureRun.clear();
+				start = end;
+			}
+			this.mergedRunCount = merged;
+			return merged < runCount;
+		}
+		/**
+		* Copy a recorded run's indices into mergedIndices at `offset`, without
+		* the garbage of a subarray a run.
+		*/
+		copyIndices(run, offset) {
+			const indices = this.indices;
+			const out = this.mergedIndices;
+			for (let i = run.first, end = run.first + run.count; i < end; i++) out[offset++] = indices[i];
+		}
+		/**
+		* mergedRuns[index], set to start empty at `first`.
+		*/
+		mergedRun(index, texture, blend, first) {
+			let run = this.mergedRuns[index];
+			if (!run) run = this.mergedRuns[index] = {
+				texture: null,
+				blend: 0,
+				first: 0,
+				count: 0
+			};
+			run.texture = texture;
+			run.blend = blend;
+			run.first = first;
+			run.count = 0;
+			return run;
+		}
+		/**
+		* Create the program, the buffers and the vertex array.
+		*/
+		init(gl) {
+			if (this.program && this.gl === gl) return;
+			this.gl = gl;
+			const fragment = AuraBatch_default.replace(/^(#version[^\n]*\n)/, `$1${this.defines}`);
+			this.program = WebGL_default.createShaderProgram(gl, AuraBatch_default$1, fragment);
+			this.vertexBuffer = gl.createBuffer();
+			this.indexBuffer = gl.createBuffer();
+			this.vao = gl.createVertexArray();
+			const attribute = this.program.attribute;
+			gl.bindVertexArray(this.vao);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE, 0);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE, 12);
+			gl.enableVertexAttribArray(attribute.aColor);
+			gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, 20);
+			gl.enableVertexAttribArray(attribute.aDepthOffset);
+			gl.vertexAttribPointer(attribute.aDepthOffset, 1, gl.FLOAT, false, STRIDE, 36);
+			gl.bindVertexArray(null);
+		}
+		/**
+		* Delete the program and the buffers. Call in the class's static free.
+		*/
+		free(gl) {
+			if (this.program) {
+				gl.deleteProgram(this.program);
+				gl.deleteBuffer(this.vertexBuffer);
+				gl.deleteBuffer(this.indexBuffer);
+				gl.deleteVertexArray(this.vao);
+			}
+			this.program = null;
+			this.vao = null;
+			this.vertexBuffer = null;
+			this.indexBuffer = null;
+			this.gl = null;
+			this.active = false;
+			this.runCount = 0;
+			this.mergedRunCount = 0;
+			this.textureRun.clear();
+			this.vertexCount = 0;
+			this.indexCount = 0;
+		}
+	};
+}));
 // src/Renderer/Effects/ThreeDEffect.js
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
@@ -276678,7 +277209,7 @@ function randBetween(minimum, maximum) {
 function trackAge(startTick, tick) {
 	return (tick - startTick) * 60 / 1e3;
 }
-var blendMode$1, _soulStrikeFirstEffect, ThreeDEffect;
+var blendMode$1, _sharedTextures, _soulStrikeFirstEffect, ThreeDEffect;
 var init_ThreeDEffect = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -276687,7 +277218,9 @@ var init_ThreeDEffect = __esmMin((() => {
 	init_Altitude();
 	init_Camera();
 	init_Entity$1();
+	init_AuraBatch();
 	blendMode$1 = {};
+	_sharedTextures = /* @__PURE__ */ new Map();
 	_soulStrikeFirstEffect = null;
 	ThreeDEffect = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
@@ -276700,6 +277233,7 @@ var init_ThreeDEffect = __esmMin((() => {
 			this.ownerEntity = EF_Init_Par.ownerEntity;
 			this.otherEntity = EF_Init_Par.otherEntity;
 			this.textureName = effect.file;
+			this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || "");
 			this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 			this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -276969,7 +277503,11 @@ var init_ThreeDEffect = __esmMin((() => {
 						if (this.loadedTextures == textureCount) this.ready = true;
 					});
 				});
-			} else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
+			} else if (this.sharedTexture) sharedTexture(_sharedTextures, gl, this.textureName.slice(7), (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			});
+			else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					this.texture = texture;
 					this.ready = true;
@@ -277139,6 +277677,16 @@ var init_ThreeDEffect = __esmMin((() => {
 					SpriteRenderer.size[0] = sizeX;
 					SpriteRenderer.size[1] = sizeY;
 				}
+				if (sample.sizeX !== void 0) {
+					sizeX = sample.sizeX;
+					SpriteRenderer.size[0] = sizeX;
+				}
+				if (sample.sizeY !== void 0) {
+					sizeY = sample.sizeY;
+					SpriteRenderer.size[1] = sizeY;
+				}
+				SpriteRenderer.offset[0] = sample.offsetX || 0;
+				SpriteRenderer.offset[1] = sample.offsetY || 0;
 				if (sample.alpha !== void 0) {
 					alpha = Math.min(Math.max(sample.alpha, 0), 1);
 					SpriteRenderer.color[3] = alpha;
@@ -277213,6 +277761,10 @@ var init_ThreeDEffect = __esmMin((() => {
 			} else SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, () => {
 				SpriteRenderer.render();
 			});
+			if (this.track) {
+				SpriteRenderer.offset[0] = 0;
+				SpriteRenderer.offset[1] = 0;
+			}
 			this.needCleanUp = this.endTick < tick;
 		}
 		static init(gl) {
@@ -277236,6 +277788,7 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 		static free(gl) {
 			this.ready = false;
+			freeSharedTextures(_sharedTextures, gl);
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -279174,7 +279727,8 @@ var init_EffectManager = __esmMin((() => {
 						effectId,
 						ownerAID: srcAID,
 						startTick: tick,
-						otherAID: destAID
+						otherAID: destAID,
+						skillLevel: level
 					};
 					EffectManager.spam(EF_Init_Par);
 				});
@@ -284327,531 +284881,6 @@ var SwirlingAura_default;
 var init_SwirlingAura$1 = __esmMin((() => {
 	SwirlingAura_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform vec4 uColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	// Discard near-black pixels\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	fragColor = texColor * uColor;\r\n\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n}";
 }));
-// src/Renderer/Effects/AuraBlend.js
-/**
-* Renderer/Effects/AuraBlend.js
-*
-* Colour and blending for the aura effects, shared by the level-99 aura's
-* three parts and the high-level aura (MaxLevelAura).
-*
-* The auras add light (SRC_ALPHA, ONE), which can make any colour but black:
-* black added is nothing. Two kinds of colour are drawn otherwise:
-*
-* - a hat-effect aura's (`hat`, which LevelAuraEffects sets): the client draws
-*   the coloured level-99 and level-160 hat auras with alpha blending, in any
-*   colour, where its level auras add light. An iRO Ragexe.exe (October 2026)
-*   sets that blending (5/6) for effects 1164-1183, 1291, 1292, 1325-1346 and
-*   2281-2284, beside their colour.
-* - a dark one (AuraTiers.auraColor marks it): black added would be nothing.
-*
-* How depends on the texture's shape:
-*
-* - 'alpha': a texture shaped by its alpha channel, bright in every pixel
-*   (ring_blue.tga, whitelight.tga, cir0002.tga). It is drawn in its own
-*   colour with alpha blending (SRC_ALPHA, ONE_MINUS_SRC_ALPHA). Darkening by
-*   its colour instead would darken the whole quad, and tint it with the
-*   opposite of the texture's colour.
-* - 'brightness': a texture with no alpha, shaped by how bright it is on black
-*   (pikapika2.bmp), which alpha blending would draw as a square. A hat colour
-*   keeps adding light; the client gives its hat auras a ready-coloured
-*   texture with alpha here instead (GroundAura's), and this is the fallback
-*   for a client without one. A dark colour darkens what is behind by that
-*   brightness (ZERO, ONE_MINUS_SRC_COLOR), which its shader gives as grey
-*   (uDarken in GroundAura.fs): darkening by the texture's own colour would
-*   leave the opposite colour behind, an orange fringe for pikapika2's blue.
-*
-* This file is part of ROBrowser, (http://www.robrowser.com/).
-*/
-/**
-* The colour to give the shader's uColor for `color`.
-*
-* @param {{r: number, g: number, b: number, dark: boolean}} color
-* @param {number} alpha
-* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
-* @param {number[]} [out] written and returned instead of a new array
-* @return {number[]} r, g, b, a
-*/
-function auraUniform(color, alpha, shape = "brightness", out = new Array(4)) {
-	const white = color.dark && shape !== "alpha";
-	out[0] = white ? 1 : color.r;
-	out[1] = white ? 1 : color.g;
-	out[2] = white ? 1 : color.b;
-	out[3] = alpha;
-	return out;
-}
-/**
-* Switch to the blending `color` needs before drawing it. A no-op for every
-* colour but a hat aura's or a dark one.
-*
-* @param {WebGL2RenderingContext} gl
-* @param {{dark: boolean, hat: boolean}} color
-* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
-*/
-function beginAuraBlend(gl, color, shape = "brightness") {
-	const blend = auraBlend(color, shape);
-	if (blend !== 0) setAuraBlend(gl, blend);
-}
-/**
-* The blending `color` needs, as beginAuraBlend switches to it.
-*
-* @param {{dark: boolean, hat: boolean}} color
-* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
-* @return {number} BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
-*/
-function auraBlend(color, shape = "brightness") {
-	if (!color) return 0;
-	if (shape === "alpha" && (color.hat || color.dark)) return 1;
-	if (shape !== "alpha" && color.dark) return 2;
-	return 0;
-}
-/**
-* Switch to one of the blendings above.
-*
-* @param {WebGL2RenderingContext} gl
-* @param {number} blend BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
-*/
-function setAuraBlend(gl, blend) {
-	if (blend === 1) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	else if (blend === 2) gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_COLOR);
-	else gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-}
-/**
-* Put back the additive blending the auras share, after beginAuraBlend.
-*/
-function endAuraBlend(gl, color) {
-	if (color && (color.hat || color.dark)) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-}
-var init_AuraBlend = __esmMin((() => {}));
-// src/Renderer/Effects/AuraBatch.vs?raw
-var AuraBatch_default$1;
-var init_AuraBatch$2 = __esmMin((() => {
-	AuraBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\nin vec4 aColor;\r\nin float aDepthOffset;\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vColor;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nvoid main(void) {\r\n	gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);\r\n	gl_Position.z -= aDepthOffset;\r\n	vTextureCoord = aTextureCoord;\r\n	vColor = aColor;\r\n}\r\n";
-}));
-// src/Renderer/Effects/AuraBatch.fs?raw
-var AuraBatch_default;
-var init_AuraBatch$1 = __esmMin((() => {
-	AuraBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\n// AuraBatch.js puts its effect's defines here: FOG, DISCARD_CLEAR,\r\n// DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.\r\n\r\nin vec2 vTextureCoord;\r\nflat in vec4 vColor;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform bool uDarken;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n#ifdef DISCARD_CLEAR\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DISCARD_BLACK\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DARKEN\r\n	if (uDarken) {\r\n		float k = max(max(texColor.r, texColor.g), texColor.b) * vColor.a;\r\n		fragColor = vec4(k, k, k, 1.0);\r\n		return;\r\n	}\r\n#endif\r\n\r\n	fragColor = texColor * vColor;\r\n\r\n#ifdef FOG\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n#endif\r\n}\r\n";
-}));
-// src/Renderer/Effects/AuraBatch.js
-/**
-* Load an effect texture once for every instance that asks for it, so they
-* share one GL texture (and one run in a batch). `cache` is the class's Map;
-* freeSharedTextures deletes what is in it.
-*
-* @param {Map} cache
-* @param {WebGL2RenderingContext} gl
-* @param {string} name file name under data/texture/effect/
-* @param {function} onload receives the texture
-* @param {function} [onerror] the file could not be loaded
-*/
-function sharedTexture(cache, gl, name, onload, onerror) {
-	let entry = cache.get(name);
-	if (!entry) {
-		entry = {
-			texture: null,
-			failed: false,
-			waiting: []
-		};
-		cache.set(name, entry);
-		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
-			WebGL_default.texture(gl, buffer, (texture) => {
-				if (cache.get(name) !== entry) {
-					gl.deleteTexture(texture);
-					return;
-				}
-				entry.texture = texture;
-				const waiting = entry.waiting;
-				entry.waiting = [];
-				waiting.forEach((w) => w.onload(texture));
-			});
-		}, () => {
-			entry.failed = true;
-			const waiting = entry.waiting;
-			entry.waiting = [];
-			waiting.forEach((w) => w.onerror && w.onerror());
-		});
-	}
-	if (entry.texture) onload(entry.texture);
-	else if (entry.failed) {
-		if (onerror) onerror();
-	} else entry.waiting.push({
-		onload,
-		onerror
-	});
-}
-/**
-* Delete the textures sharedTexture loaded into `cache`.
-*/
-function freeSharedTextures(cache, gl) {
-	for (const entry of cache.values()) if (entry.texture) gl.deleteTexture(entry.texture);
-	cache.clear();
-}
-var FLOATS, STRIDE, QUAD_UV, QUAD_FAN, AuraBatch;
-var init_AuraBatch = __esmMin((() => {
-	init_AuraBatch$2();
-	init_AuraBatch$1();
-	init_WebGL();
-	init_Client();
-	init_Configs();
-	init_SpriteRenderer();
-	init_AuraBlend();
-	FLOATS = 10;
-	STRIDE = 40;
-	QUAD_UV = [
-		0,
-		0,
-		1,
-		0,
-		1,
-		1,
-		0,
-		1
-	];
-	QUAD_FAN = [
-		0,
-		1,
-		2,
-		2,
-		3,
-		0
-	];
-	AuraBatch = class {
-		/**
-		* @param {object} options the effect's fragment shader, as defines
-		* @param {boolean} [options.fog] fog, as SpriteRenderer draws it
-		* @param {boolean} [options.discardClear] discard texels with alpha under 0.01
-		* @param {boolean} [options.discardBlack] discard black texels
-		* @param {boolean} [options.darken] BLEND_DARKEN draws grey from the texture's brightness
-		* @param {boolean} [options.mergeAdditive] draw each texture's additive triangles together (see above)
-		*/
-		constructor(options) {
-			const { mergeAdditive, ...defines } = options;
-			this.mergeAdditive = !!mergeAdditive;
-			this.defines = Object.keys(defines).filter((key) => defines[key]).map((key) => `#define ${key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase()}\n`).join("");
-			this.vertices = new Float32Array(FLOATS * 1024);
-			this.indices = /* @__PURE__ */ new Uint32Array(1536);
-			this.vertexCount = 0;
-			this.indexCount = 0;
-			this.runs = [];
-			this.runCount = 0;
-			this.mergedIndices = /* @__PURE__ */ new Uint32Array(0);
-			this.mergedRuns = [];
-			this.mergedRunCount = 0;
-			this.textureRun = /* @__PURE__ */ new Map();
-			this.modelView = /* @__PURE__ */ new Float32Array(16);
-			this.projection = /* @__PURE__ */ new Float32Array(16);
-			this.fog = {
-				use: false,
-				near: 0,
-				far: 0,
-				color: /* @__PURE__ */ new Float32Array(3)
-			};
-			this.active = false;
-			this.gl = null;
-			this.program = null;
-			this.vao = null;
-			this.vertexBuffer = null;
-			this.indexBuffer = null;
-		}
-		/**
-		* Start recording the frame's instances. Call in the class's beforeRender.
-		*
-		* @param {WebGL2RenderingContext} gl
-		* @param {mat4} modelView
-		* @param {mat4} projection
-		* @param {object} fog
-		*/
-		begin(gl, modelView, projection, fog) {
-			this.vertexCount = 0;
-			this.indexCount = 0;
-			this.runCount = 0;
-			this.active = Configs.get("auraBatching", true) !== false && typeof gl.createVertexArray === "function";
-			if (!this.active) return;
-			this.modelView.set(modelView);
-			this.projection.set(projection);
-			this.fog.use = !!(fog.use && fog.exist);
-			this.fog.near = fog.near;
-			this.fog.far = fog.far;
-			this.fog.color.set(fog.color);
-		}
-		/**
-		* Room for `vertices` more vertices and `indices` more indices, in the run
-		* of `texture` drawn with `blend`. Returns the index of the first new vertex.
-		*/
-		reserve(texture, blend, vertices, indices) {
-			if ((this.vertexCount + vertices) * FLOATS > this.vertices.length) {
-				const grown = new Float32Array(Math.max(this.vertices.length * 2, (this.vertexCount + vertices) * FLOATS));
-				grown.set(this.vertices.subarray(0, this.vertexCount * FLOATS));
-				this.vertices = grown;
-			}
-			if (this.indexCount + indices > this.indices.length) {
-				const grown = new Uint32Array(Math.max(this.indices.length * 2, this.indexCount + indices));
-				grown.set(this.indices.subarray(0, this.indexCount));
-				this.indices = grown;
-			}
-			let run = this.runCount ? this.runs[this.runCount - 1] : null;
-			if (!run || run.texture !== texture || run.blend !== blend) {
-				run = this.runs[this.runCount];
-				if (!run) run = this.runs[this.runCount] = {
-					texture: null,
-					blend: 0,
-					first: 0,
-					count: 0
-				};
-				run.texture = texture;
-				run.blend = blend;
-				run.first = this.indexCount;
-				run.count = 0;
-				this.runCount++;
-			}
-			run.count += indices;
-			return this.vertexCount;
-		}
-		/**
-		* Write one vertex.
-		*/
-		vertex(x, y, z, u, v, r, g, b, a, depth) {
-			const d = this.vertices;
-			let o = this.vertexCount * FLOATS;
-			d[o++] = x;
-			d[o++] = y;
-			d[o++] = z;
-			d[o++] = u;
-			d[o++] = v;
-			d[o++] = r;
-			d[o++] = g;
-			d[o++] = b;
-			d[o++] = a;
-			d[o] = depth;
-			this.vertexCount++;
-		}
-		/**
-		* Record a quad.
-		*
-		* @param {WebGLTexture} texture
-		* @param {number} blend AuraBlend's BLEND_*
-		* @param {Array} points four corners [x, y, z] in world space, textured (0,0) (1,0) (1,1) (0,1)
-		* @param {Array} order the six corners of its two triangles
-		* @param {number} r colour, as the effect gave its shader's uColor
-		* @param {number} g
-		* @param {number} b
-		* @param {number} a
-		* @param {number} depth what the effect took off gl_Position.z
-		*/
-		quad(texture, blend, points, order, r, g, b, a, depth) {
-			const base = this.reserve(texture, blend, 4, 6);
-			for (let k = 0; k < 4; k++) {
-				const p = points[k];
-				this.vertex(p[0], p[1], p[2], QUAD_UV[k * 2], QUAD_UV[k * 2 + 1], r, g, b, a, depth);
-			}
-			for (let i = 0; i < 6; i++) this.indices[this.indexCount++] = base + order[i];
-		}
-		/**
-		* Record an indexed mesh, moved by (x, y, z).
-		*
-		* @param {WebGLTexture} texture
-		* @param {number} blend AuraBlend's BLEND_*
-		* @param {Float32Array} vertices x, y, z, u, v each
-		* @param {number} vertexCount
-		* @param {Uint16Array} indices
-		* @param {number} x
-		* @param {number} y
-		* @param {number} z
-		* @param {number} r colour, as the effect gave its shader's uColor
-		* @param {number} g
-		* @param {number} b
-		* @param {number} a
-		* @param {number} depth what the effect took off gl_Position.z
-		*/
-		mesh(texture, blend, vertices, vertexCount, indices, x, y, z, r, g, b, a, depth) {
-			const base = this.reserve(texture, blend, vertexCount, indices.length);
-			for (let i = 0, o = 0; i < vertexCount; i++, o += 5) this.vertex(vertices[o] + x, vertices[o + 1] + y, vertices[o + 2] + z, vertices[o + 3], vertices[o + 4], r, g, b, a, depth);
-			for (let i = 0; i < indices.length; i++) this.indices[this.indexCount++] = base + indices[i];
-		}
-		/**
-		* Draw what was recorded. Call in the class's afterRender, which then puts
-		* its blending back.
-		*
-		* @param {WebGL2RenderingContext} gl
-		*/
-		flush(gl) {
-			if (!this.active) return;
-			this.active = false;
-			if (!this.runCount) return;
-			if (!this.program || this.gl !== gl) this.init(gl);
-			const uniform = this.program.uniform;
-			gl.useProgram(this.program);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, this.modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, this.projection);
-			gl.uniform1i(uniform.uFogUse, this.fog.use);
-			gl.uniform1f(uniform.uFogNear, this.fog.near);
-			gl.uniform1f(uniform.uFogFar, this.fog.far);
-			gl.uniform3fv(uniform.uFogColor, this.fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.bindVertexArray(this.vao);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.subarray(0, this.vertexCount * FLOATS), gl.STREAM_DRAW);
-			let runs = this.runs;
-			let runCount = this.runCount;
-			let indices = this.indices;
-			if (this.mergeAdditive && this.merge()) {
-				runs = this.mergedRuns;
-				runCount = this.mergedRunCount;
-				indices = this.mergedIndices;
-			}
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices.subarray(0, this.indexCount), gl.STREAM_DRAW);
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				let blend = -1;
-				for (let i = 0; i < runCount; i++) {
-					const run = runs[i];
-					if (run.blend !== blend) {
-						blend = run.blend;
-						setAuraBlend(gl, blend);
-						if (uniform.uDarken) gl.uniform1i(uniform.uDarken, blend === 2);
-					}
-					gl.bindTexture(gl.TEXTURE_2D, run.texture);
-					gl.drawElements(gl.TRIANGLES, run.count, gl.UNSIGNED_INT, run.first * 4);
-				}
-			});
-			gl.bindVertexArray(null);
-			for (let i = 0; i < this.runCount; i++) this.runs[i].texture = null;
-			for (let i = 0; i < this.mergedRunCount; i++) this.mergedRuns[i].texture = null;
-			this.runCount = 0;
-			this.mergedRunCount = 0;
-			this.vertexCount = 0;
-			this.indexCount = 0;
-		}
-		/**
-		* Regroup the recorded runs for mergeAdditive into mergedRuns and
-		* mergedIndices: each span of consecutive BLEND_ADD runs becomes one run
-		* per texture, in the order the textures first appear in it, with that
-		* texture's triangles in the order they were recorded. Other runs stay
-		* as they are, where they are. Returns false when nothing would merge.
-		*
-		* @return {boolean}
-		*/
-		merge() {
-			const runs = this.runs;
-			const runCount = this.runCount;
-			if (this.mergedIndices.length < this.indexCount) this.mergedIndices = new Uint32Array(this.indices.length);
-			const textureRun = this.textureRun;
-			let merged = 0;
-			let offset = 0;
-			for (let start = 0; start < runCount;) {
-				if (runs[start].blend !== 0) {
-					const run = runs[start];
-					const target = this.mergedRun(merged++, run.texture, run.blend, offset);
-					this.copyIndices(run, offset);
-					target.count = run.count;
-					offset += run.count;
-					start++;
-					continue;
-				}
-				let end = start;
-				const first = merged;
-				for (; end < runCount && runs[end].blend === 0; end++) {
-					const run = runs[end];
-					let target = textureRun.get(run.texture);
-					if (target === void 0) {
-						target = this.mergedRun(merged++, run.texture, 0, 0);
-						textureRun.set(run.texture, target);
-					}
-					target.count += run.count;
-				}
-				for (let i = first; i < merged; i++) {
-					const target = this.mergedRuns[i];
-					target.first = offset;
-					offset += target.count;
-					target.count = 0;
-				}
-				for (let i = start; i < end; i++) {
-					const run = runs[i];
-					const target = textureRun.get(run.texture);
-					this.copyIndices(run, target.first + target.count);
-					target.count += run.count;
-				}
-				textureRun.clear();
-				start = end;
-			}
-			this.mergedRunCount = merged;
-			return merged < runCount;
-		}
-		/**
-		* Copy a recorded run's indices into mergedIndices at `offset`, without
-		* the garbage of a subarray a run.
-		*/
-		copyIndices(run, offset) {
-			const indices = this.indices;
-			const out = this.mergedIndices;
-			for (let i = run.first, end = run.first + run.count; i < end; i++) out[offset++] = indices[i];
-		}
-		/**
-		* mergedRuns[index], set to start empty at `first`.
-		*/
-		mergedRun(index, texture, blend, first) {
-			let run = this.mergedRuns[index];
-			if (!run) run = this.mergedRuns[index] = {
-				texture: null,
-				blend: 0,
-				first: 0,
-				count: 0
-			};
-			run.texture = texture;
-			run.blend = blend;
-			run.first = first;
-			run.count = 0;
-			return run;
-		}
-		/**
-		* Create the program, the buffers and the vertex array.
-		*/
-		init(gl) {
-			if (this.program && this.gl === gl) return;
-			this.gl = gl;
-			const fragment = AuraBatch_default.replace(/^(#version[^\n]*\n)/, `$1${this.defines}`);
-			this.program = WebGL_default.createShaderProgram(gl, AuraBatch_default$1, fragment);
-			this.vertexBuffer = gl.createBuffer();
-			this.indexBuffer = gl.createBuffer();
-			this.vao = gl.createVertexArray();
-			const attribute = this.program.attribute;
-			gl.bindVertexArray(this.vao);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE, 0);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE, 12);
-			gl.enableVertexAttribArray(attribute.aColor);
-			gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, 20);
-			gl.enableVertexAttribArray(attribute.aDepthOffset);
-			gl.vertexAttribPointer(attribute.aDepthOffset, 1, gl.FLOAT, false, STRIDE, 36);
-			gl.bindVertexArray(null);
-		}
-		/**
-		* Delete the program and the buffers. Call in the class's static free.
-		*/
-		free(gl) {
-			if (this.program) {
-				gl.deleteProgram(this.program);
-				gl.deleteBuffer(this.vertexBuffer);
-				gl.deleteBuffer(this.indexBuffer);
-				gl.deleteVertexArray(this.vao);
-			}
-			this.program = null;
-			this.vao = null;
-			this.vertexBuffer = null;
-			this.indexBuffer = null;
-			this.gl = null;
-			this.active = false;
-			this.runCount = 0;
-			this.mergedRunCount = 0;
-			this.textureRun.clear();
-			this.vertexCount = 0;
-			this.indexCount = 0;
-		}
-	};
-}));
 // src/Renderer/Effects/SwirlingAura.js
 var mat4$7, _program$21, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$3, _textures$12, BAND_INDICES, SwirlingAura;
 var init_SwirlingAura = __esmMin((() => {
@@ -286951,7 +286980,8 @@ var init_BodyMotionSim = __esmMin((() => {
 		466: (age) => age >= 14 && age < 50 ? { spin: age - 14 } : null,
 		548: (age) => age <= 16 ? { red: age * 3 } : null,
 		625: (age) => age % 4 === 0 ? { ready: 20 } : null,
-		626: (age) => age % 4 === 0 ? { red: 20 } : null
+		626: (age) => age % 4 === 0 ? { red: 20 } : null,
+		602: (age) => age > 20 ? { quake: true } : null
 	};
 }));
 // src/Renderer/Effects/BodyMotion.js
@@ -287078,6 +287108,313 @@ var init_GunslingerBodyEffects = __esmMin((() => {
 		625: [bodyGlow(625, 60)],
 		626: [bodyGlow(626, 60)]
 	};
+}));
+// src/Renderer/Effects/CasterMarks.js
+/**
+* The caster's colour on tick `age`: the last colour the effect set, brought
+* back by 8 a tick since.
+*
+* @param {function} schedule
+* @param {number} age
+* @return {number[]|null} 0-255 per channel, or null when never set
+*/
+function colorAt(schedule, age) {
+	for (let a = age; a >= 0 && age - a <= Math.ceil(255 / 8); a--) {
+		const set = schedule(a).color;
+		if (set) return set.map((c) => Math.min(255, c + 8 * (age - a)));
+	}
+	return null;
+}
+/**
+* The facing (roBrowser direction, 0-7) after turning `degrees` from
+* `direction`: one step every whole 45 degrees, the way the server's direction
+* numbers go round, as Tornado Kick's turn does (FacingTurn.js).
+*
+* @param {number} direction
+* @param {number} degrees
+* @return {number}
+*/
+function turnedDirection$1(direction, degrees) {
+	const steps = (Math.floor(degrees / 45) % 8 + 8) % 8;
+	return DIR_MAP$1[(DIR_MAP$1[direction & 7] + steps) % 8];
+}
+/**
+* Recover a colour on an entity by 8 a tick until it is back to normal.
+* Stops as soon as a newer mark sets the entity's colour, so a restarted
+* effect is not lightened by its earlier copy's recovery.
+*
+* @param {Entity} entity
+* @param {number[]} color 0-255 per channel
+*/
+function recoverColor(entity, color) {
+	if (!entity.animations || !entity._flashColor) return;
+	const token = {};
+	entity._flashColorOwner = token;
+	entity.animations.add((tick) => {
+		if (entity._flashColorOwner !== token) return true;
+		const steps = Math.floor(tick / PRIM_TICK_MS);
+		let done = true;
+		for (let i = 0; i < 3; i++) {
+			const c = Math.min(255, color[i] + 8 * steps);
+			entity._flashColor[i] = c / 255;
+			done = done && c >= 255;
+		}
+		entity.recalculateBlendingColor();
+		return done;
+	});
+}
+var RED, YELLOW, WHITE, PURPLE, SCHEDULES, DIR_MAP$1, CasterMarks;
+var init_CasterMarks = __esmMin((() => {
+	init_EntityManager();
+	init_EffectPrimSim();
+	RED = [
+		255,
+		0,
+		0
+	];
+	YELLOW = [
+		250,
+		250,
+		100
+	];
+	WHITE = [
+		255,
+		255,
+		255
+	];
+	PURPLE = [
+		182,
+		89,
+		255
+	];
+	SCHEDULES = {
+		392: (age) => {
+			const on = age < 30;
+			const c = age % 6 < 3 ? 100 : 250;
+			return {
+				add: false,
+				glow: on,
+				split: false,
+				color: on ? [
+					c,
+					c,
+					c
+				] : null
+			};
+		},
+		934: (age) => {
+			const on = age >= 10 && age <= 34 && age % 4 < 2;
+			return {
+				add: on,
+				glow: on,
+				split: false,
+				color: null
+			};
+		},
+		496: (age) => {
+			const on = age >= 10 && age <= 30;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: false,
+				split: false,
+				color: on ? even ? [
+					250,
+					250,
+					250
+				] : WHITE : null
+			};
+		},
+		2373: (age) => {
+			const on = age <= 30;
+			return {
+				add: on,
+				glow: on,
+				split: true,
+				color: on ? RED : null
+			};
+		},
+		864: (age) => {
+			const on = age >= 4 && age <= 90;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: false,
+				split: false,
+				color: on ? even ? PURPLE : WHITE : null
+			};
+		},
+		387: (age) => {
+			return {
+				add: age >= 30 && age <= 50 && (age - 30) % 10 < 5,
+				glow: false,
+				split: false,
+				color: null,
+				turn: age >= 30 && age <= 54 ? (age - 29) * 30 % 360 : null
+			};
+		},
+		375: () => ({
+			add: false,
+			glow: true,
+			split: false,
+			color: null
+		}),
+		502: (age) => {
+			const on = age <= 140;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: on,
+				split: false,
+				color: on ? even ? YELLOW : WHITE : null
+			};
+		},
+		599: (age) => {
+			const on = age >= 5 && age <= 25;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: false,
+				split: false,
+				color: on ? even ? YELLOW : WHITE : null
+			};
+		},
+		602: (age) => {
+			return {
+				add: false,
+				glow: false,
+				split: false,
+				color: age > 20 ? age % 2 === 0 ? [
+					250,
+					50,
+					50
+				] : WHITE : null
+			};
+		}
+	};
+	DIR_MAP$1 = [
+		4,
+		3,
+		2,
+		1,
+		0,
+		7,
+		6,
+		5
+	];
+	CasterMarks = class {
+		static ready = true;
+		static renderBeforeEntities = true;
+		static beforeRender() {}
+		static afterRender() {}
+		/**
+		* @param {Entity} owner the caster
+		* @param {number} startTick
+		* @param {number} frames lifetime in ticks (1/60 s)
+		* @param {number} effectId a key of SCHEDULES
+		*/
+		constructor(owner, startTick, frames, effectId) {
+			this.owner = owner || null;
+			this.startTick = startTick || 0;
+			this.frames = Math.max(1, Math.floor(frames));
+			this.schedule = SCHEDULES[effectId];
+			this.add = false;
+			this.glow = false;
+			this.color = null;
+			this.ready = true;
+		}
+		/**
+		* Put the marks of tick `age` on the owner, or take them all off (null)
+		*/
+		mark(age) {
+			const owner = this.owner;
+			const state = age === null ? {
+				add: false,
+				glow: false,
+				split: false
+			} : this.schedule(age);
+			if (state.add !== this.add) {
+				owner._additiveBody = Math.max(0, (owner._additiveBody || 0) + (state.add ? 1 : -1));
+				this.add = state.add;
+			}
+			if (state.glow !== this.glow) {
+				owner._castGlow = Math.max(0, (owner._castGlow || 0) + (state.glow ? 1 : -1));
+				this.glow = state.glow;
+			}
+			if (state.split) {
+				owner._splitImageAge = age;
+				this._split = true;
+			} else if (this._split) {
+				owner._splitImageAge = void 0;
+				this._split = false;
+			}
+			if (state.turn !== null && state.turn !== void 0) {
+				if (this.turnFrom === void 0) this.turnFrom = owner.direction;
+				owner.direction = turnedDirection$1(this.turnFrom, state.turn);
+			}
+			if (age !== null && owner._flashColor) {
+				const color = colorAt(this.schedule, age);
+				if (color || this.color) {
+					const c = color || WHITE;
+					owner._flashColor[0] = c[0] / 255;
+					owner._flashColor[1] = c[1] / 255;
+					owner._flashColor[2] = c[2] / 255;
+					owner.recalculateBlendingColor();
+					owner._flashColorOwner = this;
+					this.color = color;
+				}
+			}
+		}
+		render(gl, tick) {
+			if (!this.owner || EntityManager.get(this.owner.GID) !== this.owner) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (tick < this.startTick) return;
+			const age = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
+			if (age >= this.frames) {
+				this.needCleanUp = true;
+				return;
+			}
+			this.mark(age);
+		}
+		free() {
+			if (this.owner) {
+				this.mark(null);
+				if (this.color && this.color.some((c) => c < 255)) recoverColor(this.owner, this.color);
+			}
+			this.owner = null;
+		}
+	};
+}));
+// src/DB/Effects/CloseConfineEffect.js
+var FRAMES, CloseConfineEffect_default;
+var init_CloseConfineEffect = __esmMin((() => {
+	init_BodyMotion();
+	init_CasterMarks();
+	init_EffectPrimSim();
+	FRAMES = 60;
+	CloseConfineEffect_default = { 602: [
+		{
+			wav: "effect/ef_hit6",
+			delayWav: Math.round(20 * PRIM_TICK_MS),
+			attachedEntity: true
+		},
+		{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new BodyMotion(Params.Init.ownerEntity, Params.Inst.startTick, 602, FRAMES), Params);
+			}
+		},
+		{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, FRAMES, 602), Params);
+			}
+		}
+	] };
 }));
 // src/Renderer/Effects/Tiles.vs?raw
 var Tiles_default$1;
@@ -288700,13 +289037,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$4(random, 9) - 4,
-		y: r$4(random, 9) - 4,
-		counter: r$4(random, 10) - 10,
-		heading: r$4(random, 360),
-		rise: r$4(random, 40) / 100 + .2,
-		drift: r$4(random, 10) / 100,
-		half: r$4(random, 16) * .03 + .1
+		x: r$5(random, 9) - 4,
+		y: r$5(random, 9) - 4,
+		counter: r$5(random, 10) - 10,
+		heading: r$5(random, 360),
+		rise: r$5(random, 40) / 100 + .2,
+		drift: r$5(random, 10) / 100,
+		half: r$5(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -288743,7 +289080,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$4;
+var SAND_COLOR, SAND_TEXTURE, r$5;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -288751,7 +289088,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$4 = (random, k) => Math.floor(random() * k);
+	r$5 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -290016,22 +290353,37 @@ var init_CastCircle = __esmMin((() => {
 }));
 // src/Renderer/Effects/ThrownStoneSim.js
 /**
+* Aid Potion's bottle for a skill level. The client clamps the level to 1-10
+* and uses it as the colour: 1-5 tinted and alpha-blended, 6 white and
+* additive, 7-10 not drawn.
+*
+* @param {number} level the use packet's level
+* @return {?object} the kind, or null when nothing is drawn
+*/
+function potionBottle(level) {
+	const colour = Math.min(Math.max(Math.floor(level) || 1, 1), 10);
+	if (colour <= POTION_COLORS.length) return Object.assign({}, POTION_BOTTLE, { color: POTION_COLORS[colour - 1] });
+	return colour === 6 ? Object.assign({}, POTION_BOTTLE, { blendMode: 2 }) : null;
+}
+/**
 * @param {number[]} from start [x, y, height] in units
 * @param {number[]} to end [x, y, height] in units
-* @param {object} [kind] STONE, NINJA_ITEM or VENOM_KNIFE
+* @param {object} [kind] STONE, NINJA_ITEM, VENOM_KNIFE or a BOTTLE
 * @return {object} the throw
 */
 function planThrow(from, to, kind = STONE) {
 	const dx = to[0] - from[0];
 	const dy = to[1] - from[1];
 	const dist = Math.sqrt(dx * dx + dy * dy);
+	const speed = kind.flight ? dist / kind.flight : kind.speed;
 	return {
 		kind,
 		from,
 		dist,
+		speed,
 		dir: dist > 0 ? [dx / dist, dy / dist] : [1, 0],
-		climb: dist > 0 ? kind.speed / dist * (to[2] - from[2]) : 0,
-		ticks: Math.floor(dist / kind.speed) + 1
+		climb: dist > 0 ? speed / dist * (to[2] - from[2]) : 0,
+		ticks: kind.flight ? dist > 0 ? kind.flight + 1 : 0 : Math.floor(dist / speed) + 1
 	};
 }
 /**
@@ -290045,10 +290397,10 @@ function stoneAt(t, k) {
 	const kind = t.kind;
 	let moves = 0;
 	while (moves < k && (moves + 1) / t.ticks <= kind.moveUntil) moves++;
-	const s = Math.min(moves / t.ticks, 1);
+	const s = t.ticks > 0 ? Math.min(moves / t.ticks, 1) : 0;
 	return {
-		x: t.from[0] + t.dir[0] * kind.speed * moves,
-		y: t.from[1] + t.dir[1] * kind.speed * moves,
+		x: t.from[0] + t.dir[0] * t.speed * moves,
+		y: t.from[1] + t.dir[1] * t.speed * moves,
 		up: kind.lift + t.climb * moves + kind.arc * Math.sin(Math.PI * s),
 		alpha: Math.max(255 - kind.fade * (k - moves), 0),
 		angle: (kind.startAngle + kind.spin * k) % 360
@@ -290075,7 +290427,7 @@ function trailAt$1(t, i, k) {
 	p.alpha = alpha;
 	return p;
 }
-var STONE, NINJA_ITEM, STONE_TEXTURE, VENOM_KNIFE;
+var STONE, NINJA_ITEM, STONE_TEXTURE, VENOM_KNIFE, ITEM$1, BOTTLE, ACID_BOTTLE, POTION_BOTTLE, BERSERK_POTION, POTION_COLORS;
 var init_ThrownStoneSim = __esmMin((() => {
 	STONE = {
 		speed: 2,
@@ -290106,6 +290458,49 @@ var init_ThrownStoneSim = __esmMin((() => {
 	});
 	STONE_TEXTURE = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp";
 	VENOM_KNIFE = Object.assign({}, NINJA_ITEM, { texture: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/º£³Ñ³ªÀÌÇÁ.bmp" });
+	ITEM$1 = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/";
+	BOTTLE = Object.assign({}, STONE, {
+		flight: 25,
+		arc: 30,
+		half: 3
+	});
+	ACID_BOTTLE = Object.assign({}, BOTTLE, {
+		texture: ITEM$1 + "ºóº´.bmp",
+		color: [
+			135,
+			255,
+			135
+		]
+	});
+	POTION_BOTTLE = Object.assign({}, BOTTLE, { texture: ITEM$1 + "ºóÆ÷¼Çº´.bmp" });
+	BERSERK_POTION = Object.assign({}, BOTTLE, { texture: ITEM$1 + "¹ö¼­Å©Æ÷¼Ç.bmp" });
+	POTION_COLORS = [
+		[
+			255,
+			135,
+			135
+		],
+		[
+			255,
+			205,
+			135
+		],
+		[
+			255,
+			255,
+			135
+		],
+		[
+			255,
+			255,
+			255
+		],
+		[
+			135,
+			135,
+			255
+		]
+	];
 }));
 // src/DB/Effects/ThrowStoneEffect.js
 /**
@@ -290151,14 +290546,15 @@ function stoneEffect(t, copy, file = t.kind.texture || "À¯ÀúÀÎÅÍÆäÀÌ
 		red: color[0] / 255,
 		green: color[1] / 255,
 		blue: color[2] / 255
-	});
+	}, t.kind.blendMode && { blendMode: t.kind.blendMode });
 }
 /**
 * EffectTable row for a thrown item.
 *
 * @param {number} effectID
 * @param {string} file texture
-* @param {object} kind STONE or NINJA_ITEM
+* @param {object|function} kind STONE, NINJA_ITEM, a BOTTLE, or a function of
+*   the skill level returning one (null: nothing is drawn)
 * @return {Array}
 */
 function thrownItemRow(effectID, file, kind) {
@@ -290168,7 +290564,8 @@ function thrownItemRow(effectID, file, kind) {
 		func: function(Params) {
 			const caster = Params.Init.ownerEntity.position;
 			const target = Params.Init.otherEntity && Params.Init.otherEntity.position;
-			if (!target) return;
+			const thrown = typeof kind === "function" ? kind(Params.Init.skillLevel) : kind;
+			if (!target || !thrown) return;
 			const at = [
 				caster[0],
 				caster[1],
@@ -290182,7 +290579,7 @@ function thrownItemRow(effectID, file, kind) {
 				0,
 				1,
 				2
-			].map((i) => (target[i] - caster[i]) * 5), kind);
+			].map((i) => (target[i] - caster[i]) * 5), thrown);
 			[
 				-1,
 				0,
@@ -290202,7 +290599,7 @@ function thrownItemRow(effectID, file, kind) {
 		}
 	}];
 }
-var SIZE_PER_UNIT$1, ITEM, NINJA_TEXTURES, throwStoneEffect, throwVenomKnifeEffect, ninjaThrowEffects;
+var SIZE_PER_UNIT$1, ITEM, NINJA_TEXTURES, throwStoneEffect, throwVenomKnifeEffect, acidTerrorEffect, aidPotionEffect, berserkPotionThrowEffect, ninjaThrowEffects;
 var init_ThrowStoneEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ThrownStoneSim();
@@ -290216,6 +290613,9 @@ var init_ThrowStoneEffect = __esmMin((() => {
 	};
 	throwStoneEffect = thrownItemRow(308, STONE_TEXTURE, STONE);
 	throwVenomKnifeEffect = thrownItemRow(600, VENOM_KNIFE.texture, VENOM_KNIFE);
+	acidTerrorEffect = thrownItemRow(298, ACID_BOTTLE.texture, ACID_BOTTLE);
+	aidPotionEffect = thrownItemRow(299, POTION_BOTTLE.texture, potionBottle);
+	berserkPotionThrowEffect = thrownItemRow(541, BERSERK_POTION.texture, BERSERK_POTION);
 	ninjaThrowEffects = Object.fromEntries(Object.keys(NINJA_TEXTURES).map((id) => [id, thrownItemRow(Number(id), NINJA_TEXTURES[id], NINJA_ITEM)]));
 }));
 // src/DB/Effects/NyangGrassEffect.js
@@ -291427,14 +291827,14 @@ var init_StreakLines = __esmMin((() => {
 function planBubbles(random = Math.random, count = DETOX.count) {
 	const bubbles = [];
 	for (let i = 0; i < count; i++) {
-		const heading = r$3(random, 360) * Math.PI / 180;
-		const dist = 2 + r$3(random, 6);
+		const heading = r$4(random, 360) * Math.PI / 180;
+		const dist = 2 + r$4(random, 6);
 		bubbles.push({
 			spawn: i * DETOX.every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r$3(random, 30)) / 100,
-			scale: (40 + r$3(random, 50)) / 100
+			rise: (30 + r$4(random, 30)) / 100,
+			scale: (40 + r$4(random, 50)) / 100
 		});
 	}
 	return bubbles;
@@ -291469,7 +291869,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, r$3;
+var DETOX, r$4;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -291479,7 +291879,7 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		fadeStart: 32,
 		spin: 3
 	};
-	r$3 = (random, k) => Math.floor(random() * k);
+	r$4 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/DetoxifyEffect.js
 /**
@@ -291535,6 +291935,193 @@ var init_DetoxifyEffect = __esmMin((() => {
 	}, {
 		wav: "effect/ef_detoxication",
 		attachedEntity: true
+	}];
+}));
+// src/Renderer/Effects/EndureSim.js
+/**
+* Alpha (0-254) after k ticks of a prim's life.
+*
+* @param {number} k
+* @param {number} life
+* @return {number}
+*/
+function primAlpha(k, life) {
+	const fadeStart = life - Math.floor(life / 3);
+	const rise = (alpha) => Math.min(ENDURE.alphaMax / ENDURE.fadeIn * alpha, ENDURE.alphaMax);
+	if (k < fadeStart) return rise(k);
+	return Math.max(rise(fadeStart) * (life - k) / (life - fadeStart), 0);
+}
+/**
+* Half size of endure.tga after k ticks.
+*
+* @param {number} k
+* @return {number}
+*/
+function ringHalfSize(k) {
+	const { half, speed, shrinkTicks } = ENDURE.ring;
+	const n = Math.min(k, shrinkTicks);
+	const accel = -speed / shrinkTicks;
+	return half + speed * n + accel * n * (n + 1) / 2;
+}
+/**
+* endure.tga `age` ticks after the effect started, or null outside its life.
+*
+* @param {number} age
+* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
+*/
+function ringAt(age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= ENDURE.life) return null;
+	const size = ringHalfSize(k) * 2;
+	return {
+		offsetX: 0,
+		offsetY: -ENDURE.lift,
+		sizeX: size,
+		sizeY: size,
+		alpha: primAlpha(k, ENDURE.life),
+		angle: 0
+	};
+}
+/**
+* The streaks that show (born on ticks 0-41).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} { spawn, angle, dist, halfWidth, halfLength }
+*/
+function planStreaks(random = Math.random) {
+	const streaks = [];
+	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
+		const streak = {
+			spawn,
+			angle: r$3(random, 360),
+			dist: 100 + r$3(random, 40),
+			halfWidth: (60 + r$3(random, 100)) / 100,
+			halfLength: 30 + r$3(random, 20)
+		};
+		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
+	}
+	return streaks;
+}
+/**
+* Distance a streak has slid back after k ticks.
+*
+* @param {number} k
+* @return {number}
+*/
+function streakSlide(k) {
+	const { speed, accel } = ENDURE.streak;
+	return -(speed * k + accel * k * (k + 1) / 2);
+}
+/**
+* A streak `age` ticks after its spawn, or null outside its life.
+*
+* @param {object} streak from planStreaks
+* @param {number} age
+* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
+*/
+function streakAt(streak, age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= ENDURE.streak.life) return null;
+	const dist = streak.dist - streakSlide(k);
+	return {
+		offsetX: Math.sin(rad$2(streak.angle)) * dist,
+		offsetY: -Math.cos(rad$2(streak.angle)) * dist - ENDURE.lift,
+		sizeX: streak.halfWidth * 2,
+		sizeY: streak.halfLength * 2,
+		alpha: primAlpha(k, ENDURE.streak.life),
+		angle: streak.angle
+	};
+}
+var ENDURE, r$3, rad$2;
+var init_EndureSim = __esmMin((() => {
+	ENDURE = {
+		life: 80,
+		lift: 20,
+		alphaMax: 254,
+		fadeIn: 20,
+		ring: {
+			half: 150,
+			speed: -5,
+			shrinkTicks: 45
+		},
+		streak: {
+			ticks: 50,
+			life: 40,
+			speed: -4,
+			accel: .1
+		}
+	};
+	r$3 = (random, k) => Math.floor(random() * k);
+	rad$2 = (deg) => deg * Math.PI / 180;
+}));
+// src/DB/Effects/EndureEffect.js
+/**
+* A 3D row drawing one prim on the caster from a sampler.
+*
+* @param {string} file texture
+* @param {number} life ticks
+* @param {function} at age -> sample in client numbers, or null
+* @return {object}
+*/
+function primEffect(file, life, at) {
+	return {
+		type: "3D",
+		file,
+		sharedTexture: true,
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: life * PRIM_TICK_MS,
+		zIndex: 10,
+		track(age) {
+			const p = at(age);
+			if (!p) return null;
+			return {
+				x: 0,
+				y: 0,
+				z: 0,
+				offsetX: p.offsetX,
+				offsetY: p.offsetY,
+				sizeX: p.sizeX,
+				sizeY: p.sizeY,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+/**
+* The row of one streak. It starts on the streak's own tick.
+*
+* @param {object} streak from planStreaks
+* @return {object}
+*/
+function endureStreakEffect(streak) {
+	return primEffect("effect/alpha_down.tga", ENDURE.streak.life, (age) => streakAt(streak, age));
+}
+var endureRingEffect, endureEffect;
+var init_EndureEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_EndureSim();
+	endureRingEffect = primEffect("effect/endure.tga", ENDURE.life, ringAt);
+	endureEffect = [{
+		...endureRingEffect,
+		wav: "effect/ef_endure"
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planStreaks().forEach((streak, i) => {
+				this.spamEffect({
+					effect: endureStreakEffect(streak),
+					Inst: {
+						effectID: 11,
+						duplicateID: i + 1,
+						startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
 	}];
 }));
 // src/DB/Effects/PoisonAttackEffect.js
@@ -293875,272 +294462,6 @@ var init_IceSpikes = __esmMin((() => {
 		}
 	};
 }));
-// src/Renderer/Effects/CasterMarks.js
-/**
-* The caster's colour on tick `age`: the last colour the effect set, brought
-* back by 8 a tick since.
-*
-* @param {function} schedule
-* @param {number} age
-* @return {number[]|null} 0-255 per channel, or null when never set
-*/
-function colorAt(schedule, age) {
-	for (let a = age; a >= 0 && age - a <= Math.ceil(255 / 8); a--) {
-		const set = schedule(a).color;
-		if (set) return set.map((c) => Math.min(255, c + 8 * (age - a)));
-	}
-	return null;
-}
-/**
-* The facing (roBrowser direction, 0-7) after turning `degrees` from
-* `direction`: one step every whole 45 degrees, the way the server's direction
-* numbers go round, as Tornado Kick's turn does (FacingTurn.js).
-*
-* @param {number} direction
-* @param {number} degrees
-* @return {number}
-*/
-function turnedDirection$1(direction, degrees) {
-	const steps = (Math.floor(degrees / 45) % 8 + 8) % 8;
-	return DIR_MAP$1[(DIR_MAP$1[direction & 7] + steps) % 8];
-}
-/**
-* Recover a colour on an entity by 8 a tick until it is back to normal.
-* Stops as soon as a newer mark sets the entity's colour, so a restarted
-* effect is not lightened by its earlier copy's recovery.
-*
-* @param {Entity} entity
-* @param {number[]} color 0-255 per channel
-*/
-function recoverColor(entity, color) {
-	if (!entity.animations || !entity._flashColor) return;
-	const token = {};
-	entity._flashColorOwner = token;
-	entity.animations.add((tick) => {
-		if (entity._flashColorOwner !== token) return true;
-		const steps = Math.floor(tick / PRIM_TICK_MS);
-		let done = true;
-		for (let i = 0; i < 3; i++) {
-			const c = Math.min(255, color[i] + 8 * steps);
-			entity._flashColor[i] = c / 255;
-			done = done && c >= 255;
-		}
-		entity.recalculateBlendingColor();
-		return done;
-	});
-}
-var RED, YELLOW, WHITE, PURPLE, SCHEDULES, DIR_MAP$1, CasterMarks;
-var init_CasterMarks = __esmMin((() => {
-	init_EntityManager();
-	init_EffectPrimSim();
-	RED = [
-		255,
-		0,
-		0
-	];
-	YELLOW = [
-		250,
-		250,
-		100
-	];
-	WHITE = [
-		255,
-		255,
-		255
-	];
-	PURPLE = [
-		182,
-		89,
-		255
-	];
-	SCHEDULES = {
-		392: (age) => {
-			const on = age < 30;
-			const c = age % 6 < 3 ? 100 : 250;
-			return {
-				add: false,
-				glow: on,
-				split: false,
-				color: on ? [
-					c,
-					c,
-					c
-				] : null
-			};
-		},
-		934: (age) => {
-			const on = age >= 10 && age <= 34 && age % 4 < 2;
-			return {
-				add: on,
-				glow: on,
-				split: false,
-				color: null
-			};
-		},
-		496: (age) => {
-			const on = age >= 10 && age <= 30;
-			const even = age % 2 === 0;
-			return {
-				add: on && even,
-				glow: false,
-				split: false,
-				color: on ? even ? [
-					250,
-					250,
-					250
-				] : WHITE : null
-			};
-		},
-		2373: (age) => {
-			const on = age <= 30;
-			return {
-				add: on,
-				glow: on,
-				split: true,
-				color: on ? RED : null
-			};
-		},
-		864: (age) => {
-			const on = age >= 4 && age <= 90;
-			const even = age % 2 === 0;
-			return {
-				add: on && even,
-				glow: false,
-				split: false,
-				color: on ? even ? PURPLE : WHITE : null
-			};
-		},
-		387: (age) => {
-			return {
-				add: age >= 30 && age <= 50 && (age - 30) % 10 < 5,
-				glow: false,
-				split: false,
-				color: null,
-				turn: age >= 30 && age <= 54 ? (age - 29) * 30 % 360 : null
-			};
-		},
-		375: () => ({
-			add: false,
-			glow: true,
-			split: false,
-			color: null
-		}),
-		502: (age) => {
-			const on = age <= 140;
-			const even = age % 2 === 0;
-			return {
-				add: on && even,
-				glow: on,
-				split: false,
-				color: on ? even ? YELLOW : WHITE : null
-			};
-		},
-		599: (age) => {
-			const on = age >= 5 && age <= 25;
-			const even = age % 2 === 0;
-			return {
-				add: on && even,
-				glow: false,
-				split: false,
-				color: on ? even ? YELLOW : WHITE : null
-			};
-		}
-	};
-	DIR_MAP$1 = [
-		4,
-		3,
-		2,
-		1,
-		0,
-		7,
-		6,
-		5
-	];
-	CasterMarks = class {
-		static ready = true;
-		static renderBeforeEntities = true;
-		static beforeRender() {}
-		static afterRender() {}
-		/**
-		* @param {Entity} owner the caster
-		* @param {number} startTick
-		* @param {number} frames lifetime in ticks (1/60 s)
-		* @param {number} effectId a key of SCHEDULES
-		*/
-		constructor(owner, startTick, frames, effectId) {
-			this.owner = owner || null;
-			this.startTick = startTick || 0;
-			this.frames = Math.max(1, Math.floor(frames));
-			this.schedule = SCHEDULES[effectId];
-			this.add = false;
-			this.glow = false;
-			this.color = null;
-			this.ready = true;
-		}
-		/**
-		* Put the marks of tick `age` on the owner, or take them all off (null)
-		*/
-		mark(age) {
-			const owner = this.owner;
-			const state = age === null ? {
-				add: false,
-				glow: false,
-				split: false
-			} : this.schedule(age);
-			if (state.add !== this.add) {
-				owner._additiveBody = Math.max(0, (owner._additiveBody || 0) + (state.add ? 1 : -1));
-				this.add = state.add;
-			}
-			if (state.glow !== this.glow) {
-				owner._castGlow = Math.max(0, (owner._castGlow || 0) + (state.glow ? 1 : -1));
-				this.glow = state.glow;
-			}
-			if (state.split) {
-				owner._splitImageAge = age;
-				this._split = true;
-			} else if (this._split) {
-				owner._splitImageAge = void 0;
-				this._split = false;
-			}
-			if (state.turn !== null && state.turn !== void 0) {
-				if (this.turnFrom === void 0) this.turnFrom = owner.direction;
-				owner.direction = turnedDirection$1(this.turnFrom, state.turn);
-			}
-			if (age !== null && owner._flashColor) {
-				const color = colorAt(this.schedule, age);
-				if (color || this.color) {
-					const c = color || WHITE;
-					owner._flashColor[0] = c[0] / 255;
-					owner._flashColor[1] = c[1] / 255;
-					owner._flashColor[2] = c[2] / 255;
-					owner.recalculateBlendingColor();
-					owner._flashColorOwner = this;
-					this.color = color;
-				}
-			}
-		}
-		render(gl, tick) {
-			if (!this.owner || EntityManager.get(this.owner.GID) !== this.owner) {
-				this.needCleanUp = true;
-				return;
-			}
-			if (tick < this.startTick) return;
-			const age = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
-			if (age >= this.frames) {
-				this.needCleanUp = true;
-				return;
-			}
-			this.mark(age);
-		}
-		free() {
-			if (this.owner) {
-				this.mark(null);
-				if (this.color && this.color.some((c) => c < 255)) recoverColor(this.owner, this.color);
-			}
-			this.owner = null;
-		}
-	};
-}));
 // src/Renderer/Effects/CirclePowerSim.js
 /**
 * Square k's colour (0-255) for a variant (2 green, 3 blue, 4 yellow, 5 red,
@@ -294517,6 +294838,7 @@ var init_EffectTable = __esmMin((() => {
 	init_BodyEffects();
 	init_TaekwonBodyEffects();
 	init_GunslingerBodyEffects();
+	init_CloseConfineEffect();
 	init_Songs();
 	init_Events();
 	init_DBManager();
@@ -294550,6 +294872,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastRing();
 	init_StreakLines();
 	init_DetoxifyEffect();
+	init_EndureEffect();
 	init_PoisonAttackEffect();
 	init_SonicBlowEffect();
 	init_CasterStrobe();
@@ -295070,21 +295393,7 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		10: [...mammoniteEffect],
-		11: [{
-			type: "3D",
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1e3,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/endure.tga",
-			posz: 2,
-			sizeEnd: 70,
-			sizeSmooth: true,
-			sizeStart: 200,
-			wav: "effect/ef_endure",
-			zIndex: 10
-		}],
+		11: [...endureEffect],
 		12: [{
 			type: "CYLINDER",
 			alphaMax: .8,
@@ -298447,19 +298756,26 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ac_concentration",
 			attachedEntity: true
 		}],
-		220: [{
-			type: "STR",
-			file: "¹ö¼­Å©",
-			wav: "effect/ac_concentration",
-			attachedEntity: true
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 200;
-				Camera.setQuake(start, 200);
+		220: [
+			{
+				type: "STR",
+				file: "¹ö¼­Å©",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/ac_concentration",
+				delayWav: 300,
+				attachedEntity: true
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const start = Params.Inst.startTick + 300;
+					Camera.setQuake(start, 200);
+				}
 			}
-		}],
+		],
 		222: [{
 			type: "CYLINDER",
 			alphaMax: .6,
@@ -299788,24 +300104,8 @@ var init_EffectTable = __esmMin((() => {
 				PokJukWeatherEffect.startOrRestart(Params);
 			}
 		}],
-		298: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 300,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¿°»êº´.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: .5,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
+		298: acidTerrorEffect,
+		299: aidPotionEffect,
 		300: [{ wav: "apocalips_attack" }],
 		302: [{
 			type: "SPR",
@@ -304173,6 +304473,7 @@ var init_EffectTable = __esmMin((() => {
 				Camera.setQuake(start);
 			}
 		}],
+		541: berserkPotionThrowEffect,
 		543: [{ wav: "effect/t_º¸Á¶¸¶¹ý" }],
 		547: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
 		553: [{
@@ -304798,7 +305099,7 @@ var init_EffectTable = __esmMin((() => {
 			type: "SPR",
 			file: "cconfine",
 			attachedEntity: true,
-			wav: "effect/ef_hit6",
+			delayFrame: 200,
 			stopAtEnd: true
 		}],
 		606: [{
@@ -315367,7 +315668,8 @@ var init_EffectTable = __esmMin((() => {
 		...CostumeSpriteEffects_default,
 		...BodyEffects_default,
 		...TaekwonBodyEffects_default,
-		...GunslingerBodyEffects_default
+		...GunslingerBodyEffects_default,
+		...CloseConfineEffect_default
 	};
 }));
 // src/Vendors/liblua5.1.wasm?url
