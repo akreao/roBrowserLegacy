@@ -12327,12 +12327,7 @@ export default {
 	541: berserkPotionThrowEffect,
 	//542: [{}],	//EF_BLUEBODY	   KA-Spell (1st Part)
 
-	543: [
-		{
-			//EF_HATED	   Kahii
-			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd'
-		}
-	],
+	//543: [{}],	//EF_HATED	   Kaahi, Kaizel, Comfort, Hatred: a body glow and sparks, not drawn yet; no sound of its own
 
 	//544: [{}],	//EF_REDLIGHTBODY	   Warmth Red Sprite
 	//545: [{}],	//EF_RO2YEAR	   Sound And... PUFF Client Crash :P
@@ -12590,12 +12585,7 @@ export default {
 		}
 	],
 
-	590: [
-		{
-			//EF_KAIZEL	   Running Stop //Conflicting info, will use it as Kaizel
-			wav: 'effect/priest_resurrection'
-		}
-	],
+	//590: [{}],	//EF_KAIZEL	   Kaizel: two parts on tick 15, not drawn yet; no sound of its own
 
 	//591: [{}],	//EF_KAAHI	   (Nothing)
 
@@ -19496,6 +19486,36 @@ export default {
 	sg_fusion_sound: [
 		{
 			wav: 'effect/t_\xba\xaf\xbd\xc5',
+			attachedEntity: true
+		}
+	],
+
+	// Ka-spells on success: the official client plays each one's sound at the player, then the
+	// skill's effects on the target (see effect-port/soul-linker-skills.md).
+	sl_kaizel_sound: [
+		{
+			wav: 'effect/priest_resurrection',
+			attachedEntity: true
+		}
+	],
+
+	sl_kaahi_sound: [
+		{
+			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd',
+			attachedEntity: true
+		}
+	],
+
+	sl_kaupe_sound: [
+		{
+			wav: 'effect/t_\xc4\xa1\xc0\xd7',
+			attachedEntity: true
+		}
+	],
+
+	sl_kaite_sound: [
+		{
+			wav: 'effect/t_\xb8\xb6\xb9\xfd\xb9\xdd\xbb\xe7',
 			attachedEntity: true
 		}
 	],

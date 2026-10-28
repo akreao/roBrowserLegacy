@@ -4,8 +4,8 @@ import { join } from 'node:path';
 
 // Comfort of the Sun, Moon and Stars (SG_SUN_COMFORT / SG_MOON_COMFORT / SG_STAR_COMFORT, skills
 // 431-433): the official client plays 488 and 543 on the source only when the use packet succeeds; 488
-// plays T_안락한마법.wav on tick 5 (kRO 2025-07-16). No blue cast aura (441) on use. 543 (a body glow; its
-// row in roBrowser holds Kaahi's sound) and 488's glow and rings are not drawn yet.
+// plays T_안락한마법.wav on tick 5 (kRO 2025-07-16). No blue cast aura (441) on use. 543 (a body glow)
+// and 488's glow and rings are not drawn yet.
 // Spec: effect-port/star-gladiator-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'latin1');
