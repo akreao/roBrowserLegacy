@@ -1071,54 +1071,47 @@ export function createSkillList({
 		}
 	};
 
-	// Tree view: the player's own character, sitting and looking around,
-	// as the official client draws it in the lower left of the expanded window
+	// Tree view: the player's own character, sitting in the window's lower left corner,
+	// as the official client draws it. Only the body and the head (no headgear, weapon,
+	// shield or garment), sitting facing down-right, the head turning through its three
+	// sitting frames: ahead, one way, the other way.
 	const renderSitting = (function renderSittingClosure() {
-		// headDir per step: ahead, one way, ahead, the other way
-		const _look = [0, 1, 0, 2];
-		const _lookStep = 1000;
+		// Sitting, direction 7 (act action 2 * 8 + 7)
+		const _direction = 7;
+		// Each head frame lasts 300 ms per frame of the body's sitting action,
+		// which has one per head frame: 900 ms each, then back to the first
+		const _poseStep = 300 * 3;
+		const _poses = 3;
+		// Feet 48 px from the window's left edge and 25 px above its bottom edge,
+		// the canvas sitting in the corner inside the window's 1 px border
+		const _originX = 47;
+		const _originBottom = 24;
 		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		const _savedColor = new Float32Array(4);
 		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
-			play: true,
+			play: false,
 			next: false,
 			delay: 0,
 			save: false
 		};
 		let _ctx = null;
+		let _start = -1;
 
-		// A riding character is drawn as its mount (Peco Peco, Dragon, Madogear, ...),
-		// but the window shows it on foot: a copy of it in its own class, with its look
-		const _lookProps = [
-			'head',
-			'headpalette',
-			'bodypalette',
-			'weapon',
-			'shield',
-			'accessory',
-			'accessory2',
-			'accessory3',
-			'robe'
-		];
-		let _onFoot = null;
-		let _onFootKey = '';
+		// A copy of the player with only what the window draws. A riding character
+		// is drawn as its mount, so the copy takes its job on foot.
+		const _lookProps = ['head', 'headpalette', 'bodypalette'];
+		let _sitter = null;
+		let _sitterKey = '';
 
-		function onFoot(character) {
-			if (!character.costume) {
-				_onFoot = null;
-				_onFootKey = '';
-				return character;
-			}
-
+		function getSitter(character) {
 			const key = [character.GID, character._job, character.sex, character.body]
 				.concat(_lookProps.map(prop => character[prop]))
 				.join(',');
-			if (key !== _onFootKey) {
-				_onFoot = new Entity();
-				_onFoot.set({
+			if (key !== _sitterKey) {
+				_sitter = new Entity();
+				_sitter.set({
 					GID: character.GID + '_SKILLTREE',
 					objecttype: Entity.TYPE_PC,
 					job: character._job,
@@ -1127,24 +1120,23 @@ export function createSkillList({
 					hideShadow: true
 				});
 				_lookProps.forEach(prop => {
-					_onFoot[prop] = character[prop];
+					_sitter[prop] = character[prop];
 				});
 				// The body style (alternative outfit)
 				if (character.body > 0 && character.body !== character._job) {
-					_onFoot.body = character.body;
+					_sitter.body = character.body;
 				}
-				_onFootKey = key;
+				_sitter.action = _sitter.ACTION.SIT;
+				_sitter.direction = _direction;
+				_sitter.animation = _animation;
+				_sitter.effectColor.set(_cleanColor);
+				_sitterKey = key;
 			}
-			return _onFoot;
+			return _sitter;
 		}
 
 		return function renderSittingChar(tick) {
 			const root = Component.getRoot();
-			const contentbig = root.querySelector('.contentbig');
-			if (!Session.Entity || !contentbig || contentbig.style.display === 'none' || !Component.ui.is(':visible')) {
-				return;
-			}
-			const character = onFoot(Session.Entity);
 			if (!_ctx) {
 				_ctx = root.querySelector('canvas.sitting')?.getContext('2d');
 				if (!_ctx) {
@@ -1152,29 +1144,36 @@ export function createSkillList({
 				}
 			}
 
-			const direction = character.direction;
-			const headDir = character.headDir;
-			const action = character.action;
-			const animation = character.animation;
+			// Tree view only: the list view has none
+			const contentbig = root.querySelector('.contentbig');
+			const shown =
+				!!Session.Entity && !!contentbig && contentbig.style.display !== 'none' && Component.ui.is(':visible');
+			_ctx.canvas.style.display = shown ? '' : 'none';
+			if (!shown) {
+				_start = -1;
+				return;
+			}
 
-			Camera.direction = 4;
-			character.direction = 4;
-			character.headDir = _look[Math.floor((tick || 0) / _lookStep) % _look.length];
-			character.action = character.ACTION.SIT;
-			character.animation = _animation;
+			// The head starts ahead each time the tree is shown
+			const now = tick || 0;
+			if (_start < 0) {
+				_start = now;
+			}
 
-			_savedColor.set(character.effectColor);
-			character.effectColor.set(_cleanColor);
+			const sitter = getSitter(Session.Entity);
+			sitter.headDir = Math.floor((now - _start) / _poseStep) % _poses;
+			sitter.action = sitter.ACTION.SIT;
+			sitter.direction = _direction;
 
-			SpriteRenderer.bind2DContext(_ctx, _ctx.canvas.width / 2, _ctx.canvas.height - 10);
+			// Draw it facing its own way, whatever way the scene's camera turns
+			const cameraDirection = Camera.direction;
+			Camera.direction = 0;
+
+			SpriteRenderer.bind2DContext(_ctx, _originX, _ctx.canvas.height - _originBottom);
 			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
-			character.renderEntity();
+			sitter.renderEntity();
 
-			character.direction = direction;
-			character.headDir = headDir;
-			character.action = action;
-			character.animation = animation;
-			character.effectColor.set(_savedColor);
+			Camera.direction = cameraDirection;
 		};
 	})();
 

@@ -232,12 +232,12 @@
 #SkillListV2 .contentbig {
 	position: relative;
 }
-/* behind the tree, so skill slots stay on top and clickable */
+/* the window's lower left corner, over the footer; clicks go through to what is below */
 #SkillListV2 canvas.sitting {
 	position: absolute;
 	left: 0;
-	bottom: 4px;
-	z-index: 0;
+	bottom: 0;
+	z-index: 1;
 	pointer-events: none;
 }
 
