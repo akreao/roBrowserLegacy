@@ -19442,6 +19442,14 @@ export default {
 		}
 	],
 
+	// Hatred of the Sun, Moon and Stars on success: the official client plays T_등록.wav at the player.
+	sg_hate_sound: [
+		{
+			wav: 'effect/t_\xb5\xee\xb7\xcf',
+			attachedEntity: true
+		}
+	],
+
 	ef_greed_sound: [
 		{
 			wav: 'effect/ef_entry',
