@@ -35,6 +35,18 @@ export function twoDAlpha(fx, start, duration) {
 	return Math.min(Math.max(alpha, 0), 1);
 }
 
+/**
+ * Size factor of a pulsing 2D effect: 1 + amount * sin(phase), where the phase starts at
+ * fx.pulsePhase (degrees) and advances fx.sizePulse.degPerTick each 60 Hz tick.
+ */
+export function twoDPulse(fx, start) {
+	if (!fx.sizePulse) {
+		return 1;
+	}
+	const phase = fx.pulsePhase + (start / (1000 / 60)) * fx.sizePulse.degPerTick;
+	return 1 + fx.sizePulse.amount * Math.sin((phase * Math.PI) / 180);
+}
+
 let shadow_index = 0;
 
 class TwoDEffect {
@@ -421,6 +433,10 @@ class TwoDEffect {
 		if (effect.sizeRandEndX) {
 			this.sizeEndX = getRandomIntInclusive(effect.sizeRandEndX[0], effect.sizeRandEndX[1]);
 		}
+		// Size pulse (e.g. { amount: 0.05, degPerTick: 3 }), from a random phase 0-359 deg.
+		this.sizePulse = effect.sizePulse || null;
+		this.pulsePhase = this.sizePulse ? getRandomIntInclusive(0, 359) : 0;
+
 		if (effect.durationRand) {
 			effect.duration = getRandomIntInclusive(effect.durationRand[0], effect.durationRand[1]);
 		}
@@ -657,8 +673,9 @@ class TwoDEffect {
 			}
 		}
 
-		SpriteRenderer.size[0] = currentXSize;
-		SpriteRenderer.size[1] = currentYSize;
+		const pulse = twoDPulse(this, start);
+		SpriteRenderer.size[0] = currentXSize * pulse;
+		SpriteRenderer.size[1] = currentYSize * pulse;
 
 		// Angle
 		if (this.rotate) {
