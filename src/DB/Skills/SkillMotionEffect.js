@@ -36,6 +36,22 @@ export const SPLASH_AS_NORMAL = [
 	5230, 5235, 5243, 5244, 5245, 5248, 5252, 5283, 5284, 5316
 ];
 
+/**
+ * Does this damage packet, on a known target, launch the skill's release and
+ * main effects? Not for a type 5 splash packet, as before, and not for a
+ * type 14 one unless the skill treats splash packets as normal ones.
+ *
+ * @param {number} skillId
+ * @param {number} damageType the packet's action field
+ * @return {boolean}
+ */
+export function packetLaunchesSkill(skillId, damageType) {
+	if (damageType === 5) {
+		return false;
+	}
+	return damageType !== 14 || SPLASH_AS_NORMAL.includes(skillId);
+}
+
 /** Skills whose splash packets stop even when the target is not found: skill id -> damage types. */
 export const SPLASH_STOP_WITHOUT_TARGET = { 739: [5, 14], 2450: [5, 14], 2477: [5], 5030: [5] };
 

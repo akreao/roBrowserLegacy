@@ -9470,6 +9470,15 @@ export default {
 			//windwalk	//EF_PORTAL4	Wind Walk
 			wav: 'effect/\xc0\xa9\xb5\xe5\xbf\xf6\xc5\xa9', //Ŕ©µĺżöĹ©
 			attachedEntity: true
+		},
+		{
+			// Wind Walk (official client): ticks 5 to 25 the caster is drawn adding light and coloured
+			// (220, 250, 220) (CasterMarks.js). Its cloud11.tga swirl (prim 62) is not drawn here.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 200, 389), Params);
+			}
 		}
 	],
 
