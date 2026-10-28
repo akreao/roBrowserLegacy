@@ -604,7 +604,7 @@ SkillEffect[SK.LK_SPIRALPIERCE] = {
 SkillEffect[SK.LK_HEADCRUSH] = { hideCastAura: true, damageEffectIdOnCaster: 399, hitEffectId: 0 }; //Traumatic Blow
 SkillEffect[SK.LK_JOINTBEAT] = { hideCastAura: true, damageEffectIdOnCaster: 400, hitEffectId: 0 }; //Vital Strike
 // High Wizard
-SkillEffect[SK.HW_NAPALMVULCAN] = { damageEffectIdOnTarget: 401, hitEffectId: [0], hitEffectOnce: true }; //Napalm Vulcan
+SkillEffect[SK.HW_NAPALMVULCAN] = { damageEffectIdOnTarget: 401, hitEffectId: [0] }; //Napalm Vulcan: hit flash on every hit
 // Champion
 SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: 402 }; //Zen
 // Professor

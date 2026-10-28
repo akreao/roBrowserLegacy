@@ -5,8 +5,8 @@ import vm from 'node:vm';
 
 // Napalm Vulcan (HW_NAPALMVULCAN, skill 400), as the official client plays it: effect 401 on the
 // target as each damage packet arrives, which plays EF_NapalmBeat.wav on ticks 20, 30, 40, 50 and
-// 60 (its EF_HIT2 calls on those ticks draw nothing), and the standard hit flash (0) once per
-// packet with the damage. Spec: effect-port/wizard-audit.md.
+// 60 (its EF_HIT2 calls on those ticks draw nothing), and the standard hit flash (0) on every hit of
+// the packet, 200 ms apart (kRO 2025-07-16). Spec: effect-port/high-wizard-audit.md.
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const TICK = 1000 / 60;
@@ -19,9 +19,9 @@ function effect401() {
 }
 
 describe('Napalm Vulcan effects', () => {
-	it('plays 401 on the target at packet arrival and the hit flash once', () => {
+	it('plays 401 on the target at packet arrival and the hit flash on every hit', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
-			/SkillEffect\[SK\.HW_NAPALMVULCAN\] = \{ damageEffectIdOnTarget: 401, hitEffectId: \[0\], hitEffectOnce: true \};/
+			/SkillEffect\[SK\.HW_NAPALMVULCAN\] = \{ damageEffectIdOnTarget: 401, hitEffectId: \[0\] \};/
 		);
 	});
 
