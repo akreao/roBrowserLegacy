@@ -636,9 +636,9 @@ SkillEffect[SK.SG_FEEL] = { castAuraEffectId: 441 }; //Feeling the Sun Moon and 
 SkillEffect[SK.SG_SUN_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Sun: on the source, only on success
 SkillEffect[SK.SG_MOON_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Moon: on the source, only on success
 SkillEffect[SK.SG_STAR_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Stars: on the source, only on success
-SkillEffect[SK.SG_SUN_COMFORT] = { effectId: 441 }; //Comfort of the Sun
-SkillEffect[SK.SG_MOON_COMFORT] = { effectId: 441 }; //Comfort of the Moon
-SkillEffect[SK.SG_STAR_COMFORT] = { effectId: 441 }; //Comfort of the Stars
+SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Sun: on the source, only on success
+SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Moon: on the source, only on success
+SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Stars: on the source, only on success
 SkillEffect[SK.SG_HATE] = { /*475 - 484*/ groundEffectId: 487 }; //Hatred of the Sun Moon and Stars
 SkillEffect[SK.SG_FUSION] = { effectId: [433, 'quake'] }; //Union of the Sun Moon and Stars
 // Alchemist

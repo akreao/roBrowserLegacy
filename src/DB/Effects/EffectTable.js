@@ -11015,7 +11015,16 @@ export default {
 	//485: [{}],	//EF_DOUBLEGUMGANG2	   Mental Strength Lightning but White
 	//486: [{}],	//EF_DOUBLEGUMGANG3	   Mental Strength Lightning
 	//487: [{}],	//EF_BLACKDEVIL	   Demon of The Sun Moon And Stars Ground Effect
-	//488: [{}],	//EF_FLOWERCAST	   Comfort Skills
+	488: [
+		{
+			//EF_FLOWERCAST	   Comfort Skills
+			// The official client plays T_안락한마법.wav on tick 5 (83 ms). Its body glow (ticks 0-400)
+			// and two rings (primitive 108) are not drawn yet.
+			wav: 'effect/t_\xbe\xc8\xb6\xf4\xc7\xd1\xb8\xb6\xb9\xfd',
+			delayWav: 5 * (1000 / 60),
+			attachedEntity: true
+		}
+	],
 	//489: [{}],	//EF_FLOWERCAST2	   (Nothing)
 	//490: [{}],	//EF_FLOWERCAST3	   (Nothing)
 
