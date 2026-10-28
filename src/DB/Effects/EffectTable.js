@@ -55,6 +55,7 @@ import {
 	throwStoneEffect,
 	throwVenomKnifeEffect
 } from 'DB/Effects/ThrowStoneEffect.js';
+import { rapidSmitingEffect } from 'DB/Effects/RapidSmitingEffect.js';
 import { nyangGrassEffects } from 'DB/Effects/NyangGrassEffect.js';
 import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
@@ -11991,7 +11992,9 @@ export default {
 		}
 	],
 
-	//520: [{}],	//EF_SHIELDBOOMERANG3	   Shield Bumerang
+	// EF_SHIELDBOOMERANG3, Rapid Smiting: the client's five shields through the target (RapidSmitingEffect.js)
+	520: rapidSmitingEffect,
+
 	//521: [{}],	//EF_DOUBLECASTBODY	   Player Become Red with Red Aura
 
 	'522_ground': [
@@ -24146,27 +24149,6 @@ export default {
 			rotateToTarget: true,
 			rotateWithCamera: true,
 			size: 100,
-			zOffset: 1,
-			zIndex: 1
-		}
-	],
-
-	ef_shield_projectile: [
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 140,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/shield_boomerang.bmp',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 50,
 			zOffset: 1,
 			zIndex: 1
 		}
