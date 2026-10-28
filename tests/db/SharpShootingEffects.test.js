@@ -44,6 +44,14 @@ describe('Sharp Shooting', () => {
 		expect(row).toContain('attachedEntity: true');
 	});
 
+	it('no bow arrow from a splash packet, 5 or 14', async () => {
+		const { SPLASH_DAMAGE_TYPES } = await import('DB/Skills/SkillMotionEffect.js');
+		expect(SPLASH_DAMAGE_TYPES).toEqual([5, 14]);
+		expect(read('Engine/MapEngine/Entity.js')).toContain(
+			'if (srcEntity && dstEntity && !SPLASH_DAMAGE_TYPES.includes(pkt.action)) {'
+		);
+	});
+
 	it('the old ring_jadu cast circle is gone', () => {
 		expect(read('DB/Effects/EffectTable.js')).not.toContain('496_beforecast');
 		expect(read('DB/Skills/SkillEffect.js')).not.toContain('496_beforecast');
