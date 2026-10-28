@@ -7049,7 +7049,7 @@ function loadGarmentLayers(path, onEnd) {
 			const ctx = lua.ctx;
 			ctx.__GARMENT_JOBID = jobId;
 
-			const run = [];
+			const names = [];
 			for (let i = 0; i < files.length; i++) {
 				if (!buffers[i]) {
 					continue;
@@ -7058,37 +7058,21 @@ function loadGarmentLayers(path, onEnd) {
 				const buffer = buffers[i] instanceof ArrayBuffer ? new Uint8Array(buffers[i]) : buffers[i];
 				lua.mountFile(name, buffer);
 				mounted.push(name);
-				// the plain dofile: the file is mounted, nothing to look up
-				run.push(`(__ro_orig_dofile or dofile)("${name}")`);
+				names.push(name);
 			}
 
 			// The chunk returns its own dump, so an overlapping load (a server switch) can't hand
 			// its tables to this one.
-			const dump = await lua.doString(`
-				local savedJobId = JOBID
-				JOBID = setmetatable({}, {
-					__index = function(t, k)
-						local id = __GARMENT_JOBID[k]
-						if id == nil then
-							return -1
-						end
-						return id
-					end
-				})
-				local ok, result = pcall(function()
-					${run.join('\n')}
-					${GarmentLayer.DUMP_LUA}
-				end)
-				JOBID = savedJobId
-				__GARMENT_JOBID = nil
-				if not ok then
-					error(result)
-				end
-				return result
-			`);
+			const dump = await lua.doString(GarmentLayer.loadChunk(names));
 
 			if (generation === garmentLayerGeneration && dump) {
 				GarmentLayer.parse(typeof dump === 'string' ? dump : new TextDecoder().decode(dump));
+				console.log(
+					'[loadGarmentLayers] garment tables: female ' +
+						GarmentLayer.isLoaded(0) +
+						', male ' +
+						GarmentLayer.isLoaded(1)
+				);
 			}
 		} catch (error) {
 			console.error('[loadGarmentLayers] Error: ', error);

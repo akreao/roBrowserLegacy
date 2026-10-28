@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it } from 'vitest';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import GarmentLayer from 'DB/Items/GarmentLayer.js';
 
@@ -101,6 +102,28 @@ assert(_New_BigLayerDir_F == nil and LAYER_ALL_TABLE_LIST == nil)`;
 		expect(GarmentLayer.drawOnTop(0, 1, 36, 2)).toBe(false);
 		expect(GarmentLayer.drawOnTop(1, 4060, 32, 4)).toBe(false);
 		expect(GarmentLayer.drawOnTop(1, 4096, 32, 4)).toBe(true);
+	});
+
+	it('runs the chunk the loader runs: files through JOBID, names it lacks skipped, JOBID put back', () => {
+		const dir = mkdtempSync(join(tmpdir(), 'garment-'));
+		writeFileSync(
+			join(dir, 'garmentlayer__new_2dlayerdir_f.lub'),
+			'LAYER_ALL_TABLE_LIST = { [JOBID.JT_RUNE_KNIGHT_H] = JOBID.JT_RUNE_KNIGHT, [JOBID.JT_NOT_A_JOB] = JOBID.JT_NOVICE }'
+		);
+		writeFileSync(
+			join(dir, 'garmentlayer__new_biglayerdir_female.lub'),
+			'_New_BigLayerDir_F = { [1] = { [36] = { 0, 1 } } }'
+		);
+		const lua = `
+JOBID = "before"
+__GARMENT_JOBID = { JT_NOVICE = 0, JT_RUNE_KNIGHT = 4054, JT_RUNE_KNIGHT_H = 4060 }
+io.write(assert(loadstring(${JSON.stringify(
+			GarmentLayer.loadChunk(['garmentlayer__new_2dlayerdir_f.lub', 'garmentlayer__new_biglayerdir_female.lub'])
+		)}))())
+assert(JOBID == "before" and __GARMENT_JOBID == nil)`;
+		const r = spawnSync('lua5.1', ['-'], { input: lua, encoding: 'utf8', cwd: dir });
+		expect(r.stderr).toBe('');
+		expect(r.stdout.split('\n').sort()).toEqual(['F 0 1 36 0.1', 'I 4060 4054']);
 	});
 });
 

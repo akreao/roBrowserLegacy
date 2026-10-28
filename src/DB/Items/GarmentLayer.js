@@ -194,4 +194,41 @@ export const DUMP_LUA = `
 	return dump
 `;
 
-export default { clear, isLoaded, parse, drawOnTop, OFFICIAL_JOB_ALIASES, DUMP_LUA };
+/**
+ * The whole chunk the loader runs: JOBID set from __GARMENT_JOBID (an unknown name reads -1, which
+ * the dump skips), the mounted files run with the plain dofile, the dump returned, JOBID put back.
+ * One chunk, so no other loader runs in between.
+ *
+ * @param {string[]} files mounted file names, in order
+ * @return {string} Lua returning the dump
+ */
+export function loadChunk(files) {
+	// Through a local: a line starting with "(" reads as a call on the line before (Lua 5.1)
+	const run = files.map(name => `runFile(${JSON.stringify(name)})`).join('\n');
+
+	return `
+local savedJobId = JOBID
+JOBID = setmetatable({}, {
+	__index = function(t, k)
+		local id = __GARMENT_JOBID[k]
+		if id == nil then
+			return -1
+		end
+		return id
+	end
+})
+local runFile = __ro_orig_dofile or dofile
+local ok, result = pcall(function()
+${run}
+${DUMP_LUA}
+end)
+JOBID = savedJobId
+__GARMENT_JOBID = nil
+if not ok then
+	error(result)
+end
+return result
+`;
+}
+
+export default { clear, isLoaded, parse, drawOnTop, loadChunk, OFFICIAL_JOB_ALIASES, DUMP_LUA };
