@@ -223460,7 +223460,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.HW_MAGICPOWER] = {
 		hideCastAura: true,
 		beginCastEffectId: 16,
-		effectId: "ef_magicpower"
+		successEffectIdOnCaster: "ef_magicpower"
 	};
 	SkillEffect[SkillConst_default.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
 	SkillEffect[SkillConst_default.PA_PRESSURE] = {
@@ -223560,8 +223560,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.HW_NAPALMVULCAN] = {
 		damageEffectIdOnTarget: 401,
-		hitEffectId: [0],
-		hitEffectOnce: true
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.CH_SOULCOLLECT] = { beginCastEffectId: 402 };
 	SkillEffect[SkillConst_default.PF_MINDBREAKER] = { successEffectId: 403 };
@@ -223719,7 +223718,10 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 0
 	};
 	SkillEffect[SkillConst_default.PF_DOUBLECASTING] = { effectId: 521 };
-	SkillEffect[SkillConst_default.HW_GANBANTEIN] = { effectId: [223, "ef_ganbantein_wav"] };
+	SkillEffect[SkillConst_default.HW_GANBANTEIN] = {
+		effectId: [223, "ef_ganbantein_wav"],
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.HW_GRAVITATION] = {
 		groundEffectIdByLevel: ["ef_gravitation_wav"],
 		groundEffectId: "522_ground",
