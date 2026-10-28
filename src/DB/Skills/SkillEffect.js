@@ -572,7 +572,9 @@ SkillEffect[SK.PF_SOULBURN] = { effectId: 406 }; //Soul Siphon
 SkillEffect[SK.ASC_EDP] = { effectId: 493 }; //Enchant Deadly Poison
 SkillEffect[SK.ASC_BREAKER] = { beforeHitEffectId: 361 }; //Soul Destroyer
 // Sniper
-SkillEffect[SK.SN_SIGHT] = { effectId: 386 }; //Falcon Eyes
+// Official client: 386 on the caster from the use packet, only when its result is set
+// (hunter_detecting.wav on tick 0). See effect-port/sniper-skills.md.
+SkillEffect[SK.SN_SIGHT] = { successEffectIdOnCaster: 386 }; //True Sight
 SkillEffect[SK.SN_FALCONASSAULT] = {
 	hideCastAura: true,
 	// Official client: 387 on the target as the damage packet arrives; the hit
