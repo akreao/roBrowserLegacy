@@ -71,7 +71,11 @@ export function readItemPackages(lua, decode) {
 	return normalizeItemPackages({ names, items });
 }
 
-/** Optional supplement is a separate Lua file; native box definitions always win. */
+/**
+ * Optional supplements are separate Lua files, one path or a list of them.
+ * Native box definitions always win; among the supplements, the first that
+ * defines a box owns it.
+ */
 export async function loadItemPackages(lua, luaPath, packetver, loadFile, decode, supplement = null) {
 	const base = `${luaPath}selectpackage/`;
 	const files =
@@ -109,9 +113,12 @@ export async function loadItemPackages(lua, luaPath, packetver, loadFile, decode
 		}
 	};
 	const packages = await attempt(files.map(file => base + file));
-	if (supplement) {
+	const supplements = (Array.isArray(supplement) ? supplement : [supplement]).filter(
+		path => typeof path === 'string' && path
+	);
+	for (const path of supplements) {
 		// A supplement fills absent boxes only: even an incomplete native box owns all its choices.
-		for (const [box, groups] of await attempt([supplement])) {
+		for (const [box, groups] of await attempt([path])) {
 			if (!packages.has(box)) {
 				packages.set(box, groups);
 			}

@@ -103,6 +103,32 @@ describe('supplementary package metadata', () => {
 		} finally { warning.mockRestore(); }
 	});
 
+	it('takes a list of supplements, the first to define a box owning it', async () => {
+		const more = 'data/selectpackage/more.lua';
+		const lua = {
+			ctx: {}, mountFile() {}, unmountFile() {}, rows: [],
+			async doFile(path) {
+				this.rows = { [supplement]: [[200, 0, 501, 1, 0, 0, 0, 0]],
+					[more]: [[200, 0, 502, 1, 0, 0, 0, 0], [300, 0, 503, 1, 0, 0, 0, 0]] }[path];
+				if (!this.rows) throw new Error('Missing file');
+			},
+			doStringSync(source) {
+				if (source.includes('if SelectPackageItemData then')) {
+					for (const row of this.rows) this.ctx.roPackageItem(...row);
+				}
+			}
+		};
+		const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		try {
+			const packages = await loadItemPackages(lua, 'data/', 20221005, (path, done, fail) => {
+				if (path === supplement || path === more) done(new Uint8Array());
+				else fail(new Error('Missing file'));
+			}, value => value, [supplement, more, 'data/selectpackage/missing.lua']);
+			expect(packages.get(200)[0].items[0].id).toBe(501);
+			expect(packages.get(300)[0].items[0].id).toBe(503);
+		} finally { warning.mockRestore(); }
+	});
+
 	it('retains native choices when the optional supplement is missing or unreadable', async () => {
 		const native = { 'data/selectpackage/selectpackageitem.lub': [[100, 0, 501, 2, 0, 0, 0, 0]] };
 		const missing = await loader(native);
