@@ -9053,10 +9053,9 @@ export default {
 	369: [
 		{
 			//EF_LKCONCENTRATION	Concentration
-			type: 'STR',
-			file: 'twohand',
+			// Official client: knight_twohandquicken.wav on tick 0 and a light yellow body
+			// colour while it runs; no STR (effect-port/lord-knight-skills.md).
 			wav: 'effect/knight_twohandquicken',
-			head: true,
 			attachedEntity: true
 		}
 	],

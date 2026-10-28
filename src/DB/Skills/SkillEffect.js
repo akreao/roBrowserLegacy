@@ -534,12 +534,12 @@ SkillEffect[SK.NPC_AGIUP] = SkillEffect[SK.AL_INCAGI]; //Agility UP
 SkillEffect[SK.NPC_CALLSLAVE] = {}; //Recall Slaves
 SkillEffect[SK.NPC_RUN] = {}; //Run
 // Lord Knight
-SkillEffect[SK.LK_AURABLADE] = { beginCastEffectId: 'white_pulse', effectId: 367 }; //Aura Blade
-SkillEffect[SK.LK_PARRYING] = { effectId: 336 }; //Parrying
-SkillEffect[SK.LK_CONCENTRATION] = { effectId: 369 }; //Concentration
+SkillEffect[SK.LK_AURABLADE] = { successEffectIdOnCaster: 367 }; //Aura Blade
+SkillEffect[SK.LK_PARRYING] = { successEffectIdOnCaster: 336 }; //Parrying: on the cast and on every parried hit
+SkillEffect[SK.LK_CONCENTRATION] = { successEffectIdOnCaster: 369 }; //Concentration
 SkillEffect[SK.LK_TENSIONRELAX] = {}; //Relax
-SkillEffect[SK.LK_BERSERK] = { effectId: [368, 'quake'] }; //Frenzy
-SkillEffect[SK.LK_FURY] = { effectId: [368, 'quake'] }; //Fury
+SkillEffect[SK.LK_BERSERK] = { successEffectIdOnCaster: [368, 'quake'] }; //Frenzy
+SkillEffect[SK.LK_FURY] = { successEffectIdOnCaster: [368, 'quake'] }; //Fury
 // High Priest
 // Official client: on success, 375 (the status look, see StatusEffectTable) and 440 on the target.
 SkillEffect[SK.HP_ASSUMPTIO] = { successEffectId: [375, 440] }; //Assumptio
