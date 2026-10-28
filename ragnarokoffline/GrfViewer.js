@@ -149605,6 +149605,14 @@ var init_StatusEffectTable = __esmMin((() => {
 			]
 		} },
 		[StatusConst_default.THUNDERING_ROD_MAX]: { loop: ["thundering_rod_full"] },
+		[StatusConst_default.MARIONETTE_MASTER]: {
+			restart: [396],
+			stop: [396]
+		},
+		[StatusConst_default.MARIONETTE]: {
+			restart: [396],
+			stop: [396]
+		},
 		[StatusConst_default.WHISTLE]: { restart: [865] },
 		[StatusConst_default.ASSASSINCROSS]: { restart: [873] },
 		[StatusConst_default.POEMBRAGI]: { restart: [877] },
@@ -223556,8 +223564,8 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: "394_ground"
 	};
 	SkillEffect[SkillConst_default.CG_MARIONETTE] = {
-		effectId: 395,
-		hitEffectId: 396
+		successEffectIdOnCaster: [395, 396],
+		successEffectId: 396
 	};
 	SkillEffect[SkillConst_default.LK_SPIRALPIERCE] = {
 		castAuraEffectId: 502,
@@ -223727,7 +223735,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.ST_FULLSTRIP] = { successEffectId: 495 };
 	SkillEffect[SkillConst_default.WS_WEAPONREFINE] = {};
 	SkillEffect[SkillConst_default.CR_SLIMPITCHER] = {};
-	SkillEffect[SkillConst_default.CR_FULLPROTECTION] = { effectId: [300, 500] };
+	SkillEffect[SkillConst_default.CR_FULLPROTECTION] = { effectId: 300 };
 	SkillEffect[SkillConst_default.PA_SHIELDCHAIN] = {
 		castAuraEffectId: 58,
 		damageEffectIdOnTarget: 520,
@@ -223750,7 +223758,10 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectId: "517_music",
 		groundEffectId: 517
 	};
-	SkillEffect[SkillConst_default.CG_TAROTCARD] = { successEffectId: ["ef_tarot_card_sound", 500] };
+	SkillEffect[SkillConst_default.CG_TAROTCARD] = {
+		successEffectId: ["ef_tarot_card_sound", 500],
+		castAuraEffectId: 58
+	};
 	SkillEffect[SkillConst_default.CR_ACIDDEMONSTRATION] = { effectId: 537 };
 	SkillEffect[SkillConst_default.CR_CULTIVATION] = {};
 	SkillEffect[SkillConst_default.ITEM_ENCHANTARMS] = {};
@@ -287257,14 +287268,20 @@ function recoverColor(entity, color) {
 		return done;
 	});
 }
-var RED, YELLOW, WHITE, PURPLE, SCHEDULES, DIR_MAP$1, CasterMarks;
+var RED, PINK, YELLOW, WHITE, PURPLE, BLUE, SCHEDULES, DIR_MAP$1, CasterMarks;
 var init_CasterMarks = __esmMin((() => {
 	init_EntityManager();
+	init_StatusState();
 	init_EffectPrimSim();
 	RED = [
 		255,
 		0,
 		0
+	];
+	PINK = [
+		255,
+		89,
+		182
 	];
 	YELLOW = [
 		250,
@@ -287279,6 +287296,11 @@ var init_CasterMarks = __esmMin((() => {
 	PURPLE = [
 		182,
 		89,
+		255
+	];
+	BLUE = [
+		0,
+		0,
 		255
 	];
 	SCHEDULES = {
@@ -287347,12 +287369,29 @@ var init_CasterMarks = __esmMin((() => {
 				turn: age >= 30 && age <= 54 ? (age - 29) * 30 % 360 : null
 			};
 		},
+		396: () => ({
+			add: true,
+			glow: true,
+			split: false,
+			color: PINK,
+			unlessVirtue: StatusState_default.OPT3.MARIONETTE
+		}),
 		375: () => ({
 			add: false,
 			glow: true,
 			split: false,
 			color: null
 		}),
+		500: (age) => {
+			const on = age <= 30;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: on,
+				split: false,
+				color: on ? even ? BLUE : WHITE : null
+			};
+		},
 		502: (age) => {
 			const on = age <= 140;
 			const even = age % 2 === 0;
@@ -287459,7 +287498,13 @@ var init_CasterMarks = __esmMin((() => {
 				if (this.turnFrom === void 0) this.turnFrom = owner.direction;
 				owner.direction = turnedDirection$1(this.turnFrom, state.turn);
 			}
-			if (age !== null && owner._flashColor) {
+			const tinted = state.unlessVirtue && (owner._virtue & state.unlessVirtue) !== 0;
+			if (tinted && this.color && owner._flashColor && owner._flashColorOwner === this) {
+				owner._flashColor[0] = owner._flashColor[1] = owner._flashColor[2] = 1;
+				owner.recalculateBlendingColor();
+				this.color = null;
+			}
+			if (age !== null && owner._flashColor && !tinted) {
 				const color = colorAt(this.schedule, age);
 				if (color || this.color) {
 					const c = color || WHITE;
@@ -287487,6 +287532,8 @@ var init_CasterMarks = __esmMin((() => {
 		}
 		free() {
 			if (this.owner) {
+				const unless = this.schedule(0).unlessVirtue;
+				if (unless && (this.owner._virtue & unless) !== 0) this.mark(0);
 				this.mark(null);
 				if (this.color && this.color.some((c) => c < 255)) recoverColor(this.owner, this.color);
 			}
@@ -302465,6 +302512,17 @@ var init_EffectTable = __esmMin((() => {
 				this.add(new BlueTile(Params.Inst.position, Params.Inst.startTick), Params);
 			}
 		}],
+		395: [{
+			wav: "effect/¼Ò¿ï Ã¼ÀÎÁö",
+			attachedEntity: true
+		}],
+		396: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 99999999, 396), Params);
+			}
+		}],
 		397: [{}],
 		398: [{}],
 		399: [
@@ -304039,6 +304097,13 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true,
 			func: function(Params) {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 200, 496), Params);
+			}
+		}],
+		500: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 120, 500), Params);
 			}
 		}],
 		501: [{
