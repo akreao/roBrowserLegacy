@@ -1,6 +1,6 @@
-@devin-ai-integration thanks, fixed in 0f69ba3:
+@devin-ai-integration thanks, fixed in 0f69ba3 and af923ef:
 
-- 🔴 **Duplicate charges:** fixed. A sent request now stays pending while the window is closed and reopened. Only the server's answer clears it. A request that gets no answer stops blocking after 10 s, so a lost answer can't lock the window. Test: "does not send a second request when closed and reopened before the answer".
+- 🔴 **Duplicate charges:** fixed. A sent request now stays pending while the window is closed and reopened, and only one can be on its way, because the answer carries no id. Two things clear it: the server's answer, or a map load (a lost connection always ends in one). There's no timeout, so a slow answer can't let a second paid request through. Tests: "does not send a second request when closed and reopened before the answer" and "keeps an unanswered request pending however long it takes, until a map loads".
 - 🟡 **Map click target:** fixed. A map click now passes the loaded map's own name (`MapRenderer.currentMap`) as the airship target. Test: "keeps the loaded map name for a map click".
 - 🟡 **Duplicated dimensions:** fixed. The size is on `:host` only, and `.PrivateAirship` fills it.
 - 🟡 **`return false` on Escape:** fixed. It now calls `preventDefault()` and `stopImmediatePropagation()`.
