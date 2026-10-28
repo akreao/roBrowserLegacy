@@ -77,11 +77,19 @@ describe('the Navigation Move button', () => {
 	it('flies to the real map name and keeps the NPC flag through path refreshes', () => {
 		Navigation.navigateTo(target({ isNpc: true }));
 
-		// A refresh passes the stored target back, normalized and without the flag
-		Navigation.navigateTo(target({ endMap: 'izlude' }));
+		// Reopening the window refreshes the path from the stored target
+		Navigation.onAppend();
 		Navigation.onAirshipMove();
 
 		expect(opened).toEqual([{ targetMap: 'izlude_a', toNpc: true }]);
+	});
+
+	it('flies to a new target on the same coordinates, not the previous one', () => {
+		Navigation.navigateTo(target({ isNpc: true }));
+		Navigation.navigateTo(target({ endMap: 'izlude' }));
+		Navigation.onAirshipMove();
+
+		expect(opened).toEqual([{ targetMap: 'izlude', toNpc: false }]);
 	});
 
 	it('forgets the NPC flag and map for a different target', () => {

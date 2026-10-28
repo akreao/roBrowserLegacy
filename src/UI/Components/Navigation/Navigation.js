@@ -439,10 +439,11 @@ Navigation.onAppend = function onAppend() {
 			startMap: mapName,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 	}
 };
@@ -804,10 +805,11 @@ Navigation.renderCanvas = function renderCanvas(tick) {
 			startMap: currentMap,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 		_lastPathUpdate = tick;
 	}
@@ -1197,10 +1199,11 @@ Navigation.show = function show() {
 			startMap: mapName,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 	}
 
@@ -1330,14 +1333,8 @@ Navigation.navigateTo = function navigateTo(options) {
 		this.setTargetCoordinatesBlinking(true);
 	}
 
-	// Path refreshes pass the stored target back with its map already
-	// normalized, so keep what only the first call knew: the map's real name
-	// (izlude_a, not izlude) for the airship, and whether it is an NPC.
-	const sameTarget =
-		!!_finalTargetData &&
-		_finalTargetData.map === endMap &&
-		_finalTargetData.x === options.endX &&
-		_finalTargetData.y === options.endY;
+	// The airship flies to the map's real name (izlude_a, not izlude). Path
+	// refreshes pass the stored real name and NPC flag back in.
 	const airshipMap = String(options.endMap || '')
 		.replace(/\.gat$/, '')
 		.toLowerCase();
@@ -1347,8 +1344,8 @@ Navigation.navigateTo = function navigateTo(options) {
 		x: options.endX,
 		y: options.endY,
 		displayName: displayName,
-		airshipMap: sameTarget && airshipMap === endMap ? _finalTargetData.airshipMap : airshipMap,
-		isNpc: options.isNpc !== undefined ? !!options.isNpc : sameTarget && _finalTargetData.isNpc
+		airshipMap: airshipMap,
+		isNpc: !!options.isNpc
 	};
 	this.updateAirshipButton();
 
