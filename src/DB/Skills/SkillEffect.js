@@ -657,6 +657,8 @@ SkillEffect[SK.SG_FUSION] = { castAuraEffectId: 441, successEffectIdOnCaster: ['
 // 220 on the target, both at once. See effect-port/alchemist-skills.md.
 SkillEffect[SK.AM_BERSERKPITCHER] = { successEffectIdOnCaster: 541, successEffectId: 220 }; //Aid Berserk Potion
 // Soul Linker
+// Official client: every spirit casts with the blue aura 441 and, when the use packet succeeds,
+// plays 503 (the soul link sounds) and 424 on the target. See effect-port/soul-linker-skills.md.
 SkillEffect[SK.SL_ALCHEMIST] = //↓		//Spirit of the Alchemist
 	SkillEffect[SK.SL_MONK] = //↓		//Spirit of the Monk
 	SkillEffect[SK.SL_STAR] = //↓		//Spirit of the Star Gladiator
@@ -670,12 +672,12 @@ SkillEffect[SK.SL_ALCHEMIST] = //↓		//Spirit of the Alchemist
 	SkillEffect[SK.SL_ROGUE] = //↓		//Spirit of the Rogue
 	SkillEffect[SK.SL_ASSASIN] = //↓		//Spirit of the Assasin
 	SkillEffect[SK.SL_BLACKSMITH] =
-		{ effectId: [424, 503] }; //Spirit of the Blacksmith
+		{ castAuraEffectId: 441, successEffectId: [503, 424] }; //Spirit of the Blacksmith
 // Blacksmith
 SkillEffect[SK.BS_ADRENALINE2] = SkillEffect[SK.BS_ADRENALINE]; //Advanced Adrenaline Rush: the official client plays 98, as Adrenaline Rush
 // Soul Linker
 SkillEffect[SK.SL_HUNTER] = //↓		//Spirit of the Hunter
-	SkillEffect[SK.SL_SOULLINKER] = { effectId: [424, 503] }; //Spirit of the Soul Linker
+	SkillEffect[SK.SL_SOULLINKER] = { castAuraEffectId: 441, successEffectId: [503, 424] }; //Spirit of the Soul Linker
 SkillEffect[SK.SL_KAIZEL] = { effectId: 590 }; //Kaizel
 SkillEffect[SK.SL_KAAHI] = { effectId: 543 }; //Kaahi
 SkillEffect[SK.SL_KAUPE] = { effectId: 546 }; //Kaupe
@@ -707,7 +709,11 @@ SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
 SkillEffect[SK.TK_MISSION] = { successEffectIdOnCaster: 'ef_tk_mission' }; //Taekwon Mission
-SkillEffect[SK.SL_HIGH] = { effectId: [424, 503] }; //Spirit of Rebirth
+SkillEffect[SK.SL_HIGH] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of Rebirth: the same as every spirit
+SkillEffect[SK.SL_DEATHKNIGHT] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Death Knight
+SkillEffect[SK.SL_COLLECTOR] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Collector
+SkillEffect[SK.SL_NINJA] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Ninja
+SkillEffect[SK.SL_GUNNER] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Gunner
 SkillEffect[SK.KN_ONEHAND] = SkillEffect[SK.KN_TWOHANDQUICKEN]; //Onehand Quicken
 SkillEffect[SK.AM_TWILIGHT1] = { effectId: 497 }; //Twilight Alchemy 1
 SkillEffect[SK.AM_TWILIGHT2] = { effectId: 498 }; //Twilight Alchemy 2
@@ -2120,8 +2126,6 @@ SkillEffect[SK.GD_EMERGENCYCALL] = {}; //Urgent Call
 SkillEffect[SK.GD_ITEMEMERGENCYCALL] = {}; //Item Emergency Call
 
 // Earlier classes: entries for skills that had none.
-SkillEffect[SK.SL_ASSASIN] = { effectId: 'ef_sl_assasin' }; //Spirit of the Assasin
-SkillEffect[SK.SL_HUNTER] = { effectId: 'ef_sl_hunter' }; //Spirit of the Hunter
 SkillEffect[SK.SJ_FULLMOONKICK] = { effectId: 'ef_sj_fullmoonkick' }; //Full Moon Kick
 SkillEffect[SK.SJ_NEWMOONKICK] = { effectId: 'ef_sj_newmoonkick' }; //New Moon Kick
 SkillEffect[SK.SJ_FLASHKICK] = { effectId: 'ef_sj_flashkick' }; //Flash Kick

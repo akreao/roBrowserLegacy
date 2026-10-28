@@ -11604,7 +11604,20 @@ export default {
 			}
 		}
 	],
-	//503: [{}],	//EF_SOULLINK	   Soul Link Word
+	503: [
+		{
+			//EF_SOULLINK	   Soul Link Word
+			// The official client plays T_캐스팅.wav at once and T_영혼.wav on tick 145 (2417 ms).
+			// Its whitelight.tga part and the soul link picture are not drawn yet.
+			wav: 'effect/t_\xc4\xb3\xbd\xba\xc6\xc3',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/t_\xbf\xb5\xc8\xa5',
+			delayWav: 145 * (1000 / 60),
+			attachedEntity: true
+		}
+	],
 
 	504: [
 		{
@@ -25281,39 +25294,6 @@ export default {
 		{
 			type: 'STR',
 			file: 'suicide',
-			texturePath: ''
-		}
-	],
-
-	// Spirit of the Assasin (SL_ASSASIN), from the client's own effect folders.
-	ef_sl_assasin: [
-		{
-			type: 'STR',
-			file: 'assasin_poisonreact',
-			texturePath: ''
-		},
-		{
-			type: 'STR',
-			file: 'assasin_poisonreact_1st',
-			texturePath: ''
-		}
-	],
-
-	// Spirit of the Hunter (SL_HUNTER), from the client's own effect folders.
-	ef_sl_hunter: [
-		{
-			type: 'STR',
-			file: 'hunter_loud',
-			texturePath: ''
-		},
-		{
-			type: 'STR',
-			file: 'hunter_poison',
-			texturePath: ''
-		},
-		{
-			type: 'STR',
-			file: 'hunter_shockwave_blue',
 			texturePath: ''
 		}
 	],
