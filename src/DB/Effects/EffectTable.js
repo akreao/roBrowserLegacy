@@ -12331,7 +12331,10 @@ export default {
 	547: [
 		{
 			//EF_STIN	   Estin
-			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+			// The official client plays T_바람마법.wav on tick 10 (167 ms), on the caster.
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb8\xb6\xb9\xfd',
+			delayWav: 10 * (1000 / 60),
+			attachedEntity: true
 		}
 	],
 
@@ -12344,9 +12347,13 @@ export default {
 	553: [
 		{
 			//EF_STIN2	   Esma
+			// The official client plays T_날라차기.wav on ticks 5, 20, 35, 50 and 65, on the caster.
+			// Its 270바람.tga wind parts are not drawn yet.
 			duplicate: 5,
-			timeBetweenDupli: 200,
-			wav: 'effect/t_\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2'
+			timeBetweenDupli: 15 * (1000 / 60),
+			wav: 'effect/t_\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2',
+			delayWav: 5 * (1000 / 60),
+			attachedEntity: true
 		}
 	],
 
@@ -12355,7 +12362,9 @@ export default {
 	555: [
 		{
 			//EF_STIN3	   Estun
-			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+			// The official client plays T_에너지방출.wav at once, on the caster.
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2',
+			attachedEntity: true
 		}
 	],
 
@@ -25332,16 +25341,6 @@ export default {
 			type: 'STR',
 			file: 'suicide',
 			texturePath: ''
-		}
-	],
-
-	// Estun (SL_STUN), from the client's own effect folders.
-	ef_sl_stun: [
-		{
-			type: 'STR',
-			file: 'stun',
-			texturePath: '',
-			wav: 'effect/_stun'
 		}
 	],
 
