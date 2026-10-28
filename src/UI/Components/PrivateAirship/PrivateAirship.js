@@ -82,6 +82,13 @@ const RESULT_MESSAGE = {
 const ITEM_ROW_HEIGHT = 26;
 
 /**
+ * Window size with the official two payment items. Each further item adds a row.
+ */
+const WINDOW_WIDTH = 208;
+const WINDOW_HEIGHT = 110;
+const BASE_ITEM_ROWS = 2;
+
+/**
  * Create Component
  */
 const PrivateAirship = new GUIComponent('PrivateAirship', cssText);
@@ -96,9 +103,39 @@ PrivateAirship.needFocus = true;
 let _targetMap = '';
 
 /**
- * @var {boolean} a request is on its way
+ * Requests sent and answers received since the current map loaded, and when
+ * the last request went out. The answer carries no id, so it cannot be matched
+ * to a request: counting them keeps a late answer to an earlier request from
+ * freeing the window while a later one is still on its way. Kept while the
+ * window is closed and reopened, so that cannot send a second paid request.
  */
-let _pending = false;
+const _requests = { loadId: null, sent: 0, answered: 0, lastSent: 0 };
+
+/**
+ * A request still waiting for its answer is given this long (ms). rAthena
+ * answers a refused request at once and answers none at all in a few cases
+ * (the feature switched off, a target map on another map server), so without
+ * a limit the window could stay locked on that map.
+ */
+const PENDING_TIMEOUT = 15000;
+
+/**
+ * Forget the requests of an earlier map load: the server answers a refusal at
+ * once and moves you on success, and a lost connection means a new map load.
+ */
+function syncRequests() {
+	if (_requests.loadId !== MapRenderer._loadId) {
+		Object.assign(_requests, { loadId: MapRenderer._loadId, sent: 0, answered: 0, lastSent: 0 });
+	}
+}
+
+/**
+ * @return {boolean} a request is on its way
+ */
+function isPending() {
+	syncRequests();
+	return _requests.answered < _requests.sent && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
+}
 
 /**
  * Text for a message id, without RO colour codes.
@@ -174,16 +211,9 @@ PrivateAirship.init = function init() {
  */
 PrivateAirship.onAppend = function onAppend() {
 	Object.assign(this._host.style, {
-		top: `${Math.max(0, Math.floor((Renderer.height - 110) / 2))}px`,
-		left: `${Math.max(0, Math.floor((Renderer.width - 208) / 2))}px`
+		top: `${Math.max(0, Math.floor((Renderer.height - WINDOW_HEIGHT) / 2))}px`,
+		left: `${Math.max(0, Math.floor((Renderer.width - WINDOW_WIDTH) / 2))}px`
 	});
-};
-
-/**
- * Forget the request when it closes
- */
-PrivateAirship.onRemove = function onRemove() {
-	_pending = false;
 };
 
 /**
@@ -192,10 +222,9 @@ PrivateAirship.onRemove = function onRemove() {
 PrivateAirship.onKeyDown = function onKeyDown(event) {
 	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 		this.remove();
+		event.preventDefault();
 		event.stopImmediatePropagation();
-		return false;
 	}
-	return true;
 };
 
 /**
@@ -207,7 +236,6 @@ PrivateAirship.onKeyDown = function onKeyDown(event) {
  */
 PrivateAirship.open = function open(options) {
 	_targetMap = PrivateAirshipTable.normalize(options && options.targetMap);
-	_pending = false;
 
 	if (this.__active) {
 		this.remove();
@@ -255,6 +283,11 @@ PrivateAirship.buildItems = function buildItems(enabled) {
 		button.addEventListener('click', () => this.pay(itemId));
 		list.appendChild(button);
 	}
+
+	// Rows past the official two push the notice down and grow the window.
+	const extra = Math.max(0, row - BASE_ITEM_ROWS) * ITEM_ROW_HEIGHT;
+	this._host.style.height = `${WINDOW_HEIGHT + extra}px`;
+	this._host.style.setProperty('--extra-rows-height', `${extra}px`);
 };
 
 /**
@@ -275,7 +308,7 @@ PrivateAirship.setNotice = function setNotice(text) {
  * @param {number} itemId
  */
 PrivateAirship.pay = function pay(itemId) {
-	if (_pending || !_targetMap) {
+	if (isPending() || !_targetMap) {
 		return;
 	}
 
@@ -295,10 +328,12 @@ PrivateAirship.pay = function pay(itemId) {
  * @param {number} itemId
  */
 PrivateAirship.sendRequest = function sendRequest(itemId) {
-	if (_pending || !_targetMap) {
+	if (isPending() || !_targetMap) {
 		return;
 	}
-	_pending = true;
+	syncRequests();
+	_requests.sent++;
+	_requests.lastSent = Date.now();
 
 	const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 	pkt.mapName = _targetMap + '.gat';
@@ -312,7 +347,8 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
  * @param {object} pkt
  */
 PrivateAirship.onResponse = function onResponse(pkt) {
-	_pending = false;
+	syncRequests();
+	_requests.answered = Math.min(_requests.sent, _requests.answered + 1);
 
 	if (!PrivateAirship.__active) {
 		return;

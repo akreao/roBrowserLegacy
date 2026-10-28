@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const sent = [];
 const prompts = [];
 const hooks = {};
-const items = { 6909: 'Nyangvine Fruit', 25464: 'World Tour Ticket' };
+const items = { 6909: 'Nyangvine Fruit', 25464: 'World Tour Ticket', 12345: 'Test Ticket' };
 const unknown = { identifiedDisplayName: 'Unknown Item' };
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: { DEFAULT: 0 }, setType: vi.fn(), getActualType: vi.fn() } }));
@@ -31,7 +31,7 @@ vi.mock('Core/Client.js', () => ({
 	}
 }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800 } }));
-vi.mock('Renderer/MapRenderer.js', () => ({ default: { currentMap: 'prontera.gat' } }));
+vi.mock('Renderer/MapRenderer.js', () => ({ default: { currentMap: 'prontera.gat', _loadId: 0 } }));
 vi.mock('Renderer/EntityManager.js', () => ({ default: { setOverEntity: vi.fn() } }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: { Entity: { ACTION: { DIE: 8 }, action: 0 } } }));
 vi.mock('UI/Scrollbar.js', () => ({ default: {} }));
@@ -65,6 +65,9 @@ beforeEach(() => {
 	Table.reset();
 	MapRenderer.currentMap = 'prontera.gat';
 	Session.Entity.action = 0;
+	// Answer any request a test left open
+	PrivateAirship.onResponse({ result: 1 });
+	vi.useRealTimers();
 });
 
 afterEach(() => {
@@ -157,5 +160,76 @@ describe('the Private Airship payment window', () => {
 
 		PrivateAirship.onResponse({ result: 0 });
 		expect(PrivateAirship.__active).toBe(false);
+	});
+
+	it('does not send a second request when closed and reopened before the answer', () => {
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+		PrivateAirship.remove();
+
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+		expect(sent).toHaveLength(1);
+
+		PrivateAirship.onResponse({ result: 1 });
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+	});
+
+	it('lets an unanswered request go after 15 s, or when a map loads', () => {
+		vi.useFakeTimers();
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+
+		vi.advanceTimersByTime(14000);
+		buttons()[1].click();
+		expect(sent).toHaveLength(1);
+
+		vi.advanceTimersByTime(1000);
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+
+		// A map load (a lost connection means logging in again) drops it at once
+		MapRenderer._loadId++;
+		buttons()[1].click();
+		expect(sent).toHaveLength(3);
+	});
+
+	it('does not let a late answer to an earlier request free a later one', () => {
+		vi.useFakeTimers();
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+		vi.advanceTimersByTime(15000);
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+
+		// The first request's answer arrives late: the second is still on its way
+		PrivateAirship.onResponse({ result: 1 });
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+
+		PrivateAirship.onResponse({ result: 1 });
+		buttons()[1].click();
+		expect(sent).toHaveLength(3);
+	});
+
+	it('grows the window and moves the notice down for a third payment item', () => {
+		Table.addNeedItem(6909);
+		Table.addNeedItem(25464);
+		Table.addNeedItem(12345);
+		PrivateAirship.open({ targetMap: 'geffen' });
+
+		expect(buttons().map(b => b.style.top)).toEqual(['26px', '52px', '78px']);
+		expect(PrivateAirship._host.style.height).toBe('136px');
+		expect(PrivateAirship._host.style.getPropertyValue('--extra-rows-height')).toBe('26px');
+	});
+
+	it('closes on Escape and stops the key there', () => {
+		PrivateAirship.open({ targetMap: 'geffen' });
+		const event = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+		window.dispatchEvent(event);
+
+		expect(PrivateAirship.__active).toBe(false);
+		expect(event.defaultPrevented).toBe(true);
 	});
 });
