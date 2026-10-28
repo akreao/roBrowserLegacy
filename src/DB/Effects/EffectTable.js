@@ -9228,10 +9228,12 @@ export default {
 
 	378: [
 		{
-			//EF_ENERGYDRAIN2          Energy Drain (1st Part)
+			//EF_ENERGYDRAIN2          Soul Drain souls
+			// Official client (kRO 2025-07-16): three particle1 souls (prim 8, additive) fly from the
+			// target to the caster in 60 ticks (1 s), R and G random 160-240, B 255.
 			type: '3D',
-			duration: 600,
-			duplicate: 5,
+			duration: 1000,
+			duplicate: 3,
 			timeBetweenDupli: 0,
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
 			playSprite: true,
@@ -9240,7 +9242,7 @@ export default {
 			toSrc: true,
 			rotateToTarget: true,
 
-			// Cyan (Based on C++ random(81) + 160 simplified here)
+			blendMode: 2,
 			red: 0.8,
 			green: 0.8,
 			blue: 1.0,
@@ -9252,6 +9254,37 @@ export default {
 			arc: 3.0,
 			retreat: 3.0,
 			drainPattern: true
+		},
+		{
+			// Official client: the caster is coloured (100, 100, 255) on ticks 55-65.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: Params => {
+				const entity = Params.Init.ownerEntity;
+				const from = (55 * 1000) / 60;
+				const to = (66 * 1000) / 60;
+				let tinted = false;
+				entity.animations.add(tick => {
+					if (tick < from) {
+						return false;
+					}
+					if (tick < to) {
+						if (!tinted) {
+							tinted = true;
+							entity._flashColor[0] = 100 / 255;
+							entity._flashColor[1] = 100 / 255;
+							entity._flashColor[2] = 1.0;
+							entity.recalculateBlendingColor();
+						}
+						return false;
+					}
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
 		}
 	],
 	379: [

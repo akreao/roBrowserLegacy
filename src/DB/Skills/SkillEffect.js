@@ -547,7 +547,9 @@ SkillEffect[SK.HP_BASILICA] = { groundEffectId: 374 }; //Basilica
 // High Wizard
 SkillEffect[SK.HW_MAGICCRASHER] = { damageEffectIdOnTarget: 380, hitEffectId: [0], hitEffectOnce: true }; //Stave Crasher
 SkillEffect[SK.HW_MAGICPOWER] = { hideCastAura: true, beginCastEffectId: 16, successEffectIdOnCaster: 'ef_magicpower' }; //Mystical Amplification: the sound only on success
-SkillEffect[SK.HW_SOULDRAIN] = { effectIdOnCaster: 217 };
+// Official client: on success, 378 on the caster aimed at the target (three souls fly from the target to
+// the caster, the caster turns blue on ticks 55-65). See effect-port/high-wizard-audit.md.
+SkillEffect[SK.HW_SOULDRAIN] = { successEffectIdOnCaster: 378 }; //Soul Drain
 // Paladin
 // Official client: the holy cast aura (58) whatever the element; 365 on the target as the damage packet
 // arrives (the falling cross, its sound on tick 3, a quake on tick 33); the hit flash 0 when it lands.
@@ -563,7 +565,7 @@ SkillEffect[SK.CH_PALMSTRIKE] = { damageEffectIdOnCaster: 'quake', damageEffectI
 SkillEffect[SK.CH_TIGERFIST] = { damageEffectIdOnCaster: ['quake', 377, 263], hitEffectId: [0, 1] }; //Glacier Fist
 SkillEffect[SK.CH_CHAINCRUSH] = { damageEffectIdOnCaster: [263, 512], hitEffectId: 0, firstHitEffectId: 1 }; //Chain Crush Combo
 // Professor
-SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378, successEffectIdOnCaster: 379 }; //Indulge
+SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, successEffectIdOnCaster: 379 }; //Indulge: the client never plays 378 (Soul Drain's souls) for it
 SkillEffect[SK.PF_SOULCHANGE] = { effectId: 384, successEffectId: 385 }; //Soul Exhale
 SkillEffect[SK.PF_SOULBURN] = { effectId: 406 }; //Soul Siphon
 // Asassin Cross
