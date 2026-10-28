@@ -43,12 +43,19 @@ describe('Soul Drain effects', () => {
 		expect(spammed.map(p => [p.effectId, p.ownerAID, p.otherAID])).toEqual([[378, 10, 20]]);
 	});
 
+	it('is not played by Indulge, which the client gives 383 and 379 only', () => {
+		expect(read('DB/Skills/SkillEffect.js')).toMatch(
+			/SkillEffect\[SK\.PF_HPCONVERSION\] = \{ effectId: 383, successEffectIdOnCaster: 379 \};/
+		);
+	});
+
 	it('sends three souls from the target to the caster in one second', () => {
 		const [souls] = effect378();
 		expect(souls.type).toBe('3D');
 		expect(souls.duplicate).toBe(3);
 		expect(souls.duration).toBe(1000);
 		expect(souls.toSrc).toBe(true);
+		expect(souls.blendMode).toBe(2);
 		expect(souls.absoluteSpriteName).toMatch(/particle1$/);
 	});
 

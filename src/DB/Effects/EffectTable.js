@@ -9263,6 +9263,7 @@ export default {
 			toSrc: true,
 			rotateToTarget: true,
 
+			blendMode: 2,
 			red: 0.8,
 			green: 0.8,
 			blue: 1.0,
@@ -9279,12 +9280,12 @@ export default {
 			// Official client: the caster is coloured (100, 100, 255) on ticks 55-65.
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function SoulDrainBodyColor(Params) {
+			func: Params => {
 				const entity = Params.Init.ownerEntity;
 				const from = (55 * 1000) / 60;
 				const to = (66 * 1000) / 60;
 				let tinted = false;
-				entity.animations.add(function (tick) {
+				entity.animations.add(tick => {
 					if (tick < from) {
 						return false;
 					}
