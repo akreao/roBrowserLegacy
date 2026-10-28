@@ -41,7 +41,7 @@ describe('Close Confine', () => {
 
 	it('shows 604 on both actors while the status is on, silent and not looping', () => {
 		for (const status of [StatusConst.RG_CCONFINE_M, StatusConst.RG_CCONFINE_S]) {
-			expect(StatusEffectTable[status]).toEqual({ start: [604], stop: [604] });
+			expect(StatusEffectTable[status]).toEqual({ restart: [604], stop: [604] });
 		}
 		const row = table.match(/\t604: \[\s*\{([^}]*)\}/)[1];
 		expect(row).not.toContain('wav');

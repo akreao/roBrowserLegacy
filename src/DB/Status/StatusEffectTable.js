@@ -61,11 +61,11 @@ export default {
 	// Close Confine (RG_CLOSECONFINE): the official client puts 604 (cconfine.spr)
 	// on the caster and the target while their status is on, replacing an old copy.
 	[StatusConst.RG_CCONFINE_M]: {
-		start: [604],
+		restart: [604],
 		stop: [604]
 	},
 	[StatusConst.RG_CCONFINE_S]: {
-		start: [604],
+		restart: [604],
 		stop: [604]
 	},
 
