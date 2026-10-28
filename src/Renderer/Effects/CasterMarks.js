@@ -39,6 +39,7 @@ export const SPLIT_TICKS = 30;
 export const TURN_STEP = 30;
 
 const RED = [255, 0, 0];
+const PINK = [255, 89, 182];
 const YELLOW = [250, 250, 100];
 const WHITE = [255, 255, 255];
 const PURPLE = [182, 89, 255];
@@ -83,6 +84,9 @@ export const SCHEDULES = {
 		const turn = age >= 30 && age <= 54 ? ((age - 29) * TURN_STEP) % 360 : null;
 		return { add, glow: false, split: false, color: null, turn };
 	},
+	// Marionette Control (396, on the caster and the target): pink added body and a glow copy on
+	// every tick, as long as the effect lives (the status).
+	396: () => ({ add: true, glow: true, split: false, color: PINK }),
 	// Assumptio (375): a glow copy on every tick, as long as the effect lives (the status).
 	375: () => ({ add: false, glow: true, split: false, color: null }),
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.

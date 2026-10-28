@@ -9535,8 +9535,27 @@ export default {
 		}
 	],
 
-	//395: [{}],	//EF_LINELINK3	   Marionette Control (Sound Effect)
-	//396: [{}],	//EF_PINKBODY	   Marionette Control (Visual Effect)
+	395: [
+		{
+			//EF_LINELINK3	   Marionette Control (Sound Effect)
+			// The official client plays the sound on tick 0; its line to the target is not drawn here.
+			wav: 'effect/\xbc\xd2\xbf\xef\x20\xc3\xbc\xc0\xce\xc1\xf6',
+			attachedEntity: true
+		}
+	],
+
+	396: [
+		{
+			//EF_PINKBODY	   Marionette Control (Visual Effect)
+			// The official client draws the actor adding light in pink with a glow copy on every tick while
+			// 396 lives: from the use packet and the Marionette statuses, removed when they end (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 99999999, 396), Params);
+			}
+		}
+	],
 
 	397: [
 		{

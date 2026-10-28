@@ -609,7 +609,10 @@ SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
 // Clown & Gypsy
 SkillEffect[SK.CG_ARROWVULCAN] = { damageEffectIdOnCaster: 393, damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: [0, 1], hitEffectOnce: true }; //Vulcan Arrow
 SkillEffect[SK.CG_MOONLIT] = { successEffectId: 394, groundEffectId: '394_ground' }; //Sheltering Bliss
-SkillEffect[SK.CG_MARIONETTE] = { effectId: 395, hitEffectId: 396 }; //Marionette Control
+// Official client (kRO 2025-07-16): from the use packet (result set), 395 (soul change sound) and 396
+// (pink body) on the caster and 396 on the target; the Marionette statuses keep 396 on both until they
+// end. See effect-port/clown-gypsy-skills.md.
+SkillEffect[SK.CG_MARIONETTE] = { successEffectIdOnCaster: [395, 396], successEffectId: 396 }; //Marionette Control
 // Lord Knight
 SkillEffect[SK.LK_SPIRALPIERCE] = {
 	castAuraEffectId: 502,
