@@ -30,4 +30,8 @@ describe('Tarot Card of Fate', () => {
 		expect(colorAt(at, 32)).toEqual([16, 16, 255]);
 		expect(table).toContain('new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 120, 500)');
 	});
+
+	it('Full Chemical Protection does not pick up 500 (not checked in the client yet)', () => {
+		expect(SkillEffect[SK.CR_FULLPROTECTION]).toEqual({ effectId: 300 });
+	});
 });

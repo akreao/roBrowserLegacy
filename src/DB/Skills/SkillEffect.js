@@ -727,7 +727,9 @@ SkillEffect[SK.ST_PRESERVE] = { effectId: 496 }; //Preserve
 SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion
-SkillEffect[SK.CR_FULLPROTECTION] = { effectId: [300, 500] }; //Full Protection
+// 500 (EF_CHEMICALBODY) is left out until the Creator audit checks it in the official client:
+// it had no row, so Full Chemical Protection never drew it, and Tarot's blue flicker is not its look.
+SkillEffect[SK.CR_FULLPROTECTION] = { effectId: 300 }; //Full Protection
 // Official client: the holy cast aura (58) whatever the element; 520 on the target as the damage packet arrives
 // (cru_shield boomerang.wav and five shields flying in from random sides); the hit flash 0 on every hit as
 // it lands, 200 ms apart. Nothing on the use packet. See effect-port/paladin-skills.md.
