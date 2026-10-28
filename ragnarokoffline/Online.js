@@ -223286,15 +223286,12 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NPC_AGIUP] = SkillEffect[SkillConst_default.AL_INCAGI];
 	SkillEffect[SkillConst_default.NPC_CALLSLAVE] = {};
 	SkillEffect[SkillConst_default.NPC_RUN] = {};
-	SkillEffect[SkillConst_default.LK_AURABLADE] = {
-		beginCastEffectId: "white_pulse",
-		effectId: 367
-	};
-	SkillEffect[SkillConst_default.LK_PARRYING] = { effectId: 336 };
-	SkillEffect[SkillConst_default.LK_CONCENTRATION] = { effectId: 369 };
+	SkillEffect[SkillConst_default.LK_AURABLADE] = { successEffectIdOnCaster: 367 };
+	SkillEffect[SkillConst_default.LK_PARRYING] = { successEffectIdOnCaster: 336 };
+	SkillEffect[SkillConst_default.LK_CONCENTRATION] = { successEffectIdOnCaster: 369 };
 	SkillEffect[SkillConst_default.LK_TENSIONRELAX] = {};
-	SkillEffect[SkillConst_default.LK_BERSERK] = { effectId: [368, "quake"] };
-	SkillEffect[SkillConst_default.LK_FURY] = { effectId: [368, "quake"] };
+	SkillEffect[SkillConst_default.LK_BERSERK] = { successEffectIdOnCaster: [368, "quake"] };
+	SkillEffect[SkillConst_default.LK_FURY] = { successEffectIdOnCaster: [368, "quake"] };
 	SkillEffect[SkillConst_default.HP_ASSUMPTIO] = { successEffectId: [375, 440] };
 	SkillEffect[SkillConst_default.HP_BASILICA] = { groundEffectId: 374 };
 	SkillEffect[SkillConst_default.HW_MAGICCRASHER] = {
@@ -223381,18 +223378,19 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 396
 	};
 	SkillEffect[SkillConst_default.LK_SPIRALPIERCE] = {
-		hideCastAura: true,
-		beginCastEffectId: "339_beforecast",
-		effectId: 339,
-		hitEffectId: "spear_hit_sound"
+		castAuraEffectId: 502,
+		damageEffectIdOnTarget: 339,
+		firstHitEffectId: 81
 	};
 	SkillEffect[SkillConst_default.LK_HEADCRUSH] = {
-		beginCastEffectId: 399,
-		hitEffectId: "enemy_hit_normal1"
+		hideCastAura: true,
+		damageEffectIdOnCaster: 399,
+		hitEffectId: 0
 	};
 	SkillEffect[SkillConst_default.LK_JOINTBEAT] = {
-		beginCastEffectId: 400,
-		hitEffectId: "enemy_hit_normal1"
+		hideCastAura: true,
+		damageEffectIdOnCaster: 400,
+		hitEffectId: 0
 	};
 	SkillEffect[SkillConst_default.HW_NAPALMVULCAN] = {
 		damageEffectIdOnTarget: 401,
@@ -301539,34 +301537,14 @@ var init_EffectTable = __esmMin((() => {
 			file: "joblvup",
 			attachedEntity: true
 		}],
-		"339_beforecast": [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity._flashColor[0] = 1;
-				entity._flashColor[1] = 1;
-				entity._flashColor[2] = 1;
-				entity._flashColor[3] = 1;
-				entity.recalculateBlendingColor();
-				entity.animations.add(function(tick) {
-					if (!entity.cast.display) {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-					entity._flashColor[1] = 0 + Math.sin(tick / (6 * Math.PI));
-					entity._flashColor[2] = 0 + Math.sin(tick / (6 * Math.PI));
-					entity.recalculateBlendingColor();
-				});
-			}
-		}],
-		339: [{ wav: "permeter_attack" }, {
+		339: [{
+			wav: "permeter_attack",
+			delayWav: 20 * (1e3 / 60),
+			attachedEntity: true
+		}, {
 			wav: "effect/ef_magnumbreak",
-			delayWav: 300
+			delayWav: 30 * (1e3 / 60),
+			attachedEntity: true
 		}],
 		344: [
 			{
@@ -301825,10 +301803,7 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		369: [{
-			type: "STR",
-			file: "twohand",
 			wav: "effect/knight_twohandquicken",
-			head: true,
 			attachedEntity: true
 		}],
 		370: [{
@@ -302272,6 +302247,7 @@ var init_EffectTable = __esmMin((() => {
 		400: [
 			{
 				wav: "effect/ºñÆ® Á¶ÀÎÆ®",
+				delayWav: 22 * (1e3 / 60),
 				type: "FUNC",
 				attachedEntity: true,
 				func: function(Params) {
@@ -309350,10 +309326,6 @@ var init_EffectTable = __esmMin((() => {
 		white_pulse: [{ attachedEntity: true }],
 		yellow_pulse: [{ attachedEntity: true }],
 		black_pulse: [{ attachedEntity: true }],
-		spear_hit_sound: [{
-			wav: "_hit_spear",
-			attachedEntity: true
-		}],
 		enemy_hit_normal1: [{
 			wav: "_enemy_hit_normal1",
 			attachedEntity: true
