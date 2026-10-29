@@ -607,8 +607,8 @@ SkillEffect[SK.WS_CREATENUGGET] = {}; //Create Nuggets
 SkillEffect[SK.WS_CARTBOOST] = { effectId: 391 }; //Cart Boost
 SkillEffect[SK.WS_SYSTEMCREATE] = {}; //Auto Attack System
 // Stalker
-SkillEffect[SK.ST_CHASEWALK] = { successEffectIdOnCaster: 'ef_chase_walk_smoke' }; //Stealth
-SkillEffect[SK.ST_REJECTSWORD] = { effectId: 392 }; //Counter Instinct
+SkillEffect[SK.ST_CHASEWALK] = { castAuraEffectId: 1195, successEffectIdOnCaster: 'ef_chase_walk_smoke' }; //Stealth: the caster spins while casting (1195), smoke puff on success
+SkillEffect[SK.ST_REJECTSWORD] = { successEffectIdOnCaster: 392 }; //Counter Instinct: 392 on the caster only when the use packet's result is set
 // Creator
 SkillEffect[SK.CR_ALCHEMY] = {}; //Alchemy
 SkillEffect[SK.CR_SYNTHESISPOTION] = {}; //Potion Synthesis
@@ -729,7 +729,7 @@ SkillEffect[SK.SL_SKA] = { castAuraEffectId: 441, successEffectIdOnCaster: ['sl_
 // Other 2nd Skills
 SkillEffect[SK.SM_SELFPROVOKE] = {}; //Provoke Self
 SkillEffect[SK.NPC_EMOTION_ON] = {}; //Emotion ON
-SkillEffect[SK.ST_PRESERVE] = { effectId: 496 }; //Preserve
+SkillEffect[SK.ST_PRESERVE] = { castAuraEffectId: 59, successEffectIdOnCaster: 496 }; //Preserve: the purple cast aura whatever the element; 496 on the caster on success
 SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 // Official client (kRO 2025-07-16): from the ground packet, assulter_attack.wav and a potion falling onto the cell,

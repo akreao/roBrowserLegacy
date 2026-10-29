@@ -21,6 +21,8 @@
  *    8 out of 255 a channel once nothing sets it;
  *  - turn: the owner's facing, turned by a number of degrees from where it
  *    faced when the turning started (Falcon Assault spins its target).
+ *    A schedule may ask for the turn only while the owner can be seen
+ *    (whileVisible), as Chase Walk's cast spin does.
  *
  * Effect table entry:
  *   { type: 'FUNC', attachedEntity: true, func(Params) {
@@ -39,6 +41,40 @@ export const RECOVER_STEP = 8;
 export const SPLIT_TICKS = 30;
 /** Falcon Assault's turn a tick, in degrees. */
 export const TURN_STEP = 30;
+
+/**
+ * Chase Walk's cast spin (1195): degrees turned on tick `age`, 12 to age 15,
+ * 18 to age 30, 24 to age 40, then 48.
+ *
+ * @param {number} age
+ * @return {number}
+ */
+export function castSpinStep(age) {
+	if (age <= 15) {
+		return 12;
+	}
+	if (age <= 30) {
+		return 18;
+	}
+	if (age <= 40) {
+		return 24;
+	}
+	return 48;
+}
+
+/**
+ * Chase Walk's cast spin: degrees turned in all by the end of tick `age` (0-359).
+ *
+ * @param {number} age
+ * @return {number}
+ */
+export function castSpinTurn(age) {
+	let degrees = 0;
+	for (let a = 0; a <= age; a++) {
+		degrees = (degrees + castSpinStep(a)) % 360;
+	}
+	return degrees;
+}
 
 const RED = [255, 0, 0];
 const PINK = [255, 89, 182];
@@ -110,6 +146,9 @@ export const SCHEDULES = {
 		const on = age >= 5 && age <= 25;
 		return { add: on, glow: false, split: false, color: on ? [220, 250, 220] : null };
 	},
+	// Chase Walk's cast aura (1195): from the first tick the caster turns, faster and faster
+	// (castSpinStep), only while it can be seen. No other mark.
+	1195: age => ({ add: false, glow: false, split: false, color: null, turn: castSpinTurn(age), whileVisible: true }),
 	// Shrink: ticks 5 to 25 flickering yellow (added) and white, no glow copy.
 	599: age => {
 		const on = age >= 5 && age <= 25;
@@ -245,7 +284,8 @@ export default class CasterMarks {
 			this._split = false;
 		}
 
-		if (state.turn !== null && state.turn !== undefined) {
+		const hidden = state.whileVisible && typeof owner.isVisible === 'function' && !owner.isVisible();
+		if (state.turn !== null && state.turn !== undefined && !hidden) {
 			if (this.turnFrom === undefined) {
 				this.turnFrom = owner.direction;
 			}
