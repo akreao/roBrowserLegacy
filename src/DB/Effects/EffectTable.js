@@ -46,6 +46,8 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import { slimPotionEffects } from 'DB/Effects/SlimPotionEffect.js';
+import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import {
 	acidTerrorEffect,
 	aidPotionEffect,
@@ -11573,9 +11575,11 @@ export default {
 		}
 	],
 
-	//497: [{}],	//EF_SLIM	   Twilight Alchemy 1
-	//498: [{}],	//EF_SLIM2	   Twilight Alchemy 2
-	//499: [{}],	//EF_SLIM3	   Twilight Alchemy 3
+	// EF_SLIM, EF_SLIM2, EF_SLIM3: Slim Potion Pitcher's red, yellow and white potions falling onto the
+	// cell, from the ground packet with assulter_attack.wav (SlimPotionEffect.js, effect-port/creator-skills.md)
+	497: slimPotionEffects[497],
+	498: slimPotionEffects[498],
+	499: slimPotionEffects[499],
 	500: [
 		{
 			//EF_CHEMICALBODY	   Player Become Blue with Blue Aura (Tarot Card of Fate, on the target)
@@ -12348,11 +12352,15 @@ export default {
 	537: [
 		{
 			//EF_ACIDDEMON	   Acid Demonstration
+			// Official client: at the target's cell as each damage packet arrives. EF_FireWall.wav on tick 0,
+			// four dark violet rings of ring_black.tga rising round the cell (AcidDemonRingSim.js), and the
+			// screen quake on tick 5. See effect-port/creator-skills.md.
 			type: 'FUNC',
-			attachedEntity: true,
+			attachedEntity: false,
+			wav: 'effect/ef_firewall',
 			func: function (Params) {
-				const start = Params.Inst.startTick + 200;
-				Camera.setQuake(start);
+				this.add(new AcidDemonRing(Params.Inst.position, Params.Inst.startTick), Params);
+				Camera.setQuake(Params.Inst.startTick + 5 * (1000 / 60));
 			}
 		}
 	],
