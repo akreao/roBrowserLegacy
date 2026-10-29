@@ -1068,6 +1068,20 @@ class EffectManager {
 			}
 		}
 
+		// On the caster, following it, from the ground packet only (the cell is
+		// the packet's position, so effectIdOnCaster would stay there).
+		const groundOnCaster = SkillEffect[skillId].groundEffectIdOnCaster;
+		if (groundOnCaster && position && srcAID) {
+			(Array.isArray(groundOnCaster) ? groundOnCaster : [groundOnCaster]).forEach(effectId => {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				});
+			});
+		}
+
 		// One look per spirit charm element, picked from the caster's charms
 		if (SkillEffect[skillId].effectIdByCharmType && srcAID) {
 			const caster = EntityManager.get(srcAID);

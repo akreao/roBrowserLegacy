@@ -47,6 +47,7 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
@@ -11554,9 +11555,12 @@ export default {
 		}
 	],
 
-	//497: [{}],	//EF_SLIM	   Twilight Alchemy 1
-	//498: [{}],	//EF_SLIM2	   Twilight Alchemy 2
-	//499: [{}],	//EF_SLIM3	   Twilight Alchemy 3
+	// EF_SLIM, EF_SLIM2, EF_SLIM3: Slim Potion Pitcher's red, yellow and white potions falling onto the
+	// cell, from the ground packet; assulter_attack.wav at the caster (SlimPotionEffect.js, effect-port/creator-skills.md)
+	497: slimPotionEffects[497],
+	498: slimPotionEffects[498],
+	499: slimPotionEffects[499],
+	ef_slim_pitcher_sound: slimPitcherSound,
 	500: [
 		{
 			//EF_CHEMICALBODY	   Player Become Blue with Blue Aura (Tarot Card of Fate, on the target)

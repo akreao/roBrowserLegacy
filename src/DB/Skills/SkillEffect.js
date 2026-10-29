@@ -17,6 +17,9 @@
  *	- effectIdOnCaster:			Triggers once for every skill use. The caster receives the effect.
  *								Can be used to create skill use effects on the caster.
  *
+ *	- groundEffectIdOnCaster:	Triggers on the caster, following it, when the skill's ground packet arrives (not
+ *								from use or damage packets).
+ *
  *	- groundEffectId: 			Triggers once for every ground skill entity entry. Some skills have multiple entities, like songs, others have only one.
  *								Can be used to create ground effects.
  *
@@ -729,7 +732,12 @@ SkillEffect[SK.NPC_EMOTION_ON] = {}; //Emotion ON
 SkillEffect[SK.ST_PRESERVE] = { castAuraEffectId: 59, successEffectIdOnCaster: 496 }; //Preserve: the purple cast aura whatever the element; 496 on the caster on success
 SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
-SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion
+// Official client (kRO 2025-07-16): from the ground packet, assulter_attack.wav and a potion falling onto the cell,
+// picked by level: 497 (red) for 1-5, 498 (yellow) for 6-9, 499 (white) for 10. See effect-port/creator-skills.md.
+SkillEffect[SK.CR_SLIMPITCHER] = {
+	groundEffectIdOnCaster: 'ef_slim_pitcher_sound',
+	groundEffectIdByLevel: [497, 497, 497, 497, 497, 498, 498, 498, 498, 499]
+}; //Aid Condensed Potion
 // Official client (kRO 2025-07-16): when the skill succeeds, 300 (apocalips_attack.wav) and then 500 (the blue and
 // white flicker with a glow copy, as Tarot Card of Fate's) on the target. See effect-port/creator-skills.md.
 SkillEffect[SK.CR_FULLPROTECTION] = { successEffectId: [300, 500] }; //Full Protection
@@ -761,9 +769,10 @@ SkillEffect[SK.SL_COLLECTOR] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Co
 SkillEffect[SK.SL_NINJA] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Ninja
 SkillEffect[SK.SL_GUNNER] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Gunner
 SkillEffect[SK.KN_ONEHAND] = SkillEffect[SK.KN_TWOHANDQUICKEN]; //Onehand Quicken
-SkillEffect[SK.AM_TWILIGHT1] = { effectId: 497 }; //Twilight Alchemy 1
-SkillEffect[SK.AM_TWILIGHT2] = { effectId: 498 }; //Twilight Alchemy 2
-SkillEffect[SK.AM_TWILIGHT3] = { effectId: 499 }; //Twilight Alchemy 3
+// Official client: nothing (alchemist-skills.md). 497-499 are Slim Potion Pitcher's potions.
+SkillEffect[SK.AM_TWILIGHT1] = {}; //Twilight Alchemy 1
+SkillEffect[SK.AM_TWILIGHT2] = {}; //Twilight Alchemy 2
+SkillEffect[SK.AM_TWILIGHT3] = {}; //Twilight Alchemy 3
 SkillEffect[SK.HT_POWER] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: 1, hitEffectOnce: true }; //Beast Strafing: bow arrow per packet, official hit map 1 once per packet, no hit flash
 // Gunslinger
 SkillEffect[SK.GS_GLITTERING] = { effectId: 'gunslinger_coin' }; //Flip the Coin
