@@ -47,6 +47,8 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
+import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
 	aidPotionEffect,
@@ -12327,11 +12329,17 @@ export default {
 	537: [
 		{
 			//EF_ACIDDEMON	   Acid Demonstration
+			// Official client: at the target's cell as each damage packet arrives. EF_FireWall.wav on tick 0,
+			// four dark violet rings of ring_black.tga rising round the cell (AcidDemonRingSim.js), and the
+			// screen quake on tick 5. See effect-port/creator-skills.md.
 			type: 'FUNC',
-			attachedEntity: true,
+			attachedEntity: false,
+			// The rings' visible life (alpha 0 from tick 45), so a culled copy off screen still expires
+			duration: RING_FRAMES * RING_TICK_MS,
+			wav: 'effect/ef_firewall',
 			func: function (Params) {
-				const start = Params.Inst.startTick + 200;
-				Camera.setQuake(start);
+				this.add(new AcidDemonRing(Params.Inst.position, Params.Inst.startTick), Params);
+				Camera.setQuake(Params.Inst.startTick + 5 * (1000 / 60));
 			}
 		}
 	],
