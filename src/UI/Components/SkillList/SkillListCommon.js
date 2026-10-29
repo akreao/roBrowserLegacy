@@ -1086,17 +1086,14 @@ export function createSkillList({
 
 	Component.setPoints = function setPoints(amount) {
 		const root = this.getRoot();
-		const el = root.querySelector('.skpoints_count');
-		if (el) {
-			el.textContent = amount;
-		}
-
-		if (!_points === !amount) {
-			_points = amount;
+		const changed = !_points !== !amount;
+		_points = amount;
+		// Keeps a plan's left / going in / total line while points change
+		showPoints(root);
+		if (!changed) {
 			return;
 		}
 
-		_points = amount;
 		const count = _list.length;
 
 		for (let i = 0; i < count; ++i) {

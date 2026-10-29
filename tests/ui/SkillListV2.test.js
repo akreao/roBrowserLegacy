@@ -309,6 +309,10 @@ describe('SkillListV2 prerequisite planning', () => {
 		expect(points.textContent).toBe('0(10) / 10');
 		expect(points.querySelector('.left').textContent).toBe('0');
 		expect(points.querySelector('.spent').textContent).toBe('10');
+
+		// New points from the server keep the plan's line
+		component.setPoints(12);
+		expect(points.textContent).toBe('2(10) / 12');
 	});
 
 	it('leaves the tree unchanged when the complete chain is unaffordable', () => {
