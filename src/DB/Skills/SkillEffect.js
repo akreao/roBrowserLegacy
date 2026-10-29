@@ -17,6 +17,9 @@
  *	- effectIdOnCaster:			Triggers once for every skill use. The caster receives the effect.
  *								Can be used to create skill use effects on the caster.
  *
+ *	- groundEffectIdOnCaster:	Triggers on the caster, following it, when the skill's ground packet arrives (not
+ *								from use or damage packets).
+ *
  *	- groundEffectId: 			Triggers once for every ground skill entity entry. Some skills have multiple entities, like songs, others have only one.
  *								Can be used to create ground effects.
  *
@@ -731,7 +734,10 @@ SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 // Official client (kRO 2025-07-16): from the ground packet, assulter_attack.wav and a potion falling onto the cell,
 // picked by level: 497 (red) for 1-5, 498 (yellow) for 6-9, 499 (white) for 10. See effect-port/creator-skills.md.
-SkillEffect[SK.CR_SLIMPITCHER] = { groundEffectIdByLevel: [497, 497, 497, 497, 497, 498, 498, 498, 498, 499] }; //Aid Condensed Potion
+SkillEffect[SK.CR_SLIMPITCHER] = {
+	groundEffectIdOnCaster: 'ef_slim_pitcher_sound',
+	groundEffectIdByLevel: [497, 497, 497, 497, 497, 498, 498, 498, 498, 499]
+}; //Aid Condensed Potion
 // Official client (kRO 2025-07-16): when the skill succeeds, 300 (apocalips_attack.wav) and then 500 (the blue and
 // white flicker with a glow copy, as Tarot Card of Fate's) on the target. See effect-port/creator-skills.md.
 SkillEffect[SK.CR_FULLPROTECTION] = { successEffectId: [300, 500] }; //Full Protection

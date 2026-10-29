@@ -60,15 +60,17 @@ describe('falling slim potion', () => {
 describe('Slim Potion Pitcher rows', () => {
 	it('plays one potion from the ground packet, by level', () => {
 		expect(SkillEffect[SK.CR_SLIMPITCHER]).toEqual({
+			groundEffectIdOnCaster: 'ef_slim_pitcher_sound',
 			groundEffectIdByLevel: [497, 497, 497, 497, 497, 498, 498, 498, 498, 499]
 		});
 	});
 
-	it('has rows for 497-499 with the ground packet sound', () => {
+	it('has rows for 497-499, silent, and the ground packet sound at the caster', () => {
 		[497, 498, 499].forEach(id => {
 			expect(EffectTable[id]).toBe(slimPotionEffects[id]);
-			expect(EffectTable[id][0].wav).toBe('assulter_attack');
+			expect(EffectTable[id][0].wav).toBeUndefined();
 		});
+		expect(EffectTable.ef_slim_pitcher_sound).toEqual([{ wav: 'assulter_attack', attachedEntity: true }]);
 	});
 
 	it('no longer plays them for Twilight Alchemy', () => {
