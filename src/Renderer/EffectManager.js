@@ -783,7 +783,13 @@ class EffectManager {
 			Params.effect.attachedEntity && Params.Init.ownerEntity ? Params.Init.ownerEntity.direction : 0;
 
 		//Set delays
-		Params.Inst.duration = !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
+		// duration may be worked out per instance (an arrow's flight from its distance, say)
+		Params.Inst.duration =
+			typeof Params.effect.duration === 'function'
+				? Params.effect.duration(Params)
+				: !isNaN(Params.effect.duration)
+					? Params.effect.duration
+					: Params.Init.duration;
 
 		Params.Inst.delayOffsetDelta = !isNaN(Params.effect.delayOffsetDelta)
 			? Params.effect.delayOffsetDelta * Params.Inst.duplicateID

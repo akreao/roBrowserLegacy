@@ -41,6 +41,7 @@ import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
 import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
+import { arrowFlightBetween } from 'Renderer/Effects/ArrowFlight.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
@@ -23529,11 +23530,12 @@ export default {
 	ef_arrow_projectile: [
 		{
 			// effect to show the arrow projectile (normal attack or skill with arrow projectile)
+			// Official flight: 8 frames of 24 ms, shorter under 8 cells (ArrowFlight.js)
 			type: '3D',
 			alphaMax: 1,
 			angle: 180,
 			attachedEntity: true,
-			duration: 140,
+			duration: Params => arrowFlightBetween(Params.Inst.otherPosition, Params.Inst.position),
 			fadeIn: true,
 			fadeOut: true,
 			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
