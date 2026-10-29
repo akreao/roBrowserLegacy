@@ -10,6 +10,43 @@
 	line-height: 18px;
 	letter-spacing: 0px;
 	border: 1px solid #c1c6c2;
+	/* the bars paint over the background, under the content */
+	isolation: isolate;
+}
+/* the official frame: skill_upbar (20 px) on top, skill_botbar (32 px) at the bottom */
+#SkillListV2 .bar {
+	position: absolute;
+	left: -1px;
+	right: -1px;
+	z-index: -1;
+	pointer-events: none;
+}
+#SkillListV2 .bar.top {
+	top: -1px;
+	height: 20px;
+}
+#SkillListV2 .bar.bottom {
+	bottom: -1px;
+	height: 32px;
+}
+#SkillListV2 .bar > div {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background-repeat: no-repeat;
+}
+#SkillListV2 .bar .l {
+	left: 0;
+	width: 12px;
+}
+#SkillListV2 .bar .m {
+	left: 12px;
+	right: 12px;
+	background-repeat: repeat-x;
+}
+#SkillListV2 .bar .r {
+	right: 0;
+	width: 12px;
 }
 #SkillListV2 .border {
 	border: 1px solid #c1c6c2;
@@ -19,7 +56,7 @@
 
 #SkillListV2 .titlebar {
 	height: 18px;
-	background-color: white;
+	background-color: transparent;
 	background-repeat: repeat-x;
 	background-position: 0 -1px;
 	border-radius: 3px 3px 0px 0px;
@@ -181,18 +218,26 @@
 
 #SkillListV2 .footer {
 	width: 100%;
-	height: 27px;
+	height: 30px;
 	background-repeat: repeat-x;
 	background-color: transparent;
 	position: relative;
 }
+/* official: 30 px (list) or 80 px (tree) from a window that starts with its 18 px tab strip */
 #SkillListV2 .footer .text {
 	padding-top: 7px;
-	margin-left: 10px;
+	margin-left: 9px;
 }
-/* tree view: right of the sitting character, 80 px from the window's left edge */
+/* tree view: right of the sitting character */
 #SkillListV2 .footer.tree .text {
-	margin-left: 77px;
+	margin-left: 59px;
+}
+/* while planning: points left in blue, points going in red */
+#SkillListV2 .skpoints_count .left {
+	color: #0000ff;
+}
+#SkillListV2 .skpoints_count .spent {
+	color: #ff0000;
 }
 #SkillListV2 .footer .btn {
 	position: absolute;
@@ -253,32 +298,73 @@
 	height: 375px;
 }
 
-/* skill tree with tabs */
-#SkillListV2 .skillCol .name,
-#SkillListV2 .skillCol .selectable {
-	position: relative;
-	text-align: center;
-	display: block;
-	width: 70px;
-	left: -23px;
-}
-#SkillListV2 .skillCol .skill {
-	position: relative;
-	top: -16px;
-}
+/* skill tree with tabs: the official 68 x 56 px grid, the first icon 76 px from a window
+   that starts with its 18 px tab strip and 44 px from the top */
 #SkillListV2 .skillRow {
 	display: flex;
-	padding-left: 40px;
+	padding-left: 28px;
 }
 #SkillListV2 .skillCol {
 	position: relative;
-	margin: 15px 17px;
-	border: 1px dashed #c0c0c0ff;
-	border-radius: 5px;
-	width: 28px;
-	height: 28px;
+	margin: 17px 22px 15px;
+	width: 24px;
+	height: 24px;
+	background-image: var(--no-skill);
+	background-repeat: no-repeat;
 	text-align: center;
 	white-space: nowrap;
+	font-size: 11px;
+	line-height: 12px;
+	color: #666666;
+}
+#SkillListV2 .skillCol .skill {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 24px;
+	height: 24px;
+}
+#SkillListV2 .skillCol .icon {
+	position: relative;
+	height: 24px;
+}
+/* the name above the icon, cut with "..." past 48 px */
+#SkillListV2 .skillCol .name {
+	position: absolute;
+	top: -14px;
+	left: -12px;
+	width: 48px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+/* the level under the icon */
+#SkillListV2 .skillCol .selectable {
+	position: absolute;
+	top: 26px;
+	left: -23px;
+	width: 70px;
+}
+#SkillListV2 .skillCol .disabled .name {
+	opacity: 1;
+	color: #787878;
+}
+/* levels being planned, right of the icon */
+#SkillListV2 .skillCol .plus {
+	position: absolute;
+	left: 26px;
+	top: 0;
+	color: #0000ff;
+}
+/* a skill an item lends: the mark over the icon's lower part */
+#SkillListV2 .skillCol .item .icon::after {
+	content: '';
+	position: absolute;
+	left: 4px;
+	top: 14px;
+	width: 19px;
+	height: 9px;
+	background-image: var(--item-skill);
+	pointer-events: none;
 }
 #SkillListV2 .tabs {
 	position: relative;
@@ -330,8 +416,8 @@
 }
 #SkillListV2 .counterSkill {
 	position: absolute;
-	left: 28px;
-	top: 18px;
+	left: 26px;
+	top: 14px;
 	color: #fff;
 	-webkit-text-stroke: 0.6px #2f2f2f;
 	font-weight: 1000;
