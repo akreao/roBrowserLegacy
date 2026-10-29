@@ -209,6 +209,21 @@ const NaviLinkDistanceTable = [];
 const NaviNpcDistanceTable = [];
 
 /**
+ * Put a loaded navigation table in place of the last one. The arrays are
+ * kept, since callers hold them, and emptied first: a client loaded after a
+ * server switch may be another archive, with a shorter table or none.
+ *
+ * @param {Array} table
+ * @param {Array|Object|null} json
+ */
+function fillNaviTable(table, json) {
+	table.length = 0;
+	if (json) {
+		Object.assign(table, json);
+	}
+}
+
+/**
  * @const {Object} QuestInfo Table
  */
 const QuestInfo = {};
@@ -612,7 +627,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_map_krpri.lub',
 					'Navi_Map',
 					function (json) {
-						Object.assign(NaviMapTable, json);
+						fillNaviTable(NaviMapTable, json);
 					},
 					onLoad()
 				);
@@ -620,7 +635,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_mob_krpri.lub',
 					'Navi_Mob',
 					function (json) {
-						Object.assign(NaviMobTable, json);
+						fillNaviTable(NaviMobTable, json);
 					},
 					onLoad()
 				);
@@ -628,7 +643,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_npc_krpri.lub',
 					'Navi_Npc',
 					function (json) {
-						Object.assign(NaviNpcTable, json);
+						fillNaviTable(NaviNpcTable, json);
 					},
 					onLoad()
 				);
@@ -636,7 +651,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_link_krpri.lub',
 					'Navi_Link',
 					function (json) {
-						Object.assign(NaviLinkTable, json);
+						fillNaviTable(NaviLinkTable, json);
 					},
 					onLoad()
 				);
@@ -644,7 +659,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub',
 					'Navi_Distance',
 					function (json) {
-						Object.assign(NaviLinkDistanceTable, json);
+						fillNaviTable(NaviLinkDistanceTable, json);
 					},
 					onLoad()
 				);
@@ -652,7 +667,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub',
 					'Navi_NpcDistance',
 					function (json) {
-						Object.assign(NaviNpcDistanceTable, json);
+						fillNaviTable(NaviNpcDistanceTable, json);
 					},
 					onLoad()
 				);
