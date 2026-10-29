@@ -32,6 +32,7 @@ describe('arrow flight', () => {
 		expect(arrowFlightBetween([0, 0, 0], [3, 4, 0])).toBe(120);
 		expect(arrowFlightBetween([10, 10, 0], [10, 10, 2])).toBe(48);
 		expect(arrowFlightBetween(null, [1, 1, 0])).toBe(192);
+		expect(arrowFlightBetween([10, 10, 0], [10, 10, 0])).toBe(1);
 	});
 
 	it('releases at the hit frame times the motion speed and lands 8 frames later', () => {

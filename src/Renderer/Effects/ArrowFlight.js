@@ -39,7 +39,8 @@ export function arrowFlightMs(cells) {
 }
 
 /**
- * Flight time between two positions ([x, y, z] in cells).
+ * Flight time between two positions ([x, y, z] in cells). At least 1 ms: the client drops a
+ * zero-length arrow at once, and a zero duration would mean an endless effect here.
  *
  * @param {number[]} from
  * @param {number[]} to
@@ -49,7 +50,7 @@ export function arrowFlightBetween(from, to) {
 	if (!from || !to) {
 		return ARROW_FLIGHT_FRAMES * ARROW_FRAME_MS;
 	}
-	return arrowFlightMs(Math.hypot(to[0] - from[0], to[1] - from[1], (to[2] || 0) - (from[2] || 0)));
+	return Math.max(arrowFlightMs(Math.hypot(to[0] - from[0], to[1] - from[1], (to[2] || 0) - (from[2] || 0))), 1);
 }
 
 /**
