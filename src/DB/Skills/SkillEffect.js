@@ -729,7 +729,9 @@ SkillEffect[SK.NPC_EMOTION_ON] = {}; //Emotion ON
 SkillEffect[SK.ST_PRESERVE] = { effectId: 496 }; //Preserve
 SkillEffect[SK.ST_FULLSTRIP] = { successEffectId: 495 }; //Divest All
 SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
-SkillEffect[SK.CR_SLIMPITCHER] = {}; //Aid Condensed Potion
+// Official client (kRO 2025-07-16): from the ground packet, assulter_attack.wav and a potion falling onto the cell,
+// picked by level: 497 (red) for 1-5, 498 (yellow) for 6-9, 499 (white) for 10. See effect-port/creator-skills.md.
+SkillEffect[SK.CR_SLIMPITCHER] = { groundEffectIdByLevel: [497, 497, 497, 497, 497, 498, 498, 498, 498, 499] }; //Aid Condensed Potion
 // 500 (EF_CHEMICALBODY) is left out until the Creator audit checks it in the official client:
 // it had no row, so Full Chemical Protection never drew it, and Tarot's blue flicker is not its look.
 SkillEffect[SK.CR_FULLPROTECTION] = { effectId: 300 }; //Full Protection
@@ -758,9 +760,10 @@ SkillEffect[SK.SL_COLLECTOR] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Co
 SkillEffect[SK.SL_NINJA] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Ninja
 SkillEffect[SK.SL_GUNNER] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of the Gunner
 SkillEffect[SK.KN_ONEHAND] = SkillEffect[SK.KN_TWOHANDQUICKEN]; //Onehand Quicken
-SkillEffect[SK.AM_TWILIGHT1] = { effectId: 497 }; //Twilight Alchemy 1
-SkillEffect[SK.AM_TWILIGHT2] = { effectId: 498 }; //Twilight Alchemy 2
-SkillEffect[SK.AM_TWILIGHT3] = { effectId: 499 }; //Twilight Alchemy 3
+// Official client: nothing (alchemist-skills.md). 497-499 are Slim Potion Pitcher's potions.
+SkillEffect[SK.AM_TWILIGHT1] = {}; //Twilight Alchemy 1
+SkillEffect[SK.AM_TWILIGHT2] = {}; //Twilight Alchemy 2
+SkillEffect[SK.AM_TWILIGHT3] = {}; //Twilight Alchemy 3
 SkillEffect[SK.HT_POWER] = { damageEffectIdOnTarget: 'ef_arrow_projectile', hitEffectId: 1, hitEffectOnce: true }; //Beast Strafing: bow arrow per packet, official hit map 1 once per packet, no hit flash
 // Gunslinger
 SkillEffect[SK.GS_GLITTERING] = { effectId: 'gunslinger_coin' }; //Flip the Coin
