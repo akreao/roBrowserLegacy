@@ -66,6 +66,11 @@ function skillConstNames(skillId) {
 	return _skillConstNames.get(Number(skillId)) || [];
 }
 
+// A skill an item lends or raises: the packet's level is above the level learned (level2)
+function isItemSkill(skill) {
+	return Number.isInteger(skill?.level2) && skill.level2 < skill.level;
+}
+
 function loadSkillIcon(skill, skillId, onload) {
 	const primary = skill?.Name;
 	let names = null;
@@ -342,6 +347,18 @@ export function createSkillList({
 		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, data => {
 			_lArrow = `url(${data})`;
 		});
+		// Tree view: the tile under every slot, and the mark on skills an item lends
+		const tree = root.querySelector('.contentbig');
+		if (tree) {
+			[
+				['--no-skill', 'no_skill.bmp'],
+				['--item-skill', 'item_skill.bmp']
+			].forEach(([property, file]) => {
+				Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${file}`, data => {
+					tree.style.setProperty(property, `url(${data})`);
+				});
+			});
+		}
 	};
 
 	Component.onAppend = function onAppend() {
@@ -616,24 +633,44 @@ export function createSkillList({
 			}
 
 			const skill = hasSkills[skillId];
+			const level = skill?.level ?? 0;
 			root.querySelectorAll(`.skill.id${skillId}`).forEach(element => {
 				element.classList.remove('active', 'passive', 'disabled');
 				element.classList.add(skill?.type ? 'active' : 'passive');
+
+				// The tree keeps the level learned and adds the planned levels in blue
+				const plus = element.querySelector('.plus');
+				if (plus) {
+					plus.textContent = choice.count > level ? `+${choice.count - level}` : '';
+					return;
+				}
 
 				const levelEl = element.querySelector('.level');
 				if (levelEl) {
 					levelEl.style.display = '';
 				}
-				element.querySelectorAll('.current, .max').forEach(level => {
-					level.textContent = choice.count;
+				element.querySelectorAll('.current, .max').forEach(value => {
+					value.textContent = choice.count;
 				});
 			});
 		});
 
+		showPoints(root);
+	}
+
+	// While planning: the points left in blue, the points going in red, then the total
+	function showPoints(root) {
 		const skpointsEl = root.querySelector('.skpoints_count');
-		if (skpointsEl) {
-			skpointsEl.textContent = `${_points - totalCounter}/${_points}`;
+		if (!skpointsEl) {
+			return;
 		}
+		if (!totalCounter) {
+			skpointsEl.textContent = _points;
+			return;
+		}
+		skpointsEl.innerHTML =
+			`<span class="left">${_points - totalCounter}</span>` +
+			`(<span class="spent">${totalCounter}</span>) / ${_points}`;
 	}
 
 	function getSkillPosition(JobId) {
@@ -692,8 +729,9 @@ export function createSkillList({
 				element.setAttribute('data-index', key);
 				element.setAttribute('draggable', 'true');
 				element.innerHTML =
-					`<div class="name">${_escapeHTML(sk.SkillName).substr(0, 7)}...<br/></div>` +
+					`<div class="name">${_escapeHTML(sk.SkillName)}</div>` +
 					'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+					'<span class="plus"></span>' +
 					'<div class=selectable>' +
 					'<span class="level" style="display: none">' +
 					(sk.bSeperateLv
@@ -771,11 +809,13 @@ export function createSkillList({
 		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		const element = document.createElement('div');
 		element.className = `skill id${skill.SKID} ${className}`;
+		element.classList.toggle('item', isItemSkill(skill));
 		element.setAttribute('data-index', skill.SKID);
 		element.setAttribute('draggable', 'true');
 		element.innerHTML =
-			`<div class="name">${_escapeHTML(sk.SkillName).substr(0, 7)}...<br/></div>` +
+			`<div class="name">${_escapeHTML(sk.SkillName)}</div>` +
 			'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+			'<span class="plus"></span>' +
 			'<div class="levelupcontainer"></div>' +
 			'<div class=selectable>' +
 			'<span class="level">' +
@@ -988,6 +1028,7 @@ export function createSkillList({
 		target.spcost = skill.spcost;
 		target.attackRange = skill.attackRange;
 		target.upgradable = skill.upgradable;
+		target.level2 = skill.level2;
 		if (Number.isInteger(skill.type)) {
 			target.type = skill.type;
 		}
@@ -1010,6 +1051,7 @@ export function createSkillList({
 
 			element.classList.remove('active', 'passive', 'disabled');
 			element.classList.add(!skill.level ? 'disabled' : skill.type ? 'active' : 'passive');
+			element.classList.toggle('item', isItemSkill(skill));
 
 			const levelupEl = element.querySelector('.levelup');
 			if (levelupEl) {
@@ -1044,17 +1086,14 @@ export function createSkillList({
 
 	Component.setPoints = function setPoints(amount) {
 		const root = this.getRoot();
-		const el = root.querySelector('.skpoints_count');
-		if (el) {
-			el.textContent = amount;
-		}
-
-		if (!_points === !amount) {
-			_points = amount;
+		const changed = !_points !== !amount;
+		_points = amount;
+		// Keeps a plan's left / going in / total line while points change
+		showPoints(root);
+		if (!changed) {
 			return;
 		}
 
-		_points = amount;
 		const count = _list.length;
 
 		for (let i = 0; i < count; ++i) {
@@ -1083,9 +1122,10 @@ export function createSkillList({
 		// which has one per head frame: 900 ms each, then back to the first
 		const _poseStep = 300 * 3;
 		const _poses = 3;
-		// Feet 48 px from the window's left edge and 25 px above its bottom edge,
-		// the canvas sitting in the corner inside the window's 1 px border
-		const _originX = 47;
+		// Feet 48 px from the official window's left edge and 25 px above its bottom edge.
+		// That window starts with its 18 px tab strip, which ours has outside: 30 px from
+		// our edge, the canvas sitting in the corner inside the window's 1 px border
+		const _originX = 29;
 		const _originBottom = 24;
 		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		const _animation = {
@@ -1387,11 +1427,11 @@ export function createSkillList({
 				}
 			});
 		});
+		root.querySelectorAll('.skill .plus').forEach(plus => {
+			plus.textContent = '';
+		});
 		totalCounter = 0;
-		const skpointsEl = root.querySelector('.skpoints_count');
-		if (skpointsEl) {
-			skpointsEl.textContent = _points;
-		}
+		showPoints(root);
 		rememberChoice = new Map();
 	}
 

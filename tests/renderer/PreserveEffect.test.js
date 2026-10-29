@@ -6,17 +6,19 @@ vi.mock('Renderer/EntityManager.js', () => ({ default: { get: () => null } }));
 
 import { SCHEDULES } from 'Renderer/Effects/CasterMarks.js';
 
-// Preserve (ST_PRESERVE, skill 475): the official client plays 496 on the caster from the use packet
+// Preserve (ST_PRESERVE, skill 475): the official client casts with aura 59 (the purple ring) whatever
+// the element, plays 496 on the caster from the use packet when its result is set
 // (black_maximize_power_sword_bic.wav), and on ticks 10 to 30 draws the caster adding light on even
-// ticks with colour 250, white on odd ticks. There is no cast-start ring.
-// Spec: effect-port/rogue-skills.md.
+// ticks with colour 250, white on odd ticks.
+// Spec: effect-port/rogue-skills.md, effect-port/stalker-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
 const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
 
 describe('Preserve', () => {
-	it('plays 496 from the use packet only', () => {
-		expect(skills).toContain('SkillEffect[SK.ST_PRESERVE] = { effectId: 496 };');
+	it('casts with the purple aura and plays 496 on the caster only when the skill works', () => {
+		// kRO 2025-07-16: cast aura 59 whatever the packet's element; the use packet case needs the result set.
+		expect(skills).toContain('SkillEffect[SK.ST_PRESERVE] = { castAuraEffectId: 59, successEffectIdOnCaster: 496 };');
 	});
 
 	it('flickers the caster on ticks 10 to 30', () => {
