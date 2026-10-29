@@ -732,9 +732,9 @@ SkillEffect[SK.WS_WEAPONREFINE] = {}; //Upgrade Weapon
 // Official client (kRO 2025-07-16): from the ground packet, assulter_attack.wav and a potion falling onto the cell,
 // picked by level: 497 (red) for 1-5, 498 (yellow) for 6-9, 499 (white) for 10. See effect-port/creator-skills.md.
 SkillEffect[SK.CR_SLIMPITCHER] = { groundEffectIdByLevel: [497, 497, 497, 497, 497, 498, 498, 498, 498, 499] }; //Aid Condensed Potion
-// 500 (EF_CHEMICALBODY) is left out until the Creator audit checks it in the official client:
-// it had no row, so Full Chemical Protection never drew it, and Tarot's blue flicker is not its look.
-SkillEffect[SK.CR_FULLPROTECTION] = { effectId: 300 }; //Full Protection
+// Official client (kRO 2025-07-16): when the skill succeeds, 300 (apocalips_attack.wav) and then 500 (the blue and
+// white flicker with a glow copy, as Tarot Card of Fate's) on the target. See effect-port/creator-skills.md.
+SkillEffect[SK.CR_FULLPROTECTION] = { successEffectId: [300, 500] }; //Full Protection
 // Official client: the holy cast aura (58) whatever the element; 520 on the target as the damage packet arrives
 // (cru_shield boomerang.wav and five shields flying in from random sides); the hit flash 0 on every hit as
 // it lands, 200 ms apart. Nothing on the use packet. See effect-port/paladin-skills.md.

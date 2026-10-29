@@ -31,7 +31,7 @@ describe('Tarot Card of Fate', () => {
 		expect(table).toContain('new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 120, 500)');
 	});
 
-	it('Full Chemical Protection does not pick up 500 (not checked in the client yet)', () => {
-		expect(SkillEffect[SK.CR_FULLPROTECTION]).toEqual({ effectId: 300 });
+	it('Full Chemical Protection plays 500 too, after 300, on success (effect-port/creator-skills.md)', () => {
+		expect(SkillEffect[SK.CR_FULLPROTECTION]).toEqual({ successEffectId: [300, 500] });
 	});
 });
