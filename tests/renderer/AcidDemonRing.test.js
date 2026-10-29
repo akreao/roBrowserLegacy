@@ -68,6 +68,7 @@ describe('Acid Demonstration rows', () => {
 		const row = table.slice(table.indexOf('\t537: ['), table.indexOf('\t//538'));
 		expect(row).toContain('attachedEntity: false');
 		expect(row).toContain("wav: 'effect/ef_firewall'");
+		expect(row).toContain('duration: RING_FRAMES * RING_TICK_MS');
 		expect(row).toContain('new AcidDemonRing(Params.Inst.position, Params.Inst.startTick)');
 		expect(row).toContain('Camera.setQuake(Params.Inst.startTick + 5 * (1000 / 60))');
 	});

@@ -48,6 +48,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
 	aidPotionEffect,
@@ -12334,6 +12335,8 @@ export default {
 			// screen quake on tick 5. See effect-port/creator-skills.md.
 			type: 'FUNC',
 			attachedEntity: false,
+			// The rings' visible life (alpha 0 from tick 45), so a culled copy off screen still expires
+			duration: RING_FRAMES * RING_TICK_MS,
 			wav: 'effect/ef_firewall',
 			func: function (Params) {
 				this.add(new AcidDemonRing(Params.Inst.position, Params.Inst.startTick), Params);
