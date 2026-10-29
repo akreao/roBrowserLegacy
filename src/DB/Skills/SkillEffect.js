@@ -749,7 +749,9 @@ SkillEffect[SK.CG_HERMODE] = { successEffectId: '517_music', groundEffectId: 517
 // See effect-port/clown-gypsy-skills.md.
 SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500], castAuraEffectId: 58 }; //Tarot Card of Fate
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
-SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
+// Official client (kRO 2025-07-16): from the ground packet, 58 (the holy cast aura, 40 ticks) on the caster.
+// See effect-port/creator-skills.md.
+SkillEffect[SK.CR_CULTIVATION] = { effectIdOnCaster: '58_cultivation' }; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
 SkillEffect[SK.TK_MISSION] = { successEffectIdOnCaster: 'ef_tk_mission' }; //Taekwon Mission
 SkillEffect[SK.SL_HIGH] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of Rebirth: the same as every spirit
