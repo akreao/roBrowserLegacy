@@ -295,12 +295,20 @@ describe('SkillListV2 prerequisite planning', () => {
 
 		heal.querySelector('.icon').click();
 
+		// The tree keeps the learned level and shows the planned levels as +N
+		const plus = skillId => getTreeSkill(root, skillId).querySelector('.plus').textContent;
 		expect(getTreeSkill(root, mocks.ids.FAITH).querySelector('.current').textContent).toBe('10');
-		expect(getTreeSkill(root, mocks.ids.CURE).querySelector('.current').textContent).toBe('1');
-		expect(getTreeSkill(root, mocks.ids.DIVINE_PROTECTION).querySelector('.current').textContent).toBe('3');
-		expect(getTreeSkill(root, mocks.ids.DEMON_BANE).querySelector('.current').textContent).toBe('5');
-		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.current').textContent).toBe('1');
-		expect(root.querySelector('.skpoints_count').textContent).toBe('0/10');
+		expect(plus(mocks.ids.FAITH)).toBe('');
+		expect(plus(mocks.ids.CURE)).toBe('+1');
+		expect(plus(mocks.ids.DIVINE_PROTECTION)).toBe('+3');
+		expect(plus(mocks.ids.DEMON_BANE)).toBe('+5');
+		expect(plus(mocks.ids.HEAL)).toBe('+1');
+		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.current').textContent).toBe('0');
+		// Points left (blue), points going in (red), then the total
+		const points = root.querySelector('.skpoints_count');
+		expect(points.textContent).toBe('0(10) / 10');
+		expect(points.querySelector('.left').textContent).toBe('0');
+		expect(points.querySelector('.spent').textContent).toBe('10');
 	});
 
 	it('leaves the tree unchanged when the complete chain is unaffordable', () => {
@@ -425,8 +433,8 @@ describe('SkillListV2 sitting character', () => {
 		});
 		expect(mocks.camera.direction).toBe(3);
 
-		// Feet 48 px from the window's left edge, 25 px above its bottom edge
-		expect(SpriteRenderer.bind2DContext).toHaveBeenLastCalledWith(ctx, 47, 110 - 24);
+		// Feet 48 px from the official window's left edge (with its 18 px tab strip), 25 px above its bottom edge
+		expect(SpriteRenderer.bind2DContext).toHaveBeenLastCalledWith(ctx, 29, 110 - 24);
 		expect(ctx.canvas.style.display).toBe('');
 
 		component.onRemove();
@@ -593,12 +601,40 @@ describe('SkillListV2 skills added in game', () => {
 		component.addSkill({ SKID: mocks.ids.BASH, level: 3, type: 1, upgradable: 1, spcost: 8 });
 		etcSkill(root).querySelector('.icon').click();
 
-		expect(etcSkill(root).querySelector('.current').textContent).toBe('4');
-		expect(root.querySelector('.skpoints_count').textContent).toBe('9/10');
+		expect(etcSkill(root).querySelector('.current').textContent).toBe('3');
+		expect(etcSkill(root).querySelector('.plus').textContent).toBe('+1');
+		expect(root.querySelector('.skpoints_count').textContent).toBe('9(1) / 10');
 
 		root.querySelector('.reset').click();
 		expect(etcSkill(root).classList.contains('disabled')).toBe(false);
 		expect(etcSkill(root).querySelector('.current').textContent).toBe('3');
+		expect(etcSkill(root).querySelector('.plus').textContent).toBe('');
+		expect(root.querySelector('.skpoints_count').textContent).toBe('10');
+	});
+});
+
+describe('SkillListV2 tree slots', () => {
+	beforeEach(() => {
+		document.body.innerHTML = '';
+	});
+
+	it('writes the whole skill name and lets the style cut it', () => {
+		const component = createComponent();
+		const root = component.getRoot();
+		const name = getTreeSkill(root, mocks.ids.DIVINE_PROTECTION).querySelector('.name').textContent;
+		expect(name).toBe(mocks.skillInfo[mocks.ids.DIVINE_PROTECTION].SkillName);
+		expect(name).not.toContain('...');
+	});
+
+	it('marks a skill whose level is above the level learned, as an item lends it', () => {
+		const component = createComponent();
+		const root = component.getRoot();
+
+		component.updateSkill({ SKID: mocks.ids.HEAL, level: 3, level2: 0, type: 1, upgradable: 0, spcost: 13 });
+		expect(getTreeSkill(root, mocks.ids.HEAL).classList.contains('item')).toBe(true);
+
+		component.updateSkill({ SKID: mocks.ids.HEAL, level: 3, level2: 3, type: 1, upgradable: 0, spcost: 13 });
+		expect(getTreeSkill(root, mocks.ids.HEAL).classList.contains('item')).toBe(false);
 	});
 });
 
