@@ -9,8 +9,8 @@ const { default: SK } = await import('DB/Skills/SkillConst.js');
 const { default: EffectTable } = await import('DB/Effects/EffectTable.js');
 
 describe('Plant Cultivation', () => {
-	it('plays the holy cast aura on the caster', () => {
-		expect(SkillEffect[SK.CR_CULTIVATION]).toEqual({ effectIdOnCaster: '58_cultivation' });
+	it('plays the holy cast aura on the caster (not at the cell) from the ground packet', () => {
+		expect(SkillEffect[SK.CR_CULTIVATION]).toEqual({ groundEffectIdOnCaster: '58_cultivation' });
 	});
 
 	it('is 58 for 40 ticks', () => {

@@ -762,7 +762,7 @@ SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500], 
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { damageEffectIdOnTarget: 537, hitEffectId: 0 }; //Acid Demonstration
 // Official client (kRO 2025-07-16): from the ground packet, 58 (the holy cast aura, 40 ticks) on the caster.
 // See effect-port/creator-skills.md.
-SkillEffect[SK.CR_CULTIVATION] = { effectIdOnCaster: '58_cultivation' }; //Plant Cultivation
+SkillEffect[SK.CR_CULTIVATION] = { groundEffectIdOnCaster: '58_cultivation' }; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
 SkillEffect[SK.TK_MISSION] = { successEffectIdOnCaster: 'ef_tk_mission' }; //Taekwon Mission
 SkillEffect[SK.SL_HIGH] = SkillEffect[SK.SL_SOULLINKER]; //Spirit of Rebirth: the same as every spirit
