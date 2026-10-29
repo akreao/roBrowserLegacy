@@ -42,6 +42,12 @@ let _program = null;
  */
 let _texture = null;
 
+/**
+ * Bumped by every init and free, so a texture load that finishes after a free
+ * (a map change) is dropped instead of landing in the next set-up.
+ */
+let _generation = 0;
+
 class AcidDemonRing {
 	/**
 	 * @param {vec3} position the target's cell (the effect copies it: the rings stay put)
@@ -105,11 +111,15 @@ class AcidDemonRing {
 
 	static init(gl) {
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		const generation = ++_generation;
 		Client.loadFile(TEXTURE, buffer => {
 			WebGL.texture(gl, buffer, texture => {
-				if (!_program) {
+				if (generation !== _generation) {
 					gl.deleteTexture(texture);
 					return;
+				}
+				if (_texture) {
+					gl.deleteTexture(_texture);
 				}
 				_texture = texture;
 			});
@@ -119,6 +129,7 @@ class AcidDemonRing {
 	}
 
 	static free(gl) {
+		_generation++;
 		if (_program) {
 			gl.deleteProgram(_program);
 			_program = null;

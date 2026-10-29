@@ -46,8 +46,9 @@ import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.j
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import { slimPotionEffects } from 'DB/Effects/SlimPotionEffect.js';
+import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
 	aidPotionEffect,
@@ -11576,10 +11577,11 @@ export default {
 	],
 
 	// EF_SLIM, EF_SLIM2, EF_SLIM3: Slim Potion Pitcher's red, yellow and white potions falling onto the
-	// cell, from the ground packet with assulter_attack.wav (SlimPotionEffect.js, effect-port/creator-skills.md)
+	// cell, from the ground packet; assulter_attack.wav at the caster (SlimPotionEffect.js, effect-port/creator-skills.md)
 	497: slimPotionEffects[497],
 	498: slimPotionEffects[498],
 	499: slimPotionEffects[499],
+	ef_slim_pitcher_sound: slimPitcherSound,
 	500: [
 		{
 			//EF_CHEMICALBODY	   Player Become Blue with Blue Aura (Tarot Card of Fate, on the target)
@@ -12357,6 +12359,8 @@ export default {
 			// screen quake on tick 5. See effect-port/creator-skills.md.
 			type: 'FUNC',
 			attachedEntity: false,
+			// The rings' visible life (alpha 0 from tick 45), so a culled copy off screen still expires
+			duration: RING_FRAMES * RING_TICK_MS,
 			wav: 'effect/ef_firewall',
 			func: function (Params) {
 				this.add(new AcidDemonRing(Params.Inst.position, Params.Inst.startTick), Params);

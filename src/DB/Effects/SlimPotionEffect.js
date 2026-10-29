@@ -55,8 +55,8 @@ export function slimPotionPart(effectID, roll, copy) {
 }
 
 /**
- * EffectTable row for 497, 498 or 499. The ground packet's sound
- * (assulter_attack.wav) rides on it, as only one of them plays per packet.
+ * EffectTable row for 497, 498 or 499. No sound of its own: the ground
+ * packet's assulter_attack.wav plays at the caster (ef_slim_pitcher_sound).
  *
  * @param {number} effectID
  * @return {Array}
@@ -66,7 +66,6 @@ function slimPotionRow(effectID) {
 		{
 			type: 'FUNC',
 			attachedEntity: false,
-			wav: 'assulter_attack',
 			func: function (Params) {
 				const at = Params.Inst.position;
 				const roll = Math.floor(Math.random() * 360);
@@ -81,6 +80,9 @@ function slimPotionRow(effectID) {
 		}
 	];
 }
+
+/** The ground packet's sound, at the caster (the client plays it at the player). */
+export const slimPitcherSound = [{ wav: 'assulter_attack', attachedEntity: true }];
 
 /** EffectTable rows for 497-499. */
 export const slimPotionEffects = {
