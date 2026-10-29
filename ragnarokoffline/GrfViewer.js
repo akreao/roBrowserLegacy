@@ -223922,7 +223922,21 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.ST_FULLSTRIP] = { successEffectId: 495 };
 	SkillEffect[SkillConst_default.WS_WEAPONREFINE] = {};
-	SkillEffect[SkillConst_default.CR_SLIMPITCHER] = {};
+	SkillEffect[SkillConst_default.CR_SLIMPITCHER] = {
+		groundEffectIdOnCaster: "ef_slim_pitcher_sound",
+		groundEffectIdByLevel: [
+			497,
+			497,
+			497,
+			497,
+			497,
+			498,
+			498,
+			498,
+			498,
+			499
+		]
+	};
 	SkillEffect[SkillConst_default.CR_FULLPROTECTION] = { successEffectId: [300, 500] };
 	SkillEffect[SkillConst_default.PA_SHIELDCHAIN] = {
 		castAuraEffectId: 58,
@@ -223954,7 +223968,7 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnTarget: 537,
 		hitEffectId: 0
 	};
-	SkillEffect[SkillConst_default.CR_CULTIVATION] = {};
+	SkillEffect[SkillConst_default.CR_CULTIVATION] = { groundEffectIdOnCaster: "58_cultivation" };
 	SkillEffect[SkillConst_default.ITEM_ENCHANTARMS] = {};
 	SkillEffect[SkillConst_default.TK_MISSION] = { successEffectIdOnCaster: "ef_tk_mission" };
 	SkillEffect[SkillConst_default.SL_HIGH] = SkillEffect[SkillConst_default.SL_SOULLINKER];
@@ -223963,9 +223977,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SL_NINJA] = SkillEffect[SkillConst_default.SL_SOULLINKER];
 	SkillEffect[SkillConst_default.SL_GUNNER] = SkillEffect[SkillConst_default.SL_SOULLINKER];
 	SkillEffect[SkillConst_default.KN_ONEHAND] = SkillEffect[SkillConst_default.KN_TWOHANDQUICKEN];
-	SkillEffect[SkillConst_default.AM_TWILIGHT1] = { effectId: 497 };
-	SkillEffect[SkillConst_default.AM_TWILIGHT2] = { effectId: 498 };
-	SkillEffect[SkillConst_default.AM_TWILIGHT3] = { effectId: 499 };
+	SkillEffect[SkillConst_default.AM_TWILIGHT1] = {};
+	SkillEffect[SkillConst_default.AM_TWILIGHT2] = {};
+	SkillEffect[SkillConst_default.AM_TWILIGHT3] = {};
 	SkillEffect[SkillConst_default.HT_POWER] = {
 		damageEffectIdOnTarget: "ef_arrow_projectile",
 		hitEffectId: 1,
@@ -279966,6 +279980,15 @@ var init_EffectManager = __esmMin((() => {
 					skillLevel: level
 				});
 			}
+			const groundOnCaster = SkillEffect[skillId].groundEffectIdOnCaster;
+			if (groundOnCaster && position && srcAID) (Array.isArray(groundOnCaster) ? groundOnCaster : [groundOnCaster]).forEach((effectId) => {
+				EffectManager.spam({
+					effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				});
+			});
 			if (SkillEffect[skillId].effectIdByCharmType && srcAID) {
 				const caster = EntityManager.get(srcAID);
 				const effectId = caster && SkillEffect[skillId].effectIdByCharmType[caster.charmType];
@@ -289345,18 +289368,18 @@ function sandGrainEffect(grain) {
 				x: p.x / 5,
 				y: p.y / 5,
 				z: p.up / 5,
-				size: 2 * p.half * SIZE_PER_UNIT$3,
+				size: 2 * p.half * SIZE_PER_UNIT$4,
 				alpha: p.alpha / 255,
 				angle: p.angle
 			};
 		}
 	};
 }
-var SIZE_PER_UNIT$3, sandAttackEffect;
+var SIZE_PER_UNIT$4, sandAttackEffect;
 var init_SandAttackEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_SandGrainSim();
-	SIZE_PER_UNIT$3 = 7;
+	SIZE_PER_UNIT$4 = 7;
 	sandAttackEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
@@ -290620,6 +290643,157 @@ var init_CastCircle = __esmMin((() => {
 			gl.disableVertexAttribArray(_program$12.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$12.attribute.aTextureCoord);
 		}
+	};
+}));
+// src/Renderer/Effects/SlimPotionSim.js
+/**
+* The potion after update `k` (1 on the first; 0 is the start).
+*
+* @param {number} roll starting roll, degrees
+* @param {number} k
+* @return {{up: number, angle: number, alpha: number}}
+*/
+function potionAt(roll, k) {
+	const moved = Math.min(Math.max(k, 0), FALL_UPDATES);
+	const alpha = k < FADE_FROM ? Math.min(200, 20 * Math.max(k, 0)) : Math.max(0, 200 - 5 * (k - FADE_FROM + 1));
+	return {
+		up: 80 - 3 * moved,
+		angle: ((roll - 15 * moved) % 360 + 360) % 360,
+		alpha
+	};
+}
+/**
+* Trailing copy `copy` (1-3) after update `k`: the potion `copy` updates
+* before, fainter; null before it has anything to show.
+*
+* @param {number} roll
+* @param {number} copy 1 to 3
+* @param {number} k
+* @return {{up: number, angle: number, alpha: number}|null}
+*/
+function trailAt$2(roll, copy, k) {
+	if (k <= copy) return null;
+	const p = potionAt(roll, k - copy);
+	return Object.assign(p, { alpha: Math.max(0, p.alpha - 100 - 25 * (copy - 1)) });
+}
+var FALL_UPDATES, FADE_FROM, ITEM$2, SLIM_POTIONS;
+var init_SlimPotionSim = __esmMin((() => {
+	FALL_UPDATES = 24;
+	FADE_FROM = 33;
+	ITEM$2 = "À¯ÀúÀÎÅÍÆäÀÌ½º/item/";
+	SLIM_POTIONS = {
+		497: {
+			texture: ITEM$2 + "·¹µå½½¸²Æ÷¼Ç.bmp",
+			color: [
+				255,
+				135,
+				135
+			]
+		},
+		498: {
+			texture: ITEM$2 + "¿»·Î¿ì½½¸²Æ÷¼Ç.bmp",
+			color: [
+				255,
+				255,
+				135
+			]
+		},
+		499: {
+			texture: ITEM$2 + "È­ÀÌÆ®½½¸²Æ÷¼Ç.bmp",
+			color: [
+				255,
+				255,
+				255
+			]
+		}
+	};
+}));
+// src/DB/Effects/SlimPotionEffect.js
+/**
+* The 3D effect drawing the potion (copy 0) or trailing copy 1-3.
+*
+* @param {number} effectID 497-499
+* @param {number} roll starting roll, degrees
+* @param {number} copy
+* @return {object}
+*/
+function slimPotionPart(effectID, roll, copy) {
+	const potion = SLIM_POTIONS[effectID];
+	return {
+		type: "3D",
+		file: potion.texture,
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: 73 * PRIM_TICK_MS,
+		zIndex: 1,
+		red: potion.color[0] / 255,
+		green: potion.color[1] / 255,
+		blue: potion.color[2] / 255,
+		track(age) {
+			const k = Math.floor(age) + 1;
+			const p = copy ? trailAt$2(roll, copy, k) : potionAt(roll, k);
+			if (!p || p.alpha < 1) return null;
+			return {
+				x: 0,
+				y: 0,
+				z: p.up / 5,
+				size: 16 * SIZE_PER_UNIT$3,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+/**
+* EffectTable row for 497, 498 or 499. No sound of its own: the ground
+* packet's assulter_attack.wav plays at the caster (ef_slim_pitcher_sound).
+*
+* @param {number} effectID
+* @return {Array}
+*/
+function slimPotionRow(effectID) {
+	return [{
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const at = Params.Inst.position;
+			const roll = Math.floor(Math.random() * 360);
+			[
+				0,
+				1,
+				2,
+				3
+			].forEach((copy) => {
+				this.spamEffect({
+					effect: slimPotionPart(effectID, roll, copy),
+					Inst: {
+						effectID,
+						duplicateID: copy,
+						startTick: Params.Inst.startTick
+					},
+					Init: Object.assign({}, Params.Init, { position: [
+						at[0],
+						at[1],
+						at[2]
+					] })
+				});
+			});
+		}
+	}];
+}
+var SIZE_PER_UNIT$3, slimPitcherSound, slimPotionEffects;
+var init_SlimPotionEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_SlimPotionSim();
+	SIZE_PER_UNIT$3 = 7;
+	slimPitcherSound = [{
+		wav: "assulter_attack",
+		attachedEntity: true
+	}];
+	slimPotionEffects = {
+		497: slimPotionRow(497),
+		498: slimPotionRow(498),
+		499: slimPotionRow(499)
 	};
 }));
 // src/Renderer/Effects/AcidDemonRingSim.js
@@ -295665,6 +295839,7 @@ var init_EffectTable = __esmMin((() => {
 	init_WarlockSphere();
 	init_CastCone();
 	init_CastCircle();
+	init_SlimPotionEffect();
 	init_AcidDemonRing();
 	init_AcidDemonRingSim();
 	init_ThrowStoneEffect();
@@ -297367,6 +297542,24 @@ var init_EffectTable = __esmMin((() => {
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: "ring_white",
+			topSize: 5,
+			type: "CYLINDER",
+			wav: "effect/ef_beginspell"
+		}],
+		"58_cultivation": [{
+			alphaMax: .8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 40 * (1e3 / 60),
 			fade: true,
 			green: 1,
 			height: 4,
@@ -304671,6 +304864,10 @@ var init_EffectTable = __esmMin((() => {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 200, 496), Params);
 			}
 		}],
+		497: slimPotionEffects[497],
+		498: slimPotionEffects[498],
+		499: slimPotionEffects[499],
+		ef_slim_pitcher_sound: slimPitcherSound,
 		500: [{
 			type: "FUNC",
 			attachedEntity: true,
