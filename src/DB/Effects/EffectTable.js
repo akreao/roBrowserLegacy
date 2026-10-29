@@ -2418,6 +2418,29 @@ export default {
 		}
 	],
 
+	// 58 launched outside a cast (Plant Cultivation's ground packet, on the caster): the official client
+	// gives it its table lifetime, 40 ticks. See effect-port/creator-skills.md.
+	'58_cultivation': [
+		{
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 40 * (1000 / 60),
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_white',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
+
 	59: [
 		{
 			//EF_BEGINSPELL7	Cast Initiation Aura (Poison Element)
