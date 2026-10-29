@@ -750,7 +750,10 @@ SkillEffect[SK.CG_HERMODE] = { successEffectId: '517_music', groundEffectId: 517
 // priest_slowpoison.wav and 500 on the target (blue and white flicker with a glow copy).
 // See effect-port/clown-gypsy-skills.md.
 SkillEffect[SK.CG_TAROTCARD] = { successEffectId: ['ef_tarot_card_sound', 500], castAuraEffectId: 58 }; //Tarot Card of Fate
-SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
+// Official client (kRO 2025-07-16): 537 at the target's cell as each damage packet arrives, misses included
+// (EF_FireWall.wav, dark violet rings, quake); the hit flash (0) on every hit as it lands, 200 ms apart.
+// Nothing on the use packet. See effect-port/creator-skills.md.
+SkillEffect[SK.CR_ACIDDEMONSTRATION] = { damageEffectIdOnTarget: 537, hitEffectId: 0 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
 SkillEffect[SK.TK_MISSION] = { successEffectIdOnCaster: 'ef_tk_mission' }; //Taekwon Mission
