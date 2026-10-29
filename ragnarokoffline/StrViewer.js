@@ -279744,7 +279744,7 @@ var init_EffectManager = __esmMin((() => {
 				}, Params.Inst.startTick + (!isNaN(Params.effect.delayWav) ? Params.effect.delayWav : 0) - Renderer.tick);
 			}
 			Params.Inst.direction = Params.effect.attachedEntity && Params.Init.ownerEntity ? Params.Init.ownerEntity.direction : 0;
-			Params.Inst.duration = !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
+			Params.Inst.duration = typeof Params.effect.duration === "function" ? Params.effect.duration(Params) : !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
 			Params.Inst.delayOffsetDelta = !isNaN(Params.effect.delayOffsetDelta) ? Params.effect.delayOffsetDelta * Params.Inst.duplicateID : 0;
 			Params.Inst.delayLateDelta = !isNaN(Params.effect.delayLateDelta) ? Params.effect.delayLateDelta * Params.Inst.duplicateID : 0;
 			Params.Inst.delayOffset = !isNaN(Params.effect.delayOffset) ? Params.effect.delayOffset + Params.Inst.delayOffsetDelta : 0;
@@ -289146,8 +289146,8 @@ var init_SpiritSphere = __esmMin((() => {
 function skySunBursts(random = Math.random) {
 	const bursts = [];
 	for (let k = 0; k < 6; ++k) {
-		const x = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$3;
-		const y = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$3;
+		const x = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$4;
+		const y = (15 - Math.floor(random() * 30)) / UNITS_PER_CELL$4;
 		bursts.push({
 			x,
 			y,
@@ -289181,9 +289181,9 @@ function spawnSkySunBursts(Params) {
 		});
 	});
 }
-var UNITS_PER_CELL$3, SKY_SUN_BURST;
+var UNITS_PER_CELL$4, SKY_SUN_BURST;
 var init_SkySunEffect = __esmMin((() => {
-	UNITS_PER_CELL$3 = 5;
+	UNITS_PER_CELL$4 = 5;
 	SKY_SUN_BURST = {
 		type: "STR",
 		file: "sky_emperor/ske_sunset_blast/sunset_blast_small",
@@ -289358,6 +289358,48 @@ var init_ArrowShowerEffects = __esmMin((() => {
 		[0, 1],
 		[0, -1]
 	];
+}));
+// src/Renderer/Effects/ArrowFlight.js
+/**
+* Flight time of an arrow.
+*
+* @param {number} cells distance from start to end, in cells
+* @return {number} ms
+*/
+function arrowFlightMs(cells) {
+	const units = Math.max(cells, 0) * UNITS_PER_CELL$3;
+	return 192 * Math.min(1, units / MIN_SPEED_DISTANCE);
+}
+/**
+* Flight time between two positions ([x, y, z] in cells). At least 1 ms: the client drops a
+* zero-length arrow at once, and a zero duration would mean an endless effect here.
+*
+* @param {number[]} from
+* @param {number[]} to
+* @return {number} ms
+*/
+function arrowFlightBetween(from, to) {
+	if (!from || !to) return 192;
+	return Math.max(arrowFlightMs(Math.hypot(to[0] - from[0], to[1] - from[1], (to[2] || 0) - (from[2] || 0))), 1);
+}
+/**
+* When a player's bow attack releases its arrow, and when the hit lands.
+*
+* @param {number} hitFrame the attack motion's hit frame
+* @param {number} motionSpeed the attack motion's speed factor
+* @return {{ releaseMs: number, hitMs: number }} ms after the attack starts
+*/
+function bowAttackTiming(hitFrame, motionSpeed) {
+	const releaseMs = hitFrame * motionSpeed * 24;
+	return {
+		releaseMs,
+		hitMs: releaseMs + 192
+	};
+}
+var MIN_SPEED_DISTANCE, UNITS_PER_CELL$3;
+var init_ArrowFlight = __esmMin((() => {
+	MIN_SPEED_DISTANCE = 40;
+	UNITS_PER_CELL$3 = 5;
 }));
 // src/DB/Effects/ServantDemolitionEffect.js
 /**
@@ -295273,6 +295315,7 @@ var init_EffectTable = __esmMin((() => {
 	init_StormSlashEffect();
 	init_SandAttackEffect();
 	init_ArrowShowerEffects();
+	init_ArrowFlight();
 	init_ServantDemolitionEffect();
 	init_HastyFireInTheHoleEffect();
 	init_WarlockSphere();
@@ -312723,7 +312766,7 @@ var init_EffectTable = __esmMin((() => {
 			alphaMax: 1,
 			angle: 180,
 			attachedEntity: true,
-			duration: 140,
+			duration: (Params) => arrowFlightBetween(Params.Inst.otherPosition, Params.Inst.position),
 			fadeIn: true,
 			fadeOut: true,
 			absoluteSpriteName: "data/sprite/npc/skel_archer_arrow",
@@ -363612,13 +363655,14 @@ function onEntityAction(pkt) {
 				delayTime = m_attackMotion * m_motionSpeed * 24;
 				animSpeed = pkt.attackMT / m_attackMotion;
 				if (DB.isBow(DB.getWeaponType(srcEntity.weapon, true))) {
-					delayTime = (m_attackMotion + 8 / m_motionSpeed) * m_motionSpeed * 24;
-					pkt.attackMT += delayTime;
+					const bow = bowAttackTiming(m_attackMotion, m_motionSpeed);
+					delayTime = bow.hitMs;
+					pkt.attackMT = bow.hitMs;
 					const EF_Init_Par = {
 						effectId: "ef_arrow_projectile",
 						ownerAID: dstEntity.GID,
 						otherAID: srcEntity.GID,
-						startTick: Renderer.tick + pkt.attackMT,
+						startTick: Renderer.tick + bow.releaseMs,
 						otherPosition: srcEntity.position
 					};
 					EffectManager.spam(EF_Init_Par);
@@ -365255,6 +365299,7 @@ var init_Entity = __esmMin((() => {
 	init_Footprints();
 	init_StatusEffects();
 	init_FalconFlight();
+	init_ArrowFlight();
 	SkillNameDisplayExclude = [
 		SkillConst_default.TF_HIDING,
 		SkillConst_default.AS_CLOAKING,
