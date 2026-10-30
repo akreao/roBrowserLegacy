@@ -26690,6 +26690,34 @@ export default {
 		}
 	],
 
+	// Kunai Explosion (KO_BAKURETSU): the skilleffectinfo row's sound, on the caster when the use packet
+	// has the result set. The client also throws a kunai (983, CThrowItemEffect) at the target; not ported.
+	// See effect-port/kagerou-oboro-skills.md.
+	ef_ko_bakuretsu_sound: [
+		{
+			wav: 'effect/\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2', // 닌자_던지기
+			attachedEntity: true
+		}
+	],
+
+	// Kunai Explosion (KO_BAKURETSU): the skilleffectinfo row plays 폭염룡.wav and launches 990 on the
+	// target as each damage packet arrives. 990 is a CSpriteEffect: m_ef03 at 1.5 times its size, read as
+	// 4 ticks a frame.
+	ef_ko_ground_explosion: [
+		{
+			//EF_GROUND_EXPLOSION (990)
+			type: 'SPR',
+			file: 'm_ef03',
+			scale: 1.5,
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own burst
+			stackable: true,
+			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{

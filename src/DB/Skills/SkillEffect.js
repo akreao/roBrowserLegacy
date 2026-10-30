@@ -1331,7 +1331,10 @@ SkillEffect[SK.KO_JYUMONJIKIRI] = {
 	damageEffectIdOnTarget: 'ef_ko_jyumonjikiri'
 }; //Cross Slash: the red cross on the marked target comes from the KO_JYUMONJIKIRI status
 SkillEffect[SK.KO_SETSUDAN] = { damageEffectIdOnTarget: 'ef_ko_setsudan' }; //Soul Cutter
-SkillEffect[SK.KO_BAKURETSU] = {}; //Kunai Explosion
+SkillEffect[SK.KO_BAKURETSU] = {
+	successEffectIdOnCaster: 'ef_ko_bakuretsu_sound',
+	damageEffectIdOnTarget: 'ef_ko_ground_explosion'
+}; //Kunai Explosion: the thrown kunai (983) is not ported
 SkillEffect[SK.KO_HAPPOKUNAI] = {}; //Kunai Splash
 SkillEffect[SK.KO_MUCHANAGE] = {}; //Rapid Throw
 SkillEffect[SK.KO_HUUMARANKA] = {}; //Swirling Petal
