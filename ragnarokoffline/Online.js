@@ -225814,12 +225814,13 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SP_SOULDIVISION] = {
 		castAuraEffectId: 454,
-		damageEffectIdOnTarget: "ef_sp_souldivision_sound"
+		damageEffectIdOnTarget: ["ef_sp_souldivision_sound", 1209]
 	};
 	SkillEffect[SkillConst_default.SP_SOULREAPER] = {
 		castAuraEffectId: 441,
 		successEffectIdOnCaster: "ef_sp_soulreaper"
 	};
+	SkillEffect[SkillConst_default.SP_SOULCOLLECT] = { successEffectIdOnCaster: 1209 };
 	SkillEffect[SkillConst_default.SP_SOULEXPLOSION] = {
 		castAuraEffectId: 454,
 		damageEffectIdOnTarget: ["ef_sp_soulexplosion", 1208]
@@ -292577,6 +292578,61 @@ var init_ServantDemolitionEffect = __esmMin((() => {
 	TICK_MS$1 = 1e3 / 60;
 	FOLDER = "dragon_knight/dk_servant_w_demol/";
 }));
+// src/Renderer/Effects/BlinkBody.js
+/**
+* Colour multiplier of the actor on a tick of the effect.
+*
+* @param {number} frame tick since the effect started
+* @return {Array} [r, g, b] out of 1
+*/
+function blinkBodyColor(frame) {
+	if (frame <= BLINK.last) {
+		const c = frame % 2 ? BLINK.odd : BLINK.even;
+		return [
+			c[0] / 255,
+			c[1] / 255,
+			c[2] / 255
+		];
+	}
+	const back = (frame - BLINK.last) * BLINK.recoverStep;
+	return (BLINK.last % 2 ? BLINK.odd : BLINK.even).map((v) => Math.min(1, (v + back) / 255));
+}
+/**
+* Run the blink on an entity, through its flash colour.
+*
+* @param {Entity} entity
+*/
+function startBlinkBody(entity) {
+	if (!entity || !entity.animations || !entity._flashColor) return;
+	entity.animations.add((tick) => {
+		const frame = Math.floor(tick / PRIM_TICK_MS);
+		const [r, g, b] = blinkBodyColor(frame);
+		entity._flashColor[0] = r;
+		entity._flashColor[1] = g;
+		entity._flashColor[2] = b;
+		entity._flashColor[3] = 1;
+		entity.recalculateBlendingColor();
+		return frame > BLINK.last && r >= 1 && g >= 1 && b >= 1;
+	});
+}
+var BLINK;
+var init_BlinkBody = __esmMin((() => {
+	init_EffectPrimSim();
+	BLINK = {
+		last: 60,
+		even: [
+			155,
+			155,
+			255
+		],
+		odd: [
+			50,
+			50,
+			50
+		],
+		recoverStep: 8
+	};
+}));
 // src/Renderer/Effects/WarlockSphere.vs?raw
 var WarlockSphere_default$1;
 var init_WarlockSphere$2 = __esmMin((() => {
@@ -300157,6 +300213,7 @@ var init_EffectTable = __esmMin((() => {
 	init_ArrowShowerEffects();
 	init_ArrowFlight();
 	init_ServantDemolitionEffect();
+	init_BlinkBody();
 	init_HastyFireInTheHoleEffect();
 	init_WarlockSphere();
 	init_CastCone();
@@ -314502,6 +314559,13 @@ var init_EffectTable = __esmMin((() => {
 		1204: smaBlackEffect,
 		1207: energyDrainEffect(1207),
 		1208: energyDrainEffect(1208),
+		1209: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: (Params) => {
+				startBlinkBody(Params.Init.ownerEntity);
+			}
+		}],
 		1210: [{
 			type: "FUNC",
 			attachedEntity: true,
