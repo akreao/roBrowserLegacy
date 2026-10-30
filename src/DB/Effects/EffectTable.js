@@ -23105,10 +23105,15 @@ export default {
 		}
 	],
 
+	// Shatter Storm (RL_S_STORM): official effect 1078 (RL_STORM\S_STORM.str) with the skilleffectinfo
+	// row's RL_S_STORM.wav, on the target as each damage packet arrives. data.grf has no S_STORM.str at
+	// the effect root. See effect-port/rebellion-skills.md.
 	ef_s_storm: [
 		{
+			//EF_S_STORM (1078)
 			type: 'STR',
-			file: 'S_STORM',
+			file: 'rl_storm/s_storm',
+			texturePath: 'rl_storm/',
 			wav: 'effect/RL_S_STORM',
 			attachedEntity: true
 		}
