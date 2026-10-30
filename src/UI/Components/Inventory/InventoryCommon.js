@@ -978,8 +978,10 @@ export function createInventory(config) {
 				}
 				break;
 			case ItemType.HEALING:
-			case ItemType.CASH:
 				Component.onUseItem(item.index);
+				break;
+			case ItemType.CASH:
+				confirmOpenCashItem(item);
 				break;
 			case ItemType.CARD:
 				Component.onUseCard(item.index);
@@ -1432,11 +1434,7 @@ export function createInventory(config) {
 		const item = Component.getItemByIndex(index);
 
 		if (item) {
-			if (item.type === ItemType.CASH) {
-				confirmOpenCashItem(item);
-			} else {
-				Component.useItem(item);
-			}
+			Component.useItem(item);
 			onItemOut();
 		}
 
@@ -1445,19 +1443,26 @@ export function createInventory(config) {
 	}
 
 	/**
-	 * The official client asks before opening a cash shop item (type 18) from
-	 * the inventory (msgstringtable 1226: once opened its contents can only go
-	 * to the Kafra storage), and uses it on Yes.
+	 * The official client asks before opening a cash shop item (type 18), from
+	 * the inventory and from the shortcut bars alike (msgstringtable 1226: once
+	 * opened its contents can only go to the Kafra storage), and uses it on Yes.
+	 * The item may have left the inventory while the box was open, and its
+	 * index gone to another item, so Yes uses it only if it is still there.
 	 *
 	 * @param {object} item
 	 */
 	function confirmOpenCashItem(item) {
 		const text = DB.getMessage(
 			1226,
-			'Do you want to open ^990099%s^000000? Once opened, the contents cannot be moved to other locations aside from the Kafra Storage. The item effect isn\'t doubled, even if the same items are used more than once.'
+			"Do you want to open ^990099%s^000000? Once opened, the contents cannot be moved to other locations aside from the Kafra Storage. The item effect isn't doubled, even if the same items are used more than once."
 		).replace('%s', htmlToText(DB.getItemName(item)));
 
-		UIManager.showPromptBox(text, 'ok', 'cancel', () => Component.useItem(item));
+		UIManager.showPromptBox(text, 'ok', 'cancel', () => {
+			const current = Component.getItemByIndex(item.index);
+			if (current && current.ITID === item.ITID) {
+				Component.onUseItem(current.index);
+			}
+		});
 	}
 
 	/**

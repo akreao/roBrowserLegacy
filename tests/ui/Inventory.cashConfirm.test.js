@@ -70,8 +70,8 @@ function mount(type = 0) {
 	Component.getRoot().innerHTML = htmlText;
 	Component.init();
 	Component.onAppend();
-	Component.getItemByIndex = index => (index === 7 ? { index: 7, ITID: 501, type, count: 1 } : null);
-	Component.useItem = vi.fn();
+	Component.list = [{ index: 7, ITID: 501, type, count: 1 }];
+	Component.onUseItem = vi.fn();
 	const item = document.createElement('div');
 	item.className = 'item';
 	item.setAttribute('data-index', '7');
@@ -81,25 +81,42 @@ function mount(type = 0) {
 
 const dblclick = (el, init = {}) => el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, ...init }));
 
-describe('inventory, double-clicking a cash shop item', () => {
+describe('using a cash shop item', () => {
 	beforeEach(() => {
 		localStorage.clear();
 		prompt.calls.length = 0;
 	});
 	afterEach(() => localStorage.clear());
 
-	it('asks first, naming the item, and uses it on Yes', () => {
+	it('asks first on a double-click, naming the item, and uses it on Yes', () => {
 		const { Component, item } = mount(18);
 		dblclick(item);
 
-		expect(Component.useItem).not.toHaveBeenCalled();
+		expect(Component.onUseItem).not.toHaveBeenCalled();
 		expect(prompt.calls).toHaveLength(1);
 		const [text, yes, no, onYes] = prompt.calls[0];
 		expect(text).toContain('^990099Bubble Gum Box^000000');
 		expect([yes, no]).toEqual(['ok', 'cancel']);
 
 		onYes();
-		expect(Component.useItem).toHaveBeenCalledTimes(1);
+		expect(Component.onUseItem).toHaveBeenCalledWith(7);
+	});
+
+	it('asks too when used from a shortcut bar', () => {
+		const { Component } = mount(18);
+		Component.useItem(Component.list[0]);
+
+		expect(prompt.calls).toHaveLength(1);
+		expect(Component.onUseItem).not.toHaveBeenCalled();
+	});
+
+	it('does nothing on Yes once the item has left the inventory', () => {
+		const { Component, item } = mount(18);
+		dblclick(item);
+		Component.list = [{ index: 7, ITID: 607, type: 0, count: 1 }]; // another item took its index
+
+		prompt.calls[0][3]();
+		expect(Component.onUseItem).not.toHaveBeenCalled();
 	});
 
 	it('uses any other item straight away', () => {
@@ -107,6 +124,6 @@ describe('inventory, double-clicking a cash shop item', () => {
 		dblclick(item);
 
 		expect(prompt.calls).toHaveLength(0);
-		expect(Component.useItem).toHaveBeenCalledTimes(1);
+		expect(Component.onUseItem).toHaveBeenCalledWith(7);
 	});
 });
