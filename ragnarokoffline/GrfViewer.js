@@ -149816,6 +149816,11 @@ var init_StatusEffectTable = __esmMin((() => {
 		},
 		[StatusConst_default.SV_ROOTTWIST]: { loop: ["ef_su_roottwist"] },
 		[StatusConst_default.ASSUMPTIO]: { loop: [375] },
+		[StatusConst_default.FLASHKICK]: {
+			restart: ["ef_sj_flashkick"],
+			stop: ["ef_sj_flashkick"]
+		},
+		[StatusConst_default.SOULCURSE]: { loop: ["ef_sp_soulcurse_mark"] },
 		[StatusConst_default.H_MINE]: { loop: [1139] },
 		[StatusConst_default.ANTI_M_BLAST]: { loop: [1136] },
 		[StatusConst_default.E_QD_SHOT_READY]: {
@@ -225873,18 +225878,91 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GD_EMERGENCYCALL] = {};
 	SkillEffect[SkillConst_default.GD_ITEMEMERGENCYCALL] = {};
 	SkillEffect[SkillConst_default.SJ_FULLMOONKICK] = { successEffectIdOnCaster: [399, "ef_sj_fullmoonkick"] };
-	SkillEffect[SkillConst_default.SJ_NEWMOONKICK] = { effectId: "ef_sj_newmoonkick" };
-	SkillEffect[SkillConst_default.SJ_FLASHKICK] = { effectId: "ef_sj_flashkick" };
-	SkillEffect[SkillConst_default.SJ_FALLINGSTAR] = { effectId: "ef_sj_fallingstar" };
-	SkillEffect[SkillConst_default.SJ_DOCUMENT] = { effectId: "ef_sj_document" };
-	SkillEffect[SkillConst_default.SJ_SOLARBURST] = { effectId: "ef_sj_solarburst" };
+	SkillEffect[SkillConst_default.SJ_NEWMOONKICK] = { successEffectIdOnCaster: "ef_sj_newmoonkick" };
+	SkillEffect[SkillConst_default.SJ_FLASHKICK] = {};
+	SkillEffect[SkillConst_default.SJ_FALLINGSTAR] = {};
+	SkillEffect[SkillConst_default.SJ_DOCUMENT] = { successEffectIdOnCaster: "ef_sj_document" };
+	SkillEffect[SkillConst_default.SJ_SOLARBURST] = { successEffectIdOnCaster: "ef_sj_solarburst" };
 	SkillEffect[SkillConst_default.SJ_PROMINENCEKICK] = { effectId: "ef_sj_prominencekick" };
-	SkillEffect[SkillConst_default.SP_SOULGOLEM] = { effectId: "ef_sp_soulgolem" };
-	SkillEffect[SkillConst_default.SP_SOULCURSE] = { effectId: "ef_sp_soulcurse" };
-	SkillEffect[SkillConst_default.SP_SOULREVOLVE] = { effectId: "ef_sp_soulrevolve" };
+	SkillEffect[SkillConst_default.SP_SOULGOLEM] = {
+		castAuraEffectId: 441,
+		successEffectId: [
+			503,
+			424,
+			"ef_sp_soulgolem"
+		]
+	};
+	SkillEffect[SkillConst_default.SP_SOULCURSE] = {
+		castAuraEffectId: 454,
+		successEffectId: "ef_sp_soulcurse"
+	};
+	SkillEffect[SkillConst_default.SP_SOULREVOLVE] = {
+		castAuraEffectId: 441,
+		successEffectId: "ef_sp_soulrevolve"
+	};
 	SkillEffect[SkillConst_default.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
 	SkillEffect[SkillConst_default.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
 	SkillEffect[SkillConst_default.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
+	SkillEffect[SkillConst_default.SJ_FALLINGSTAR_ATK] = { damageEffectIdOnTarget: "ef_sj_fallingstar" };
+	SkillEffect[SkillConst_default.SJ_BOOKOFDIMENSION] = { successEffectIdOnCaster: "ef_sj_bookofdimension" };
+	SkillEffect[SkillConst_default.SP_SOULSHADOW] = {
+		castAuraEffectId: 441,
+		successEffectId: [
+			503,
+			424,
+			"ef_sp_soulshadow"
+		]
+	};
+	SkillEffect[SkillConst_default.SP_SOULFALCON] = {
+		castAuraEffectId: 441,
+		successEffectId: [
+			503,
+			424,
+			"ef_sp_soulfalcon"
+		]
+	};
+	SkillEffect[SkillConst_default.SP_SOULFAIRY] = {
+		castAuraEffectId: 441,
+		successEffectId: [
+			503,
+			424,
+			"ef_sp_soulfairy"
+		]
+	};
+	SkillEffect[SkillConst_default.SP_CURSEEXPLOSION] = {
+		castAuraEffectId: 454,
+		damageEffectIdOnTarget: "ef_sp_curseexplosion"
+	};
+	SkillEffect[SkillConst_default.SP_SPA] = {
+		castAuraEffectId: 454,
+		successEffectIdOnCaster: "ef_sp_spa_sound"
+	};
+	SkillEffect[SkillConst_default.SP_SHA] = {
+		castAuraEffectId: 454,
+		successEffectIdOnCaster: 547
+	};
+	SkillEffect[SkillConst_default.SP_SOULUNITY] = {
+		castAuraEffectId: 441,
+		successEffectId: 407
+	};
+	SkillEffect[SkillConst_default.SP_SOULDIVISION] = {
+		castAuraEffectId: 454,
+		damageEffectIdOnTarget: "ef_sp_souldivision_sound"
+	};
+	SkillEffect[SkillConst_default.SP_SOULREAPER] = {
+		castAuraEffectId: 441,
+		successEffectIdOnCaster: "ef_sp_soulreaper"
+	};
+	SkillEffect[SkillConst_default.SP_SOULEXPLOSION] = {
+		castAuraEffectId: 454,
+		damageEffectIdOnTarget: "ef_sp_soulexplosion"
+	};
+	SkillEffect[SkillConst_default.SP_KAUTE] = { successEffectId: "ef_sp_kaute_sound" };
+	SkillEffect[SkillConst_default.SJ_STAREMPEROR] = { castAuraEffectId: 58 };
+	SkillEffect[SkillConst_default.SJ_NOVAEXPLOSING] = { castAuraEffectId: 58 };
+	SkillEffect[SkillConst_default.SJ_GRAVITYCONTROL] = { castAuraEffectId: 58 };
+	SkillEffect[SkillConst_default.SJ_BOOKOFCREATINGSTAR] = { castAuraEffectId: 58 };
+	SkillEffect[SkillConst_default.SP_SWHOO] = { castAuraEffectId: 454 };
 	SkillEffect[SkillConst_default.NV_HELPANGEL] = { successEffectIdOnCaster: "ef_nv_helpangel" };
 	SkillEffect[SkillConst_default.DR_WEREWOLF] = { effectId: "ef_druid_werewolf" };
 	SkillEffect[SkillConst_default.DR_WERERAPTOR] = { effectId: "ef_druid_wereraptor" };
@@ -226362,19 +226440,6 @@ var init_SkillMotionEffect = __esmMin((() => {
 		[2560, 2562],
 		[2564, 2564],
 		[2566, 2570],
-		[2574, 2574],
-		[2576, 2577],
-		[2579, 2579],
-		[2582, 2582],
-		[2586, 2586],
-		[2588, 2588],
-		[2590, 2590],
-		[2592, 2592],
-		[2594, 2594],
-		[2600, 2600],
-		[2602, 2603],
-		[2606, 2607],
-		[2609, 2610],
 		[3031, 3034],
 		[5002, 5002],
 		[5050, 5051],
@@ -316237,27 +316302,35 @@ var init_EffectTable = __esmMin((() => {
 		ef_sj_newmoonkick: [{
 			type: "STR",
 			file: "newmoon_kick/newmoon_kick",
-			texturePath: "newmoon_kick/"
+			texturePath: "newmoon_kick/",
+			attachedEntity: true
 		}],
 		ef_sj_flashkick: [{
 			type: "STR",
 			file: "flash_kick/flash_kick",
-			texturePath: "flash_kick/"
+			texturePath: "flash_kick/",
+			repeat: true,
+			attachedEntity: true
 		}],
 		ef_sj_fallingstar: [{
 			type: "STR",
 			file: "falling_star/falling_star",
-			texturePath: "falling_star/"
+			texturePath: "falling_star/",
+			wav: "effect/wizard_sightrasher",
+			attachedEntity: true
 		}],
 		ef_sj_document: [{
 			type: "STR",
 			file: "sj_document/sj_document",
-			texturePath: "sj_document/"
+			texturePath: "sj_document/",
+			attachedEntity: true
 		}],
 		ef_sj_solarburst: [{
 			type: "STR",
 			file: "solar_burst/solar_burst",
-			texturePath: "solar_burst/"
+			texturePath: "solar_burst/",
+			wav: "effect/gµ¥¸ð´ÐÈ­ÀÌ¾î",
+			attachedEntity: true
 		}],
 		ef_sj_prominencekick: [{
 			type: "STR",
@@ -316267,20 +316340,98 @@ var init_EffectTable = __esmMin((() => {
 		ef_sp_soulgolem: [{
 			type: "STR",
 			file: "soul_golem/soul_golem",
-			texturePath: "soul_golem/"
+			texturePath: "soul_golem/",
+			attachedEntity: true
 		}],
 		ef_sp_soulcurse: [{
 			type: "STR",
 			file: "soul_curse/soul_curse",
-			texturePath: "soul_curse/"
+			texturePath: "soul_curse/",
+			attachedEntity: true
 		}],
 		ef_sp_soulrevolve: [{
 			type: "STR",
 			file: "soul_revolve/soul_revolve",
-			texturePath: "soul_revolve/"
+			texturePath: "soul_revolve/",
+			wav: "effect/t_¹æ¾îÇü",
+			attachedEntity: true
 		}],
 		ef_sj_lightof_sound: [{
 			wav: "effect/t_ÇÇ¸µ",
+			attachedEntity: true
+		}],
+		ef_sj_bookofdimension: [{
+			type: "SPR",
+			file: "book_of_dimension/book_of_dimension",
+			delayFrame: 67,
+			stackable: true,
+			wav: "effect/so_elemental_shield",
+			attachedEntity: true
+		}],
+		ef_sp_soulshadow: [{
+			type: "SPR",
+			file: "soul_shadow/soul_shadow",
+			delayFrame: 67,
+			stackable: true,
+			attachedEntity: true
+		}],
+		ef_sp_soulfalcon: [{
+			type: "SPR",
+			file: "soul_falcon/soul_falcon",
+			delayFrame: 67,
+			stackable: true,
+			attachedEntity: true
+		}],
+		ef_sp_soulfairy: [{
+			type: "SPR",
+			file: "soul_fairy/soul_fairy",
+			delayFrame: 67,
+			stackable: true,
+			attachedEntity: true
+		}],
+		ef_sp_curseexplosion: [{
+			type: "SPR",
+			file: "curse_explosion/curse_explosion",
+			delayFrame: 67,
+			stackable: true,
+			attachedEntity: true
+		}],
+		ef_sp_soulcurse_mark: [{
+			type: "STR",
+			file: "efst_qscaraba/qscaraba",
+			texturePath: "efst_qscaraba/",
+			repeat: true,
+			attachedEntity: true
+		}, {
+			wav: "effect/sÆ÷ÀÌÁð¹ö½ºÅÍ",
+			attachedEntity: true
+		}],
+		ef_sp_spa_sound: [{
+			wav: "effect/t_¿¡³ÊÁö¹æÃâ",
+			attachedEntity: true
+		}],
+		ef_sp_souldivision_sound: [{
+			wav: "effect/t_Ä¡À×",
+			attachedEntity: true
+		}],
+		ef_sp_soulreaper: [{
+			type: "SPR",
+			file: "soul_reaper/soul_reaper",
+			delayFrame: 67,
+			stackable: true,
+			wav: "effect/ef_signum",
+			attachedEntity: true
+		}],
+		ef_sp_soulexplosion: [{
+			type: "SPR",
+			file: "soul_explosion/soul_explosion",
+			delayFrame: 67,
+			stackable: true,
+			wav: "effect/hunter_landmine",
+			attachedEntity: true
+		}],
+		ef_sp_kaute_sound: [{
+			wav: "effect/Èí±â",
 			attachedEntity: true
 		}],
 		ef_ko_jyumonjikiri: [{
