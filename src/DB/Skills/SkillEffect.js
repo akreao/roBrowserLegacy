@@ -2220,6 +2220,7 @@ SkillEffect[SK.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: 'ef_sj_lightof_sound
 SkillEffect[SK.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Stars
 SkillEffect[SK.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Sun
 SkillEffect[SK.SJ_FALLINGSTAR_ATK] = { damageEffectIdOnTarget: 'ef_sj_fallingstar' }; //Falling Star attack
+SkillEffect[SK.SJ_BOOKOFDIMENSION] = { successEffectIdOnCaster: 'ef_sj_bookofdimension' }; //Book of Dimension
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)
