@@ -75,6 +75,6 @@ describe('splash hits', () => {
 		expect(entity).toContain(
 			'const targetHitEffects = !srcEntity || srcEntity.skillUnitId != null || hitHasEffects(pkt.SKID, pkt.action);'
 		);
-		expect(entity).toContain('EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i, !targetHitEffects);');
+		expect(entity).toMatch(/EffectManager\.spamSkillHit\(\s*pkt\.SKID,\s*pkt\.targetID,\s*startTick,\s*pkt\.AID,\s*i,\s*!targetHitEffects,/);
 	});
 });
