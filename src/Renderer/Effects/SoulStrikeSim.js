@@ -65,23 +65,25 @@ export function planSouls(hits) {
  * @param {Array} dir unit direction to the target on the map, [x, y]
  * @param {number} distance to the target, units
  * @param {number} n updates (1..life)
+ * @param {object} [kind] the flight's numbers: SOUL, or another effect's with the same keys
+ *   (life, back, bow, up; the speed covers the distance `speedTimes` times, default 1)
  * @return {object} { x, y, up }
  */
-export function soulAt(soul, dir, distance, n) {
-	const speed = distance / SOUL.life;
-	const backStep = (2 * SOUL.back) / SOUL.life;
-	const bowStep = (-2 * SOUL.bow) / SOUL.life;
+export function soulAt(soul, dir, distance, n, kind = SOUL) {
+	const speed = ((kind.speedTimes || 1) * distance) / kind.life;
+	const backStep = (2 * kind.back) / kind.life;
+	const bowStep = (-2 * kind.bow) / kind.life;
 	// along the line: the speed, less a back-off that falls each tick
-	const along = n * speed - (SOUL.back * n - (backStep * n * (n + 1)) / 2);
+	const along = n * speed - (kind.back * n - (backStep * n * (n + 1)) / 2);
 	// across it: the sum of a step that rises each tick
-	const across = SOUL.bow * n + (bowStep * n * (n - 1)) / 2;
+	const across = kind.bow * n + (bowStep * n * (n - 1)) / 2;
 	const a = (soul.bow * Math.PI) / 180;
 	// The bow turns around the line: 0 is up (the client's y runs down), 90 to the side.
 	const side = across * Math.sin(a);
 	return {
 		x: dir[0] * along + dir[1] * side,
 		y: dir[1] * along - dir[0] * side,
-		up: SOUL.up - across * Math.cos(a)
+		up: kind.up - across * Math.cos(a)
 	};
 }
 
