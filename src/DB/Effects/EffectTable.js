@@ -26683,6 +26683,22 @@ export default {
 		}
 	],
 
+	// Soul Reaper (SP_SOULREAPER): official effect 1234 and ef_signum.wav, on the caster when the use packet
+	// has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_soulreaper: [
+		{
+			//EF_SOUL_REAPER (1234): CSpriteEffect, 이팩트\soul_reaper\soul_reaper.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'soul_reaper/soul_reaper',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
+			wav: 'effect/ef_signum', // ef_signum
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
