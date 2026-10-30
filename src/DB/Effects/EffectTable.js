@@ -50,6 +50,7 @@ import { smaBlackEffect } from 'DB/Effects/SmaBlackEffect.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
+import { energyDrainEffect } from 'DB/Effects/EnergyDrainEffect.js';
 import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
 import { arrowFlightBetween } from 'Renderer/Effects/ArrowFlight.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
@@ -19135,6 +19136,10 @@ export default {
 
 	1204: smaBlackEffect,
 
+	1207: energyDrainEffect(1207),
+
+	1208: energyDrainEffect(1208),
+
 	1225: [
 		{
 			// Soul energy orbs (Soul Reaper, Soul Ascetic), one per soul from ZC_SOULENERGY, newest five shown
@@ -26671,7 +26676,7 @@ export default {
 	],
 
 	// Soul Explosion (SP_SOULEXPLOSION): official effect 1242 and hunter_landmine.wav, on the target as each
-	// damage packet arrives (skilleffectinfo; its 1208, EF_ENERGYDRAIN_BLACK, is not ported). See
+	// damage packet arrives (skilleffectinfo; its 1208, EF_ENERGYDRAIN_BLACK, is EnergyDrainEffect.js). See
 	// effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_soulexplosion: [
 		{
@@ -26687,8 +26692,8 @@ export default {
 		}
 	],
 
-	// Kaute (SP_KAUTE): the use case's sound, at the target when the use packet has the result set (its 1207
-	// on the target and 1208 on the caster are not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	// Kaute (SP_KAUTE): the use case's sound, at the target when the use packet has the result set (with 1207
+	// on the target and 1208 on the caster, EnergyDrainEffect.js). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_kaute_sound: [
 		{
 			wav: 'effect/\xc8\xed\xb1\xe2', // 흡기
