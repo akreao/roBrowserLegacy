@@ -21,6 +21,7 @@ import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
+import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import CloseConfineEffect from 'DB/Effects/CloseConfineEffect.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
@@ -28842,6 +28843,9 @@ export default {
 
 	// Soul Linker / Star Gladiator body looks (Kaite 419, Soul Link 424, Comfort 488, 542, 543): SoulBodyEffects.js.
 	...SoulBodyEffects,
+
+	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
+	...StarEmperorStatusEffects,
 
 	// Close Confine on its target (quake, red flicker): CloseConfineEffect.js.
 	...CloseConfineEffect

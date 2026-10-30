@@ -41,8 +41,10 @@ import {
 	reflectRipples,
 	LINK_COLOR,
 	LINK_SCALES,
-	REFLECT_BODY_ALPHA
+	REFLECT_BODY_ALPHA,
+	liftOf
 } from 'Renderer/Effects/BodyMotionSim.js';
+import { UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
 /**
@@ -432,6 +434,10 @@ const renderEntity = (function renderEntityClosure() {
 		}
 
 		SpriteRenderer.position.set(self.position);
+		// Lifted off the ground (Gravity Control, BodyMotion.js); the shadow above stays down.
+		if (this._bodyMotions && this._bodyMotions.size) {
+			SpriteRenderer.position[2] += liftOf(marksOf(this)) / UNITS_PER_CELL;
+		}
 		// Render attachments that should appear behind the entity first
 		this.attachments.renderBefore(Date.now());
 		SpriteRenderer.zIndex = 1;

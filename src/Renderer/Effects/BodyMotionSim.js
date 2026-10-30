@@ -135,8 +135,31 @@ export const SCHEDULES = {
 	// EF_HATED (Kaahi, Kaizel, Comfort, Hatred): blue glow while age < 200.
 	// The counter climbs with the age to 25, holds there (alpha 130), counts
 	// down from 24 to 0 on ticks 151-175 and stays 0.
-	543: age => (age < 200 ? { ready: hatedCounter(age) } : null)
+	543: age => (age < 200 ? { ready: hatedCounter(age) } : null),
+	// CGravityControlEffect (Gravity Control, on the target): the body rises
+	// 0.5 units a tick to 20 units above the ground and stays there.
+	1201: age => ({ lift: Math.min(0.5 * (age + 1), GRAVITY_LIFT_MAX) })
 };
+
+/** Highest Gravity Control lifts a body, in the client's units. */
+export const GRAVITY_LIFT_MAX = 20;
+
+/**
+ * How far above the ground the owner's marks lift its body this tick, in the
+ * client's units (5 to a cell).
+ *
+ * @param {object[]} marks
+ * @return {number}
+ */
+export function liftOf(marks) {
+	let lift = 0;
+	for (let i = 0; i < marks.length; i++) {
+		if (marks[i].lift !== undefined) {
+			lift = Math.max(lift, marks[i].lift);
+		}
+	}
+	return lift;
+}
 
 /**
  * EF_HATED's glow counter on tick `age`.
