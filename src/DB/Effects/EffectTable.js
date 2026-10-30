@@ -26540,12 +26540,15 @@ export default {
 		}
 	],
 
-	// Soul Curse (SP_SOULCURSE), from the client's own effect folders.
+	// Soul Curse (SP_SOULCURSE): official effect 1238 (CEZ2STREffect), spawned on the target by the use case
+	// (result set). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_soulcurse: [
 		{
+			//EF_SOUL_CURSE (1238)
 			type: 'STR',
 			file: 'soul_curse/soul_curse',
-			texturePath: 'soul_curse/'
+			texturePath: 'soul_curse/',
+			attachedEntity: true
 		}
 	],
 
@@ -26640,6 +26643,24 @@ export default {
 			// the client's sprite effects are separate objects: a second packet on the same actor
 			// starts its own copy
 			stackable: true,
+			attachedEntity: true
+		}
+	],
+
+	// Soul Curse status (EFST_SOULCURSE 1125): official effect 1362 (CEZ2STREffect, in its "stays" list),
+	// spawned with s포이즌버스터.wav when the status starts and removed when it ends. See
+	// effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_soulcurse_mark: [
+		{
+			//1362
+			type: 'STR',
+			file: 'efst_qscaraba/qscaraba',
+			texturePath: 'efst_qscaraba/',
+			repeat: true,
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/s\xc6\xf7\xc0\xcc\xc1\xf0\xb9\xf6\xbd\xba\xc5\xcd', // s포이즌버스터
 			attachedEntity: true
 		}
 	],

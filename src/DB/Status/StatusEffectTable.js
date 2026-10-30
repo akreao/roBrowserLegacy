@@ -370,6 +370,13 @@ export default {
 		stop: ['ef_sj_flashkick']
 	},
 
+	// Soul Curse (SP_SOULCURSE): the official client spawns 1362 and plays s포이즌버스터.wav when the status
+	// starts (if the actor has no 1362 yet) and removes 1362 when it ends.
+	// See effect-port/star-emperor-soul-reaper-skills.md.
+	[StatusConst.SOULCURSE]: {
+		loop: ['ef_sp_soulcurse_mark']
+	},
+
 	// Howling Mine (RL_H_MINE): the official client keeps 1139 on the actor while the status is on.
 	// See effect-port/rebellion-skills.md.
 	[StatusConst.H_MINE]: {
