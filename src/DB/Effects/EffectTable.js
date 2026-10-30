@@ -26704,6 +26704,19 @@ export default {
 		}
 	],
 
+	// Ominous Moonlight (OB_AKAITSUKI): the skilleffectinfo row plays t_에너지방출.wav and launches 1009 (불길한붉은달빛.str) on the
+	// target as each damage packet arrives. See effect-port/kagerou-oboro-skills.md.
+	ef_ob_akaitsuki: [
+		{
+			//EF_AKAITSUKI (1009)
+			type: 'STR',
+			file: '\xba\xd2\xb1\xe6\xc7\xd1\xba\xd3\xc0\xba\xb4\xde\xba\xfb', // 불길한붉은달빛
+			texturePath: '',
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2', // t_에너지방출
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
