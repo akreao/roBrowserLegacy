@@ -34,6 +34,7 @@ import Entity from 'Renderer/Entity/Entity.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
+import TipBox from 'UI/Components/TipBox/TipBox.js';
 import { sanitizeHtml } from 'Utils/HtmlHelper.js';
 
 /**
@@ -176,10 +177,16 @@ ItemInfo.init = function init() {
 		});
 	}
 
-	// A place named in the description opens the navigation to it
+	// A place named in the description opens the navigation to it, a tip
+	// the tip box on it
 	const descInner = root.querySelector('.description-inner');
 	if (descInner) {
 		descInner.addEventListener('click', e => {
+			const tipLink = e.target.closest('.tipbox-link');
+			if (tipLink) {
+				TipBox.open(Number(tipLink.dataset.tipboxId));
+				return;
+			}
 			const naviLink = e.target.closest('.navi-link');
 			if (!naviLink || !naviLink.dataset.naviInfo) {
 				return;

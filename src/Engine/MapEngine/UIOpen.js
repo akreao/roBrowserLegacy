@@ -19,6 +19,7 @@ import MapRenderer from 'Renderer/MapRenderer.js';
 import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
 import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade.js';
 import EnchantUI from 'UI/Components/Enchant/Enchant.js';
+import TipBox from 'UI/Components/TipBox/TipBox.js';
 
 /**
  * Received data and request to open a specific UI
@@ -42,6 +43,10 @@ function onUIOpen(pkt) {
 	//    10 = ENCHANT_UI
 
 	switch (pkt.ui_type) {
+		case 5:
+			// The data is the tip to show
+			TipBox.open(pkt.data);
+			break;
 		case 7:
 			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 				// rAthena opens the window as soon as the character is loaded,

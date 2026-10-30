@@ -15,6 +15,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
+import TipBox from 'UI/Components/TipBox/TipBox.js';
 import htmlText from './NpcBox.html?raw';
 import cssText from './NpcBox.css?raw';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
@@ -62,6 +63,22 @@ function processNAVITags(text) {
 }
 
 /**
+ * Process TIPBOX tags in text (<TIPBOX>[List]<INFO>9163</INFO></TIPBOX>):
+ * a link that opens that tip in the tip box
+ */
+function processTipBoxTags(text) {
+	if (!text) {
+		return '';
+	}
+	text = String(text);
+	return text.replace(/<TIPBOX>([\s\S]*?)<INFO>\s*(\d+)\s*<\/INFO><\/TIPBOX>/g, (match, displayName, tipId) => {
+		const colours = (displayName.match(/\^[0-9A-Fa-f]{6}/g) || []).length;
+		const shown = processColorCodes(displayName) + '</span>'.repeat(colours);
+		return `<span class="tipbox-link" data-tipbox-id="${tipId}">${shown}</span>`;
+	});
+}
+
+/**
  * Process ITEM tags in text
  */
 function processItemTags(text) {
@@ -103,6 +120,7 @@ function processText(text) {
 	}
 	text = processItemTags(text);
 	text = processNAVITags(text);
+	text = processTipBoxTags(text);
 	text = processColorCodes(text);
 	return text;
 }
@@ -146,6 +164,12 @@ NpcBox.init = function init() {
 			ItemInfo.append();
 			ItemInfo.uid = itemId;
 			ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
+			return;
+		}
+
+		const tipLink = e.target.closest('.tipbox-link');
+		if (tipLink) {
+			TipBox.open(Number(tipLink.dataset.tipboxId));
 			return;
 		}
 

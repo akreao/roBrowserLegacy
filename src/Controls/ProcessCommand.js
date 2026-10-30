@@ -45,6 +45,7 @@ import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
+import TipBox from 'UI/Components/TipBox/TipBox.js';
 import RankingTypes from 'DB/Jobs/RankingTypes.js';
 
 let aliases = {};
@@ -826,6 +827,12 @@ const CommandStore = {
 				Network.sendPacket(pkt);
 				return;
 			}
+		}
+	},
+	tip: {
+		description: 'Open the tip box',
+		callback: function () {
+			TipBox.toggle();
 		}
 	},
 	macro_register: {

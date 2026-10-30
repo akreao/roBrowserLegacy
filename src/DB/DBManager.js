@@ -59,6 +59,7 @@ import PetHungryState from './Pets/PetHungryState.js';
 import PetFriendlyState from './Pets/PetFriendlyState.js';
 import PetMessageConst from './Pets/PetMessageConst.js';
 import MapInfo from './Map/MapTable.js';
+import TipBoxTable from './TipBox/TipBoxTable.js';
 import { mergeSignboards } from './Map/SignboardMerge.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -75,6 +76,11 @@ import LuaModuleLoader from 'Core/LuaModuleLoader.js';
  * @type {Object} lua instance
  */
 let lua;
+
+/**
+ * @var {Promise<boolean>|null} the tip box table's load, once started
+ */
+let _tipBoxLoad = null;
 /** @type {Promise|null} DB.loadLookTables, once started */
 let lookTables = null;
 let itemPackages = new Map();
@@ -4172,9 +4178,10 @@ class DB {
 	/**
 	 * Convert the tags item descriptions carry into HTML, on text that has
 	 * already been escaped. Each is <TAG>shown text<INFO>data</INFO></TAG>:
-	 * NAVI becomes a .navi-link (data-navi-info, data-navi-name); URL and
-	 * TIPBOX, which roBrowser has nowhere to open, keep their text. Anything
-	 * else in angle brackets, such as "Energy <Guardian Dragon>", stays text.
+	 * NAVI becomes a .navi-link (data-navi-info, data-navi-name), TIPBOX a
+	 * .tipbox-link (data-tipbox-id) that opens that tip in the tip box, and
+	 * URL, which roBrowser has nowhere to open, keeps its text. Anything else
+	 * in angle brackets, such as "Energy <Guardian Dragon>", stays text.
 	 *
 	 * @param {string} html - escaped description
 	 * @returns {string} html with the tags converted
@@ -4183,16 +4190,42 @@ class DB {
 		return html.replace(
 			/&lt;(NAVI|URL|TIPBOX)&gt;([\s\S]*?)&lt;INFO&gt;([\s\S]*?)&lt;\/INFO&gt;&lt;\/\1&gt;/g,
 			(match, tag, text, info) => {
-				if (tag !== 'NAVI') {
-					return text;
-				}
 				// A colour code in the tag (^4D4DFF[Battle Trainer Subino]^000000)
 				// is formatted here, so its spans close inside the link, and kept
 				// out of the attributes, where formatMsgToHtml would write markup.
 				const attr = value => value.replace(/\^[0-9a-fA-F]{6}/g, '').replace(/"/g, '&quot;');
+				if (tag === 'TIPBOX') {
+					const id = parseInt(attr(info).trim(), 10);
+					if (!(id >= 0)) {
+						return text;
+					}
+					return `<span class="tipbox-link" data-tipbox-id="${id}">${DB.formatMsgToHtml(text)}</span>`;
+				}
+				if (tag !== 'NAVI') {
+					return text;
+				}
 				return `<span class="navi-link" data-navi-info="${attr(info)}" data-navi-name="${attr(text)}">${DB.formatMsgToHtml(text)}</span>`;
 			}
 		);
+	}
+
+	/**
+	 * Load the tip box's tips (System/tipbox.lua, else System/tipbox.lub) into
+	 * TipBoxTable, once. The table is only read when the tip box is first
+	 * wanted, rather than with everything else at start.
+	 *
+	 * @return {Promise<boolean>} whether any tip was loaded
+	 */
+	static loadTipBox() {
+		if (!_tipBoxLoad) {
+			_tipBoxLoad = new Promise(resolve => {
+				TipBoxTable.reset();
+				tryLoadLuaAliases(loadTipBoxFile, ['System/tipbox.lua', 'System/tipbox.lub'], null, () =>
+					resolve(TipBoxTable.size > 0)
+				);
+			});
+		}
+		return _tipBoxLoad;
 	}
 
 	/**
@@ -4597,6 +4630,63 @@ function base64DecodeUtf8(str) {
 		console.warn('Base64 UTF-8 decode failed:', str, e);
 		return str;
 	}
+}
+
+/**
+ * Load System/tipbox.lub into TipBoxTable. The file's main() registers every
+ * tip through the five functions given to it here.
+ *
+ * @param {string} filename
+ * @param {function} callback - unused
+ * @param {function} onEnd - called with whether the file was read
+ */
+function loadTipBoxFile(filename, callback, onEnd) {
+	Client.loadFile(
+		filename,
+		async function (file) {
+			let loaded = false;
+			try {
+				console.log('Loading file "' + filename + '"...');
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const ctx = lua.ctx;
+				// Picture paths are in the GRF's code page, text in the player's.
+				const text = value =>
+					value instanceof Uint8Array ? userStringDecoder.decode(value, userCharpage) : String(value ?? '');
+				const path = value =>
+					value instanceof Uint8Array ? userStringDecoder.decode(value) : String(value ?? '');
+				ctx.AddTip = (id, title, search, image) => {
+					TipBoxTable.addTip(id, text(title), search, path(image));
+					return 1;
+				};
+				ctx.AddImgcoord = (id, position, size) => {
+					TipBoxTable.addImgCoord(id, position, size);
+					return 1;
+				};
+				ctx.AddPageEx = (id, effectNum, twinkle, startX, startY, distX, distY, moveTime) => {
+					TipBoxTable.addPageEx(id, effectNum, twinkle, startX, startY, distX, distY, moveTime);
+					return 1;
+				};
+				ctx.AddPage = (id, page) => {
+					TipBoxTable.addPage(id, text(page));
+					return 1;
+				};
+				ctx.AddIsTag = (id, isTag) => {
+					TipBoxTable.addIsTag(id, isTag);
+					return 1;
+				};
+				lua.mountFile(filename, buffer);
+				await lua.doFile(filename);
+				lua.doStringSync('main()');
+				loaded = true;
+			} catch (error) {
+				console.error('[loadTipBoxFile] Error: ', error);
+			} finally {
+				lua.unmountFile(filename);
+				onEnd(loaded);
+			}
+		},
+		() => onEnd(false)
+	);
 }
 
 /**
