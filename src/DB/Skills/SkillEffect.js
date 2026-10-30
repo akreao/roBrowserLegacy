@@ -2213,7 +2213,9 @@ SkillEffect[SK.SJ_FLASHKICK] = {}; //Flash Kick: nothing from its packets (statu
 SkillEffect[SK.SJ_FALLINGSTAR] = {}; //Falling Star: nothing from its use packet (the attack plays the star)
 SkillEffect[SK.SJ_DOCUMENT] = { successEffectIdOnCaster: 'ef_sj_document' }; //Document of Sun Moon and Star
 SkillEffect[SK.SJ_SOLARBURST] = { successEffectIdOnCaster: 'ef_sj_solarburst' }; //Solar Burst
-SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prominence Kick
+// Official client: when the damage arrives, 1224 (sound and spin, TaekwonBodyEffects.js) and 429 (EF_HITLINE4,
+// not ported) play on the target.
+SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick', damageEffectIdOnTarget: 1224 }; //Prominence Kick
 SkillEffect[SK.SP_SOULGOLEM] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulgolem'] }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { castAuraEffectId: 454, successEffectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { castAuraEffectId: 441, successEffectId: 'ef_sp_soulrevolve' }; //Soul Revolution
