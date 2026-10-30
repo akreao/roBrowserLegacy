@@ -8,6 +8,8 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import { UNITS_PER_CELL } from './EffectPrimSim.js';
+
 const DEG = Math.PI / 180;
 
 /** Quake: each edge moves by a whole number of pixels in -QUAKE_PX..QUAKE_PX. */
@@ -361,4 +363,16 @@ export function marksOf(entity) {
 		}
 	});
 	return marks;
+}
+
+/**
+ * How far an entity's body effects lift its body off the ground this tick, in
+ * cells (Gravity Control). The sprite and its click box rise by it; the shadow
+ * stays down.
+ *
+ * @param {object} entity
+ * @return {number}
+ */
+export function bodyLiftCells(entity) {
+	return liftOf(marksOf(entity)) / UNITS_PER_CELL;
 }

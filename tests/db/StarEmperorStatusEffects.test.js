@@ -7,7 +7,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 import StatusEffectTable from 'DB/Status/StatusEffectTable.js';
 import StatusConst from 'DB/Status/StatusConst.js';
 import { stancePartAt, STANCE_TEXTURES } from 'Renderer/Effects/SunStanceSim.js';
-import { SCHEDULES, liftOf } from 'Renderer/Effects/BodyMotionSim.js';
+import { SCHEDULES, liftOf, bodyLiftCells } from 'Renderer/Effects/BodyMotionSim.js';
 
 // Numbers from the official client (kRO 2025-07-16): CSunStanceEffect 0x6f5cc0 / 0x6f5e50,
 // CGravityControlEffect 0x6e2ff0 / 0x6e3100, CSoulUnityEffect 0x6f35e0 / 0x6f3700.
@@ -45,6 +45,13 @@ describe('Star Emperor / Soul Reaper status looks', () => {
 		expect(liftOf([SCHEDULES[1201](500)])).toBe(20);
 		expect(liftOf([{ ready: 5 }])).toBe(0);
 		expect(EffectTable[1201][0]).toMatchObject({ type: 'STR', file: 'wl_telekinesis_intense', repeat: true });
+	});
+
+	it('lifts the body and its click box by the same cells, nothing without a body effect', () => {
+		const lifted = { _bodyMotions: new Set([SCHEDULES[1201](500)]) };
+		expect(bodyLiftCells(lifted)).toBe(4);
+		expect(bodyLiftCells({})).toBe(0);
+		expect(bodyLiftCells({ _bodyMotions: new Set() })).toBe(0);
 	});
 
 	it('draws Soul Unity 5 units across, 15 units up', () => {

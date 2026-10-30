@@ -42,9 +42,8 @@ import {
 	LINK_COLOR,
 	LINK_SCALES,
 	REFLECT_BODY_ALPHA,
-	liftOf
+	bodyLiftCells
 } from 'Renderer/Effects/BodyMotionSim.js';
-import { UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
 /**
@@ -191,7 +190,7 @@ const renderGUI = (function renderGUIClosure() {
 		if (entity.effectColor[3] && entity._job !== 139) {
 			// Same billboard as above, lifted the way the sprite itself is.
 			_vector[0] = entity.position[0] + 0.5;
-			_vector[1] = -(entity.position[2] + SPRITE_LIFT);
+			_vector[1] = -(entity.position[2] + SPRITE_LIFT + bodyLiftCells(entity));
 			_vector[2] = entity.position[1] + 0.5;
 			mat4.translate(_pickMatrix, modelView, _vector);
 			_pickMatrix[0] = 1.0;
@@ -435,9 +434,7 @@ const renderEntity = (function renderEntityClosure() {
 
 		SpriteRenderer.position.set(self.position);
 		// Lifted off the ground (Gravity Control, BodyMotion.js); the shadow above stays down.
-		if (this._bodyMotions && this._bodyMotions.size) {
-			SpriteRenderer.position[2] += liftOf(marksOf(this)) / UNITS_PER_CELL;
-		}
+		SpriteRenderer.position[2] += bodyLiftCells(this);
 		// Render attachments that should appear behind the entity first
 		this.attachments.renderBefore(Date.now());
 		SpriteRenderer.zIndex = 1;
