@@ -41,7 +41,8 @@ import {
 	reflectRipples,
 	LINK_COLOR,
 	LINK_SCALES,
-	REFLECT_BODY_ALPHA
+	REFLECT_BODY_ALPHA,
+	bodyLiftCells
 } from 'Renderer/Effects/BodyMotionSim.js';
 import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
@@ -189,7 +190,7 @@ const renderGUI = (function renderGUIClosure() {
 		if (entity.effectColor[3] && entity._job !== 139) {
 			// Same billboard as above, lifted the way the sprite itself is.
 			_vector[0] = entity.position[0] + 0.5;
-			_vector[1] = -(entity.position[2] + SPRITE_LIFT);
+			_vector[1] = -(entity.position[2] + SPRITE_LIFT + bodyLiftCells(entity));
 			_vector[2] = entity.position[1] + 0.5;
 			mat4.translate(_pickMatrix, modelView, _vector);
 			_pickMatrix[0] = 1.0;
@@ -432,6 +433,8 @@ const renderEntity = (function renderEntityClosure() {
 		}
 
 		SpriteRenderer.position.set(self.position);
+		// Lifted off the ground (Gravity Control, BodyMotion.js); the shadow above stays down.
+		SpriteRenderer.position[2] += bodyLiftCells(this);
 		// Render attachments that should appear behind the entity first
 		this.attachments.renderBefore(Date.now());
 		SpriteRenderer.zIndex = 1;
@@ -690,7 +693,8 @@ function renderWaterDepth() {
 		y2 = rect.y2;
 	if (frame) {
 		SpriteRenderer.position.set(this.position);
-		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+		// Same lift as the colour pass (Gravity Control), or water would paint over the raised body.
+		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2 + bodyLiftCells(this);
 		SpriteRenderer.zIndex = 150;
 		SpriteRenderer.runWithDepth(true, true, false, function () {
 			for (let i = 0, count = frame.layers.length; i < count; ++i) {

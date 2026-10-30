@@ -425,5 +425,15 @@ export default {
 	// not drawn yet. See effect-port/star-gladiator-audit.md.
 	[StatusConst.SG_SUN_WARM]: { restart: [544], stop: [544] },
 	[StatusConst.SG_MOON_WARM]: { restart: [544], stop: [544] },
-	[StatusConst.SG_STAR_WARM]: { restart: [544], stop: [544] }
+	[StatusConst.SG_STAR_WARM]: { restart: [544], stop: [544] },
+
+	// Star Emperor stances, Gravity Control and Soul Unity: the official client keeps one copy of the
+	// look on the actor while the status is on and removes it when it ends.
+	// See effect-port/star-emperor-soul-reaper-audit.md.
+	[StatusConst.SUNSTANCE]: { loop: [1214] },
+	[StatusConst.LUNARSTANCE]: { loop: [1215] },
+	[StatusConst.STARSTANCE]: { loop: [1216] },
+	[StatusConst.UNIVERSESTANCE]: { loop: [1217] },
+	[StatusConst.GRAVITYCONTROL]: { loop: [1201] },
+	[StatusConst.SOULUNITY]: { loop: [1222] }
 };
