@@ -30,6 +30,7 @@
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import ShadowTable from 'DB/Monsters/ShadowTable.js';
+import { monsterSize } from 'DB/Monsters/MonsterSizeEffect.js';
 import MountTable from 'DB/Jobs/MountTable.js';
 import AllMountTable from 'DB/Jobs/AllMountTable.js';
 import EntityAction from './EntityAction.js';
@@ -310,8 +311,8 @@ function UpdateBody(job) {
 		job = this.costume;
 	}
 
-	// Resize character
-	this.xSize = this.ySize = DB.isBaby(job) ? 4 : 5;
+	// Resize character; the client draws some monsters bigger or smaller (champions 1.2)
+	this.xSize = this.ySize = (DB.isBaby(job) ? 4 : 5) * monsterSize(job);
 
 	this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
 	// Don't force the GM/admin sprite when the entity is displaying a monster

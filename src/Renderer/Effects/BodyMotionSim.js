@@ -116,6 +116,11 @@ export const SCHEDULES = {
 	625: age => (age % 4 === 0 ? { ready: 20 } : null),
 	// EF_MADNESS_RED (Adjustment, Gatling Fever): the same in red.
 	626: age => (age % 4 === 0 ? { red: 20 } : null),
+	// EF_REDLIGHTBODY (Furious champion monsters): red glow, counter age / 8 up to
+	// tick 200 and 25 after (fades in, holds, settles at alpha 130).
+	544: age => ({ red: age <= 200 ? Math.trunc(age * 0.125) : 25 }),
+	// EF_BLUELIGHTBODY (Ringleader champion monsters): blue glow, counter 20 (alpha 160).
+	1003: () => ({ ready: 20 }),
 	// EF_QUAKEBODY4 (Close Confine, on the target): quake after tick 20.
 	602: age => (age > 20 ? { quake: true } : null)
 };
