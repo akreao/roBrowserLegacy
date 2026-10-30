@@ -2209,7 +2209,7 @@ SkillEffect[SK.GD_ITEMEMERGENCYCALL] = {}; //Item Emergency Call
 SkillEffect[SK.SJ_FULLMOONKICK] = { successEffectIdOnCaster: [399, 'ef_sj_fullmoonkick'] }; //Full Moon Kick
 SkillEffect[SK.SJ_NEWMOONKICK] = { successEffectIdOnCaster: 'ef_sj_newmoonkick' }; //New Moon Kick
 SkillEffect[SK.SJ_FLASHKICK] = {}; //Flash Kick: nothing from its packets (status mark in StatusEffectTable)
-SkillEffect[SK.SJ_FALLINGSTAR] = { effectId: 'ef_sj_fallingstar' }; //Falling Star
+SkillEffect[SK.SJ_FALLINGSTAR] = {}; //Falling Star: nothing from its use packet (the attack plays the star)
 SkillEffect[SK.SJ_DOCUMENT] = { effectId: 'ef_sj_document' }; //Document of Sun Moon and Star
 SkillEffect[SK.SJ_SOLARBURST] = { effectId: 'ef_sj_solarburst' }; //Solar Burst
 SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prominence Kick
@@ -2219,6 +2219,7 @@ SkillEffect[SK.SP_SOULREVOLVE] = { effectId: 'ef_sp_soulrevolve' }; //Soul Revol
 SkillEffect[SK.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Moon
 SkillEffect[SK.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Stars
 SkillEffect[SK.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Sun
+SkillEffect[SK.SJ_FALLINGSTAR_ATK] = { damageEffectIdOnTarget: 'ef_sj_fallingstar' }; //Falling Star attack
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)
