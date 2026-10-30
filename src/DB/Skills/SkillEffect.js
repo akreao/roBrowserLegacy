@@ -1332,7 +1332,7 @@ SkillEffect[SK.KO_BAKURETSU] = {
 	successEffectIdOnCaster: 'ef_ko_bakuretsu_sound',
 	damageEffectIdOnTarget: 'ef_ko_ground_explosion'
 }; //Kunai Explosion: the thrown kunai (983) is not ported
-SkillEffect[SK.KO_HAPPOKUNAI] = {}; //Kunai Splash
+SkillEffect[SK.KO_HAPPOKUNAI] = { successEffectIdOnCaster: 'ef_ko_happokunai' }; //Kunai Splash: the eight kunai (981) are not ported
 SkillEffect[SK.KO_MUCHANAGE] = {}; //Rapid Throw
 SkillEffect[SK.KO_HUUMARANKA] = {}; //Swirling Petal
 SkillEffect[SK.KO_MAKIBISHI] = {}; //Makibishi

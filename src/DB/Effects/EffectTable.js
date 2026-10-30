@@ -26595,6 +26595,29 @@ export default {
 		}
 	],
 
+	// Kunai Splash (KO_HAPPOKUNAI): when the use packet has the result set, the skilleffectinfo row plays
+	// T_회오리차기.wav and launches 981 (eight kunai around the caster, CThrowItemEffect; not ported) and
+	// 986 (the gray rotate-line ribbons) on the caster. Launched this way the ribbons have faded out by
+	// about tick 113, so they are drawn for 120 ticks. See effect-port/kagerou-oboro-skills.md.
+	ef_ko_happokunai: [
+		{
+			wav: 'effect/t_\xc8\xb8\xbf\xc0\xb8\xae\xc2\xf7\xb1\xe2', // t_회오리차기
+			attachedEntity: true
+		},
+		{
+			//EF_ROTATE_LINE_GRAY (986)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				// RotateLine takes a cast time in ms and draws castTime / 16 ticks
+				this.add(
+					new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, 120 * 16, 986),
+					Params
+				);
+			}
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
