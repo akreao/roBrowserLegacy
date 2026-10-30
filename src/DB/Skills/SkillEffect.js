@@ -2228,8 +2228,11 @@ SkillEffect[SK.SP_CURSEEXPLOSION] = { castAuraEffectId: 454, damageEffectIdOnTar
 SkillEffect[SK.SP_SPA] = { castAuraEffectId: 454, successEffectIdOnCaster: 'ef_sp_spa_sound' }; //Espa
 SkillEffect[SK.SP_SHA] = { castAuraEffectId: 454, successEffectIdOnCaster: 547 }; //Esha
 SkillEffect[SK.SP_SOULUNITY] = { castAuraEffectId: 441, successEffectId: 407 }; //Soul Unity
-SkillEffect[SK.SP_SOULDIVISION] = { castAuraEffectId: 454, damageEffectIdOnTarget: 'ef_sp_souldivision_sound' }; //Soul Division
+SkillEffect[SK.SP_SOULDIVISION] = { castAuraEffectId: 454, damageEffectIdOnTarget: ['ef_sp_souldivision_sound', 1209] }; //Soul Division
 SkillEffect[SK.SP_SOULREAPER] = { castAuraEffectId: 441, successEffectIdOnCaster: 'ef_sp_soulreaper' }; //Soul Reaper
+// Official client: the skilleffectinfo row launches 1209 (EF_BLINK_BODY) on the caster when the use packet has the
+// result set. See effect-port/star-emperor-soul-reaper-skills.md.
+SkillEffect[SK.SP_SOULCOLLECT] = { successEffectIdOnCaster: 1209 }; //Soul Collect
 SkillEffect[SK.SP_SOULEXPLOSION] = { castAuraEffectId: 454, damageEffectIdOnTarget: 'ef_sp_soulexplosion' }; //Soul Explosion
 SkillEffect[SK.SP_KAUTE] = { successEffectId: 'ef_sp_kaute_sound' }; //Kaute
 SkillEffect[SK.SJ_STAREMPEROR] = { castAuraEffectId: 58 }; //Star Emperor Advent

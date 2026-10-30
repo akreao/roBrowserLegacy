@@ -71,6 +71,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import { startBlinkBody } from 'Renderer/Effects/BlinkBody.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -19168,6 +19169,17 @@ export default {
 		}
 	],
 
+	1209: [
+		{
+			//EF_BLINK_BODY	The actor blinks pale blue and dark for 60 ticks (BlinkBody.js, kRO 2025 0xbc070d)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				startBlinkBody(Params.Init.ownerEntity);
+			}
+		}
+	],
+
 	1225: [
 		{
 			// Soul energy orbs (Soul Reaper, Soul Ascetic), one per soul from ZC_SOULENERGY, newest five shown
@@ -26679,7 +26691,7 @@ export default {
 	],
 
 	// Soul Division (SP_SOULDIVISION): the skilleffectinfo row's sound, on the target as each damage packet
-	// arrives (its 1209, EF_BLINK_BODY, is not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	// arrives (with its 1209, EF_BLINK_BODY: BlinkBody.js). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_souldivision_sound: [
 		{
 			wav: 'effect/t_\xc4\xa1\xc0\xd7', // t_치잉
