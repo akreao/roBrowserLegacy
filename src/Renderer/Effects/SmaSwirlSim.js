@@ -20,6 +20,9 @@
  *    the age in degrees up to 90: a petal that opens over 90 ticks;
  *  - alpha up by 5 a tick to 180, down by 5 a tick from tick 60.
  *
+ * 551 (EF_SMA, 0xbfb5b0 with 0) and 552 (EF_SMA2, 0xbfb150 with ring_blue.tga)
+ * are the same point and swirls, the swirls blue and added (SWIRL_LOOKS).
+ *
  * Units: the client's world units (5 to a cell), y down; angles in degrees.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -57,6 +60,17 @@ export const SWIRL = {
 	fallFrom: 60, // life - 40
 	grow: 90, // ticks the petal takes to open
 	color: [70, 70, 70]
+};
+
+/**
+ * How a swirl is blended. The draw (0xb78950) checks the launcher's mode: 99
+ * (Espa's 1204 launching 1205) draws dark grey (70, 70, 70) alpha-blended;
+ * anything else (551 EF_SMA launching 552 EF_SMA2) draws blue (90, 90, 255)
+ * added.
+ */
+export const SWIRL_LOOKS = {
+	dark: { color: SWIRL.color, add: false },
+	blue: { color: [90, 90, 255], add: true }
 };
 
 const rad = Math.PI / 180;

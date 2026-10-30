@@ -1,8 +1,9 @@
 /**
  * Renderer/Effects/SmaSwirl.js
  *
- * Draws one of Espa's dark swirls (effect 1205): three spinning ring_blue.tga
- * bands opening like petals around a point, blended dark grey, through
+ * Draws one of Espa's dark swirls (effect 1205) or one of 551's blue ones
+ * (552): three spinning ring_blue.tga bands opening like petals around a
+ * point, blended dark grey or added blue, through
  * AuraBatch.js. The numbers are in SmaSwirlSim.js. Effect 1204 launches them
  * along its way from the caster to the target.
  *
@@ -15,18 +16,14 @@
  */
 
 import AuraBatch, { sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
-import { BLEND_ALPHA } from 'Renderer/Effects/AuraBlend.js';
+import { BLEND_ADD, BLEND_ALPHA } from 'Renderer/Effects/AuraBlend.js';
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
-import { SWIRL, bandAlpha, bandPoints } from 'Renderer/Effects/SmaSwirlSim.js';
+import { SWIRL, SWIRL_LOOKS, bandAlpha, bandPoints } from 'Renderer/Effects/SmaSwirlSim.js';
 
 const _batch = new AuraBatch({ fog: true, mergeAdditive: true });
 const _textures = new Map();
 
 const TEXTURE = 'ring_blue.tga';
-
-const R = SWIRL.color[0] / 255;
-const G = SWIRL.color[1] / 255;
-const B = SWIRL.color[2] / 255;
 
 const QUADS = SWIRL.points - 1;
 const INDICES = new Uint16Array(QUADS * 6);
@@ -70,11 +67,15 @@ class SmaSwirl {
 	 * @param {Array} position the swirl's point, cells [x, y, z]
 	 * @param {number} up units above that point
 	 * @param {number} startTick
+	 * @param {string} [look] 'dark' (Espa's 1205) or 'blue' (552), from SWIRL_LOOKS
 	 */
-	constructor(position, up, startTick) {
+	constructor(position, up, startTick, look = 'dark') {
 		this.position = [position[0], position[1], position[2]];
 		this.up = up || 0;
 		this.startTick = startTick || 0;
+		const { color, add } = SWIRL_LOOKS[look] || SWIRL_LOOKS.dark;
+		this.color = color.map(c => c / 255);
+		this.blend = add ? BLEND_ADD : BLEND_ALPHA;
 		this.vertices = new Float32Array(QUADS * 4 * 5);
 	}
 
@@ -120,9 +121,10 @@ class SmaSwirl {
 		// The client's y runs down, as GL y does here.
 		const y = -pos[2] - this.up / UNITS_PER_CELL;
 		const z = pos[1] + 0.5;
+		const [r, g, b] = this.color;
 		for (let k = 0; k < SWIRL.bands; k++) {
 			bandVertices(bandPoints(k, n), this.vertices);
-			_batch.mesh(this.texture, BLEND_ALPHA, this.vertices, QUADS * 4, INDICES, x, y, z, R, G, B, alpha, 0);
+			_batch.mesh(this.texture, this.blend, this.vertices, QUADS * 4, INDICES, x, y, z, r, g, b, alpha, 0);
 		}
 	}
 

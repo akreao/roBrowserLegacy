@@ -46,7 +46,7 @@ import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
-import { smaBlackEffect } from 'DB/Effects/SmaBlackEffect.js';
+import { smaBlackEffect, smaEffect, sma2Effect } from 'DB/Effects/SmaBlackEffect.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
@@ -12254,8 +12254,11 @@ export default {
 	//548: [{}],	//EF_RED_HIT	   Instant Red Sprite
 	//549: [{}],	//EF_BLUE_HIT	   Instant Blue Sprite
 	//550: [{}],	//EF_QUAKEBODY3	   Another Effect like Running Hit
-	//551: [{}],	//EF_SMA	   Effect Like Estun but with Circle
-	//552: [{}],	//EF_SMA2	   (Nothing)
+	// EF_SMA: a point toward the target leaving blue swirls (SmaBlackEffect.js)
+	551: smaEffect,
+
+	// EF_SMA2: one blue swirl (SmaBlackEffect.js)
+	552: sma2Effect,
 
 	553: [
 		{

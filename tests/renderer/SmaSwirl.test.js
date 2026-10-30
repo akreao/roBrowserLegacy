@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { SMA, SWIRL, planSwirls, bandAlpha, bandPoints } from 'Renderer/Effects/SmaSwirlSim.js';
-import { smaBlackEffect, swirlPositions } from 'DB/Effects/SmaBlackEffect.js';
+import { SMA, SWIRL, SWIRL_LOOKS, planSwirls, bandAlpha, bandPoints } from 'Renderer/Effects/SmaSwirlSim.js';
+import { smaBlackEffect, smaEffect, sma2Effect, swirlPositions } from 'DB/Effects/SmaBlackEffect.js';
+import { BLEND_ADD, BLEND_ALPHA } from 'Renderer/Effects/AuraBlend.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 
 // Espa's dark swirls (1204 EF_SMA_BLACK and 1205), kRO 2025-07-16: 0xbfb5b0
@@ -96,5 +97,38 @@ describe('Espa effect', () => {
 		expect(swirl.needCleanUp).toBeFalsy();
 		swirl.render({}, swirl.startTick + SWIRL.life * PRIM_TICK_MS);
 		expect(swirl.needCleanUp).toBe(true);
+	});
+});
+
+// 551 (EF_SMA, 0xbfb5b0 with 0) is the same launcher; it launches 552 (EF_SMA2, 0xbfb150),
+// the same swirl drawn blue (90, 90, 255) and added rather than dark grey (0xb78950).
+describe('Blue swirls (551, 552)', () => {
+	it("draws them blue and added, Espa's dark and alpha-blended", () => {
+		expect(SWIRL_LOOKS.blue).toEqual({ color: [90, 90, 255], add: true });
+		expect(SWIRL_LOOKS.dark).toEqual({ color: [70, 70, 70], add: false });
+	});
+
+	it('plays 551 as the launcher and 552 as one swirl', () => {
+		expect(EffectTable[551]).toBe(smaEffect);
+		expect(EffectTable[552]).toBe(sma2Effect);
+		const trail = [];
+		smaEffect[0].func.call(
+			{ add: effect => trail.push(effect) },
+			{ Inst: { position: [0, 0, 0], otherPosition: [5, 0, 0], startTick: 0 }, Init: {} }
+		);
+		expect(trail).toHaveLength(13);
+		expect(trail[0].blend).toBe(BLEND_ADD);
+		expect(trail[0].color).toEqual([90 / 255, 90 / 255, 1]);
+		const one = [];
+		sma2Effect[0].func.call({ add: effect => one.push(effect) }, { Inst: { position: [1, 2, 0], startTick: 0 }, Init: {} });
+		expect(one).toHaveLength(1);
+		expect(one[0].position).toEqual([1, 2, 0]);
+		expect(one[0].blend).toBe(BLEND_ADD);
+		const dark = [];
+		smaBlackEffect[0].func.call(
+			{ add: effect => dark.push(effect) },
+			{ Inst: { position: [0, 0, 0], startTick: 0 }, Init: {} }
+		);
+		expect(dark[0].blend).toBe(BLEND_ALPHA);
 	});
 });
