@@ -57,6 +57,7 @@ import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { startFootprints } from 'Renderer/Effects/Footprints.js';
 import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
+import { showMonsterEffects, removeMonsterEffects } from 'Engine/MapEngine/MonsterSizeEffects.js';
 import { sendFalcon } from 'Engine/MapEngine/FalconFlight.js';
 import { bowAttackTiming } from 'Renderer/Effects/ArrowFlight.js';
 
@@ -312,6 +313,9 @@ function onEntitySpam(pkt) {
 
 	// load others aura
 	entity.aura.load(EffectManager);
+
+	// champion and other monsters' own effects (official monster_size_effect table)
+	showMonsterEffects(entity);
 }
 
 /**
@@ -391,6 +395,7 @@ function onEntityVanish(pkt) {
 				// remove aura on non-PC death
 				if (entity.objecttype !== Entity.TYPE_PC) {
 					entity.aura.remove(EffectManager);
+					removeMonsterEffects(entity);
 				}
 				if (pkt.type === Entity.VT.DEAD) {
 					EntityManager.removeLife(pkt.GID);

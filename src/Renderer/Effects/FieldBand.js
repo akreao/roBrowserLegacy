@@ -49,14 +49,15 @@ class FieldBand {
 	 * @param {number} startTick
 	 * @param {string} texture file under data/texture/effect/
 	 * @param {function} [random] returns [0, 1), for the start angle and alpha
+	 * @param {number[]} [color] [r, g, b] 0-255 the texture is tinted with (white when left out)
 	 */
-	constructor(position, startTick, texture, random = Math.random) {
+	constructor(position, startTick, texture, random = Math.random, color = [255, 255, 255]) {
 		this.position = position;
 		this.startTick = startTick || 0;
 		this.texture = texture;
 		this.band = createBand(random);
 		this.vertices = new Float32Array(FIELD_BAND_VERTICES * 5);
-		this.color = new Float32Array([1, 1, 1, 1]);
+		this.color = new Float32Array([color[0] / 255, color[1] / 255, color[2] / 255, 1]);
 	}
 
 	init(gl) {

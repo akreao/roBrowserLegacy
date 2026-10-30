@@ -19,6 +19,7 @@ import CostumeSpriteEffects from 'DB/Effects/CostumeSpriteEffects.js';
 import BodyEffects from 'DB/Effects/BodyEffects.js';
 import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
+import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import CloseConfineEffect from 'DB/Effects/CloseConfineEffect.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
@@ -6000,7 +6001,9 @@ export default {
 		{
 			//EF_BOTTOM_DE	   Deluge (Visual Effect)
 			type: 'FUNC',
-			attachedEntity: false,
+			// Attached, so on a Swift champion monster the band follows it (the client moves the
+			// effect to its owner every tick); a Deluge unit's position never moves.
+			attachedEntity: true,
 			// Official client: one breathing band of ring_blue.tga under the unit's cell for as long as
 			// the unit lasts (primitive 36, FieldBandSim.js).
 			func: function (Params) {
@@ -28758,6 +28761,9 @@ export default {
 
 	// The Gunslinger body glows (Fling, Madness Canceller, Adjustment, Gatling Fever): GunslingerBodyEffects.js.
 	...GunslingerBodyEffects,
+
+	// Champion monster looks (Furious 544, Elusive 620, Solid 679, Ringleader 1003): ChampionMonsterEffects.js.
+	...ChampionMonsterEffects,
 
 	// Close Confine on its target (quake, red flicker): CloseConfineEffect.js.
 	...CloseConfineEffect
