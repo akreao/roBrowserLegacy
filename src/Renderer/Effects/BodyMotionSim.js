@@ -8,7 +8,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-import { UNITS_PER_CELL } from './EffectPrimSim.js';
+import { UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 
 const DEG = Math.PI / 180;
 

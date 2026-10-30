@@ -693,7 +693,8 @@ function renderWaterDepth() {
 		y2 = rect.y2;
 	if (frame) {
 		SpriteRenderer.position.set(this.position);
-		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+		// Same lift as the colour pass (Gravity Control), or water would paint over the raised body.
+		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2 + bodyLiftCells(this);
 		SpriteRenderer.zIndex = 150;
 		SpriteRenderer.runWithDepth(true, true, false, function () {
 			for (let i = 0, count = frame.layers.length; i < count; ++i) {
