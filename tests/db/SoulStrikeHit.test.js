@@ -11,7 +11,7 @@ const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'),
 describe('Soul Strike hit', () => {
 	it('plays 0 on every hit and 1 on the first hit of a packet', () => {
 		expect(source).toMatch(
-			/SkillEffect\[SK\.MG_SOULSTRIKE\] = \{ beforeHitEffectId: 15, hitEffectId: 0, firstHitEffectId: 1 \};/
+			/SkillEffect\[SK\.MG_SOULSTRIKE\] = \{ damageEffectIdOnCaster: 15, hitEffectId: 0, firstHitEffectId: 1 \};/
 		);
 	});
 });
