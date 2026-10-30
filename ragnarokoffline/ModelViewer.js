@@ -223771,8 +223771,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.PF_FOGWALL] = { groundEffectId: "405_ground" };
 	SkillEffect[SkillConst_default.PF_SPIDERWEB] = { groundEffectId: 404 };
 	SkillEffect[SkillConst_default.ASC_METEORASSAULT] = {
-		hideCastAura: true,
-		effectIdOnCaster: 409
+		castAuraEffectId: 59,
+		successEffectIdOnCaster: 409,
+		hitEffectId: 0
 	};
 	SkillEffect[SkillConst_default.ASC_CDP] = {};
 	SkillEffect[SkillConst_default.WE_BABY] = { effectId: 408 };
@@ -273896,6 +273897,531 @@ var init_Cylinder = __esmMin((() => {
 	*/
 	Cylinder.verticeCount = 0;
 }));
+// src/Renderer/Effects/AuraBatch.vs?raw
+var AuraBatch_default$1;
+var init_AuraBatch$2 = __esmMin((() => {
+	AuraBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\nin vec4 aColor;\r\nin float aDepthOffset;\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vColor;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nvoid main(void) {\r\n	gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);\r\n	gl_Position.z -= aDepthOffset;\r\n	vTextureCoord = aTextureCoord;\r\n	vColor = aColor;\r\n}\r\n";
+}));
+// src/Renderer/Effects/AuraBatch.fs?raw
+var AuraBatch_default;
+var init_AuraBatch$1 = __esmMin((() => {
+	AuraBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\n// AuraBatch.js puts its effect's defines here: FOG, DISCARD_CLEAR,\r\n// DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.\r\n\r\nin vec2 vTextureCoord;\r\nflat in vec4 vColor;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform bool uDarken;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n#ifdef DISCARD_CLEAR\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DISCARD_BLACK\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DARKEN\r\n	if (uDarken) {\r\n		float k = max(max(texColor.r, texColor.g), texColor.b) * vColor.a;\r\n		fragColor = vec4(k, k, k, 1.0);\r\n		return;\r\n	}\r\n#endif\r\n\r\n	fragColor = texColor * vColor;\r\n\r\n#ifdef FOG\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n#endif\r\n}\r\n";
+}));
+// src/Renderer/Effects/AuraBlend.js
+/**
+* Renderer/Effects/AuraBlend.js
+*
+* Colour and blending for the aura effects, shared by the level-99 aura's
+* three parts and the high-level aura (MaxLevelAura).
+*
+* The auras add light (SRC_ALPHA, ONE), which can make any colour but black:
+* black added is nothing. Two kinds of colour are drawn otherwise:
+*
+* - a hat-effect aura's (`hat`, which LevelAuraEffects sets): the client draws
+*   the coloured level-99 and level-160 hat auras with alpha blending, in any
+*   colour, where its level auras add light. An iRO Ragexe.exe (October 2026)
+*   sets that blending (5/6) for effects 1164-1183, 1291, 1292, 1325-1346 and
+*   2281-2284, beside their colour.
+* - a dark one (AuraTiers.auraColor marks it): black added would be nothing.
+*
+* How depends on the texture's shape:
+*
+* - 'alpha': a texture shaped by its alpha channel, bright in every pixel
+*   (ring_blue.tga, whitelight.tga, cir0002.tga). It is drawn in its own
+*   colour with alpha blending (SRC_ALPHA, ONE_MINUS_SRC_ALPHA). Darkening by
+*   its colour instead would darken the whole quad, and tint it with the
+*   opposite of the texture's colour.
+* - 'brightness': a texture with no alpha, shaped by how bright it is on black
+*   (pikapika2.bmp), which alpha blending would draw as a square. A hat colour
+*   keeps adding light; the client gives its hat auras a ready-coloured
+*   texture with alpha here instead (GroundAura's), and this is the fallback
+*   for a client without one. A dark colour darkens what is behind by that
+*   brightness (ZERO, ONE_MINUS_SRC_COLOR), which its shader gives as grey
+*   (uDarken in GroundAura.fs): darkening by the texture's own colour would
+*   leave the opposite colour behind, an orange fringe for pikapika2's blue.
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* The colour to give the shader's uColor for `color`.
+*
+* @param {{r: number, g: number, b: number, dark: boolean}} color
+* @param {number} alpha
+* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
+* @param {number[]} [out] written and returned instead of a new array
+* @return {number[]} r, g, b, a
+*/
+function auraUniform(color, alpha, shape = "brightness", out = new Array(4)) {
+	const white = color.dark && shape !== "alpha";
+	out[0] = white ? 1 : color.r;
+	out[1] = white ? 1 : color.g;
+	out[2] = white ? 1 : color.b;
+	out[3] = alpha;
+	return out;
+}
+/**
+* Switch to the blending `color` needs before drawing it. A no-op for every
+* colour but a hat aura's or a dark one.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {{dark: boolean, hat: boolean}} color
+* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
+*/
+function beginAuraBlend(gl, color, shape = "brightness") {
+	const blend = auraBlend(color, shape);
+	if (blend !== 0) setAuraBlend(gl, blend);
+}
+/**
+* The blending `color` needs, as beginAuraBlend switches to it.
+*
+* @param {{dark: boolean, hat: boolean}} color
+* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
+* @return {number} BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
+*/
+function auraBlend(color, shape = "brightness") {
+	if (!color) return 0;
+	if (shape === "alpha" && (color.hat || color.dark)) return 1;
+	if (shape !== "alpha" && color.dark) return 2;
+	return 0;
+}
+/**
+* Switch to one of the blendings above.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {number} blend BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
+*/
+function setAuraBlend(gl, blend) {
+	if (blend === 1) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	else if (blend === 2) gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_COLOR);
+	else gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+}
+/**
+* Put back the additive blending the auras share, after beginAuraBlend.
+*/
+function endAuraBlend(gl, color) {
+	if (color && (color.hat || color.dark)) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+}
+var init_AuraBlend = __esmMin((() => {}));
+// src/Renderer/Effects/AuraBatch.js
+/**
+* Load an effect texture once for every instance that asks for it, so they
+* share one GL texture (and one run in a batch). `cache` is the class's Map;
+* freeSharedTextures deletes what is in it.
+*
+* @param {Map} cache
+* @param {WebGL2RenderingContext} gl
+* @param {string} name file name under data/texture/effect/
+* @param {function} onload receives the texture
+* @param {function} [onerror] the file could not be loaded
+*/
+function sharedTexture(cache, gl, name, onload, onerror) {
+	let entry = cache.get(name);
+	if (!entry) {
+		entry = {
+			texture: null,
+			failed: false,
+			waiting: []
+		};
+		cache.set(name, entry);
+		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+			WebGL_default.texture(gl, buffer, (texture) => {
+				if (cache.get(name) !== entry) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				entry.texture = texture;
+				const waiting = entry.waiting;
+				entry.waiting = [];
+				waiting.forEach((w) => w.onload(texture));
+			});
+		}, () => {
+			entry.failed = true;
+			const waiting = entry.waiting;
+			entry.waiting = [];
+			waiting.forEach((w) => w.onerror && w.onerror());
+		});
+	}
+	if (entry.texture) onload(entry.texture);
+	else if (entry.failed) {
+		if (onerror) onerror();
+	} else entry.waiting.push({
+		onload,
+		onerror
+	});
+}
+/**
+* Delete the textures sharedTexture loaded into `cache`.
+*/
+function freeSharedTextures(cache, gl) {
+	for (const entry of cache.values()) if (entry.texture) gl.deleteTexture(entry.texture);
+	cache.clear();
+}
+var FLOATS, STRIDE, QUAD_UV, QUAD_FAN, AuraBatch;
+var init_AuraBatch = __esmMin((() => {
+	init_AuraBatch$2();
+	init_AuraBatch$1();
+	init_WebGL();
+	init_Client();
+	init_Configs();
+	init_SpriteRenderer();
+	init_AuraBlend();
+	FLOATS = 10;
+	STRIDE = 40;
+	QUAD_UV = [
+		0,
+		0,
+		1,
+		0,
+		1,
+		1,
+		0,
+		1
+	];
+	QUAD_FAN = [
+		0,
+		1,
+		2,
+		2,
+		3,
+		0
+	];
+	AuraBatch = class {
+		/**
+		* @param {object} options the effect's fragment shader, as defines
+		* @param {boolean} [options.fog] fog, as SpriteRenderer draws it
+		* @param {boolean} [options.discardClear] discard texels with alpha under 0.01
+		* @param {boolean} [options.discardBlack] discard black texels
+		* @param {boolean} [options.darken] BLEND_DARKEN draws grey from the texture's brightness
+		* @param {boolean} [options.mergeAdditive] draw each texture's additive triangles together (see above)
+		*/
+		constructor(options) {
+			const { mergeAdditive, ...defines } = options;
+			this.mergeAdditive = !!mergeAdditive;
+			this.defines = Object.keys(defines).filter((key) => defines[key]).map((key) => `#define ${key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase()}\n`).join("");
+			this.vertices = new Float32Array(FLOATS * 1024);
+			this.indices = /* @__PURE__ */ new Uint32Array(1536);
+			this.vertexCount = 0;
+			this.indexCount = 0;
+			this.runs = [];
+			this.runCount = 0;
+			this.mergedIndices = /* @__PURE__ */ new Uint32Array(0);
+			this.mergedRuns = [];
+			this.mergedRunCount = 0;
+			this.textureRun = /* @__PURE__ */ new Map();
+			this.modelView = /* @__PURE__ */ new Float32Array(16);
+			this.projection = /* @__PURE__ */ new Float32Array(16);
+			this.fog = {
+				use: false,
+				near: 0,
+				far: 0,
+				color: /* @__PURE__ */ new Float32Array(3)
+			};
+			this.active = false;
+			this.gl = null;
+			this.program = null;
+			this.vao = null;
+			this.vertexBuffer = null;
+			this.indexBuffer = null;
+		}
+		/**
+		* Start recording the frame's instances. Call in the class's beforeRender.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {mat4} modelView
+		* @param {mat4} projection
+		* @param {object} fog
+		*/
+		begin(gl, modelView, projection, fog) {
+			this.vertexCount = 0;
+			this.indexCount = 0;
+			this.runCount = 0;
+			this.active = Configs.get("auraBatching", true) !== false && typeof gl.createVertexArray === "function";
+			if (!this.active) return;
+			this.modelView.set(modelView);
+			this.projection.set(projection);
+			this.fog.use = !!(fog.use && fog.exist);
+			this.fog.near = fog.near;
+			this.fog.far = fog.far;
+			this.fog.color.set(fog.color);
+		}
+		/**
+		* Room for `vertices` more vertices and `indices` more indices, in the run
+		* of `texture` drawn with `blend`. Returns the index of the first new vertex.
+		*/
+		reserve(texture, blend, vertices, indices) {
+			if ((this.vertexCount + vertices) * FLOATS > this.vertices.length) {
+				const grown = new Float32Array(Math.max(this.vertices.length * 2, (this.vertexCount + vertices) * FLOATS));
+				grown.set(this.vertices.subarray(0, this.vertexCount * FLOATS));
+				this.vertices = grown;
+			}
+			if (this.indexCount + indices > this.indices.length) {
+				const grown = new Uint32Array(Math.max(this.indices.length * 2, this.indexCount + indices));
+				grown.set(this.indices.subarray(0, this.indexCount));
+				this.indices = grown;
+			}
+			let run = this.runCount ? this.runs[this.runCount - 1] : null;
+			if (!run || run.texture !== texture || run.blend !== blend) {
+				run = this.runs[this.runCount];
+				if (!run) run = this.runs[this.runCount] = {
+					texture: null,
+					blend: 0,
+					first: 0,
+					count: 0
+				};
+				run.texture = texture;
+				run.blend = blend;
+				run.first = this.indexCount;
+				run.count = 0;
+				this.runCount++;
+			}
+			run.count += indices;
+			return this.vertexCount;
+		}
+		/**
+		* Write one vertex.
+		*/
+		vertex(x, y, z, u, v, r, g, b, a, depth) {
+			const d = this.vertices;
+			let o = this.vertexCount * FLOATS;
+			d[o++] = x;
+			d[o++] = y;
+			d[o++] = z;
+			d[o++] = u;
+			d[o++] = v;
+			d[o++] = r;
+			d[o++] = g;
+			d[o++] = b;
+			d[o++] = a;
+			d[o] = depth;
+			this.vertexCount++;
+		}
+		/**
+		* Record a quad.
+		*
+		* @param {WebGLTexture} texture
+		* @param {number} blend AuraBlend's BLEND_*
+		* @param {Array} points four corners [x, y, z] in world space, textured (0,0) (1,0) (1,1) (0,1)
+		* @param {Array} order the six corners of its two triangles
+		* @param {number} r colour, as the effect gave its shader's uColor
+		* @param {number} g
+		* @param {number} b
+		* @param {number} a
+		* @param {number} depth what the effect took off gl_Position.z
+		*/
+		quad(texture, blend, points, order, r, g, b, a, depth) {
+			const base = this.reserve(texture, blend, 4, 6);
+			for (let k = 0; k < 4; k++) {
+				const p = points[k];
+				this.vertex(p[0], p[1], p[2], QUAD_UV[k * 2], QUAD_UV[k * 2 + 1], r, g, b, a, depth);
+			}
+			for (let i = 0; i < 6; i++) this.indices[this.indexCount++] = base + order[i];
+		}
+		/**
+		* Record an indexed mesh, moved by (x, y, z).
+		*
+		* @param {WebGLTexture} texture
+		* @param {number} blend AuraBlend's BLEND_*
+		* @param {Float32Array} vertices x, y, z, u, v each
+		* @param {number} vertexCount
+		* @param {Uint16Array} indices
+		* @param {number} x
+		* @param {number} y
+		* @param {number} z
+		* @param {number} r colour, as the effect gave its shader's uColor
+		* @param {number} g
+		* @param {number} b
+		* @param {number} a
+		* @param {number} depth what the effect took off gl_Position.z
+		*/
+		mesh(texture, blend, vertices, vertexCount, indices, x, y, z, r, g, b, a, depth) {
+			const base = this.reserve(texture, blend, vertexCount, indices.length);
+			for (let i = 0, o = 0; i < vertexCount; i++, o += 5) this.vertex(vertices[o] + x, vertices[o + 1] + y, vertices[o + 2] + z, vertices[o + 3], vertices[o + 4], r, g, b, a, depth);
+			for (let i = 0; i < indices.length; i++) this.indices[this.indexCount++] = base + indices[i];
+		}
+		/**
+		* Draw what was recorded. Call in the class's afterRender, which then puts
+		* its blending back.
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		flush(gl) {
+			if (!this.active) return;
+			this.active = false;
+			if (!this.runCount) return;
+			if (!this.program || this.gl !== gl) this.init(gl);
+			const uniform = this.program.uniform;
+			gl.useProgram(this.program);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, this.modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, this.projection);
+			gl.uniform1i(uniform.uFogUse, this.fog.use);
+			gl.uniform1f(uniform.uFogNear, this.fog.near);
+			gl.uniform1f(uniform.uFogFar, this.fog.far);
+			gl.uniform3fv(uniform.uFogColor, this.fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.bindVertexArray(this.vao);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.subarray(0, this.vertexCount * FLOATS), gl.STREAM_DRAW);
+			let runs = this.runs;
+			let runCount = this.runCount;
+			let indices = this.indices;
+			if (this.mergeAdditive && this.merge()) {
+				runs = this.mergedRuns;
+				runCount = this.mergedRunCount;
+				indices = this.mergedIndices;
+			}
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices.subarray(0, this.indexCount), gl.STREAM_DRAW);
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				let blend = -1;
+				for (let i = 0; i < runCount; i++) {
+					const run = runs[i];
+					if (run.blend !== blend) {
+						blend = run.blend;
+						setAuraBlend(gl, blend);
+						if (uniform.uDarken) gl.uniform1i(uniform.uDarken, blend === 2);
+					}
+					gl.bindTexture(gl.TEXTURE_2D, run.texture);
+					gl.drawElements(gl.TRIANGLES, run.count, gl.UNSIGNED_INT, run.first * 4);
+				}
+			});
+			gl.bindVertexArray(null);
+			for (let i = 0; i < this.runCount; i++) this.runs[i].texture = null;
+			for (let i = 0; i < this.mergedRunCount; i++) this.mergedRuns[i].texture = null;
+			this.runCount = 0;
+			this.mergedRunCount = 0;
+			this.vertexCount = 0;
+			this.indexCount = 0;
+		}
+		/**
+		* Regroup the recorded runs for mergeAdditive into mergedRuns and
+		* mergedIndices: each span of consecutive BLEND_ADD runs becomes one run
+		* per texture, in the order the textures first appear in it, with that
+		* texture's triangles in the order they were recorded. Other runs stay
+		* as they are, where they are. Returns false when nothing would merge.
+		*
+		* @return {boolean}
+		*/
+		merge() {
+			const runs = this.runs;
+			const runCount = this.runCount;
+			if (this.mergedIndices.length < this.indexCount) this.mergedIndices = new Uint32Array(this.indices.length);
+			const textureRun = this.textureRun;
+			let merged = 0;
+			let offset = 0;
+			for (let start = 0; start < runCount;) {
+				if (runs[start].blend !== 0) {
+					const run = runs[start];
+					const target = this.mergedRun(merged++, run.texture, run.blend, offset);
+					this.copyIndices(run, offset);
+					target.count = run.count;
+					offset += run.count;
+					start++;
+					continue;
+				}
+				let end = start;
+				const first = merged;
+				for (; end < runCount && runs[end].blend === 0; end++) {
+					const run = runs[end];
+					let target = textureRun.get(run.texture);
+					if (target === void 0) {
+						target = this.mergedRun(merged++, run.texture, 0, 0);
+						textureRun.set(run.texture, target);
+					}
+					target.count += run.count;
+				}
+				for (let i = first; i < merged; i++) {
+					const target = this.mergedRuns[i];
+					target.first = offset;
+					offset += target.count;
+					target.count = 0;
+				}
+				for (let i = start; i < end; i++) {
+					const run = runs[i];
+					const target = textureRun.get(run.texture);
+					this.copyIndices(run, target.first + target.count);
+					target.count += run.count;
+				}
+				textureRun.clear();
+				start = end;
+			}
+			this.mergedRunCount = merged;
+			return merged < runCount;
+		}
+		/**
+		* Copy a recorded run's indices into mergedIndices at `offset`, without
+		* the garbage of a subarray a run.
+		*/
+		copyIndices(run, offset) {
+			const indices = this.indices;
+			const out = this.mergedIndices;
+			for (let i = run.first, end = run.first + run.count; i < end; i++) out[offset++] = indices[i];
+		}
+		/**
+		* mergedRuns[index], set to start empty at `first`.
+		*/
+		mergedRun(index, texture, blend, first) {
+			let run = this.mergedRuns[index];
+			if (!run) run = this.mergedRuns[index] = {
+				texture: null,
+				blend: 0,
+				first: 0,
+				count: 0
+			};
+			run.texture = texture;
+			run.blend = blend;
+			run.first = first;
+			run.count = 0;
+			return run;
+		}
+		/**
+		* Create the program, the buffers and the vertex array.
+		*/
+		init(gl) {
+			if (this.program && this.gl === gl) return;
+			this.gl = gl;
+			const fragment = AuraBatch_default.replace(/^(#version[^\n]*\n)/, `$1${this.defines}`);
+			this.program = WebGL_default.createShaderProgram(gl, AuraBatch_default$1, fragment);
+			this.vertexBuffer = gl.createBuffer();
+			this.indexBuffer = gl.createBuffer();
+			this.vao = gl.createVertexArray();
+			const attribute = this.program.attribute;
+			gl.bindVertexArray(this.vao);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE, 0);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE, 12);
+			gl.enableVertexAttribArray(attribute.aColor);
+			gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, 20);
+			gl.enableVertexAttribArray(attribute.aDepthOffset);
+			gl.vertexAttribPointer(attribute.aDepthOffset, 1, gl.FLOAT, false, STRIDE, 36);
+			gl.bindVertexArray(null);
+		}
+		/**
+		* Delete the program and the buffers. Call in the class's static free.
+		*/
+		free(gl) {
+			if (this.program) {
+				gl.deleteProgram(this.program);
+				gl.deleteBuffer(this.vertexBuffer);
+				gl.deleteBuffer(this.indexBuffer);
+				gl.deleteVertexArray(this.vao);
+			}
+			this.program = null;
+			this.vao = null;
+			this.vertexBuffer = null;
+			this.indexBuffer = null;
+			this.gl = null;
+			this.active = false;
+			this.runCount = 0;
+			this.mergedRunCount = 0;
+			this.textureRun.clear();
+			this.vertexCount = 0;
+			this.indexCount = 0;
+		}
+	};
+}));
 // src/Renderer/Effects/EffectPrimSim.js
 /**
 * Read a numeric option
@@ -274294,15 +274820,32 @@ var init_EffectPrim$1 = __esmMin((() => {
 	EffectPrim_default = "#version 300 es\r\n\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform vec4 uColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture(uDiffuse, vTextureCoord.st);\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    fragColor = textureSample * uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n        fragColor       = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n    }\r\n}\r\n";
 }));
 // src/Renderer/Effects/EffectPrim.js
-var _program$33, EffectPrim;
+/**
+* @param {object} gl context
+* @param {string} name file in data/texture/effect/
+*/
+function releaseSharedTexture$1(gl, name) {
+	const users = (_sharedUsers$1.get(name) || 0) - 1;
+	if (users > 0) {
+		_sharedUsers$1.set(name, users);
+		return;
+	}
+	_sharedUsers$1.delete(name);
+	const entry = _sharedTextures$1.get(name);
+	if (entry && entry.texture) gl.deleteTexture(entry.texture);
+	_sharedTextures$1.delete(name);
+}
+var _program$33, _sharedTextures$1, _sharedUsers$1, EffectPrim;
 var init_EffectPrim = __esmMin((() => {
 	init_WebGL();
-	init_Client();
 	init_SpriteRenderer();
+	init_AuraBatch();
 	init_EffectPrimSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$33 = null;
+	_sharedTextures$1 = /* @__PURE__ */ new Map();
+	_sharedUsers$1 = /* @__PURE__ */ new Map();
 	EffectPrim = class {
 		/**
 		* @param {object} effect description
@@ -274339,15 +274882,12 @@ var init_EffectPrim = __esmMin((() => {
 		*/
 		init(gl) {
 			this.buffer = gl.createBuffer();
-			Client.loadFile(`data/texture/effect/${this.effect.texture}.tga`, (buffer) => {
-				WebGL_default.texture(gl, buffer, (texture) => {
-					if (this.freed) {
-						gl.deleteTexture(texture);
-						return;
-					}
-					this.texture = texture;
-					this.ready = true;
-				});
+			this.textureName = `${this.effect.texture}.tga`;
+			_sharedUsers$1.set(this.textureName, (_sharedUsers$1.get(this.textureName) || 0) + 1);
+			sharedTexture(_sharedTextures$1, gl, this.textureName, (texture) => {
+				if (this.freed) return;
+				this.texture = texture;
+				this.ready = true;
 			});
 		}
 		/**
@@ -274360,10 +274900,11 @@ var init_EffectPrim = __esmMin((() => {
 				gl.deleteBuffer(this.buffer);
 				this.buffer = null;
 			}
-			if (this.texture) {
-				gl.deleteTexture(this.texture);
-				this.texture = null;
+			if (this.textureName) {
+				releaseSharedTexture$1(gl, this.textureName);
+				this.textureName = null;
 			}
+			this.texture = null;
 		}
 		/**
 		* @param {object} gl context
@@ -274408,6 +274949,8 @@ var init_EffectPrim = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static free(gl) {
+			freeSharedTextures(_sharedTextures$1, gl);
+			_sharedUsers$1.clear();
 			if (_program$33) {
 				gl.deleteProgram(_program$33);
 				_program$33 = null;
@@ -277013,531 +277556,6 @@ var init_TwoDEffect = __esmMin((() => {
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			SpriteRenderer.unbind(gl);
-		}
-	};
-}));
-// src/Renderer/Effects/AuraBatch.vs?raw
-var AuraBatch_default$1;
-var init_AuraBatch$2 = __esmMin((() => {
-	AuraBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\nin vec4 aColor;\r\nin float aDepthOffset;\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vColor;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nvoid main(void) {\r\n	gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);\r\n	gl_Position.z -= aDepthOffset;\r\n	vTextureCoord = aTextureCoord;\r\n	vColor = aColor;\r\n}\r\n";
-}));
-// src/Renderer/Effects/AuraBatch.fs?raw
-var AuraBatch_default;
-var init_AuraBatch$1 = __esmMin((() => {
-	AuraBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\n// AuraBatch.js puts its effect's defines here: FOG, DISCARD_CLEAR,\r\n// DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.\r\n\r\nin vec2 vTextureCoord;\r\nflat in vec4 vColor;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform bool uDarken;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n#ifdef DISCARD_CLEAR\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DISCARD_BLACK\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DARKEN\r\n	if (uDarken) {\r\n		float k = max(max(texColor.r, texColor.g), texColor.b) * vColor.a;\r\n		fragColor = vec4(k, k, k, 1.0);\r\n		return;\r\n	}\r\n#endif\r\n\r\n	fragColor = texColor * vColor;\r\n\r\n#ifdef FOG\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n#endif\r\n}\r\n";
-}));
-// src/Renderer/Effects/AuraBlend.js
-/**
-* Renderer/Effects/AuraBlend.js
-*
-* Colour and blending for the aura effects, shared by the level-99 aura's
-* three parts and the high-level aura (MaxLevelAura).
-*
-* The auras add light (SRC_ALPHA, ONE), which can make any colour but black:
-* black added is nothing. Two kinds of colour are drawn otherwise:
-*
-* - a hat-effect aura's (`hat`, which LevelAuraEffects sets): the client draws
-*   the coloured level-99 and level-160 hat auras with alpha blending, in any
-*   colour, where its level auras add light. An iRO Ragexe.exe (October 2026)
-*   sets that blending (5/6) for effects 1164-1183, 1291, 1292, 1325-1346 and
-*   2281-2284, beside their colour.
-* - a dark one (AuraTiers.auraColor marks it): black added would be nothing.
-*
-* How depends on the texture's shape:
-*
-* - 'alpha': a texture shaped by its alpha channel, bright in every pixel
-*   (ring_blue.tga, whitelight.tga, cir0002.tga). It is drawn in its own
-*   colour with alpha blending (SRC_ALPHA, ONE_MINUS_SRC_ALPHA). Darkening by
-*   its colour instead would darken the whole quad, and tint it with the
-*   opposite of the texture's colour.
-* - 'brightness': a texture with no alpha, shaped by how bright it is on black
-*   (pikapika2.bmp), which alpha blending would draw as a square. A hat colour
-*   keeps adding light; the client gives its hat auras a ready-coloured
-*   texture with alpha here instead (GroundAura's), and this is the fallback
-*   for a client without one. A dark colour darkens what is behind by that
-*   brightness (ZERO, ONE_MINUS_SRC_COLOR), which its shader gives as grey
-*   (uDarken in GroundAura.fs): darkening by the texture's own colour would
-*   leave the opposite colour behind, an orange fringe for pikapika2's blue.
-*
-* This file is part of ROBrowser, (http://www.robrowser.com/).
-*/
-/**
-* The colour to give the shader's uColor for `color`.
-*
-* @param {{r: number, g: number, b: number, dark: boolean}} color
-* @param {number} alpha
-* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
-* @param {number[]} [out] written and returned instead of a new array
-* @return {number[]} r, g, b, a
-*/
-function auraUniform(color, alpha, shape = "brightness", out = new Array(4)) {
-	const white = color.dark && shape !== "alpha";
-	out[0] = white ? 1 : color.r;
-	out[1] = white ? 1 : color.g;
-	out[2] = white ? 1 : color.b;
-	out[3] = alpha;
-	return out;
-}
-/**
-* Switch to the blending `color` needs before drawing it. A no-op for every
-* colour but a hat aura's or a dark one.
-*
-* @param {WebGL2RenderingContext} gl
-* @param {{dark: boolean, hat: boolean}} color
-* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
-*/
-function beginAuraBlend(gl, color, shape = "brightness") {
-	const blend = auraBlend(color, shape);
-	if (blend !== 0) setAuraBlend(gl, blend);
-}
-/**
-* The blending `color` needs, as beginAuraBlend switches to it.
-*
-* @param {{dark: boolean, hat: boolean}} color
-* @param {string} [shape] 'alpha' or 'brightness' (the default): see above
-* @return {number} BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
-*/
-function auraBlend(color, shape = "brightness") {
-	if (!color) return 0;
-	if (shape === "alpha" && (color.hat || color.dark)) return 1;
-	if (shape !== "alpha" && color.dark) return 2;
-	return 0;
-}
-/**
-* Switch to one of the blendings above.
-*
-* @param {WebGL2RenderingContext} gl
-* @param {number} blend BLEND_ADD, BLEND_ALPHA or BLEND_DARKEN
-*/
-function setAuraBlend(gl, blend) {
-	if (blend === 1) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	else if (blend === 2) gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_COLOR);
-	else gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-}
-/**
-* Put back the additive blending the auras share, after beginAuraBlend.
-*/
-function endAuraBlend(gl, color) {
-	if (color && (color.hat || color.dark)) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-}
-var init_AuraBlend = __esmMin((() => {}));
-// src/Renderer/Effects/AuraBatch.js
-/**
-* Load an effect texture once for every instance that asks for it, so they
-* share one GL texture (and one run in a batch). `cache` is the class's Map;
-* freeSharedTextures deletes what is in it.
-*
-* @param {Map} cache
-* @param {WebGL2RenderingContext} gl
-* @param {string} name file name under data/texture/effect/
-* @param {function} onload receives the texture
-* @param {function} [onerror] the file could not be loaded
-*/
-function sharedTexture(cache, gl, name, onload, onerror) {
-	let entry = cache.get(name);
-	if (!entry) {
-		entry = {
-			texture: null,
-			failed: false,
-			waiting: []
-		};
-		cache.set(name, entry);
-		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
-			WebGL_default.texture(gl, buffer, (texture) => {
-				if (cache.get(name) !== entry) {
-					gl.deleteTexture(texture);
-					return;
-				}
-				entry.texture = texture;
-				const waiting = entry.waiting;
-				entry.waiting = [];
-				waiting.forEach((w) => w.onload(texture));
-			});
-		}, () => {
-			entry.failed = true;
-			const waiting = entry.waiting;
-			entry.waiting = [];
-			waiting.forEach((w) => w.onerror && w.onerror());
-		});
-	}
-	if (entry.texture) onload(entry.texture);
-	else if (entry.failed) {
-		if (onerror) onerror();
-	} else entry.waiting.push({
-		onload,
-		onerror
-	});
-}
-/**
-* Delete the textures sharedTexture loaded into `cache`.
-*/
-function freeSharedTextures(cache, gl) {
-	for (const entry of cache.values()) if (entry.texture) gl.deleteTexture(entry.texture);
-	cache.clear();
-}
-var FLOATS, STRIDE, QUAD_UV, QUAD_FAN, AuraBatch;
-var init_AuraBatch = __esmMin((() => {
-	init_AuraBatch$2();
-	init_AuraBatch$1();
-	init_WebGL();
-	init_Client();
-	init_Configs();
-	init_SpriteRenderer();
-	init_AuraBlend();
-	FLOATS = 10;
-	STRIDE = 40;
-	QUAD_UV = [
-		0,
-		0,
-		1,
-		0,
-		1,
-		1,
-		0,
-		1
-	];
-	QUAD_FAN = [
-		0,
-		1,
-		2,
-		2,
-		3,
-		0
-	];
-	AuraBatch = class {
-		/**
-		* @param {object} options the effect's fragment shader, as defines
-		* @param {boolean} [options.fog] fog, as SpriteRenderer draws it
-		* @param {boolean} [options.discardClear] discard texels with alpha under 0.01
-		* @param {boolean} [options.discardBlack] discard black texels
-		* @param {boolean} [options.darken] BLEND_DARKEN draws grey from the texture's brightness
-		* @param {boolean} [options.mergeAdditive] draw each texture's additive triangles together (see above)
-		*/
-		constructor(options) {
-			const { mergeAdditive, ...defines } = options;
-			this.mergeAdditive = !!mergeAdditive;
-			this.defines = Object.keys(defines).filter((key) => defines[key]).map((key) => `#define ${key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase()}\n`).join("");
-			this.vertices = new Float32Array(FLOATS * 1024);
-			this.indices = /* @__PURE__ */ new Uint32Array(1536);
-			this.vertexCount = 0;
-			this.indexCount = 0;
-			this.runs = [];
-			this.runCount = 0;
-			this.mergedIndices = /* @__PURE__ */ new Uint32Array(0);
-			this.mergedRuns = [];
-			this.mergedRunCount = 0;
-			this.textureRun = /* @__PURE__ */ new Map();
-			this.modelView = /* @__PURE__ */ new Float32Array(16);
-			this.projection = /* @__PURE__ */ new Float32Array(16);
-			this.fog = {
-				use: false,
-				near: 0,
-				far: 0,
-				color: /* @__PURE__ */ new Float32Array(3)
-			};
-			this.active = false;
-			this.gl = null;
-			this.program = null;
-			this.vao = null;
-			this.vertexBuffer = null;
-			this.indexBuffer = null;
-		}
-		/**
-		* Start recording the frame's instances. Call in the class's beforeRender.
-		*
-		* @param {WebGL2RenderingContext} gl
-		* @param {mat4} modelView
-		* @param {mat4} projection
-		* @param {object} fog
-		*/
-		begin(gl, modelView, projection, fog) {
-			this.vertexCount = 0;
-			this.indexCount = 0;
-			this.runCount = 0;
-			this.active = Configs.get("auraBatching", true) !== false && typeof gl.createVertexArray === "function";
-			if (!this.active) return;
-			this.modelView.set(modelView);
-			this.projection.set(projection);
-			this.fog.use = !!(fog.use && fog.exist);
-			this.fog.near = fog.near;
-			this.fog.far = fog.far;
-			this.fog.color.set(fog.color);
-		}
-		/**
-		* Room for `vertices` more vertices and `indices` more indices, in the run
-		* of `texture` drawn with `blend`. Returns the index of the first new vertex.
-		*/
-		reserve(texture, blend, vertices, indices) {
-			if ((this.vertexCount + vertices) * FLOATS > this.vertices.length) {
-				const grown = new Float32Array(Math.max(this.vertices.length * 2, (this.vertexCount + vertices) * FLOATS));
-				grown.set(this.vertices.subarray(0, this.vertexCount * FLOATS));
-				this.vertices = grown;
-			}
-			if (this.indexCount + indices > this.indices.length) {
-				const grown = new Uint32Array(Math.max(this.indices.length * 2, this.indexCount + indices));
-				grown.set(this.indices.subarray(0, this.indexCount));
-				this.indices = grown;
-			}
-			let run = this.runCount ? this.runs[this.runCount - 1] : null;
-			if (!run || run.texture !== texture || run.blend !== blend) {
-				run = this.runs[this.runCount];
-				if (!run) run = this.runs[this.runCount] = {
-					texture: null,
-					blend: 0,
-					first: 0,
-					count: 0
-				};
-				run.texture = texture;
-				run.blend = blend;
-				run.first = this.indexCount;
-				run.count = 0;
-				this.runCount++;
-			}
-			run.count += indices;
-			return this.vertexCount;
-		}
-		/**
-		* Write one vertex.
-		*/
-		vertex(x, y, z, u, v, r, g, b, a, depth) {
-			const d = this.vertices;
-			let o = this.vertexCount * FLOATS;
-			d[o++] = x;
-			d[o++] = y;
-			d[o++] = z;
-			d[o++] = u;
-			d[o++] = v;
-			d[o++] = r;
-			d[o++] = g;
-			d[o++] = b;
-			d[o++] = a;
-			d[o] = depth;
-			this.vertexCount++;
-		}
-		/**
-		* Record a quad.
-		*
-		* @param {WebGLTexture} texture
-		* @param {number} blend AuraBlend's BLEND_*
-		* @param {Array} points four corners [x, y, z] in world space, textured (0,0) (1,0) (1,1) (0,1)
-		* @param {Array} order the six corners of its two triangles
-		* @param {number} r colour, as the effect gave its shader's uColor
-		* @param {number} g
-		* @param {number} b
-		* @param {number} a
-		* @param {number} depth what the effect took off gl_Position.z
-		*/
-		quad(texture, blend, points, order, r, g, b, a, depth) {
-			const base = this.reserve(texture, blend, 4, 6);
-			for (let k = 0; k < 4; k++) {
-				const p = points[k];
-				this.vertex(p[0], p[1], p[2], QUAD_UV[k * 2], QUAD_UV[k * 2 + 1], r, g, b, a, depth);
-			}
-			for (let i = 0; i < 6; i++) this.indices[this.indexCount++] = base + order[i];
-		}
-		/**
-		* Record an indexed mesh, moved by (x, y, z).
-		*
-		* @param {WebGLTexture} texture
-		* @param {number} blend AuraBlend's BLEND_*
-		* @param {Float32Array} vertices x, y, z, u, v each
-		* @param {number} vertexCount
-		* @param {Uint16Array} indices
-		* @param {number} x
-		* @param {number} y
-		* @param {number} z
-		* @param {number} r colour, as the effect gave its shader's uColor
-		* @param {number} g
-		* @param {number} b
-		* @param {number} a
-		* @param {number} depth what the effect took off gl_Position.z
-		*/
-		mesh(texture, blend, vertices, vertexCount, indices, x, y, z, r, g, b, a, depth) {
-			const base = this.reserve(texture, blend, vertexCount, indices.length);
-			for (let i = 0, o = 0; i < vertexCount; i++, o += 5) this.vertex(vertices[o] + x, vertices[o + 1] + y, vertices[o + 2] + z, vertices[o + 3], vertices[o + 4], r, g, b, a, depth);
-			for (let i = 0; i < indices.length; i++) this.indices[this.indexCount++] = base + indices[i];
-		}
-		/**
-		* Draw what was recorded. Call in the class's afterRender, which then puts
-		* its blending back.
-		*
-		* @param {WebGL2RenderingContext} gl
-		*/
-		flush(gl) {
-			if (!this.active) return;
-			this.active = false;
-			if (!this.runCount) return;
-			if (!this.program || this.gl !== gl) this.init(gl);
-			const uniform = this.program.uniform;
-			gl.useProgram(this.program);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, this.modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, this.projection);
-			gl.uniform1i(uniform.uFogUse, this.fog.use);
-			gl.uniform1f(uniform.uFogNear, this.fog.near);
-			gl.uniform1f(uniform.uFogFar, this.fog.far);
-			gl.uniform3fv(uniform.uFogColor, this.fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.bindVertexArray(this.vao);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.subarray(0, this.vertexCount * FLOATS), gl.STREAM_DRAW);
-			let runs = this.runs;
-			let runCount = this.runCount;
-			let indices = this.indices;
-			if (this.mergeAdditive && this.merge()) {
-				runs = this.mergedRuns;
-				runCount = this.mergedRunCount;
-				indices = this.mergedIndices;
-			}
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices.subarray(0, this.indexCount), gl.STREAM_DRAW);
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				let blend = -1;
-				for (let i = 0; i < runCount; i++) {
-					const run = runs[i];
-					if (run.blend !== blend) {
-						blend = run.blend;
-						setAuraBlend(gl, blend);
-						if (uniform.uDarken) gl.uniform1i(uniform.uDarken, blend === 2);
-					}
-					gl.bindTexture(gl.TEXTURE_2D, run.texture);
-					gl.drawElements(gl.TRIANGLES, run.count, gl.UNSIGNED_INT, run.first * 4);
-				}
-			});
-			gl.bindVertexArray(null);
-			for (let i = 0; i < this.runCount; i++) this.runs[i].texture = null;
-			for (let i = 0; i < this.mergedRunCount; i++) this.mergedRuns[i].texture = null;
-			this.runCount = 0;
-			this.mergedRunCount = 0;
-			this.vertexCount = 0;
-			this.indexCount = 0;
-		}
-		/**
-		* Regroup the recorded runs for mergeAdditive into mergedRuns and
-		* mergedIndices: each span of consecutive BLEND_ADD runs becomes one run
-		* per texture, in the order the textures first appear in it, with that
-		* texture's triangles in the order they were recorded. Other runs stay
-		* as they are, where they are. Returns false when nothing would merge.
-		*
-		* @return {boolean}
-		*/
-		merge() {
-			const runs = this.runs;
-			const runCount = this.runCount;
-			if (this.mergedIndices.length < this.indexCount) this.mergedIndices = new Uint32Array(this.indices.length);
-			const textureRun = this.textureRun;
-			let merged = 0;
-			let offset = 0;
-			for (let start = 0; start < runCount;) {
-				if (runs[start].blend !== 0) {
-					const run = runs[start];
-					const target = this.mergedRun(merged++, run.texture, run.blend, offset);
-					this.copyIndices(run, offset);
-					target.count = run.count;
-					offset += run.count;
-					start++;
-					continue;
-				}
-				let end = start;
-				const first = merged;
-				for (; end < runCount && runs[end].blend === 0; end++) {
-					const run = runs[end];
-					let target = textureRun.get(run.texture);
-					if (target === void 0) {
-						target = this.mergedRun(merged++, run.texture, 0, 0);
-						textureRun.set(run.texture, target);
-					}
-					target.count += run.count;
-				}
-				for (let i = first; i < merged; i++) {
-					const target = this.mergedRuns[i];
-					target.first = offset;
-					offset += target.count;
-					target.count = 0;
-				}
-				for (let i = start; i < end; i++) {
-					const run = runs[i];
-					const target = textureRun.get(run.texture);
-					this.copyIndices(run, target.first + target.count);
-					target.count += run.count;
-				}
-				textureRun.clear();
-				start = end;
-			}
-			this.mergedRunCount = merged;
-			return merged < runCount;
-		}
-		/**
-		* Copy a recorded run's indices into mergedIndices at `offset`, without
-		* the garbage of a subarray a run.
-		*/
-		copyIndices(run, offset) {
-			const indices = this.indices;
-			const out = this.mergedIndices;
-			for (let i = run.first, end = run.first + run.count; i < end; i++) out[offset++] = indices[i];
-		}
-		/**
-		* mergedRuns[index], set to start empty at `first`.
-		*/
-		mergedRun(index, texture, blend, first) {
-			let run = this.mergedRuns[index];
-			if (!run) run = this.mergedRuns[index] = {
-				texture: null,
-				blend: 0,
-				first: 0,
-				count: 0
-			};
-			run.texture = texture;
-			run.blend = blend;
-			run.first = first;
-			run.count = 0;
-			return run;
-		}
-		/**
-		* Create the program, the buffers and the vertex array.
-		*/
-		init(gl) {
-			if (this.program && this.gl === gl) return;
-			this.gl = gl;
-			const fragment = AuraBatch_default.replace(/^(#version[^\n]*\n)/, `$1${this.defines}`);
-			this.program = WebGL_default.createShaderProgram(gl, AuraBatch_default$1, fragment);
-			this.vertexBuffer = gl.createBuffer();
-			this.indexBuffer = gl.createBuffer();
-			this.vao = gl.createVertexArray();
-			const attribute = this.program.attribute;
-			gl.bindVertexArray(this.vao);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE, 0);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE, 12);
-			gl.enableVertexAttribArray(attribute.aColor);
-			gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, 20);
-			gl.enableVertexAttribArray(attribute.aDepthOffset);
-			gl.vertexAttribPointer(attribute.aDepthOffset, 1, gl.FLOAT, false, STRIDE, 36);
-			gl.bindVertexArray(null);
-		}
-		/**
-		* Delete the program and the buffers. Call in the class's static free.
-		*/
-		free(gl) {
-			if (this.program) {
-				gl.deleteProgram(this.program);
-				gl.deleteBuffer(this.vertexBuffer);
-				gl.deleteBuffer(this.indexBuffer);
-				gl.deleteVertexArray(this.vao);
-			}
-			this.program = null;
-			this.vao = null;
-			this.vertexBuffer = null;
-			this.indexBuffer = null;
-			this.gl = null;
-			this.active = false;
-			this.runCount = 0;
-			this.mergedRunCount = 0;
-			this.textureRun.clear();
-			this.vertexCount = 0;
-			this.indexCount = 0;
 		}
 	};
 }));
@@ -287726,6 +287744,7 @@ var init_CasterMarks = __esmMin((() => {
 				color: on ? MAGENTA : null
 			};
 		},
+		409: (age) => SCHEDULES[361](age),
 		389: (age) => {
 			const on = age >= 5 && age <= 25;
 			return {
@@ -293336,6 +293355,22 @@ function planAimedSlash(heading, random = Math.random) {
 	return parts;
 }
 /**
+* The four parts of a prim 92 (Meteor Assault) flying out along `heading`.
+*
+* @param {number} heading degrees
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} slashPath results
+*/
+function planOutwardSlash(heading, random = Math.random) {
+	const delay = r$3(random, SLASH.delayRand);
+	const parts = [];
+	for (let i = 0; i < SLASH.parts; i++) {
+		const up = SLASH.height - r$3(random, SLASH.heightRand);
+		parts.push(slashPath(SLASH.startAge - delay + i, heading, up));
+	}
+	return parts;
+}
+/**
 * A part on tick `frame` of its primitive, or null when it does not show.
 *
 * @param {object} part from slashPath
@@ -293422,7 +293457,7 @@ function spawnSlashParts(manager, Params, parts, first = 0) {
 		});
 	});
 }
-var aimedSlashEffect;
+var aimedSlashEffect, outwardSlashEffect;
 var init_PurpleSlashEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_PurpleSlashSim();
@@ -293433,6 +293468,13 @@ var init_PurpleSlashEffect = __esmMin((() => {
 			const from = Params.Inst.position;
 			const to = Params.Init.otherEntity ? Params.Init.otherEntity.position : from;
 			spawnSlashParts(this, Params, planAimedSlash(headingTo(to[0] - from[0], to[1] - from[1])));
+		}
+	};
+	outwardSlashEffect = {
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			for (let k = 0; k < 8; k++) spawnSlashParts(this, Params, planOutwardSlash(k * 45), k * SLASH.parts);
 		}
 	};
 }));
@@ -303834,133 +303876,13 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		409: [
 			{ wav: "effect/¸ÞÅ×¿À ¾î½äÆ®" },
+			outwardSlashEffect,
 			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: -1,
-				posxEnd: -5,
-				posyStart: 0,
-				posyEnd: 0,
-				rotateWithCamera: true,
-				angle: 0
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: -.7,
-				posxEnd: -3.53,
-				posyStart: -.7,
-				posyEnd: -3.53,
-				rotateWithCamera: true,
-				angle: -45
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: 0,
-				posxEnd: 0,
-				posyStart: -1,
-				posyEnd: -5,
-				rotateWithCamera: true,
-				angle: -90
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: .7,
-				posxEnd: 3.53,
-				posyStart: -.7,
-				posyEnd: -3.53,
-				rotateWithCamera: true,
-				angle: -135
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: 1,
-				posxEnd: 5,
-				posyStart: 0,
-				posyEnd: 0,
-				rotateWithCamera: true,
-				angle: -180
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: .7,
-				posxEnd: 3.53,
-				posyStart: .7,
-				posyEnd: 3.53,
-				rotateWithCamera: true,
-				angle: -225
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: 0,
-				posxEnd: 0,
-				posyStart: 1,
-				posyEnd: 5,
-				rotateWithCamera: true,
-				angle: -270
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: -.7,
-				posxEnd: -3.53,
-				posyStart: .7,
-				posyEnd: 3.53,
-				rotateWithCamera: true,
-				angle: -315
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 409), Params);
+				}
 			}
 		],
 		420: [{
