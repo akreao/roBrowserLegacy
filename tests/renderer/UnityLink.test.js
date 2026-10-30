@@ -6,6 +6,8 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 // Soul Unity's link (effect 1210), kRO 2025-07-16: 0xbf1af0 with 0, primitive 38,
 // update 0xb46b50 case 0x26, draw 0xb75640.
 
+const scene = new Map();
+vi.mock('Renderer/EntityManager.js', () => ({ default: { get: gid => scene.get(gid) } }));
 vi.mock('Core/Client.js', () => ({
 	default: {
 		loadFile(path, onload, onerror) {
@@ -61,8 +63,10 @@ describe('Soul Unity link', () => {
 	});
 
 	it('ends after 200 ticks or when an end is gone', () => {
-		const a = { position: [10, 10, 0] };
-		const b = { position: [14, 10, 0] };
+		const a = { GID: 1, position: [10, 10, 0] };
+		const b = { GID: 2, position: [14, 10, 0] };
+		scene.set(1, a);
+		scene.set(2, b);
 		const link = new UnityLink(a, b, 1000);
 		link.render(null, 1000 + 198 * 16.67);
 		expect(link.needCleanUp).toBeFalsy();
@@ -71,6 +75,13 @@ describe('Soul Unity link', () => {
 		const lost = new UnityLink(a, null, 0);
 		lost.render(null, 0);
 		expect(lost.needCleanUp).toBe(true);
+		// the caster leaves sight after the link started
+		const left = new UnityLink(a, b, 0);
+		left.render(null, 10);
+		expect(left.needCleanUp).toBeFalsy();
+		scene.delete(2);
+		left.render(null, 20);
+		expect(left.needCleanUp).toBe(true);
 	});
 
 	it('is effect 1210', () => {

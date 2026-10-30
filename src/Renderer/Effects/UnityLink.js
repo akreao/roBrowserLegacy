@@ -13,6 +13,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import EntityManager from 'Renderer/EntityManager.js';
 import AuraBatch, { sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
 import { BLEND_ADD } from 'Renderer/Effects/AuraBlend.js';
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
@@ -99,7 +100,8 @@ class UnityLink {
 		}
 		// The client updates before it draws, so the first frame is one tick on.
 		const n = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
-		if (n > LINK.life || !this.from || !this.to) {
+		// Gone when it runs out, or when either end has left the scene.
+		if (n > LINK.life || !UnityLink.present(this.from) || !UnityLink.present(this.to)) {
 			this.needCleanUp = true;
 			return;
 		}
@@ -155,6 +157,11 @@ class UnityLink {
 			Math.min(1, alpha * 2),
 			0
 		);
+	}
+
+	/** Whether an entity is still the one the scene knows by its id. */
+	static present(entity) {
+		return !!entity && EntityManager.get(entity.GID) === entity;
 	}
 
 	static init() {
