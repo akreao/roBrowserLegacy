@@ -26572,8 +26572,8 @@ export default {
 
 	// Kunai Explosion (KO_BAKURETSU): the skilleffectinfo row's sound, on the caster when the use packet
 	// has the result set. The client also throws a kunai (983, CThrowItemEffect) at the target; not ported.
-	// Rapid Throw (KO_MUCHANAGE) plays the same sound from its ground packet. See
-	// effect-port/kagerou-oboro-skills.md.
+	// Rapid Throw (KO_MUCHANAGE) plays the same sound from its ground packet, Release Ninja Spell
+	// (KO_KAIHOU) from its use packet. See effect-port/kagerou-oboro-skills.md.
 	ef_ko_bakuretsu_sound: [
 		{
 			wav: 'effect/\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2', // 닌자_던지기
@@ -26636,6 +26636,19 @@ export default {
 				// RotateLine takes a cast time in ms and draws castTime / 16 ticks
 				this.add(new RotateLine(Params.Inst.position, Params.Inst.startTick, 120 * 16, 1000), Params);
 			}
+		}
+	],
+
+	// Release Ninja Spell (KO_KAIHOU): the skilleffectinfo row launches 1008 (술식해방.str) on the target
+	// as each damage packet arrives. (Its use packet throws a charm orb, 989, at the target; not ported.)
+	// See effect-port/kagerou-oboro-skills.md.
+	ef_ko_kaihou: [
+		{
+			//EF_KAIHOU1 (1008)
+			type: 'STR',
+			file: '\xbc\xfa\xbd\xc4\xc7\xd8\xb9\xe6', // 술식해방
+			texturePath: '',
+			attachedEntity: true
 		}
 	],
 

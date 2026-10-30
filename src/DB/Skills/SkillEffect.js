@@ -1344,7 +1344,10 @@ SkillEffect[SK.KO_KAHU_ENTEN] = {}; //Fire Charm
 SkillEffect[SK.KO_HYOUHU_HUBUKI] = {}; //Ice Charm
 SkillEffect[SK.KO_KAZEHU_SEIRAN] = {}; //Wind Charm
 SkillEffect[SK.KO_DOHU_KOUKAI] = {}; //Earth Charm
-SkillEffect[SK.KO_KAIHOU] = {}; //Release Ninja Spell
+SkillEffect[SK.KO_KAIHOU] = {
+	successEffectIdOnCaster: 'ef_ko_bakuretsu_sound',
+	damageEffectIdOnTarget: 'ef_ko_kaihou'
+}; //Release Ninja Spell: the thrown charm orb (989) is not ported
 SkillEffect[SK.KO_ZENKAI] = {}; //Cast Ninja Spell
 SkillEffect[SK.KO_GENWAKU] = {}; //Illusion - Bewitch
 SkillEffect[SK.KO_IZAYOI] = {}; //16th Night
