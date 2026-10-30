@@ -2230,7 +2230,7 @@ SkillEffect[SK.SP_SOULFAIRY] = { castAuraEffectId: 441, successEffectId: [503, 4
 SkillEffect[SK.SP_CURSEEXPLOSION] = { castAuraEffectId: 454, damageEffectIdOnTarget: 'ef_sp_curseexplosion' }; //Curse Explosion
 SkillEffect[SK.SP_SPA] = { castAuraEffectId: 454, successEffectIdOnCaster: ['ef_sp_spa_sound', 1204] }; //Espa
 SkillEffect[SK.SP_SHA] = { castAuraEffectId: 454, successEffectIdOnCaster: 547 }; //Esha
-SkillEffect[SK.SP_SOULUNITY] = { castAuraEffectId: 441, successEffectId: 407 }; //Soul Unity
+SkillEffect[SK.SP_SOULUNITY] = { castAuraEffectId: 441, successEffectId: [1210, 407] }; //Soul Unity
 SkillEffect[SK.SP_SOULDIVISION] = { castAuraEffectId: 454, damageEffectIdOnTarget: ['ef_sp_souldivision_sound', 1209] }; //Soul Division
 SkillEffect[SK.SP_SOULREAPER] = { castAuraEffectId: 441, successEffectIdOnCaster: 'ef_sp_soulreaper' }; //Soul Reaper
 // Official client: the skilleffectinfo row launches 1209 (EF_BLINK_BODY) on the caster when the use packet has the
