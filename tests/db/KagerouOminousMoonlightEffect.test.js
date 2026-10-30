@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
-import SK from '../../src/DB/Skills/SkillConst.js';
+import SkillEffect from 'DB/Skills/SkillEffect.js';
+import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 
 // Ominous Moonlight (OB_AKAITSUKI, skill 3029): the official client's skilleffectinfo row plays t_에너지방출.wav and launches

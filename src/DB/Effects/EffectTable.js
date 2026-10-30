@@ -26591,6 +26591,9 @@ export default {
 			file: 'm_ef03',
 			scale: 1.5,
 			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own burst
+			stackable: true,
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
 			attachedEntity: true
 		}
