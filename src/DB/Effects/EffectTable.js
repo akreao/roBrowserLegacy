@@ -30,6 +30,7 @@ import SongEffects from 'Renderer/Effects/Songs.js';
 import Events from 'Core/Events.js';
 import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
+import { removeTrapEffect } from 'DB/Effects/RemoveTrapEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
@@ -3747,14 +3748,7 @@ export default {
 		}
 	],
 
-	100: [
-		{
-			//EF_REMOVETRAP	Yellow ball fountain
-			//type: 'FUNC',
-			wav: 'effect/hunter_removetrap',
-			attachedEntity: false
-		}
-	],
+	100: removeTrapEffect, //EF_REMOVETRAP	Remove Trap fountain (DB/Effects/RemoveTrapEffect.js)
 
 	101: [
 		{
