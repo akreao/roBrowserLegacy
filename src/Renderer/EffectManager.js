@@ -1527,8 +1527,9 @@ class EffectManager {
 	 * @param {number} srcAID caster aid
 	 * @param {number} [hitIndex] which hit of the damage packet this is, from 0
 	 * @param {boolean} [noTargetEffects] skip the effects on the target (a splash hit)
+	 * @param {number} [hitCount] the packet's hit count, handed to the hit effects as hitCount
 	 */
-	static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0, noTargetEffects = false) {
+	static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0, noTargetEffects = false, hitCount = 1) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -1551,7 +1552,8 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: destAID,
 					startTick: tick,
-					otherAID: srcAID
+					otherAID: srcAID,
+					hitCount: hitCount
 				};
 
 				EffectManager.spam(EF_Init_Par);
