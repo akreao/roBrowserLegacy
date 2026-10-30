@@ -26403,7 +26403,9 @@ export default {
 		}
 	],
 
-	// Fallen Angel (RL_FALLEN_ANGEL), from the client's own effect folders.
+	// Fallen Angel (RL_FALLEN_ANGEL): official effect 1140, launched on the caster when the cast starts.
+	// It stays where the caster was (not attached). The client also lets it drift 0.09 units a tick away
+	// from where the caster went; not ported. See effect-port/rebellion-skills.md.
 	ef_rl_fallen_angel: [
 		{
 			type: 'STR',

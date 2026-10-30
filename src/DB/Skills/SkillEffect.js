@@ -1278,7 +1278,7 @@ SkillEffect[SK.RL_FIREDANCE] = {
 }; //Fire Dance
 SkillEffect[SK.RL_H_MINE] = { damageEffectIdOnTarget: 'ef_rl_h_mine' }; //Howling Mine: the mine comes from the H_MINE status
 SkillEffect[SK.RL_P_ALTER] = { successEffectIdOnCaster: 'ef_rl_p_alter' }; //Platinum Alter
-SkillEffect[SK.RL_FALLEN_ANGEL] = { effectId: 'ef_rl_fallen_angel' }; //Fallen Angel
+SkillEffect[SK.RL_FALLEN_ANGEL] = { beginCastEffectId: 'ef_rl_fallen_angel' }; //Fallen Angel
 SkillEffect[SK.RL_R_TRIP] = {}; //Round Trip
 SkillEffect[SK.RL_D_TAIL] = { effectId: 'ef_rl_d_tail' }; //Dragon Tail
 SkillEffect[SK.RL_FIRE_RAIN] = { effectId: 'ef_rl_fire_rain' }; //Fire Rain
