@@ -26665,6 +26665,15 @@ export default {
 		}
 	],
 
+	// Espa (SP_SPA): the skilleffectinfo row's sound, on the caster when the use packet has the result set
+	// (its 1204, EF_SMA_BLACK, is not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_spa_sound: [
+		{
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2', // t_에너지방출
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
