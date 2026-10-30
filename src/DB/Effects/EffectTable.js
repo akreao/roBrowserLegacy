@@ -26840,6 +26840,15 @@ export default {
 		}
 	],
 
+	// Shadow Warrior (KG_KAGEMUSYA): the skilleffectinfo row plays mon_금강불괴.wav and launches 169
+	// (EF_ENERGYCOAT) on the target as each damage packet arrives. See effect-port/kagerou-oboro-skills.md.
+	ef_kg_kagemusya_sound: [
+		{
+			wav: 'effect/mon_\xb1\xdd\xb0\xad\xba\xd2\xb1\xab', // mon_금강불괴
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
