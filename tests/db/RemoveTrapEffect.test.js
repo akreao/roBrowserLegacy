@@ -39,7 +39,7 @@ describe('Remove Trap fountain', () => {
 
 	it('draws particle1 at 0.8 scale, at the trap', () => {
 		const effect = fountainParticleEffect({ spawn: 0, heading: 0, gravity: 0.08 });
-		expect(effect).toMatchObject({ type: '3D', spriteName: 'particle1', attachedEntity: false });
+		expect(effect).toMatchObject({ type: '3D', spriteName: 'particle1', playSprite: true, attachedEntity: false });
 		expect(effect.track(0).size).toBeCloseTo(FOUNTAIN.scale * 100);
 		expect(EffectTable[100]).toBe(removeTrapEffect);
 		expect(removeTrapEffect[1]).toEqual({ wav: 'effect/hunter_removetrap', attachedEntity: false });

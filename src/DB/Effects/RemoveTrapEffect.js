@@ -21,6 +21,8 @@ export function fountainParticleEffect(particle) {
 	return {
 		type: '3D',
 		spriteName: 'particle1',
+		// The client steps the sprite's own animation.
+		playSprite: true,
 		alphaMax: 1,
 		attachedEntity: false,
 		duration: FOUNTAIN.life * PRIM_TICK_MS,
