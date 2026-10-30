@@ -26691,6 +26691,19 @@ export default {
 		}
 	],
 
+	// Moonlight Fantasy (OB_OBOROGENSOU): the skilleffectinfo row plays sign_up.wav and launches 1011 (흐린달빛환상2.str) on the
+	// target as each damage packet arrives. See effect-port/kagerou-oboro-skills.md.
+	ef_ob_gensou: [
+		{
+			//EF_GENSOU (1011)
+			type: 'STR',
+			file: '\xc8\xe5\xb8\xb0\xb4\xde\xba\xfb\xc8\xaf\xbb\xf32', // 흐린달빛환상2
+			texturePath: '',
+			wav: 'effect/sign_up', // sign_up
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
