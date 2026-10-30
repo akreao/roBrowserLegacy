@@ -26480,12 +26480,17 @@ export default {
 		}
 	],
 
-	// Falling Star (SJ_FALLINGSTAR), from the client's own effect folders.
+	// Falling Star attack (SJ_FALLINGSTAR_ATK): official effect 1220 (CEZ2STREffect) and wizard_sightrasher.wav,
+	// on the target as each damage packet arrives (skilleffectinfo). See
+	// effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_fallingstar: [
 		{
+			//EF_FALLING_STAR (1220)
 			type: 'STR',
 			file: 'falling_star/falling_star',
-			texturePath: 'falling_star/'
+			texturePath: 'falling_star/',
+			wav: 'effect/wizard_sightrasher',
+			attachedEntity: true
 		}
 	],
 
