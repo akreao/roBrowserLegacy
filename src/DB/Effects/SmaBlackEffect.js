@@ -10,7 +10,7 @@
 
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import SmaSwirl from 'Renderer/Effects/SmaSwirl.js';
-import { planSwirls } from 'Renderer/Effects/SmaSwirlSim.js';
+import { planSwirls, SMA, SWIRL } from 'Renderer/Effects/SmaSwirlSim.js';
 
 /**
  * Where each swirl stands, in cells, on its way from `from` toward `to`.
@@ -39,6 +39,9 @@ export const smaBlackEffect = [
 		//EF_SMA_BLACK	Espa: dark swirls from the caster toward the target (kRO 2025 0xbfb5b0, 1205 0xbfb760)
 		type: 'FUNC',
 		attachedEntity: false,
+		// The last swirl starts by tick 100 and lives 100 more. A duration also lets the
+		// manager drop the swirls while they are culled and not drawn.
+		duration: Math.ceil((SMA.life + SWIRL.life + 1) * PRIM_TICK_MS),
 		func: function (Params) {
 			const from = Params.Inst.position;
 			const to = Params.Inst.otherPosition || from;

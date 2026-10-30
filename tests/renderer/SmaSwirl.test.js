@@ -77,6 +77,8 @@ describe('Espa effect', () => {
 	it('plays 1204 from the caster', () => {
 		expect(EffectTable[1204]).toBe(smaBlackEffect);
 		expect(smaBlackEffect[0]).toMatchObject({ type: 'FUNC', attachedEntity: false });
+		// lasts until the last swirl is gone, so it can be dropped while out of view
+		expect(smaBlackEffect[0].duration).toBeGreaterThanOrEqual(200 * (1000 / 60));
 	});
 
 	it('adds 13 swirls, each cleaned up after its 100 ticks, also when its texture cannot load', async () => {
