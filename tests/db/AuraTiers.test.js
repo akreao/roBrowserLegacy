@@ -38,6 +38,7 @@ import {
 	auraColor,
 	tierColor,
 	isFourthJob,
+	isMonsterJob,
 	TIER_EFFECTS,
 	ALL_TIER_EFFECTS,
 	NAMED_COLORS,
@@ -71,6 +72,20 @@ describe('auraTier', () => {
 		expect(auraTier(250, IMPERIAL_GUARD, s)).toBe('fourth');
 		expect(auraTier(275, IMPERIAL_GUARD, s)).toBe('fourth');
 		expect(auraTier(275, HYPER_NOVICE, s)).toBe('fourth');
+	});
+
+	it('gives monsters no aura, whatever their level', () => {
+		// Poring, Baphomet, a champion (Swift Banshee) and a newer monster id
+		[1002, 1039, 2887, 3999, 20021, 31999].forEach(job => {
+			expect(isMonsterJob(job)).toBe(true);
+			expect(auraTier(99, job, s)).toBeNull();
+			expect(auraTier(175, job, s)).toBeNull();
+		});
+		// players, a 4th job and a homunculus keep theirs
+		[KNIGHT, LORD_KNIGHT, RUNE_KNIGHT, IMPERIAL_GUARD, 6001].forEach(job => {
+			expect(isMonsterJob(job)).toBe(false);
+			expect(auraTier(99, job, s)).not.toBeNull();
+		});
 	});
 
 	it('gives a transcendent second job the 185 aura at 99 (UpperJobMaxLvAura), unless switched off', () => {
