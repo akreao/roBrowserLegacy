@@ -362,10 +362,12 @@ export default {
 		loop: [375]
 	},
 
-	// Flash Kick (SJ_FLASHKICK): the official client removes 1221 and launches it again while the status is
-	// on. See effect-port/star-emperor-soul-reaper-skills.md.
+	// Flash Kick (SJ_FLASHKICK): each time the status is on, the official client removes 1221 and launches
+	// it again (a refresh restarts the mark); it is removed when the status ends.
+	// See effect-port/star-emperor-soul-reaper-skills.md.
 	[StatusConst.FLASHKICK]: {
-		loop: ['ef_sj_flashkick']
+		restart: ['ef_sj_flashkick'],
+		stop: ['ef_sj_flashkick']
 	},
 
 	// Soul Curse (SP_SOULCURSE): the official client spawns 1362 and plays s포이즌버스터.wav when the status
