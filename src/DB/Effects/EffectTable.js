@@ -71,6 +71,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import { smaBlackEffect } from 'DB/Effects/SmaBlackEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -19168,6 +19169,8 @@ export default {
 		}
 	],
 
+	1204: smaBlackEffect,
+
 	1225: [
 		{
 			// Soul energy orbs (Soul Reaper, Soul Ascetic), one per soul from ZC_SOULENERGY, newest five shown
@@ -26670,7 +26673,7 @@ export default {
 	],
 
 	// Espa (SP_SPA): the skilleffectinfo row's sound, on the caster when the use packet has the result set
-	// (its 1204, EF_SMA_BLACK, is not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	// (its 1204, EF_SMA_BLACK, is SmaBlackEffect.js). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_spa_sound: [
 		{
 			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2', // t_에너지방출
