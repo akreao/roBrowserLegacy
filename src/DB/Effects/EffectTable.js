@@ -12267,7 +12267,7 @@ export default {
 
 	//544: [{}],	//EF_REDLIGHTBODY	   Warmth Red Sprite
 	//545: [{}],	//EF_RO2YEAR	   Sound And... PUFF Client Crash :P
-	//546: [{}],	//EF_SMA_READY	   Kaupe
+	// 546 EF_SMA_READY, blue sparks when a combo is ready: SoulBodyEffects.js.
 
 	547: [
 		{

@@ -14,7 +14,8 @@
  *   up and down over its 400 ticks (its two rings, prim 108, not drawn yet);
  * - 542 EF_BLUEBODY (Kaupe, Kaite): blue glow over 150 ticks, lives 200;
  * - 543 EF_HATED (Kaahi, Kaizel, Comfort, Hatred): blue glow over 175 ticks,
- *   lives 500 (its prim 59 sparks are not drawn yet).
+ *   lives 500, with blue sparks for its first 80 ticks (ReadySparkEffect.js);
+ * - 546 EF_SMA_READY (combo ready): the same sparks from tick 40 to 120.
  *
  * 427 EF_ASURABODY_MONSTER (Eske) also sets the link flag, but on a player
  * it leaves the glow's alpha at whatever an earlier effect put there, so it is
@@ -25,6 +26,7 @@
 
 import BodyMotion from 'Renderer/Effects/BodyMotion.js';
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
+import { readySparksRow } from 'DB/Effects/ReadySparkEffect.js';
 
 /**
  * The body look of effect `effectId`, for `frames` ticks.
@@ -63,6 +65,9 @@ export default {
 	//EF_BLUEBODY	Kaupe, Kaite
 	542: [bodyMotion(542, 200)],
 
-	//EF_HATED	Kaahi, Kaizel, Comfort, Hatred
-	543: [bodyMotion(543, 500)]
+	//EF_HATED	Kaahi, Kaizel, Comfort, Hatred: the glow and the blue sparks (ReadySparkEffect.js)
+	543: [bodyMotion(543, 500), readySparksRow(543)],
+
+	//EF_SMA_READY	the Star Gladiator's combo-ready status: blue sparks (ReadySparkEffect.js)
+	546: [readySparksRow(546)]
 };

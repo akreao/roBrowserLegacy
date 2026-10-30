@@ -425,6 +425,8 @@ export default {
 	[StatusConst.SG_SUN_WARM]: { restart: [418, 544], stop: [418, 544] },
 	[StatusConst.SG_MOON_WARM]: { restart: [418, 544], stop: [418, 544] },
 	[StatusConst.SG_STAR_WARM]: { restart: [418, 544], stop: [418, 544] },
+	// A Star Gladiator's combo is ready: the client plays 546 (blue sparks) when the status comes on
+	[StatusConst.SMA_READY]: { start: [546] },
 
 	// Star Emperor stances, Gravity Control and Soul Unity: the official client keeps one copy of the
 	// look on the actor while the status is on and removes it when it ends.
