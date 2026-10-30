@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getMotionEffect, motionEffectForPacket } from '../../src/DB/Skills/SkillMotionEffect.js';
+import { getMotionEffect, motionEffectForPacket } from 'DB/Skills/SkillMotionEffect.js';
 
 // Kagerou / Oboro caster motion effect (kRO 2025-07-16): the skilleffectinfo row's beginEffectID when it
 // has one (GetBeginEffectID answers -1 for a missing field), else the fixed table: -1 for Kunai
