@@ -241,4 +241,26 @@ describe('AuraBatch', () => {
 		expect(quadOf.filter((q, i) => i % 6 === 0)).toEqual([0, 2, 1, 3, 4, 5, 7, 6]);
 		expect(Array.from(batch.mergedIndices.subarray(0, 6))).toEqual(Array.from(batch.indices.subarray(0, 6)));
 	});
+
+	it('fogs additive runs to black and the others to the map colour', () => {
+		const batch = new AuraBatch({ fog: true });
+		batch.begin(gl, M, M, { ...FOG, use: true, exist: true });
+		const points = [
+			[0, 0, 0],
+			[1, 0, 0],
+			[1, 0, 1],
+			[0, 0, 1]
+		];
+		batch.quad('a', BLEND_ADD, points, [0, 1, 2, 2, 3, 0], 1, 1, 1, 1, 0);
+		batch.quad('b', BLEND_ALPHA, points, [0, 1, 2, 2, 3, 0], 1, 1, 1, 1, 0);
+		calls.length = 0;
+		batch.flush(gl);
+		const fog = calls
+			.filter(c => c[0] === 'uniform3fv' && c[1] === 'uFogColor')
+			.map(c => Array.from(c[2], v => Math.round(v * 10) / 10));
+		expect(fog).toEqual([
+			[0, 0, 0],
+			[0.4, 0.6, 0.6]
+		]);
+	});
 });
