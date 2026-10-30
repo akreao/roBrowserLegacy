@@ -23,6 +23,7 @@ import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
+import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
 import CloseConfineEffect from 'DB/Effects/CloseConfineEffect.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
@@ -26563,7 +26564,7 @@ export default {
 
 	// Light of the Moon / Stars / Sun (SJ_LIGHTOFMOON / SJ_LIGHTOFSTAR / SJ_LIGHTOFSUN): when the use packet
 	// has the result set, the skilleffectinfo row plays t_피링.wav and launches the light sphere (1198 / 1199 /
-	// 1197, CLightSphereEffect, not ported) on the caster. See effect-port/star-emperor-soul-reaper-skills.md.
+	// 1197, CLightSphereEffect, LightSphereEffect.js) on the caster. See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_lightof_sound: [
 		{
 			wav: 'effect/t_\xc7\xc7\xb8\xb5', // t_피링
@@ -28852,6 +28853,9 @@ export default {
 
 	// Sight Blaster's ring (601), held while the status is on: SightBlasterEffect.js.
 	...SightBlasterEffect,
+
+	// Light of the Sun / Moon / Stars spheres (1197-1199, CLightSphereEffect): LightSphereEffect.js.
+	...LightSphereEffect,
 
 	// Close Confine on its target (quake, red flicker): CloseConfineEffect.js.
 	...CloseConfineEffect
