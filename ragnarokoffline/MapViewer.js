@@ -149828,7 +149828,18 @@ var init_StatusEffectTable = __esmMin((() => {
 			stop: ["ef_su_bitescar"]
 		},
 		[StatusConst_default.SV_ROOTTWIST]: { loop: ["ef_su_roottwist"] },
-		[StatusConst_default.ASSUMPTIO]: { loop: [375] }
+		[StatusConst_default.ASSUMPTIO]: { loop: [375] },
+		[StatusConst_default.H_MINE]: { loop: [1139] },
+		[StatusConst_default.ANTI_M_BLAST]: { loop: [1136] },
+		[StatusConst_default.E_QD_SHOT_READY]: {
+			start: [1076],
+			end: [1076]
+		},
+		[StatusConst_default.C_MARKER]: {
+			start: [1061],
+			restart: [1075],
+			stop: [1075]
+		}
 	};
 }));
 // src/DB/Skills/SkillUnitConst.js
@@ -224547,26 +224558,29 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.ALL_GUARDIAN_RECALL] = {};
 	SkillEffect[SkillConst_default.ALL_ODINS_POWER] = {};
 	SkillEffect[SkillConst_default.MC_CARTDECORATE] = {};
-	SkillEffect[SkillConst_default.RL_RICHS_COIN] = {};
+	SkillEffect[SkillConst_default.RL_RICHS_COIN] = { successEffectIdOnCaster: 1134 };
 	SkillEffect[SkillConst_default.RL_MASS_SPIRAL] = {};
-	SkillEffect[SkillConst_default.RL_BANISHING_BUSTER] = {};
+	SkillEffect[SkillConst_default.RL_BANISHING_BUSTER] = { damageEffectIdOnTarget: "ef_rl_banishing_buster" };
 	SkillEffect[SkillConst_default.RL_B_TRAP] = {};
-	SkillEffect[SkillConst_default.RL_FLICKER] = {};
-	SkillEffect[SkillConst_default.RL_S_STORM] = { effectId: "ef_s_storm" };
-	SkillEffect[SkillConst_default.RL_E_CHAIN] = { effectId: "ef_rl_e_chain" };
+	SkillEffect[SkillConst_default.RL_FLICKER] = { successEffectIdOnCaster: ["ef_rl_flicker_sound", 153] };
+	SkillEffect[SkillConst_default.RL_S_STORM] = { damageEffectIdOnTarget: "ef_s_storm" };
+	SkillEffect[SkillConst_default.RL_E_CHAIN] = { successEffectIdOnCaster: "ef_rl_e_chain" };
 	SkillEffect[SkillConst_default.RL_QD_SHOT] = {};
-	SkillEffect[SkillConst_default.RL_C_MARKER] = { successEffectId: "ef_c_marker1" };
-	SkillEffect[SkillConst_default.RL_FIREDANCE] = { effectId: "ef_rl_firedance" };
-	SkillEffect[SkillConst_default.RL_H_MINE] = { effectId: "ef_rl_h_mine" };
-	SkillEffect[SkillConst_default.RL_P_ALTER] = { effectId: "ef_rl_p_alter" };
-	SkillEffect[SkillConst_default.RL_FALLEN_ANGEL] = { effectId: "ef_rl_fallen_angel" };
-	SkillEffect[SkillConst_default.RL_R_TRIP] = {};
-	SkillEffect[SkillConst_default.RL_D_TAIL] = { effectId: "ef_rl_d_tail" };
+	SkillEffect[SkillConst_default.RL_C_MARKER] = {};
+	SkillEffect[SkillConst_default.RL_FIREDANCE] = {
+		successEffectIdOnCaster: ["ef_rl_firedance_sound", "ef_rl_firedance"],
+		damageEffectIdOnTarget: 647
+	};
+	SkillEffect[SkillConst_default.RL_H_MINE] = { damageEffectIdOnTarget: "ef_rl_h_mine" };
+	SkillEffect[SkillConst_default.RL_P_ALTER] = { successEffectIdOnCaster: "ef_rl_p_alter" };
+	SkillEffect[SkillConst_default.RL_FALLEN_ANGEL] = { beginCastEffectId: "ef_rl_fallen_angel" };
+	SkillEffect[SkillConst_default.RL_R_TRIP] = { successEffectIdOnCaster: 637 };
+	SkillEffect[SkillConst_default.RL_D_TAIL] = { damageEffectIdOnTarget: "ef_rl_d_tail" };
 	SkillEffect[SkillConst_default.RL_FIRE_RAIN] = { effectId: "ef_rl_fire_rain" };
-	SkillEffect[SkillConst_default.RL_HEAT_BARREL] = { effectId: "ef_rl_heat_barrel" };
-	SkillEffect[SkillConst_default.RL_AM_BLAST] = {};
-	SkillEffect[SkillConst_default.RL_SLUGSHOT] = { effectId: "ef_rl_slugshot" };
-	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = {};
+	SkillEffect[SkillConst_default.RL_HEAT_BARREL] = { successEffectIdOnCaster: "ef_rl_heat_barrel" };
+	SkillEffect[SkillConst_default.RL_AM_BLAST] = { damageEffectIdOnTarget: "ef_rl_am_blast_sound" };
+	SkillEffect[SkillConst_default.RL_SLUGSHOT] = { damageEffectIdOnTarget: "ef_rl_slugshot" };
+	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = { groundEffectIdByLevel: [1062] };
 	SkillEffect[SkillConst_default.RL_R_TRIP_PLUSATK] = {};
 	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { successEffectIdOnCaster: "ef_nw_intensive_aim_helix" };
 	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { successEffectIdOnCasterByLevel: [
@@ -310247,9 +310261,9 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		1062: [{
 			type: "STR",
-			file: "stormgust",
-			wav: "effect/RL_HAMMER_OF_GOD",
-			attachedEntity: true
+			file: "rl_hamer_god/hogg2",
+			texturePath: "rl_hamer_god/",
+			attachedEntity: false
 		}],
 		1094: [{
 			type: "STR",
@@ -313005,7 +313019,8 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_s_storm: [{
 			type: "STR",
-			file: "S_STORM",
+			file: "rl_storm/s_storm",
+			texturePath: "rl_storm/",
 			wav: "effect/RL_S_STORM",
 			attachedEntity: true
 		}],
@@ -315217,10 +315232,15 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "rl_fire_dance/"
 		}],
 		ef_rl_h_mine: [{
+			wav: "effect/rl_h_mine",
+			attachedEntity: true
+		}],
+		1139: [{
 			type: "STR",
 			file: "rl_h_mine/mine",
 			texturePath: "rl_h_mine/",
-			wav: "effect/rl_h_mine"
+			repeat: true,
+			attachedEntity: true
 		}],
 		ef_rl_p_alter: [{
 			type: "STR",
@@ -315254,6 +315274,56 @@ var init_EffectTable = __esmMin((() => {
 			file: "rl_slugshot/slug",
 			texturePath: "rl_slugshot/",
 			wav: "effect/rl_slugshot"
+		}],
+		1134: [{
+			type: "STR",
+			file: "rl_richs_coin_a/reachs",
+			texturePath: "rl_richs_coin_a/",
+			attachedEntity: true
+		}],
+		ef_rl_banishing_buster: [{
+			type: "STR",
+			file: "rl_banishing_buster/vanishing1",
+			texturePath: "rl_banishing_buster/",
+			wav: "effect/rl_banishing_buster",
+			attachedEntity: true
+		}],
+		ef_rl_flicker_sound: [{
+			wav: "effect/rl_flicker",
+			attachedEntity: true
+		}],
+		1061: [{
+			type: "STR",
+			file: "rl_c_maker/deffender",
+			texturePath: "rl_c_maker/",
+			attachedEntity: true
+		}],
+		1075: [{
+			type: "STR",
+			file: "rl_c_maker/cm",
+			texturePath: "rl_c_maker/",
+			attachedEntity: true
+		}],
+		ef_rl_firedance_sound: [{
+			wav: "effect/µ¥½ºÆä¶óµµ",
+			attachedEntity: true
+		}],
+		ef_rl_am_blast_sound: [{
+			wav: "effect/rl_am_blast",
+			attachedEntity: true
+		}],
+		1136: [{
+			type: "STR",
+			file: "rl_anti_material/anti",
+			texturePath: "rl_anti_material/",
+			repeat: true,
+			attachedEntity: true
+		}],
+		1076: [{
+			type: "STR",
+			file: "rl_quick_draw/qd2",
+			texturePath: "rl_quick_draw/",
+			attachedEntity: false
 		}],
 		ef_sj_fullmoonkick: [{
 			type: "STR",
@@ -365281,15 +365351,6 @@ function onEntityStatusChange(pkt) {
 				file: "½ºÅé"
 			});
 			else entity.attachments.remove("status-stop");
-			break;
-		case StatusConst_default.C_MARKER:
-			if (pkt.state == 1) {
-				const EF_Init_Par = {
-					effectId: "ef_c_marker2",
-					ownerAID: pkt.AID
-				};
-				EffectManager.spam(EF_Init_Par);
-			}
 			break;
 		case StatusConst_default.SUHIDE:
 			if (pkt.state == 1) entity.setAction({
