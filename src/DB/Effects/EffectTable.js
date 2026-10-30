@@ -26742,6 +26742,26 @@ export default {
 		}
 	],
 
+	// Swirling Petal (KO_HUUMARANKA): the skilleffectinfo row plays T_회오리차기.wav and launches 984 (the
+	// spinning huuma, CRotateItemEffect), 1000 (the blue rotate-line ribbons) and 1002 (CScatterEffect) at
+	// the ground packet's cell, with no owner. 984 and 1002 are not ported. The ribbons fade out by about
+	// tick 113 and are drawn for 120 ticks. See effect-port/kagerou-oboro-skills.md.
+	ef_ko_huumaranka: [
+		{
+			wav: 'effect/t_\xc8\xb8\xbf\xc0\xb8\xae\xc2\xf7\xb1\xe2', // t_회오리차기
+			attachedEntity: false
+		},
+		{
+			//EF_ROTATE_LINE_BLUE (1000)
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				// RotateLine takes a cast time in ms and draws castTime / 16 ticks
+				this.add(new RotateLine(Params.Inst.position, Params.Inst.startTick, 120 * 16, 1000), Params);
+			}
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
