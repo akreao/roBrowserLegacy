@@ -403,5 +403,40 @@ export default {
 		start: [1061],
 		restart: [1075],
 		stop: [1075]
-	}
+	},
+
+	// Soul Link (Soul Linker spirits) and the Soul Reaper souls: the official client puts 424 on the
+	// target from the use packet and removes it when the status ends. See effect-port/soul-linker-audit.md.
+	[StatusConst.SOULLINK]: { stop: [424] },
+	[StatusConst.SOULSHADOW]: { stop: [424] },
+	[StatusConst.SOULFAIRY]: { stop: [424] },
+	[StatusConst.SOULFALCON]: { stop: [424] },
+	[StatusConst.SOULGOLEM]: { stop: [424] },
+
+	// Kaite (SL_KAITE): the official client removes the actor's 419 whenever the status changes and
+	// plays it again while it is on.
+	[StatusConst.KAITE]: {
+		restart: [419],
+		stop: [419]
+	},
+
+	// Warmth (SG_SUN_WARM / MOON_WARM / STAR_WARM): the official client removes 418 and 544 whenever
+	// the status changes and plays both again while it is on. See effect-port/star-gladiator-audit.md.
+	[StatusConst.SG_SUN_WARM]: { restart: [418, 544], stop: [418, 544] },
+	[StatusConst.SG_MOON_WARM]: { restart: [418, 544], stop: [418, 544] },
+	[StatusConst.SG_STAR_WARM]: { restart: [418, 544], stop: [418, 544] },
+	// A Star Gladiator's combo is ready: the client plays 546 (blue sparks) when the status comes on
+	[StatusConst.SMA_READY]: { start: [546] },
+
+	// Star Emperor stances, Gravity Control and Soul Unity: the official client keeps one copy of the
+	// look on the actor while the status is on and removes it when it ends.
+	// See effect-port/star-emperor-soul-reaper-audit.md.
+	[StatusConst.SUNSTANCE]: { loop: [1214] },
+	[StatusConst.LUNARSTANCE]: { loop: [1215] },
+	[StatusConst.STARSTANCE]: { loop: [1216] },
+	[StatusConst.UNIVERSESTANCE]: { loop: [1217] },
+	[StatusConst.GRAVITYCONTROL]: { loop: [1201] },
+	// The client removes and relaunches 601 when the status comes on, and removes it when it ends
+	[StatusConst.WZ_SIGHTBLASTER]: { restart: [601], stop: [601] },
+	[StatusConst.SOULUNITY]: { loop: [1222] }
 };

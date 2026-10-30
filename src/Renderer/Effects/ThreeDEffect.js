@@ -67,6 +67,11 @@ class ThreeDEffect {
 		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
+		// The same for every picture of a `fileList`, when all of them are effect/ files.
+		this.sharedFileList =
+			!!effect.sharedTexture &&
+			this.textureNameList.length > 0 &&
+			this.textureNameList.every(name => /^effect\//.test(name));
 		this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 
 		this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -367,7 +372,9 @@ class ThreeDEffect {
 		// client ticks (trackAge). Returns null to draw nothing this frame, or any of { x, y, z } (cells
 		// from the effect's position, z up), size, alpha (0..1), angle (degrees), each replacing the
 		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
-		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down).
+		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down). frame picks a
+		// sprite's animation frame (wrapping), for a sprite whose animation starts on its own tick.
+		// texture picks one picture of fileList, and color ([r, g, b], 0..1) tints it this frame.
 		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
@@ -430,7 +437,20 @@ class ThreeDEffect {
 	init(gl) {
 		this.loadedTextures = 0;
 		this.textureList = [];
-		if (this.textureNameList.length > 0) {
+		if (this.sharedFileList) {
+			const textureCount = this.textureNameList.length;
+			this.sharedTextureNames = this.textureNameList.map(name => name.slice('effect/'.length));
+			this.sharedTextureNames.forEach((name, i) => {
+				_sharedUsers.set(name, (_sharedUsers.get(name) || 0) + 1);
+				sharedTexture(_sharedTextures, gl, name, texture => {
+					this.textureList[i] = texture;
+					this.loadedTextures++;
+					if (this.loadedTextures == textureCount) {
+						this.ready = true;
+					}
+				});
+			});
+		} else if (this.textureNameList.length > 0) {
 			const textureCount = this.textureNameList.length;
 
 			for (let i = 0; i < textureCount; i++) {
@@ -470,6 +490,11 @@ class ThreeDEffect {
 		if (this.sharedTextureName) {
 			releaseSharedTexture(gl, this.sharedTextureName);
 			this.sharedTextureName = null;
+		}
+		if (this.sharedTextureNames) {
+			this.sharedTextureNames.forEach(name => releaseSharedTexture(gl, name));
+			this.sharedTextureNames = null;
+			this.textureList = [];
 		}
 	}
 
@@ -719,6 +744,7 @@ class ThreeDEffect {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
+		let trackFrame;
 		if (this.track) {
 			const sample = this.track(trackAge(this.startTick, tick));
 			if (!sample) {
@@ -757,6 +783,15 @@ class ThreeDEffect {
 			if (sample.angle !== undefined) {
 				SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
 			}
+			trackFrame = sample.frame;
+			if (sample.texture !== undefined && this.textureList[sample.texture]) {
+				SpriteRenderer.image.texture = this.textureList[sample.texture];
+			}
+			if (sample.color) {
+				SpriteRenderer.color[0] = sample.color[0];
+				SpriteRenderer.color[1] = sample.color[1];
+				SpriteRenderer.color[2] = sample.color[2];
+			}
 		}
 
 		if (this.actRessource && this.spriteRessource) {
@@ -777,7 +812,9 @@ class ThreeDEffect {
 				];
 			let animations;
 			const delay = this.sprDelay || actions.delay;
-			if (this.playSprite) {
+			if (trackFrame !== undefined) {
+				animations = actions.animations[trackFrame % actions.animations.length];
+			} else if (this.playSprite) {
 				animations =
 					actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
 			} else {
