@@ -217323,7 +217323,7 @@ function init$12(gl, water) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
-		_textures$21[index] = texture;
+		_textures$22[index] = texture;
 	}
 	for (let i = 0; i < 32; ++i) WebGL_default.texture(gl, water.images[i], onTextureLoaded, i);
 }
@@ -217360,7 +217360,7 @@ function render$15(gl, modelView, projection, fog, light, tick) {
 	gl.uniform1f(uniform.uOpacity, _waterOpacity);
 	gl.uniform1f(uniform.uWavePitch, _wavePitch);
 	gl.uniform1f(uniform.uWaterOffset, frame * _waveSpeed % 360 - 180);
-	gl.bindTexture(gl.TEXTURE_2D, _textures$21[frame / _animSpeed % 32 | 0]);
+	gl.bindTexture(gl.TEXTURE_2D, _textures$22[frame / _animSpeed % 32 | 0]);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	SpriteRenderer.runWithDepth(true, false, false, function() {
 		gl.drawArrays(gl.TRIANGLES, 0, _vertCount);
@@ -217383,9 +217383,9 @@ function free$7(gl) {
 		gl.deleteProgram(_program$40);
 		_program$40 = null;
 	}
-	for (i = 0; i < 32; ++i) if (_textures$21[i]) {
-		gl.deleteTexture(_textures$21[i]);
-		_textures$21[i] = null;
+	for (i = 0; i < 32; ++i) if (_textures$22[i]) {
+		gl.deleteTexture(_textures$22[i]);
+		_textures$22[i] = null;
 	}
 	_vertCount = 0;
 }
@@ -217422,7 +217422,7 @@ function state() {
 	return {
 		buffer: _buffer$20,
 		vertCount: _vertCount,
-		textures: _textures$21,
+		textures: _textures$22,
 		level: _waterLevel,
 		waveHeight: _waveHeight,
 		waveSpeed: _waveSpeed,
@@ -217431,7 +217431,7 @@ function state() {
 		opacity: _waterOpacity
 	};
 }
-var _program$40, _buffer$20, _vertCount, _textures$21, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
+var _program$40, _buffer$20, _vertCount, _textures$22, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -217441,7 +217441,7 @@ var init_Water = __esmMin((() => {
 	_program$40 = null;
 	_buffer$20 = null;
 	_vertCount = 0;
-	_textures$21 = new Array(32);
+	_textures$22 = new Array(32);
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
@@ -225968,7 +225968,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SP_SOULUNITY] = {
 		castAuraEffectId: 441,
-		successEffectId: 407
+		successEffectId: [1210, 407]
 	};
 	SkillEffect[SkillConst_default.SP_SOULDIVISION] = {
 		castAuraEffectId: 454,
@@ -225980,9 +225980,12 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SP_SOULEXPLOSION] = {
 		castAuraEffectId: 454,
-		damageEffectIdOnTarget: "ef_sp_soulexplosion"
+		damageEffectIdOnTarget: ["ef_sp_soulexplosion", 1208]
 	};
-	SkillEffect[SkillConst_default.SP_KAUTE] = { successEffectId: "ef_sp_kaute_sound" };
+	SkillEffect[SkillConst_default.SP_KAUTE] = {
+		successEffectId: ["ef_sp_kaute_sound", 1207],
+		successEffectIdOnCaster: 1208
+	};
 	SkillEffect[SkillConst_default.SJ_STAREMPEROR] = { castAuraEffectId: 58 };
 	SkillEffect[SkillConst_default.SJ_NOVAEXPLOSING] = { castAuraEffectId: 58 };
 	SkillEffect[SkillConst_default.SJ_GRAVITYCONTROL] = { castAuraEffectId: 58 };
@@ -282279,8 +282282,8 @@ function init$8(gl, mapname) {
 	if (_color$3) _display = true;
 	else _display = false;
 	gl.clearColor(color[0], color[1], color[2], color[3]);
-	if (!_textures$20.length && _display) {
-		_textures$20.length = 8;
+	if (!_textures$21.length && _display) {
+		_textures$21.length = 8;
 		for (i = 0; i < 7; i++) loadCloudTexture(gl, i);
 	}
 }
@@ -282293,7 +282296,7 @@ function init$8(gl, mapname) {
 function loadCloudTexture(gl, i) {
 	Client.loadFile("data/texture/effect/cloud" + (i + 1) + ".tga", function(buffer) {
 		WebGL_default.texture(gl, buffer, function(texture) {
-			_textures$20[i] = texture;
+			_textures$21[i] = texture;
 		});
 	});
 }
@@ -282310,7 +282313,7 @@ function setUpCloudData() {
 			death_tick: 0
 		};
 		cloudInit(_clouds[i]);
-		_clouds[i].sprite = Math.random() * (_textures$20.length - 1) | 0;
+		_clouds[i].sprite = Math.random() * (_textures$21.length - 1) | 0;
 		_clouds[i].death_tick = _clouds[i].born_tick + Math.random() * 8e3;
 		_clouds[i].born_tick -= 2e3;
 	}
@@ -282365,7 +282368,7 @@ function render$8(gl, modelView, projection, fog, tick) {
 		else opacity = 1;
 		SpriteRenderer.zIndex = 0;
 		SpriteRenderer.color[3] = opacity;
-		SpriteRenderer.image.texture = _textures$20[cloud.sprite];
+		SpriteRenderer.image.texture = _textures$21[cloud.sprite];
 		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
 		cloud._lastTick = tick;
 		vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
@@ -282376,7 +282379,7 @@ function render$8(gl, modelView, projection, fog, tick) {
 	}
 	SpriteRenderer.unbind(gl);
 }
-var MAX_CLOUDS, _clouds, _textures$20, _color$3, _display, Sky_default;
+var MAX_CLOUDS, _clouds, _textures$21, _color$3, _display, Sky_default;
 var init_Sky = __esmMin((() => {
 	init_WebGL();
 	init_WeatherEffect();
@@ -282386,7 +282389,7 @@ var init_Sky = __esmMin((() => {
 	init_gl_matrix();
 	MAX_CLOUDS = 150;
 	_clouds = new Array(MAX_CLOUDS);
-	_textures$20 = [];
+	_textures$21 = [];
 	_color$3 = null;
 	_display = true;
 	Sky_default = {
@@ -286057,7 +286060,7 @@ var init_SwirlingAura$1 = __esmMin((() => {
 	SwirlingAura_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform vec4 uColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	// Discard near-black pixels\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	fragColor = texColor * uColor;\r\n\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n}";
 }));
 // src/Renderer/Effects/SwirlingAura.js
-var mat4$9, _program$23, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$9, _textures$19, BAND_INDICES, SwirlingAura;
+var mat4$9, _program$23, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$10, _textures$20, BAND_INDICES, SwirlingAura;
 var init_SwirlingAura = __esmMin((() => {
 	init_SwirlingAura$2();
 	init_SwirlingAura$1();
@@ -286073,12 +286076,12 @@ var init_SwirlingAura = __esmMin((() => {
 	FULL_DISPLAY_ANGLE = 315;
 	DEG_TO_RAD$2 = Math.PI / 180;
 	VERTICES_PER_BAND = 42;
-	_batch$9 = new AuraBatch({
+	_batch$10 = new AuraBatch({
 		fog: true,
 		discardClear: true,
 		discardBlack: true
 	});
-	_textures$19 = /* @__PURE__ */ new Map();
+	_textures$20 = /* @__PURE__ */ new Map();
 	BAND_INDICES = (function() {
 		const indices = [];
 		for (let k = 0; k < 20; k++) {
@@ -286190,7 +286193,7 @@ var init_SwirlingAura = __esmMin((() => {
 		* Initialize instance
 		*/
 		init(gl) {
-			sharedTexture(_textures$19, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$20, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -286232,7 +286235,7 @@ var init_SwirlingAura = __esmMin((() => {
 			const uniform = _program$23.uniform;
 			const attribute = _program$23.attribute;
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-			if (_batch$9.active) {
+			if (_batch$10.active) {
 				this.record(tick, groundZ);
 				return;
 			}
@@ -286285,7 +286288,7 @@ var init_SwirlingAura = __esmMin((() => {
 				band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
 				this.updateHeightProfile(band, process);
 				this.fillBandMesh(band);
-				_batch$9.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
+				_batch$10.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
 			}
 		}
 		/**
@@ -286304,8 +286307,8 @@ var init_SwirlingAura = __esmMin((() => {
 				gl.deleteProgram(_program$23);
 				_program$23 = null;
 			}
-			_batch$9.free(gl);
-			freeSharedTextures(_textures$19, gl);
+			_batch$10.free(gl);
+			freeSharedTextures(_textures$20, gl);
 			this.ready = false;
 		}
 		/**
@@ -286323,13 +286326,13 @@ var init_SwirlingAura = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
-			_batch$9.begin(gl, modelView, projection, fog);
+			_batch$10.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$9.flush(gl);
+			_batch$10.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$23.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$23.attribute.aTextureCoord);
@@ -286404,7 +286407,7 @@ function calculateSize(self, aura, auraAngle, i) {
 	const endY = sin * (aura[i].distance * .8 + riseFactor);
 	return [Math.abs(endX - startX), Math.abs(endY - startY)];
 }
-var _program$22, _buffer$9, _batch$8, _textures$18, GROUND_ORDER, GROUND_CORNERS, GroundAura;
+var _program$22, _buffer$9, _batch$9, _textures$19, GROUND_ORDER, GROUND_CORNERS, GroundAura;
 var init_GroundAura = __esmMin((() => {
 	init_GroundAura$2();
 	init_GroundAura$1();
@@ -286413,11 +286416,11 @@ var init_GroundAura = __esmMin((() => {
 	init_SpriteRenderer();
 	init_AuraBlend();
 	init_AuraBatch();
-	_batch$8 = new AuraBatch({
+	_batch$9 = new AuraBatch({
 		discardClear: true,
 		darken: true
 	});
-	_textures$18 = /* @__PURE__ */ new Map();
+	_textures$19 = /* @__PURE__ */ new Map();
 	GROUND_ORDER = [
 		0,
 		1,
@@ -286524,7 +286527,7 @@ var init_GroundAura = __esmMin((() => {
 				this.shape = "brightness";
 				this.init(gl);
 			};
-			sharedTexture(_textures$18, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$19, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, onerror);
@@ -286566,7 +286569,7 @@ var init_GroundAura = __esmMin((() => {
 			worldPos[0] = this.position[0];
 			worldPos[1] = this.position[1];
 			worldPos[2] = groundZ + .05;
-			if (_batch$8.active) {
+			if (_batch$9.active) {
 				this.record(worldPos);
 				return;
 			}
@@ -286608,7 +286611,7 @@ var init_GroundAura = __esmMin((() => {
 					this.points[k][1] = -worldPos[2];
 					this.points[k][2] = worldPos[1] + .5 + (x * sin + z * cos);
 				}
-				_batch$8.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
+				_batch$9.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
 			}
 		}
 		/**
@@ -286635,8 +286638,8 @@ var init_GroundAura = __esmMin((() => {
 				gl.deleteBuffer(_buffer$9);
 				_buffer$9 = null;
 			}
-			_batch$8.free(gl);
-			freeSharedTextures(_textures$18, gl);
+			_batch$9.free(gl);
+			freeSharedTextures(_textures$19, gl);
 			this.ready = false;
 		}
 		/**
@@ -286660,13 +286663,13 @@ var init_GroundAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$8.begin(gl, modelView, projection, fog);
+			_batch$9.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$8.flush(gl);
+			_batch$9.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$22.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$22.attribute.aTextureCoord);
@@ -286734,7 +286737,7 @@ function createAnchor(isGhost, seedMaxUnits) {
 		z: 0
 	};
 }
-var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$21, _buffer$8, _batch$7, _textures$17, BILLBOARD_CORNERS, Level99Bubble;
+var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$21, _buffer$8, _batch$8, _textures$18, BILLBOARD_CORNERS, Level99Bubble;
 var init_Level99Bubble = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -286805,8 +286808,8 @@ var init_Level99Bubble = __esmMin((() => {
 		alphaGain: REF_ALPHA_GAIN,
 		floorLimit: Math.abs(REF_RESET_Y)
 	};
-	_batch$7 = new AuraBatch({ fog: true });
-	_textures$17 = /* @__PURE__ */ new Map();
+	_batch$8 = new AuraBatch({ fog: true });
+	_textures$18 = /* @__PURE__ */ new Map();
 	BILLBOARD_CORNERS = [
 		{
 			x: -1,
@@ -286896,7 +286899,7 @@ var init_Level99Bubble = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$17, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$18, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -286998,7 +287001,7 @@ var init_Level99Bubble = __esmMin((() => {
 			const cosBeta = Math.cos(beta);
 			const sinAlpha = Math.sin(alpha);
 			const cosAlpha = Math.cos(alpha);
-			const batched = _batch$7.active;
+			const batched = _batch$8.active;
 			const blend = auraBlend(this.color, "alpha");
 			const rgb = auraUniform(this.color, 1, "alpha", this.rgba);
 			if (!batched) gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -287037,7 +287040,7 @@ var init_Level99Bubble = __esmMin((() => {
 					const alphaValue = this.computeAlpha(anchor.y);
 					if (alphaValue <= 0) continue;
 					if (batched) {
-						for (let pass = 0; pass < this.passCount; pass++) _batch$7.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
+						for (let pass = 0; pass < this.passCount; pass++) _batch$8.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
 						continue;
 					}
 					this.fillQuad(this.tmpPoints, this.quadData);
@@ -287202,8 +287205,8 @@ var init_Level99Bubble = __esmMin((() => {
 				gl.deleteBuffer(_buffer$8);
 				_buffer$8 = null;
 			}
-			_batch$7.free(gl);
-			freeSharedTextures(_textures$17, gl);
+			_batch$8.free(gl);
+			freeSharedTextures(_textures$18, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -287225,10 +287228,10 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$7.begin(gl, modelView, projection, fog);
+			_batch$8.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$7.flush(gl);
+			_batch$8.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$21.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$21.attribute.aTextureCoord);
@@ -287237,18 +287240,18 @@ var init_Level99Bubble = __esmMin((() => {
 }));
 // src/Renderer/Effects/MaxLevelAura.js
 function loadTexture$13(gl, name) {
-	if (_textures$16.has(name)) return;
-	_textures$16.set(name, null);
+	if (_textures$17.has(name)) return;
+	_textures$17.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			_textures$16.set(name, texture);
+			_textures$17.set(name, texture);
 		});
 	});
 }
 function bubbleName$1(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS, GROUND_RINGS, CORNERS$1, _program$20, _buffer$7, _textures$16, _batch$6, MaxLevelAura;
+var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS, GROUND_RINGS, CORNERS$1, _program$20, _buffer$7, _textures$17, _batch$7, MaxLevelAura;
 var init_MaxLevelAura = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -287309,8 +287312,8 @@ var init_MaxLevelAura = __esmMin((() => {
 			y: 1
 		}
 	];
-	_textures$16 = /* @__PURE__ */ new Map();
-	_batch$6 = new AuraBatch({
+	_textures$17 = /* @__PURE__ */ new Map();
+	_batch$7 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
@@ -287394,9 +287397,9 @@ var init_MaxLevelAura = __esmMin((() => {
 		}
 		draw(gl, texture, alpha, zIndex) {
 			if (!texture) return;
-			if (_batch$6.active) {
+			if (_batch$7.active) {
 				const rgba = auraUniform(this.color, alpha, "alpha", this.rgba);
-				_batch$6.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
+				_batch$7.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
 				return;
 			}
 			this.fillQuad(this.points);
@@ -287416,7 +287419,7 @@ var init_MaxLevelAura = __esmMin((() => {
 				-groundZ - BASE_LIFT,
 				this.position[1] + .5
 			];
-			if (_batch$6.active) {
+			if (_batch$7.active) {
 				if (this.part === "rings") this.renderRings(gl, base, elapsed);
 				else this.renderBubbles(gl, base, elapsed);
 				return;
@@ -287443,7 +287446,7 @@ var init_MaxLevelAura = __esmMin((() => {
 					this.points[k][1] = base[1] - .01 * (i + 1);
 					this.points[k][2] = base[2] + x * sin + z * cos;
 				}
-				this.draw(gl, _textures$16.get(ring.texture), 1, .002 * (i + 1));
+				this.draw(gl, _textures$17.get(ring.texture), 1, .002 * (i + 1));
 			}
 		}
 		renderBubbles(gl, base, elapsed) {
@@ -287472,7 +287475,7 @@ var init_MaxLevelAura = __esmMin((() => {
 					this.points[3][0] = x0;
 					this.points[3][1] = base[1];
 					this.points[3][2] = z0;
-					const texture = _textures$16.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
+					const texture = _textures$17.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
 					this.draw(gl, texture, .55, .01 + r * .002 + b * 1e-4);
 				}
 			}
@@ -287494,9 +287497,9 @@ var init_MaxLevelAura = __esmMin((() => {
 				gl.deleteBuffer(_buffer$7);
 				_buffer$7 = null;
 			}
-			_batch$6.free(gl);
-			for (const texture of _textures$16.values()) if (texture) gl.deleteTexture(texture);
-			_textures$16.clear();
+			_batch$7.free(gl);
+			for (const texture of _textures$17.values()) if (texture) gl.deleteTexture(texture);
+			_textures$17.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -287518,10 +287521,10 @@ var init_MaxLevelAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$6.begin(gl, modelView, projection, fog);
+			_batch$7.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$6.flush(gl);
+			_batch$7.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
@@ -288082,7 +288085,7 @@ function hatedCounter(age) {
 * @param {object[]} marks
 * @return {number}
 */
-function linkAlpha(marks) {
+function linkAlpha$1(marks) {
 	let alpha = 0;
 	for (let i = 0; i < marks.length; i++) if (marks[i].link !== void 0) alpha = Math.max(alpha, marks[i].link);
 	return Math.min(alpha, 255);
@@ -288514,19 +288517,19 @@ var init_FieldBandSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/FieldBand.js
 function loadTexture$12(gl, name) {
-	if (_textures$15.has(name)) return;
-	_textures$15.set(name, null);
+	if (_textures$16.has(name)) return;
+	_textures$16.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$15.has(name)) {
+			if (!_textures$16.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$15.set(name, texture);
+			_textures$16.set(name, texture);
 		});
 	});
 }
-var _program$19, _textures$15, FieldBand;
+var _program$19, _textures$16, FieldBand;
 var init_FieldBand = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -288535,7 +288538,7 @@ var init_FieldBand = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$19 = null;
-	_textures$15 = /* @__PURE__ */ new Map();
+	_textures$16 = /* @__PURE__ */ new Map();
 	FieldBand = class {
 		/**
 		* @param {Array} position cell position (x, y, height)
@@ -288578,7 +288581,7 @@ var init_FieldBand = __esmMin((() => {
 			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
 			if (t - this.band.age > 600) this.band.age = t - 600;
 			while (this.band.age < t) stepBand(this.band);
-			const texture = _textures$15.get(this.texture);
+			const texture = _textures$16.get(this.texture);
 			const alpha = Math.min(255, this.band.alpha);
 			if (!texture || alpha <= 0) return;
 			const count = buildBand$2(this.vertices, this.band, this.position);
@@ -288605,8 +288608,8 @@ var init_FieldBand = __esmMin((() => {
 				gl.deleteProgram(_program$19);
 				_program$19 = null;
 			}
-			for (const texture of _textures$15.values()) if (texture) gl.deleteTexture(texture);
-			_textures$15.clear();
+			for (const texture of _textures$16.values()) if (texture) gl.deleteTexture(texture);
+			_textures$16.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -289182,12 +289185,12 @@ function sphereAlive(sphere) {
 * @return {Array<Array<number>>}
 */
 function rayCorners(ray) {
-	const reach = ray.size * Math.sin(rad$5(ray.q)) + ray.size;
-	const flat = reach * Math.cos(rad$5(ray.t));
+	const reach = ray.size * Math.sin(rad$6(ray.q)) + ray.size;
+	const flat = reach * Math.cos(rad$6(ray.t));
 	const tip = [
-		flat * Math.cos(rad$5(ray.s)),
-		reach * Math.sin(rad$5(ray.t)) - SPHERE.height,
-		flat * Math.sin(rad$5(ray.s))
+		flat * Math.cos(rad$6(ray.s)),
+		reach * Math.sin(rad$6(ray.t)) - SPHERE.height,
+		flat * Math.sin(rad$6(ray.s))
 	];
 	const w = SPHERE.rayHalfWidth;
 	const h = -SPHERE.height;
@@ -289228,11 +289231,11 @@ function centerAt(age) {
 	const alpha = n <= fadeOut ? Math.min(1 + n, 255) : Math.max(Math.min(1 + fadeOut, 255) - (n - fadeOut), 0);
 	const phase = SPHERE.centerSpin * n % 360;
 	return {
-		half: SPHERE.centerHalf * Math.sin(rad$5(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
+		half: SPHERE.centerHalf * Math.sin(rad$6(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
 		alpha
 	};
 }
-var SPHERE, SPHERE_COLORS, r$10, rad$5, CENTER_LIFE;
+var SPHERE, SPHERE_COLORS, r$10, rad$6, CENTER_LIFE;
 var init_LightSphereSim = __esmMin((() => {
 	SPHERE = {
 		centers: 4,
@@ -289300,21 +289303,21 @@ var init_LightSphereSim = __esmMin((() => {
 		}
 	};
 	r$10 = (random, k) => Math.floor(random() * k);
-	rad$5 = (deg) => deg * Math.PI / 180;
+	rad$6 = (deg) => deg * Math.PI / 180;
 	CENTER_LIFE = SPHERE.centerFadeOut + 255;
 }));
 // src/Renderer/Effects/LightSphere.js
-var _batch$5, _textures$14, RAY_TEXTURE$1, CORNER_ORDER, LightSphere;
+var _batch$6, _textures$15, RAY_TEXTURE$1, CORNER_ORDER, LightSphere;
 var init_LightSphere = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_LightSphereSim();
-	_batch$5 = new AuraBatch({
+	_batch$6 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$14 = /* @__PURE__ */ new Map();
+	_textures$15 = /* @__PURE__ */ new Map();
 	RAY_TEXTURE$1 = "white02.bmp";
 	CORNER_ORDER = [
 		0,
@@ -289361,7 +289364,7 @@ var init_LightSphere = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$14, gl, RAY_TEXTURE$1, (texture) => {
+			sharedTexture(_textures$15, gl, RAY_TEXTURE$1, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, () => {
@@ -289379,7 +289382,7 @@ var init_LightSphere = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$5.active || !this.texture) return;
+			if (!_batch$6.active || !this.texture) return;
 			const pos = this.owner ? this.owner.position : this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -289394,7 +289397,7 @@ var init_LightSphere = __esmMin((() => {
 					points[k][1] = oy + c[1] / 5;
 					points[k][2] = oz + c[2] / 5;
 				}
-				_batch$5.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
+				_batch$6.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
 			}
 		}
 		static init() {
@@ -289402,24 +289405,24 @@ var init_LightSphere = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$5.free(gl);
-			freeSharedTextures(_textures$14, gl);
+			_batch$6.free(gl);
+			freeSharedTextures(_textures$15, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			_batch$5.begin(gl, modelView, projection, fog);
-			if (!_batch$5.active && typeof gl.createVertexArray === "function") {
-				_batch$5.active = true;
-				_batch$5.modelView.set(modelView);
-				_batch$5.projection.set(projection);
-				_batch$5.fog.use = !!(fog.use && fog.exist);
-				_batch$5.fog.near = fog.near;
-				_batch$5.fog.far = fog.far;
-				_batch$5.fog.color.set(fog.color);
+			_batch$6.begin(gl, modelView, projection, fog);
+			if (!_batch$6.active && typeof gl.createVertexArray === "function") {
+				_batch$6.active = true;
+				_batch$6.modelView.set(modelView);
+				_batch$6.projection.set(projection);
+				_batch$6.fog.use = !!(fog.use && fog.exist);
+				_batch$6.fog.near = fog.near;
+				_batch$6.fog.far = fog.far;
+				_batch$6.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$5.flush(gl);
+			_batch$6.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -290689,7 +290692,7 @@ function tubeVertices(streak, dir, radius, out = new Float32Array(TUBE_VERTICES 
 		out[o++] = u;
 		out[o++] = v;
 	};
-	for (let k = 1; k <= SIDES; k++) {
+	for (let k = 1; k <= SIDES$1; k++) {
 		put(points[k - 1], 0, 0, 0, 1);
 		put(points[k], 0, 0, 1, 1);
 		put(points[k], ex, ez, 1, 0);
@@ -290697,25 +290700,25 @@ function tubeVertices(streak, dir, radius, out = new Float32Array(TUBE_VERTICES 
 	}
 	return out;
 }
-var _batch$4, _textures$13, TEXTURE$7, R$1, G$1, B$1, SIDES, TUBE_VERTICES, TUBE_INDICES, ArrowVulcan;
+var _batch$5, _textures$14, TEXTURE$8, R$1, G$1, B$1, SIDES$1, TUBE_VERTICES, TUBE_INDICES, ArrowVulcan;
 var init_ArrowVulcan = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_ArrowVulcanSim();
-	_batch$4 = new AuraBatch({
+	_batch$5 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$13 = /* @__PURE__ */ new Map();
-	TEXTURE$7 = "alpha_center.tga";
+	_textures$14 = /* @__PURE__ */ new Map();
+	TEXTURE$8 = "alpha_center.tga";
 	R$1 = STREAK$1.color[0] / 255;
 	G$1 = STREAK$1.color[1] / 255;
 	B$1 = STREAK$1.color[2] / 255;
-	SIDES = STREAK$1.sides;
-	TUBE_VERTICES = SIDES * 4;
-	TUBE_INDICES = new Uint16Array(SIDES * 6);
-	for (let k = 0; k < SIDES; k++) {
+	SIDES$1 = STREAK$1.sides;
+	TUBE_VERTICES = SIDES$1 * 4;
+	TUBE_INDICES = new Uint16Array(SIDES$1 * 6);
+	for (let k = 0; k < SIDES$1; k++) {
 		const v = k * 4;
 		TUBE_INDICES.set([
 			v,
@@ -290758,7 +290761,7 @@ var init_ArrowVulcan = __esmMin((() => {
 			const done = () => {
 				this.ready = true;
 			};
-			sharedTexture(_textures$13, gl, TEXTURE$7, (texture) => {
+			sharedTexture(_textures$14, gl, TEXTURE$8, (texture) => {
 				this.texture = texture;
 				done();
 			}, done);
@@ -290773,7 +290776,7 @@ var init_ArrowVulcan = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$4.active || !this.texture) return;
+			if (!_batch$5.active || !this.texture) return;
 			const pos = this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -290784,8 +290787,8 @@ var init_ArrowVulcan = __esmMin((() => {
 				const x = ox + streak.ax / 5;
 				const z = oz + streak.az / 5;
 				const a = alpha / 255;
-				_batch$4.mesh(this.texture, 1, streak.inner, TUBE_VERTICES, TUBE_INDICES, x, oy, z, R$1, G$1, B$1, a, 0);
-				_batch$4.mesh(this.texture, 0, streak.outer, TUBE_VERTICES, TUBE_INDICES, x, oy, z, R$1, G$1, B$1, a, 0);
+				_batch$5.mesh(this.texture, 1, streak.inner, TUBE_VERTICES, TUBE_INDICES, x, oy, z, R$1, G$1, B$1, a, 0);
+				_batch$5.mesh(this.texture, 0, streak.outer, TUBE_VERTICES, TUBE_INDICES, x, oy, z, R$1, G$1, B$1, a, 0);
 			}
 		}
 		static init() {
@@ -290793,24 +290796,24 @@ var init_ArrowVulcan = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$4.free(gl);
-			freeSharedTextures(_textures$13, gl);
+			_batch$5.free(gl);
+			freeSharedTextures(_textures$14, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			_batch$4.begin(gl, modelView, projection, fog);
-			if (!_batch$4.active && typeof gl.createVertexArray === "function") {
-				_batch$4.active = true;
-				_batch$4.modelView.set(modelView);
-				_batch$4.projection.set(projection);
-				_batch$4.fog.use = !!(fog.use && fog.exist);
-				_batch$4.fog.near = fog.near;
-				_batch$4.fog.far = fog.far;
-				_batch$4.fog.color.set(fog.color);
+			_batch$5.begin(gl, modelView, projection, fog);
+			if (!_batch$5.active && typeof gl.createVertexArray === "function") {
+				_batch$5.active = true;
+				_batch$5.modelView.set(modelView);
+				_batch$5.projection.set(projection);
+				_batch$5.fog.use = !!(fog.use && fog.exist);
+				_batch$5.fog.near = fog.near;
+				_batch$5.fog.far = fog.far;
+				_batch$5.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$4.flush(gl);
+			_batch$5.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -291201,8 +291204,8 @@ function createShards(random = Math.random) {
 			width: kind.width,
 			speed,
 			accel: -speed / SHARD.life / 1.5,
-			x: Math.sin(base * rad$4) * start,
-			y: -Math.cos(base * rad$4) * start - SHARD.up
+			x: Math.sin(base * rad$5) * start,
+			y: -Math.cos(base * rad$5) * start - SHARD.up
 		});
 	}
 	return out;
@@ -291221,7 +291224,7 @@ function shardAt(shard, ticks) {
 		speed += shard.accel;
 		travel += speed;
 	}
-	return [shard.x + Math.sin(shard.angle * rad$4) * travel, shard.y - Math.cos(shard.angle * rad$4) * travel];
+	return [shard.x + Math.sin(shard.angle * rad$5) * travel, shard.y - Math.cos(shard.angle * rad$5) * travel];
 }
 /**
 * A shard's two triangles around its centre, in pixels: the left one, then
@@ -291236,8 +291239,8 @@ function shardTriangles(shard) {
 	const h = shard.length / 2;
 	const w = shard.width / 2;
 	const skew = h - h / 1.2;
-	const s = Math.sin(shard.angle * rad$4);
-	const c = Math.cos(shard.angle * rad$4);
+	const s = Math.sin(shard.angle * rad$5);
+	const c = Math.cos(shard.angle * rad$5);
 	const turn = (x, y, u, v) => [
 		x * c - y * s,
 		y * c + x * s,
@@ -291281,12 +291284,12 @@ function puffAt(puff, ticks) {
 	const size = PUFF.size + early * PUFF.grow + (ticks - early) * PUFF.growAfter;
 	const travel = ticks * PUFF.speed;
 	return {
-		x: Math.sin(puff.angle * rad$4) * travel,
-		y: -Math.cos(puff.angle * rad$4) * travel,
+		x: Math.sin(puff.angle * rad$5) * travel,
+		y: -Math.cos(puff.angle * rad$5) * travel,
 		size
 	};
 }
-var SHARD, PUFF, LAST_TICK, SHARD_ALPHAS, PUFF_ALPHAS, rad$4;
+var SHARD, PUFF, LAST_TICK, SHARD_ALPHAS, PUFF_ALPHAS, rad$5;
 var init_ColdHitSim = __esmMin((() => {
 	SHARD = {
 		count: 9,
@@ -291326,20 +291329,20 @@ var init_ColdHitSim = __esmMin((() => {
 	LAST_TICK = Math.max(SHARD.life, PUFF.ticks[PUFF.ticks.length - 1] + PUFF.life) - 1;
 	SHARD_ALPHAS = fadeAlphas(SHARD.alpha, SHARD.fadeTick, SHARD.life);
 	PUFF_ALPHAS = fadeAlphas(PUFF.alpha, PUFF.fadeTick, PUFF.life);
-	rad$4 = Math.PI / 180;
+	rad$5 = Math.PI / 180;
 }));
 // src/Renderer/Effects/ColdHit.js
-var _batch$3, _textures$12, SHARD_TEXTURE, PUFF_TEXTURE, PIXEL$1, _right$3, _up$1, CORNERS, ColdHit;
+var _batch$4, _textures$13, SHARD_TEXTURE, PUFF_TEXTURE, PIXEL$1, _right$3, _up$1, CORNERS, ColdHit;
 var init_ColdHit = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_ColdHitSim();
-	_batch$3 = new AuraBatch({
+	_batch$4 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$12 = /* @__PURE__ */ new Map();
+	_textures$13 = /* @__PURE__ */ new Map();
 	SHARD_TEXTURE = "ice.tga";
 	PUFF_TEXTURE = "smoke.tga";
 	PIXEL$1 = 1 / 35;
@@ -291402,11 +291405,11 @@ var init_ColdHit = __esmMin((() => {
 			const done = () => {
 				if (++this.loaded === 2) this.ready = true;
 			};
-			sharedTexture(_textures$12, gl, SHARD_TEXTURE, (texture) => {
+			sharedTexture(_textures$13, gl, SHARD_TEXTURE, (texture) => {
 				this.shardTexture = texture;
 				done();
 			}, done);
-			sharedTexture(_textures$12, gl, PUFF_TEXTURE, (texture) => {
+			sharedTexture(_textures$13, gl, PUFF_TEXTURE, (texture) => {
 				this.puffTexture = texture;
 				done();
 			}, done);
@@ -291430,7 +291433,7 @@ var init_ColdHit = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$3.active) return;
+			if (!_batch$4.active) return;
 			const pos = this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -291441,19 +291444,19 @@ var init_ColdHit = __esmMin((() => {
 				if (age < 0 || age >= PUFF.life) continue;
 				const at = puffAt(puff, age + 1);
 				for (let k = 0; k < 4; k++) ColdHit.place(this.points[k], ox, oy, oz, at.x + CORNERS[k][0] * at.size, at.y + CORNERS[k][1] * at.size);
-				_batch$3.quad(this.puffTexture, 0, this.points, QUAD_FAN, 1, 1, 1, PUFF_ALPHAS[age] / 255, 0);
+				_batch$4.quad(this.puffTexture, 0, this.points, QUAD_FAN, 1, 1, 1, PUFF_ALPHAS[age] / 255, 0);
 			}
 			if (this.shardTexture && t - 1 < SHARD.life) {
 				const alpha = SHARD_ALPHAS[t - 1] / 255;
 				for (const shard of this.shards) {
 					const [cx, cy] = shardAt(shard, t);
 					for (const triangle of shardTriangles(shard)) {
-						const base = _batch$3.reserve(this.shardTexture, 0, 3, 3);
+						const base = _batch$4.reserve(this.shardTexture, 0, 3, 3);
 						for (let k = 0; k < 3; k++) {
 							const [px, py, u, v] = triangle[k];
 							ColdHit.place(point, ox, oy, oz, cx + px, cy + py);
-							_batch$3.vertex(point[0], point[1], point[2], u, v, 1, 1, 1, k === 1 ? 1 : alpha, 0);
-							_batch$3.indices[_batch$3.indexCount++] = base + k;
+							_batch$4.vertex(point[0], point[1], point[2], u, v, 1, 1, 1, k === 1 ? 1 : alpha, 0);
+							_batch$4.indices[_batch$4.indexCount++] = base + k;
 						}
 					}
 				}
@@ -291464,8 +291467,8 @@ var init_ColdHit = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$3.free(gl);
-			freeSharedTextures(_textures$12, gl);
+			_batch$4.free(gl);
+			freeSharedTextures(_textures$13, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -291475,19 +291478,19 @@ var init_ColdHit = __esmMin((() => {
 			_up$1[0] = modelView[1];
 			_up$1[1] = modelView[5];
 			_up$1[2] = modelView[9];
-			_batch$3.begin(gl, modelView, projection, fog);
-			if (!_batch$3.active && typeof gl.createVertexArray === "function") {
-				_batch$3.active = true;
-				_batch$3.modelView.set(modelView);
-				_batch$3.projection.set(projection);
-				_batch$3.fog.use = !!(fog.use && fog.exist);
-				_batch$3.fog.near = fog.near;
-				_batch$3.fog.far = fog.far;
-				_batch$3.fog.color.set(fog.color);
+			_batch$4.begin(gl, modelView, projection, fog);
+			if (!_batch$4.active && typeof gl.createVertexArray === "function") {
+				_batch$4.active = true;
+				_batch$4.modelView.set(modelView);
+				_batch$4.projection.set(projection);
+				_batch$4.fog.use = !!(fog.use && fog.exist);
+				_batch$4.fog.near = fog.near;
+				_batch$4.fog.far = fog.far;
+				_batch$4.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$3.flush(gl);
+			_batch$4.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -291516,20 +291519,22 @@ function planSouls(hits) {
 * @param {Array} dir unit direction to the target on the map, [x, y]
 * @param {number} distance to the target, units
 * @param {number} n updates (1..life)
+* @param {object} [kind] the flight's numbers: SOUL, or another effect's with the same keys
+*   (life, back, bow, up; the speed covers the distance `speedTimes` times, default 1)
 * @return {object} { x, y, up }
 */
-function soulAt(soul, dir, distance, n) {
-	const speed = distance / SOUL.life;
-	const backStep = 2 * SOUL.back / SOUL.life;
-	const bowStep = -2 * SOUL.bow / SOUL.life;
-	const along = n * speed - (SOUL.back * n - backStep * n * (n + 1) / 2);
-	const across = SOUL.bow * n + bowStep * n * (n - 1) / 2;
+function soulAt(soul, dir, distance, n, kind = SOUL) {
+	const speed = (kind.speedTimes || 1) * distance / kind.life;
+	const backStep = 2 * kind.back / kind.life;
+	const bowStep = -2 * kind.bow / kind.life;
+	const along = n * speed - (kind.back * n - backStep * n * (n + 1) / 2);
+	const across = kind.bow * n + bowStep * n * (n - 1) / 2;
 	const a = soul.bow * Math.PI / 180;
 	const side = across * Math.sin(a);
 	return {
 		x: dir[0] * along + dir[1] * side,
 		y: dir[1] * along - dir[0] * side,
-		up: SOUL.up - across * Math.cos(a)
+		up: kind.up - across * Math.cos(a)
 	};
 }
 /**
@@ -291984,14 +291989,14 @@ function bandAlpha$2(n) {
 function bandPoints(k, n) {
 	const radius = SWIRL.radius + SWIRL.radiusStep * k;
 	const height = SWIRL.height - SWIRL.heightStep * k;
-	const lean = (SWIRL.lean - SWIRL.leanStep * k) * rad$3;
+	const lean = (SWIRL.lean - SWIRL.leanStep * k) * rad$4;
 	const start = SWIRL.start * k + (SWIRL.turn + k) * n;
-	const open = Math.sin(Math.min(n, SWIRL.grow) * rad$3);
+	const open = Math.sin(Math.min(n, SWIRL.grow) * rad$4);
 	const out = [];
 	for (let i = 0; i < SWIRL.points; i++) {
-		const a = (start + SWIRL.step * i) * rad$3;
+		const a = (start + SWIRL.step * i) * rad$4;
 		const j = Math.min(i, SWIRL.heights - 1);
-		const h = Math.max(height * Math.sin(9 * j * rad$3) * open, 0);
+		const h = Math.max(height * Math.sin(9 * j * rad$4) * open, 0);
 		const c = Math.cos(a);
 		const s = Math.sin(a);
 		const reach = radius + h * Math.cos(lean);
@@ -292010,7 +292015,7 @@ function bandPoints(k, n) {
 	}
 	return out;
 }
-var SMA, SWIRL, rad$3;
+var SMA, SWIRL, rad$4;
 var init_SmaSwirlSim = __esmMin((() => {
 	SMA = {
 		life: 100,
@@ -292046,7 +292051,7 @@ var init_SmaSwirlSim = __esmMin((() => {
 			70
 		]
 	};
-	rad$3 = Math.PI / 180;
+	rad$4 = Math.PI / 180;
 }));
 // src/Renderer/Effects/SmaSwirl.js
 /**
@@ -292078,26 +292083,26 @@ function bandVertices(points, out = new Float32Array(QUADS$1 * 4 * 5)) {
 	}
 	return out;
 }
-var _batch$2, _textures$11, TEXTURE$6, R, G, B, QUADS$1, INDICES, SmaSwirl;
+var _batch$3, _textures$12, TEXTURE$7, R, G, B, QUADS$1, INDICES$1, SmaSwirl;
 var init_SmaSwirl = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_SmaSwirlSim();
-	_batch$2 = new AuraBatch({
+	_batch$3 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$11 = /* @__PURE__ */ new Map();
-	TEXTURE$6 = "ring_blue.tga";
+	_textures$12 = /* @__PURE__ */ new Map();
+	TEXTURE$7 = "ring_blue.tga";
 	R = SWIRL.color[0] / 255;
 	G = SWIRL.color[1] / 255;
 	B = SWIRL.color[2] / 255;
 	QUADS$1 = SWIRL.points - 1;
-	INDICES = new Uint16Array(QUADS$1 * 6);
+	INDICES$1 = new Uint16Array(QUADS$1 * 6);
 	for (let q = 0; q < QUADS$1; q++) {
 		const v = q * 4;
-		INDICES.set([
+		INDICES$1.set([
 			v,
 			v + 1,
 			v + 2,
@@ -292123,7 +292128,7 @@ var init_SmaSwirl = __esmMin((() => {
 			this.vertices = new Float32Array(QUADS$1 * 4 * 5);
 		}
 		init(gl) {
-			sharedTexture(_textures$11, gl, TEXTURE$6, (texture) => {
+			sharedTexture(_textures$12, gl, TEXTURE$7, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, () => {
@@ -292140,7 +292145,7 @@ var init_SmaSwirl = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$2.active || !this.texture) return;
+			if (!_batch$3.active || !this.texture) return;
 			const alpha = bandAlpha$2(n) / 255;
 			if (alpha <= 0) return;
 			const pos = this.position;
@@ -292149,7 +292154,7 @@ var init_SmaSwirl = __esmMin((() => {
 			const z = pos[1] + .5;
 			for (let k = 0; k < SWIRL.bands; k++) {
 				bandVertices(bandPoints(k, n), this.vertices);
-				_batch$2.mesh(this.texture, 1, this.vertices, QUADS$1 * 4, INDICES, x, y, z, R, G, B, alpha, 0);
+				_batch$3.mesh(this.texture, 1, this.vertices, QUADS$1 * 4, INDICES$1, x, y, z, R, G, B, alpha, 0);
 			}
 		}
 		static init() {
@@ -292157,24 +292162,24 @@ var init_SmaSwirl = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$2.free(gl);
-			freeSharedTextures(_textures$11, gl);
+			_batch$3.free(gl);
+			freeSharedTextures(_textures$12, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			_batch$2.begin(gl, modelView, projection, fog);
-			if (!_batch$2.active && typeof gl.createVertexArray === "function") {
-				_batch$2.active = true;
-				_batch$2.modelView.set(modelView);
-				_batch$2.projection.set(projection);
-				_batch$2.fog.use = !!(fog.use && fog.exist);
-				_batch$2.fog.near = fog.near;
-				_batch$2.fog.far = fog.far;
-				_batch$2.fog.color.set(fog.color);
+			_batch$3.begin(gl, modelView, projection, fog);
+			if (!_batch$3.active && typeof gl.createVertexArray === "function") {
+				_batch$3.active = true;
+				_batch$3.modelView.set(modelView);
+				_batch$3.projection.set(projection);
+				_batch$3.fog.use = !!(fog.use && fog.exist);
+				_batch$3.fog.near = fog.near;
+				_batch$3.fog.far = fog.far;
+				_batch$3.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$2.flush(gl);
+			_batch$3.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -292405,6 +292410,191 @@ var init_SandAttackEffect = __esmMin((() => {
 			});
 		}
 	}];
+}));
+// src/Renderer/Effects/EnergyDrainSim.js
+/**
+* The souls of one drain.
+*
+* @param {number} effectId 1207 or 1208
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array} { spawn (tick), bow, dir: [x, y], scale, shade (0..255) }
+*/
+function planDrain(effectId, random = Math.random) {
+	const r = (k) => Math.floor(random() * k);
+	const shade = SHADES$1[effectId] || SHADES$1[1207];
+	const half = (DRAIN.spread - 1) / 2;
+	const out = [];
+	for (let spawn = 0; spawn < DRAIN.ticks; spawn++) for (const bow of DRAIN.bows) {
+		const dy = r(DRAIN.spread) - half;
+		const dx = r(DRAIN.spread) - half;
+		const length = Math.hypot(dx, dy);
+		const color = shade.low + r(shade.range);
+		out.push({
+			spawn,
+			bow,
+			dir: length ? [dx / length, dy / length] : [0, 1],
+			scale: DRAIN.scale + r(6) * .1,
+			shade: color
+		});
+	}
+	return out;
+}
+/**
+* Alpha (0..254) and scale of trail step `i` (0 the soul itself).
+*
+* @param {number} scale the soul's own
+* @param {number} i
+* @return {object} { alpha, scale }
+*/
+function drainTrailLook(scale, i) {
+	return {
+		alpha: DRAIN.alpha - DRAIN.alpha / DRAIN.trail * i,
+		scale: scale - scale / DRAIN.trail * i * .5
+	};
+}
+/**
+* The actor's colour on a tick of the effect, out of 1.
+*
+* @param {number} frame tick since the effect started
+* @return {Array} [r, g, b]
+*/
+function drainTint(frame) {
+	if (frame < TINT.first) return [
+		1,
+		1,
+		1
+	];
+	const c = 2 * (125 - Math.min(frame, TINT.last)) / 255;
+	const blue = TINT.blue / 255;
+	const back = Math.max(frame - TINT.last, 0) * TINT.recoverStep / 255;
+	return [
+		Math.min(1, c + back),
+		Math.min(1, c + back),
+		Math.min(1, blue + back)
+	];
+}
+var DRAIN, SHADES$1, TINT;
+var init_EnergyDrainSim = __esmMin((() => {
+	DRAIN = {
+		ticks: 5,
+		bows: [
+			-90,
+			0,
+			90
+		],
+		life: 60,
+		up: 10,
+		back: 2,
+		bow: -2,
+		speedTimes: 2,
+		spread: 7,
+		trail: 7,
+		scale: 1,
+		alpha: 254
+	};
+	SHADES$1 = {
+		1207: {
+			low: 200,
+			range: 55
+		},
+		1208: {
+			low: 20,
+			range: 100
+		}
+	};
+	TINT = {
+		first: 50,
+		last: 80,
+		blue: 250,
+		recoverStep: 8
+	};
+}));
+// src/DB/Effects/EnergyDrainEffect.js
+/**
+* The 3D effect drawing step `i` of a drain soul's trail (0 the soul itself).
+*
+* @param {object} soul from planDrain
+* @param {number} i
+* @return {object}
+*/
+function drainTrailEffect(soul, i) {
+	const look = drainTrailLook(soul.scale, i);
+	const shade = soul.shade / 255;
+	return {
+		type: "3D",
+		spriteName: "particle1",
+		alphaMax: 1,
+		red: shade,
+		green: shade,
+		blue: shade,
+		attachedEntity: false,
+		duration: DRAIN.life * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const k = Math.floor(age);
+			const n = k + 1 - i;
+			if (k < 0 || k >= DRAIN.life || n < 1) return null;
+			const p = soulAt(soul, soul.dir, 0, n, DRAIN);
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: look.scale * 100,
+				alpha: look.alpha / 255
+			};
+		}
+	};
+}
+/**
+* Tint an entity blue on ticks 50 to 80 of the effect, through its flash
+* colour, then let it come back.
+*
+* @param {Entity} entity
+*/
+function startDrainTint(entity) {
+	if (!entity || !entity.animations || !entity._flashColor) return;
+	entity.animations.add((tick) => {
+		const frame = Math.floor(tick / PRIM_TICK_MS);
+		if (frame < TINT.first) return false;
+		const [r, g, b] = drainTint(frame);
+		entity._flashColor[0] = r;
+		entity._flashColor[1] = g;
+		entity._flashColor[2] = b;
+		entity._flashColor[3] = 1;
+		entity.recalculateBlendingColor();
+		return frame > TINT.last && r >= 1 && g >= 1 && b >= 1;
+	});
+}
+/**
+* EffectTable rows for 1207 or 1208.
+*
+* @param {number} effectId
+* @return {Array}
+*/
+function energyDrainEffect(effectId) {
+	return [{
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			planDrain(effectId).forEach((soul, s) => {
+				for (let i = 0; i < DRAIN.trail; i++) this.spamEffect({
+					effect: drainTrailEffect(soul, i),
+					Inst: {
+						effectID: effectId,
+						duplicateID: s * DRAIN.trail + i,
+						startTick: Params.Inst.startTick + soul.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+			startDrainTint(Params.Init.ownerEntity);
+		}
+	}];
+}
+var init_EnergyDrainEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_SoulStrikeSim();
+	init_EnergyDrainSim();
 }));
 // src/DB/Effects/ArrowShowerEffects.js
 /**
@@ -293171,22 +293361,22 @@ var init_CastConeSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastCone.js
 function loadTexture$10(gl, name) {
-	if (_textures$10.has(name)) return;
-	_textures$10.set(name, null);
+	if (_textures$11.has(name)) return;
+	_textures$11.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$10.has(name)) {
+			if (!_textures$11.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$10.set(name, texture);
+			_textures$11.set(name, texture);
 		});
 	});
 }
 function bubbleName(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var BAND_VERTICES, _program$14, _textures$10, CastCone;
+var BAND_VERTICES, _program$14, _textures$11, CastCone;
 var init_CastCone = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -293196,7 +293386,7 @@ var init_CastCone = __esmMin((() => {
 	init_EffectPrim$1();
 	BAND_VERTICES = 120;
 	_program$14 = null;
-	_textures$10 = /* @__PURE__ */ new Map();
+	_textures$11 = /* @__PURE__ */ new Map();
 	CastCone = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -293265,7 +293455,7 @@ var init_CastCone = __esmMin((() => {
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
-				const texture = _textures$10.get(bubbleName(bubbleFrame(t)));
+				const texture = _textures$11.get(bubbleName(bubbleFrame(t)));
 				if (self.pulse) {
 					for (const crown of PULSE_CROWNS) {
 						const states = pulseBands(t, self.frames, crown.alpha);
@@ -293277,7 +293467,7 @@ var init_CastCone = __esmMin((() => {
 				}
 				if (self.ground) {
 					buildGround(self.squares, t, self.position);
-					self.pass(gl, self.squares, GROUND_VERTICES, _textures$10.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
+					self.pass(gl, self.squares, GROUND_VERTICES, _textures$11.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
 				}
 				const alpha = bandAlpha$1(t, self.frames);
 				buildCone(self.cone, t, self.position);
@@ -293299,8 +293489,8 @@ var init_CastCone = __esmMin((() => {
 				gl.deleteProgram(_program$14);
 				_program$14 = null;
 			}
-			for (const texture of _textures$10.values()) if (texture) gl.deleteTexture(texture);
-			_textures$10.clear();
+			for (const texture of _textures$11.values()) if (texture) gl.deleteTexture(texture);
+			_textures$11.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -293523,19 +293713,19 @@ var init_CastCircleSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastCircle.js
 function loadTexture$9(gl, name) {
-	if (_textures$9.has(name)) return;
-	_textures$9.set(name, null);
+	if (_textures$10.has(name)) return;
+	_textures$10.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$9.has(name)) {
+			if (!_textures$10.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$9.set(name, texture);
+			_textures$10.set(name, texture);
 		});
 	});
 }
-var _program$13, _textures$9, CastCircle;
+var _program$13, _textures$10, CastCircle;
 var init_CastCircle = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -293544,7 +293734,7 @@ var init_CastCircle = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$13 = null;
-	_textures$9 = /* @__PURE__ */ new Map();
+	_textures$10 = /* @__PURE__ */ new Map();
 	CastCircle = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -293588,7 +293778,7 @@ var init_CastCircle = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			const texture = _textures$9.get(this.texture);
+			const texture = _textures$10.get(this.texture);
 			if (!texture) return;
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const starts = buildCircle(this.vertices, t, this.position, this.tinted);
@@ -293621,8 +293811,8 @@ var init_CastCircle = __esmMin((() => {
 				gl.deleteProgram(_program$13);
 				_program$13 = null;
 			}
-			for (const texture of _textures$9.values()) if (texture) gl.deleteTexture(texture);
-			_textures$9.clear();
+			for (const texture of _textures$10.values()) if (texture) gl.deleteTexture(texture);
+			_textures$10.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -293963,7 +294153,7 @@ var init_AcidDemonRingSim = __esmMin((() => {
 	RING_VERTICES$2 = RING_BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 }));
 // src/Renderer/Effects/AcidDemonRing.js
-var TEXTURE$5, _program$12, _texture$4, _generation, AcidDemonRing;
+var TEXTURE$6, _program$12, _texture$4, _generation, AcidDemonRing;
 var init_AcidDemonRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -293971,7 +294161,7 @@ var init_AcidDemonRing = __esmMin((() => {
 	init_AcidDemonRingSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	TEXTURE$5 = "data/texture/effect/ring_black.tga";
+	TEXTURE$6 = "data/texture/effect/ring_black.tga";
 	_program$12 = null;
 	_texture$4 = null;
 	_generation = 0;
@@ -294031,7 +294221,7 @@ var init_AcidDemonRing = __esmMin((() => {
 		static init(gl) {
 			_program$12 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			const generation = ++_generation;
-			Client.loadFile(TEXTURE$5, (buffer) => {
+			Client.loadFile(TEXTURE$6, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					if (generation !== _generation) {
 						gl.deleteTexture(texture);
@@ -295362,19 +295552,19 @@ var init_CastRingSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastRing.js
 function loadTexture$8(gl, name) {
-	if (_textures$8.has(name)) return;
-	_textures$8.set(name, null);
+	if (_textures$9.has(name)) return;
+	_textures$9.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$8.has(name)) {
+			if (!_textures$9.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$8.set(name, texture);
+			_textures$9.set(name, texture);
 		});
 	});
 }
-var _program$11, _textures$8, SIZES, CastRing;
+var _program$11, _textures$9, SIZES, CastRing;
 var init_CastRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -295383,7 +295573,7 @@ var init_CastRing = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$11 = null;
-	_textures$8 = /* @__PURE__ */ new Map();
+	_textures$9 = /* @__PURE__ */ new Map();
 	SIZES = [45, 25];
 	CastRing = class {
 		/**
@@ -295431,7 +295621,7 @@ var init_CastRing = __esmMin((() => {
 				for (const ring of this.rings) stepRing(ring.sim);
 				this.ticks++;
 			}
-			const texture = _textures$8.get(this.texture);
+			const texture = _textures$9.get(this.texture);
 			if (!texture) return;
 			const attribute = _program$11.attribute;
 			const self = this;
@@ -295469,8 +295659,8 @@ var init_CastRing = __esmMin((() => {
 				gl.deleteProgram(_program$11);
 				_program$11 = null;
 			}
-			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
-			_textures$8.clear();
+			for (const texture of _textures$9.values()) if (texture) gl.deleteTexture(texture);
+			_textures$9.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -295661,19 +295851,19 @@ var init_StreakLinesSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/StreakLines.js
 function loadTexture$7(gl, name) {
-	if (_textures$7.has(name)) return;
-	_textures$7.set(name, null);
+	if (_textures$8.has(name)) return;
+	_textures$8.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$7.has(name)) {
+			if (!_textures$8.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$7.set(name, texture);
+			_textures$8.set(name, texture);
 		});
 	});
 }
-var _program$10, _textures$7, StreakLines;
+var _program$10, _textures$8, StreakLines;
 var init_StreakLines = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -295682,7 +295872,7 @@ var init_StreakLines = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$10 = null;
-	_textures$7 = /* @__PURE__ */ new Map();
+	_textures$8 = /* @__PURE__ */ new Map();
 	StreakLines = class {
 		/**
 		* @param {vec3} position caster position (copied: the sets stay where they start)
@@ -295742,7 +295932,7 @@ var init_StreakLines = __esmMin((() => {
 				let bound = null;
 				for (let i = 0; i < streaks.length; i++) {
 					const streak = streaks[i];
-					const texture = _textures$7.get(self.textures[streak.texture]);
+					const texture = _textures$8.get(self.textures[streak.texture]);
 					if (streak.alpha <= 0 || !texture) continue;
 					if (texture !== bound) {
 						gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -295768,8 +295958,8 @@ var init_StreakLines = __esmMin((() => {
 				gl.deleteProgram(_program$10);
 				_program$10 = null;
 			}
-			for (const texture of _textures$7.values()) if (texture) gl.deleteTexture(texture);
-			_textures$7.clear();
+			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
+			_textures$8.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -296208,15 +296398,15 @@ function streakAt(streak, age) {
 	if (k < 0 || k >= ENDURE.streak.life) return null;
 	const dist = streak.dist - streakSlide(k);
 	return {
-		offsetX: Math.sin(rad$2(streak.angle)) * dist,
-		offsetY: -Math.cos(rad$2(streak.angle)) * dist - ENDURE.lift,
+		offsetX: Math.sin(rad$3(streak.angle)) * dist,
+		offsetY: -Math.cos(rad$3(streak.angle)) * dist - ENDURE.lift,
 		sizeX: streak.halfWidth * 2,
 		sizeY: streak.halfLength * 2,
 		alpha: primAlpha(k, ENDURE.streak.life),
 		angle: streak.angle
 	};
 }
-var ENDURE, r$5, rad$2;
+var ENDURE, r$5, rad$3;
 var init_EndureSim = __esmMin((() => {
 	ENDURE = {
 		life: 80,
@@ -296236,7 +296426,7 @@ var init_EndureSim = __esmMin((() => {
 		}
 	};
 	r$5 = (random, k) => Math.floor(random() * k);
-	rad$2 = (deg) => deg * Math.PI / 180;
+	rad$3 = (deg) => deg * Math.PI / 180;
 }));
 // src/DB/Effects/EndureEffect.js
 /**
@@ -296739,17 +296929,17 @@ var init_FlasherSim = __esmMin((() => {
 	};
 }));
 // src/Renderer/Effects/Flasher.js
-var _batch$1, _textures$6, FLASH_TEXTURE, RAY_TEXTURE, PIXEL, _right$2, _up, RAY_INDICES, _rayVertices, ALPHAS, Flasher;
+var _batch$2, _textures$7, FLASH_TEXTURE, RAY_TEXTURE, PIXEL, _right$2, _up, RAY_INDICES, _rayVertices, ALPHAS, Flasher;
 var init_Flasher = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_FlasherSim();
-	_batch$1 = new AuraBatch({
+	_batch$2 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$6 = /* @__PURE__ */ new Map();
+	_textures$7 = /* @__PURE__ */ new Map();
 	FLASH_TEXTURE = "thunder_center.bmp";
 	RAY_TEXTURE = "alpha_center.tga";
 	PIXEL = 1 / 35;
@@ -296830,11 +297020,11 @@ var init_Flasher = __esmMin((() => {
 			const done = () => {
 				if (++this.loaded === 2) this.ready = true;
 			};
-			sharedTexture(_textures$6, gl, FLASH_TEXTURE, (texture) => {
+			sharedTexture(_textures$7, gl, FLASH_TEXTURE, (texture) => {
 				this.flashTexture = texture;
 				done();
 			}, done);
-			sharedTexture(_textures$6, gl, RAY_TEXTURE, (texture) => {
+			sharedTexture(_textures$7, gl, RAY_TEXTURE, (texture) => {
 				this.rayTexture = texture;
 				done();
 			}, done);
@@ -296853,7 +297043,7 @@ var init_Flasher = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$1.active) return;
+			if (!_batch$2.active) return;
 			const pos = this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -296875,7 +297065,7 @@ var init_Flasher = __esmMin((() => {
 					this.points[k][1] = cy + _right$2[1] * sx + _up[1] * sy;
 					this.points[k][2] = oz + _right$2[2] * sx + _up[2] * sy;
 				}
-				_batch$1.quad(this.flashTexture, 0, this.points, QUAD_FAN, 1, 1, 1, alpha, 0);
+				_batch$2.quad(this.flashTexture, 0, this.points, QUAD_FAN, 1, 1, 1, alpha, 0);
 			}
 			if (this.rayTexture) {
 				const px = ox + _up[0] * RAY.up * PIXEL;
@@ -296891,7 +297081,7 @@ var init_Flasher = __esmMin((() => {
 						_rayVertices[k * 5 + 1] = _right$2[1] * sx + _up[1] * sy;
 						_rayVertices[k * 5 + 2] = _right$2[2] * sx + _up[2] * sy;
 					}
-					_batch$1.mesh(this.rayTexture, 0, _rayVertices, 3, RAY_INDICES, px, py, pz, 1, 1, 1, ray.alpha / 255, 0);
+					_batch$2.mesh(this.rayTexture, 0, _rayVertices, 3, RAY_INDICES, px, py, pz, 1, 1, 1, ray.alpha / 255, 0);
 				}
 			}
 		}
@@ -296900,8 +297090,8 @@ var init_Flasher = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$1.free(gl);
-			freeSharedTextures(_textures$6, gl);
+			_batch$2.free(gl);
+			freeSharedTextures(_textures$7, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -296911,19 +297101,19 @@ var init_Flasher = __esmMin((() => {
 			_up[0] = modelView[1];
 			_up[1] = modelView[5];
 			_up[2] = modelView[9];
-			_batch$1.begin(gl, modelView, projection, fog);
-			if (!_batch$1.active && typeof gl.createVertexArray === "function") {
-				_batch$1.active = true;
-				_batch$1.modelView.set(modelView);
-				_batch$1.projection.set(projection);
-				_batch$1.fog.use = !!(fog.use && fog.exist);
-				_batch$1.fog.near = fog.near;
-				_batch$1.fog.far = fog.far;
-				_batch$1.fog.color.set(fog.color);
+			_batch$2.begin(gl, modelView, projection, fog);
+			if (!_batch$2.active && typeof gl.createVertexArray === "function") {
+				_batch$2.active = true;
+				_batch$2.modelView.set(modelView);
+				_batch$2.projection.set(projection);
+				_batch$2.fog.use = !!(fog.use && fog.exist);
+				_batch$2.fog.near = fog.near;
+				_batch$2.fog.far = fog.far;
+				_batch$2.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$1.flush(gl);
+			_batch$2.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -297073,18 +297263,18 @@ var init_BlitzBeatSim = __esmMin((() => {
 	}];
 }));
 // src/Renderer/Effects/BlitzStreaks.js
-var _batch, _textures$5, TEXTURE$4, BlitzStreaks;
+var _batch$1, _textures$6, TEXTURE$5, BlitzStreaks;
 var init_BlitzStreaks = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_BlitzBeatSim();
-	_batch = new AuraBatch({
+	_batch$1 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$5 = /* @__PURE__ */ new Map();
-	TEXTURE$4 = "ac_center2.tga";
+	_textures$6 = /* @__PURE__ */ new Map();
+	TEXTURE$5 = "ac_center2.tga";
 	BlitzStreaks = class {
 		/**
 		* @param {Entity} owner the target, followed
@@ -297127,7 +297317,7 @@ var init_BlitzStreaks = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$5, gl, TEXTURE$4, (texture) => {
+			sharedTexture(_textures$6, gl, TEXTURE$5, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, () => {
@@ -297148,7 +297338,7 @@ var init_BlitzStreaks = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch.active || !this.texture) return;
+			if (!_batch$1.active || !this.texture) return;
 			const pos = this.owner ? this.owner.position : this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -297162,7 +297352,7 @@ var init_BlitzStreaks = __esmMin((() => {
 						points[k][1] = oy + quad[k][1] / 5;
 						points[k][2] = oz + quad[k][2] / 5;
 					}
-					_batch.quad(this.texture, 0, points, QUAD_FAN, 1, 1, 1, s.alpha / 255, 0);
+					_batch$1.quad(this.texture, 0, points, QUAD_FAN, 1, 1, 1, s.alpha / 255, 0);
 				}
 			}
 		}
@@ -297171,24 +297361,24 @@ var init_BlitzStreaks = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch.free(gl);
-			freeSharedTextures(_textures$5, gl);
+			_batch$1.free(gl);
+			freeSharedTextures(_textures$6, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			_batch.begin(gl, modelView, projection, fog);
-			if (!_batch.active && typeof gl.createVertexArray === "function") {
-				_batch.active = true;
-				_batch.modelView.set(modelView);
-				_batch.projection.set(projection);
-				_batch.fog.use = !!(fog.use && fog.exist);
-				_batch.fog.near = fog.near;
-				_batch.fog.far = fog.far;
-				_batch.fog.color.set(fog.color);
+			_batch$1.begin(gl, modelView, projection, fog);
+			if (!_batch$1.active && typeof gl.createVertexArray === "function") {
+				_batch$1.active = true;
+				_batch$1.modelView.set(modelView);
+				_batch$1.projection.set(projection);
+				_batch$1.fog.use = !!(fog.use && fog.exist);
+				_batch$1.fog.near = fog.near;
+				_batch$1.fog.far = fog.far;
+				_batch$1.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch.flush(gl);
+			_batch$1.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -297313,9 +297503,9 @@ function planSparks$1(random = Math.random) {
 		sparks.push({
 			heading,
 			start: {
-				x: Math.cos(rad$1(elevation)) * Math.cos(rad$1(heading)) * dist,
-				y: Math.cos(rad$1(elevation)) * Math.sin(rad$1(heading)) * dist,
-				up: Math.sin(rad$1(elevation)) * dist + STEAL.lift
+				x: Math.cos(rad$2(elevation)) * Math.cos(rad$2(heading)) * dist,
+				y: Math.cos(rad$2(elevation)) * Math.sin(rad$2(heading)) * dist,
+				up: Math.sin(rad$2(elevation)) * dist + STEAL.lift
 			},
 			speed: (50 + r$1(random, 50)) / 100,
 			rise: (60 + r$1(random, 90)) / 100,
@@ -297351,7 +297541,7 @@ function sparkAt(spark, age) {
 	for (let m = 1; m <= k; m++) dist += Math.max(spark.speed - slow * m, 0);
 	const g = 2 * spark.rise / STEAL.life;
 	const up = spark.rise * k - g * k * (k + 1) / 2;
-	const h = rad$1(spark.heading);
+	const h = rad$2(spark.heading);
 	return {
 		x: spark.start.x + Math.cos(h) * dist,
 		y: spark.start.y + Math.sin(h) * dist,
@@ -297360,7 +297550,7 @@ function sparkAt(spark, age) {
 		alpha: fadeAlpha(k, STEAL.life, STEAL.fadeStart)
 	};
 }
-var STEAL, r$1, rad$1;
+var STEAL, r$1, rad$2;
 var init_StealSparkSim = __esmMin((() => {
 	STEAL = {
 		count: 10,
@@ -297369,7 +297559,7 @@ var init_StealSparkSim = __esmMin((() => {
 		lift: 10
 	};
 	r$1 = (random, k) => Math.floor(random() * k);
-	rad$1 = (d) => d * Math.PI / 180;
+	rad$2 = (d) => d * Math.PI / 180;
 }));
 // src/DB/Effects/StealEffect.js
 /**
@@ -297499,7 +297689,7 @@ function flyCoin(coin) {
 function coinAt(coin, age) {
 	const k = Math.floor(age);
 	if (k < 0 || k >= coin.life) return null;
-	const h = rad(coin.heading);
+	const h = rad$1(coin.heading);
 	const d = coin.dist + coin.path.dist[k];
 	return {
 		x: Math.cos(h) * d,
@@ -297526,7 +297716,7 @@ function coinTrailAt(coin, age) {
 		alpha: now.alpha / 2
 	};
 }
-var COIN, r, rad;
+var COIN, r, rad$1;
 var init_MammoniteCoinSim = __esmMin((() => {
 	init_StealSparkSim();
 	COIN = {
@@ -297537,7 +297727,7 @@ var init_MammoniteCoinSim = __esmMin((() => {
 		trailScale: 1.5
 	};
 	r = (random, k) => Math.floor(random() * k);
-	rad = (d) => d * Math.PI / 180;
+	rad$1 = (d) => d * Math.PI / 180;
 }));
 // src/DB/Effects/MammoniteEffect.js
 /**
@@ -297746,19 +297936,19 @@ var init_EnergyOrb$1 = __esmMin((() => {
 }));
 // src/Renderer/Effects/EnergyOrb.js
 function loadTexture$6(gl, name) {
-	if (_textures$4.has(name)) return;
-	_textures$4.set(name, null);
+	if (_textures$5.has(name)) return;
+	_textures$5.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$4.has(name)) {
+			if (!_textures$5.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$4.set(name, texture);
+			_textures$5.set(name, texture);
 		});
 	});
 }
-var _program$9, _buffer$3, _textures$4, _right$1, _away$1, _position$2, _color$2, EnergyOrb;
+var _program$9, _buffer$3, _textures$5, _right$1, _away$1, _position$2, _color$2, EnergyOrb;
 var init_EnergyOrb = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -297768,7 +297958,7 @@ var init_EnergyOrb = __esmMin((() => {
 	init_EffectPrim$1();
 	_program$9 = null;
 	_buffer$3 = null;
-	_textures$4 = /* @__PURE__ */ new Map();
+	_textures$5 = /* @__PURE__ */ new Map();
 	_right$1 = /* @__PURE__ */ new Float32Array(3);
 	_away$1 = /* @__PURE__ */ new Float32Array(3);
 	_position$2 = /* @__PURE__ */ new Float32Array(3);
@@ -297801,7 +297991,7 @@ var init_EnergyOrb = __esmMin((() => {
 			this.ready = false;
 		}
 		render(gl, tick) {
-			const texture = _textures$4.get(this.texture);
+			const texture = _textures$5.get(this.texture);
 			if (!texture || !this.orbs.length || tick < this.startTick) return;
 			const ticks = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
 			_color$2[3] = orbAlpha(ticks) / 255;
@@ -297875,8 +298065,8 @@ var init_EnergyOrb = __esmMin((() => {
 				gl.deleteBuffer(_buffer$3);
 				_buffer$3 = null;
 			}
-			for (const texture of _textures$4.values()) if (texture) gl.deleteTexture(texture);
-			_textures$4.clear();
+			for (const texture of _textures$5.values()) if (texture) gl.deleteTexture(texture);
+			_textures$5.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -297942,7 +298132,7 @@ function soulOffset(index, count, phase) {
 		z: Math.sin(angle) * 10
 	};
 }
-var DEG$4, SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS, TEXTURE$3, TURN, TIERS, OVERLAY;
+var DEG$4, SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS, TEXTURE$4, TURN, TIERS, OVERLAY;
 var init_SoulCollectSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DEG$4 = Math.PI / 180;
@@ -297952,7 +298142,7 @@ var init_SoulCollectSim = __esmMin((() => {
 		4242,
 		4303
 	];
-	TEXTURE$3 = "soul_collect/soul_collect.bmp";
+	TEXTURE$4 = "soul_collect/soul_collect.bmp";
 	TURN = .5;
 	TIERS = [
 		{
@@ -298006,7 +298196,7 @@ var init_SoulCollectSim = __esmMin((() => {
 function loadTexture$5(gl) {
 	if (_textureRequested) return;
 	_textureRequested = true;
-	Client.loadFile(`data/texture/effect/${TEXTURE$3}`, (buffer) => {
+	Client.loadFile(`data/texture/effect/${TEXTURE$4}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
 			if (!_textureRequested) {
 				gl.deleteTexture(texture);
@@ -298178,6 +298368,227 @@ var init_SoulCollect = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$8.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$8.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/Renderer/Effects/UnityLinkSim.js
+/**
+* Alpha (0..255) of the inner tube after `n` updates; the outer has twice it.
+*
+* @param {number} n
+* @return {number}
+*/
+function linkAlpha(n) {
+	return LINK.alpha + Math.min(n, LINK.alphaUntil);
+}
+/**
+* Width of the inner tube after `n` updates; the outer is twice as wide.
+*
+* @param {number} n
+* @return {number}
+*/
+function linkWidth(n) {
+	let w = LINK.width;
+	for (let c = 1; c <= n; c++) w += Math.sin(c % 360 * rad) * LINK.swell;
+	return w;
+}
+/**
+* How much of the way to the caster the tube reaches after `n` updates.
+*
+* @param {number} n
+* @return {number} 0..1
+*/
+function linkReach(n) {
+	return n < LINK.reachTicks ? Math.sin(n * LINK.reachStep * rad) : 1;
+}
+/**
+* The ring of a tube end: `sides + 1` points around the line, relative to
+* the end, the first and last the same. The ring stands across the line:
+* sideways and up.
+*
+* @param {Array} dir unit direction of the line, [x, z]
+* @param {number} radius
+* @return {Array} [x, y, z] points
+*/
+function linkRing(dir, radius) {
+	const px = -dir[1];
+	const pz = dir[0];
+	const out = [];
+	for (let k = 0; k <= LINK.sides; k++) {
+		const a = k * 360 / LINK.sides * rad;
+		const s = radius * Math.cos(a);
+		out.push([
+			s * px,
+			radius * Math.sin(a),
+			s * pz
+		]);
+	}
+	return out;
+}
+var LINK, rad;
+var init_UnityLinkSim = __esmMin((() => {
+	LINK = {
+		life: 200,
+		up: 8,
+		sides: 10,
+		width: .4,
+		swell: .005,
+		reachTicks: 15,
+		reachStep: 6,
+		alpha: 45,
+		alphaUntil: 80,
+		inner: [
+			255,
+			255,
+			0
+		],
+		outer: [
+			0,
+			0,
+			255
+		]
+	};
+	rad = Math.PI / 180;
+}));
+// src/Renderer/Effects/UnityLink.js
+/**
+* The vertices of a tube from (0, 0, 0) to `end`, in cells and GL axes: a quad
+* a side, u around, v from the start (1) to the end (0).
+*
+* @param {Array} end [x, y, z] in cells
+* @param {Array} dir unit direction on the map, [x, z]
+* @param {number} radius units
+* @param {Float32Array} [out]
+* @return {Float32Array}
+*/
+function linkTubeVertices(end, dir, radius, out = new Float32Array(VERTICES * 5)) {
+	const ring = linkRing(dir, radius);
+	let o = 0;
+	const put = (p, x, y, z, u, v) => {
+		out[o++] = p[0] / 5 + x;
+		out[o++] = p[1] / 5 + y;
+		out[o++] = p[2] / 5 + z;
+		out[o++] = u;
+		out[o++] = v;
+	};
+	for (let k = 1; k <= SIDES; k++) {
+		put(ring[k - 1], 0, 0, 0, 0, 1);
+		put(ring[k], 0, 0, 0, 1, 1);
+		put(ring[k], end[0], end[1], end[2], 1, 0);
+		put(ring[k - 1], end[0], end[1], end[2], 0, 0);
+	}
+	return out;
+}
+var _batch, _textures$4, TEXTURE$3, SIDES, VERTICES, INDICES, UnityLink;
+var init_UnityLink = __esmMin((() => {
+	init_EntityManager();
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_UnityLinkSim();
+	_batch = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$4 = /* @__PURE__ */ new Map();
+	TEXTURE$3 = "cloud11.tga";
+	SIDES = LINK.sides;
+	VERTICES = SIDES * 4;
+	INDICES = new Uint16Array(SIDES * 6);
+	for (let k = 0; k < SIDES; k++) {
+		const v = k * 4;
+		INDICES.set([
+			v,
+			v + 1,
+			v + 2,
+			v,
+			v + 2,
+			v + 3
+		], k * 6);
+	}
+	UnityLink = class UnityLink {
+		/**
+		* @param {Entity} from the target
+		* @param {Entity} to the caster
+		* @param {number} startTick
+		*/
+		constructor(from, to, startTick) {
+			this.from = from;
+			this.to = to;
+			this.startTick = startTick || 0;
+			this.vertices = new Float32Array(VERTICES * 5);
+		}
+		init(gl) {
+			sharedTexture(_textures$4, gl, TEXTURE$3, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, () => {
+				this.ready = true;
+			});
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const n = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			if (n > LINK.life || !UnityLink.present(this.from) || !UnityLink.present(this.to)) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch.active || !this.texture) return;
+			const a = this.from.position;
+			const b = this.to.position;
+			const dx = b[0] - a[0];
+			const dz = b[1] - a[1];
+			const length = Math.hypot(dx, dz);
+			const dir = length ? [dx / length, dz / length] : [1, 0];
+			const reach = linkReach(n);
+			const x = a[0] + .5;
+			const y = -a[2] - LINK.up / 5;
+			const z = a[1] + .5;
+			const end = [
+				dx * reach,
+				(a[2] - b[2]) * reach,
+				dz * reach
+			];
+			const width = linkWidth(n);
+			const alpha = linkAlpha(n) / 255;
+			const inner = LINK.inner;
+			linkTubeVertices(end, dir, width, this.vertices);
+			_batch.mesh(this.texture, 0, this.vertices, VERTICES, INDICES, x, y, z, inner[0] / 255, inner[1] / 255, inner[2] / 255, alpha, 0);
+			const outer = LINK.outer;
+			linkTubeVertices(end, dir, width * 2, this.vertices);
+			_batch.mesh(this.texture, 0, this.vertices, VERTICES, INDICES, x, y, z, outer[0] / 255, outer[1] / 255, outer[2] / 255, Math.min(1, alpha * 2), 0);
+		}
+		/** Whether an entity is still the one the scene knows by its id. */
+		static present(entity) {
+			return !!entity && EntityManager.get(entity.GID) === entity;
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch.free(gl);
+			freeSharedTextures(_textures$4, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_batch.begin(gl, modelView, projection, fog);
+			if (!_batch.active && typeof gl.createVertexArray === "function") {
+				_batch.active = true;
+				_batch.modelView.set(modelView);
+				_batch.projection.set(projection);
+				_batch.fog.use = !!(fog.use && fog.exist);
+				_batch.fog.near = fog.near;
+				_batch.fog.far = fog.far;
+				_batch.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
 }));
@@ -299900,6 +300311,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SkySunEffect();
 	init_StormSlashEffect();
 	init_SandAttackEffect();
+	init_EnergyDrainEffect();
 	init_ArrowShowerEffects();
 	init_ArrowFlight();
 	init_ServantDemolitionEffect();
@@ -299931,6 +300343,7 @@ var init_EffectTable = __esmMin((() => {
 	init_MammoniteEffect();
 	init_EnergyOrb();
 	init_SoulCollect();
+	init_UnityLink();
 	init_RotateLine();
 	init_CastFunnel();
 	init_CastFunnelSim();
@@ -314245,6 +314658,16 @@ var init_EffectTable = __esmMin((() => {
 			}
 		}],
 		1204: smaBlackEffect,
+		1207: energyDrainEffect(1207),
+		1208: energyDrainEffect(1208),
+		1210: [{
+			type: "FUNC",
+			attachedEntity: true,
+			duration: Math.ceil(200 * PRIM_TICK_MS),
+			func: function(Params) {
+				this.add(new UnityLink(Params.Init.ownerEntity, Params.Init.otherEntity, Params.Inst.startTick), Params);
+			}
+		}],
 		1225: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -352353,7 +352776,7 @@ var init_EntityRender = __esmMin((() => {
 			const marks = type !== "shadow" && type !== "cartshadow" && entity._bodyMotions && entity._bodyMotions.size ? marksOf(entity) : null;
 			const bodyAlpha = entity.effectColor[3];
 			if (marks && marks.length) {
-				const link = linkAlpha(marks);
+				const link = linkAlpha$1(marks);
 				if (link > 0) renderLinkGlow(entity, layers, spr, pal, files, _position, link);
 				if (hasReflect(marks)) {
 					if (!isBlendModeOne) renderReflectRipples(entity, layers, spr, pal, files, _position);
