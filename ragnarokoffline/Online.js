@@ -218346,7 +218346,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$6)) return {
+	if (u(s, r$7)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -220772,7 +220772,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$6, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$7, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -220792,7 +220792,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$6 = [
+	r$7 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -223548,8 +223548,12 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectId: 385
 	};
 	SkillEffect[SkillConst_default.PF_SOULBURN] = { effectId: 406 };
-	SkillEffect[SkillConst_default.ASC_EDP] = { effectId: 493 };
-	SkillEffect[SkillConst_default.ASC_BREAKER] = { beforeHitEffectId: 361 };
+	SkillEffect[SkillConst_default.ASC_EDP] = { successEffectIdOnCaster: 493 };
+	SkillEffect[SkillConst_default.ASC_BREAKER] = {
+		castAuraEffectId: 59,
+		damageEffectIdOnCaster: 361,
+		hitEffectId: 0
+	};
 	SkillEffect[SkillConst_default.SN_SIGHT] = { successEffectIdOnCaster: 386 };
 	SkillEffect[SkillConst_default.SN_FALCONASSAULT] = {
 		hideCastAura: true,
@@ -273795,6 +273799,8 @@ function createPrimState(effect) {
 		coneHeightAccel: num(effect.coneHeightAccel, 0),
 		coneHeightMax: num(effect.coneHeightMax, 100),
 		pitch: num(effect.pitch, 0),
+		trackX: 0,
+		trackY: 0,
 		drift: num(effect.drift, 0),
 		driftAccel: num(effect.driftAccel, 0),
 		driftOffset: num(effect.driftStart, 0)
@@ -273874,6 +273880,23 @@ function stepPrim(state) {
 	state.sizeSpeed += state.sizeAccel;
 	state.size += state.sizeSpeed;
 	state.frame++;
+}
+/**
+* Put a quad's tracked values for tick `frame` into its state.
+*
+* @param {object} state
+* @param {object} effect description, with track
+* @param {number} frame
+* @return {boolean} whether the quad shows on that tick
+*/
+function applyTrack(state, effect, frame) {
+	const sample = effect.track(frame);
+	if (!sample) return false;
+	state.trackX = num(sample.x, state.trackX);
+	state.trackY = num(sample.y, state.trackY);
+	state.alpha = num(sample.alpha, state.alpha);
+	state.yaw = num(sample.yaw, state.yaw);
+	return true;
 }
 /**
 * Advance a primitive up to the given tick (it never goes past its lifetime)
@@ -274072,7 +274095,8 @@ function buildSphere(out, effect, state, center) {
 }
 /**
 * Build the quad: a level square spanning -size..+size on both ground axes,
-* height units above the ground, the whole texture corner to corner.
+* height units above the ground, the whole texture corner to corner, turned by
+* the state's yaw and moved by its tracked offset.
 *
 * @param {Float32Array} out
 * @param {object} effect description
@@ -274082,13 +274106,17 @@ function buildSphere(out, effect, state, center) {
 function buildQuad(out, effect, state, center) {
 	const s = state.size;
 	const up = num(effect.height, 0);
+	const yaw = state.yaw / 180 * Math.PI;
+	const c = Math.cos(yaw);
+	const n = Math.sin(yaw);
 	let o = 0;
-	o = vertex$10(out, o, center, s, s, up, 0, 0);
-	o = vertex$10(out, o, center, s, -s, up, 1, 0);
-	o = vertex$10(out, o, center, -s, s, up, 0, 1);
-	o = vertex$10(out, o, center, s, -s, up, 1, 0);
-	o = vertex$10(out, o, center, -s, -s, up, 1, 1);
-	vertex$10(out, o, center, -s, s, up, 0, 1);
+	const corner = (x, y, u, v) => o = vertex$10(out, o, center, x * c - y * n + state.trackX, x * n + y * c + state.trackY, up, u, v);
+	corner(s, s, 0, 0);
+	corner(s, -s, 1, 0);
+	corner(-s, s, 0, 1);
+	corner(s, -s, 1, 0);
+	corner(-s, -s, 1, 1);
+	corner(-s, s, 0, 1);
 }
 /**
 * Fill a vertex buffer with the primitive's triangles in its current state
@@ -274203,7 +274231,10 @@ var init_EffectPrim = __esmMin((() => {
 			const frame = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
 			const attribute = _program$33.attribute;
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			if (advancePrim(this.state, frame) || this.dirty) {
+			const changed = advancePrim(this.state, frame);
+			const tracked = typeof this.effect.track === "function";
+			if (tracked && !applyTrack(this.state, this.effect, frame)) return;
+			if (changed || this.dirty || tracked) {
 				buildPrimGeometry(this.vertices, this.effect, this.state, this.position);
 				gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
 				this.dirty = false;
@@ -287390,7 +287421,7 @@ function recoverColor(entity, color) {
 		return done;
 	});
 }
-var RED, PINK, YELLOW, WHITE, PURPLE, BLUE, SCHEDULES, DIR_MAP$1, CasterMarks;
+var RED, PINK, YELLOW, WHITE, PURPLE, BLUE, MAGENTA, SCHEDULES, DIR_MAP$1, CasterMarks;
 var init_CasterMarks = __esmMin((() => {
 	init_EntityManager();
 	init_StatusState();
@@ -287422,6 +287453,11 @@ var init_CasterMarks = __esmMin((() => {
 	];
 	BLUE = [
 		0,
+		0,
+		255
+	];
+	MAGENTA = [
+		255,
 		0,
 		255
 	];
@@ -287522,6 +287558,25 @@ var init_CasterMarks = __esmMin((() => {
 				glow: on,
 				split: false,
 				color: on ? even ? YELLOW : WHITE : null
+			};
+		},
+		493: (age) => {
+			const on = age <= 80;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: false,
+				split: false,
+				color: on ? even ? MAGENTA : WHITE : null
+			};
+		},
+		361: (age) => {
+			const on = age <= 10;
+			return {
+				add: on,
+				glow: false,
+				split: false,
+				color: on ? MAGENTA : null
 			};
 		},
 		389: (age) => {
@@ -289151,13 +289206,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$5(random, 9) - 4,
-		y: r$5(random, 9) - 4,
-		counter: r$5(random, 10) - 10,
-		heading: r$5(random, 360),
-		rise: r$5(random, 40) / 100 + .2,
-		drift: r$5(random, 10) / 100,
-		half: r$5(random, 16) * .03 + .1
+		x: r$6(random, 9) - 4,
+		y: r$6(random, 9) - 4,
+		counter: r$6(random, 10) - 10,
+		heading: r$6(random, 360),
+		rise: r$6(random, 40) / 100 + .2,
+		drift: r$6(random, 10) / 100,
+		half: r$6(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -289194,7 +289249,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$5;
+var SAND_COLOR, SAND_TEXTURE, r$6;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -289202,7 +289257,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$5 = (random, k) => Math.floor(random() * k);
+	r$6 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -292658,19 +292713,24 @@ var init_StreakLines = __esmMin((() => {
 /**
 * @param {function} [random] returns a number in [0, 1)
 * @param {number} [count] how many bubbles (one every 5 ticks)
+* @param {object} [variant] other numbers: every (ticks), riseRand, scaleBase, scaleRand
 * @return {Array<object>} the bubbles, in client units
 */
-function planBubbles(random = Math.random, count = DETOX.count) {
+function planBubbles(random = Math.random, count = DETOX.count, variant = {}) {
+	const every = variant.every || DETOX.every;
+	const riseRand = variant.riseRand || 30;
+	const scaleBase = variant.scaleBase || 40;
+	const scaleRand = variant.scaleRand || 50;
 	const bubbles = [];
 	for (let i = 0; i < count; i++) {
-		const heading = r$4(random, 360) * Math.PI / 180;
-		const dist = 2 + r$4(random, 6);
+		const heading = r$5(random, 360) * Math.PI / 180;
+		const dist = 2 + r$5(random, 6);
 		bubbles.push({
-			spawn: i * DETOX.every,
+			spawn: i * every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r$4(random, 30)) / 100,
-			scale: (40 + r$4(random, 50)) / 100
+			rise: (30 + r$5(random, riseRand)) / 100,
+			scale: (scaleBase + r$5(random, scaleRand)) / 100
 		});
 	}
 	return bubbles;
@@ -292705,7 +292765,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, r$4;
+var DETOX, r$5, EDP_BUBBLES;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -292715,7 +292775,13 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		fadeStart: 32,
 		spin: 3
 	};
-	r$4 = (random, k) => Math.floor(random() * k);
+	r$5 = (random, k) => Math.floor(random() * k);
+	EDP_BUBBLES = {
+		every: 3,
+		riseRand: 50,
+		scaleBase: 20,
+		scaleRand: 20
+	};
 }));
 // src/DB/Effects/DetoxifyEffect.js
 /**
@@ -292829,10 +292895,10 @@ function planStreaks(random = Math.random) {
 	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
 		const streak = {
 			spawn,
-			angle: r$3(random, 360),
-			dist: 100 + r$3(random, 40),
-			halfWidth: (60 + r$3(random, 100)) / 100,
-			halfLength: 30 + r$3(random, 20)
+			angle: r$4(random, 360),
+			dist: 100 + r$4(random, 40),
+			halfWidth: (60 + r$4(random, 100)) / 100,
+			halfLength: 30 + r$4(random, 20)
 		};
 		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
 	}
@@ -292868,7 +292934,7 @@ function streakAt(streak, age) {
 		angle: streak.angle
 	};
 }
-var ENDURE, r$3, rad$2;
+var ENDURE, r$4, rad$2;
 var init_EndureSim = __esmMin((() => {
 	ENDURE = {
 		life: 80,
@@ -292887,7 +292953,7 @@ var init_EndureSim = __esmMin((() => {
 			accel: .1
 		}
 	};
-	r$3 = (random, k) => Math.floor(random() * k);
+	r$4 = (random, k) => Math.floor(random() * k);
 	rad$2 = (deg) => deg * Math.PI / 180;
 }));
 // src/DB/Effects/EndureEffect.js
@@ -292997,7 +293063,40 @@ function poisonAttackEffect(effectId) {
 		}
 	];
 }
-var POISON_ATTACK_LIFE;
+/**
+* EffectTable rows for 493 (EF_EDP), on the caster when Enchant Deadly Poison
+* succeeds: a particle3 particle every 3 ticks for its 120 ticks (40), a bit
+* faster and smaller than Enchant Poison's; assasin_enchantpoison.wav on ticks
+* 0, 5, 11, 18, 26 and 40. The caster's magenta flicker (CasterMarks.js) is
+* added by the table entry itself.
+*
+* @return {Array<object>}
+*/
+function edpEffect() {
+	const count = Math.ceil(120 / EDP_BUBBLES.every);
+	return [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planBubbles(Math.random, count, EDP_BUBBLES).forEach((bubble, i) => {
+				this.spamEffect({
+					effect: detoxBubbleEffect(bubble, "particle3"),
+					Inst: {
+						effectID: 493,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + bubble.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}, ...EDP_SOUND_TICKS.map((tick) => ({
+		wav: "effect/assasin_enchantpoison",
+		delayWav: tick * PRIM_TICK_MS,
+		attachedEntity: true
+	}))];
+}
+var POISON_ATTACK_LIFE, EDP_SOUND_TICKS;
 var init_PoisonAttackEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_DetoxBubbleSim();
@@ -293005,6 +293104,189 @@ var init_PoisonAttackEffect = __esmMin((() => {
 	POISON_ATTACK_LIFE = {
 		20: 100,
 		125: 250
+	};
+	EDP_SOUND_TICKS = [
+		0,
+		5,
+		11,
+		18,
+		26,
+		40
+	];
+}));
+// src/Renderer/Effects/PurpleSlashSim.js
+/**
+* Heading in degrees (0-359, whole) from one map point to another, the client's
+* way: 180 when they are the same point.
+*
+* @param {number} dx
+* @param {number} dy
+* @return {number}
+*/
+function headingTo(dx, dy) {
+	if (!dx && !dy) return 180;
+	const cos = Math.max(-1, Math.min(1, dx / Math.hypot(dx, dy)));
+	const a = Math.max(0, Math.ceil(Math.acos(cos) * 180 / Math.PI - 1e-9));
+	return dy < 0 ? (360 - a) % 360 : a;
+}
+/**
+* A part's path, tick by tick from its primitive's start.
+*
+* @param {number} start age at the start (negative)
+* @param {number} heading degrees
+* @param {number} up height above the ground, units
+* @return {object} { up, frames: [{ x, y, alpha, heading } | null], end }
+*/
+function slashPath(start, heading, up) {
+	const frames = [null];
+	let age = start;
+	let speed = SLASH.speed;
+	let alpha = 0;
+	let x = 0;
+	let y = 0;
+	for (;;) {
+		const old = age++;
+		if (age > 0) {
+			if (old >= 1 && old <= SLASH.riseTicks) {
+				alpha += SLASH.riseStep;
+				speed *= SLASH.riseGrowth;
+			} else if (old > SLASH.riseTicks) {
+				alpha -= SLASH.fadeStep;
+				speed *= SLASH.fadeGrowth;
+				if (alpha < 0) break;
+			}
+			const rad = heading * Math.PI / 180;
+			x += speed * Math.cos(rad);
+			y += speed * Math.sin(rad);
+		}
+		frames.push(alpha > 0 ? {
+			x,
+			y,
+			alpha,
+			heading
+		} : null);
+	}
+	return {
+		up,
+		frames,
+		end: frames.length
+	};
+}
+/**
+* The four parts of a prim 86 (Soul Destroyer), aimed at `heading`.
+*
+* @param {number} heading degrees, toward the target (headingTo)
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} slashPath results
+*/
+function planAimedSlash(heading, random = Math.random) {
+	const parts = [];
+	for (let i = 0; i < SLASH.parts; i++) {
+		const up = SLASH.height - r$3(random, SLASH.heightRand);
+		const turn = r$3(random, 2 * SLASH.jitter + 1) - SLASH.jitter;
+		parts.push(slashPath(SLASH.startAge + i, ((heading + turn) % 360 + 360) % 360, up));
+	}
+	return parts;
+}
+/**
+* A part on tick `frame` of its primitive, or null when it does not show.
+*
+* @param {object} part from slashPath
+* @param {number} frame
+* @return {?object} { x, y, alpha, heading }
+*/
+function slashAt(part, frame) {
+	const f = Math.floor(frame);
+	return f >= 0 && f < part.frames.length ? part.frames[f] : null;
+}
+var SLASH, r$3;
+var init_PurpleSlashSim = __esmMin((() => {
+	SLASH = {
+		parts: 4,
+		startAge: -28,
+		speed: .8,
+		riseTicks: 9,
+		riseStep: 10,
+		riseGrowth: 1.02,
+		fadeStep: 5,
+		fadeGrowth: 1.04,
+		corner: 20,
+		height: 10,
+		heightRand: 5,
+		jitter: 15,
+		delayRand: 6,
+		color: [
+			200,
+			200,
+			255
+		]
+	};
+	r$3 = (random, k) => Math.floor(random() * k);
+}));
+// src/DB/Effects/PurpleSlashEffect.js
+/**
+* The PRIM row drawing one part: a square whose corners are 20 units from its
+* centre, turned so the texture's left edge (the arc) leads.
+*
+* @param {object} part from PurpleSlashSim's slashPath
+* @return {object}
+*/
+function slashPartEffect(part) {
+	return {
+		type: "PRIM",
+		prim: "quad",
+		texture: "purpleslash",
+		attachedEntity: false,
+		frames: part.end,
+		duration: part.end * PRIM_TICK_MS,
+		size: SLASH.corner / Math.SQRT2,
+		height: part.up,
+		color: SLASH.color,
+		alpha: 0,
+		track(frame) {
+			const p = slashAt(part, frame);
+			return p && {
+				x: p.x,
+				y: p.y,
+				alpha: p.alpha,
+				yaw: p.heading - 90
+			};
+		}
+	};
+}
+/**
+* Spawn the parts of one primitive.
+*
+* @param {object} manager the EffectManager (`this` in a FUNC row)
+* @param {object} Params the FUNC row's params
+* @param {Array<object>} parts
+* @param {number} first duplicate id of the first part
+*/
+function spawnSlashParts(manager, Params, parts, first = 0) {
+	parts.forEach((part, i) => {
+		manager.spamEffect({
+			effect: slashPartEffect(part),
+			Inst: {
+				effectID: Params.Inst.effectID,
+				duplicateID: first + i,
+				startTick: Params.Inst.startTick
+			},
+			Init: Params.Init
+		});
+	});
+}
+var aimedSlashEffect;
+var init_PurpleSlashEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_PurpleSlashSim();
+	aimedSlashEffect = {
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const from = Params.Inst.position;
+			const to = Params.Init.otherEntity ? Params.Init.otherEntity.position : from;
+			spawnSlashParts(this, Params, planAimedSlash(headingTo(to[0] - from[0], to[1] - from[1])));
+		}
 	};
 }));
 // src/DB/Effects/SonicBlowEffect.js
@@ -295715,6 +295997,7 @@ var init_EffectTable = __esmMin((() => {
 	init_DetoxifyEffect();
 	init_EndureEffect();
 	init_PoisonAttackEffect();
+	init_PurpleSlashEffect();
 	init_SonicBlowEffect();
 	init_CasterStrobe();
 	init_StealEffect();
@@ -302625,24 +302908,21 @@ var init_EffectTable = __esmMin((() => {
 			variant: "dark-small",
 			vertical: true
 		}],
-		361: [{
-			type: "3D",
-			file: "effect/purpleslash.tga",
-			alphaMax: .4,
-			duration: 500,
-			fadeIn: true,
-			fadeOut: true,
-			zIndex: 10,
-			toSrc: true,
-			rotateWithCamera: true,
-			rotateToTarget: true,
-			angle: 90,
-			posz: 2,
-			sizeStart: 100,
-			sizeEnd: 200,
-			wav: "effect/±â°øÆ÷",
-			attachedEntity: true
-		}],
+		361: [
+			aimedSlashEffect,
+			{
+				wav: "effect/±â°øÆ÷",
+				delayWav: 20 * (1e3 / 60),
+				attachedEntity: true
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 361), Params);
+				}
+			}
+		],
 		362: [{}],
 		363: [{
 			type: "SPR",
@@ -304397,9 +304677,12 @@ var init_EffectTable = __esmMin((() => {
 			file: "ramadan",
 			attachedEntity: true
 		}],
-		493: [{
-			wav: "effect/assasin_cloaking",
-			attachedEntity: true
+		493: [...edpEffect(), {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 120, 493), Params);
+			}
 		}],
 		495: [
 			1,
