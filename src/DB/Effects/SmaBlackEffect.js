@@ -3,6 +3,7 @@
  *
  * Effect 1204 (EF_SMA_BLACK), Espa's: a point moving from the caster toward
  * the target that leaves a dark swirl (1205, SmaSwirl.js) every 8 ticks.
+ * Effect 551 (EF_SMA) is the same point leaving blue, added swirls (552).
  * Numbers in Renderer/Effects/SmaSwirlSim.js.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -33,22 +34,49 @@ export function swirlPositions(from, to, swirls) {
 	});
 }
 
-/** EffectTable rows for 1204. */
-export const smaBlackEffect = [
+/**
+ * The rows of a moving point that leaves swirls on its way to the target.
+ *
+ * @param {string} look 'dark' (1204 / 1205) or 'blue' (551 / 552)
+ * @return {Array} EffectTable rows
+ */
+function swirlTrail(look) {
+	return [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			// The last swirl starts by tick 100 and lives 100 more. A duration also lets the
+			// manager drop the swirls while they are culled and not drawn.
+			duration: Math.ceil((SMA.life + SWIRL.life + 1) * PRIM_TICK_MS),
+			func: function (Params) {
+				const from = Params.Inst.position;
+				const to = Params.Inst.otherPosition || from;
+				const swirls = planSwirls();
+				swirlPositions(from, to, swirls).forEach((at, i) => {
+					this.add(
+						new SmaSwirl(at, swirls[i].up, Params.Inst.startTick + swirls[i].tick * PRIM_TICK_MS, look),
+						Params
+					);
+				});
+			}
+		}
+	];
+}
+
+/** EffectTable rows for 1204 (EF_SMA_BLACK): Espa's dark swirls (kRO 2025 0xbfb5b0 with 99, 1205 0xbfb760). */
+export const smaBlackEffect = swirlTrail('dark');
+
+/** EffectTable rows for 551 (EF_SMA): the same point leaving blue, added swirls (0xbfb5b0 with 0, 552). */
+export const smaEffect = swirlTrail('blue');
+
+/** EffectTable rows for 552 (EF_SMA2) on its own: one blue swirl where it is played (0xbfb150). */
+export const sma2Effect = [
 	{
-		//EF_SMA_BLACK	Espa: dark swirls from the caster toward the target (kRO 2025 0xbfb5b0, 1205 0xbfb760)
 		type: 'FUNC',
 		attachedEntity: false,
-		// The last swirl starts by tick 100 and lives 100 more. A duration also lets the
-		// manager drop the swirls while they are culled and not drawn.
-		duration: Math.ceil((SMA.life + SWIRL.life + 1) * PRIM_TICK_MS),
+		duration: Math.ceil((SWIRL.life + 1) * PRIM_TICK_MS),
 		func: function (Params) {
-			const from = Params.Inst.position;
-			const to = Params.Inst.otherPosition || from;
-			const swirls = planSwirls();
-			swirlPositions(from, to, swirls).forEach((at, i) => {
-				this.add(new SmaSwirl(at, swirls[i].up, Params.Inst.startTick + swirls[i].tick * PRIM_TICK_MS), Params);
-			});
+			this.add(new SmaSwirl(Params.Inst.position, 0, Params.Inst.startTick, 'blue'), Params);
 		}
 	}
 ];
