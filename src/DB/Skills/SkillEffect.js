@@ -1263,7 +1263,7 @@ SkillEffect[SK.ALL_GUARDIAN_RECALL] = {}; //Guardian's Recall
 SkillEffect[SK.ALL_ODINS_POWER] = {}; //Odin's Power
 SkillEffect[SK.MC_CARTDECORATE] = {}; //Decorate Cart
 // Rebellion
-SkillEffect[SK.RL_RICHS_COIN] = {}; //Rich's Coin
+SkillEffect[SK.RL_RICHS_COIN] = { successEffectIdOnCaster: 1134 }; //Rich's Coin
 SkillEffect[SK.RL_MASS_SPIRAL] = {}; //Mass Spiral
 SkillEffect[SK.RL_BANISHING_BUSTER] = {}; //Banishing Buster
 SkillEffect[SK.RL_B_TRAP] = {}; //Bind Trap
