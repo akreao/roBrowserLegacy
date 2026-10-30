@@ -2227,6 +2227,7 @@ SkillEffect[SK.SP_SOULFAIRY] = { successEffectId: [503, 424, 'ef_sp_soulfairy'] 
 SkillEffect[SK.SP_CURSEEXPLOSION] = { damageEffectIdOnTarget: 'ef_sp_curseexplosion' }; //Curse Explosion
 SkillEffect[SK.SP_SPA] = { successEffectIdOnCaster: 'ef_sp_spa_sound' }; //Espa
 SkillEffect[SK.SP_SHA] = { successEffectIdOnCaster: 547 }; //Esha
+SkillEffect[SK.SP_SOULUNITY] = { successEffectId: 407 }; //Soul Unity
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)
