@@ -26677,12 +26677,16 @@ export default {
 		}
 	],
 
-	// Soul Cutter (KO_SETSUDAN), from the client's own effect folders.
+	// Soul Cutter (KO_SETSUDAN): the skilleffectinfo row plays T_전기.wav and launches 997 on the target
+	// as each damage packet arrives. See effect-port/kagerou-oboro-skills.md.
 	ef_ko_setsudan: [
 		{
+			//EF_KO_SETSUDAN (997)
 			type: 'STR',
 			file: 'setsudan',
-			texturePath: ''
+			texturePath: '',
+			wav: 'effect/t_\xc0\xfc\xb1\xe2', // t_전기
+			attachedEntity: true
 		}
 	],
 
