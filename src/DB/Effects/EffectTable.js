@@ -26541,6 +26541,18 @@ export default {
 		}
 	],
 
+	// Quick Draw Shot (RL_QD_SHOT): official effect 1076, played at the actor's position (not attached)
+	// when the E_QD_SHOT_READY status starts and when it ends. See effect-port/rebellion-skills.md.
+	1076: [
+		{
+			//EF_QD_SHOT
+			type: 'STR',
+			file: 'rl_quick_draw/qd2',
+			texturePath: 'rl_quick_draw/',
+			attachedEntity: false
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{

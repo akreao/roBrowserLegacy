@@ -368,6 +368,13 @@ export default {
 		loop: [1136]
 	},
 
+	// Quick Draw Shot ready (RL_QD_SHOT): the official client plays 1076 at the actor's position both when
+	// the status starts and when it ends. See effect-port/rebellion-skills.md.
+	[StatusConst.E_QD_SHOT_READY]: {
+		start: [1076],
+		end: [1076]
+	},
+
 	// Crimson Marker (RL_C_MARKER): the official client removes the actor's 1075 whenever the status
 	// changes; when it starts, it plays 1061 and then 1075 on the actor, once each. (It skips 1061 for
 	// actors in a client-side list that was not identified.) See effect-port/rebellion-skills.md.
