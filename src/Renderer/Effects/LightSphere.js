@@ -17,8 +17,8 @@
 
 import AuraBatch, { QUAD_FAN, sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
 import { BLEND_ADD } from 'Renderer/Effects/AuraBlend.js';
-import { PRIM_TICK_MS, UNITS_PER_CELL } from './EffectPrimSim.js';
-import { createSphere, stepSphere, sphereAlive, rayCorners } from './LightSphereSim.js';
+import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
+import { createSphere, stepSphere, sphereAlive, rayCorners } from 'Renderer/Effects/LightSphereSim.js';
 
 /** Every sphere's rays, drawn together, and the texture they share. */
 const _batch = new AuraBatch({ fog: true, mergeAdditive: true });
@@ -49,10 +49,20 @@ class LightSphere {
 	}
 
 	init(gl) {
-		sharedTexture(_textures, gl, RAY_TEXTURE, texture => {
-			this.texture = texture;
-			this.ready = true;
-		});
+		// Ready either way: without the texture no ray is drawn, but the sphere still
+		// runs out and the effect is cleaned up.
+		sharedTexture(
+			_textures,
+			gl,
+			RAY_TEXTURE,
+			texture => {
+				this.texture = texture;
+				this.ready = true;
+			},
+			() => {
+				this.ready = true;
+			}
+		);
 	}
 
 	free() {
