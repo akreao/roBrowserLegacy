@@ -2231,6 +2231,7 @@ SkillEffect[SK.SP_SOULUNITY] = { successEffectId: 407 }; //Soul Unity
 SkillEffect[SK.SP_SOULDIVISION] = { damageEffectIdOnTarget: 'ef_sp_souldivision_sound' }; //Soul Division
 SkillEffect[SK.SP_SOULREAPER] = { successEffectIdOnCaster: 'ef_sp_soulreaper' }; //Soul Reaper
 SkillEffect[SK.SP_SOULEXPLOSION] = { damageEffectIdOnTarget: 'ef_sp_soulexplosion' }; //Soul Explosion
+SkillEffect[SK.SP_KAUTE] = { successEffectId: 'ef_sp_kaute_sound' }; //Kaute
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)

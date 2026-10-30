@@ -26720,6 +26720,15 @@ export default {
 		}
 	],
 
+	// Kaute (SP_KAUTE): the use case's sound, at the target when the use packet has the result set (its 1207
+	// on the target and 1208 on the caster are not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_kaute_sound: [
+		{
+			wav: 'effect/\xc8\xed\xb1\xe2', // 흡기
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
