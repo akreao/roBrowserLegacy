@@ -312874,6 +312874,14 @@ var init_DBManager = __esmMin((() => {
 			mountPalettes = void 0;
 			if (mountPalettesProbe) mountPalettesProbe.stale = true;
 			else MemoryManager.remove(null, DB.getBodyPalPath(JobConst_default.PIG_CREATOR, 1, 0));
+			for (const table of [
+				NaviMapTable,
+				NaviMobTable,
+				NaviNpcTable,
+				NaviLinkTable,
+				NaviLinkDistanceTable,
+				NaviNpcDistanceTable
+			]) table.length = 0;
 			let index = 0, count = 0;
 			function onLoad() {
 				count++;
