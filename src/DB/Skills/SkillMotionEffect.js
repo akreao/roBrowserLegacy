@@ -15,7 +15,9 @@
  *  - the packet's level is not -2.
  *
  * Skills whose value comes from data roBrowser does not read (skilleffectinfo
- * rows, registered skill objects) are left out (UNKNOWN_RANGES).
+ * rows, registered skill objects) are left out (UNKNOWN_RANGES). The
+ * Kagerou / Oboro skilleffectinfo rows (3004-3029) are filled in by hand: the
+ * row's beginEffectID when it has one, else the table's value.
  * See effect-port/caster-motion-effect.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -121,10 +123,6 @@ export const UNKNOWN_RANGES = [
 	[2602, 2603],
 	[2606, 2607],
 	[2609, 2610],
-	[3004, 3009],
-	[3011, 3011],
-	[3013, 3027],
-	[3029, 3029],
 	[3031, 3034],
 	[5002, 5002],
 	[5050, 5051],
@@ -354,12 +352,25 @@ export const MOTION_EFFECT_RANGES = {
 		[2278, 2279],
 		[2533, 2534],
 		[2536, 2537],
+		[3018, 3018],
+		[3026, 3026],
 		[8222, 8222]
 	],
 	43: [[45, 45]],
 	49: [[719, 719]],
-	56: [[8410, 8410]],
+	54: [[3014, 3014]],
+	55: [
+		[3015, 3015],
+		[3021, 3021],
+		[3029, 3029]
+	],
+	56: [
+		[3017, 3017],
+		[8410, 8410]
+	],
+	57: [[3011, 3011]],
 	58: [[2275, 2275]],
+	59: [[3013, 3013]],
 	144: [[57, 57]],
 	441: [
 		[2034, 2034],
@@ -368,6 +379,7 @@ export const MOTION_EFFECT_RANGES = {
 		[2267, 2269],
 		[2273, 2274],
 		[2445, 2445],
+		[3016, 3016],
 		[8404, 8404],
 		[8406, 8406]
 	],
