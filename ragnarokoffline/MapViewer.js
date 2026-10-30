@@ -149856,17 +149856,28 @@ var init_StatusEffectTable = __esmMin((() => {
 			stop: [419]
 		},
 		[StatusConst_default.SG_SUN_WARM]: {
-			restart: [544],
-			stop: [544]
+			restart: [418, 544],
+			stop: [418, 544]
 		},
 		[StatusConst_default.SG_MOON_WARM]: {
-			restart: [544],
-			stop: [544]
+			restart: [418, 544],
+			stop: [418, 544]
 		},
 		[StatusConst_default.SG_STAR_WARM]: {
-			restart: [544],
-			stop: [544]
-		}
+			restart: [418, 544],
+			stop: [418, 544]
+		},
+		[StatusConst_default.SMA_READY]: { start: [546] },
+		[StatusConst_default.SUNSTANCE]: { loop: [1214] },
+		[StatusConst_default.LUNARSTANCE]: { loop: [1215] },
+		[StatusConst_default.STARSTANCE]: { loop: [1216] },
+		[StatusConst_default.UNIVERSESTANCE]: { loop: [1217] },
+		[StatusConst_default.GRAVITYCONTROL]: { loop: [1201] },
+		[StatusConst_default.WZ_SIGHTBLASTER]: {
+			restart: [601],
+			stop: [601]
+		},
+		[StatusConst_default.SOULUNITY]: { loop: [1222] }
 	};
 }));
 // src/DB/Skills/SkillUnitConst.js
@@ -217348,7 +217359,7 @@ function init$10(gl, water) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
-		_textures$14[index] = texture;
+		_textures$16[index] = texture;
 	}
 	for (let i = 0; i < 32; ++i) WebGL_default.texture(gl, water.images[i], onTextureLoaded, i);
 }
@@ -217385,7 +217396,7 @@ function render$13(gl, modelView, projection, fog, light, tick) {
 	gl.uniform1f(uniform.uOpacity, _waterOpacity);
 	gl.uniform1f(uniform.uWavePitch, _wavePitch);
 	gl.uniform1f(uniform.uWaterOffset, frame * _waveSpeed % 360 - 180);
-	gl.bindTexture(gl.TEXTURE_2D, _textures$14[frame / _animSpeed % 32 | 0]);
+	gl.bindTexture(gl.TEXTURE_2D, _textures$16[frame / _animSpeed % 32 | 0]);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	SpriteRenderer.runWithDepth(true, false, false, function() {
 		gl.drawArrays(gl.TRIANGLES, 0, _vertCount);
@@ -217408,9 +217419,9 @@ function free$6(gl) {
 		gl.deleteProgram(_program$39);
 		_program$39 = null;
 	}
-	for (i = 0; i < 32; ++i) if (_textures$14[i]) {
-		gl.deleteTexture(_textures$14[i]);
-		_textures$14[i] = null;
+	for (i = 0; i < 32; ++i) if (_textures$16[i]) {
+		gl.deleteTexture(_textures$16[i]);
+		_textures$16[i] = null;
 	}
 	_vertCount = 0;
 }
@@ -217447,7 +217458,7 @@ function state() {
 	return {
 		buffer: _buffer$20,
 		vertCount: _vertCount,
-		textures: _textures$14,
+		textures: _textures$16,
 		level: _waterLevel,
 		waveHeight: _waveHeight,
 		waveSpeed: _waveSpeed,
@@ -217456,7 +217467,7 @@ function state() {
 		opacity: _waterOpacity
 	};
 }
-var _program$39, _buffer$20, _vertCount, _textures$14, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
+var _program$39, _buffer$20, _vertCount, _textures$16, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -217466,7 +217477,7 @@ var init_Water = __esmMin((() => {
 	_program$39 = null;
 	_buffer$20 = null;
 	_vertCount = 0;
-	_textures$14 = new Array(32);
+	_textures$16 = new Array(32);
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
@@ -218701,7 +218712,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$7)) return {
+	if (u(s, r$11)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -221127,7 +221138,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$7, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$11, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -221147,7 +221158,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$7 = [
+	r$11 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -224332,7 +224343,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.CR_SHRINK] = { successEffectIdOnCaster: 599 };
 	SkillEffect[SkillConst_default.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 };
 	SkillEffect[SkillConst_default.RG_CLOSECONFINE] = { successEffectId: 602 };
-	SkillEffect[SkillConst_default.WZ_SIGHTBLASTER] = { effectId: 601 };
+	SkillEffect[SkillConst_default.WZ_SIGHTBLASTER] = {};
 	SkillEffect[SkillConst_default.SA_CREATECON] = {};
 	SkillEffect[SkillConst_default.SA_ELEMENTWATER] = { successEffectId: 256 };
 	SkillEffect[SkillConst_default.HT_PHANTASMIC] = {
@@ -225936,9 +225947,9 @@ var init_SkillEffect = __esmMin((() => {
 		castAuraEffectId: 441,
 		successEffectId: "ef_sp_soulrevolve"
 	};
-	SkillEffect[SkillConst_default.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
-	SkillEffect[SkillConst_default.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
-	SkillEffect[SkillConst_default.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
+	SkillEffect[SkillConst_default.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: ["ef_sj_lightof_sound", 1198] };
+	SkillEffect[SkillConst_default.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: ["ef_sj_lightof_sound", 1199] };
+	SkillEffect[SkillConst_default.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: ["ef_sj_lightof_sound", 1197] };
 	SkillEffect[SkillConst_default.SJ_FALLINGSTAR_ATK] = { damageEffectIdOnTarget: "ef_sj_fallingstar" };
 	SkillEffect[SkillConst_default.SJ_BOOKOFDIMENSION] = { successEffectIdOnCaster: "ef_sj_bookofdimension" };
 	SkillEffect[SkillConst_default.SP_SOULSHADOW] = {
@@ -278374,6 +278385,7 @@ var init_ThreeDEffect = __esmMin((() => {
 			this.textureName = effect.file;
 			this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || "");
 			this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
+			this.sharedFileList = !!effect.sharedTexture && this.textureNameList.length > 0 && this.textureNameList.every((name) => /^effect\//.test(name));
 			this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
 			this.fadeOut = effect.fadeOut ? true : false;
@@ -278633,7 +278645,18 @@ var init_ThreeDEffect = __esmMin((() => {
 		init(gl) {
 			this.loadedTextures = 0;
 			this.textureList = [];
-			if (this.textureNameList.length > 0) {
+			if (this.sharedFileList) {
+				const textureCount = this.textureNameList.length;
+				this.sharedTextureNames = this.textureNameList.map((name) => name.slice(7));
+				this.sharedTextureNames.forEach((name, i) => {
+					_sharedUsers.set(name, (_sharedUsers.get(name) || 0) + 1);
+					sharedTexture(_sharedTextures, gl, name, (texture) => {
+						this.textureList[i] = texture;
+						this.loadedTextures++;
+						if (this.loadedTextures == textureCount) this.ready = true;
+					});
+				});
+			} else if (this.textureNameList.length > 0) {
 				const textureCount = this.textureNameList.length;
 				for (let i = 0; i < textureCount; i++) Client.loadFile(`data/texture/${this.textureNameList[i]}`, (buffer) => {
 					WebGL_default.texture(gl, buffer, (texture) => {
@@ -278662,6 +278685,11 @@ var init_ThreeDEffect = __esmMin((() => {
 			if (this.sharedTextureName) {
 				releaseSharedTexture(gl, this.sharedTextureName);
 				this.sharedTextureName = null;
+			}
+			if (this.sharedTextureNames) {
+				this.sharedTextureNames.forEach((name) => releaseSharedTexture(gl, name));
+				this.sharedTextureNames = null;
+				this.textureList = [];
 			}
 		}
 		render(gl, tick) {
@@ -278808,6 +278836,7 @@ var init_ThreeDEffect = __esmMin((() => {
 				const angle = steps * angleStep + startAngle;
 				SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
 			} else SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
+			let trackFrame;
 			if (this.track) {
 				const sample = this.track(trackAge(this.startTick, tick));
 				if (!sample) {
@@ -278838,6 +278867,13 @@ var init_ThreeDEffect = __esmMin((() => {
 					SpriteRenderer.color[3] = alpha;
 				}
 				if (sample.angle !== void 0) SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
+				trackFrame = sample.frame;
+				if (sample.texture !== void 0 && this.textureList[sample.texture]) SpriteRenderer.image.texture = this.textureList[sample.texture];
+				if (sample.color) {
+					SpriteRenderer.color[0] = sample.color[0];
+					SpriteRenderer.color[1] = sample.color[1];
+					SpriteRenderer.color[2] = sample.color[2];
+				}
 			}
 			if (this.actRessource && this.spriteRessource) {
 				let entity = this.ownerEntity;
@@ -278853,7 +278889,8 @@ var init_ThreeDEffect = __esmMin((() => {
 				const actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
 				let animations;
 				const delay = this.sprDelay || actions.delay;
-				if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
+				if (trackFrame !== void 0) animations = actions.animations[trackFrame % actions.animations.length];
+				else if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
 				else animations = actions.animations[0];
 				const layers = animations.layers;
 				let i = 0;
@@ -281158,8 +281195,9 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} srcAID caster aid
 		* @param {number} [hitIndex] which hit of the damage packet this is, from 0
 		* @param {boolean} [noTargetEffects] skip the effects on the target (a splash hit)
+		* @param {number} [hitCount] the packet's hit count, handed to the hit effects as hitCount
 		*/
-		static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0, noTargetEffects = false) {
+		static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0, noTargetEffects = false, hitCount = 1) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
 			if (SkillEffect[skillId].hitEffectOnce && hitIndex > 0) return;
@@ -281170,7 +281208,8 @@ var init_EffectManager = __esmMin((() => {
 						effectId,
 						ownerAID: destAID,
 						startTick: tick,
-						otherAID: srcAID
+						otherAID: srcAID,
+						hitCount
 					};
 					EffectManager.spam(EF_Init_Par);
 				});
@@ -282260,8 +282299,8 @@ function init$6(gl, mapname) {
 	if (_color$3) _display = true;
 	else _display = false;
 	gl.clearColor(color[0], color[1], color[2], color[3]);
-	if (!_textures$13.length && _display) {
-		_textures$13.length = 8;
+	if (!_textures$15.length && _display) {
+		_textures$15.length = 8;
 		for (i = 0; i < 7; i++) loadCloudTexture(gl, i);
 	}
 }
@@ -282274,7 +282313,7 @@ function init$6(gl, mapname) {
 function loadCloudTexture(gl, i) {
 	Client.loadFile("data/texture/effect/cloud" + (i + 1) + ".tga", function(buffer) {
 		WebGL_default.texture(gl, buffer, function(texture) {
-			_textures$13[i] = texture;
+			_textures$15[i] = texture;
 		});
 	});
 }
@@ -282291,7 +282330,7 @@ function setUpCloudData() {
 			death_tick: 0
 		};
 		cloudInit(_clouds[i]);
-		_clouds[i].sprite = Math.random() * (_textures$13.length - 1) | 0;
+		_clouds[i].sprite = Math.random() * (_textures$15.length - 1) | 0;
 		_clouds[i].death_tick = _clouds[i].born_tick + Math.random() * 8e3;
 		_clouds[i].born_tick -= 2e3;
 	}
@@ -282346,7 +282385,7 @@ function render$6(gl, modelView, projection, fog, tick) {
 		else opacity = 1;
 		SpriteRenderer.zIndex = 0;
 		SpriteRenderer.color[3] = opacity;
-		SpriteRenderer.image.texture = _textures$13[cloud.sprite];
+		SpriteRenderer.image.texture = _textures$15[cloud.sprite];
 		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
 		cloud._lastTick = tick;
 		vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
@@ -282357,7 +282396,7 @@ function render$6(gl, modelView, projection, fog, tick) {
 	}
 	SpriteRenderer.unbind(gl);
 }
-var MAX_CLOUDS, _clouds, _textures$13, _color$3, _display, Sky_default;
+var MAX_CLOUDS, _clouds, _textures$15, _color$3, _display, Sky_default;
 var init_Sky = __esmMin((() => {
 	init_WebGL();
 	init_WeatherEffect();
@@ -282367,7 +282406,7 @@ var init_Sky = __esmMin((() => {
 	init_gl_matrix();
 	MAX_CLOUDS = 150;
 	_clouds = new Array(MAX_CLOUDS);
-	_textures$13 = [];
+	_textures$15 = [];
 	_color$3 = null;
 	_display = true;
 	Sky_default = {
@@ -286038,7 +286077,7 @@ var init_SwirlingAura$1 = __esmMin((() => {
 	SwirlingAura_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform vec4 uColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	// Discard near-black pixels\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	fragColor = texColor * uColor;\r\n\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n}";
 }));
 // src/Renderer/Effects/SwirlingAura.js
-var mat4$7, _program$22, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$3, _textures$12, BAND_INDICES, SwirlingAura;
+var mat4$7, _program$22, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$5, _textures$14, BAND_INDICES, SwirlingAura;
 var init_SwirlingAura = __esmMin((() => {
 	init_SwirlingAura$2();
 	init_SwirlingAura$1();
@@ -286054,12 +286093,12 @@ var init_SwirlingAura = __esmMin((() => {
 	FULL_DISPLAY_ANGLE = 315;
 	DEG_TO_RAD$2 = Math.PI / 180;
 	VERTICES_PER_BAND = 42;
-	_batch$3 = new AuraBatch({
+	_batch$5 = new AuraBatch({
 		fog: true,
 		discardClear: true,
 		discardBlack: true
 	});
-	_textures$12 = /* @__PURE__ */ new Map();
+	_textures$14 = /* @__PURE__ */ new Map();
 	BAND_INDICES = (function() {
 		const indices = [];
 		for (let k = 0; k < 20; k++) {
@@ -286171,7 +286210,7 @@ var init_SwirlingAura = __esmMin((() => {
 		* Initialize instance
 		*/
 		init(gl) {
-			sharedTexture(_textures$12, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$14, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -286213,7 +286252,7 @@ var init_SwirlingAura = __esmMin((() => {
 			const uniform = _program$22.uniform;
 			const attribute = _program$22.attribute;
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-			if (_batch$3.active) {
+			if (_batch$5.active) {
 				this.record(tick, groundZ);
 				return;
 			}
@@ -286266,7 +286305,7 @@ var init_SwirlingAura = __esmMin((() => {
 				band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
 				this.updateHeightProfile(band, process);
 				this.fillBandMesh(band);
-				_batch$3.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
+				_batch$5.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
 			}
 		}
 		/**
@@ -286285,8 +286324,8 @@ var init_SwirlingAura = __esmMin((() => {
 				gl.deleteProgram(_program$22);
 				_program$22 = null;
 			}
-			_batch$3.free(gl);
-			freeSharedTextures(_textures$12, gl);
+			_batch$5.free(gl);
+			freeSharedTextures(_textures$14, gl);
 			this.ready = false;
 		}
 		/**
@@ -286304,13 +286343,13 @@ var init_SwirlingAura = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
-			_batch$3.begin(gl, modelView, projection, fog);
+			_batch$5.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$3.flush(gl);
+			_batch$5.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$22.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$22.attribute.aTextureCoord);
@@ -286385,7 +286424,7 @@ function calculateSize(self, aura, auraAngle, i) {
 	const endY = sin * (aura[i].distance * .8 + riseFactor);
 	return [Math.abs(endX - startX), Math.abs(endY - startY)];
 }
-var _program$21, _buffer$9, _batch$2, _textures$11, GROUND_ORDER, GROUND_CORNERS, GroundAura;
+var _program$21, _buffer$9, _batch$4, _textures$13, GROUND_ORDER, GROUND_CORNERS, GroundAura;
 var init_GroundAura = __esmMin((() => {
 	init_GroundAura$2();
 	init_GroundAura$1();
@@ -286394,11 +286433,11 @@ var init_GroundAura = __esmMin((() => {
 	init_SpriteRenderer();
 	init_AuraBlend();
 	init_AuraBatch();
-	_batch$2 = new AuraBatch({
+	_batch$4 = new AuraBatch({
 		discardClear: true,
 		darken: true
 	});
-	_textures$11 = /* @__PURE__ */ new Map();
+	_textures$13 = /* @__PURE__ */ new Map();
 	GROUND_ORDER = [
 		0,
 		1,
@@ -286505,7 +286544,7 @@ var init_GroundAura = __esmMin((() => {
 				this.shape = "brightness";
 				this.init(gl);
 			};
-			sharedTexture(_textures$11, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$13, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, onerror);
@@ -286547,7 +286586,7 @@ var init_GroundAura = __esmMin((() => {
 			worldPos[0] = this.position[0];
 			worldPos[1] = this.position[1];
 			worldPos[2] = groundZ + .05;
-			if (_batch$2.active) {
+			if (_batch$4.active) {
 				this.record(worldPos);
 				return;
 			}
@@ -286589,7 +286628,7 @@ var init_GroundAura = __esmMin((() => {
 					this.points[k][1] = -worldPos[2];
 					this.points[k][2] = worldPos[1] + .5 + (x * sin + z * cos);
 				}
-				_batch$2.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
+				_batch$4.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
 			}
 		}
 		/**
@@ -286616,8 +286655,8 @@ var init_GroundAura = __esmMin((() => {
 				gl.deleteBuffer(_buffer$9);
 				_buffer$9 = null;
 			}
-			_batch$2.free(gl);
-			freeSharedTextures(_textures$11, gl);
+			_batch$4.free(gl);
+			freeSharedTextures(_textures$13, gl);
 			this.ready = false;
 		}
 		/**
@@ -286641,13 +286680,13 @@ var init_GroundAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$2.begin(gl, modelView, projection, fog);
+			_batch$4.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$2.flush(gl);
+			_batch$4.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$21.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$21.attribute.aTextureCoord);
@@ -286715,7 +286754,7 @@ function createAnchor(isGhost, seedMaxUnits) {
 		z: 0
 	};
 }
-var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$20, _buffer$8, _batch$1, _textures$10, BILLBOARD_CORNERS, Level99Bubble;
+var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$20, _buffer$8, _batch$3, _textures$12, BILLBOARD_CORNERS, Level99Bubble;
 var init_Level99Bubble = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -286786,8 +286825,8 @@ var init_Level99Bubble = __esmMin((() => {
 		alphaGain: REF_ALPHA_GAIN,
 		floorLimit: Math.abs(REF_RESET_Y)
 	};
-	_batch$1 = new AuraBatch({ fog: true });
-	_textures$10 = /* @__PURE__ */ new Map();
+	_batch$3 = new AuraBatch({ fog: true });
+	_textures$12 = /* @__PURE__ */ new Map();
 	BILLBOARD_CORNERS = [
 		{
 			x: -1,
@@ -286877,7 +286916,7 @@ var init_Level99Bubble = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$10, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$12, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -286979,7 +287018,7 @@ var init_Level99Bubble = __esmMin((() => {
 			const cosBeta = Math.cos(beta);
 			const sinAlpha = Math.sin(alpha);
 			const cosAlpha = Math.cos(alpha);
-			const batched = _batch$1.active;
+			const batched = _batch$3.active;
 			const blend = auraBlend(this.color, "alpha");
 			const rgb = auraUniform(this.color, 1, "alpha", this.rgba);
 			if (!batched) gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -287018,7 +287057,7 @@ var init_Level99Bubble = __esmMin((() => {
 					const alphaValue = this.computeAlpha(anchor.y);
 					if (alphaValue <= 0) continue;
 					if (batched) {
-						for (let pass = 0; pass < this.passCount; pass++) _batch$1.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
+						for (let pass = 0; pass < this.passCount; pass++) _batch$3.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
 						continue;
 					}
 					this.fillQuad(this.tmpPoints, this.quadData);
@@ -287183,8 +287222,8 @@ var init_Level99Bubble = __esmMin((() => {
 				gl.deleteBuffer(_buffer$8);
 				_buffer$8 = null;
 			}
-			_batch$1.free(gl);
-			freeSharedTextures(_textures$10, gl);
+			_batch$3.free(gl);
+			freeSharedTextures(_textures$12, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -287206,10 +287245,10 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$1.begin(gl, modelView, projection, fog);
+			_batch$3.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$1.flush(gl);
+			_batch$3.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
@@ -287218,18 +287257,18 @@ var init_Level99Bubble = __esmMin((() => {
 }));
 // src/Renderer/Effects/MaxLevelAura.js
 function loadTexture$13(gl, name) {
-	if (_textures$9.has(name)) return;
-	_textures$9.set(name, null);
+	if (_textures$11.has(name)) return;
+	_textures$11.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			_textures$9.set(name, texture);
+			_textures$11.set(name, texture);
 		});
 	});
 }
 function bubbleName$1(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS, GROUND_RINGS, CORNERS, _program$19, _buffer$7, _textures$9, _batch, MaxLevelAura;
+var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS, GROUND_RINGS, CORNERS, _program$19, _buffer$7, _textures$11, _batch$2, MaxLevelAura;
 var init_MaxLevelAura = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -287290,8 +287329,8 @@ var init_MaxLevelAura = __esmMin((() => {
 			y: 1
 		}
 	];
-	_textures$9 = /* @__PURE__ */ new Map();
-	_batch = new AuraBatch({
+	_textures$11 = /* @__PURE__ */ new Map();
+	_batch$2 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
@@ -287375,9 +287414,9 @@ var init_MaxLevelAura = __esmMin((() => {
 		}
 		draw(gl, texture, alpha, zIndex) {
 			if (!texture) return;
-			if (_batch.active) {
+			if (_batch$2.active) {
 				const rgba = auraUniform(this.color, alpha, "alpha", this.rgba);
-				_batch.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
+				_batch$2.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
 				return;
 			}
 			this.fillQuad(this.points);
@@ -287397,7 +287436,7 @@ var init_MaxLevelAura = __esmMin((() => {
 				-groundZ - BASE_LIFT,
 				this.position[1] + .5
 			];
-			if (_batch.active) {
+			if (_batch$2.active) {
 				if (this.part === "rings") this.renderRings(gl, base, elapsed);
 				else this.renderBubbles(gl, base, elapsed);
 				return;
@@ -287424,7 +287463,7 @@ var init_MaxLevelAura = __esmMin((() => {
 					this.points[k][1] = base[1] - .01 * (i + 1);
 					this.points[k][2] = base[2] + x * sin + z * cos;
 				}
-				this.draw(gl, _textures$9.get(ring.texture), 1, .002 * (i + 1));
+				this.draw(gl, _textures$11.get(ring.texture), 1, .002 * (i + 1));
 			}
 		}
 		renderBubbles(gl, base, elapsed) {
@@ -287453,7 +287492,7 @@ var init_MaxLevelAura = __esmMin((() => {
 					this.points[3][0] = x0;
 					this.points[3][1] = base[1];
 					this.points[3][2] = z0;
-					const texture = _textures$9.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
+					const texture = _textures$11.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
 					this.draw(gl, texture, .55, .01 + r * .002 + b * 1e-4);
 				}
 			}
@@ -287475,9 +287514,9 @@ var init_MaxLevelAura = __esmMin((() => {
 				gl.deleteBuffer(_buffer$7);
 				_buffer$7 = null;
 			}
-			_batch.free(gl);
-			for (const texture of _textures$9.values()) if (texture) gl.deleteTexture(texture);
-			_textures$9.clear();
+			_batch$2.free(gl);
+			for (const texture of _textures$11.values()) if (texture) gl.deleteTexture(texture);
+			_textures$11.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -287499,10 +287538,10 @@ var init_MaxLevelAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch.begin(gl, modelView, projection, fog);
+			_batch$2.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch.flush(gl);
+			_batch$2.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$19.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$19.attribute.aTextureCoord);
@@ -288005,7 +288044,7 @@ function pressScale(n, random = Math.random) {
 */
 function spinAngle$1(n) {
 	if (n < 0 || n >= 37) return 0;
-	const angle = 180 - Math.cos(5 * n * DEG$11) * 180;
+	const angle = 180 - Math.cos(5 * n * DEG$12) * 180;
 	return angle >= 360 ? angle - 360 : angle;
 }
 /**
@@ -288016,7 +288055,7 @@ function spinAngle$1(n) {
 */
 function kickLift(n) {
 	if (n < 0) return 0;
-	if (n < 19) return .3 * Math.sin(5 * n * DEG$11);
+	if (n < 19) return .3 * Math.sin(5 * n * DEG$12);
 	if (n < 21) return .3;
 	if (n < 24) return (23 - n) * .1;
 	return 0;
@@ -288032,6 +288071,18 @@ function readyAlpha(n) {
 	if (n < 11) return 15 * n;
 	if (n < 21) return 160;
 	return (51 - n) * 5;
+}
+/**
+* How far above the ground the owner's marks lift its body this tick, in the
+* client's units (5 to a cell).
+*
+* @param {object[]} marks
+* @return {number}
+*/
+function liftOf(marks) {
+	let lift = 0;
+	for (let i = 0; i < marks.length; i++) if (marks[i].lift !== void 0) lift = Math.max(lift, marks[i].lift);
+	return lift;
 }
 /**
 * EF_HATED's glow counter on tick `age`.
@@ -288176,9 +288227,21 @@ function marksOf(entity) {
 	});
 	return marks;
 }
-var DEG$11, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
+/**
+* How far an entity's body effects lift its body off the ground this tick, in
+* cells (Gravity Control). The sprite and its click box rise by it; the shadow
+* stays down.
+*
+* @param {object} entity
+* @return {number}
+*/
+function bodyLiftCells(entity) {
+	return liftOf(marksOf(entity)) / 5;
+}
+var DEG$12, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
 var init_BodyMotionSim = __esmMin((() => {
-	DEG$11 = Math.PI / 180;
+	init_EffectPrimSim();
+	DEG$12 = Math.PI / 180;
 	READY_COLOR = [
 		5,
 		5,
@@ -288207,7 +288270,8 @@ var init_BodyMotionSim = __esmMin((() => {
 		424: (age) => ({ link: Math.min(age, 200) }),
 		488: (age) => age < 400 ? { link: age < 200 ? age : 144 - age & 255 } : null,
 		542: (age) => age <= 150 ? { ready: Math.trunc(age / 3) } : null,
-		543: (age) => age < 200 ? { ready: hatedCounter(age) } : null
+		543: (age) => age < 200 ? { ready: hatedCounter(age) } : null,
+		1201: (age) => ({ lift: Math.min(.5 * (age + 1), 20) })
 	};
 	LINK_COLOR = [
 		55,
@@ -288389,7 +288453,7 @@ function stepBand(band) {
 */
 function pointHeight$2(band, j) {
 	const h = FIELD_BAND.height;
-	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$10) * Math.sin(band.age % 360 * DEG$10);
+	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$11) * Math.sin(band.age % 360 * DEG$11);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -288411,12 +288475,12 @@ function vertex$9(out, i, center, x, y, up, u, v) {
 * @return {number} vertices written
 */
 function buildBand$2(out, band, center) {
-	const lean = Math.cos(band.lean * DEG$10);
-	const rise = Math.sin(band.lean * DEG$10);
+	const lean = Math.cos(band.lean * DEG$11);
+	const rise = Math.sin(band.lean * DEG$11);
 	let prev = null;
 	let o = 0;
 	for (let j = 0; j <= 10; j++) {
-		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$10;
+		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$11;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$2(band, j);
@@ -288441,10 +288505,10 @@ function buildBand$2(out, band, center) {
 	}
 	return o / 5;
 }
-var DEG$10, f32$1, FIELD_BAND;
+var DEG$11, f32$1, FIELD_BAND;
 var init_FieldBandSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$10 = Math.PI / 180;
+	DEG$11 = Math.PI / 180;
 	f32$1 = Math.fround;
 	FIELD_BAND = {
 		height: 15,
@@ -288464,19 +288528,19 @@ var init_FieldBandSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/FieldBand.js
 function loadTexture$12(gl, name) {
-	if (_textures$8.has(name)) return;
-	_textures$8.set(name, null);
+	if (_textures$10.has(name)) return;
+	_textures$10.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$8.has(name)) {
+			if (!_textures$10.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$8.set(name, texture);
+			_textures$10.set(name, texture);
 		});
 	});
 }
-var _program$18, _textures$8, FieldBand;
+var _program$18, _textures$10, FieldBand;
 var init_FieldBand = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -288485,7 +288549,7 @@ var init_FieldBand = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$18 = null;
-	_textures$8 = /* @__PURE__ */ new Map();
+	_textures$10 = /* @__PURE__ */ new Map();
 	FieldBand = class {
 		/**
 		* @param {Array} position cell position (x, y, height)
@@ -288528,7 +288592,7 @@ var init_FieldBand = __esmMin((() => {
 			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
 			if (t - this.band.age > 600) this.band.age = t - 600;
 			while (this.band.age < t) stepBand(this.band);
-			const texture = _textures$8.get(this.texture);
+			const texture = _textures$10.get(this.texture);
 			const alpha = Math.min(255, this.band.alpha);
 			if (!texture || alpha <= 0) return;
 			const count = buildBand$2(this.vertices, this.band, this.position);
@@ -288555,8 +288619,8 @@ var init_FieldBand = __esmMin((() => {
 				gl.deleteProgram(_program$18);
 				_program$18 = null;
 			}
-			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
-			_textures$8.clear();
+			for (const texture of _textures$10.values()) if (texture) gl.deleteTexture(texture);
+			_textures$10.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -288626,6 +288690,170 @@ var init_ChampionMonsterEffects = __esmMin((() => {
 		1003: [bodyGlow(1003)]
 	};
 }));
+// src/Renderer/Effects/ReadySparkSim.js
+/**
+* The sparks one effect leaves, in the order the client makes them: for each
+* spark, size r(10), x r(11), z r(11), rise r(20).
+*
+* @param {number} effectId 543 or 546
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} spawn tick, slot k, offsets (units), rise, size
+*/
+function planSparks$2(effectId, random = Math.random) {
+	const window = SPARK_WINDOWS[effectId];
+	const sparks = [];
+	for (let tick = window.from; tick <= window.to; tick += SPARK$1.every) for (let k = 0; k < SPARK$1.perPrim; k++) {
+		const size = 2 + r$10(random, 10) * .1;
+		const x = r$10(random, SPARK$1.scatter) - 5;
+		const z = r$10(random, SPARK$1.scatter) - 5;
+		const rise = r$10(random, 20) * .01 + .1;
+		sparks.push({
+			spawn: tick,
+			k,
+			x,
+			z,
+			rise,
+			size
+		});
+	}
+	return sparks;
+}
+/**
+* The spark's alpha after `n` updates.
+*
+* @param {number} n
+* @return {number} 0-135, below 0 when it is gone
+*/
+function sparkAlpha(n) {
+	if (n <= 1) return 0;
+	if (n <= SPARK$1.fadeInEnd) return SPARK$1.fadeIn * (n - 1);
+	return SPARK$1.fadeIn * (SPARK$1.fadeInEnd - 1) - SPARK$1.fadeOut * (n - SPARK$1.fadeInEnd);
+}
+/**
+* Spark `spark` on tick `age` of its own (0 on its first draw, after one
+* update), or null once it is gone, as offsets in cells from where it was
+* left (x and y on the map, z up), its side in sprite pixels, turn in
+* degrees, picture (0 pok1, 1 pok3) and alpha (0-255).
+*
+* @param {object} spark from planSparks
+* @param {number} age ticks
+* @return {{x: number, y: number, z: number, size: number, angle: number, texture: number, alpha: number}|null}
+*/
+function sparkAt$1(spark, age) {
+	const n = Math.floor(age) + 1;
+	const alpha = sparkAlpha(n);
+	if (alpha < 0) return null;
+	const flash = 36 - 7 * spark.k;
+	return {
+		x: spark.x / 5,
+		y: spark.z / 5,
+		z: (SPARK$1.height + spark.rise * n) / 5,
+		size: spark.size * Math.SQRT2 * 7,
+		angle: (SPARK$1.spin * n % 360 + 360) % 360,
+		texture: n === flash - 1 || n === flash ? 1 : 0,
+		alpha
+	};
+}
+var SPARK$1, SPARK_WINDOWS, r$10, SPARK_LIFE;
+var init_ReadySparkSim = __esmMin((() => {
+	init_EffectPrimSim();
+	SPARK$1 = {
+		every: 4,
+		perPrim: 4,
+		scatter: 11,
+		height: 6,
+		spin: -5,
+		fadeIn: 15,
+		fadeInEnd: 10,
+		fadeOut: 3,
+		color: [
+			150,
+			150,
+			250
+		]
+	};
+	SPARK_WINDOWS = {
+		543: {
+			from: 0,
+			to: 80
+		},
+		546: {
+			from: 40,
+			to: 120
+		}
+	};
+	r$10 = (random, k) => Math.floor(random() * k);
+	SPARK_LIFE = (() => {
+		let n = 1;
+		while (sparkAlpha(n) >= 0) n++;
+		return n;
+	})();
+}));
+// src/DB/Effects/ReadySparkEffect.js
+/**
+* The 3D effect drawing one spark. It starts on the spark's own tick.
+*
+* @param {object} spark from planSparks
+* @return {object}
+*/
+function sparkEffect(spark) {
+	return {
+		type: "3D",
+		fileList: SPARK_TEXTURES,
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 2,
+		attachedEntity: true,
+		duration: SPARK_LIFE * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = sparkAt$1(spark, age);
+			if (!p) return null;
+			return {
+				x: p.x,
+				y: p.y,
+				z: p.z,
+				size: p.size,
+				angle: p.angle,
+				texture: p.texture,
+				color: COLOR,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+/**
+* The row that leaves an effect's sparks, each on its own tick.
+*
+* @param {number} effectId 543 or 546
+* @return {object} effect table row
+*/
+function readySparksRow(effectId) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planSparks$2(effectId).forEach((spark, i) => {
+				this.spamEffect({
+					effect: sparkEffect(spark),
+					Inst: {
+						effectID: effectId,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + spark.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	};
+}
+var SPARK_TEXTURES, COLOR;
+var init_ReadySparkEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_ReadySparkSim();
+	SPARK_TEXTURES = ["effect/pok1.tga", "effect/pok3.tga"];
+	COLOR = SPARK$1.color.map((c) => c / 255);
+}));
 // src/DB/Effects/SoulBodyEffects.js
 /**
 * The body look of effect `effectId`, for `frames` ticks.
@@ -288647,6 +288875,7 @@ var SoulBodyEffects_default;
 var init_SoulBodyEffects = __esmMin((() => {
 	init_BodyMotion();
 	init_EffectPrimSim();
+	init_ReadySparkEffect();
 	SoulBodyEffects_default = {
 		419: [bodyMotion(419, Infinity)],
 		424: [bodyMotion(424, Infinity)],
@@ -288656,7 +288885,619 @@ var init_SoulBodyEffects = __esmMin((() => {
 			attachedEntity: true
 		}, bodyMotion(488, 400)],
 		542: [bodyMotion(542, 200)],
-		543: [bodyMotion(543, 500)]
+		543: [bodyMotion(543, 500), readySparksRow(543)],
+		546: [readySparksRow(546)]
+	};
+}));
+// src/Renderer/Effects/SunStanceSim.js
+/**
+* Where part `index` is on tick `age` (0 on the first draw), as offsets in
+* cells from the actor (x and y on the map, z up), and its size in sprite
+* pixels. The client turns each part before it places it, so the first draw
+* is already one step on.
+*
+* @param {number} index 0, 1 or 2
+* @param {number} age ticks
+* @return {{x: number, y: number, z: number, size: number}}
+*/
+function stancePartAt(index, age) {
+	const angle = index * 2 * Math.PI / STANCE.parts + STANCE.spin * (Math.floor(age) + 1);
+	return {
+		x: Math.cos(angle) * STANCE.radius / 5,
+		y: Math.sin(angle) * STANCE.radius / 5,
+		z: STANCE.height / 5,
+		size: 2 * STANCE.half * 7
+	};
+}
+var STANCE, STANCE_TEXTURES;
+var init_SunStanceSim = __esmMin((() => {
+	init_EffectPrimSim();
+	STANCE = {
+		radius: 8,
+		height: 10,
+		half: 3,
+		spin: .02,
+		parts: 3
+	};
+	STANCE_TEXTURES = {
+		1214: [
+			"sun_stance",
+			"sun_stance",
+			"sun_stance"
+		],
+		1215: [
+			"lunar_stance",
+			"lunar_stance",
+			"lunar_stance"
+		],
+		1216: [
+			"star_stance",
+			"star_stance",
+			"star_stance"
+		],
+		1217: [
+			"sun_stance",
+			"lunar_stance",
+			"star_stance"
+		]
+	};
+}));
+// src/DB/Effects/StarEmperorStatusEffects.js
+/**
+* One stance picture.
+*
+* @param {string} name texture in effect/sun_stance/
+* @param {number} index part 0-2
+* @return {object} effect table row
+*/
+function stancePart(name, index) {
+	return {
+		type: "3D",
+		file: `effect/sun_stance/${name}.tga`,
+		sharedTexture: true,
+		attachedEntity: true,
+		duration: HELD_MS$2,
+		alphaMax: 1,
+		zIndex: 10,
+		track(age) {
+			const p = stancePartAt(index, age);
+			return {
+				x: p.x,
+				y: p.y,
+				z: p.z,
+				size: p.size
+			};
+		}
+	};
+}
+var HELD_MS$2, stanceRows, SOUL_UNITY, StarEmperorStatusEffects_default;
+var init_StarEmperorStatusEffects = __esmMin((() => {
+	init_BodyMotion();
+	init_EffectPrimSim();
+	init_SunStanceSim();
+	HELD_MS$2 = 36e5;
+	stanceRows = {};
+	Object.keys(STANCE_TEXTURES).forEach((id) => {
+		stanceRows[id] = STANCE_TEXTURES[id].map((name, i) => stancePart(name, i));
+	});
+	SOUL_UNITY = {
+		half: 2.5,
+		height: 15
+	};
+	StarEmperorStatusEffects_default = {
+		...stanceRows,
+		1201: [{
+			type: "STR",
+			file: "wl_telekinesis_intense",
+			repeat: true,
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new BodyMotion(Params.Init.ownerEntity, Params.Inst.startTick, 1201, Infinity), Params);
+			}
+		}],
+		1222: [{
+			type: "3D",
+			file: "effect/soul_unity/soul_unity.bmp",
+			attachedEntity: true,
+			duration: HELD_MS$2,
+			alphaMax: 1,
+			zIndex: 10,
+			track() {
+				return {
+					x: 0,
+					y: 0,
+					z: SOUL_UNITY.height / 5,
+					size: 2 * SOUL_UNITY.half * 7
+				};
+			}
+		}]
+	};
+}));
+// src/Renderer/Effects/SightBlasterSim.js
+/**
+* The degree the client's sin/cos tables read for a whole number of degrees.
+* Past +-360 it takes the remainder; a negative angle reads the table one
+* degree on (index 361 + d), so -5 reads 356.
+*
+* @param {number} deg whole degrees
+* @return {number} degrees actually used
+*/
+function tableDegree(deg) {
+	let d = deg;
+	if (d > 360 || d < -360) d -= 360 * Math.trunc(d / 360);
+	return d < 0 ? d + 361 : d;
+}
+/**
+* Where the sprite spawned on tick `spawn` sits, in cells from the caster.
+* x = sin * 15 and the client's z = cos * -15, with the map's y taken as the
+* client's z.
+*
+* @param {number} spawn tick it was left on
+* @return {{x: number, y: number, z: number}}
+*/
+function sightSpot(spawn) {
+	const rad = tableDegree(Math.trunc(spawn * SIGHT.degPerTick)) * Math.PI / 180;
+	return {
+		x: Math.sin(rad) * SIGHT.radius / 5,
+		y: -Math.cos(rad) * SIGHT.radius / 5,
+		z: SIGHT.height / 5
+	};
+}
+/**
+* The sprite of slot `slot` on tick `age` of the effect, or null when that
+* slot has none alive. Slot k leaves a sprite on ticks 2k, 2k + 72, 2k + 144...
+* Scale and alpha are those after the sprite's first update.
+*
+* @param {number} slot 0 to SIGHT_SLOTS - 1
+* @param {number} age effect ticks
+* @return {{x: number, y: number, z: number, scale: number, alpha: number, frame: number}|null}
+*/
+function sightSpriteAt(slot, age) {
+	const tick = Math.floor(age);
+	const first = slot * SIGHT.every;
+	if (tick < first) return null;
+	const spawn = first + 72 * Math.floor((tick - first) / 72);
+	const t = tick - spawn;
+	if (t >= SIGHT.life) return null;
+	return {
+		...sightSpot(spawn),
+		scale: SIGHT.scale + SIGHT.scaleStep * (t + 1),
+		alpha: Math.max(0, SIGHT.alpha + SIGHT.alphaStep * (t + 1)),
+		frame: Math.floor(t / SIGHT.frameTicks)
+	};
+}
+var SIGHT, SIGHT_SLOTS;
+var init_SightBlasterSim = __esmMin((() => {
+	init_EffectPrimSim();
+	SIGHT = {
+		every: 2,
+		degPerTick: -5,
+		radius: 15,
+		height: 20,
+		life: 20,
+		scale: 2.5,
+		scaleStep: -.1,
+		alpha: 50,
+		alphaStep: -3,
+		frameTicks: 3
+	};
+	SIGHT_SLOTS = 72 / SIGHT.every;
+}));
+// src/DB/Effects/SightBlasterEffect.js
+/**
+* @param {number} slot 0 to SIGHT_SLOTS - 1
+* @return {object} effect table row
+*/
+function sightSlot(slot) {
+	return {
+		type: "3D",
+		spriteName: "sight",
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: HELD_MS$1,
+		zIndex: 1,
+		track(age) {
+			const p = sightSpriteAt(slot, age);
+			if (!p) return null;
+			return {
+				x: p.x,
+				y: p.y,
+				z: p.z,
+				size: p.scale * 100,
+				alpha: p.alpha / 255,
+				frame: p.frame
+			};
+		}
+	};
+}
+var HELD_MS$1, rows, SightBlasterEffect_default;
+var init_SightBlasterEffect = __esmMin((() => {
+	init_SightBlasterSim();
+	HELD_MS$1 = 36e5;
+	rows = [];
+	for (let slot = 0; slot < SIGHT_SLOTS; slot++) rows.push(sightSlot(slot));
+	SightBlasterEffect_default = { 601: rows };
+}));
+// src/Renderer/Effects/LightSphereSim.js
+/**
+* A fresh sphere, in the order the client sets it up: for each ray its
+* vertical angle t, its turn s, its pulse q, then its tint.
+*
+* @param {number} effectId 1197, 1198 or 1199
+* @param {function} [random] returns a number in [0, 1)
+* @return {object}
+*/
+function createSphere(effectId, random = Math.random) {
+	const colors = SPHERE_COLORS[effectId] || SPHERE_COLORS[1199];
+	const rays = [];
+	for (let group = 0; group < SPHERE.groups; group++) for (let i = 0; i < SPHERE.raysPerGroup; i++) {
+		const t = r$9(random, 360);
+		const s = r$9(random, 360);
+		const q = r$9(random, 360);
+		const color = colors.rays[r$9(random, 2)];
+		rays.push({
+			group,
+			t,
+			s,
+			q,
+			color,
+			size: 1,
+			alpha: SPHERE.rayAlpha,
+			age: 0
+		});
+	}
+	return {
+		center: {
+			color: colors.center,
+			phase: 0,
+			alpha: 1,
+			age: 0
+		},
+		rays,
+		ticks: 0,
+		random
+	};
+}
+/**
+* One tick of the sphere (vfunc3).
+*
+* @param {object} sphere from createSphere
+*/
+function stepSphere(sphere) {
+	const c = sphere.center;
+	c.alpha = c.age < SPHERE.centerFadeOut ? Math.min(c.alpha + 1, 255) : Math.max(c.alpha - 1, 0);
+	c.phase = (c.phase + SPHERE.centerSpin) % 360;
+	c.age++;
+	for (const ray of sphere.rays) {
+		if (ray.size < SPHERE.rayMax) ray.size *= SPHERE.rayGrowth;
+		if (ray.age > SPHERE.rayFadeOut) ray.alpha = Math.max(ray.alpha - 1, 0);
+		ray.q = (ray.q + 1 + r$9(sphere.random, 2)) % 360;
+		ray.age++;
+	}
+	sphere.ticks++;
+}
+/**
+* Whether anything still shows (vfunc6).
+*
+* @param {object} sphere
+* @return {boolean}
+*/
+function sphereAlive(sphere) {
+	return sphere.center.alpha >= 1 || sphere.rays.some((ray) => ray.alpha >= 1);
+}
+/**
+* A ray's four corners, in client units from the caster's feet, as the
+* client lays them out: two at its point, then the two at the centre.
+*
+* @param {object} ray
+* @return {Array<Array<number>>}
+*/
+function rayCorners(ray) {
+	const reach = ray.size * Math.sin(rad$3(ray.q)) + ray.size;
+	const flat = reach * Math.cos(rad$3(ray.t));
+	const tip = [
+		flat * Math.cos(rad$3(ray.s)),
+		reach * Math.sin(rad$3(ray.t)) - SPHERE.height,
+		flat * Math.sin(rad$3(ray.s))
+	];
+	const w = SPHERE.rayHalfWidth;
+	const h = -SPHERE.height;
+	const base = ray.group === 0 ? [[
+		-w,
+		h,
+		0
+	], [
+		w,
+		h,
+		0
+	]] : [[
+		0,
+		h,
+		-w
+	], [
+		0,
+		h,
+		w
+	]];
+	return [
+		tip,
+		tip,
+		base[0],
+		base[1]
+	];
+}
+/**
+* The centre on tick `age` (0 on the first draw, after one update), without
+* stepping a sphere: it has nothing random.
+*
+* @param {number} age ticks
+* @return {{half: number, alpha: number}} half side in units, alpha 0-255
+*/
+function centerAt(age) {
+	const n = Math.floor(age) + 1;
+	const fadeOut = SPHERE.centerFadeOut;
+	const alpha = n <= fadeOut ? Math.min(1 + n, 255) : Math.max(Math.min(1 + fadeOut, 255) - (n - fadeOut), 0);
+	const phase = SPHERE.centerSpin * n % 360;
+	return {
+		half: SPHERE.centerHalf * Math.sin(rad$3(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
+		alpha
+	};
+}
+var SPHERE, SPHERE_COLORS, r$9, rad$3, CENTER_LIFE;
+var init_LightSphereSim = __esmMin((() => {
+	SPHERE = {
+		centers: 4,
+		centerHalf: 3.5,
+		centerPulse: .05,
+		centerSpin: 2,
+		centerFadeOut: 300,
+		height: 10,
+		groups: 2,
+		raysPerGroup: 320,
+		rayAlpha: 40,
+		rayFadeOut: 500,
+		rayGrowth: 1.02,
+		rayMax: 10,
+		rayHalfWidth: .5
+	};
+	SPHERE_COLORS = {
+		1197: {
+			center: [
+				255,
+				124,
+				128
+			],
+			rays: [[
+				255,
+				124,
+				128
+			], [
+				255,
+				74,
+				78
+			]]
+		},
+		1198: {
+			center: [
+				255,
+				255,
+				55
+			],
+			rays: [[
+				255,
+				255,
+				155
+			], [
+				255,
+				255,
+				55
+			]]
+		},
+		1199: {
+			center: [
+				59,
+				204,
+				255
+			],
+			rays: [[
+				59,
+				204,
+				255
+			], [
+				109,
+				154,
+				255
+			]]
+		}
+	};
+	r$9 = (random, k) => Math.floor(random() * k);
+	rad$3 = (deg) => deg * Math.PI / 180;
+	CENTER_LIFE = SPHERE.centerFadeOut + 255;
+}));
+// src/Renderer/Effects/LightSphere.js
+var _batch$1, _textures$9, RAY_TEXTURE, CORNER_ORDER, LightSphere;
+var init_LightSphere = __esmMin((() => {
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_LightSphereSim();
+	_batch$1 = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$9 = /* @__PURE__ */ new Map();
+	RAY_TEXTURE = "white02.bmp";
+	CORNER_ORDER = [
+		0,
+		1,
+		3,
+		2
+	];
+	LightSphere = class {
+		/**
+		* @param {number} effectId 1197, 1198 or 1199
+		* @param {Entity} owner the caster, followed
+		* @param {number} startTick
+		*/
+		constructor(effectId, owner, startTick) {
+			this.owner = owner;
+			this.position = owner ? owner.position : [
+				0,
+				0,
+				0
+			];
+			this.startTick = startTick || 0;
+			this.sphere = createSphere(effectId);
+			this.points = [
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				]
+			];
+		}
+		init(gl) {
+			sharedTexture(_textures$9, gl, RAY_TEXTURE, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, () => {
+				this.ready = true;
+			});
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const ticks = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			while (this.sphere.ticks < ticks) stepSphere(this.sphere);
+			if (!sphereAlive(this.sphere)) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch$1.active || !this.texture) return;
+			const pos = this.owner ? this.owner.position : this.position;
+			const ox = pos[0] + .5;
+			const oy = -pos[2];
+			const oz = pos[1] + .5;
+			const points = this.points;
+			for (const ray of this.sphere.rays) {
+				if (ray.alpha < 1) continue;
+				const corners = rayCorners(ray);
+				for (let k = 0; k < 4; k++) {
+					const c = corners[CORNER_ORDER[k]];
+					points[k][0] = ox + c[0] / 5;
+					points[k][1] = oy + c[1] / 5;
+					points[k][2] = oz + c[2] / 5;
+				}
+				_batch$1.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
+			}
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch$1.free(gl);
+			freeSharedTextures(_textures$9, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_batch$1.begin(gl, modelView, projection, fog);
+			if (!_batch$1.active && typeof gl.createVertexArray === "function") {
+				_batch$1.active = true;
+				_batch$1.modelView.set(modelView);
+				_batch$1.projection.set(projection);
+				_batch$1.fog.use = !!(fog.use && fog.exist);
+				_batch$1.fog.near = fog.near;
+				_batch$1.fog.far = fog.far;
+				_batch$1.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch$1.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
+}));
+// src/DB/Effects/LightSphereEffect.js
+/**
+* One of the centre's four copies.
+*
+* @param {number} effectId
+* @return {object} effect table row
+*/
+function centerRow(effectId) {
+	const [red, green, blue] = SPHERE_COLORS[effectId].center.map((c) => c / 255);
+	return {
+		type: "3D",
+		file: "effect/thunder_center.bmp",
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 2,
+		red,
+		green,
+		blue,
+		attachedEntity: true,
+		duration: CENTER_LIFE * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const c = centerAt(age);
+			if (c.alpha < 1) return null;
+			return {
+				x: 0,
+				y: 0,
+				z: SPHERE.height / 5,
+				size: 2 * c.half * PX_PER_UNIT,
+				alpha: c.alpha / 255
+			};
+		}
+	};
+}
+/**
+* @param {number} effectId 1197, 1198 or 1199
+* @return {Array<object>} effect table rows
+*/
+function sphereRows(effectId) {
+	const rows = [];
+	for (let i = 0; i < SPHERE.centers; i++) rows.push(centerRow(effectId));
+	rows.push({
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.add(new LightSphere(effectId, Params.Init.ownerEntity, Params.Inst.startTick), Params);
+		}
+	});
+	return rows;
+}
+var PX_PER_UNIT, LightSphereEffect_default;
+var init_LightSphereEffect = __esmMin((() => {
+	init_LightSphere();
+	init_EffectPrimSim();
+	init_LightSphereSim();
+	PX_PER_UNIT = 7;
+	LightSphereEffect_default = {
+		1197: sphereRows(1197),
+		1198: sphereRows(1198),
+		1199: sphereRows(1199)
 	};
 }));
 // src/Renderer/Effects/CasterMarks.js
@@ -290288,13 +291129,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$6(random, 9) - 4,
-		y: r$6(random, 9) - 4,
-		counter: r$6(random, 10) - 10,
-		heading: r$6(random, 360),
-		rise: r$6(random, 40) / 100 + .2,
-		drift: r$6(random, 10) / 100,
-		half: r$6(random, 16) * .03 + .1
+		x: r$8(random, 9) - 4,
+		y: r$8(random, 9) - 4,
+		counter: r$8(random, 10) - 10,
+		heading: r$8(random, 360),
+		rise: r$8(random, 40) / 100 + .2,
+		drift: r$8(random, 10) / 100,
+		half: r$8(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -290331,7 +291172,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$6;
+var SAND_COLOR, SAND_TEXTURE, r$8;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -290339,7 +291180,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$6 = (random, k) => Math.floor(random() * k);
+	r$8 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -290905,7 +291746,7 @@ function buildCone(out, t, center) {
 		const turn = (band.turn + 3 * t) % 360;
 		return {
 			turn,
-			foot: FOOT + Math.sin(turn * DEG$9),
+			foot: FOOT + Math.sin(turn * DEG$10),
 			tilt: band.tilt,
 			length: LENGTH
 		};
@@ -290937,15 +291778,15 @@ function buildBands(out, t, center, bands) {
 	let o = 0;
 	for (let b = 0; b < bands.length; b++) {
 		const { turn, foot, tilt, length: base } = bands[b];
-		const lean = Math.cos(tilt * DEG$9);
-		const rise = Math.sin(tilt * DEG$9);
-		const swell = Math.sin(swellPhase(b, t) * DEG$9);
+		const lean = Math.cos(tilt * DEG$10);
+		const rise = Math.sin(tilt * DEG$10);
+		const swell = Math.sin(swellPhase(b, t) * DEG$10);
 		let prev = null;
 		for (let j = 0; j <= 20; j++) {
-			const angle = (turn + 18 * j) * DEG$9;
+			const angle = (turn + 18 * j) * DEG$10;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
-			const length = base * (1 + .3 * Math.sin(9 * j * DEG$9) * swell);
+			const length = base * (1 + .3 * Math.sin(9 * j * DEG$10) * swell);
 			const point = {
 				fx: foot * cos,
 				fy: foot * sin,
@@ -290983,14 +291824,14 @@ function buildGround(out, t, center) {
 	let o = 0;
 	for (const layer of GROUND.layers) {
 		const pulse = (layer.pulse + 3 * t) % 360;
-		const reach = GROUND.size * (.8 + .1 * (1 + Math.sin(pulse * DEG$9)));
+		const reach = GROUND.size * (.8 + .1 * (1 + Math.sin(pulse * DEG$10)));
 		const corners = [
 			0,
 			1,
 			2,
 			3
 		].map((k) => {
-			const a = (layer.angle + 90 * k) * DEG$9;
+			const a = (layer.angle + 90 * k) * DEG$10;
 			return [Math.cos(a) * reach, Math.sin(a) * reach];
 		});
 		for (const k of [
@@ -291003,10 +291844,10 @@ function buildGround(out, t, center) {
 		]) o = vertex$8(out, o, center, corners[k][0], corners[k][1], 1, uv[k][0], uv[k][1]);
 	}
 }
-var DEG$9, BANDS$2, LENGTH, FOOT, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE$1, GROUND, CONE_VERTICES, GROUND_VERTICES;
+var DEG$10, BANDS$2, LENGTH, FOOT, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE$1, GROUND, CONE_VERTICES, GROUND_VERTICES;
 var init_CastConeSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$9 = Math.PI / 180;
+	DEG$10 = Math.PI / 180;
 	BANDS$2 = [
 		{
 			tilt: 75,
@@ -291168,22 +292009,22 @@ var init_CastConeSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastCone.js
 function loadTexture$10(gl, name) {
-	if (_textures$7.has(name)) return;
-	_textures$7.set(name, null);
+	if (_textures$8.has(name)) return;
+	_textures$8.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$7.has(name)) {
+			if (!_textures$8.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$7.set(name, texture);
+			_textures$8.set(name, texture);
 		});
 	});
 }
 function bubbleName(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var BAND_VERTICES, _program$13, _textures$7, CastCone;
+var BAND_VERTICES, _program$13, _textures$8, CastCone;
 var init_CastCone = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -291193,7 +292034,7 @@ var init_CastCone = __esmMin((() => {
 	init_EffectPrim$1();
 	BAND_VERTICES = 120;
 	_program$13 = null;
-	_textures$7 = /* @__PURE__ */ new Map();
+	_textures$8 = /* @__PURE__ */ new Map();
 	CastCone = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -291262,7 +292103,7 @@ var init_CastCone = __esmMin((() => {
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
-				const texture = _textures$7.get(bubbleName(bubbleFrame(t)));
+				const texture = _textures$8.get(bubbleName(bubbleFrame(t)));
 				if (self.pulse) {
 					for (const crown of PULSE_CROWNS) {
 						const states = pulseBands(t, self.frames, crown.alpha);
@@ -291274,7 +292115,7 @@ var init_CastCone = __esmMin((() => {
 				}
 				if (self.ground) {
 					buildGround(self.squares, t, self.position);
-					self.pass(gl, self.squares, GROUND_VERTICES, _textures$7.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
+					self.pass(gl, self.squares, GROUND_VERTICES, _textures$8.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
 				}
 				const alpha = bandAlpha$1(t, self.frames);
 				buildCone(self.cone, t, self.position);
@@ -291296,8 +292137,8 @@ var init_CastCone = __esmMin((() => {
 				gl.deleteProgram(_program$13);
 				_program$13 = null;
 			}
-			for (const texture of _textures$7.values()) if (texture) gl.deleteTexture(texture);
-			_textures$7.clear();
+			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
+			_textures$8.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -291365,10 +292206,10 @@ function bandAlpha(b, t, frames, tinted = false) {
 */
 function pointHeight$1(b, j, t, tinted = false) {
 	const band = BANDS$1[b];
-	const full = band.height * Math.sin(9 * j * DEG$8);
-	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$8));
+	const full = band.height * Math.sin(9 * j * DEG$9);
+	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$9));
 	if (!band.pulse || tinted || t === 91) return Math.max(0, full);
-	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$8);
+	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$9);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -291397,12 +292238,12 @@ function buildBand$1(out, o, b, t, center, tinted) {
 	const band = BANDS$1[b];
 	const step = Math.floor(band.arc / 20);
 	const turn = (band.turn + band.spin * t) % 360;
-	const lean = Math.cos(band.tilt * DEG$8);
-	const rise = Math.sin(band.tilt * DEG$8);
+	const lean = Math.cos(band.tilt * DEG$9);
+	const rise = Math.sin(band.tilt * DEG$9);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$8;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$9;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$1(b, j, t, tinted);
@@ -291446,10 +292287,10 @@ function buildCircle(out, t, center, tinted = false) {
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$8, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
+var DEG$9, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
 var init_CastCircleSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$8 = Math.PI / 180;
+	DEG$9 = Math.PI / 180;
 	FADE = 40;
 	BANDS$1 = [
 		{
@@ -291520,19 +292361,19 @@ var init_CastCircleSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastCircle.js
 function loadTexture$9(gl, name) {
-	if (_textures$6.has(name)) return;
-	_textures$6.set(name, null);
+	if (_textures$7.has(name)) return;
+	_textures$7.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$6.has(name)) {
+			if (!_textures$7.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$6.set(name, texture);
+			_textures$7.set(name, texture);
 		});
 	});
 }
-var _program$12, _textures$6, CastCircle;
+var _program$12, _textures$7, CastCircle;
 var init_CastCircle = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -291541,7 +292382,7 @@ var init_CastCircle = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$12 = null;
-	_textures$6 = /* @__PURE__ */ new Map();
+	_textures$7 = /* @__PURE__ */ new Map();
 	CastCircle = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -291585,7 +292426,7 @@ var init_CastCircle = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			const texture = _textures$6.get(this.texture);
+			const texture = _textures$7.get(this.texture);
 			if (!texture) return;
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const starts = buildCircle(this.vertices, t, this.position, this.tinted);
@@ -291618,8 +292459,8 @@ var init_CastCircle = __esmMin((() => {
 				gl.deleteProgram(_program$12);
 				_program$12 = null;
 			}
-			for (const texture of _textures$6.values()) if (texture) gl.deleteTexture(texture);
-			_textures$6.clear();
+			for (const texture of _textures$7.values()) if (texture) gl.deleteTexture(texture);
+			_textures$7.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -291843,7 +292684,7 @@ function ringHeight(b, j, t) {
 	const band = RING_BANDS[b];
 	const age = Math.min(t, GROW);
 	const amplitude = band.height * Math.pow(band.grow, age);
-	return Math.max(0, amplitude * Math.sin(9 * j * DEG$7) * Math.sin(age * DEG$7));
+	return Math.max(0, amplitude * Math.sin(9 * j * DEG$8) * Math.sin(age * DEG$8));
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -291859,12 +292700,12 @@ function vertex$6(out, i, center, x, y, up, u, v) {
 function buildBand(out, o, b, t, turn, center) {
 	const band = RING_BANDS[b];
 	const step = Math.floor(band.arc / 20);
-	const lean = Math.cos(band.tilt * DEG$7);
-	const rise = Math.sin(band.tilt * DEG$7);
+	const lean = Math.cos(band.tilt * DEG$8);
+	const rise = Math.sin(band.tilt * DEG$8);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$7;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$8;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = ringHeight(b, j, t);
@@ -291909,10 +292750,10 @@ function buildRings(out, t, turns, center) {
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$7, GROW, RING_COLOR, RING_BANDS, RING_VERTICES$2;
+var DEG$8, GROW, RING_COLOR, RING_BANDS, RING_VERTICES$2;
 var init_AcidDemonRingSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$7 = Math.PI / 180;
+	DEG$8 = Math.PI / 180;
 	GROW = 90;
 	RING_COLOR = [
 		255,
@@ -291960,7 +292801,7 @@ var init_AcidDemonRingSim = __esmMin((() => {
 	RING_VERTICES$2 = RING_BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 }));
 // src/Renderer/Effects/AcidDemonRing.js
-var TEXTURE$4, _program$11, _texture$4, _generation, AcidDemonRing;
+var TEXTURE$5, _program$11, _texture$4, _generation, AcidDemonRing;
 var init_AcidDemonRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -291968,7 +292809,7 @@ var init_AcidDemonRing = __esmMin((() => {
 	init_AcidDemonRingSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	TEXTURE$4 = "data/texture/effect/ring_black.tga";
+	TEXTURE$5 = "data/texture/effect/ring_black.tga";
 	_program$11 = null;
 	_texture$4 = null;
 	_generation = 0;
@@ -292028,7 +292869,7 @@ var init_AcidDemonRing = __esmMin((() => {
 		static init(gl) {
 			_program$11 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			const generation = ++_generation;
-			Client.loadFile(TEXTURE$4, (buffer) => {
+			Client.loadFile(TEXTURE$5, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					if (generation !== _generation) {
 						gl.deleteTexture(texture);
@@ -293069,8 +293910,8 @@ function stepRing(ring) {
 				}
 			}
 		}
-		const wave = Math.sin(phaseOf(b, band.counter) % 360 * DEG$6);
-		for (let j = 0; j < 21; j++) band.points[j] = band.length + band.length * WOBBLE$1 * Math.sin(9 * j * DEG$6) * wave;
+		const wave = Math.sin(phaseOf(b, band.counter) % 360 * DEG$7);
+		for (let j = 0; j < 21; j++) band.points[j] = band.length + band.length * WOBBLE$1 * Math.sin(9 * j * DEG$7) * wave;
 	}
 }
 /**
@@ -293095,11 +293936,11 @@ function vertex$5(out, i, center, x, y, up, u, v) {
 function buildRing(out, ring, center) {
 	let o = 0;
 	for (const band of ring.bands) {
-		const reach = Math.cos(band.lean * DEG$6);
-		const up_ = Math.sin(band.lean * DEG$6);
+		const reach = Math.cos(band.lean * DEG$7);
+		const up_ = Math.sin(band.lean * DEG$7);
 		let prev = null;
 		for (let j = 0; j < 21; j++) {
-			const angle = (band.start + 18 * j) % 360 * DEG$6;
+			const angle = (band.start + 18 * j) % 360 * DEG$7;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
 			const p = band.points[j];
@@ -293124,10 +293965,10 @@ function buildRing(out, ring, center) {
 		}
 	}
 }
-var DEG$6, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE$1, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
+var DEG$7, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE$1, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
 var init_CastRingSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$6 = Math.PI / 180;
+	DEG$7 = Math.PI / 180;
 	f32 = Math.fround;
 	BAND_START = [
 		180,
@@ -293359,19 +294200,19 @@ var init_CastRingSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastRing.js
 function loadTexture$8(gl, name) {
-	if (_textures$5.has(name)) return;
-	_textures$5.set(name, null);
+	if (_textures$6.has(name)) return;
+	_textures$6.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$5.has(name)) {
+			if (!_textures$6.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$5.set(name, texture);
+			_textures$6.set(name, texture);
 		});
 	});
 }
-var _program$10, _textures$5, SIZES, CastRing;
+var _program$10, _textures$6, SIZES, CastRing;
 var init_CastRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -293380,7 +294221,7 @@ var init_CastRing = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$10 = null;
-	_textures$5 = /* @__PURE__ */ new Map();
+	_textures$6 = /* @__PURE__ */ new Map();
 	SIZES = [45, 25];
 	CastRing = class {
 		/**
@@ -293428,7 +294269,7 @@ var init_CastRing = __esmMin((() => {
 				for (const ring of this.rings) stepRing(ring.sim);
 				this.ticks++;
 			}
-			const texture = _textures$5.get(this.texture);
+			const texture = _textures$6.get(this.texture);
 			if (!texture) return;
 			const attribute = _program$10.attribute;
 			const self = this;
@@ -293466,8 +294307,8 @@ var init_CastRing = __esmMin((() => {
 				gl.deleteProgram(_program$10);
 				_program$10 = null;
 			}
-			for (const texture of _textures$5.values()) if (texture) gl.deleteTexture(texture);
-			_textures$5.clear();
+			for (const texture of _textures$6.values()) if (texture) gl.deleteTexture(texture);
+			_textures$6.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -293526,7 +294367,7 @@ function streakAngle(dx, dy) {
 * @param {function} rand (n) => 0..n-1
 * @return {object}
 */
-function createStreak(side, rand = randomInt$2) {
+function createStreak$1(side, rand = randomInt$2) {
 	return {
 		age: 0,
 		alpha: 0,
@@ -293547,7 +294388,7 @@ function createStreak(side, rand = randomInt$2) {
 function createStreakSets(rand = randomInt$2) {
 	const streaks = [];
 	for (let round = 0; round < 2; round++) for (const set of SET_ORDER) for (let i = 0; i < 4; i++) {
-		const streak = createStreak(set.side, rand);
+		const streak = createStreak$1(set.side, rand);
 		streak.texture = set.texture;
 		streaks.push(streak);
 	}
@@ -293558,7 +294399,7 @@ function createStreakSets(rand = randomInt$2) {
 *
 * @param {object} streak
 */
-function stepStreak(streak) {
+function stepStreak$1(streak) {
 	streak.age++;
 	if (streak.age < 11) streak.alpha += 20;
 	streak.speed += .05;
@@ -293577,7 +294418,7 @@ function advanceStreaks(streaks, frame) {
 	const target = Math.min(frame, 300);
 	let changed = false;
 	for (const streak of streaks) while (streak.age < target) {
-		stepStreak(streak);
+		stepStreak$1(streak);
 		changed = true;
 	}
 	return changed;
@@ -293658,19 +294499,19 @@ var init_StreakLinesSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/StreakLines.js
 function loadTexture$7(gl, name) {
-	if (_textures$4.has(name)) return;
-	_textures$4.set(name, null);
+	if (_textures$5.has(name)) return;
+	_textures$5.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$4.has(name)) {
+			if (!_textures$5.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$4.set(name, texture);
+			_textures$5.set(name, texture);
 		});
 	});
 }
-var _program$9, _textures$4, StreakLines;
+var _program$9, _textures$5, StreakLines;
 var init_StreakLines = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -293679,7 +294520,7 @@ var init_StreakLines = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$9 = null;
-	_textures$4 = /* @__PURE__ */ new Map();
+	_textures$5 = /* @__PURE__ */ new Map();
 	StreakLines = class {
 		/**
 		* @param {vec3} position caster position (copied: the sets stay where they start)
@@ -293739,7 +294580,7 @@ var init_StreakLines = __esmMin((() => {
 				let bound = null;
 				for (let i = 0; i < streaks.length; i++) {
 					const streak = streaks[i];
-					const texture = _textures$4.get(self.textures[streak.texture]);
+					const texture = _textures$5.get(self.textures[streak.texture]);
 					if (streak.alpha <= 0 || !texture) continue;
 					if (texture !== bound) {
 						gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -293765,8 +294606,8 @@ var init_StreakLines = __esmMin((() => {
 				gl.deleteProgram(_program$9);
 				_program$9 = null;
 			}
-			for (const texture of _textures$4.values()) if (texture) gl.deleteTexture(texture);
-			_textures$4.clear();
+			for (const texture of _textures$5.values()) if (texture) gl.deleteTexture(texture);
+			_textures$5.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -293805,14 +294646,14 @@ function planBubbles(random = Math.random, count = DETOX.count, variant = {}) {
 	const scaleRand = variant.scaleRand || 50;
 	const bubbles = [];
 	for (let i = 0; i < count; i++) {
-		const heading = r$5(random, 360) * Math.PI / 180;
-		const dist = 2 + r$5(random, 6);
+		const heading = r$7(random, 360) * Math.PI / 180;
+		const dist = 2 + r$7(random, 6);
 		bubbles.push({
 			spawn: i * every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r$5(random, riseRand)) / 100,
-			scale: (scaleBase + r$5(random, scaleRand)) / 100
+			rise: (30 + r$7(random, riseRand)) / 100,
+			scale: (scaleBase + r$7(random, scaleRand)) / 100
 		});
 	}
 	return bubbles;
@@ -293847,7 +294688,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, r$5, EDP_BUBBLES;
+var DETOX, r$7, EDP_BUBBLES;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -293857,7 +294698,7 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		fadeStart: 32,
 		spin: 3
 	};
-	r$5 = (random, k) => Math.floor(random() * k);
+	r$7 = (random, k) => Math.floor(random() * k);
 	EDP_BUBBLES = {
 		every: 3,
 		riseRand: 50,
@@ -293921,6 +294762,203 @@ var init_DetoxifyEffect = __esmMin((() => {
 		attachedEntity: true
 	}];
 }));
+// src/Renderer/Effects/WarmthSparkSim.js
+/**
+* A spark as the spawner leaves it: height r(10), picture r(5), angle r(360),
+* in that order.
+*
+* @param {function} random returns a number in [0, 1)
+* @param {number} index 0-3 in its group
+* @return {object}
+*/
+function newSpark(random, index) {
+	const up = r$6(random, 10);
+	const texture = r$6(random, WARMTH.textures);
+	const angle = r$6(random, 360);
+	return {
+		t: 0,
+		v: WARMTH.startV[index],
+		up,
+		texture,
+		angle
+	};
+}
+/**
+* One tick of a spark (0xb56e70): count up; under 10 ticks brighten, after
+* that dim, and start again once it is under 12: angle r(360), picture r(5),
+* height 3 + r(8).
+*
+* @param {object} spark
+* @param {function} random
+*/
+function stepSpark(spark, random) {
+	spark.t += 1;
+	if (spark.t >= WARMTH.riseTicks) {
+		spark.v -= WARMTH.fall;
+		if (spark.v < WARMTH.fall) {
+			spark.t = 0;
+			spark.v = 0;
+			spark.angle = r$6(random, 360);
+			spark.texture = r$6(random, WARMTH.textures);
+			spark.up = 3 + r$6(random, 8);
+		}
+	} else spark.v += WARMTH.rise;
+}
+var WARMTH, WARMTH_LAYERS, r$6, WarmthSparks;
+var init_WarmthSparkSim = __esmMin((() => {
+	init_EffectPrimSim();
+	WARMTH = {
+		groups: 2,
+		sparks: 4,
+		startV: [
+			40,
+			80,
+			120,
+			160
+		],
+		rise: 25,
+		riseTicks: 10,
+		fall: 12,
+		radius: 4,
+		half: 2,
+		textures: 5
+	};
+	WARMTH_LAYERS = [
+		{
+			color: [
+				255,
+				100,
+				100
+			],
+			scale: 1
+		},
+		{
+			color: [
+				120,
+				0,
+				0
+			],
+			scale: 1.2
+		},
+		{
+			color: [
+				120,
+				0,
+				0
+			],
+			scale: 2
+		}
+	];
+	r$6 = (random, k) => Math.floor(random() * k);
+	WarmthSparks = class {
+		/**
+		* @param {function} [random] returns a number in [0, 1)
+		*/
+		constructor(random = Math.random) {
+			this.random = random;
+			this.reset();
+		}
+		reset() {
+			const random = this.random;
+			this.sparks = [];
+			for (let g = 0; g < WARMTH.groups; g++) for (let i = 0; i < WARMTH.sparks; i++) this.sparks.push(newSpark(random, i));
+			this.ticks = 0;
+		}
+		/**
+		* Spark `index` (0-7) on tick `age` (0 on the first draw, which comes
+		* after one update), as offsets in cells from the actor (x and y on the
+		* map, z up), picture index (0-4) and alpha (0-255).
+		*
+		* @param {number} index
+		* @param {number} age ticks
+		* @return {{x: number, y: number, z: number, texture: number, alpha: number}}
+		*/
+		at(index, age) {
+			const updates = Math.floor(age) + 1;
+			if (updates < this.ticks) this.reset();
+			while (this.ticks < updates) {
+				this.sparks.forEach((spark) => stepSpark(spark, this.random));
+				this.ticks++;
+			}
+			const spark = this.sparks[index];
+			const rad = spark.angle * Math.PI / 180;
+			const v = Math.trunc(spark.v);
+			return {
+				x: Math.cos(rad) * WARMTH.radius / 5,
+				y: Math.sin(rad) * WARMTH.radius / 5,
+				z: spark.up / 5,
+				texture: spark.texture,
+				alpha: Math.min(v, this.ticks) & 255
+			};
+		}
+	};
+}));
+// src/DB/Effects/WarmthEffect.js
+/**
+* The row drawing one copy of one spark.
+*
+* @param {WarmthSparks} sparks this launch's sparks
+* @param {number} index spark 0-7
+* @param {object} layer from WARMTH_LAYERS
+* @return {object} effect table row
+*/
+function warmthSparkRow(sparks, index, layer) {
+	const size = 2 * WARMTH.half * layer.scale * 7;
+	const color = layer.color.map((c) => c / 255);
+	return {
+		type: "3D",
+		fileList: WARMTH_TEXTURES,
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 2,
+		attachedEntity: true,
+		duration: HELD_MS,
+		zIndex: 1,
+		track(age) {
+			const p = sparks.at(index, age);
+			return {
+				x: p.x,
+				y: p.y,
+				z: p.z,
+				size,
+				alpha: p.alpha / 255,
+				texture: p.texture,
+				color
+			};
+		}
+	};
+}
+var HELD_MS, WARMTH_TEXTURES, warmthEffect;
+var init_WarmthEffect = __esmMin((() => {
+	init_WarmthSparkSim();
+	HELD_MS = 36e5;
+	WARMTH_TEXTURES = [
+		"effect/super1.bmp",
+		"effect/super2.bmp",
+		"effect/super3.bmp",
+		"effect/super4.bmp",
+		"effect/super5.bmp"
+	];
+	warmthEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const sparks = new WarmthSparks();
+			let n = 0;
+			for (let i = 0; i < WARMTH.groups * WARMTH.sparks; i++) WARMTH_LAYERS.forEach((layer) => {
+				this.spamEffect({
+					effect: warmthSparkRow(sparks, i, layer),
+					Inst: {
+						effectID: 418,
+						duplicateID: n++,
+						startTick: Params.Inst.startTick
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}];
+}));
 // src/Renderer/Effects/EndureSim.js
 /**
 * Alpha (0-254) after k ticks of a prim's life.
@@ -293977,10 +295015,10 @@ function planStreaks(random = Math.random) {
 	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
 		const streak = {
 			spawn,
-			angle: r$4(random, 360),
-			dist: 100 + r$4(random, 40),
-			halfWidth: (60 + r$4(random, 100)) / 100,
-			halfLength: 30 + r$4(random, 20)
+			angle: r$5(random, 360),
+			dist: 100 + r$5(random, 40),
+			halfWidth: (60 + r$5(random, 100)) / 100,
+			halfLength: 30 + r$5(random, 20)
 		};
 		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
 	}
@@ -294016,7 +295054,7 @@ function streakAt(streak, age) {
 		angle: streak.angle
 	};
 }
-var ENDURE, r$4, rad$2;
+var ENDURE, r$5, rad$2;
 var init_EndureSim = __esmMin((() => {
 	ENDURE = {
 		life: 80,
@@ -294035,7 +295073,7 @@ var init_EndureSim = __esmMin((() => {
 			accel: .1
 		}
 	};
-	r$4 = (random, k) => Math.floor(random() * k);
+	r$5 = (random, k) => Math.floor(random() * k);
 	rad$2 = (deg) => deg * Math.PI / 180;
 }));
 // src/DB/Effects/EndureEffect.js
@@ -294264,8 +295302,8 @@ function slashPath(start, heading, up) {
 function planAimedSlash(heading, random = Math.random) {
 	const parts = [];
 	for (let i = 0; i < SLASH.parts; i++) {
-		const up = SLASH.height - r$3(random, SLASH.heightRand);
-		const turn = r$3(random, 2 * SLASH.jitter + 1) - SLASH.jitter;
+		const up = SLASH.height - r$4(random, SLASH.heightRand);
+		const turn = r$4(random, 2 * SLASH.jitter + 1) - SLASH.jitter;
 		parts.push(slashPath(SLASH.startAge + i, ((heading + turn) % 360 + 360) % 360, up));
 	}
 	return parts;
@@ -294278,10 +295316,10 @@ function planAimedSlash(heading, random = Math.random) {
 * @return {Array<object>} slashPath results
 */
 function planOutwardSlash(heading, random = Math.random) {
-	const delay = r$3(random, SLASH.delayRand);
+	const delay = r$4(random, SLASH.delayRand);
 	const parts = [];
 	for (let i = 0; i < SLASH.parts; i++) {
-		const up = SLASH.height - r$3(random, SLASH.heightRand);
+		const up = SLASH.height - r$4(random, SLASH.heightRand);
 		parts.push(slashPath(SLASH.startAge - delay + i, heading, up));
 	}
 	return parts;
@@ -294297,7 +295335,7 @@ function slashAt(part, frame) {
 	const f = Math.floor(frame);
 	return f >= 0 && f < part.frames.length ? part.frames[f] : null;
 }
-var SLASH, r$3;
+var SLASH, r$4;
 var init_PurpleSlashSim = __esmMin((() => {
 	SLASH = {
 		parts: 4,
@@ -294319,7 +295357,7 @@ var init_PurpleSlashSim = __esmMin((() => {
 			255
 		]
 	};
-	r$3 = (random, k) => Math.floor(random() * k);
+	r$4 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/PurpleSlashEffect.js
 /**
@@ -294412,8 +295450,8 @@ function sonicBlowHitBand(random = Math.random) {
 		frames: 12,
 		facing: true,
 		pitch: -90,
-		offsetX: Math.floor((r$2(random, 10) + 1) / 4),
-		height: 11 - Math.floor((r$2(random, 20) + 1) / 2),
+		offsetX: Math.floor((r$3(random, 10) + 1) / 4),
+		height: 11 - Math.floor((r$3(random, 20) + 1) / 2),
 		baseRadius: 4,
 		topRadius: 7,
 		coneHeight: 3.5,
@@ -294423,10 +295461,10 @@ function sonicBlowHitBand(random = Math.random) {
 		fadeOutFrame: 6
 	};
 }
-var r$2, sonicBlowHitEffect;
+var r$3, sonicBlowHitEffect;
 var init_SonicBlowEffect = __esmMin((() => {
 	init_EffectPrimSim();
-	r$2 = (random, k) => Math.floor(random() * k);
+	r$3 = (random, k) => Math.floor(random() * k);
 	sonicBlowHitEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
@@ -294445,6 +295483,333 @@ var init_SonicBlowEffect = __esmMin((() => {
 		wav: "effect/assasin_sonicblow",
 		attachedEntity: true
 	}];
+}));
+// src/Renderer/Effects/BlitzBeatSim.js
+/**
+* A new streak.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {object}
+*/
+function createStreak(random = Math.random) {
+	const angle = Math.floor(random() * 360) * DEG$6;
+	return {
+		age: 0,
+		base: [
+			Math.cos(angle) * STREAK.ring,
+			-STREAK.height,
+			-Math.sin(angle) * STREAK.ring
+		],
+		travel: STREAK.ahead,
+		speed: STREAK.speed,
+		accel: STREAK.accel,
+		length: (Math.floor(random() * STREAK.lengthSteps) + STREAK.lengthMin * 10) / 10,
+		lengthSpeed: STREAK.lengthSpeed,
+		alpha: 0,
+		alphaSpeed: STREAK.alphaStep
+	};
+}
+/**
+* One tick of a streak, in the order of the client's update.
+*
+* @param {object} s from createStreak
+*/
+function stepStreak(s) {
+	if (s.age === STREAK.changeTick) {
+		s.speed = STREAK.changeSpeed;
+		s.accel = STREAK.changeAccel;
+	}
+	s.speed += s.accel;
+	s.travel += s.speed;
+	s.lengthSpeed += STREAK.lengthAccel;
+	s.length += s.lengthSpeed;
+	if (s.age === STREAK.fadeTick) s.alphaSpeed = -s.alpha / (STREAK.life - s.age);
+	s.alpha = Math.min(Math.max(s.alpha + s.alphaSpeed, 0), STREAK.alphaMax);
+	s.age++;
+}
+/**
+* @param {object} s
+* @return {boolean} still drawn
+*/
+function streakAlive(s) {
+	return s.age <= STREAK.life;
+}
+/**
+* The two crossed quads of a streak, relative to the target, each corner in
+* the order the batch draws them (UV (0,0) (1,0) (1,1) (0,1)). The long side
+* runs along the facing line (the client's local z, turned by yaw), one quad
+* is level and the other upright.
+*
+* @param {object} s
+* @param {number} yaw degrees, the target's facing angle
+* @return {Array} two arrays of four [x, y, z]
+*/
+function streakQuads(s, yaw) {
+	const sy = Math.sin(yaw * DEG$6);
+	const cy = Math.cos(yaw * DEG$6);
+	const forward = [
+		sy,
+		0,
+		cy
+	];
+	const side = [
+		cy,
+		0,
+		-sy
+	];
+	const up = [
+		0,
+		1,
+		0
+	];
+	const c = [
+		s.base[0] + forward[0] * s.travel,
+		s.base[1],
+		s.base[2] + forward[2] * s.travel
+	];
+	const w = s.length;
+	const h = STREAK.thickness;
+	const corner = (across, a, b) => [
+		c[0] + across[0] * a + forward[0] * b,
+		c[1] + across[1] * a + forward[1] * b,
+		c[2] + across[2] * a + forward[2] * b
+	];
+	return [side, up].map((across) => [
+		corner(across, h, w),
+		corner(across, h, -w),
+		corner(across, -h, -w),
+		corner(across, -h, w)
+	]);
+}
+/**
+* Ticks the cone bands start on, one per hit.
+*
+* @param {number} hitCount the damage packet's hit count
+* @return {Array} ticks
+*/
+function coneTicks(hitCount) {
+	const ticks = [];
+	for (let i = 0; i < Math.max(1, Math.floor(hitCount) || 1); i++) ticks.push(CONE.firstTick + i * CONE.every);
+	return ticks;
+}
+var DEG$6, STREAK, CONE, SOUNDS;
+var init_BlitzBeatSim = __esmMin((() => {
+	DEG$6 = Math.PI / 180;
+	STREAK = {
+		count: 10,
+		life: 20,
+		ahead: 15,
+		ring: 3.5,
+		height: 7,
+		speed: -1.2,
+		accel: -.1,
+		changeTick: 10,
+		changeSpeed: -.3,
+		changeAccel: .001,
+		lengthMin: 2,
+		lengthSteps: 40,
+		lengthSpeed: .1,
+		lengthAccel: -.01,
+		thickness: .2,
+		alphaStep: 125,
+		alphaMax: 250,
+		fadeTick: 18
+	};
+	CONE = {
+		firstTick: 36,
+		every: 3,
+		life: 12
+	};
+	SOUNDS = [{
+		tick: 5,
+		wav: "effect/hunter_blitzbeat_1st"
+	}, {
+		tick: 30,
+		wav: "effect/hunter_blitzbeat"
+	}];
+}));
+// src/Renderer/Effects/BlitzStreaks.js
+var _batch, _textures$4, TEXTURE$4, BlitzStreaks;
+var init_BlitzStreaks = __esmMin((() => {
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_BlitzBeatSim();
+	_batch = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$4 = /* @__PURE__ */ new Map();
+	TEXTURE$4 = "ac_center2.tga";
+	BlitzStreaks = class {
+		/**
+		* @param {Entity} owner the target, followed
+		* @param {number} startTick
+		* @param {function} [random] returns a number in [0, 1)
+		*/
+		constructor(owner, startTick, random = Math.random) {
+			this.owner = owner;
+			this.position = owner ? owner.position : [
+				0,
+				0,
+				0
+			];
+			this.startTick = startTick || 0;
+			this.yaw = facingAngle(owner && owner.direction);
+			this.streaks = [];
+			for (let i = 0; i < STREAK.count; i++) this.streaks.push(createStreak(random));
+			this.ticks = 0;
+			this.points = [
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				]
+			];
+		}
+		init(gl) {
+			sharedTexture(_textures$4, gl, TEXTURE$4, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, () => {
+				this.ready = true;
+			});
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const ticks = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			while (this.ticks < ticks) {
+				this.streaks.forEach(stepStreak);
+				this.ticks++;
+			}
+			if (!streakAlive(this.streaks[0])) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch.active || !this.texture) return;
+			const pos = this.owner ? this.owner.position : this.position;
+			const ox = pos[0] + .5;
+			const oy = -pos[2];
+			const oz = pos[1] + .5;
+			const points = this.points;
+			for (const s of this.streaks) {
+				if (s.alpha < 1) continue;
+				for (const quad of streakQuads(s, this.yaw)) {
+					for (let k = 0; k < 4; k++) {
+						points[k][0] = ox + quad[k][0] / 5;
+						points[k][1] = oy + quad[k][1] / 5;
+						points[k][2] = oz + quad[k][2] / 5;
+					}
+					_batch.quad(this.texture, 0, points, QUAD_FAN, 1, 1, 1, s.alpha / 255, 0);
+				}
+			}
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch.free(gl);
+			freeSharedTextures(_textures$4, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_batch.begin(gl, modelView, projection, fog);
+			if (!_batch.active && typeof gl.createVertexArray === "function") {
+				_batch.active = true;
+				_batch.modelView.set(modelView);
+				_batch.projection.set(projection);
+				_batch.fog.use = !!(fog.use && fog.exist);
+				_batch.fog.near = fog.near;
+				_batch.fog.far = fog.far;
+				_batch.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
+}));
+// src/DB/Effects/BlitzBeatEffect.js
+/**
+* One cone band. The client turns it by the target's facing angle, lays it
+* level, places it 0-2 whole units along the map's x and raises it 1-11.
+*
+* @param {number} yaw degrees, the target's facing angle
+* @param {function} [random] returns a number in [0, 1)
+* @return {object} PRIM effect description
+*/
+function blitzBeatBand(yaw, random = Math.random) {
+	return {
+		type: "PRIM",
+		prim: "cone",
+		texture: "magic_green",
+		attachedEntity: true,
+		duration: CONE.life * PRIM_TICK_MS,
+		frames: CONE.life,
+		yaw,
+		pitch: -90,
+		offsetX: Math.floor((r$2(random, 10) + 1) / 5),
+		height: 11 - Math.floor((r$2(random, 20) + 1) / 2),
+		baseRadius: .5,
+		topRadius: 1.5,
+		coneHeight: 3.5,
+		driftStart: 2,
+		drift: .4,
+		driftAccel: -(.4 / CONE.life) * .5,
+		fadeOutFrame: CONE.life / 2
+	};
+}
+var r$2, blitzBeatEffect;
+var init_BlitzBeatEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_BlitzBeatSim();
+	init_BlitzStreaks();
+	r$2 = (random, k) => Math.floor(random() * k);
+	blitzBeatEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const owner = Params.Init.ownerEntity;
+			const start = Params.Inst.startTick;
+			this.add(new BlitzStreaks(owner, start), Params);
+			const yaw = facingAngle(owner && owner.direction);
+			coneTicks(Params.Init.hitCount).forEach((tick, i) => {
+				this.spamEffect({
+					effect: blitzBeatBand(yaw),
+					Inst: {
+						effectID: 115,
+						duplicateID: i,
+						startTick: start + tick * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}, ...SOUNDS.map((sound) => ({
+		wav: sound.wav,
+		delayWav: sound.tick * PRIM_TICK_MS,
+		attachedEntity: true
+	}))];
 }));
 // src/Renderer/Effects/CasterStrobe.js
 /**
@@ -297063,6 +298428,9 @@ var init_EffectTable = __esmMin((() => {
 	init_GunslingerBodyEffects();
 	init_ChampionMonsterEffects();
 	init_SoulBodyEffects();
+	init_StarEmperorStatusEffects();
+	init_SightBlasterEffect();
+	init_LightSphereEffect();
 	init_CloseConfineEffect();
 	init_Songs();
 	init_Events();
@@ -297102,10 +298470,12 @@ var init_EffectTable = __esmMin((() => {
 	init_CastRing();
 	init_StreakLines();
 	init_DetoxifyEffect();
+	init_WarmthEffect();
 	init_EndureEffect();
 	init_PoisonAttackEffect();
 	init_PurpleSlashEffect();
 	init_SonicBlowEffect();
+	init_BlitzBeatEffect();
 	init_CasterStrobe();
 	init_StealEffect();
 	init_MammoniteEffect();
@@ -300097,10 +301467,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/priest_magnus",
 			attachedEntity: false
 		}],
-		115: [{
-			wav: "effect/hunter_blitzbeat",
-			attachedEntity: true
-		}],
+		115: blitzBeatEffect,
 		116: [{
 			type: "3D",
 			duration: 500,
@@ -304803,6 +306170,7 @@ var init_EffectTable = __esmMin((() => {
 				}
 			}
 		],
+		418: warmthEffect,
 		420: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -318056,6 +319424,9 @@ var init_EffectTable = __esmMin((() => {
 		...GunslingerBodyEffects_default,
 		...ChampionMonsterEffects_default,
 		...SoulBodyEffects_default,
+		...StarEmperorStatusEffects_default,
+		...SightBlasterEffect_default,
+		...LightSphereEffect_default,
 		...CloseConfineEffect_default
 	};
 }));
@@ -348697,7 +350068,7 @@ function renderWaterDepth$1() {
 	const x1 = rect.x1, y1 = rect.y1, x2 = rect.x2, y2 = rect.y2;
 	if (frame) {
 		SpriteRenderer.position.set(this.position);
-		SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+		SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2 + bodyLiftCells(this);
 		SpriteRenderer.zIndex = 150;
 		SpriteRenderer.runWithDepth(true, true, false, function() {
 			for (let i = 0, count = frame.layers.length; i < count; ++i) self.renderLayer(frame.layers[i], frame.spr, frame.pal, frame.size, frame.position, "body", false);
@@ -349243,7 +350614,7 @@ var init_EntityRender = __esmMin((() => {
 			mat4.multiply(_matrix, projection, _matrix);
 			if (entity.effectColor[3] && entity._job !== 139) {
 				_vector[0] = entity.position[0] + .5;
-				_vector[1] = -(entity.position[2] + SPRITE_LIFT);
+				_vector[1] = -(entity.position[2] + SPRITE_LIFT + bodyLiftCells(entity));
 				_vector[2] = entity.position[1] + .5;
 				mat4.translate(_pickMatrix, modelView, _vector);
 				_pickMatrix[0] = 1;
@@ -349368,6 +350739,7 @@ var init_EntityRender = __esmMin((() => {
 				SpriteRenderer.shadowQueue = false;
 			}
 			SpriteRenderer.position.set(self.position);
+			SpriteRenderer.position[2] += bodyLiftCells(this);
 			this.attachments.renderBefore(Date.now());
 			SpriteRenderer.zIndex = 1;
 			switch (self.objecttype) {
@@ -367571,7 +368943,7 @@ function onEntityUseSkillToAttack(pkt) {
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
 			const targetHitEffects = !srcEntity || srcEntity.skillUnitId != null || hitHasEffects(pkt.SKID, pkt.action);
 			const addDamage = function(i, startTick) {
-				if (pkt.damage) EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i, !targetHitEffects);
+				if (pkt.damage) EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i, !targetHitEffects, pkt.count);
 				if (!isCombo && isBlueCombo) Damage.add(pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | (i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0));
 				else Damage.add(pkt.damage / pkt.count, target, startTick, srcWeapon);
 				if (isCombo) Damage.add(pkt.damage / pkt.count * (i + 1), target, startTick, srcWeapon, (isBlueCombo ? Damage.TYPE.COMBO_B : Damage.TYPE.COMBO) | (i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0));
