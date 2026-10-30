@@ -12,7 +12,7 @@
 
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import { soulAt } from 'Renderer/Effects/SoulStrikeSim.js';
-import { DRAIN, planDrain, drainTrailLook, drainTint } from 'Renderer/Effects/EnergyDrainSim.js';
+import { DRAIN, planDrain, drainTrailLook, drainTint, TINT } from 'Renderer/Effects/EnergyDrainSim.js';
 
 /**
  * The 3D effect drawing step `i` of a drain soul's trail (0 the soul itself).
@@ -65,13 +65,18 @@ export function startDrainTint(entity) {
 		return;
 	}
 	entity.animations.add(tick => {
-		const [r, g, b] = drainTint(Math.floor(tick / PRIM_TICK_MS));
+		const frame = Math.floor(tick / PRIM_TICK_MS);
+		// Until tick 50 the drain leaves the actor's colour alone (and to other effects).
+		if (frame < TINT.first) {
+			return false;
+		}
+		const [r, g, b] = drainTint(frame);
 		entity._flashColor[0] = r;
 		entity._flashColor[1] = g;
 		entity._flashColor[2] = b;
 		entity._flashColor[3] = 1.0;
 		entity.recalculateBlendingColor();
-		return r >= 1 && g >= 1 && b >= 1;
+		return frame > TINT.last && r >= 1 && g >= 1 && b >= 1;
 	});
 }
 

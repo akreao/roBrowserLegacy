@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DRAIN, TINT, planDrain, drainTrailLook, drainTint } from 'Renderer/Effects/EnergyDrainSim.js';
 import { soulAt, SOUL } from 'Renderer/Effects/SoulStrikeSim.js';
-import { energyDrainEffect, drainTrailEffect } from 'DB/Effects/EnergyDrainEffect.js';
+import { energyDrainEffect, drainTrailEffect, startDrainTint } from 'DB/Effects/EnergyDrainEffect.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 
 // Kaute's and Soul Explosion's drain (1207 / 1208), kRO 2025-07-16 0xbe73a0:
@@ -87,5 +87,29 @@ describe('Energy drain effects', () => {
 		expect(added[0](60 * PRIM)).toBe(false);
 		expect(entity._flashColor[2]).toBeCloseTo(250 / 255);
 		expect(added[0](120 * PRIM)).toBe(true);
+	});
+});
+
+describe('Energy drain tint', () => {
+	it('leaves the actor alone until tick 50, tints it blue, and lets go once it is back', () => {
+		let callback = null;
+		const entity = {
+			_flashColor: [0.5, 0.5, 0.5, 1],
+			animations: { add: fn => (callback = fn) },
+			recalculateBlendingColor() {}
+		};
+		startDrainTint(entity);
+		const at = frame => callback(frame * (1000 / 60) + 1);
+		expect(at(0)).toBe(false);
+		expect(at(49)).toBe(false);
+		// another effect's colour is not overwritten before the drain starts
+		expect(entity._flashColor).toEqual([0.5, 0.5, 0.5, 1]);
+		expect(at(TINT.first)).toBe(false);
+		expect(entity._flashColor[0]).toBeCloseTo(150 / 255);
+		expect(entity._flashColor[2]).toBeCloseTo(250 / 255);
+		expect(at(TINT.last)).toBe(false);
+		expect(at(TINT.last + 5)).toBe(false);
+		expect(at(TINT.last + 21)).toBe(true);
+		expect(entity._flashColor).toEqual([1, 1, 1, 1]);
 	});
 });
