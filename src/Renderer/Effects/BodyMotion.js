@@ -11,8 +11,8 @@
  *
  *  - press (413 EF_PRESSEDBODY, Heel Drop): the layer's top edge comes down so
  *    the layer keeps a share of its height, its bottom edge staying put;
- *  - spin (414 EF_SPINEDBODY, 466 EF_SPINEDBODY2, Roundhouse): the layer turns
- *    about its centre, one full turn;
+ *  - spin (414 EF_SPINEDBODY, 466 EF_SPINEDBODY2, Roundhouse; 1224, Prominence
+ *    Kick): the layer turns about its centre, one full turn;
  *  - kick (415 EF_KICKEDBODY, Counter Kick): the layer goes up and comes down,
  *    by a share of its own height;
  *  - quake (458 EF_QUAKEBODY2 and 426 EF_QUAKEBODY, Flying Kick): each edge of
@@ -44,7 +44,7 @@ export default class BodyMotion {
 	/**
 	 * @param {Entity} owner
 	 * @param {number} startTick
-	 * @param {number} effectId 413, 414, 415, 426, 449, 458, 466, 548, 625 or 626
+	 * @param {number} effectId 413, 414, 415, 426, 449, 458, 466, 548, 625, 626 or 1224
 	 * @param {number} frames lifetime in ticks (1/60 s)
 	 */
 	constructor(owner, startTick, effectId, frames) {

@@ -57,6 +57,11 @@ const QUAD_UV = [0, 0, 1, 0, 1, 1, 0, 1];
  */
 export const QUAD_FAN = [0, 1, 2, 2, 3, 0];
 
+/**
+ * The fog colour additive runs fade to.
+ */
+const FOG_BLACK = new Float32Array(3);
+
 class AuraBatch {
 	/**
 	 * @param {object} options the effect's fragment shader, as defines
@@ -262,7 +267,6 @@ class AuraBatch {
 		gl.uniform1i(uniform.uFogUse, this.fog.use);
 		gl.uniform1f(uniform.uFogNear, this.fog.near);
 		gl.uniform1f(uniform.uFogFar, this.fog.far);
-		gl.uniform3fv(uniform.uFogColor, this.fog.color);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
 
@@ -280,6 +284,7 @@ class AuraBatch {
 		}
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices.subarray(0, this.indexCount), gl.STREAM_DRAW);
 
+		const fogColor = this.fog.color;
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			let blend = -1;
 			for (let i = 0; i < runCount; i++) {
@@ -290,6 +295,9 @@ class AuraBatch {
 					if (uniform.uDarken) {
 						gl.uniform1i(uniform.uDarken, blend === BLEND_DARKEN);
 					}
+					// Added light fades to black in fog, as SpriteRenderer's fogToBlack: fogged
+					// toward the map's colour, a texture's black would add that colour as a square.
+					gl.uniform3fv(uniform.uFogColor, blend === BLEND_ADD ? FOG_BLACK : fogColor);
 				}
 				gl.bindTexture(gl.TEXTURE_2D, run.texture);
 				gl.drawElements(gl.TRIANGLES, run.count, gl.UNSIGNED_INT, run.first * 4);

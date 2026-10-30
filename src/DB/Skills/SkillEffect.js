@@ -2213,7 +2213,9 @@ SkillEffect[SK.SJ_FLASHKICK] = {}; //Flash Kick: nothing from its packets (statu
 SkillEffect[SK.SJ_FALLINGSTAR] = {}; //Falling Star: nothing from its use packet (the attack plays the star)
 SkillEffect[SK.SJ_DOCUMENT] = { successEffectIdOnCaster: 'ef_sj_document' }; //Document of Sun Moon and Star
 SkillEffect[SK.SJ_SOLARBURST] = { successEffectIdOnCaster: 'ef_sj_solarburst' }; //Solar Burst
-SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prominence Kick
+// Official client: when the damage arrives, 1224 (sound and spin, TaekwonBodyEffects.js) and 429 (EF_HITLINE4,
+// not ported) play on the target.
+SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick', damageEffectIdOnTarget: 1224 }; //Prominence Kick
 SkillEffect[SK.SP_SOULGOLEM] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulgolem'] }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { castAuraEffectId: 454, successEffectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { castAuraEffectId: 441, successEffectId: 'ef_sp_soulrevolve' }; //Soul Revolution
@@ -2231,8 +2233,8 @@ SkillEffect[SK.SP_SHA] = { castAuraEffectId: 454, successEffectIdOnCaster: 547 }
 SkillEffect[SK.SP_SOULUNITY] = { castAuraEffectId: 441, successEffectId: [1210, 407] }; //Soul Unity
 SkillEffect[SK.SP_SOULDIVISION] = { castAuraEffectId: 454, damageEffectIdOnTarget: 'ef_sp_souldivision_sound' }; //Soul Division
 SkillEffect[SK.SP_SOULREAPER] = { castAuraEffectId: 441, successEffectIdOnCaster: 'ef_sp_soulreaper' }; //Soul Reaper
-SkillEffect[SK.SP_SOULEXPLOSION] = { castAuraEffectId: 454, damageEffectIdOnTarget: 'ef_sp_soulexplosion' }; //Soul Explosion
-SkillEffect[SK.SP_KAUTE] = { successEffectId: 'ef_sp_kaute_sound' }; //Kaute
+SkillEffect[SK.SP_SOULEXPLOSION] = { castAuraEffectId: 454, damageEffectIdOnTarget: ['ef_sp_soulexplosion', 1208] }; //Soul Explosion
+SkillEffect[SK.SP_KAUTE] = { successEffectId: ['ef_sp_kaute_sound', 1207], successEffectIdOnCaster: 1208 }; //Kaute
 SkillEffect[SK.SJ_STAREMPEROR] = { castAuraEffectId: 58 }; //Star Emperor Advent
 SkillEffect[SK.SJ_NOVAEXPLOSING] = { castAuraEffectId: 58 }; //Nova Explosion
 SkillEffect[SK.SJ_GRAVITYCONTROL] = { castAuraEffectId: 58 }; //Gravity Control
