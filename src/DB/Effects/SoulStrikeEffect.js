@@ -45,7 +45,7 @@ export function soulTrailEffect(soul, dir, distance, i, rise = 0) {
 			return {
 				x: p.x / UNITS_PER_CELL,
 				y: p.y / UNITS_PER_CELL,
-				z: p.up / UNITS_PER_CELL + rise * soulProgress(p, dir, distance),
+				z: p.up / UNITS_PER_CELL + rise * soulProgress(p, dir, distance, n),
 				size: look.scale * 100,
 				alpha: look.alpha / 255
 			};
@@ -59,11 +59,12 @@ export function soulTrailEffect(soul, dir, distance, i, rise = 0) {
  * @param {object} p from soulAt
  * @param {Array} dir
  * @param {number} distance units
+ * @param {number} n the soul's update count: with no distance, the climb goes by its life
  * @return {number}
  */
-export function soulProgress(p, dir, distance) {
+export function soulProgress(p, dir, distance, n) {
 	if (!distance) {
-		return 1;
+		return Math.min(1, n / SOUL.life);
 	}
 	return Math.min(1, Math.max(0, (p.x * dir[0] + p.y * dir[1]) / distance));
 }
