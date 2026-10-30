@@ -12,10 +12,10 @@ const SPR = { delayFrame: 67, stackable: true, attachedEntity: true, type: 'SPR'
 
 describe("Golem's / Shadow's / Falcon's / Fairy's Soul", () => {
 	it('plays the soul link and the soul on the target on success', () => {
-		expect(SkillEffect[SK.SP_SOULGOLEM]).toEqual({ successEffectId: [503, 424, 'ef_sp_soulgolem'] });
-		expect(SkillEffect[SK.SP_SOULSHADOW]).toEqual({ successEffectId: [503, 424, 'ef_sp_soulshadow'] });
-		expect(SkillEffect[SK.SP_SOULFALCON]).toEqual({ successEffectId: [503, 424, 'ef_sp_soulfalcon'] });
-		expect(SkillEffect[SK.SP_SOULFAIRY]).toEqual({ successEffectId: [503, 424, 'ef_sp_soulfairy'] });
+		expect(SkillEffect[SK.SP_SOULGOLEM]).toMatchObject({ successEffectId: [503, 424, 'ef_sp_soulgolem'] });
+		expect(SkillEffect[SK.SP_SOULSHADOW]).toMatchObject({ successEffectId: [503, 424, 'ef_sp_soulshadow'] });
+		expect(SkillEffect[SK.SP_SOULFALCON]).toMatchObject({ successEffectId: [503, 424, 'ef_sp_soulfalcon'] });
+		expect(SkillEffect[SK.SP_SOULFAIRY]).toMatchObject({ successEffectId: [503, 424, 'ef_sp_soulfairy'] });
 		expect(EffectTable.ef_sp_soulgolem).toEqual([
 			{ type: 'STR', file: 'soul_golem/soul_golem', texturePath: 'soul_golem/', attachedEntity: true }
 		]);

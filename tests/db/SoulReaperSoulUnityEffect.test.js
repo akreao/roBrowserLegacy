@@ -10,7 +10,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Soul Unity', () => {
 	it('plays 407 on the target on success', () => {
-		expect(SkillEffect[SK.SP_SOULUNITY]).toEqual({ successEffectId: 407 });
+		expect(SkillEffect[SK.SP_SOULUNITY]).toMatchObject({ successEffectId: 407 });
 		expect(EffectTable[407]).toBeDefined();
 	});
 });

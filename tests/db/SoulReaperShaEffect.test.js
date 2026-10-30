@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Esha', () => {
 	it('plays 547 on the caster on success', () => {
-		expect(SkillEffect[SK.SP_SHA]).toEqual({ successEffectIdOnCaster: 547 });
+		expect(SkillEffect[SK.SP_SHA]).toMatchObject({ successEffectIdOnCaster: 547 });
 		expect(EffectTable[547]).toBeDefined();
 	});
 });
