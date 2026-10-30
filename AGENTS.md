@@ -179,7 +179,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Weather**: CloudWeatherEffect, PokJukWeatherEffect, RainWeather, SakuraWeatherEffect, SnowWeather, Sky
 - **Auras/Spheres**: GroundAura, SwirlingAura, SpiritSphere, WarlockSphere, Level99Bubble, QuadHorn
 - **Ground**: GroundEffect, FlatColorTile, PropertyGround, LPEffect, SpiderWeb, Tiles
-- **Combat**: Damage, MagnumBreak, PoisonEffect, MagicTarget, MagicRing, LockOnTarget
+- **Combat**: Damage, MagnumBreak, PoisonEffect, MagicTarget, MagicRing, LockOnTarget, HitLine + HitLineSim (effect 429, the kick hit lines, rows in `src/DB/Effects/HitLineEffect.js`)
 - **Visual**: StrEffect, RsmEffect, ThreeDEffect, TwoDEffect, Cylinder, Songs, Trail, WaterfallEffect
 - **Official primitives**: EffectPrim + EffectPrimSim (ring, sphere, quad, cone; quads can turn and follow a `track`, textures shared per file); PurpleSlashSim (prims 86 / 92, Soul Destroyer and Meteor Assault slashes) with its rows in `src/DB/Effects/PurpleSlashEffect.js`
 - **Screen**: PostProcess
