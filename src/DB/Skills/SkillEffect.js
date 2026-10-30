@@ -690,10 +690,10 @@ SkillEffect[SK.SG_FEEL] = { castAuraEffectId: 441 }; //Feeling the Sun Moon and 
 SkillEffect[SK.SG_SUN_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Sun: on the source, only on success
 SkillEffect[SK.SG_MOON_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Moon: on the source, only on success
 SkillEffect[SK.SG_STAR_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Stars: on the source, only on success
-SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Sun: on the source, only on success
-SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Moon: on the source, only on success
-SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Stars: on the source, only on success
-SkillEffect[SK.SG_HATE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sg_hate_sound' }; //Hatred of the Sun Moon and Stars: blue cast aura; the sound on success, on the caster (the client plays it at the player)
+SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: [488, 543] }; //Comfort of the Sun: on the source, only on success
+SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: [488, 543] }; //Comfort of the Moon: on the source, only on success
+SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: [488, 543] }; //Comfort of the Stars: on the source, only on success
+SkillEffect[SK.SG_HATE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sg_hate_sound', successEffectId: 543 }; //Hatred of the Sun Moon and Stars: blue cast aura; the sound on success, on the caster (the client plays it at the player); 543 on the target
 SkillEffect[SK.SG_FUSION] = { castAuraEffectId: 441, successEffectIdOnCaster: ['sg_fusion_sound', 'quake'] }; //Union of the Sun Moon and Stars: blue cast aura; sound and quake on success
 // Alchemist
 // Official client: when the skill succeeds, 541 (the bottle) thrown from the caster at the target and
@@ -726,7 +726,7 @@ SkillEffect[SK.SL_HUNTER] = //↓		//Spirit of the Hunter
 SkillEffect[SK.SL_KAIZEL] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaizel_sound', successEffectId: [543, 590] }; //Kaizel
 SkillEffect[SK.SL_KAAHI] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaahi_sound', successEffectId: 543 }; //Kaahi
 SkillEffect[SK.SL_KAUPE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaupe_sound', successEffectId: 542 }; //Kaupe
-SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: [419, 542] }; //Kaite
+SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: 542 }; //Kaite (419 comes from the Kaite status, StatusEffectTable.js)
 // Estin, Estun, Esma: blue cast aura; as each damage packet arrives the client plays one effect on the
 // caster and the rest on the target (550, 429, 425, 431 and 554 are not drawn yet).
 SkillEffect[SK.SL_STIN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 547, damageEffectIdOnTarget: 550 }; //Estin
@@ -921,7 +921,7 @@ SkillEffect[SK.KN_CHARGEATK] = { beginCastEffectId: 'white_pulse', hitEffectId: 
 SkillEffect[SK.CR_SHRINK] = { successEffectIdOnCaster: 599 }; //Shrink
 SkillEffect[SK.AS_VENOMKNIFE] = { damageEffectIdOnCaster: 600 }; //Throw Venom Knife
 SkillEffect[SK.RG_CLOSECONFINE] = { successEffectId: 602 }; //Close Confine
-SkillEffect[SK.WZ_SIGHTBLASTER] = { effectId: 601 }; //Sight Blaster
+SkillEffect[SK.WZ_SIGHTBLASTER] = {}; //Sight Blaster: 601 comes with the status
 SkillEffect[SK.SA_CREATECON] = {}; //Create Elemental Converter
 SkillEffect[SK.SA_ELEMENTWATER] = { successEffectId: 256 }; //Elemental Change Water
 SkillEffect[SK.HT_PHANTASMIC] = { beforeHitEffectId: 'ef_arrow_projectile', hitEffectId: 1 }; //Phantasmic Arrow
@@ -2216,9 +2216,9 @@ SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prom
 SkillEffect[SK.SP_SOULGOLEM] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulgolem'] }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { castAuraEffectId: 454, successEffectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { castAuraEffectId: 441, successEffectId: 'ef_sp_soulrevolve' }; //Soul Revolution
-SkillEffect[SK.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Moon
-SkillEffect[SK.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Stars
-SkillEffect[SK.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Sun
+SkillEffect[SK.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: ['ef_sj_lightof_sound', 1198] }; //Light of the Moon
+SkillEffect[SK.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: ['ef_sj_lightof_sound', 1199] }; //Light of the Stars
+SkillEffect[SK.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: ['ef_sj_lightof_sound', 1197] }; //Light of the Sun
 SkillEffect[SK.SJ_FALLINGSTAR_ATK] = { damageEffectIdOnTarget: 'ef_sj_fallingstar' }; //Falling Star attack
 SkillEffect[SK.SJ_BOOKOFDIMENSION] = { successEffectIdOnCaster: 'ef_sj_bookofdimension' }; //Book of Dimension
 SkillEffect[SK.SP_SOULSHADOW] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulshadow'] }; //Shadow's Soul
