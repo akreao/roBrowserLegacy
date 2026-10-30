@@ -217323,7 +217323,7 @@ function init$12(gl, water) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
-		_textures$18[index] = texture;
+		_textures$21[index] = texture;
 	}
 	for (let i = 0; i < 32; ++i) WebGL_default.texture(gl, water.images[i], onTextureLoaded, i);
 }
@@ -217360,7 +217360,7 @@ function render$15(gl, modelView, projection, fog, light, tick) {
 	gl.uniform1f(uniform.uOpacity, _waterOpacity);
 	gl.uniform1f(uniform.uWavePitch, _wavePitch);
 	gl.uniform1f(uniform.uWaterOffset, frame * _waveSpeed % 360 - 180);
-	gl.bindTexture(gl.TEXTURE_2D, _textures$18[frame / _animSpeed % 32 | 0]);
+	gl.bindTexture(gl.TEXTURE_2D, _textures$21[frame / _animSpeed % 32 | 0]);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	SpriteRenderer.runWithDepth(true, false, false, function() {
 		gl.drawArrays(gl.TRIANGLES, 0, _vertCount);
@@ -217383,9 +217383,9 @@ function free$7(gl) {
 		gl.deleteProgram(_program$40);
 		_program$40 = null;
 	}
-	for (i = 0; i < 32; ++i) if (_textures$18[i]) {
-		gl.deleteTexture(_textures$18[i]);
-		_textures$18[i] = null;
+	for (i = 0; i < 32; ++i) if (_textures$21[i]) {
+		gl.deleteTexture(_textures$21[i]);
+		_textures$21[i] = null;
 	}
 	_vertCount = 0;
 }
@@ -217422,7 +217422,7 @@ function state() {
 	return {
 		buffer: _buffer$20,
 		vertCount: _vertCount,
-		textures: _textures$18,
+		textures: _textures$21,
 		level: _waterLevel,
 		waveHeight: _waveHeight,
 		waveSpeed: _waveSpeed,
@@ -217431,7 +217431,7 @@ function state() {
 		opacity: _waterOpacity
 	};
 }
-var _program$40, _buffer$20, _vertCount, _textures$18, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
+var _program$40, _buffer$20, _vertCount, _textures$21, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -217441,7 +217441,7 @@ var init_Water = __esmMin((() => {
 	_program$40 = null;
 	_buffer$20 = null;
 	_vertCount = 0;
-	_textures$18 = new Array(32);
+	_textures$21 = new Array(32);
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
@@ -218676,7 +218676,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$11)) return {
+	if (u(s, r$12)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -219063,7 +219063,7 @@ function ve(e, t) {
 	let n = I(t, e.sectionsOriginal.length);
 	return n === null ? `` : _e(e, n);
 }
-function R(e, t, n = {}) {
+function R$2(e, t, n = {}) {
 	let r = n.maxMembers ?? 512, i = t[0], a = t[1];
 	if (i >= e.sectionsFixed.length) return [];
 	let o = e.sectionsFixed[i], s = ue(e.file.header.byte_reversed), c = e.sectionsFixed.length, l = [], u = a;
@@ -219104,7 +219104,7 @@ function be(e, t, n, r, i = {}) {
 			}
 			let o = new Set(r);
 			o.add(t);
-			let c = be(e, R(e, s.referenceType), n, o, i);
+			let c = be(e, R$2(e, s.referenceType), n, o, i);
 			i[t] = c, a += c;
 		} else a += ye(s, n);
 	}
@@ -219153,7 +219153,7 @@ function z(e, t, n, r = {}, i = 0, a = null) {
 			if (a !== null && a.has(t)) throw new F(`self-referential inline type [${u.referenceType[0]}, ${u.referenceType[1]}] at section ${l} offset 0x${v.toString(16)}`);
 			let n = a === null ? /* @__PURE__ */ new Set() : new Set(a);
 			n.add(t);
-			let o = R(e, u.referenceType);
+			let o = R$2(e, u.referenceType);
 			b.inline = z(e, o, [l, v], r, i + 1, n);
 			let c = be(e, o, s, /* @__PURE__ */ new Set());
 			v += c, _[u.name] = b;
@@ -219179,9 +219179,9 @@ function xe(e, t, n, r) {
 	}
 	return l.length = u, l;
 }
-function B(e, t, n, r, i = {}) {
+function B$2(e, t, n, r, i = {}) {
 	if (t === null || r === null || n <= 0) return [];
-	let a = i.maxCount ?? 64, o = i.maxArrayRefs ?? a, s = R(e, [r.section, r.offset]), c = be(e, s, e.pointerSize, /* @__PURE__ */ new Set());
+	let a = i.maxCount ?? 64, o = i.maxArrayRefs ?? a, s = R$2(e, [r.section, r.offset]), c = be(e, s, e.pointerSize, /* @__PURE__ */ new Set());
 	if (c <= 0) return [];
 	let l = n < a ? n : a, u = Array(l), d = { maxArrayRefs: o };
 	for (let n = 0; n < l; n++) {
@@ -219203,15 +219203,15 @@ function Se(e) {
 	};
 }
 function Ce(e, t = {}) {
-	let n = t.maxSkeletons ?? 16, r = t.maxBones ?? 4096, i = e.file, a = i.header.root_type, o = i.header.root_object, s = z(e, R(e, a), o, { maxArrayRefs: n }).Skeletons;
+	let n = t.maxSkeletons ?? 16, r = t.maxBones ?? 4096, i = e.file, a = i.header.root_type, o = i.header.root_object, s = z(e, R$2(e, a), o, { maxArrayRefs: n }).Skeletons;
 	if (!s) return [];
 	let c = s.reference_type ?? null, l = s.element_refs ?? [];
 	if (c === null || l.length === 0) return [];
-	let u = [], d = R(e, [c.section, c.offset]), f = l.length < n ? l.length : n;
+	let u = [], d = R$2(e, [c.section, c.offset]), f = l.length < n ? l.length : n;
 	for (let t = 0; t < f; t++) {
 		let n = l[t];
 		if (!n) continue;
-		let i = z(e, d, [n.section, n.offset], { maxArrayRefs: r }), a = i.Bones, o = a?.target ?? null, s = a?.reference_type ?? null, c = B(e, o, a?.count ?? 0, s, { maxCount: r }), f = Array(c.length);
+		let i = z(e, d, [n.section, n.offset], { maxArrayRefs: r }), a = i.Bones, o = a?.target ?? null, s = a?.reference_type ?? null, c = B$2(e, o, a?.count ?? 0, s, { maxCount: r }), f = Array(c.length);
 		for (let t = 0; t < c.length; t++) f[t] = we(e, t, c[t]);
 		let p = i.Name?.value, m = i.LODType?.value;
 		u.push({
@@ -219250,7 +219250,7 @@ function Ee(e, t = {}) {
 		if (!l) continue;
 		let u = l.target ?? null, d = l.variant_type ?? null, f = l.count ?? 0;
 		if (!u || !d || f <= 0) continue;
-		let p = ke(R(e, [d.section, d.offset])), m = Ae(p), h = Ye(e, u.section, u.offset, f * m);
+		let p = ke(R$2(e, [d.section, d.offset])), m = Ae(p), h = Ye(e, u.section, u.offset, f * m);
 		if (h === null) continue;
 		let g = c ? He(c) : null, _ = g ? g.field : null, v = g ? g.name : null, y = Pe(e, _?.target ?? null, _?.count ?? 0, Ve(v, _, 16)), b = Re(e, n.fields, i), x = ze(e, n.fields, o, i), S = c ? Be(e, c) : [], C = Ne(h, f, m, p, `Position`, 3, !1), w = Ne(h, f, m, p, `Normal`, 3, !1), T = Ne(h, f, m, p, `TextureCoordinates`, 2, !0), E = Fe(h, f, m, p, b.length);
 		s.push({
@@ -219272,7 +219272,7 @@ function Ee(e, t = {}) {
 	return s;
 }
 function De(e, t) {
-	let n = e.file, r = R(e, n.header.root_type), i = null;
+	let n = e.file, r = R$2(e, n.header.root_type), i = null;
 	for (let e = 0; e < r.length; e++) if (r[e].name === `Meshes`) {
 		i = r[e];
 		break;
@@ -219280,7 +219280,7 @@ function De(e, t) {
 	if (!i || !i.referenceType) return [];
 	let a = z(e, r, n.header.root_object, { maxArrayRefs: t }).Meshes?.element_refs ?? [];
 	if (a.length === 0) return [];
-	let o = i.referenceType, s = R(e, o), c = {};
+	let o = i.referenceType, s = R$2(e, o), c = {};
 	for (let e = 0; e < s.length; e++) c[s[e].name] = s[e];
 	let l = a.length < t ? a.length : t, u = Array(l), d = 0;
 	for (let t = 0; t < l; t++) {
@@ -219300,7 +219300,7 @@ function De(e, t) {
 }
 function Oe(e, t, n, r, i, a) {
 	let o = n[i]?.target, s = r[i];
-	!o || !s || !s.referenceType || (t[a] = z(e, R(e, s.referenceType), [o.section, o.offset]));
+	!o || !s || !s.referenceType || (t[a] = z(e, R$2(e, s.referenceType), [o.section, o.offset]));
 }
 function ke(e) {
 	let t = Array(e.length), n = 0;
@@ -219434,7 +219434,7 @@ function Le(e, t, n, r, i) {
 function Re(e, t, n) {
 	let r = t.BoneBindings;
 	if (!r) return [];
-	let i = B(e, r.target ?? null, r.count ?? 0, r.reference_type ?? null, { maxCount: n }), a = Array(i.length);
+	let i = B$2(e, r.target ?? null, r.count ?? 0, r.reference_type ?? null, { maxCount: n }), a = Array(i.length);
 	for (let e = 0; e < i.length; e++) {
 		let t = i[e].fields.BoneName?.value;
 		a[e] = {
@@ -219447,7 +219447,7 @@ function Re(e, t, n) {
 function ze(e, t, n, r) {
 	let i = t.MaterialBindings;
 	if (!i) return [];
-	let a = B(e, i.target ?? null, i.count ?? 0, i.reference_type ?? null, { maxCount: r }), o = Array(a.length);
+	let a = B$2(e, i.target ?? null, i.count ?? 0, i.reference_type ?? null, { maxCount: r }), o = Array(a.length);
 	for (let e = 0; e < a.length; e++) {
 		let t = a[e].fields.Material?.target;
 		o[e] = (t ? n[`${t.section}:${t.offset}`] : null) ?? {
@@ -219462,7 +219462,7 @@ function ze(e, t, n, r) {
 function Be(e, t) {
 	let n = t.Groups;
 	if (!n) return [];
-	let r = B(e, n.target ?? null, n.count ?? 0, n.reference_type ?? null, { maxCount: 4096 }), i = Array(r.length);
+	let r = B$2(e, n.target ?? null, n.count ?? 0, n.reference_type ?? null, { maxCount: 4096 }), i = Array(r.length);
 	for (let e = 0; e < r.length; e++) {
 		let t = r[e].fields;
 		i[e] = {
@@ -219493,7 +219493,7 @@ function He(e) {
 	} : null;
 }
 function Ue(e, t) {
-	let n = e.file, r = z(e, R(e, n.header.root_type), n.header.root_object, { maxArrayRefs: t }).Materials;
+	let n = e.file, r = z(e, R$2(e, n.header.root_type), n.header.root_object, { maxArrayRefs: t }).Materials;
 	if (!r) return {
 		materials: [],
 		cache: {}
@@ -219520,7 +219520,7 @@ function Ke(e, t, n, r, i, a) {
 		textureFile: ``,
 		textureSize: null
 	};
-	let s = z(e, R(e, [n.section, n.offset]), [t.section, t.offset], { maxArrayRefs: 16 }), c = qe(e, s.Texture);
+	let s = z(e, R$2(e, [n.section, n.offset]), [t.section, t.offset], { maxArrayRefs: 16 }), c = qe(e, s.Texture);
 	c === null && (c = Je(e, s.Maps, n, i, {
 		...a,
 		[o]: !0
@@ -219537,12 +219537,12 @@ function qe(e, t) {
 	if (!t) return null;
 	let n = t.target ?? null, r = t.reference_type ?? null;
 	if (!n || !r) return null;
-	let i = z(e, R(e, [r.section, r.offset]), [n.section, n.offset], { maxArrayRefs: 8 }), a = i.Width?.value, o = i.Height?.value, s = typeof a == `number` && typeof o == `number` ? [a, o] : null, c = i.FromFileName?.value;
+	let i = z(e, R$2(e, [r.section, r.offset]), [n.section, n.offset], { maxArrayRefs: 8 }), a = i.Width?.value, o = i.Height?.value, s = typeof a == `number` && typeof o == `number` ? [a, o] : null, c = i.FromFileName?.value;
 	return [typeof c == `string` ? c : ``, s];
 }
 function Je(e, t, n, r, i) {
 	if (!t) return null;
-	let a = t.target ?? null, o = t.reference_type ?? null, s = B(e, a, t.count ?? 0, o, { maxCount: 16 });
+	let a = t.target ?? null, o = t.reference_type ?? null, s = B$2(e, a, t.count ?? 0, o, { maxCount: 16 });
 	for (let t = 0; t < s.length; t++) {
 		let a = s[t].fields.Map?.target;
 		if (!a) continue;
@@ -219564,11 +219564,11 @@ function Xe(e) {
 	return t;
 }
 function Ze(e, t = {}) {
-	let n = t.maxModels ?? 64, r = t.maxBindings ?? 256, i = e.file, a = z(e, R(e, i.header.root_type), i.header.root_object), o = a.Models;
+	let n = t.maxModels ?? 64, r = t.maxBindings ?? 256, i = e.file, a = z(e, R$2(e, i.header.root_type), i.header.root_object), o = a.Models;
 	if (!o) return [];
 	let s = o.reference_type ?? null, c = o.element_refs ?? [];
 	if (s === null || c.length === 0) return [];
-	let l = Xe(a.Skeletons), u = Xe(a.Meshes), d = R(e, [s.section, s.offset]), f = c.length < n ? c.length : n, p = Array(f), m = 0;
+	let l = Xe(a.Skeletons), u = Xe(a.Meshes), d = R$2(e, [s.section, s.offset]), f = c.length < n ? c.length : n, p = Array(f), m = 0;
 	for (let t = 0; t < f; t++) {
 		let n = c[t];
 		if (!n) continue;
@@ -219587,7 +219587,7 @@ function Qe(e, t, n, r) {
 	if (!i) return [];
 	let a = i.reference_type ?? null, o = i.target ?? null, s = i.count ?? 0;
 	if (a === null || o === null || s <= 0) return [];
-	let c = B(e, o, s, a, { maxCount: r }), l = Array(c.length), u = 0;
+	let c = B$2(e, o, s, a, { maxCount: r }), l = Array(c.length), u = 0;
 	for (let e = 0; e < c.length; e++) {
 		let t = c[e].fields.Mesh?.target ?? null, r = t ? n[`${t.section}:${t.offset}`] ?? -1 : -1;
 		l[u++] = { meshIdx: r };
@@ -219915,7 +219915,7 @@ function jt(e, t, n) {
 function W(e) {
 	return e < 0 ? -e : e;
 }
-function G(e, t, n, r, i, a, o) {
+function G$2(e, t, n, r, i, a, o) {
 	let s = U(t, 16);
 	if (H(t)) {
 		let e = wt(U(t, 16));
@@ -220059,7 +220059,7 @@ function Mt(e, t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _, v) {
 }
 function Nt(e, t, n, r, i, a, o) {
 	let s = Ct(e, t), c = t + 8 + s, l = nn(e, t + 8), u = St(e, c);
-	return At(l, u, n, r, i * 16, i >> 4, a >> 4), G(l, u, n, r + (i >> 4), i * 16, i >> 4, a >> 4), G(l, u, n, r + i * 8, i * 16, i >> 4, a >> 4), G(l, u, n, r + (i >> 4) + i * 8, i * 16, i >> 4, a >> 4), G(l, u, n, r + (i >> 3), i * 8, i >> 3, a >> 3), G(l, u, n, r + i * 4, i * 8, i >> 3, a >> 3), G(l, u, n, r + (i >> 3) + i * 4, i * 8, i >> 3, a >> 3), G(l, u, n, r + (i >> 2), i * 4, i >> 2, a >> 2), G(l, u, n, r + i * 2, i * 4, i >> 2, a >> 2), G(l, u, n, r + (i >> 2) + i * 2, i * 4, i >> 2, a >> 2), G(l, u, n, r + (i >> 1), i * 2, i >> 1, a >> 1), G(l, u, n, r + i, i * 2, i >> 1, a >> 1), G(l, u, n, r + (i >> 1) + i, i * 2, i >> 1, a >> 1), o && kt(l, o, a), s + Ct(e, t + 4) + 8;
+	return At(l, u, n, r, i * 16, i >> 4, a >> 4), G$2(l, u, n, r + (i >> 4), i * 16, i >> 4, a >> 4), G$2(l, u, n, r + i * 8, i * 16, i >> 4, a >> 4), G$2(l, u, n, r + (i >> 4) + i * 8, i * 16, i >> 4, a >> 4), G$2(l, u, n, r + (i >> 3), i * 8, i >> 3, a >> 3), G$2(l, u, n, r + i * 4, i * 8, i >> 3, a >> 3), G$2(l, u, n, r + (i >> 3) + i * 4, i * 8, i >> 3, a >> 3), G$2(l, u, n, r + (i >> 2), i * 4, i >> 2, a >> 2), G$2(l, u, n, r + i * 2, i * 4, i >> 2, a >> 2), G$2(l, u, n, r + (i >> 2) + i * 2, i * 4, i >> 2, a >> 2), G$2(l, u, n, r + (i >> 1), i * 2, i >> 1, a >> 1), G$2(l, u, n, r + i, i * 2, i >> 1, a >> 1), G$2(l, u, n, r + (i >> 1) + i, i * 2, i >> 1, a >> 1), o && kt(l, o, a), s + Ct(e, t + 4) + 8;
 }
 function K(e) {
 	return (e + (32767 ^ e >> 31)) / 65536 | 0;
@@ -220451,17 +220451,17 @@ function hn(e) {
 	return `tex${e.texIdx}-img${e.imgIdx}-mip${e.mipIdx}`;
 }
 function gn(e, t = {}) {
-	let n = t.maxTextures ?? 256, r = t.maxImages ?? 8, i = t.maxMips ?? 32, a = e.file, o = z(e, R(e, a.header.root_type), a.header.root_object, { maxArrayRefs: n }).Textures;
+	let n = t.maxTextures ?? 256, r = t.maxImages ?? 8, i = t.maxMips ?? 32, a = e.file, o = z(e, R$2(e, a.header.root_type), a.header.root_object, { maxArrayRefs: n }).Textures;
 	if (!o || !o.reference_type) return [];
 	let s = o.reference_type, c = o.element_refs ?? [];
 	if (c.length === 0) return [];
-	let l = R(e, [s.section, s.offset]), u = [], d = c.length < n ? c.length : n;
+	let l = R$2(e, [s.section, s.offset]), u = [], d = c.length < n ? c.length : n;
 	for (let t = 0; t < d; t++) {
 		let n = c[t];
 		if (!n) continue;
-		let a = z(e, l, [n.section, n.offset], { maxArrayRefs: 64 }), o = a.Width?.value ?? 0, s = a.Height?.value ?? 0, d = a.Encoding?.value ?? 0, f = a.SubFormat?.value ?? 0, p = a.FromFileName?.value ?? ``, m = _n(e, l, a, n), h = a.Images, g = h?.reference_type ?? null, _ = g ? B(e, h.target ?? null, h.count ?? 0, g, { maxCount: r }) : [];
+		let a = z(e, l, [n.section, n.offset], { maxArrayRefs: 64 }), o = a.Width?.value ?? 0, s = a.Height?.value ?? 0, d = a.Encoding?.value ?? 0, f = a.SubFormat?.value ?? 0, p = a.FromFileName?.value ?? ``, m = _n(e, l, a, n), h = a.Images, g = h?.reference_type ?? null, _ = g ? B$2(e, h.target ?? null, h.count ?? 0, g, { maxCount: r }) : [];
 		for (let n = 0; n < _.length; n++) {
-			let r = _[n].fields.MIPLevels, a = r?.reference_type ?? null, c = a ? B(e, r.target ?? null, r.count ?? 0, a, { maxCount: i }) : [];
+			let r = _[n].fields.MIPLevels, a = r?.reference_type ?? null, c = a ? B$2(e, r.target ?? null, r.count ?? 0, a, { maxCount: i }) : [];
 			for (let r = 0; r < c.length; r++) {
 				let i = c[r].fields, a = i.Pixels ?? i.PixelBytes, l = a?.count ?? 0, h = a?.target ?? null, g = null;
 				if (h && l > 0) {
@@ -220498,7 +220498,7 @@ function _n(e, t, n, r) {
 		if (!a || !a.referenceType) return 1;
 		let o = a.referenceType.section;
 		if (!e.sectionsOriginal[o]) return 1;
-		let s = R(e, [o, a.referenceType.offset]), c = i.offset ?? 0;
+		let s = R$2(e, [o, a.referenceType.offset]), c = i.offset ?? 0;
 		return z(e, s, [r.section, r.offset + c]).BytesPerPixel?.value === 3 ? 0 : 1;
 	} catch {
 		return 1;
@@ -220519,7 +220519,7 @@ function Cn(e, t) {
 	for (let a = 0; a < t.length; a++) {
 		let o = t[a];
 		if (r[o.name] = i, o.memberType === 1 && o.referenceType) {
-			let t = R(e, o.referenceType);
+			let t = R$2(e, o.referenceType);
 			i += be(e, t, n, /* @__PURE__ */ new Set());
 		} else i += Sn(o, n);
 	}
@@ -220776,7 +220776,7 @@ function Pn(e, t, n) {
 	if (a) return a;
 	let o = I(xn(i, n, r), e.sectionsFixed.length), s = I(xn(i, n + r, r), e.sectionsFixed.length);
 	if (o === null || s === null) return null;
-	let c = R(e, o);
+	let c = R$2(e, o);
 	if (c.length === 0) return null;
 	let l = c[0].name.replace(/^CurveDataHeader_/, ``), u = Cn(e, c), d = e.sectionsOriginal[s[0]];
 	if (s[1] + 2 > d.length) return null;
@@ -220815,7 +220815,7 @@ function Fn(e, t, n) {
 function In(e, t, n) {
 	let r = t?.target ?? null, i = t?.reference_type ?? null, a = t?.count ?? 0;
 	if (r === null || i === null || a <= 0) return [];
-	let o = B(e, r, a, i, {
+	let o = B$2(e, r, a, i, {
 		maxCount: n,
 		maxArrayRefs: 64
 	}), s = Array(o.length);
@@ -220825,7 +220825,7 @@ function In(e, t, n) {
 function Ln(e, t, n) {
 	let r = t?.target ?? null, i = t?.reference_type ?? null, a = t?.count ?? 0;
 	if (r === null || i === null || a <= 0) return [];
-	let o = B(e, r, a, i, {
+	let o = B$2(e, r, a, i, {
 		maxCount: n,
 		maxArrayRefs: 64
 	}), s = Array(o.length);
@@ -220857,7 +220857,7 @@ function zn(e, t, n) {
 		for (let e = 0; e < o.length; e++) s[e] = `TrackGroup_${e}`;
 		return s;
 	}
-	let c = R(e, [i.section, i.offset]), l = Math.min(o.length, n);
+	let c = R$2(e, [i.section, i.offset]), l = Math.min(o.length, n);
 	for (let t = 0; t < l; t++) {
 		let n = o[t], r = z(e, c, [n.section, n.offset], { maxArrayRefs: 0 }).Name?.value;
 		s[t] = typeof r == `string` && r ? r : `TrackGroup_${t}`;
@@ -220883,11 +220883,11 @@ function Bn(e, t, n, r, i) {
 	};
 }
 function Vn(e, t = {}) {
-	let n = t.maxTrackGroups ?? 64, r = t.maxTracksPerGroup ?? 512, i = t.maxAnimations ?? 64, a = e.file, o = z(e, R(e, a.header.root_type), a.header.root_object, { maxArrayRefs: Math.max(n, i) }), s = o.TrackGroups, c = [];
+	let n = t.maxTrackGroups ?? 64, r = t.maxTracksPerGroup ?? 512, i = t.maxAnimations ?? 64, a = e.file, o = z(e, R$2(e, a.header.root_type), a.header.root_object, { maxArrayRefs: Math.max(n, i) }), s = o.TrackGroups, c = [];
 	if (s) {
 		let t = s.reference_type ?? null, i = s.element_refs ?? [];
 		if (t !== null && i.length > 0) {
-			let a = R(e, [t.section, t.offset]), o = Math.min(i.length, n);
+			let a = R$2(e, [t.section, t.offset]), o = Math.min(i.length, n);
 			for (let t = 0; t < o; t++) c.push(Rn(e, t, i[t], a, r));
 		}
 	}
@@ -220895,7 +220895,7 @@ function Vn(e, t = {}) {
 	if (l) {
 		let t = l.reference_type ?? null, n = l.element_refs ?? [];
 		if (t !== null && n.length > 0) {
-			let r = R(e, [t.section, t.offset]), a = Object.create(null);
+			let r = R$2(e, [t.section, t.offset]), a = Object.create(null);
 			for (let e = 0; e < c.length; e++) a[c[e].name] = c[e];
 			let o = Math.min(n.length, i);
 			for (let t = 0; t < o; t++) u.push(Bn(e, t, n[t], r, a));
@@ -221074,7 +221074,7 @@ function lr() {
 	return cr ??= tn();
 }
 function mr(e, t = {}) {
-	let n = g(e), r = fe(n), i = R(r, n.header.root_type);
+	let n = g(e), r = fe(n), i = R$2(r, n.header.root_type);
 	return {
 		file: n,
 		typeTree: i,
@@ -221085,7 +221085,7 @@ function mr(e, t = {}) {
 	};
 }
 function gr(e, t = {}) {
-	let n = g(e), r = fe(n), i = R(r, n.header.root_type);
+	let n = g(e), r = fe(n), i = R$2(r, n.header.root_type);
 	return {
 		file: n,
 		typeTree: i,
@@ -221102,7 +221102,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$11, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$12, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -221122,7 +221122,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$11 = [
+	r$12 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -223174,7 +223174,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MG_NAPALMBEAT] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.MG_SAFETYWALL] = {};
 	SkillEffect[SkillConst_default.MG_SOULSTRIKE] = {
-		beforeHitEffectId: 15,
+		damageEffectIdOnCaster: 15,
 		hitEffectId: 0,
 		firstHitEffectId: 1
 	};
@@ -225905,7 +225905,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SJ_FALLINGSTAR] = {};
 	SkillEffect[SkillConst_default.SJ_DOCUMENT] = { successEffectIdOnCaster: "ef_sj_document" };
 	SkillEffect[SkillConst_default.SJ_SOLARBURST] = { successEffectIdOnCaster: "ef_sj_solarburst" };
-	SkillEffect[SkillConst_default.SJ_PROMINENCEKICK] = { effectId: "ef_sj_prominencekick" };
+	SkillEffect[SkillConst_default.SJ_PROMINENCEKICK] = {
+		effectId: "ef_sj_prominencekick",
+		damageEffectIdOnTarget: 1224
+	};
 	SkillEffect[SkillConst_default.SP_SOULGOLEM] = {
 		castAuraEffectId: 441,
 		successEffectId: [
@@ -225957,7 +225960,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.SP_SPA] = {
 		castAuraEffectId: 454,
-		successEffectIdOnCaster: "ef_sp_spa_sound"
+		successEffectIdOnCaster: ["ef_sp_spa_sound", 1204]
 	};
 	SkillEffect[SkillConst_default.SP_SHA] = {
 		castAuraEffectId: 454,
@@ -249313,7 +249316,7 @@ function stepSlider(el, sign) {
 	if (!(max > min)) return false;
 	let grid = parseFloat(el.step);
 	if (!(grid > 0)) grid = (max - min) / 100;
-	const stride = Math.max(grid, Math.round((max - min) / STEPS / grid) * grid);
+	const stride = Math.max(grid, Math.round((max - min) / STEPS$1 / grid) * grid);
 	const current = parseFloat(el.value);
 	const from = isNaN(current) ? min : current;
 	let next = min + Math.round((from + sign * stride - min) / grid) * grid;
@@ -249378,9 +249381,9 @@ function flush() {
 function hints$1(el) {
 	return handles(el) ? [["◀▶", "Change"]] : [];
 }
-var STEPS, CHANGE_AFTER_MS, SLIDER, _pending$2, JoystickValueInput_default;
+var STEPS$1, CHANGE_AFTER_MS, SLIDER, _pending$2, JoystickValueInput_default;
 var init_JoystickValueInput = __esmMin((() => {
-	STEPS = 20;
+	STEPS$1 = 20;
 	CHANGE_AFTER_MS = 250;
 	SLIDER = "input[type=\"range\"]";
 	_pending$2 = /* @__PURE__ */ new Map();
@@ -274643,12 +274646,12 @@ var init_Cylinder = __esmMin((() => {
 // src/Renderer/Effects/AuraBatch.vs?raw
 var AuraBatch_default$1;
 var init_AuraBatch$2 = __esmMin((() => {
-	AuraBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\nin vec4 aColor;\r\nin float aDepthOffset;\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vColor;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nvoid main(void) {\r\n	gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);\r\n	gl_Position.z -= aDepthOffset;\r\n	vTextureCoord = aTextureCoord;\r\n	vColor = aColor;\r\n}\r\n";
+	AuraBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\nin vec4 aColor;\r\nin float aDepthOffset;\r\n\r\nout vec2 vTextureCoord;\r\n// Interpolated: a cold-hit shard fades from its white tail to its head.\r\nout vec4 vColor;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nvoid main(void) {\r\n	gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);\r\n	gl_Position.z -= aDepthOffset;\r\n	vTextureCoord = aTextureCoord;\r\n	vColor = aColor;\r\n}\r\n";
 }));
 // src/Renderer/Effects/AuraBatch.fs?raw
 var AuraBatch_default;
 var init_AuraBatch$1 = __esmMin((() => {
-	AuraBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\n// AuraBatch.js puts its effect's defines here: FOG, DISCARD_CLEAR,\r\n// DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.\r\n\r\nin vec2 vTextureCoord;\r\nflat in vec4 vColor;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform bool uDarken;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n#ifdef DISCARD_CLEAR\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DISCARD_BLACK\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DARKEN\r\n	if (uDarken) {\r\n		float k = max(max(texColor.r, texColor.g), texColor.b) * vColor.a;\r\n		fragColor = vec4(k, k, k, 1.0);\r\n		return;\r\n	}\r\n#endif\r\n\r\n	fragColor = texColor * vColor;\r\n\r\n#ifdef FOG\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n#endif\r\n}\r\n";
+	AuraBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\n// AuraBatch.js puts its effect's defines here: FOG, DISCARD_CLEAR,\r\n// DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.\r\n\r\nin vec2 vTextureCoord;\r\nin vec4 vColor;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform bool uDarken;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n#ifdef DISCARD_CLEAR\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DISCARD_BLACK\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n#endif\r\n\r\n#ifdef DARKEN\r\n	if (uDarken) {\r\n		float k = max(max(texColor.r, texColor.g), texColor.b) * vColor.a;\r\n		fragColor = vec4(k, k, k, 1.0);\r\n		return;\r\n	}\r\n#endif\r\n\r\n	fragColor = texColor * vColor;\r\n\r\n#ifdef FOG\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n#endif\r\n}\r\n";
 }));
 // src/Renderer/Effects/AuraBlend.js
 /**
@@ -274799,7 +274802,7 @@ function freeSharedTextures(cache, gl) {
 	for (const entry of cache.values()) if (entry.texture) gl.deleteTexture(entry.texture);
 	cache.clear();
 }
-var FLOATS, STRIDE, QUAD_UV, QUAD_FAN, AuraBatch;
+var FLOATS, STRIDE, QUAD_UV, QUAD_FAN, FOG_BLACK, AuraBatch;
 var init_AuraBatch = __esmMin((() => {
 	init_AuraBatch$2();
 	init_AuraBatch$1();
@@ -274828,6 +274831,7 @@ var init_AuraBatch = __esmMin((() => {
 		3,
 		0
 	];
+	FOG_BLACK = /* @__PURE__ */ new Float32Array(3);
 	AuraBatch = class {
 		/**
 		* @param {object} options the effect's fragment shader, as defines
@@ -274999,7 +275003,6 @@ var init_AuraBatch = __esmMin((() => {
 			gl.uniform1i(uniform.uFogUse, this.fog.use);
 			gl.uniform1f(uniform.uFogNear, this.fog.near);
 			gl.uniform1f(uniform.uFogFar, this.fog.far);
-			gl.uniform3fv(uniform.uFogColor, this.fog.color);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.bindVertexArray(this.vao);
@@ -275014,6 +275017,7 @@ var init_AuraBatch = __esmMin((() => {
 				indices = this.mergedIndices;
 			}
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices.subarray(0, this.indexCount), gl.STREAM_DRAW);
+			const fogColor = this.fog.color;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				let blend = -1;
 				for (let i = 0; i < runCount; i++) {
@@ -275022,6 +275026,7 @@ var init_AuraBatch = __esmMin((() => {
 						blend = run.blend;
 						setAuraBlend(gl, blend);
 						if (uniform.uDarken) gl.uniform1i(uniform.uDarken, blend === 2);
+						gl.uniform3fv(uniform.uFogColor, blend === 0 ? FOG_BLACK : fogColor);
 					}
 					gl.bindTexture(gl.TEXTURE_2D, run.texture);
 					gl.drawElements(gl.TRIANGLES, run.count, gl.UNSIGNED_INT, run.first * 4);
@@ -282274,8 +282279,8 @@ function init$8(gl, mapname) {
 	if (_color$3) _display = true;
 	else _display = false;
 	gl.clearColor(color[0], color[1], color[2], color[3]);
-	if (!_textures$17.length && _display) {
-		_textures$17.length = 8;
+	if (!_textures$20.length && _display) {
+		_textures$20.length = 8;
 		for (i = 0; i < 7; i++) loadCloudTexture(gl, i);
 	}
 }
@@ -282288,7 +282293,7 @@ function init$8(gl, mapname) {
 function loadCloudTexture(gl, i) {
 	Client.loadFile("data/texture/effect/cloud" + (i + 1) + ".tga", function(buffer) {
 		WebGL_default.texture(gl, buffer, function(texture) {
-			_textures$17[i] = texture;
+			_textures$20[i] = texture;
 		});
 	});
 }
@@ -282305,7 +282310,7 @@ function setUpCloudData() {
 			death_tick: 0
 		};
 		cloudInit(_clouds[i]);
-		_clouds[i].sprite = Math.random() * (_textures$17.length - 1) | 0;
+		_clouds[i].sprite = Math.random() * (_textures$20.length - 1) | 0;
 		_clouds[i].death_tick = _clouds[i].born_tick + Math.random() * 8e3;
 		_clouds[i].born_tick -= 2e3;
 	}
@@ -282360,7 +282365,7 @@ function render$8(gl, modelView, projection, fog, tick) {
 		else opacity = 1;
 		SpriteRenderer.zIndex = 0;
 		SpriteRenderer.color[3] = opacity;
-		SpriteRenderer.image.texture = _textures$17[cloud.sprite];
+		SpriteRenderer.image.texture = _textures$20[cloud.sprite];
 		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
 		cloud._lastTick = tick;
 		vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
@@ -282371,7 +282376,7 @@ function render$8(gl, modelView, projection, fog, tick) {
 	}
 	SpriteRenderer.unbind(gl);
 }
-var MAX_CLOUDS, _clouds, _textures$17, _color$3, _display, Sky_default;
+var MAX_CLOUDS, _clouds, _textures$20, _color$3, _display, Sky_default;
 var init_Sky = __esmMin((() => {
 	init_WebGL();
 	init_WeatherEffect();
@@ -282381,7 +282386,7 @@ var init_Sky = __esmMin((() => {
 	init_gl_matrix();
 	MAX_CLOUDS = 150;
 	_clouds = new Array(MAX_CLOUDS);
-	_textures$17 = [];
+	_textures$20 = [];
 	_color$3 = null;
 	_display = true;
 	Sky_default = {
@@ -286052,7 +286057,7 @@ var init_SwirlingAura$1 = __esmMin((() => {
 	SwirlingAura_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform vec4 uColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	// Discard near-black pixels\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	fragColor = texColor * uColor;\r\n\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n}";
 }));
 // src/Renderer/Effects/SwirlingAura.js
-var mat4$9, _program$23, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$6, _textures$16, BAND_INDICES, SwirlingAura;
+var mat4$9, _program$23, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$9, _textures$19, BAND_INDICES, SwirlingAura;
 var init_SwirlingAura = __esmMin((() => {
 	init_SwirlingAura$2();
 	init_SwirlingAura$1();
@@ -286068,12 +286073,12 @@ var init_SwirlingAura = __esmMin((() => {
 	FULL_DISPLAY_ANGLE = 315;
 	DEG_TO_RAD$2 = Math.PI / 180;
 	VERTICES_PER_BAND = 42;
-	_batch$6 = new AuraBatch({
+	_batch$9 = new AuraBatch({
 		fog: true,
 		discardClear: true,
 		discardBlack: true
 	});
-	_textures$16 = /* @__PURE__ */ new Map();
+	_textures$19 = /* @__PURE__ */ new Map();
 	BAND_INDICES = (function() {
 		const indices = [];
 		for (let k = 0; k < 20; k++) {
@@ -286185,7 +286190,7 @@ var init_SwirlingAura = __esmMin((() => {
 		* Initialize instance
 		*/
 		init(gl) {
-			sharedTexture(_textures$16, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$19, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -286227,7 +286232,7 @@ var init_SwirlingAura = __esmMin((() => {
 			const uniform = _program$23.uniform;
 			const attribute = _program$23.attribute;
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-			if (_batch$6.active) {
+			if (_batch$9.active) {
 				this.record(tick, groundZ);
 				return;
 			}
@@ -286280,7 +286285,7 @@ var init_SwirlingAura = __esmMin((() => {
 				band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
 				this.updateHeightProfile(band, process);
 				this.fillBandMesh(band);
-				_batch$6.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
+				_batch$9.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
 			}
 		}
 		/**
@@ -286299,8 +286304,8 @@ var init_SwirlingAura = __esmMin((() => {
 				gl.deleteProgram(_program$23);
 				_program$23 = null;
 			}
-			_batch$6.free(gl);
-			freeSharedTextures(_textures$16, gl);
+			_batch$9.free(gl);
+			freeSharedTextures(_textures$19, gl);
 			this.ready = false;
 		}
 		/**
@@ -286318,13 +286323,13 @@ var init_SwirlingAura = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
-			_batch$6.begin(gl, modelView, projection, fog);
+			_batch$9.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$6.flush(gl);
+			_batch$9.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$23.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$23.attribute.aTextureCoord);
@@ -286399,7 +286404,7 @@ function calculateSize(self, aura, auraAngle, i) {
 	const endY = sin * (aura[i].distance * .8 + riseFactor);
 	return [Math.abs(endX - startX), Math.abs(endY - startY)];
 }
-var _program$22, _buffer$9, _batch$5, _textures$15, GROUND_ORDER, GROUND_CORNERS, GroundAura;
+var _program$22, _buffer$9, _batch$8, _textures$18, GROUND_ORDER, GROUND_CORNERS, GroundAura;
 var init_GroundAura = __esmMin((() => {
 	init_GroundAura$2();
 	init_GroundAura$1();
@@ -286408,11 +286413,11 @@ var init_GroundAura = __esmMin((() => {
 	init_SpriteRenderer();
 	init_AuraBlend();
 	init_AuraBatch();
-	_batch$5 = new AuraBatch({
+	_batch$8 = new AuraBatch({
 		discardClear: true,
 		darken: true
 	});
-	_textures$15 = /* @__PURE__ */ new Map();
+	_textures$18 = /* @__PURE__ */ new Map();
 	GROUND_ORDER = [
 		0,
 		1,
@@ -286519,7 +286524,7 @@ var init_GroundAura = __esmMin((() => {
 				this.shape = "brightness";
 				this.init(gl);
 			};
-			sharedTexture(_textures$15, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$18, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, onerror);
@@ -286561,7 +286566,7 @@ var init_GroundAura = __esmMin((() => {
 			worldPos[0] = this.position[0];
 			worldPos[1] = this.position[1];
 			worldPos[2] = groundZ + .05;
-			if (_batch$5.active) {
+			if (_batch$8.active) {
 				this.record(worldPos);
 				return;
 			}
@@ -286603,7 +286608,7 @@ var init_GroundAura = __esmMin((() => {
 					this.points[k][1] = -worldPos[2];
 					this.points[k][2] = worldPos[1] + .5 + (x * sin + z * cos);
 				}
-				_batch$5.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
+				_batch$8.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
 			}
 		}
 		/**
@@ -286630,8 +286635,8 @@ var init_GroundAura = __esmMin((() => {
 				gl.deleteBuffer(_buffer$9);
 				_buffer$9 = null;
 			}
-			_batch$5.free(gl);
-			freeSharedTextures(_textures$15, gl);
+			_batch$8.free(gl);
+			freeSharedTextures(_textures$18, gl);
 			this.ready = false;
 		}
 		/**
@@ -286655,13 +286660,13 @@ var init_GroundAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$5.begin(gl, modelView, projection, fog);
+			_batch$8.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$5.flush(gl);
+			_batch$8.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$22.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$22.attribute.aTextureCoord);
@@ -286729,7 +286734,7 @@ function createAnchor(isGhost, seedMaxUnits) {
 		z: 0
 	};
 }
-var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$21, _buffer$8, _batch$4, _textures$14, BILLBOARD_CORNERS, Level99Bubble;
+var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$21, _buffer$8, _batch$7, _textures$17, BILLBOARD_CORNERS, Level99Bubble;
 var init_Level99Bubble = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -286800,8 +286805,8 @@ var init_Level99Bubble = __esmMin((() => {
 		alphaGain: REF_ALPHA_GAIN,
 		floorLimit: Math.abs(REF_RESET_Y)
 	};
-	_batch$4 = new AuraBatch({ fog: true });
-	_textures$14 = /* @__PURE__ */ new Map();
+	_batch$7 = new AuraBatch({ fog: true });
+	_textures$17 = /* @__PURE__ */ new Map();
 	BILLBOARD_CORNERS = [
 		{
 			x: -1,
@@ -286891,7 +286896,7 @@ var init_Level99Bubble = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$14, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$17, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -286993,7 +286998,7 @@ var init_Level99Bubble = __esmMin((() => {
 			const cosBeta = Math.cos(beta);
 			const sinAlpha = Math.sin(alpha);
 			const cosAlpha = Math.cos(alpha);
-			const batched = _batch$4.active;
+			const batched = _batch$7.active;
 			const blend = auraBlend(this.color, "alpha");
 			const rgb = auraUniform(this.color, 1, "alpha", this.rgba);
 			if (!batched) gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -287032,7 +287037,7 @@ var init_Level99Bubble = __esmMin((() => {
 					const alphaValue = this.computeAlpha(anchor.y);
 					if (alphaValue <= 0) continue;
 					if (batched) {
-						for (let pass = 0; pass < this.passCount; pass++) _batch$4.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
+						for (let pass = 0; pass < this.passCount; pass++) _batch$7.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
 						continue;
 					}
 					this.fillQuad(this.tmpPoints, this.quadData);
@@ -287197,8 +287202,8 @@ var init_Level99Bubble = __esmMin((() => {
 				gl.deleteBuffer(_buffer$8);
 				_buffer$8 = null;
 			}
-			_batch$4.free(gl);
-			freeSharedTextures(_textures$14, gl);
+			_batch$7.free(gl);
+			freeSharedTextures(_textures$17, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -287220,10 +287225,10 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$4.begin(gl, modelView, projection, fog);
+			_batch$7.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$4.flush(gl);
+			_batch$7.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$21.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$21.attribute.aTextureCoord);
@@ -287232,18 +287237,18 @@ var init_Level99Bubble = __esmMin((() => {
 }));
 // src/Renderer/Effects/MaxLevelAura.js
 function loadTexture$13(gl, name) {
-	if (_textures$13.has(name)) return;
-	_textures$13.set(name, null);
+	if (_textures$16.has(name)) return;
+	_textures$16.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			_textures$13.set(name, texture);
+			_textures$16.set(name, texture);
 		});
 	});
 }
 function bubbleName$1(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS, GROUND_RINGS, CORNERS, _program$20, _buffer$7, _textures$13, _batch$3, MaxLevelAura;
+var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS, GROUND_RINGS, CORNERS$1, _program$20, _buffer$7, _textures$16, _batch$6, MaxLevelAura;
 var init_MaxLevelAura = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -287286,7 +287291,7 @@ var init_MaxLevelAura = __esmMin((() => {
 		size: 5,
 		spin: -55
 	}];
-	CORNERS = [
+	CORNERS$1 = [
 		{
 			x: -1,
 			y: -1
@@ -287304,8 +287309,8 @@ var init_MaxLevelAura = __esmMin((() => {
 			y: 1
 		}
 	];
-	_textures$13 = /* @__PURE__ */ new Map();
-	_batch$3 = new AuraBatch({
+	_textures$16 = /* @__PURE__ */ new Map();
+	_batch$6 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
@@ -287389,9 +287394,9 @@ var init_MaxLevelAura = __esmMin((() => {
 		}
 		draw(gl, texture, alpha, zIndex) {
 			if (!texture) return;
-			if (_batch$3.active) {
+			if (_batch$6.active) {
 				const rgba = auraUniform(this.color, alpha, "alpha", this.rgba);
-				_batch$3.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
+				_batch$6.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
 				return;
 			}
 			this.fillQuad(this.points);
@@ -287411,7 +287416,7 @@ var init_MaxLevelAura = __esmMin((() => {
 				-groundZ - BASE_LIFT,
 				this.position[1] + .5
 			];
-			if (_batch$3.active) {
+			if (_batch$6.active) {
 				if (this.part === "rings") this.renderRings(gl, base, elapsed);
 				else this.renderBubbles(gl, base, elapsed);
 				return;
@@ -287432,13 +287437,13 @@ var init_MaxLevelAura = __esmMin((() => {
 				const cos = Math.cos(angle) * half;
 				const sin = Math.sin(angle) * half;
 				for (let k = 0; k < 4; k++) {
-					const x = CORNERS[k].x;
-					const z = CORNERS[k].y;
+					const x = CORNERS$1[k].x;
+					const z = CORNERS$1[k].y;
 					this.points[k][0] = base[0] + x * cos - z * sin;
 					this.points[k][1] = base[1] - .01 * (i + 1);
 					this.points[k][2] = base[2] + x * sin + z * cos;
 				}
-				this.draw(gl, _textures$13.get(ring.texture), 1, .002 * (i + 1));
+				this.draw(gl, _textures$16.get(ring.texture), 1, .002 * (i + 1));
 			}
 		}
 		renderBubbles(gl, base, elapsed) {
@@ -287467,7 +287472,7 @@ var init_MaxLevelAura = __esmMin((() => {
 					this.points[3][0] = x0;
 					this.points[3][1] = base[1];
 					this.points[3][2] = z0;
-					const texture = _textures$13.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
+					const texture = _textures$16.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
 					this.draw(gl, texture, .55, .01 + r * .002 + b * 1e-4);
 				}
 			}
@@ -287489,9 +287494,9 @@ var init_MaxLevelAura = __esmMin((() => {
 				gl.deleteBuffer(_buffer$7);
 				_buffer$7 = null;
 			}
-			_batch$3.free(gl);
-			for (const texture of _textures$13.values()) if (texture) gl.deleteTexture(texture);
-			_textures$13.clear();
+			_batch$6.free(gl);
+			for (const texture of _textures$16.values()) if (texture) gl.deleteTexture(texture);
+			_textures$16.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -287513,10 +287518,10 @@ var init_MaxLevelAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$3.begin(gl, modelView, projection, fog);
+			_batch$6.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$3.flush(gl);
+			_batch$6.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
@@ -288235,6 +288240,7 @@ var init_BodyMotionSim = __esmMin((() => {
 		449: (age) => age < 51 ? { ready: age } : null,
 		458: () => ({ quake: true }),
 		466: (age) => age >= 14 && age < 50 ? { spin: age - 14 } : null,
+		1224: (age) => age >= 14 && age < 50 ? { spin: age - 14 } : null,
 		548: (age) => age <= 16 ? { red: age * 3 } : null,
 		625: (age) => age % 4 === 0 ? { ready: 20 } : null,
 		626: (age) => age % 4 === 0 ? { red: 20 } : null,
@@ -288269,7 +288275,7 @@ var init_BodyMotion = __esmMin((() => {
 		/**
 		* @param {Entity} owner
 		* @param {number} startTick
-		* @param {number} effectId 413, 414, 415, 426, 449, 458, 466, 548, 625 or 626
+		* @param {number} effectId 413, 414, 415, 426, 449, 458, 466, 548, 625, 626 or 1224
 		* @param {number} frames lifetime in ticks (1/60 s)
 		*/
 		constructor(owner, startTick, effectId, frames) {
@@ -288351,7 +288357,12 @@ var init_TaekwonBodyEffects = __esmMin((() => {
 			wav: "effect/t_µ¹·ÁÂ÷±â",
 			delayWav: at(5),
 			attachedEntity: true
-		}, bodyMotion$1(466, 50)]
+		}, bodyMotion$1(466, 50)],
+		1224: [{
+			wav: "effect/mon_Ä§Åõ°æ",
+			delayWav: at(5),
+			attachedEntity: true
+		}, bodyMotion$1(1224, 50)]
 	};
 }));
 // src/DB/Effects/GunslingerBodyEffects.js
@@ -288503,19 +288514,19 @@ var init_FieldBandSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/FieldBand.js
 function loadTexture$12(gl, name) {
-	if (_textures$12.has(name)) return;
-	_textures$12.set(name, null);
+	if (_textures$15.has(name)) return;
+	_textures$15.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$12.has(name)) {
+			if (!_textures$15.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$12.set(name, texture);
+			_textures$15.set(name, texture);
 		});
 	});
 }
-var _program$19, _textures$12, FieldBand;
+var _program$19, _textures$15, FieldBand;
 var init_FieldBand = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -288524,7 +288535,7 @@ var init_FieldBand = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$19 = null;
-	_textures$12 = /* @__PURE__ */ new Map();
+	_textures$15 = /* @__PURE__ */ new Map();
 	FieldBand = class {
 		/**
 		* @param {Array} position cell position (x, y, height)
@@ -288567,7 +288578,7 @@ var init_FieldBand = __esmMin((() => {
 			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
 			if (t - this.band.age > 600) this.band.age = t - 600;
 			while (this.band.age < t) stepBand(this.band);
-			const texture = _textures$12.get(this.texture);
+			const texture = _textures$15.get(this.texture);
 			const alpha = Math.min(255, this.band.alpha);
 			if (!texture || alpha <= 0) return;
 			const count = buildBand$2(this.vertices, this.band, this.position);
@@ -288594,8 +288605,8 @@ var init_FieldBand = __esmMin((() => {
 				gl.deleteProgram(_program$19);
 				_program$19 = null;
 			}
-			for (const texture of _textures$12.values()) if (texture) gl.deleteTexture(texture);
-			_textures$12.clear();
+			for (const texture of _textures$15.values()) if (texture) gl.deleteTexture(texture);
+			_textures$15.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -288678,10 +288689,10 @@ function planSparks$2(effectId, random = Math.random) {
 	const window = SPARK_WINDOWS[effectId];
 	const sparks = [];
 	for (let tick = window.from; tick <= window.to; tick += SPARK$1.every) for (let k = 0; k < SPARK$1.perPrim; k++) {
-		const size = 2 + r$10(random, 10) * .1;
-		const x = r$10(random, SPARK$1.scatter) - 5;
-		const z = r$10(random, SPARK$1.scatter) - 5;
-		const rise = r$10(random, 20) * .01 + .1;
+		const size = 2 + r$11(random, 10) * .1;
+		const x = r$11(random, SPARK$1.scatter) - 5;
+		const z = r$11(random, SPARK$1.scatter) - 5;
+		const rise = r$11(random, 20) * .01 + .1;
 		sparks.push({
 			spawn: tick,
 			k,
@@ -288729,7 +288740,7 @@ function sparkAt$1(spark, age) {
 		alpha
 	};
 }
-var SPARK$1, SPARK_WINDOWS, r$10, SPARK_LIFE;
+var SPARK$1, SPARK_WINDOWS, r$11, SPARK_LIFE;
 var init_ReadySparkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	SPARK$1 = {
@@ -288757,7 +288768,7 @@ var init_ReadySparkSim = __esmMin((() => {
 			to: 120
 		}
 	};
-	r$10 = (random, k) => Math.floor(random() * k);
+	r$11 = (random, k) => Math.floor(random() * k);
 	SPARK_LIFE = (() => {
 		let n = 1;
 		while (sparkAlpha(n) >= 0) n++;
@@ -289109,10 +289120,10 @@ function createSphere(effectId, random = Math.random) {
 	const colors = SPHERE_COLORS[effectId] || SPHERE_COLORS[1199];
 	const rays = [];
 	for (let group = 0; group < SPHERE.groups; group++) for (let i = 0; i < SPHERE.raysPerGroup; i++) {
-		const t = r$9(random, 360);
-		const s = r$9(random, 360);
-		const q = r$9(random, 360);
-		const color = colors.rays[r$9(random, 2)];
+		const t = r$10(random, 360);
+		const s = r$10(random, 360);
+		const q = r$10(random, 360);
+		const color = colors.rays[r$10(random, 2)];
 		rays.push({
 			group,
 			t,
@@ -289149,7 +289160,7 @@ function stepSphere(sphere) {
 	for (const ray of sphere.rays) {
 		if (ray.size < SPHERE.rayMax) ray.size *= SPHERE.rayGrowth;
 		if (ray.age > SPHERE.rayFadeOut) ray.alpha = Math.max(ray.alpha - 1, 0);
-		ray.q = (ray.q + 1 + r$9(sphere.random, 2)) % 360;
+		ray.q = (ray.q + 1 + r$10(sphere.random, 2)) % 360;
 		ray.age++;
 	}
 	sphere.ticks++;
@@ -289171,12 +289182,12 @@ function sphereAlive(sphere) {
 * @return {Array<Array<number>>}
 */
 function rayCorners(ray) {
-	const reach = ray.size * Math.sin(rad$3(ray.q)) + ray.size;
-	const flat = reach * Math.cos(rad$3(ray.t));
+	const reach = ray.size * Math.sin(rad$5(ray.q)) + ray.size;
+	const flat = reach * Math.cos(rad$5(ray.t));
 	const tip = [
-		flat * Math.cos(rad$3(ray.s)),
-		reach * Math.sin(rad$3(ray.t)) - SPHERE.height,
-		flat * Math.sin(rad$3(ray.s))
+		flat * Math.cos(rad$5(ray.s)),
+		reach * Math.sin(rad$5(ray.t)) - SPHERE.height,
+		flat * Math.sin(rad$5(ray.s))
 	];
 	const w = SPHERE.rayHalfWidth;
 	const h = -SPHERE.height;
@@ -289217,11 +289228,11 @@ function centerAt(age) {
 	const alpha = n <= fadeOut ? Math.min(1 + n, 255) : Math.max(Math.min(1 + fadeOut, 255) - (n - fadeOut), 0);
 	const phase = SPHERE.centerSpin * n % 360;
 	return {
-		half: SPHERE.centerHalf * Math.sin(rad$3(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
+		half: SPHERE.centerHalf * Math.sin(rad$5(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
 		alpha
 	};
 }
-var SPHERE, SPHERE_COLORS, r$9, rad$3, CENTER_LIFE;
+var SPHERE, SPHERE_COLORS, r$10, rad$5, CENTER_LIFE;
 var init_LightSphereSim = __esmMin((() => {
 	SPHERE = {
 		centers: 4,
@@ -289288,22 +289299,22 @@ var init_LightSphereSim = __esmMin((() => {
 			]]
 		}
 	};
-	r$9 = (random, k) => Math.floor(random() * k);
-	rad$3 = (deg) => deg * Math.PI / 180;
+	r$10 = (random, k) => Math.floor(random() * k);
+	rad$5 = (deg) => deg * Math.PI / 180;
 	CENTER_LIFE = SPHERE.centerFadeOut + 255;
 }));
 // src/Renderer/Effects/LightSphere.js
-var _batch$2, _textures$11, RAY_TEXTURE$1, CORNER_ORDER, LightSphere;
+var _batch$5, _textures$14, RAY_TEXTURE$1, CORNER_ORDER, LightSphere;
 var init_LightSphere = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_LightSphereSim();
-	_batch$2 = new AuraBatch({
+	_batch$5 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$11 = /* @__PURE__ */ new Map();
+	_textures$14 = /* @__PURE__ */ new Map();
 	RAY_TEXTURE$1 = "white02.bmp";
 	CORNER_ORDER = [
 		0,
@@ -289350,7 +289361,7 @@ var init_LightSphere = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$11, gl, RAY_TEXTURE$1, (texture) => {
+			sharedTexture(_textures$14, gl, RAY_TEXTURE$1, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, () => {
@@ -289368,7 +289379,7 @@ var init_LightSphere = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$2.active || !this.texture) return;
+			if (!_batch$5.active || !this.texture) return;
 			const pos = this.owner ? this.owner.position : this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -289383,7 +289394,7 @@ var init_LightSphere = __esmMin((() => {
 					points[k][1] = oy + c[1] / 5;
 					points[k][2] = oz + c[2] / 5;
 				}
-				_batch$2.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
+				_batch$5.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
 			}
 		}
 		static init() {
@@ -289391,24 +289402,24 @@ var init_LightSphere = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$2.free(gl);
-			freeSharedTextures(_textures$11, gl);
+			_batch$5.free(gl);
+			freeSharedTextures(_textures$14, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			_batch$2.begin(gl, modelView, projection, fog);
-			if (!_batch$2.active && typeof gl.createVertexArray === "function") {
-				_batch$2.active = true;
-				_batch$2.modelView.set(modelView);
-				_batch$2.projection.set(projection);
-				_batch$2.fog.use = !!(fog.use && fog.exist);
-				_batch$2.fog.near = fog.near;
-				_batch$2.fog.far = fog.far;
-				_batch$2.fog.color.set(fog.color);
+			_batch$5.begin(gl, modelView, projection, fog);
+			if (!_batch$5.active && typeof gl.createVertexArray === "function") {
+				_batch$5.active = true;
+				_batch$5.modelView.set(modelView);
+				_batch$5.projection.set(projection);
+				_batch$5.fog.use = !!(fog.use && fog.exist);
+				_batch$5.fog.near = fog.near;
+				_batch$5.fog.far = fog.far;
+				_batch$5.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$2.flush(gl);
+			_batch$5.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -290238,6 +290249,124 @@ var init_Songs = __esmMin((() => {
 		EvillandEffects: EvillandEffects$1
 	};
 }));
+// src/Renderer/Effects/RemoveTrapSim.js
+/**
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} the particles of both bursts
+*/
+function planFountain(random = Math.random) {
+	const out = [];
+	for (const spawn of FOUNTAIN.bursts) for (let i = 0; i < FOUNTAIN.count; i++) {
+		const gravity = r$9(random, 10) / 1e3 + FOUNTAIN.gravity;
+		const heading = r$9(random, 360) * Math.PI / 180;
+		out.push({
+			spawn,
+			heading,
+			gravity
+		});
+	}
+	return out;
+}
+/**
+* Alpha after n updates.
+*
+* @param {number} n
+* @return {number}
+*/
+function fountainAlpha(n) {
+	if (n <= FOUNTAIN.fadeTick) return FOUNTAIN.alpha;
+	return Math.max(FOUNTAIN.alpha - FOUNTAIN.alpha / (FOUNTAIN.life - FOUNTAIN.fadeTick) * (n - FOUNTAIN.fadeTick), 0);
+}
+/**
+* A particle `age` ticks after it was thrown, or null outside its life. The
+* client updates before it draws, so tick k shows k + 1 updates.
+*
+* @param {object} p from planFountain
+* @param {number} age ticks since its burst
+* @return {?object} { x, y, up } in client units from the trap, scale, alpha 0-254
+*/
+function particleAt(p, age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= FOUNTAIN.life) return null;
+	const n = k + 1;
+	const dist = FOUNTAIN.out * n;
+	return {
+		x: Math.sin(p.heading) * dist,
+		y: Math.cos(p.heading) * dist,
+		up: FOUNTAIN.throwUp * n - p.gravity * n * (n + 1) / 2,
+		scale: FOUNTAIN.scale,
+		alpha: fountainAlpha(n)
+	};
+}
+var FOUNTAIN, r$9;
+var init_RemoveTrapSim = __esmMin((() => {
+	FOUNTAIN = {
+		bursts: [0, 7],
+		count: 12,
+		life: 50,
+		out: .2,
+		throwUp: 2,
+		gravity: .08,
+		scale: .8,
+		alpha: 254,
+		fadeTick: 35
+	};
+	r$9 = (random, k) => Math.floor(random() * k);
+}));
+// src/DB/Effects/RemoveTrapEffect.js
+/**
+* The 3D effect drawing one particle. It starts on its burst's tick.
+*
+* @param {object} particle from planFountain
+* @return {object}
+*/
+function fountainParticleEffect(particle) {
+	return {
+		type: "3D",
+		spriteName: "particle1",
+		playSprite: true,
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: FOUNTAIN.life * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = particleAt(particle, age);
+			if (!p) return null;
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5,
+				size: p.scale * 100,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+var removeTrapEffect;
+var init_RemoveTrapEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_RemoveTrapSim();
+	removeTrapEffect = [{
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			planFountain().forEach((particle, i) => {
+				this.spamEffect({
+					effect: fountainParticleEffect(particle),
+					Inst: {
+						effectID: 100,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + particle.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}, {
+		wav: "effect/hunter_removetrap",
+		attachedEntity: false
+	}];
+}));
 // src/Renderer/Effects/LockOnTarget.vs?raw
 var LockOnTarget_default$1;
 var init_LockOnTarget$2 = __esmMin((() => {
@@ -290413,6 +290542,278 @@ var init_LockOnTarget = __esmMin((() => {
 	* @var {boolean} should we render it before entities ?
 	*/
 	LockOnTarget.renderBeforeEntities = true;
+}));
+// src/Renderer/Effects/ArrowVulcanSim.js
+/**
+* A new streak.
+*
+* @param {number} prim the effect tick its primitive was added on (0..8)
+* @param {Array} dir unit direction from caster to target, [x, z]
+* @param {number} distance caster to target, units
+* @param {function} [random] returns a number in [0, 1)
+* @return {object} start and end relative to the caster, in units
+*/
+function createStreak$2(prim, dir, distance, random = Math.random) {
+	const r = (k) => Math.floor(random() * k);
+	const delay = STREAK$1.delay + r(STREAK$1.delayRange);
+	const sx = r(100) * .08 - STREAK$1.jitter;
+	const sz = r(100) * .08 - STREAK$1.jitter;
+	const back = r(STREAK$1.backRange) * STREAK$1.backStep;
+	const radius = r(11) * STREAK$1.radiusStep + STREAK$1.radius;
+	const height = r(100) * STREAK$1.heightStep + STREAK$1.height;
+	const length = r(100) * STREAK$1.extraStep + distance;
+	const ax = sx - dir[0] * back;
+	const az = sz - dir[1] * back;
+	return {
+		prim,
+		delay,
+		ax,
+		az,
+		bx: ax + dir[0] * length,
+		bz: az + dir[1] * length,
+		radius,
+		height
+	};
+}
+/**
+* Alpha of a streak (0..255) on an effect tick.
+*
+* @param {object} streak
+* @param {number} tick effect tick
+* @return {number}
+*/
+function streakAlpha(streak, tick) {
+	const age = tick - streak.prim;
+	if (age < 0 || age >= VULCAN.life) return 0;
+	const k = age - streak.delay;
+	if (k <= 0) return 0;
+	if (k <= STREAK$1.riseTicks) return k * STREAK$1.rise;
+	return Math.max(0, STREAK$1.riseTicks * STREAK$1.rise - (k - STREAK$1.riseTicks) * STREAK$1.fall);
+}
+/**
+* The ring of a tube end: `sides + 1` points around the line, in units
+* relative to the end, the first and last the same. The ring stands across
+* the streak: sideways and up.
+*
+* @param {Array} dir unit direction, [x, z]
+* @param {number} radius
+* @param {number} height lift; the client's y runs down
+* @return {Array} [x, y, z] points
+*/
+function ring(dir, radius, height) {
+	const px = -dir[1];
+	const pz = dir[0];
+	const out = [];
+	for (let k = 0; k <= STREAK$1.sides; k++) {
+		const a = k * 360 / STREAK$1.sides * (Math.PI / 180);
+		const s = radius * Math.cos(a);
+		out.push([
+			s * px,
+			radius * Math.sin(a) - height,
+			s * pz
+		]);
+	}
+	return out;
+}
+/**
+* Direction and distance from caster to target, in units.
+*
+* @param {Array} from caster cell [x, y]
+* @param {Array} to target cell [x, y]
+* @param {number} unitsPerCell
+* @return {object} { dir: [x, z], distance }
+*/
+function aim(from, to, unitsPerCell) {
+	const dx = (to[0] - from[0]) * unitsPerCell;
+	const dz = (to[1] - from[1]) * unitsPerCell;
+	const distance = Math.hypot(dx, dz);
+	if (!distance) return {
+		dir: [1, 0],
+		distance: 0
+	};
+	return {
+		dir: [dx / distance, dz / distance],
+		distance
+	};
+}
+var VULCAN, STREAK$1, LAST_TICK$1;
+var init_ArrowVulcanSim = __esmMin((() => {
+	VULCAN = {
+		prims: 9,
+		perPrim: 4,
+		life: 200
+	};
+	STREAK$1 = {
+		delay: 30,
+		delayRange: 110,
+		jitter: 4,
+		backRange: 100,
+		backStep: .15,
+		extraStep: .3,
+		radius: .02,
+		radiusStep: .008,
+		height: 4,
+		heightStep: .06,
+		glow: .25,
+		sides: 5,
+		rise: 8,
+		riseTicks: 20,
+		fall: 2,
+		color: [
+			255,
+			89,
+			182
+		]
+	};
+	LAST_TICK$1 = VULCAN.prims - 1 + VULCAN.life - 1;
+}));
+// src/Renderer/Effects/ArrowVulcan.js
+/**
+* The vertices of a tube, relative to its start, in cells and GL axes.
+*
+* @param {object} streak from createStreak
+* @param {Array} dir unit direction, [x, z]
+* @param {number} radius units
+* @param {Float32Array} [out]
+* @return {Float32Array} x, y, z, u, v each
+*/
+function tubeVertices(streak, dir, radius, out = new Float32Array(TUBE_VERTICES * 5)) {
+	const points = ring(dir, radius, streak.height);
+	const ex = (streak.bx - streak.ax) / 5;
+	const ez = (streak.bz - streak.az) / 5;
+	let o = 0;
+	const put = (p, x, z, u, v) => {
+		out[o++] = p[0] / 5 + x;
+		out[o++] = p[1] / 5;
+		out[o++] = p[2] / 5 + z;
+		out[o++] = u;
+		out[o++] = v;
+	};
+	for (let k = 1; k <= SIDES; k++) {
+		put(points[k - 1], 0, 0, 0, 1);
+		put(points[k], 0, 0, 1, 1);
+		put(points[k], ex, ez, 1, 0);
+		put(points[k - 1], ex, ez, 0, 0);
+	}
+	return out;
+}
+var _batch$4, _textures$13, TEXTURE$7, R$1, G$1, B$1, SIDES, TUBE_VERTICES, TUBE_INDICES, ArrowVulcan;
+var init_ArrowVulcan = __esmMin((() => {
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_ArrowVulcanSim();
+	_batch$4 = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$13 = /* @__PURE__ */ new Map();
+	TEXTURE$7 = "alpha_center.tga";
+	R$1 = STREAK$1.color[0] / 255;
+	G$1 = STREAK$1.color[1] / 255;
+	B$1 = STREAK$1.color[2] / 255;
+	SIDES = STREAK$1.sides;
+	TUBE_VERTICES = SIDES * 4;
+	TUBE_INDICES = new Uint16Array(SIDES * 6);
+	for (let k = 0; k < SIDES; k++) {
+		const v = k * 4;
+		TUBE_INDICES.set([
+			v,
+			v + 1,
+			v + 2,
+			v,
+			v + 2,
+			v + 3
+		], k * 6);
+	}
+	ArrowVulcan = class {
+		/**
+		* @param {Array} position the caster's cell [x, y, z]
+		* @param {Array} target the target's cell [x, y, z]
+		* @param {number} startTick
+		* @param {function} [random] returns a number in [0, 1)
+		*/
+		constructor(position, target, startTick, random = Math.random) {
+			this.position = position ? [
+				position[0],
+				position[1],
+				position[2]
+			] : [
+				0,
+				0,
+				0
+			];
+			this.startTick = startTick || 0;
+			const { dir, distance } = aim(this.position, target || this.position, 5);
+			this.dir = dir;
+			this.streaks = [];
+			for (let p = 0; p < VULCAN.prims; p++) for (let i = 0; i < VULCAN.perPrim; i++) {
+				const streak = createStreak$2(p, dir, distance, random);
+				streak.inner = tubeVertices(streak, dir, streak.radius);
+				streak.outer = tubeVertices(streak, dir, streak.radius + STREAK$1.glow);
+				this.streaks.push(streak);
+			}
+		}
+		init(gl) {
+			const done = () => {
+				this.ready = true;
+			};
+			sharedTexture(_textures$13, gl, TEXTURE$7, (texture) => {
+				this.texture = texture;
+				done();
+			}, done);
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			if (t > LAST_TICK$1) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch$4.active || !this.texture) return;
+			const pos = this.position;
+			const ox = pos[0] + .5;
+			const oy = -pos[2];
+			const oz = pos[1] + .5;
+			for (const streak of this.streaks) {
+				const alpha = streakAlpha(streak, t);
+				if (alpha <= 0) continue;
+				const x = ox + streak.ax / 5;
+				const z = oz + streak.az / 5;
+				const a = alpha / 255;
+				_batch$4.mesh(this.texture, 1, streak.inner, TUBE_VERTICES, TUBE_INDICES, x, oy, z, R$1, G$1, B$1, a, 0);
+				_batch$4.mesh(this.texture, 0, streak.outer, TUBE_VERTICES, TUBE_INDICES, x, oy, z, R$1, G$1, B$1, a, 0);
+			}
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch$4.free(gl);
+			freeSharedTextures(_textures$13, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_batch$4.begin(gl, modelView, projection, fog);
+			if (!_batch$4.active && typeof gl.createVertexArray === "function") {
+				_batch$4.active = true;
+				_batch$4.modelView.set(modelView);
+				_batch$4.projection.set(projection);
+				_batch$4.fog.use = !!(fog.use && fog.exist);
+				_batch$4.fog.near = fog.near;
+				_batch$4.fog.far = fog.far;
+				_batch$4.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch$4.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
 }));
 // src/Renderer/Effects/LandProtectorSim.js
 /**
@@ -290761,6 +291162,511 @@ var init_MagicTarget = __esmMin((() => {
 	*/
 	MagicTarget.renderBeforeEntities = true;
 }));
+// src/Renderer/Effects/ColdHitSim.js
+/**
+* Alphas the client's alpha update gives a primitive that holds `alpha`
+* until `fadeTick` and then fades to 0 by its end.
+*
+* @return {Array} alpha on ticks 0..life-1
+*/
+function fadeAlphas(alpha, fadeTick, life) {
+	const out = [];
+	let step = 0;
+	for (let age = 0; age < life; age++) {
+		if (age === fadeTick) step = -alpha / (life - age);
+		alpha = Math.max(alpha + step, 0);
+		out.push(alpha);
+	}
+	return out;
+}
+/**
+* The shards, as they leave the feet.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array}
+*/
+function createShards(random = Math.random) {
+	const r = (k) => Math.floor(random() * k);
+	const out = [];
+	for (let i = 0; i < SHARD.count; i++) {
+		const base = i * SHARD.step;
+		const angle = base + SHARD.turn + r(SHARD.spread);
+		const kind = i % SHARD.long.every === 0 ? SHARD.long : SHARD.short;
+		const length = kind.length + r(kind.lengthRange);
+		const speed = kind.speed + Math.floor(r(45) / 10);
+		const start = r(5);
+		out.push({
+			angle,
+			length,
+			width: kind.width,
+			speed,
+			accel: -speed / SHARD.life / 1.5,
+			x: Math.sin(base * rad$4) * start,
+			y: -Math.cos(base * rad$4) * start - SHARD.up
+		});
+	}
+	return out;
+}
+/**
+* Where a shard is after `ticks` updates.
+*
+* @param {object} shard
+* @param {number} ticks
+* @return {Array} [x, y] in pixels from the feet
+*/
+function shardAt(shard, ticks) {
+	let travel = 0;
+	let speed = shard.speed;
+	for (let t = 0; t < ticks; t++) {
+		speed += shard.accel;
+		travel += speed;
+	}
+	return [shard.x + Math.sin(shard.angle * rad$4) * travel, shard.y - Math.cos(shard.angle * rad$4) * travel];
+}
+/**
+* A shard's two triangles around its centre, in pixels: the left one, then
+* the right one, each [side, tail, head] as [x, y, u, v]. The long axis
+* points the way it flies; the tail is drawn white and opaque, the client's
+* own colour for that corner.
+*
+* @param {object} shard
+* @return {Array}
+*/
+function shardTriangles(shard) {
+	const h = shard.length / 2;
+	const w = shard.width / 2;
+	const skew = h - h / 1.2;
+	const s = Math.sin(shard.angle * rad$4);
+	const c = Math.cos(shard.angle * rad$4);
+	const turn = (x, y, u, v) => [
+		x * c - y * s,
+		y * c + x * s,
+		u,
+		v
+	];
+	const tail = turn(0, h, .5, 1);
+	const head = turn(0, -h, .5, 0);
+	return [[
+		turn(-w, -skew, 0, .5),
+		tail,
+		head
+	], [
+		turn(w, skew, 1, .5),
+		tail,
+		head
+	]];
+}
+/**
+* A new puff.
+*
+* @param {number} born the effect tick it starts on
+* @param {function} [random] returns a number in [0, 1)
+* @return {object}
+*/
+function createPuff(born, random = Math.random) {
+	return {
+		born,
+		angle: Math.floor(random() * PUFF.spread) - PUFF.spread / 2
+	};
+}
+/**
+* A puff after `ticks` updates.
+*
+* @param {object} puff
+* @param {number} ticks
+* @return {object} { x, y, size } in pixels from the feet; size is half its side
+*/
+function puffAt(puff, ticks) {
+	const early = Math.min(ticks, PUFF.growChangeTick);
+	const size = PUFF.size + early * PUFF.grow + (ticks - early) * PUFF.growAfter;
+	const travel = ticks * PUFF.speed;
+	return {
+		x: Math.sin(puff.angle * rad$4) * travel,
+		y: -Math.cos(puff.angle * rad$4) * travel,
+		size
+	};
+}
+var SHARD, PUFF, LAST_TICK, SHARD_ALPHAS, PUFF_ALPHAS, rad$4;
+var init_ColdHitSim = __esmMin((() => {
+	SHARD = {
+		count: 9,
+		life: 15,
+		step: 40,
+		spread: 60,
+		turn: -15,
+		up: 20,
+		alpha: 200,
+		fadeTick: 5,
+		long: {
+			every: 3,
+			length: 100,
+			lengthRange: 10,
+			width: 10,
+			speed: 12.8
+		},
+		short: {
+			length: 45,
+			lengthRange: 5,
+			width: 4,
+			speed: 4.8
+		}
+	};
+	PUFF = {
+		ticks: [0, 7],
+		life: 25,
+		speed: .85,
+		spread: 40,
+		size: 1,
+		grow: 6,
+		growChangeTick: 10,
+		growAfter: .5,
+		alpha: 254,
+		fadeTick: 17
+	};
+	LAST_TICK = Math.max(SHARD.life, PUFF.ticks[PUFF.ticks.length - 1] + PUFF.life) - 1;
+	SHARD_ALPHAS = fadeAlphas(SHARD.alpha, SHARD.fadeTick, SHARD.life);
+	PUFF_ALPHAS = fadeAlphas(PUFF.alpha, PUFF.fadeTick, PUFF.life);
+	rad$4 = Math.PI / 180;
+}));
+// src/Renderer/Effects/ColdHit.js
+var _batch$3, _textures$12, SHARD_TEXTURE, PUFF_TEXTURE, PIXEL$1, _right$3, _up$1, CORNERS, ColdHit;
+var init_ColdHit = __esmMin((() => {
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_ColdHitSim();
+	_batch$3 = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$12 = /* @__PURE__ */ new Map();
+	SHARD_TEXTURE = "ice.tga";
+	PUFF_TEXTURE = "smoke.tga";
+	PIXEL$1 = 1 / 35;
+	_right$3 = [
+		1,
+		0,
+		0
+	];
+	_up$1 = [
+		0,
+		1,
+		0
+	];
+	CORNERS = [
+		[-1, -1],
+		[1, -1],
+		[1, 1],
+		[-1, 1]
+	];
+	ColdHit = class ColdHit {
+		/**
+		* @param {Array} position the target's position [x, y, z], followed
+		* @param {number} startTick
+		* @param {function} [random] returns a number in [0, 1)
+		*/
+		constructor(position, startTick, random = Math.random) {
+			this.position = position || [
+				0,
+				0,
+				0
+			];
+			this.startTick = startTick || 0;
+			this.shards = createShards(random);
+			this.puffs = PUFF.ticks.map((born) => createPuff(born, random));
+			this.points = [
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				]
+			];
+			this.loaded = 0;
+		}
+		init(gl) {
+			const done = () => {
+				if (++this.loaded === 2) this.ready = true;
+			};
+			sharedTexture(_textures$12, gl, SHARD_TEXTURE, (texture) => {
+				this.shardTexture = texture;
+				done();
+			}, done);
+			sharedTexture(_textures$12, gl, PUFF_TEXTURE, (texture) => {
+				this.puffTexture = texture;
+				done();
+			}, done);
+		}
+		free() {
+			this.ready = false;
+		}
+		/** A point `px`, `py` screen pixels (y down) from (ox, oy, oz), into `out`. */
+		static place(out, ox, oy, oz, px, py) {
+			const sx = px * PIXEL$1;
+			const sy = -py * PIXEL$1;
+			out[0] = ox + _right$3[0] * sx + _up$1[0] * sy;
+			out[1] = oy + _right$3[1] * sx + _up$1[1] * sy;
+			out[2] = oz + _right$3[2] * sx + _up$1[2] * sy;
+			return out;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			if (t > LAST_TICK + 1) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch$3.active) return;
+			const pos = this.position;
+			const ox = pos[0] + .5;
+			const oy = -pos[2];
+			const oz = pos[1] + .5;
+			const point = this.points[0];
+			if (this.puffTexture) for (const puff of this.puffs) {
+				const age = t - 1 - puff.born;
+				if (age < 0 || age >= PUFF.life) continue;
+				const at = puffAt(puff, age + 1);
+				for (let k = 0; k < 4; k++) ColdHit.place(this.points[k], ox, oy, oz, at.x + CORNERS[k][0] * at.size, at.y + CORNERS[k][1] * at.size);
+				_batch$3.quad(this.puffTexture, 0, this.points, QUAD_FAN, 1, 1, 1, PUFF_ALPHAS[age] / 255, 0);
+			}
+			if (this.shardTexture && t - 1 < SHARD.life) {
+				const alpha = SHARD_ALPHAS[t - 1] / 255;
+				for (const shard of this.shards) {
+					const [cx, cy] = shardAt(shard, t);
+					for (const triangle of shardTriangles(shard)) {
+						const base = _batch$3.reserve(this.shardTexture, 0, 3, 3);
+						for (let k = 0; k < 3; k++) {
+							const [px, py, u, v] = triangle[k];
+							ColdHit.place(point, ox, oy, oz, cx + px, cy + py);
+							_batch$3.vertex(point[0], point[1], point[2], u, v, 1, 1, 1, k === 1 ? 1 : alpha, 0);
+							_batch$3.indices[_batch$3.indexCount++] = base + k;
+						}
+					}
+				}
+			}
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch$3.free(gl);
+			freeSharedTextures(_textures$12, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_right$3[0] = modelView[0];
+			_right$3[1] = modelView[4];
+			_right$3[2] = modelView[8];
+			_up$1[0] = modelView[1];
+			_up$1[1] = modelView[5];
+			_up$1[2] = modelView[9];
+			_batch$3.begin(gl, modelView, projection, fog);
+			if (!_batch$3.active && typeof gl.createVertexArray === "function") {
+				_batch$3.active = true;
+				_batch$3.modelView.set(modelView);
+				_batch$3.projection.set(projection);
+				_batch$3.fog.use = !!(fog.use && fog.exist);
+				_batch$3.fog.near = fog.near;
+				_batch$3.fog.far = fog.far;
+				_batch$3.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch$3.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
+}));
+// src/Renderer/Effects/SoulStrikeSim.js
+/**
+* The souls of a damage packet.
+*
+* @param {number} hits the packet's hit count
+* @return {Array} { spawn (tick), bow (degrees) }
+*/
+function planSouls(hits) {
+	if (!(hits >= 1 && hits <= SOUL.maxHits)) return [];
+	const base = hits === 1 ? 0 : -90;
+	const out = [];
+	for (let k = 1; k <= hits; k++) out.push({
+		spawn: SOUL.every * k - SOUL.lead,
+		bow: k * STEPS[hits] + base
+	});
+	return out;
+}
+/**
+* Where a soul is after `n` updates, in units from the caster's feet.
+*
+* @param {object} soul from planSouls
+* @param {Array} dir unit direction to the target on the map, [x, y]
+* @param {number} distance to the target, units
+* @param {number} n updates (1..life)
+* @return {object} { x, y, up }
+*/
+function soulAt(soul, dir, distance, n) {
+	const speed = distance / SOUL.life;
+	const backStep = 2 * SOUL.back / SOUL.life;
+	const bowStep = -2 * SOUL.bow / SOUL.life;
+	const along = n * speed - (SOUL.back * n - backStep * n * (n + 1) / 2);
+	const across = SOUL.bow * n + bowStep * n * (n - 1) / 2;
+	const a = soul.bow * Math.PI / 180;
+	const side = across * Math.sin(a);
+	return {
+		x: dir[0] * along + dir[1] * side,
+		y: dir[1] * along - dir[0] * side,
+		up: SOUL.up - across * Math.cos(a)
+	};
+}
+/**
+* Alpha (0..254) and scale of trail step `i` (0 the soul itself).
+*
+* @param {number} i
+* @return {object} { alpha, scale }
+*/
+function trailLook(i) {
+	return {
+		alpha: SOUL.alpha - SOUL.alpha / SOUL.trail * i,
+		scale: SOUL.scale - SOUL.scale / SOUL.trail * i * .5
+	};
+}
+var SOUL, STEPS;
+var init_SoulStrikeSim = __esmMin((() => {
+	SOUL = {
+		every: 11,
+		lead: 5,
+		maxHits: 7,
+		life: 40,
+		up: 10,
+		back: 3.5,
+		bow: -2,
+		scale: 2.75,
+		alpha: 254,
+		trail: 12
+	};
+	STEPS = [
+		0,
+		1,
+		180,
+		90,
+		60,
+		45,
+		30,
+		25
+	];
+}));
+// src/DB/Effects/SoulStrikeEffect.js
+/**
+* The 3D effect drawing step `i` of a soul's trail (0 the soul itself). It
+* starts on the soul's tick and shows where the soul was `i` ticks before.
+*
+* @param {object} soul from planSouls
+* @param {Array} dir unit direction to the target on the map, [x, y]
+* @param {number} distance to the target, units
+* @param {number} i
+* @param {number} [rise] the target's height above the caster's, cells: the
+*   soul climbs to it as it goes
+* @return {object}
+*/
+function soulTrailEffect(soul, dir, distance, i, rise = 0) {
+	const look = trailLook(i);
+	return {
+		type: "3D",
+		spriteName: "particle1",
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: SOUL.life * PRIM_TICK_MS,
+		zIndex: 1,
+		wav: i === 0 ? "effect/ef_soulstrike" : void 0,
+		track(age) {
+			const k = Math.floor(age);
+			const n = k + 1 - i;
+			if (k < 0 || k >= SOUL.life || n < 1) return null;
+			const p = soulAt(soul, dir, distance, n);
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5 + rise * soulProgress(p, dir, distance, n),
+				size: look.scale * 100,
+				alpha: look.alpha / 255
+			};
+		}
+	};
+}
+/**
+* How far along the way to the target a soul is, 0 to 1.
+*
+* @param {object} p from soulAt
+* @param {Array} dir
+* @param {number} distance units
+* @param {number} n the soul's update count: with no distance, the climb goes by its life
+* @return {number}
+*/
+function soulProgress(p, dir, distance, n) {
+	if (!distance) return Math.min(1, n / SOUL.life);
+	return Math.min(1, Math.max(0, (p.x * dir[0] + p.y * dir[1]) / distance));
+}
+/**
+* Direction and distance from the caster to the target, in units, and how
+* much higher the target stands, in cells.
+*
+* @param {Array} from caster [x, y, z]
+* @param {Array} to target [x, y, z]
+* @return {object} { dir: [x, y], distance, rise }
+*/
+function soulAim(from, to) {
+	const dx = (to[0] - from[0]) * 5;
+	const dy = (to[1] - from[1]) * 5;
+	const distance = Math.hypot(dx, dy);
+	const rise = (to[2] || 0) - (from[2] || 0);
+	return distance ? {
+		dir: [dx / distance, dy / distance],
+		distance,
+		rise
+	} : {
+		dir: [0, 1],
+		distance: 0,
+		rise
+	};
+}
+var soulStrikeEffect;
+var init_SoulStrikeEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_SoulStrikeSim();
+	soulStrikeEffect = [{
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const from = Params.Inst.position;
+			const { dir, distance, rise } = soulAim(from, Params.Inst.otherPosition || from);
+			planSouls(Params.Init.hitCount || 1).forEach((soul, s) => {
+				for (let i = 0; i < SOUL.trail; i++) this.spamEffect({
+					effect: soulTrailEffect(soul, dir, distance, i, rise),
+					Inst: {
+						effectID: 15,
+						duplicateID: s * SOUL.trail + i,
+						startTick: Params.Inst.startTick + soul.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}];
+}));
 // src/Renderer/Effects/SpiderWeb.vs?raw
 var SpiderWeb_default$1;
 var init_SpiderWeb$2 = __esmMin((() => {
@@ -291034,6 +291940,287 @@ var init_SpiritSphere = __esmMin((() => {
 		}
 	};
 	SpiritSphere.renderBeforeEntities = false;
+}));
+// src/Renderer/Effects/SmaSwirlSim.js
+/**
+* The swirls a 1204 launches.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array} { tick (from the 1204's start), along (units toward the target), up (units) }
+*/
+function planSwirls(random = Math.random) {
+	const up = SMA.up - Math.floor(random() * SMA.upRange);
+	const out = [];
+	for (let u = 1; u <= SMA.life; u++) {
+		const counter = u - SMA.wait;
+		if (counter >= 0 && counter % SMA.every === 0) out.push({
+			tick: u - 1,
+			along: SMA.speed * counter,
+			up
+		});
+	}
+	return out;
+}
+/**
+* Alpha (0..180) of a band after `n` updates.
+*
+* @param {number} n
+* @return {number}
+*/
+function bandAlpha$2(n) {
+	let alpha = 0;
+	for (let c = 1; c <= n; c++) if (c >= SWIRL.fallFrom) alpha = Math.max(alpha - SWIRL.alphaStep, 0);
+	else if (c < SWIRL.riseUntil) alpha = Math.min(alpha + SWIRL.alphaStep, SWIRL.alphaMax);
+	return alpha;
+}
+/**
+* The points of band k after `n` updates, around its centre: for each, the
+* inner point on the circle and the outer one leaning out and up.
+*
+* @param {number} k band 0..2
+* @param {number} n updates
+* @return {Array} { inner: [x, y, z], outer: [x, y, z] } in units, y down
+*/
+function bandPoints(k, n) {
+	const radius = SWIRL.radius + SWIRL.radiusStep * k;
+	const height = SWIRL.height - SWIRL.heightStep * k;
+	const lean = (SWIRL.lean - SWIRL.leanStep * k) * rad$3;
+	const start = SWIRL.start * k + (SWIRL.turn + k) * n;
+	const open = Math.sin(Math.min(n, SWIRL.grow) * rad$3);
+	const out = [];
+	for (let i = 0; i < SWIRL.points; i++) {
+		const a = (start + SWIRL.step * i) * rad$3;
+		const j = Math.min(i, SWIRL.heights - 1);
+		const h = Math.max(height * Math.sin(9 * j * rad$3) * open, 0);
+		const c = Math.cos(a);
+		const s = Math.sin(a);
+		const reach = radius + h * Math.cos(lean);
+		out.push({
+			inner: [
+				radius * c,
+				0,
+				radius * s
+			],
+			outer: [
+				reach * c,
+				-h * Math.sin(lean),
+				reach * s
+			]
+		});
+	}
+	return out;
+}
+var SMA, SWIRL, rad$3;
+var init_SmaSwirlSim = __esmMin((() => {
+	SMA = {
+		life: 100,
+		wait: 3,
+		speed: .8,
+		every: 8,
+		up: 10,
+		upRange: 5
+	};
+	SWIRL = {
+		life: 100,
+		bands: 3,
+		span: 315,
+		step: 15,
+		points: 22,
+		heights: 21,
+		radius: 2.4,
+		radiusStep: .2,
+		height: 13,
+		heightStep: 2,
+		lean: 55,
+		leanStep: 5,
+		turn: 3,
+		start: 90,
+		alphaStep: 5,
+		alphaMax: 180,
+		riseUntil: 40,
+		fallFrom: 60,
+		grow: 90,
+		color: [
+			70,
+			70,
+			70
+		]
+	};
+	rad$3 = Math.PI / 180;
+}));
+// src/Renderer/Effects/SmaSwirl.js
+/**
+* A band's quads, in cells and GL axes around its centre: for each, the
+* previous inner point, this inner point, this outer point and the previous
+* outer one. u runs along the arc in twentieths, v from inner (1) to outer (0).
+*
+* @param {Array} points from bandPoints
+* @param {Float32Array} [out]
+* @return {Float32Array} x, y, z, u, v each
+*/
+function bandVertices(points, out = new Float32Array(QUADS$1 * 4 * 5)) {
+	let o = 0;
+	const put = (p, u, v) => {
+		out[o++] = p[0] / 5;
+		out[o++] = p[1] / 5;
+		out[o++] = p[2] / 5;
+		out[o++] = u;
+		out[o++] = v;
+	};
+	for (let i = 1; i < SWIRL.points; i++) {
+		const j = Math.min(i, SWIRL.heights - 1);
+		const u0 = (j - 1) / (SWIRL.heights - 1);
+		const u1 = j / (SWIRL.heights - 1);
+		put(points[i - 1].inner, u0, 1);
+		put(points[i].inner, u1, 1);
+		put(points[i].outer, u1, 0);
+		put(points[i - 1].outer, u0, 0);
+	}
+	return out;
+}
+var _batch$2, _textures$11, TEXTURE$6, R, G, B, QUADS$1, INDICES, SmaSwirl;
+var init_SmaSwirl = __esmMin((() => {
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_SmaSwirlSim();
+	_batch$2 = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$11 = /* @__PURE__ */ new Map();
+	TEXTURE$6 = "ring_blue.tga";
+	R = SWIRL.color[0] / 255;
+	G = SWIRL.color[1] / 255;
+	B = SWIRL.color[2] / 255;
+	QUADS$1 = SWIRL.points - 1;
+	INDICES = new Uint16Array(QUADS$1 * 6);
+	for (let q = 0; q < QUADS$1; q++) {
+		const v = q * 4;
+		INDICES.set([
+			v,
+			v + 1,
+			v + 2,
+			v,
+			v + 2,
+			v + 3
+		], q * 6);
+	}
+	SmaSwirl = class {
+		/**
+		* @param {Array} position the swirl's point, cells [x, y, z]
+		* @param {number} up units above that point
+		* @param {number} startTick
+		*/
+		constructor(position, up, startTick) {
+			this.position = [
+				position[0],
+				position[1],
+				position[2]
+			];
+			this.up = up || 0;
+			this.startTick = startTick || 0;
+			this.vertices = new Float32Array(QUADS$1 * 4 * 5);
+		}
+		init(gl) {
+			sharedTexture(_textures$11, gl, TEXTURE$6, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, () => {
+				this.ready = true;
+			});
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const n = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			if (n > SWIRL.life) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch$2.active || !this.texture) return;
+			const alpha = bandAlpha$2(n) / 255;
+			if (alpha <= 0) return;
+			const pos = this.position;
+			const x = pos[0] + .5;
+			const y = -pos[2] - this.up / 5;
+			const z = pos[1] + .5;
+			for (let k = 0; k < SWIRL.bands; k++) {
+				bandVertices(bandPoints(k, n), this.vertices);
+				_batch$2.mesh(this.texture, 1, this.vertices, QUADS$1 * 4, INDICES, x, y, z, R, G, B, alpha, 0);
+			}
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch$2.free(gl);
+			freeSharedTextures(_textures$11, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_batch$2.begin(gl, modelView, projection, fog);
+			if (!_batch$2.active && typeof gl.createVertexArray === "function") {
+				_batch$2.active = true;
+				_batch$2.modelView.set(modelView);
+				_batch$2.projection.set(projection);
+				_batch$2.fog.use = !!(fog.use && fog.exist);
+				_batch$2.fog.near = fog.near;
+				_batch$2.fog.far = fog.far;
+				_batch$2.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch$2.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
+}));
+// src/DB/Effects/SmaBlackEffect.js
+/**
+* Where each swirl stands, in cells, on its way from `from` toward `to`.
+*
+* @param {Array} from caster [x, y, z]
+* @param {Array} to target [x, y, z]
+* @param {Array} swirls from planSwirls
+* @return {Array} [x, y, z] each
+*/
+function swirlPositions(from, to, swirls) {
+	const dx = to[0] - from[0];
+	const dy = to[1] - from[1];
+	const length = Math.hypot(dx, dy);
+	const ux = length ? dx / length : 1;
+	const uy = length ? dy / length : 0;
+	return swirls.map((swirl) => {
+		const along = swirl.along / 5;
+		return [
+			from[0] + ux * along,
+			from[1] + uy * along,
+			from[2]
+		];
+	});
+}
+var smaBlackEffect;
+var init_SmaBlackEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_SmaSwirl();
+	init_SmaSwirlSim();
+	smaBlackEffect = [{
+		type: "FUNC",
+		attachedEntity: false,
+		duration: Math.ceil((SMA.life + SWIRL.life + 1) * PRIM_TICK_MS),
+		func: function(Params) {
+			const from = Params.Inst.position;
+			const to = Params.Inst.otherPosition || from;
+			const swirls = planSwirls();
+			swirlPositions(from, to, swirls).forEach((at, i) => {
+				this.add(new SmaSwirl(at, swirls[i].up, Params.Inst.startTick + swirls[i].tick * PRIM_TICK_MS), Params);
+			});
+		}
+	}];
 }));
 // src/DB/Effects/SkySunEffect.js
 /**
@@ -298693,18 +299880,23 @@ var init_EffectTable = __esmMin((() => {
 	init_Events();
 	init_DBManager();
 	init_SessionStorage();
+	init_RemoveTrapEffect();
 	init_CloudWeatherEffect();
 	init_FlatColorTile();
 	init_LockOnTarget();
+	init_ArrowVulcan();
 	init_LPEffect();
 	init_MagicTarget();
 	init_PoisonEffect();
+	init_ColdHit();
 	init_PokJukWeatherEffect();
 	init_FieldBand();
 	init_QuadHorn();
+	init_SoulStrikeEffect();
 	init_Blind();
 	init_SpiderWeb();
 	init_SpiritSphere();
+	init_SmaBlackEffect();
 	init_SkySunEffect();
 	init_StormSlashEffect();
 	init_SandAttackEffect();
@@ -299346,43 +300538,7 @@ var init_EffectTable = __esmMin((() => {
 				zIndex: 1
 			}
 		],
-		15: [{
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 200,
-			delayLate: 250,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/pok3.tga",
-			toSrc: true,
-			green: 1,
-			poszEnd: 1,
-			poszSmooth: true,
-			poszStartRand: 5,
-			poszStartRandMiddle: 6,
-			red: 1,
-			size: 50,
-			timeBetweenDupli: 150,
-			type: "3D",
-			wav: "effect/ef_soulstrike",
-			zIndex: 1
-		}, {
-			type: "3D",
-			duration: 250,
-			duplicate: 5,
-			timeBetweenDupli: 20,
-			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
-			playSprite: true,
-			toSrc: true,
-			rotateToTarget: true,
-			sizeStart: 100,
-			sizeEnd: 500,
-			zOffset: 3,
-			arc: 4,
-			retreat: 3,
-			soulStrikePattern: true
-		}],
+		15: soulStrikeEffect,
 		16: [
 			{
 				type: "CYLINDER",
@@ -300194,6 +301350,13 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		51: [{
+			type: "FUNC",
+			attachedEntity: true,
+			duration: Math.ceil(32 * PRIM_TICK_MS),
+			func: function(Params) {
+				this.add(new ColdHit(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		}, {
 			wav: "_hit_fist%d",
 			rand: [3, 4],
 			attachedEntity: true
@@ -301609,10 +302772,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/hunter_flasher",
 			attachedEntity: false
 		}],
-		100: [{
-			wav: "effect/hunter_removetrap",
-			attachedEntity: false
-		}],
+		100: removeTrapEffect,
 		101: [
 			{
 				type: "STR",
@@ -306140,6 +307300,13 @@ var init_EffectTable = __esmMin((() => {
 			}
 		}],
 		393: [{
+			type: "FUNC",
+			attachedEntity: false,
+			duration: Math.ceil(208 * PRIM_TICK_MS),
+			func: function(Params) {
+				this.add(new ArrowVulcan(Params.Inst.position, Params.Inst.otherPosition, Params.Inst.startTick), Params);
+			}
+		}, {
 			wav: "effect/¾Ö·Î¿ì ¹ßÄ­",
 			delayWav: 500,
 			attachedEntity: true
@@ -313077,6 +314244,7 @@ var init_EffectTable = __esmMin((() => {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Math.round(Params.Init.duration / PRIM_TICK_MS), 1195), Params);
 			}
 		}],
+		1204: smaBlackEffect,
 		1225: [{
 			type: "FUNC",
 			attachedEntity: true,
