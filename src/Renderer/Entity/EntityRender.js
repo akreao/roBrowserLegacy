@@ -32,7 +32,18 @@ import DB from 'DB/DBManager.js';
 import GarmentLayer from 'DB/Items/GarmentLayer.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
-import { applyMarks, glowLayers, marksOf } from 'Renderer/Effects/BodyMotionSim.js';
+import {
+	applyMarks,
+	glowLayers,
+	marksOf,
+	linkAlpha,
+	hasReflect,
+	reflectRipples,
+	LINK_COLOR,
+	LINK_SCALES,
+	REFLECT_BODY_ALPHA,
+	bodyLiftCells
+} from 'Renderer/Effects/BodyMotionSim.js';
 import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 
 /**
@@ -179,7 +190,7 @@ const renderGUI = (function renderGUIClosure() {
 		if (entity.effectColor[3] && entity._job !== 139) {
 			// Same billboard as above, lifted the way the sprite itself is.
 			_vector[0] = entity.position[0] + 0.5;
-			_vector[1] = -(entity.position[2] + SPRITE_LIFT);
+			_vector[1] = -(entity.position[2] + SPRITE_LIFT + bodyLiftCells(entity));
 			_vector[2] = entity.position[1] + 0.5;
 			mat4.translate(_pickMatrix, modelView, _vector);
 			_pickMatrix[0] = 1.0;
@@ -422,6 +433,8 @@ const renderEntity = (function renderEntityClosure() {
 		}
 
 		SpriteRenderer.position.set(self.position);
+		// Lifted off the ground (Gravity Control, BodyMotion.js); the shadow above stays down.
+		SpriteRenderer.position[2] += bodyLiftCells(this);
 		// Render attachments that should appear behind the entity first
 		this.attachments.renderBefore(Date.now());
 		SpriteRenderer.zIndex = 1;
@@ -680,7 +693,8 @@ function renderWaterDepth() {
 		y2 = rect.y2;
 	if (frame) {
 		SpriteRenderer.position.set(this.position);
-		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+		// Same lift as the colour pass (Gravity Control), or water would paint over the raised body.
+		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2 + bodyLiftCells(this);
 		SpriteRenderer.zIndex = 150;
 		SpriteRenderer.runWithDepth(true, true, false, function () {
 			for (let i = 0, count = frame.layers.length; i < count; ++i) {
@@ -827,6 +841,99 @@ function renderReadyGlow(entity, layers, spr, pal, files, _position, glowColor, 
 	color[0] = r;
 	color[1] = g;
 	color[2] = b;
+	color[3] = a;
+}
+
+/**
+ * Link glow (Soul Link 424, Comfort 488): as the official client draws a
+ * player whose actor has flag 0x800, two more copies of each layer, added, in
+ * (55, 55, 255), 1% and 2% larger about the actor's feet, before the body, so
+ * mostly their rim shows.
+ *
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {object} spr
+ * @param {object} pal
+ * @param {object} files
+ * @param {number[]} _position
+ * @param {number} alpha 0-255
+ */
+function renderLinkGlow(entity, layers, spr, pal, files, _position, alpha) {
+	const color = entity.effectColor;
+	const r = color[0];
+	const g = color[1];
+	const b = color[2];
+	const a = color[3];
+	const x = _position[0];
+	const y = _position[1];
+	color[0] = LINK_COLOR[0] / 255;
+	color[1] = LINK_COLOR[1] / 255;
+	color[2] = LINK_COLOR[2] / 255;
+	color[3] = alpha / 255;
+	for (let k = 0; k < LINK_SCALES.length; k++) {
+		const s = LINK_SCALES[k];
+		_position[0] = x * s;
+		_position[1] = y * s;
+		for (let i = 0; i < layers.length; ++i) {
+			const layer = layers[i];
+			const sx = layer.scale[0];
+			const sy = layer.scale[1];
+			const px = layer.pos[0];
+			const py = layer.pos[1];
+			layer.scale[0] = sx * s;
+			layer.scale[1] = sy * s;
+			layer.pos[0] = px * s;
+			layer.pos[1] = py * s;
+			entity.renderLayer(layer, spr, pal, files.size, _position, 'glow', true);
+			layer.scale[0] = sx;
+			layer.scale[1] = sy;
+			layer.pos[0] = px;
+			layer.pos[1] = py;
+		}
+	}
+	_position[0] = x;
+	_position[1] = y;
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
+	color[3] = a;
+}
+
+/**
+ * Kaite's ripples (419, actor flag 0x200): four copies of each layer in the
+ * sprite's own colour, drawn the way the body is (not added), each grown by
+ * 0-20 pixels on every side and fading as it grows (reflectRipples). The
+ * client counts its draws; this counts 60 a second.
+ *
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {object} spr
+ * @param {object} pal
+ * @param {object} files
+ * @param {number[]} _position
+ */
+function renderReflectRipples(entity, layers, spr, pal, files, _position) {
+	const color = entity.effectColor;
+	const a = color[3];
+	const ripples = reflectRipples(Date.now() / (1000 / 60));
+	for (let k = 0; k < ripples.length; k++) {
+		const pad = ripples[k].pad;
+		color[3] = a * (ripples[k].alpha / 255);
+		for (let i = 0; i < layers.length; ++i) {
+			const layer = layers[i];
+			const frame = layer.index >= 0 ? spr.frames[layer.index] : null;
+			if (!frame || !frame.width || !frame.height) {
+				continue;
+			}
+			const oldX = layer.scale[0];
+			const oldY = layer.scale[1];
+			layer.scale[0] = oldX * (1 + (2 * pad) / Math.abs(frame.width * oldX * files.size || 1));
+			layer.scale[1] = oldY * (1 + (2 * pad) / Math.abs(frame.height * oldY * files.size || 1));
+			entity.renderLayer(layer, spr, pal, files.size, _position, 'ripple', false);
+			layer.scale[0] = oldX;
+			layer.scale[1] = oldY;
+		}
+	}
 	color[3] = a;
 }
 
@@ -1156,14 +1263,34 @@ const renderElement = (function renderElementClosure() {
 			renderCasterMarks(entity, layers, spr, pal, files, _position);
 		}
 
+		// Link glow and Kaite's ripples (BodyMotion.js), drawn under the body
+		const marks =
+			type !== 'shadow' && type !== 'cartshadow' && entity._bodyMotions && entity._bodyMotions.size
+				? marksOf(entity)
+				: null;
+		const bodyAlpha = entity.effectColor[3];
+		if (marks && marks.length) {
+			const link = linkAlpha(marks);
+			if (link > 0) {
+				renderLinkGlow(entity, layers, spr, pal, files, _position, link);
+			}
+			if (hasReflect(marks)) {
+				if (!isBlendModeOne) {
+					renderReflectRipples(entity, layers, spr, pal, files, _position);
+				}
+				entity.effectColor[3] = bodyAlpha * (REFLECT_BODY_ALPHA / 255);
+			}
+		}
+
 		// Render all frames
 		for (let i = 0, count = layers.length; i < count; ++i) {
 			entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 		}
+		entity.effectColor[3] = bodyAlpha;
 
 		// Body glows (BodyMotion.js): two more added copies per glow, blue then red
-		if (type !== 'shadow' && type !== 'cartshadow' && entity._bodyMotions && entity._bodyMotions.size) {
-			const glows = glowLayers(marksOf(entity));
+		if (marks && marks.length) {
+			const glows = glowLayers(marks);
 			for (let g = 0; g < glows.length; g++) {
 				renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
 			}

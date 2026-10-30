@@ -61,7 +61,7 @@ describe('hitEffectOnce', () => {
 
 	it('is told which hit it is by the damage packet handler', () => {
 		expect(read('Engine/MapEngine/Entity.js')).toMatch(
-			/EffectManager\.spamSkillHit\(pkt\.SKID, pkt\.targetID, startTick, pkt\.AID, i, !targetHitEffects\);/
+			/EffectManager\.spamSkillHit\(\s*pkt\.SKID,\s*pkt\.targetID,\s*startTick,\s*pkt\.AID,\s*i,\s*!targetHitEffects,\s*pkt\.count\s*\);/
 		);
 	});
 });
