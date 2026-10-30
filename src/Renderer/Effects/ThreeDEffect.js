@@ -367,7 +367,8 @@ class ThreeDEffect {
 		// client ticks (trackAge). Returns null to draw nothing this frame, or any of { x, y, z } (cells
 		// from the effect's position, z up), size, alpha (0..1), angle (degrees), each replacing the
 		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
-		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down).
+		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down). frame picks a
+		// sprite's animation frame (wrapping), for a sprite whose animation starts on its own tick.
 		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
@@ -719,6 +720,7 @@ class ThreeDEffect {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
+		let trackFrame;
 		if (this.track) {
 			const sample = this.track(trackAge(this.startTick, tick));
 			if (!sample) {
@@ -757,6 +759,7 @@ class ThreeDEffect {
 			if (sample.angle !== undefined) {
 				SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
 			}
+			trackFrame = sample.frame;
 		}
 
 		if (this.actRessource && this.spriteRessource) {
@@ -777,7 +780,9 @@ class ThreeDEffect {
 				];
 			let animations;
 			const delay = this.sprDelay || actions.delay;
-			if (this.playSprite) {
+			if (trackFrame !== undefined) {
+				animations = actions.animations[trackFrame % actions.animations.length];
+			} else if (this.playSprite) {
 				animations =
 					actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
 			} else {

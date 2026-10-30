@@ -435,5 +435,7 @@ export default {
 	[StatusConst.STARSTANCE]: { loop: [1216] },
 	[StatusConst.UNIVERSESTANCE]: { loop: [1217] },
 	[StatusConst.GRAVITYCONTROL]: { loop: [1201] },
+	// The client removes and relaunches 601 when the status comes on, and removes it when it ends
+	[StatusConst.WZ_SIGHTBLASTER]: { restart: [601], stop: [601] },
 	[StatusConst.SOULUNITY]: { loop: [1222] }
 };
