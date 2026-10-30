@@ -266688,12 +266688,12 @@ var init_ItemPreview = __esmMin((() => {
 // src/UI/Components/ItemInfo/ItemInfo.html?raw
 var ItemInfo_default$2;
 var init_ItemInfo$2 = __esmMin((() => {
-	ItemInfo_default$2 = "<div class=\"ItemInfo\">\r\n	<div class=\"container\" data-background=\"basic_interface/collection_bg.bmp\">\r\n		<div class=\"collection\"></div>\r\n		<div class=\"preview-action\">\r\n			<button\r\n				class=\"btn_mounting\"\r\n				data-background=\"equip_preview\\btn_mounting_normal.bmp\"\r\n				data-down=\"equip_preview\\btn_mounting_press.bmp\"\r\n				data-hover=\"equip_preview\\btn_mounting_over.bmp\"\r\n				type=\"button\"\r\n				data-text=\"2922\"\r\n			></button>\r\n		</div>\r\n		<div class=\"event_view\">\r\n			<button\r\n				class=\"view\"\r\n				data-background=\"btn_view.bmp\"\r\n				data-down=\"btn_view_a.bmp\"\r\n				data-hover=\"btn_view_b.bmp\"\r\n			></button>\r\n			<span class=\"overlay_open\" data-text=\"1294\">Read</span>\r\n			<span class=\"overlay_read\" data-text=\"1295\">Auto Read</span>\r\n		</div>\r\n		<div class=\"title\"></div>\r\n		<button\r\n			class=\"close\"\r\n			data-background=\"basic_interface/sys_close_off.bmp\"\r\n			data-hover=\"basic_interface/sys_close_on.bmp\"\r\n		></button>\r\n		<div class=\"description\">\r\n			<div class=\"description-inner\"></div>\r\n		</div>\r\n		<button class=\"extend\" data-background=\"btn_resize.bmp\"></button>\r\n	</div>\r\n	<div class=\"option-container\"></div>\r\n	<div class=\"cardlist\">\r\n		<div class=\"border\"></div>\r\n	</div>\r\n</div>\r\n\r\n<div id=\"moveinfo-tooltip\"></div>\r\n";
+	ItemInfo_default$2 = "<div class=\"ItemInfo\">\r\n	<div class=\"container\" data-background=\"basic_interface/collection_bg.bmp\">\r\n		<div class=\"collection\"></div>\r\n		<div class=\"preview-action\">\r\n			<button\r\n				class=\"btn_mounting\"\r\n				data-background=\"equip_preview\\btn_mounting_normal.bmp\"\r\n				data-down=\"equip_preview\\btn_mounting_press.bmp\"\r\n				data-hover=\"equip_preview\\btn_mounting_over.bmp\"\r\n				type=\"button\"\r\n				data-text=\"2922\"\r\n			></button>\r\n		</div>\r\n		<div class=\"event_view\">\r\n			<button\r\n				class=\"view\"\r\n				data-background=\"btn_view.bmp\"\r\n				data-down=\"btn_view_a.bmp\"\r\n				data-hover=\"btn_view_b.bmp\"\r\n			></button>\r\n			<span class=\"overlay_open\" data-text=\"1294\">Read</span>\r\n			<span class=\"overlay_read\" data-text=\"1295\">Auto Read</span>\r\n		</div>\r\n		<div class=\"title\"></div>\r\n		<button\r\n			class=\"close\"\r\n			data-background=\"basic_interface/sys_close_off.bmp\"\r\n			data-hover=\"basic_interface/sys_close_on.bmp\"\r\n		></button>\r\n		<div class=\"description\">\r\n			<div class=\"description-inner\"></div>\r\n		</div>\r\n		<button class=\"extend\" data-background=\"btn_resize.bmp\"></button>\r\n	</div>\r\n	<div class=\"option-container\"></div>\r\n	<div class=\"cardlist\">\r\n		<div class=\"border\"></div>\r\n	</div>\r\n</div>\r\n\r\n<div class=\"moveinfo-box\"></div>\r\n";
 }));
 // src/UI/Components/ItemInfo/ItemInfo.css?raw
 var ItemInfo_default$1;
 var init_ItemInfo$1 = __esmMin((() => {
-	ItemInfo_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.ItemInfo {\r\n	position: relative;\r\n	width: 280px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .container {\r\n	height: 140px;\r\n	position: relative;\r\n	box-shadow:\r\n		white 0px 0px 0px 3px inset,\r\n		rgb(192, 192, 192) 0px 0px 0px 4px inset;\r\n	background-repeat: no-repeat;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .event_view {\r\n	position: absolute;\r\n}\r\n.ItemInfo .event_view .view {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	top: 6px;\r\n	left: 6px;\r\n}\r\n.ItemInfo .collection {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 10px;\r\n	width: 75px;\r\n	height: 100px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 86px;\r\n	width: 185px;\r\n	height: 14px;\r\n	padding-left: 4px;\r\n	padding-top: 6px;\r\n	text-shadow: 1px 1px 0px white;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n.ItemInfo .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 3px;\r\n	width: 11px;\r\n	height: 11px;\r\n	display: block;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n.ItemInfo .description {\r\n	position: absolute;\r\n	top: 35px;\r\n	left: 100px;\r\n	line-height: 18px;\r\n	width: 170px;\r\n	height: 75px;\r\n	overflow-y: auto;\r\n}\r\n.ItemInfo .description .description-inner {\r\n	width: 150px;\r\n	white-space: pre-wrap;\r\n}\r\n\r\n.ItemInfo .description .navi-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.ItemInfo .description .navi-link:hover {\r\n	color: #ff0000;\r\n}\r\n\r\n.ItemInfo .extend {\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 3px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.ItemInfo .cardlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .cardlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .cardlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .cardlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .cardlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .cardlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .book_open {\r\n	margin-top: 6px;\r\n	margin-left: 7px;\r\n}\r\n.ItemInfo .book_read {\r\n	position: absolute;\r\n	margin-top: 7px;\r\n}\r\n\r\n.ItemInfo .overlay_open {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 7px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n.ItemInfo .overlay_read {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 27px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n\r\n.ItemInfo .optionlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .optionlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .optionlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .optionlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .optionlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .optionlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .title.damaged {\r\n	text-shadow: red 1px 1px 0px;\r\n}\r\n\r\n.ItemInfo .preview-action {\r\n	padding-top: 115px;\r\n	padding-left: 9px;\r\n}\r\n\r\n.moveinfo-label {\r\n	color: #000000;\r\n	display: block;\r\n	text-decoration: underline;\r\n}\r\n\r\n#moveinfo-tooltip {\r\n	position: absolute;\r\n	display: none;\r\n	pointer-events: none;\r\n	z-index: 9999;\r\n	background: #e6e7ef;\r\n	border: 2px solid #bdbdee;\r\n	padding: 6px 8px;\r\n	color: #183984;\r\n	white-space: nowrap;\r\n	border-radius: 8px;\r\n}\r\n\r\n.ItemInfo .btn_mounting {\r\n	border: 0;\r\n	width: 80px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
+	ItemInfo_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.ItemInfo {\r\n	position: relative;\r\n	width: 280px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .container {\r\n	height: 140px;\r\n	position: relative;\r\n	box-shadow:\r\n		white 0px 0px 0px 3px inset,\r\n		rgb(192, 192, 192) 0px 0px 0px 4px inset;\r\n	background-repeat: no-repeat;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .event_view {\r\n	position: absolute;\r\n}\r\n.ItemInfo .event_view .view {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	top: 6px;\r\n	left: 6px;\r\n}\r\n.ItemInfo .collection {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 10px;\r\n	width: 75px;\r\n	height: 100px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 86px;\r\n	width: 185px;\r\n	height: 14px;\r\n	padding-left: 4px;\r\n	padding-top: 6px;\r\n	text-shadow: 1px 1px 0px white;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n.ItemInfo .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 3px;\r\n	width: 11px;\r\n	height: 11px;\r\n	display: block;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n.ItemInfo .description {\r\n	position: absolute;\r\n	top: 35px;\r\n	left: 100px;\r\n	line-height: 18px;\r\n	width: 170px;\r\n	height: 75px;\r\n	overflow-y: auto;\r\n}\r\n.ItemInfo .description .description-inner {\r\n	width: 150px;\r\n	white-space: pre-wrap;\r\n}\r\n\r\n.ItemInfo .description .navi-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.ItemInfo .description .navi-link:hover {\r\n	color: #ff0000;\r\n}\r\n\r\n.ItemInfo .extend {\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 3px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.ItemInfo .cardlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .cardlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .cardlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .cardlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .cardlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .cardlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .book_open {\r\n	margin-top: 6px;\r\n	margin-left: 7px;\r\n}\r\n.ItemInfo .book_read {\r\n	position: absolute;\r\n	margin-top: 7px;\r\n}\r\n\r\n.ItemInfo .overlay_open {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 7px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n.ItemInfo .overlay_read {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 27px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n\r\n.ItemInfo .optionlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .optionlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .optionlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .optionlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .optionlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .optionlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .title.damaged {\r\n	text-shadow: red 1px 1px 0px;\r\n}\r\n\r\n.ItemInfo .preview-action {\r\n	padding-top: 115px;\r\n	padding-left: 9px;\r\n}\r\n\r\n.moveinfo-label {\r\n	color: #000000;\r\n	display: block;\r\n	text-decoration: underline;\r\n}\r\n\r\n/* The official client's round box (UIRoundBoxTooltipWnd): a 1px #b8b8ef edge\r\n   around #e7e7ef, dark blue 12px text, lines 4.8px apart, 5px above and below\r\n   and about 7px either side. */\r\n.moveinfo-box {\r\n	position: absolute;\r\n	display: none;\r\n	z-index: 1;\r\n	background: #e7e7ef;\r\n	border: 1px solid #b8b8ef;\r\n	border-radius: 4px;\r\n	padding: 5px 7px;\r\n	color: #1a3b80;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.moveinfo-box div + div {\r\n	margin-top: 5px;\r\n}\r\n\r\n.ItemInfo .btn_mounting {\r\n	border: 0;\r\n	width: 80px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
 }));
 // src/UI/Components/ItemInfo/ItemInfo.js
 var ItemInfo_exports = /* @__PURE__ */ __exportAll({ default: () => ItemInfo_default });
@@ -266948,14 +266948,42 @@ function onItemPreview(pkt) {
 	}
 }
 /**
-* Build moveInfo tooltip html content
-* @param {object} moveInfo
-* @returns {string} html content
+* The restriction messages for an item's move info
+*
+* @param {object} moveInfo - from data/ItemMoveInfoV5.txt
+* @returns {Array<string>} one message per restriction, in the client's order
 */
-function buildMoveInfoTooltip(moveInfo) {
-	const lines = [];
-	for (const entry of MOVE_INFO_MESSAGES) if (moveInfo[entry.key] === true) lines.push(DB.getMessage(entry.msgId));
-	return lines.map((l) => `<div>${l}</div>`).join("");
+function getMoveInfoLines(moveInfo) {
+	return MOVE_INFO_MESSAGES.filter((entry) => moveInfo[entry.key] === true).map((entry) => DB.getMessage(entry.msgId));
+}
+/**
+* Open the restrictions box beside the cursor. The official client puts its
+* top-left 26px right of the pointer, level with it; a second click on the
+* link moves the box rather than opening another.
+*
+* @param {Array<string>} lines
+* @param {MouseEvent} event - the click on the link
+*/
+function showMoveInfoBox(lines, event) {
+	const box = ItemInfo.getRoot().querySelector(".moveinfo-box");
+	if (!box) return;
+	box.replaceChildren(...lines.map((text) => {
+		const line = document.createElement("div");
+		line.textContent = text;
+		return line;
+	}));
+	box.style.display = "block";
+	const WIDTH = Renderer.width || window.innerWidth;
+	const HEIGHT = Renderer.height || window.innerHeight;
+	const { width, height } = box.getBoundingClientRect();
+	let x = event.clientX + 26;
+	if (x + width > WIDTH) x = event.clientX - 26 - width;
+	x = Math.max(0, Math.min(x, WIDTH - width));
+	const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
+	const rect = ItemInfo._host.getBoundingClientRect();
+	const scale = ItemInfo.scale || 1;
+	box.style.left = `${(x - rect.left) / scale}px`;
+	box.style.top = `${(y - rect.top) / scale}px`;
 }
 var ItemInfo, _sprite$2, _action$2, _ctx, _type$4, _start, MOVE_INFO_MESSAGES, rendering$2, ItemInfo_default;
 var init_ItemInfo = __esmMin((() => {
@@ -267088,6 +267116,8 @@ var init_ItemInfo = __esmMin((() => {
 			Navigation_default.uid = naviInfo;
 			Navigation_default.setNaviInfo(naviInfo, naviLink.dataset.naviName);
 		});
+		const moveInfoBox = root.querySelector(".moveinfo-box");
+		if (moveInfoBox) moveInfoBox.addEventListener("click", () => ItemInfo.hideMoveInfoTooltip());
 		this.draggable(".title");
 	};
 	/**
@@ -267099,6 +267129,7 @@ var init_ItemInfo = __esmMin((() => {
 		const it = DB.getItemInfo(item.ITID);
 		const root = ItemInfo.getRoot();
 		const cardList = root.querySelector(".cardlist .border");
+		ItemInfo.hideMoveInfoTooltip();
 		const optionContainer = root.querySelector(".option-container");
 		this.item = it;
 		const collectionPath = DB.INTERFACE_PATH + "collection/" + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + ".bmp";
@@ -267147,35 +267178,15 @@ var init_ItemInfo = __esmMin((() => {
 				descInner.insertBefore(div, descInner.firstChild);
 			}
 		}
-		if (it.moveInfo) {
-			const tooltipHtml = buildMoveInfoTooltip(it.moveInfo);
-			if (tooltipHtml) {
-				const label = document.createElement("span");
-				label.textContent = DB.getMessage(2796);
-				label.className = "moveinfo-label";
-				if (descInner) descInner.appendChild(label);
-				let tooltip = document.getElementById("moveinfo-tooltip");
-				if (!tooltip) {
-					tooltip = document.createElement("div");
-					tooltip.id = "moveinfo-tooltip";
-					document.body.appendChild(tooltip);
-				}
-				label.addEventListener("mouseenter", (e) => {
-					Cursor.setType(Cursor.ACTION.CLICK);
-					tooltip.innerHTML = tooltipHtml;
-					tooltip.style.display = "block";
-					tooltip.style.left = `${e.pageX + 15}px`;
-					tooltip.style.top = `${e.pageY + 2}px`;
-				});
-				label.addEventListener("mouseleave", () => {
-					tooltip.style.display = "none";
-					Cursor.setType(Cursor.ACTION.DEFAULT);
-				});
-				label.addEventListener("mousemove", (e) => {
-					tooltip.style.left = `${e.pageX + 20}px`;
-					tooltip.style.top = `${e.pageY + 2}px`;
-				});
-			}
+		const moveInfoLines = it.moveInfo ? getMoveInfoLines(it.moveInfo) : [];
+		if (moveInfoLines.length && descInner) {
+			const label = document.createElement("span");
+			label.textContent = DB.getMessage(2796);
+			label.className = "moveinfo-label";
+			label.addEventListener("mouseenter", () => Cursor.setType(Cursor.ACTION.CLICK));
+			label.addEventListener("mouseleave", () => Cursor.setType(Cursor.ACTION.DEFAULT));
+			label.addEventListener("click", (event) => showMoveInfoBox(moveInfoLines, event));
+			descInner.appendChild(label);
 		}
 		updatePreviewButton(item);
 		addEvent(item);
@@ -267228,12 +267239,12 @@ var init_ItemInfo = __esmMin((() => {
 		};
 	})();
 	/**
-	* Cleanup moveInfo tooltip and restore cursor state.
-	* Called when ItemInfo UI is removed.
+	* Close the restrictions box and restore the cursor.
+	* Called when the window closes or shows another item.
 	*/
 	ItemInfo.hideMoveInfoTooltip = function hideMoveInfoTooltip() {
-		const tooltip = document.getElementById("moveinfo-tooltip");
-		if (tooltip) tooltip.style.display = "none";
+		const box = ItemInfo.getRoot?.()?.querySelector(".moveinfo-box");
+		if (box) box.style.display = "none";
 		Cursor.setType(Cursor.ACTION.DEFAULT);
 	};
 	/**
