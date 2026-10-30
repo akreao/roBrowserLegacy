@@ -181,7 +181,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Ground**: GroundEffect, FlatColorTile, PropertyGround, LPEffect, SpiderWeb, Tiles
 - **Combat**: Damage, MagnumBreak, PoisonEffect, MagicTarget, MagicRing, LockOnTarget
 - **Visual**: StrEffect, RsmEffect, ThreeDEffect, TwoDEffect, Cylinder, Songs, Trail, WaterfallEffect
-- **Official primitives**: EffectPrim + EffectPrimSim (ring, sphere, quad, cone; quads can turn and follow a `track`, textures shared per file); PurpleSlashSim (prims 86 / 92, Soul Destroyer and Meteor Assault slashes) with its rows in `src/DB/Effects/PurpleSlashEffect.js`
+- **Official primitives**: EffectPrim + EffectPrimSim (ring, sphere, quad, cone; quads can turn and follow a `track`, textures shared per file); PurpleSlashSim (prims 86 / 92, Soul Destroyer and Meteor Assault slashes) with its rows in `src/DB/Effects/PurpleSlashEffect.js`; HitDarkSim (effect 180, the dark hit flash's sparks) with its rows in `src/DB/Effects/HitDarkEffect.js`
 - **Screen**: PostProcess
 - **Post-Processing Shaders** (`Effects/Shaders/`): Blind, Bloom, CAS, Cartoon, FXAA, GaussianBlur, Upsampling, VerticalFlip, Vibrance
 

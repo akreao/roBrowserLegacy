@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
-import { darkConeBand } from 'DB/Effects/HitDarkEffect.js';
+import { darkConeBand, darkSparkRow } from 'DB/Effects/HitDarkEffect.js';
 import { DARK_SPARK, planDarkSparks, darkSparkAt, darkTrailLook } from 'Renderer/Effects/HitDarkSim.js';
 
 // EF_HITDARK (180), the dark hit flash: kRO 2025-07-16 0xbb2460.
@@ -67,5 +67,12 @@ describe('Dark hit flash (180)', () => {
 		const last = darkTrailLook(s, 254, DARK_SPARK.trail - 1);
 		expect(last.alpha).toBeCloseTo(254 / 3);
 		expect(last.scale).toBeCloseTo(0.8);
+	});
+
+	it('tints the spark sprite dark on the row, which the sprite layers read', () => {
+		const row = darkSparkRow(planDarkSparks(0, fixed(0))[0], 0);
+		for (const channel of [row.red, row.green, row.blue]) {
+			expect(channel).toBeCloseTo(20 / 255);
+		}
 	});
 });

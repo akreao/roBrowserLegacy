@@ -46,6 +46,10 @@ export function darkSparkRow(spark, i) {
 		spriteName: 'particle1',
 		alphaMax: 1,
 		blendMode: 2,
+		// The sprite layers take the row's tint, not the track's colour.
+		red: SPARK_COLOR[0],
+		green: SPARK_COLOR[1],
+		blue: SPARK_COLOR[2],
 		attachedEntity: true,
 		duration: spark.life * PRIM_TICK_MS,
 		zIndex: 1,
