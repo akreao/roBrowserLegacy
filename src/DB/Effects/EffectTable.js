@@ -44,6 +44,7 @@ import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
+import { hitDarkEffect } from 'DB/Effects/HitDarkEffect.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { smaBlackEffect } from 'DB/Effects/SmaBlackEffect.js';
@@ -4643,7 +4644,8 @@ export default {
 	//178: [{}],	//EF_CHAINGEHOLY	   Change Element (Holy)
 	//179: [{}],	//EF_CHANGEPOISON	   Change Element (Poison)
 
-	//180: [{}],	//EF_HITDARK	   Dark Elemental Hit
+	// EF_HITDARK, the dark hit flash (HitDarkEffect.js)
+	180: hitDarkEffect,
 
 	181: [
 		{
