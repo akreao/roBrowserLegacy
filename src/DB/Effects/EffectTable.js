@@ -26665,6 +26665,19 @@ export default {
 		}
 	],
 
+	// Empty Shadow (KG_KYOMU): the skilleffectinfo row plays t_에너지방출.wav and launches 1001 (허무의그림자.str) on the
+	// target as each damage packet arrives. See effect-port/kagerou-oboro-skills.md.
+	ef_kg_kyomu: [
+		{
+			//EF_KG_KYOMU (1001)
+			type: 'STR',
+			file: '\xc7\xe3\xb9\xab\xc0\xc7\xb1\xd7\xb8\xb2\xc0\xda', // 허무의그림자
+			texturePath: '',
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2', // t_에너지방출
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
