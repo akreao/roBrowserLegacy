@@ -108,8 +108,9 @@ SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: [0, 1] }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 // Official client: 0 (the standard hit flash) on the target on every hit as it lands, 200 ms apart, and
-// 1 (EF_HIT2) with the first hit of each damage packet only. See effect-port/mage-audit.md.
-SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 0, firstHitEffectId: 1 }; //Soul Strike
+// 1 (EF_HIT2) with the first hit of each damage packet only; 15 on the caster as the damage packet
+// arrives, one soul per hit (SoulStrikeEffect.js). See effect-port/mage-audit.md.
+SkillEffect[SK.MG_SOULSTRIKE] = { damageEffectIdOnCaster: 15, hitEffectId: 0, firstHitEffectId: 1 }; //Soul Strike
 // Official client: 26 on the target as the damage packet arrives, one ice bolt per hit (BoltRain.js),
 // then 51 (cold hit) on every hit as it lands, 200 ms apart. See effect-port/bolts.md.
 SkillEffect[SK.MG_COLDBOLT] = { damageEffectIdOnTarget: 26, hitEffectId: 51 }; //Cold Bolt
@@ -2225,7 +2226,7 @@ SkillEffect[SK.SP_SOULSHADOW] = { castAuraEffectId: 441, successEffectId: [503, 
 SkillEffect[SK.SP_SOULFALCON] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulfalcon'] }; //Falcon's Soul
 SkillEffect[SK.SP_SOULFAIRY] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulfairy'] }; //Fairy's Soul
 SkillEffect[SK.SP_CURSEEXPLOSION] = { castAuraEffectId: 454, damageEffectIdOnTarget: 'ef_sp_curseexplosion' }; //Curse Explosion
-SkillEffect[SK.SP_SPA] = { castAuraEffectId: 454, successEffectIdOnCaster: 'ef_sp_spa_sound' }; //Espa
+SkillEffect[SK.SP_SPA] = { castAuraEffectId: 454, successEffectIdOnCaster: ['ef_sp_spa_sound', 1204] }; //Espa
 SkillEffect[SK.SP_SHA] = { castAuraEffectId: 454, successEffectIdOnCaster: 547 }; //Esha
 SkillEffect[SK.SP_SOULUNITY] = { castAuraEffectId: 441, successEffectId: 407 }; //Soul Unity
 SkillEffect[SK.SP_SOULDIVISION] = { castAuraEffectId: 454, damageEffectIdOnTarget: ['ef_sp_souldivision_sound', 1209] }; //Soul Division
