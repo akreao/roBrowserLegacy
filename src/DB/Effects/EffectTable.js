@@ -3729,6 +3729,8 @@ export default {
 			//EF_FLASHER	Flasher Trap: a camera-facing flash and 20 turning rays (Flasher.js, kRO 2025 0xbad270)
 			type: 'FUNC',
 			attachedEntity: false,
+			// 70 ticks: also lets the manager drop it while it is culled and not drawn
+			duration: Math.ceil(70 * PRIM_TICK_MS),
 			func: function (Params) {
 				this.add(new Flasher(Params.Inst.position, Params.Inst.startTick), Params);
 			}

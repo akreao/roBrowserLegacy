@@ -68,6 +68,8 @@ describe('Flasher effect', () => {
 	it('draws the flash at the trap and plays hunter_flasher', () => {
 		const rows = EffectTable[99];
 		expect(rows[0]).toMatchObject({ type: 'FUNC', attachedEntity: false });
+		// a duration, so the manager can drop it while it is out of view
+		expect(rows[0].duration).toBeGreaterThanOrEqual(70 * (1000 / 60));
 		expect(rows[1]).toEqual({ wav: 'effect/hunter_flasher', attachedEntity: false });
 	});
 
