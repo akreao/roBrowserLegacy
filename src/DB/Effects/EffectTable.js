@@ -26455,12 +26455,15 @@ export default {
 		}
 	],
 
-	// New Moon Kick (SJ_NEWMOONKICK), from the client's own effect folders.
+	// New Moon Kick (SJ_NEWMOONKICK): official effect 1229 (CEZ2STREffect), launched on the caster when the
+	// use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_newmoonkick: [
 		{
+			//EF_NEWMOON_KICK (1229)
 			type: 'STR',
 			file: 'newmoon_kick/newmoon_kick',
-			texturePath: 'newmoon_kick/'
+			texturePath: 'newmoon_kick/',
+			attachedEntity: true
 		}
 	],
 
