@@ -82,6 +82,15 @@ describe('Soul Strike effect', () => {
 		expect(up.track(end).z - flat.track(end).z).toBeCloseTo(2 * Math.min(1, progress));
 	});
 
+	it('climbs over its life when the target stands in the same cell', () => {
+		const { dir, distance, rise } = soulAim([5, 5, 0], [5, 5, 2]);
+		expect(distance).toBe(0);
+		const flat = soulTrailEffect({ bow: 0 }, dir, distance, 0);
+		const up = soulTrailEffect({ bow: 0 }, dir, distance, 0, rise);
+		expect(up.track(0).z - flat.track(0).z).toBeCloseTo(2 / SOUL.life);
+		expect(up.track(SOUL.life - 1).z - flat.track(SOUL.life - 1).z).toBeCloseTo(2);
+	});
+
 	it('spawns 12 sprites a soul, from the soul tick', () => {
 		const spammed = [];
 		const ctx = { spamEffect: p => spammed.push(p) };
