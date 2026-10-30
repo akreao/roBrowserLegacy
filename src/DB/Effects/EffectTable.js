@@ -26433,6 +26433,18 @@ export default {
 		}
 	],
 
+	// Rich's Coin (RL_RICHS_COIN): official effect 1134, launched on the caster when the use packet has
+	// the result set (skilleffectinfo effectID). See effect-port/rebellion-skills.md.
+	1134: [
+		{
+			//EF_RICHS_COIN_A
+			type: 'STR',
+			file: 'rl_richs_coin_a/reachs',
+			texturePath: 'rl_richs_coin_a/',
+			attachedEntity: true
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{
