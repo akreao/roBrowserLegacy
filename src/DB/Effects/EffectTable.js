@@ -26523,12 +26523,37 @@ export default {
 		}
 	],
 
-	// Cross Slash (KO_JYUMONJIKIRI), from the client's own effect folders.
+	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
+	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
 		{
+			//EF_KO_JYUMONJIKIRI (996)
 			type: 'STR',
 			file: 'jyumonjikiri',
-			texturePath: ''
+			texturePath: '',
+			attachedEntity: true
+		}
+	],
+
+	// Cross Slash (KO_JYUMONJIKIRI): the skilleffectinfo row's sound, on the caster when the use packet
+	// has the result set.
+	ef_ko_jyumonjikiri_sound: [
+		{
+			wav: 'effect/cru_holy cross',
+			attachedEntity: true
+		}
+	],
+
+	// KO_JYUMONJIKIRI status (the Cross Slash mark): the official client keeps 998 (red_cross.str, which
+	// plays until removed) on the actor while the status is on.
+	ef_ko_red_cross: [
+		{
+			//EF_RED_CROSS (998)
+			type: 'STR',
+			file: 'red_cross',
+			texturePath: '',
+			repeat: true,
+			attachedEntity: true
 		}
 	],
 

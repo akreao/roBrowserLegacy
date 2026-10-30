@@ -69,6 +69,12 @@ export default {
 		stop: [604]
 	},
 
+	// Cross Slash mark (KO_JYUMONJIKIRI): the official client keeps 998 (red_cross.str) on the actor while
+	// the status is on. See effect-port/kagerou-oboro-skills.md.
+	[StatusConst.KO_JYUMONJIKIRI]: {
+		loop: ['ef_ko_red_cross']
+	},
+
 	// Intensive Aim (NW_INTENSIVE_AIM): the server raises the count from 1 to 10
 	// while the stance is on; each value shows its own stage of the gauge, and
 	// 10 adds the full glow. The stages stay until the stance ends.
