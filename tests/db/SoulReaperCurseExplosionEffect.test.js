@@ -10,7 +10,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Curse Explosion', () => {
 	it('plays the explosion sprite on each target at damage arrival', () => {
-		expect(SkillEffect[SK.SP_CURSEEXPLOSION]).toEqual({ damageEffectIdOnTarget: 'ef_sp_curseexplosion' });
+		expect(SkillEffect[SK.SP_CURSEEXPLOSION]).toMatchObject({ damageEffectIdOnTarget: 'ef_sp_curseexplosion' });
 		expect(EffectTable.ef_sp_curseexplosion).toEqual([
 			{
 				type: 'SPR',

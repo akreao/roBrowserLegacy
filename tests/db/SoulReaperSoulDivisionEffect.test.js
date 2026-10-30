@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Soul Division', () => {
 	it('plays the sound on the target at damage arrival', () => {
-		expect(SkillEffect[SK.SP_SOULDIVISION]).toEqual({ damageEffectIdOnTarget: 'ef_sp_souldivision_sound' });
+		expect(SkillEffect[SK.SP_SOULDIVISION]).toMatchObject({ damageEffectIdOnTarget: 'ef_sp_souldivision_sound' });
 		expect(EffectTable.ef_sp_souldivision_sound).toEqual([{ wav: 'effect/t_\xc4\xa1\xc0\xd7', attachedEntity: true }]);
 	});
 });

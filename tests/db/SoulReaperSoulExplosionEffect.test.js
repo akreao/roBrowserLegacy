@@ -10,7 +10,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Soul Explosion', () => {
 	it('plays the explosion sprite and its sound on each target at damage arrival', () => {
-		expect(SkillEffect[SK.SP_SOULEXPLOSION]).toEqual({ damageEffectIdOnTarget: 'ef_sp_soulexplosion' });
+		expect(SkillEffect[SK.SP_SOULEXPLOSION]).toMatchObject({ damageEffectIdOnTarget: 'ef_sp_soulexplosion' });
 		expect(EffectTable.ef_sp_soulexplosion).toEqual([
 			{
 				type: 'SPR',

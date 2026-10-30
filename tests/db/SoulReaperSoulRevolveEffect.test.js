@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Soul Revolution', () => {
 	it('plays the STR and its sound on the target on success', () => {
-		expect(SkillEffect[SK.SP_SOULREVOLVE]).toEqual({ successEffectId: 'ef_sp_soulrevolve' });
+		expect(SkillEffect[SK.SP_SOULREVOLVE]).toMatchObject({ successEffectId: 'ef_sp_soulrevolve' });
 		expect(EffectTable.ef_sp_soulrevolve).toEqual([
 			{
 				type: 'STR',

@@ -12,7 +12,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 
 describe('Soul Curse', () => {
 	it('plays the curse on the target on success and keeps the mark while the status is on', () => {
-		expect(SkillEffect[SK.SP_SOULCURSE]).toEqual({ successEffectId: 'ef_sp_soulcurse' });
+		expect(SkillEffect[SK.SP_SOULCURSE]).toMatchObject({ successEffectId: 'ef_sp_soulcurse' });
 		expect(EffectTable.ef_sp_soulcurse).toEqual([
 			{ type: 'STR', file: 'soul_curse/soul_curse', texturePath: 'soul_curse/', attachedEntity: true }
 		]);

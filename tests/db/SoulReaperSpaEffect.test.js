@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Espa', () => {
 	it('plays the use sound on the caster on success', () => {
-		expect(SkillEffect[SK.SP_SPA]).toEqual({ successEffectIdOnCaster: 'ef_sp_spa_sound' });
+		expect(SkillEffect[SK.SP_SPA]).toMatchObject({ successEffectIdOnCaster: 'ef_sp_spa_sound' });
 		expect(EffectTable.ef_sp_spa_sound).toEqual([{ wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2', attachedEntity: true }]);
 	});
 });

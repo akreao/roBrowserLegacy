@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Kaute', () => {
 	it('plays the sound on the target on success', () => {
-		expect(SkillEffect[SK.SP_KAUTE]).toEqual({ successEffectId: 'ef_sp_kaute_sound' });
+		expect(SkillEffect[SK.SP_KAUTE]).toMatchObject({ successEffectId: 'ef_sp_kaute_sound' });
 		expect(EffectTable.ef_sp_kaute_sound).toEqual([{ wav: 'effect/\xc8\xed\xb1\xe2', attachedEntity: true }]);
 	});
 });

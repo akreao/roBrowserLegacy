@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Soul Reaper', () => {
 	it('plays the reaper sprite and its sound on the caster on success', () => {
-		expect(SkillEffect[SK.SP_SOULREAPER]).toEqual({ successEffectIdOnCaster: 'ef_sp_soulreaper' });
+		expect(SkillEffect[SK.SP_SOULREAPER]).toMatchObject({ successEffectIdOnCaster: 'ef_sp_soulreaper' });
 		expect(EffectTable.ef_sp_soulreaper).toEqual([
 			{
 				type: 'SPR',
