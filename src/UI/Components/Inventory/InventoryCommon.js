@@ -63,6 +63,12 @@ function _sanitizeHtml(str) {
 }
 
 /**
+ * Items the one-click identify counts as Magnifiers: Magnifier (611) and the
+ * one the official client checks next to it (12325)
+ */
+const MAGNIFIER_IDS = [611, 12325];
+
+/**
  * Create an Inventory component.
  *
  * @param {object} config
@@ -1363,6 +1369,11 @@ export function createInventory(config) {
 			return false;
 		}
 
+		if (event.ctrlKey && event.which === 3) {
+			oneClickIdentify(item);
+			return false;
+		}
+
 		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
 			if (favoriteTab && ItemCompare.ui) {
@@ -1391,6 +1402,36 @@ export function createInventory(config) {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Ctrl + right click: identify with a Magnifier, as the official client's
+	 * item window does (UIItemWnd, right-click handler). Pet eggs are left
+	 * alone. Without a Magnifier it says so (msgstringtable 2735) and still
+	 * asks; the server checks for one too. The request goes only for an
+	 * unidentified item shown in the Equip tab.
+	 *
+	 * @param {Item} item
+	 */
+	function oneClickIdentify(item) {
+		if (PACKETVER.value < 20150513 || (item.ITID >= 9001 && item.ITID <= 9499)) {
+			return;
+		}
+
+		const magnifiers = MAGNIFIER_IDS.reduce((sum, id) => sum + (Component.getItemById(id)?.count || 0), 0);
+		if (magnifiers < 1) {
+			ChatBox.addText(
+				DB.getMessage(2735, "You don't have any Magnifier."),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
+
+		if (_preferences.tab === Component.TAB.EQUIP && !item.IsIdentified) {
+			const pkt = new PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY();
+			pkt.index = item.index;
+			Network.sendPacket(pkt);
+		}
 	}
 
 	/**
