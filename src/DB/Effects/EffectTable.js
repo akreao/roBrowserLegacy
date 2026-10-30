@@ -26801,6 +26801,19 @@ export default {
 		}
 	],
 
+	// Distorted Crescent (OB_ZANGETSU): the skilleffectinfo row plays t_따듯한마법.wav and launches 1010 (초승달2.str) on the
+	// target as each damage packet arrives. See effect-port/kagerou-oboro-skills.md.
+	ef_ob_zangetsu: [
+		{
+			//EF_ZANGETSU (1010)
+			type: 'STR',
+			file: '\xc3\xca\xbd\xc2\xb4\xde2', // 초승달2
+			texturePath: '',
+			wav: 'effect/t_\xb5\xfb\xb5\xed\xc7\xd1\xb8\xb6\xb9\xfd', // t_따듯한마법
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
