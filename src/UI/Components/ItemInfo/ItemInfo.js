@@ -879,29 +879,26 @@ function showMoveInfoBox(lines, event) {
 		})
 	);
 
-	// The box lives inside the window, which a plugin may draw scaled: turn
-	// screen distances (the 26px included) into window distances.
-	const rect = ItemInfo._host.getBoundingClientRect();
-	const scale = ItemInfo.scale || 1;
-	let left = (event.clientX - rect.left + 26) / scale;
-	let top = (event.clientY - rect.top) / scale;
-	box.style.left = `${left}px`;
-	box.style.top = `${top}px`;
 	box.style.display = 'block';
 
-	// A window near the right or bottom edge would put the box off screen:
-	// move it back in by however far it spills over.
+	// Place it on screen first. Near the right edge it goes to the pointer's
+	// left instead, so it never covers the link; near the bottom it moves up.
 	const WIDTH = Renderer.width || window.innerWidth;
 	const HEIGHT = Renderer.height || window.innerHeight;
-	const boxRect = box.getBoundingClientRect();
-	const overX = Math.max(0, boxRect.right - WIDTH);
-	const overY = Math.max(0, boxRect.bottom - HEIGHT);
-	if (overX || overY) {
-		left -= overX / scale;
-		top -= overY / scale;
-		box.style.left = `${left}px`;
-		box.style.top = `${top}px`;
+	const { width, height } = box.getBoundingClientRect();
+	let x = event.clientX + 26;
+	if (x + width > WIDTH) {
+		x = event.clientX - 26 - width;
 	}
+	x = Math.max(0, Math.min(x, WIDTH - width));
+	const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
+
+	// The box lives inside the window, which a plugin may draw scaled: turn
+	// the screen position into a window one.
+	const rect = ItemInfo._host.getBoundingClientRect();
+	const scale = ItemInfo.scale || 1;
+	box.style.left = `${(x - rect.left) / scale}px`;
+	box.style.top = `${(y - rect.top) / scale}px`;
 }
 
 /**

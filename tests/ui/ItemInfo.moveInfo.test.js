@@ -192,22 +192,53 @@ describe('clicking the link', () => {
 		}
 	});
 
-	it('keeps the box on screen when it would spill past the right or bottom edge', () => {
-		show(1);
-		// The box would end 40px past the right edge and 10px past the bottom.
-		box().getBoundingClientRect = () => ({
-			left: window.innerWidth - 160,
-			top: window.innerHeight - 90,
-			right: window.innerWidth + 40,
-			bottom: window.innerHeight + 10
+	describe('near the edge of the screen', () => {
+		// The box measures 200x90; the screen is jsdom's 1024x768.
+		const measure = (width, height) => {
+			box().getBoundingClientRect = () => ({ width, height });
+		};
+		const unmeasure = () => delete box().getBoundingClientRect;
+
+		it("opens on the pointer's left near the right edge, so it never covers the link", () => {
+			show(1);
+			measure(200, 90);
+			try {
+				click(link(), 900, 120);
+				// 900 - 26 - 200 = 674 on screen, 474 in the window
+				expect(box().style.left).toBe('474px');
+
+				// A second click still lands on the link and moves the box.
+				click(link(), 910, 120);
+				expect(box().style.display).toBe('block');
+				expect(box().style.left).toBe('484px');
+			} finally {
+				unmeasure();
+			}
 		});
-		try {
-			click(link(), 300, 120);
-			expect(box().style.left).toBe('86px');
-			expect(box().style.top).toBe('10px');
-		} finally {
-			delete box().getBoundingClientRect;
-		}
+
+		it('moves up near the bottom edge', () => {
+			show(1);
+			measure(200, 90);
+			try {
+				click(link(), 300, 720);
+				// 768 - 90 = 678 on screen, 578 in the window
+				expect(box().style.top).toBe('578px');
+			} finally {
+				unmeasure();
+			}
+		});
+
+		it('never starts off the left or top edge, even when wider than the screen', () => {
+			show(1);
+			measure(1100, 900);
+			try {
+				click(link(), 900, 120);
+				expect(box().style.left).toBe('-200px');
+				expect(box().style.top).toBe('-100px');
+			} finally {
+				unmeasure();
+			}
+		});
 	});
 });
 
