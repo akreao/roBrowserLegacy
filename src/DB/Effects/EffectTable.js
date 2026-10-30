@@ -26494,6 +26494,15 @@ export default {
 		}
 	],
 
+	// Fire Dance (RL_FIREDANCE): its skilleffectinfo row plays the Desperado sound on success, before
+	// 1133 on the caster. See effect-port/rebellion-skills.md.
+	ef_rl_firedance_sound: [
+		{
+			wav: 'effect/\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5', // 데스페라도
+			attachedEntity: true
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{
