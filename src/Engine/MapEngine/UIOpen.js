@@ -44,8 +44,12 @@ function onUIOpen(pkt) {
 
 	switch (pkt.ui_type) {
 		case 5:
-			// The data is the tip to show
-			TipBox.open(pkt.data);
+			// The data is the tip to show. A map load would remove the window,
+			// so one asked for meanwhile opens once the map is up.
+			_pendingTip = pkt.data;
+			if (!MapRenderer.loading) {
+				openPendingUI();
+			}
 			break;
 		case 7:
 			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
@@ -83,10 +87,22 @@ function onUIOpen(pkt) {
 let _pendingAttendance = null;
 
 /**
+ * Tip the server asked to show while the map was loading
+ * @var {number|null}
+ */
+let _pendingTip = null;
+
+/**
  * Open the windows the server asked for while the map was loading.
  * Called by the map engine once the map is loaded.
  */
 export function openPendingUI() {
+	if (_pendingTip !== null) {
+		const tip = _pendingTip;
+		_pendingTip = null;
+		TipBox.open(tip);
+	}
+
 	if (_pendingAttendance === null) {
 		return;
 	}

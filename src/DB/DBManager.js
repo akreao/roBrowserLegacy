@@ -81,6 +81,12 @@ let lua;
  * @var {Promise<boolean>|null} the tip box table's load, once started
  */
 let _tipBoxLoad = null;
+
+/**
+ * @var {number} moves on with each DB.init, so a load still running for the
+ * previous client adds nothing to the new one's table
+ */
+let _tipBoxGeneration = 0;
 /** @type {Promise|null} DB.loadLookTables, once started */
 let lookTables = null;
 let itemPackages = new Map();
@@ -339,6 +345,11 @@ class DB {
 		DB.isLoaded = false;
 		DB.count = 0;
 		DB.index = 0;
+
+		// The tip box table is read on first use: read the new client's.
+		_tipBoxLoad = null;
+		_tipBoxGeneration++;
+		TipBoxTable.reset();
 
 		// The client loaded after a server switch may be another archive: ask
 		// it again, and drop the previous answer the file cache keeps by name.
@@ -4218,10 +4229,11 @@ class DB {
 	 */
 	static loadTipBox() {
 		if (!_tipBoxLoad) {
+			const generation = _tipBoxGeneration;
 			_tipBoxLoad = new Promise(resolve => {
 				TipBoxTable.reset();
-				tryLoadLuaAliases(loadTipBoxFile, ['System/tipbox.lua', 'System/tipbox.lub'], null, () =>
-					resolve(TipBoxTable.size > 0)
+				tryLoadLuaAliases(loadTipBoxFile, ['System/tipbox.lua', 'System/tipbox.lub'], generation, () =>
+					resolve(generation === _tipBoxGeneration && TipBoxTable.size > 0)
 				);
 			});
 		}
@@ -4637,10 +4649,10 @@ function base64DecodeUtf8(str) {
  * tip through the five functions given to it here.
  *
  * @param {string} filename
- * @param {function} callback - unused
+ * @param {number|null} generation - the DB.init it was started for
  * @param {function} onEnd - called with whether the file was read
  */
-function loadTipBoxFile(filename, callback, onEnd) {
+function loadTipBoxFile(filename, generation, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
@@ -4649,29 +4661,42 @@ function loadTipBoxFile(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				const ctx = lua.ctx;
+				// A load for a client the player has since left adds nothing.
+				const current = () =>
+					generation === null || generation === undefined || generation === _tipBoxGeneration;
 				// Picture paths are in the GRF's code page, text in the player's.
 				const text = value =>
 					value instanceof Uint8Array ? userStringDecoder.decode(value, userCharpage) : String(value ?? '');
 				const path = value =>
 					value instanceof Uint8Array ? userStringDecoder.decode(value) : String(value ?? '');
 				ctx.AddTip = (id, title, search, image) => {
-					TipBoxTable.addTip(id, text(title), search, path(image));
+					if (current()) {
+						TipBoxTable.addTip(id, text(title), search, path(image));
+					}
 					return 1;
 				};
 				ctx.AddImgcoord = (id, position, size) => {
-					TipBoxTable.addImgCoord(id, position, size);
+					if (current()) {
+						TipBoxTable.addImgCoord(id, position, size);
+					}
 					return 1;
 				};
 				ctx.AddPageEx = (id, effectNum, twinkle, startX, startY, distX, distY, moveTime) => {
-					TipBoxTable.addPageEx(id, effectNum, twinkle, startX, startY, distX, distY, moveTime);
+					if (current()) {
+						TipBoxTable.addPageEx(id, effectNum, twinkle, startX, startY, distX, distY, moveTime);
+					}
 					return 1;
 				};
 				ctx.AddPage = (id, page) => {
-					TipBoxTable.addPage(id, text(page));
+					if (current()) {
+						TipBoxTable.addPage(id, text(page));
+					}
 					return 1;
 				};
 				ctx.AddIsTag = (id, isTag) => {
-					TipBoxTable.addIsTag(id, isTag);
+					if (current()) {
+						TipBoxTable.addIsTag(id, isTag);
+					}
 					return 1;
 				};
 				lua.mountFile(filename, buffer);

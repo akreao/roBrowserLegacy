@@ -788,9 +788,9 @@ function onMapChange(pkt) {
 
 		if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 			CheckAttendance.append();
-			// The attendance window the server opened during the load
-			openPendingUI();
 		}
+		// The windows the server opened during the load (attendance, tip box)
+		openPendingUI();
 
 		// The tip box, once a session, when "Open on Startup" is on
 		TipBox.openAtStartup();

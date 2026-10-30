@@ -151,7 +151,7 @@ describe('TipBoxTable', () => {
 });
 
 describe('loading System/tipbox.lub', () => {
-	function loader(files, decoded) {
+	function loader(files, decoded, tipBoxGeneration = 0) {
 		const lua = {
 			ctx: {},
 			mounted: [],
@@ -187,6 +187,7 @@ describe('loading System/tipbox.lub', () => {
 				}
 			},
 			userCharpage: 'windows-1252',
+			_tipBoxGeneration: tipBoxGeneration,
 			console
 		});
 	}
@@ -211,6 +212,19 @@ describe('loading System/tipbox.lub', () => {
 		expect(TipBoxTable.get(3).pages).toEqual(["Indicates the character's health."]);
 		// Text in the player's code page, the picture path in the GRF's
 		expect(decoded).toEqual(['windows-1252', 'grf', 'windows-1252', 'windows-1252', 'grf', 'windows-1252']);
+	});
+
+	it('adds nothing once the player has moved on to another client', async () => {
+		const files = { 2: { ...TIPS[2], Title: bytes(TIPS[2].Title), Image: bytes(''), Page: [bytes('x')] } };
+		// Started for the first DB.init, finishing after the second
+		const load = loader(files, [], 2);
+
+		await new Promise(resolve => load('System/tipbox.lub', 1, resolve));
+		expect(TipBoxTable.size).toBe(0);
+
+		const current = loader(files, [], 2);
+		await new Promise(resolve => current('System/tipbox.lub', 2, resolve));
+		expect(TipBoxTable.size).toBe(1);
 	});
 
 	it('reports a file that is not there', async () => {
