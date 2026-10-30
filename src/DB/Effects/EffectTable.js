@@ -26445,6 +26445,19 @@ export default {
 		}
 	],
 
+	// Banishing Buster (RL_BANISHING_BUSTER): its skilleffectinfo row plays RL_BANISHING_BUSTER.wav and
+	// launches 1066 on the target as each damage packet arrives. See effect-port/rebellion-skills.md.
+	ef_rl_banishing_buster: [
+		{
+			//EF_BANISHING_BUSTER (1066)
+			type: 'STR',
+			file: 'rl_banishing_buster/vanishing1',
+			texturePath: 'rl_banishing_buster/',
+			wav: 'effect/rl_banishing_buster',
+			attachedEntity: true
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{
