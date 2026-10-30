@@ -26458,6 +26458,15 @@ export default {
 		}
 	],
 
+	// Flicker (RL_FLICKER): its skilleffectinfo row plays RL_FLICKER.wav on success, before 153 on the
+	// caster. See effect-port/rebellion-skills.md.
+	ef_rl_flicker_sound: [
+		{
+			wav: 'effect/rl_flicker',
+			attachedEntity: true
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{
