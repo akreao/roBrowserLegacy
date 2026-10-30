@@ -56,6 +56,13 @@
  *  - drift, driftAccel {number}  speed along the axis, toward the top circle, and its change
  *  - driftStart {number}    distance already drifted along the axis on the first tick (default 0)
  *  - offsetX, offsetY {number}  shift from the position along the map's x and y, in units (default 0)
+ *
+ * Quad keys:
+ *  - yaw {number}           turn of the square around the vertical, degrees from the map's +x toward +y
+ *  - track {function}       track(frame) for quads that follow a path worked out elsewhere: returns
+ *                           null to draw nothing on that tick, or any of { x, y } (units from the
+ *                           position along the map's x and y), alpha (0..254) and yaw, each replacing
+ *                           the state's value (applyTrack)
  */
 
 /**
@@ -118,6 +125,8 @@ export function createPrimState(effect) {
 		coneHeightAccel: num(effect.coneHeightAccel, 0),
 		coneHeightMax: num(effect.coneHeightMax, 100),
 		pitch: num(effect.pitch, 0),
+		trackX: 0,
+		trackY: 0,
 		drift: num(effect.drift, 0),
 		driftAccel: num(effect.driftAccel, 0),
 		driftOffset: num(effect.driftStart, 0)
@@ -199,6 +208,26 @@ export function stepPrim(state) {
 	state.size += state.sizeSpeed;
 
 	state.frame++;
+}
+
+/**
+ * Put a quad's tracked values for tick `frame` into its state.
+ *
+ * @param {object} state
+ * @param {object} effect description, with track
+ * @param {number} frame
+ * @return {boolean} whether the quad shows on that tick
+ */
+export function applyTrack(state, effect, frame) {
+	const sample = effect.track(frame);
+	if (!sample) {
+		return false;
+	}
+	state.trackX = num(sample.x, state.trackX);
+	state.trackY = num(sample.y, state.trackY);
+	state.alpha = num(sample.alpha, state.alpha);
+	state.yaw = num(sample.yaw, state.yaw);
+	return true;
 }
 
 /**
@@ -426,7 +455,8 @@ function buildSphere(out, effect, state, center) {
 
 /**
  * Build the quad: a level square spanning -size..+size on both ground axes,
- * height units above the ground, the whole texture corner to corner.
+ * height units above the ground, the whole texture corner to corner, turned by
+ * the state's yaw and moved by its tracked offset.
  *
  * @param {Float32Array} out
  * @param {object} effect description
@@ -436,15 +466,22 @@ function buildSphere(out, effect, state, center) {
 function buildQuad(out, effect, state, center) {
 	const s = state.size;
 	const up = num(effect.height, 0);
+	const yaw = (state.yaw / 180) * Math.PI;
+	const c = Math.cos(yaw);
+	const n = Math.sin(yaw);
 	let o = 0;
 
-	o = vertex(out, o, center, s, s, up, 0, 0);
-	o = vertex(out, o, center, s, -s, up, 1, 0);
-	o = vertex(out, o, center, -s, s, up, 0, 1);
+	// Turned by yaw, then moved by the tracked offset (both 0 unless set)
+	const corner = (x, y, u, v) =>
+		(o = vertex(out, o, center, x * c - y * n + state.trackX, x * n + y * c + state.trackY, up, u, v));
 
-	o = vertex(out, o, center, s, -s, up, 1, 0);
-	o = vertex(out, o, center, -s, -s, up, 1, 1);
-	vertex(out, o, center, -s, s, up, 0, 1);
+	corner(s, s, 0, 0);
+	corner(s, -s, 1, 0);
+	corner(-s, s, 0, 1);
+
+	corner(s, -s, 1, 0);
+	corner(-s, -s, 1, 1);
+	corner(-s, s, 0, 1);
 }
 
 /**

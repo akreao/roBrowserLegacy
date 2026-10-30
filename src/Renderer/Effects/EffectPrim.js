@@ -18,7 +18,8 @@ import {
 	advancePrim,
 	buildPrimGeometry,
 	primVertexCount,
-	applyFacing
+	applyFacing,
+	applyTrack
 } from './EffectPrimSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
@@ -108,7 +109,15 @@ class EffectPrim {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-		if (advancePrim(this.state, frame) || this.dirty) {
+		const changed = advancePrim(this.state, frame);
+
+		// A tracked quad takes its place, alpha and turn from its path; nothing shows off the path.
+		const tracked = typeof this.effect.track === 'function';
+		if (tracked && !applyTrack(this.state, this.effect, frame)) {
+			return;
+		}
+
+		if (changed || this.dirty || tracked) {
 			buildPrimGeometry(this.vertices, this.effect, this.state, this.position);
 			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
 			this.dirty = false;
