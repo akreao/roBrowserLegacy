@@ -149673,6 +149673,7 @@ var init_StatusEffectTable = __esmMin((() => {
 			restart: [604],
 			stop: [604]
 		},
+		[StatusConst_default.KO_JYUMONJIKIRI]: { loop: ["ef_ko_red_cross"] },
 		[StatusConst_default.INTENSIVE_AIM_COUNT]: { stages: [
 			["ef_nw_intensive_aim_00"],
 			["ef_nw_intensive_aim_01"],
@@ -224612,12 +224613,18 @@ var init_SkillEffect = __esmMin((() => {
 		beginCastEffectId: "ef_nw_midnight_fallen_cast"
 	};
 	SkillEffect[SkillConst_default.KO_YAMIKUMO] = {};
-	SkillEffect[SkillConst_default.KO_JYUMONJIKIRI] = { effectId: "ef_ko_jyumonjikiri" };
-	SkillEffect[SkillConst_default.KO_SETSUDAN] = { effectId: "ef_ko_setsudan" };
-	SkillEffect[SkillConst_default.KO_BAKURETSU] = {};
-	SkillEffect[SkillConst_default.KO_HAPPOKUNAI] = {};
-	SkillEffect[SkillConst_default.KO_MUCHANAGE] = {};
-	SkillEffect[SkillConst_default.KO_HUUMARANKA] = {};
+	SkillEffect[SkillConst_default.KO_JYUMONJIKIRI] = {
+		successEffectIdOnCaster: "ef_ko_jyumonjikiri_sound",
+		damageEffectIdOnTarget: "ef_ko_jyumonjikiri"
+	};
+	SkillEffect[SkillConst_default.KO_SETSUDAN] = { damageEffectIdOnTarget: "ef_ko_setsudan" };
+	SkillEffect[SkillConst_default.KO_BAKURETSU] = {
+		successEffectIdOnCaster: "ef_ko_bakuretsu_sound",
+		damageEffectIdOnTarget: "ef_ko_ground_explosion"
+	};
+	SkillEffect[SkillConst_default.KO_HAPPOKUNAI] = { successEffectIdOnCaster: "ef_ko_happokunai" };
+	SkillEffect[SkillConst_default.KO_MUCHANAGE] = { groundEffectIdOnCaster: "ef_ko_bakuretsu_sound" };
+	SkillEffect[SkillConst_default.KO_HUUMARANKA] = { groundEffectIdByLevel: ["ef_ko_huumaranka"] };
 	SkillEffect[SkillConst_default.KO_MAKIBISHI] = {};
 	SkillEffect[SkillConst_default.KO_MEIKYOUSISUI] = {};
 	SkillEffect[SkillConst_default.KO_ZANZOU] = {};
@@ -224627,10 +224634,13 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.KO_HYOUHU_HUBUKI] = {};
 	SkillEffect[SkillConst_default.KO_KAZEHU_SEIRAN] = {};
 	SkillEffect[SkillConst_default.KO_DOHU_KOUKAI] = {};
-	SkillEffect[SkillConst_default.KO_KAIHOU] = {};
+	SkillEffect[SkillConst_default.KO_KAIHOU] = {
+		successEffectIdOnCaster: "ef_ko_bakuretsu_sound",
+		damageEffectIdOnTarget: "ef_ko_kaihou"
+	};
 	SkillEffect[SkillConst_default.KO_ZENKAI] = {};
 	SkillEffect[SkillConst_default.KO_GENWAKU] = {};
-	SkillEffect[SkillConst_default.KO_IZAYOI] = {};
+	SkillEffect[SkillConst_default.KO_IZAYOI] = { successEffectIdOnCaster: "ef_ko_izayoi" };
 	SkillEffect[SkillConst_default.SS_TOKEDASU] = { effectId: "ef_ss_tokedasu" };
 	SkillEffect[SkillConst_default.SS_SHIMIRU] = { effectId: "ef_ss_shimiru" };
 	SkillEffect[SkillConst_default.SS_AKUMUKESU] = {
@@ -224714,8 +224724,8 @@ var init_SkillEffect = __esmMin((() => {
 		4: "ef_ss_four_charm_wind"
 	} };
 	SkillEffect[SkillConst_default.KG_KAGEHUMI] = {};
-	SkillEffect[SkillConst_default.KG_KYOMU] = {};
-	SkillEffect[SkillConst_default.KG_KAGEMUSYA] = {};
+	SkillEffect[SkillConst_default.KG_KYOMU] = { damageEffectIdOnTarget: "ef_kg_kyomu" };
+	SkillEffect[SkillConst_default.KG_KAGEMUSYA] = { damageEffectIdOnTarget: ["ef_kg_kagemusya_sound", 169] };
 	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_PROTECTION] = {
 		effectId: "ef_soa_talisman_of_protection",
 		castAuraEffectId: 830
@@ -224773,10 +224783,10 @@ var init_SkillEffect = __esmMin((() => {
 		castAuraEffectId: 1556
 	};
 	SkillEffect[SkillConst_default.SOA_TOTEM_OF_TUTELARY] = { castAuraEffectId: 911 };
-	SkillEffect[SkillConst_default.OB_ZANGETSU] = {};
-	SkillEffect[SkillConst_default.OB_OBOROGENSOU] = {};
+	SkillEffect[SkillConst_default.OB_ZANGETSU] = { damageEffectIdOnTarget: "ef_ob_zangetsu" };
+	SkillEffect[SkillConst_default.OB_OBOROGENSOU] = { damageEffectIdOnTarget: "ef_ob_gensou" };
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU_TRANSITION_ATK] = {};
-	SkillEffect[SkillConst_default.OB_AKAITSUKI] = {};
+	SkillEffect[SkillConst_default.OB_AKAITSUKI] = { damageEffectIdOnTarget: "ef_ob_akaitsuki" };
 	SkillEffect[SkillConst_default.SKE_NOON_BLAST] = { successEffectId: "ef_ske_noon_blast" };
 	SkillEffect[SkillConst_default.SKE_SUNSET_BLAST] = { successEffectId: ["ef_ske_sunset_blast", "ef_ske_sunset_blast_small"] };
 	SkillEffect[SkillConst_default.SKE_MIDNIGHT_KICK] = {
@@ -226189,10 +226199,6 @@ var init_SkillMotionEffect = __esmMin((() => {
 		[2602, 2603],
 		[2606, 2607],
 		[2609, 2610],
-		[3004, 3009],
-		[3011, 3011],
-		[3013, 3027],
-		[3029, 3029],
 		[3031, 3034],
 		[5002, 5002],
 		[5050, 5051],
@@ -226418,12 +226424,22 @@ var init_SkillMotionEffect = __esmMin((() => {
 			[2278, 2279],
 			[2533, 2534],
 			[2536, 2537],
+			[3018, 3018],
+			[3026, 3026],
 			[8222, 8222]
 		],
 		43: [[45, 45]],
 		49: [[719, 719]],
-		56: [[8410, 8410]],
+		54: [[3014, 3014]],
+		55: [
+			[3015, 3015],
+			[3021, 3021],
+			[3029, 3029]
+		],
+		56: [[3017, 3017], [8410, 8410]],
+		57: [[3011, 3011]],
 		58: [[2275, 2275]],
+		59: [[3013, 3013]],
 		144: [[57, 57]],
 		441: [
 			[2034, 2034],
@@ -226432,6 +226448,7 @@ var init_SkillMotionEffect = __esmMin((() => {
 			[2267, 2269],
 			[2273, 2274],
 			[2445, 2445],
+			[3016, 3016],
 			[8404, 8404],
 			[8406, 8406]
 		],
@@ -315342,12 +315359,104 @@ var init_EffectTable = __esmMin((() => {
 		ef_ko_jyumonjikiri: [{
 			type: "STR",
 			file: "jyumonjikiri",
-			texturePath: ""
+			texturePath: "",
+			attachedEntity: true
+		}],
+		ef_ko_jyumonjikiri_sound: [{
+			wav: "effect/cru_holy cross",
+			attachedEntity: true
+		}],
+		ef_ko_red_cross: [{
+			type: "STR",
+			file: "red_cross",
+			texturePath: "",
+			repeat: true,
+			attachedEntity: true
 		}],
 		ef_ko_setsudan: [{
 			type: "STR",
 			file: "setsudan",
-			texturePath: ""
+			texturePath: "",
+			wav: "effect/t_Àü±â",
+			attachedEntity: true
+		}],
+		ef_ko_bakuretsu_sound: [{
+			wav: "effect/´ÑÀÚ_´øÁö±â",
+			attachedEntity: true
+		}],
+		ef_ko_ground_explosion: [{
+			type: "SPR",
+			file: "m_ef03",
+			scale: 1.5,
+			delayFrame: 67,
+			stackable: true,
+			wav: "effect/Æø¿°·æ",
+			attachedEntity: true
+		}],
+		ef_ko_happokunai: [{
+			wav: "effect/t_È¸¿À¸®Â÷±â",
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, 1920, 986), Params);
+			}
+		}],
+		ef_ko_huumaranka: [{
+			wav: "effect/t_È¸¿À¸®Â÷±â",
+			attachedEntity: false
+		}, {
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new RotateLine(Params.Inst.position, Params.Inst.startTick, 1920, 1e3), Params);
+			}
+		}],
+		ef_ko_kaihou: [{
+			type: "STR",
+			file: "¼ú½ÄÇØ¹æ",
+			texturePath: "",
+			attachedEntity: true
+		}],
+		ef_ko_izayoi: [{
+			type: "STR",
+			file: "ez_cure",
+			texturePath: "",
+			wav: "effect/ab_renovatio",
+			attachedEntity: true
+		}],
+		ef_kg_kyomu: [{
+			type: "STR",
+			file: "Çã¹«ÀÇ±×¸²ÀÚ",
+			texturePath: "",
+			wav: "effect/t_¿¡³ÊÁö¹æÃâ",
+			attachedEntity: true
+		}],
+		ef_ob_zangetsu: [{
+			type: "STR",
+			file: "ÃÊ½Â´Þ2",
+			texturePath: "",
+			wav: "effect/t_µûµíÇÑ¸¶¹ý",
+			attachedEntity: true
+		}],
+		ef_ob_gensou: [{
+			type: "STR",
+			file: "Èå¸°´ÞºûÈ¯»ó2",
+			texturePath: "",
+			wav: "effect/sign_up",
+			attachedEntity: true
+		}],
+		ef_ob_akaitsuki: [{
+			type: "STR",
+			file: "ºÒ±æÇÑºÓÀº´Þºû",
+			texturePath: "",
+			wav: "effect/t_¿¡³ÊÁö¹æÃâ",
+			attachedEntity: true
+		}],
+		ef_kg_kagemusya_sound: [{
+			wav: "effect/mon_±Ý°­ºÒ±«",
+			attachedEntity: true
 		}],
 		ef_ra_unlimit: [{
 			type: "STR",
@@ -339536,6 +339645,14 @@ var init_DBManager = __esmMin((() => {
 			mountPalettes = void 0;
 			if (mountPalettesProbe) mountPalettesProbe.stale = true;
 			else MemoryManager.remove(null, DB.getBodyPalPath(JobConst_default.PIG_CREATOR, 1, 0));
+			for (const table of [
+				NaviMapTable,
+				NaviMobTable,
+				NaviNpcTable,
+				NaviLinkTable,
+				NaviLinkDistanceTable,
+				NaviNpcDistanceTable
+			]) table.length = 0;
 			let index = 0, count = 0;
 			function onLoad() {
 				count++;
