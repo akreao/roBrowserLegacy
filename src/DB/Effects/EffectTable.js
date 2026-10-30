@@ -33,6 +33,7 @@ import Session from 'Engine/SessionStorage.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
+import ArrowVulcan from 'Renderer/Effects/ArrowVulcan.js';
 import LPEffect from 'Renderer/Effects/LPEffect.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
@@ -76,7 +77,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
-import ArrowVulcan from 'Renderer/Effects/ArrowVulcan.js';
+import Flasher from 'Renderer/Effects/Flasher.js';
 import { blitzBeatEffect } from 'DB/Effects/BlitzBeatEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
@@ -3732,9 +3733,16 @@ export default {
 
 	99: [
 		{
-			//EF_FLASHER	Flasher Trap
-			//type: 'FUNC',
-			// Again two sprites... one attached one not. But here the 'main' sprite is ment to stay a little longer
+			//EF_FLASHER	Flasher Trap: a camera-facing flash and 20 turning rays (Flasher.js, kRO 2025 0xbad270)
+			type: 'FUNC',
+			attachedEntity: false,
+			// 70 ticks: also lets the manager drop it while it is culled and not drawn
+			duration: Math.ceil(70 * PRIM_TICK_MS),
+			func: function (Params) {
+				this.add(new Flasher(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		},
+		{
 			wav: 'effect/hunter_flasher',
 			attachedEntity: false
 		}
