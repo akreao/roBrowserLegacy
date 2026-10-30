@@ -184,10 +184,29 @@ describe('clicking the link', () => {
 		ItemInfo.scale = 2;
 		try {
 			click(link(), 300, 120);
-			expect(box().style.left).toBe('76px');
+			// (100 + 26) / 2: still 26 screen pixels right of the cursor
+			expect(box().style.left).toBe('63px');
 			expect(box().style.top).toBe('10px');
 		} finally {
 			delete ItemInfo.scale;
+		}
+	});
+
+	it('keeps the box on screen when it would spill past the right or bottom edge', () => {
+		show(1);
+		// The box would end 40px past the right edge and 10px past the bottom.
+		box().getBoundingClientRect = () => ({
+			left: window.innerWidth - 160,
+			top: window.innerHeight - 90,
+			right: window.innerWidth + 40,
+			bottom: window.innerHeight + 10
+		});
+		try {
+			click(link(), 300, 120);
+			expect(box().style.left).toBe('86px');
+			expect(box().style.top).toBe('10px');
+		} finally {
+			delete box().getBoundingClientRect;
 		}
 	});
 });

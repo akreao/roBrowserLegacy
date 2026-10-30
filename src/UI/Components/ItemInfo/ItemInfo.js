@@ -879,12 +879,29 @@ function showMoveInfoBox(lines, event) {
 		})
 	);
 
-	// The box lives inside the window, which a plugin may draw scaled.
+	// The box lives inside the window, which a plugin may draw scaled: turn
+	// screen distances (the 26px included) into window distances.
 	const rect = ItemInfo._host.getBoundingClientRect();
 	const scale = ItemInfo.scale || 1;
-	box.style.left = `${(event.clientX - rect.left) / scale + 26}px`;
-	box.style.top = `${(event.clientY - rect.top) / scale}px`;
+	let left = (event.clientX - rect.left + 26) / scale;
+	let top = (event.clientY - rect.top) / scale;
+	box.style.left = `${left}px`;
+	box.style.top = `${top}px`;
 	box.style.display = 'block';
+
+	// A window near the right or bottom edge would put the box off screen:
+	// move it back in by however far it spills over.
+	const WIDTH = Renderer.width || window.innerWidth;
+	const HEIGHT = Renderer.height || window.innerHeight;
+	const boxRect = box.getBoundingClientRect();
+	const overX = Math.max(0, boxRect.right - WIDTH);
+	const overY = Math.max(0, boxRect.bottom - HEIGHT);
+	if (overX || overY) {
+		left -= overX / scale;
+		top -= overY / scale;
+		box.style.left = `${left}px`;
+		box.style.top = `${top}px`;
+	}
 }
 
 /**
