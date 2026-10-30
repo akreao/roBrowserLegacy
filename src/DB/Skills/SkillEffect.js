@@ -2206,7 +2206,7 @@ SkillEffect[SK.GD_EMERGENCYCALL] = {}; //Urgent Call
 SkillEffect[SK.GD_ITEMEMERGENCYCALL] = {}; //Item Emergency Call
 
 // Earlier classes: entries for skills that had none.
-SkillEffect[SK.SJ_FULLMOONKICK] = { effectId: 'ef_sj_fullmoonkick' }; //Full Moon Kick
+SkillEffect[SK.SJ_FULLMOONKICK] = { successEffectIdOnCaster: [399, 'ef_sj_fullmoonkick'] }; //Full Moon Kick
 SkillEffect[SK.SJ_NEWMOONKICK] = { effectId: 'ef_sj_newmoonkick' }; //New Moon Kick
 SkillEffect[SK.SJ_FLASHKICK] = { effectId: 'ef_sj_flashkick' }; //Flash Kick
 SkillEffect[SK.SJ_FALLINGSTAR] = { effectId: 'ef_sj_fallingstar' }; //Falling Star

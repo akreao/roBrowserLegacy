@@ -26442,12 +26442,16 @@ export default {
 		}
 	],
 
-	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
+	// Full Moon Kick (SJ_FULLMOONKICK): official effect 1230 (CEZ2STREffect), launched on the caster with 399
+	// (EF_BASH3D3) and 1223 (CStormKickEffect, not ported) when the use packet has the result set
+	// (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_fullmoonkick: [
 		{
+			//EF_FULLMOON_KICK (1230)
 			type: 'STR',
 			file: 'fullmoon_kick/fullmoon_kick',
-			texturePath: 'fullmoon_kick/'
+			texturePath: 'fullmoon_kick/',
+			attachedEntity: true
 		}
 	],
 
