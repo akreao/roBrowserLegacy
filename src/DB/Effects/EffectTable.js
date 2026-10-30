@@ -71,6 +71,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import ArrowVulcan from 'Renderer/Effects/ArrowVulcan.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -9551,7 +9552,17 @@ export default {
 
 	393: [
 		{
-			//EF_TRIPLEATTACK3	   Arrow Vulcan
+			//EF_TRIPLEATTACK3	   Arrow Vulcan: 36 pink streaks from the caster to past the target (ArrowVulcan.js, kRO 2025 0xbfff50)
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(
+					new ArrowVulcan(Params.Inst.position, Params.Inst.otherPosition, Params.Inst.startTick),
+					Params
+				);
+			}
+		},
+		{
 			// On the caster as each damage packet arrives; the client plays the sound on its tick 30.
 			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad',
 			delayWav: 500,
