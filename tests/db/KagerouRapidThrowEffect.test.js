@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
-import SK from '../../src/DB/Skills/SkillConst.js';
+import SkillEffect from 'DB/Skills/SkillEffect.js';
+import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 
 // Rapid Throw (KO_MUCHANAGE, skill 3008): the official client's skilleffectinfo row plays 닌자_던지기.wav
