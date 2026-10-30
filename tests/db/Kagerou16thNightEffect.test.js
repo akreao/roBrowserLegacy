@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
-import SK from '../../src/DB/Skills/SkillConst.js';
+import SkillEffect from 'DB/Skills/SkillEffect.js';
+import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 
 // 16th Night (KO_IZAYOI, skill 3022): when the use packet has the result set, the official client's
