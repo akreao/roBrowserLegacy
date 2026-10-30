@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
-import SK from '../../src/DB/Skills/SkillConst.js';
+import SkillEffect from 'DB/Skills/SkillEffect.js';
+import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 
 // Kunai Explosion (KO_BAKURETSU, skill 3006): the official client's skilleffectinfo row plays
@@ -22,6 +22,7 @@ describe('Kunai Explosion', () => {
 			file: 'm_ef03',
 			scale: 1.5,
 			delayFrame: 67,
+			stackable: true,
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6'
 		});
 	});
