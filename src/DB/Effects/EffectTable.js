@@ -26467,12 +26467,16 @@ export default {
 		}
 	],
 
-	// Flash Kick (SJ_FLASHKICK), from the client's own effect folders.
+	// Flash Kick (SJ_FLASHKICK): official effect 1221 (CEZ2STREffect, in its "stays" list), kept on the actor
+	// while EFST_FLASHKICK is on. See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_flashkick: [
 		{
+			//EF_FLASHKICK (1221)
 			type: 'STR',
 			file: 'flash_kick/flash_kick',
-			texturePath: 'flash_kick/'
+			texturePath: 'flash_kick/',
+			repeat: true,
+			attachedEntity: true
 		}
 	],
 
