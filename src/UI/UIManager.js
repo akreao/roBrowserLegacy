@@ -13,6 +13,7 @@ import CommonCSS from 'UI/Common.css?raw';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import ClampToViewport from 'UI/ClampToViewport.js';
+import { setColorText } from 'UI/ColorText.js';
 
 /**
  * Centralize popup position
@@ -209,7 +210,7 @@ class UIManager {
 		WinError.init = function Init() {
 			const root = this._shadow;
 
-			root.querySelector('.text').textContent = text;
+			setColorText(root.querySelector('.text'), text);
 			Object.assign(this._host.style, _popupPosition());
 
 			root.querySelector('.btns').appendChild(
@@ -253,7 +254,7 @@ class UIManager {
 			this.draggable();
 			const root = this._shadow;
 
-			root.querySelector('.text').textContent = text;
+			setColorText(root.querySelector('.text'), text);
 			Object.assign(this._host.style, _popupPosition());
 
 			if (btn_name) {
@@ -300,7 +301,7 @@ class UIManager {
 			this.draggable();
 			const root = this._shadow;
 
-			root.querySelector('.text').textContent = text;
+			setColorText(root.querySelector('.text'), text);
 			Object.assign(this._host.style, _popupPosition());
 
 			const btnsContainer = root.querySelector('.btns');
