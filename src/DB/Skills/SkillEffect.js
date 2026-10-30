@@ -1353,7 +1353,7 @@ SkillEffect[SK.KO_KAIHOU] = {
 }; //Release Ninja Spell: the thrown charm orb (989) is not ported
 SkillEffect[SK.KO_ZENKAI] = {}; //Cast Ninja Spell
 SkillEffect[SK.KO_GENWAKU] = {}; //Illusion - Bewitch
-SkillEffect[SK.KO_IZAYOI] = {}; //16th Night
+SkillEffect[SK.KO_IZAYOI] = { successEffectIdOnCaster: 'ef_ko_izayoi' }; //16th Night
 SkillEffect[SK.SS_TOKEDASU] = { effectId: 'ef_ss_tokedasu' }; //Melt Away
 SkillEffect[SK.SS_SHIMIRU] = { effectId: 'ef_ss_shimiru' }; //Infiltrate
 SkillEffect[SK.SS_AKUMUKESU] = { effectId: 'ef_ss_akumukesu', castAuraEffectId: 934 }; //Nightmare Erasion: white funnel and caster glow at cast start
