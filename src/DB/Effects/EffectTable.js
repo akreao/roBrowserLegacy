@@ -26494,12 +26494,15 @@ export default {
 		}
 	],
 
-	// Document of Sun Moon and Star (SJ_DOCUMENT), from the client's own effect folders.
+	// Document of Sun, Moon and Star (SJ_DOCUMENT): official effect 1219 (CEZ2STREffect), on the caster when
+	// the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_document: [
 		{
+			//EF_SJ_DOCUMENT (1219)
 			type: 'STR',
 			file: 'sj_document/sj_document',
-			texturePath: 'sj_document/'
+			texturePath: 'sj_document/',
+			attachedEntity: true
 		}
 	],
 
