@@ -362,6 +362,14 @@ export default {
 		loop: [375]
 	},
 
+	// Flash Kick (SJ_FLASHKICK): each time the status is on, the official client removes 1221 and launches
+	// it again (a refresh restarts the mark); it is removed when the status ends.
+	// See effect-port/star-emperor-soul-reaper-skills.md.
+	[StatusConst.FLASHKICK]: {
+		restart: ['ef_sj_flashkick'],
+		stop: ['ef_sj_flashkick']
+	},
+
 	// Howling Mine (RL_H_MINE): the official client keeps 1139 on the actor while the status is on.
 	// See effect-port/rebellion-skills.md.
 	[StatusConst.H_MINE]: {
