@@ -68,6 +68,7 @@ import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
+import { aimedSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
@@ -8876,24 +8877,21 @@ export default {
 	//360: [{}],	//EF_BAT2	   Niflheim Bat Fast
 
 	361: [
+		// EF_SOULBREAKER, Soul Destroyer, on the caster as each damage packet arrives (official client):
+		// four level purpleslash.tga slashes fly from the caster toward the target from about tick 30
+		// (PurpleSlashEffect.js); 기공포.wav on tick 20; ticks 0-10 the caster added and magenta.
+		aimedSlashEffect,
 		{
-			//EF_SOULBREAKER	   Soul Destroyer
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.4,
-			duration: 500,
-			fadeIn: true,
-			fadeOut: true,
-			zIndex: 10,
-			toSrc: true,
-			rotateWithCamera: true,
-			rotateToTarget: true,
-			angle: 90,
-			posz: 2,
-			sizeStart: 100,
-			sizeEnd: 200,
 			wav: 'effect/\xb1\xe2\xb0\xf8\xc6\xf7',
+			delayWav: 20 * (1000 / 60),
 			attachedEntity: true
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 361), Params);
+			}
 		}
 	],
 

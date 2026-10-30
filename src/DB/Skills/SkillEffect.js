@@ -576,7 +576,11 @@ SkillEffect[SK.PF_SOULBURN] = { effectId: 406 }; //Soul Siphon
 // every 3 ticks, assasin_enchantpoison.wav six times, the caster flickering magenta on ticks 0-80).
 // See effect-port/assassin-cross-skills.md.
 SkillEffect[SK.ASC_EDP] = { successEffectIdOnCaster: 493 }; //Enchant Deadly Poison
-SkillEffect[SK.ASC_BREAKER] = { beforeHitEffectId: 361 }; //Soul Destroyer
+// Official client: cast aura 59 whatever the element; 361 on the caster as each damage packet arrives, aimed
+// at the target (four purple slashes flying toward it, 기공포.wav on tick 20, the caster lit and magenta on
+// ticks 0-10); the hit flash (0) when the hit lands. No EF_BASH (SkillMotionEffect.js).
+// See effect-port/assassin-cross-skills.md.
+SkillEffect[SK.ASC_BREAKER] = { castAuraEffectId: 59, damageEffectIdOnCaster: 361, hitEffectId: 0 }; //Soul Destroyer
 // Sniper
 // Official client: 386 on the caster from the use packet, only when its result is set
 // (hunter_detecting.wav on tick 0). See effect-port/sniper-skills.md.
