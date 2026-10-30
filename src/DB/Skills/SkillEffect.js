@@ -572,7 +572,10 @@ SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, successEffectIdOnCaster: 379 
 SkillEffect[SK.PF_SOULCHANGE] = { effectId: 384, successEffectId: 385 }; //Soul Exhale
 SkillEffect[SK.PF_SOULBURN] = { effectId: 406 }; //Soul Siphon
 // Asassin Cross
-SkillEffect[SK.ASC_EDP] = { effectId: 493 }; //Enchant Deadly Poison
+// Official client: 493 on the caster from the use packet, only when its result is set (particle3 particles
+// every 3 ticks, assasin_enchantpoison.wav six times, the caster flickering magenta on ticks 0-80).
+// See effect-port/assassin-cross-skills.md.
+SkillEffect[SK.ASC_EDP] = { successEffectIdOnCaster: 493 }; //Enchant Deadly Poison
 SkillEffect[SK.ASC_BREAKER] = { beforeHitEffectId: 361 }; //Soul Destroyer
 // Sniper
 // Official client: 386 on the caster from the use packet, only when its result is set

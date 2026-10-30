@@ -2,7 +2,8 @@
  * Renderer/Effects/CasterMarks.js
  *
  * What the official client's cast effects 934 (Nightmare Erasion), 2373
- * (Shinkirou) and 502 (Spiral Pierce Max), Shrink's 599 and Wind Walk's 389, do to the
+ * (Shinkirou) and 502 (Spiral Pierce Max), Shrink's 599, Wind Walk's 389 and
+ * Enchant Deadly Poison's 493, do to the
  * caster's own sprite (and a few effects to their target's, such as Tarot
  * Card of Fate's 500). It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
@@ -82,6 +83,7 @@ const YELLOW = [250, 250, 100];
 const WHITE = [255, 255, 255];
 const PURPLE = [182, 89, 255];
 const BLUE = [0, 0, 255];
+const MAGENTA = [255, 0, 255];
 
 /**
  * What each effect sets on the caster on its tick `age` (0 on the first).
@@ -140,6 +142,12 @@ export const SCHEDULES = {
 		const on = age <= 140;
 		const even = age % 2 === 0;
 		return { add: on && even, glow: on, split: false, color: on ? (even ? YELLOW : WHITE) : null };
+	},
+	// Enchant Deadly Poison (493): ticks 0 to 80, added body and magenta on even ticks, white on odd ones.
+	493: age => {
+		const on = age <= 80;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: false, split: false, color: on ? (even ? MAGENTA : WHITE) : null };
 	},
 	// Wind Walk (389): ticks 5 to 25 added body and light green (220, 250, 220) on every tick.
 	389: age => {
