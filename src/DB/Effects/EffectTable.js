@@ -26472,6 +26472,28 @@ export default {
 		}
 	],
 
+	// Crimson Marker (RL_C_MARKER): the official client plays these from the C_MARKER status, not from the
+	// skill (see StatusEffectTable.js). Both play once. See effect-port/rebellion-skills.md.
+	1061: [
+		{
+			//EF_C_MAKER
+			type: 'STR',
+			file: 'rl_c_maker/deffender',
+			texturePath: 'rl_c_maker/',
+			attachedEntity: true
+		}
+	],
+
+	1075: [
+		{
+			//EF_C_MAKER_1
+			type: 'STR',
+			file: 'rl_c_maker/cm',
+			texturePath: 'rl_c_maker/',
+			attachedEntity: true
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{

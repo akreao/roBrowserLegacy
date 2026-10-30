@@ -2418,17 +2418,6 @@ function onEntityStatusChange(pkt) {
 			}
 			break;
 
-		case StatusConst.C_MARKER:
-			if (pkt.state == 1) {
-				const EF_Init_Par = {
-					effectId: 'ef_c_marker2',
-					ownerAID: pkt.AID
-				};
-
-				EffectManager.spam(EF_Init_Par);
-			}
-			break;
-
 		case StatusConst.SUHIDE:
 			if (pkt.state == 1) {
 				entity.setAction({
