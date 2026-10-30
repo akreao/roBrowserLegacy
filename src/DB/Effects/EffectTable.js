@@ -19174,7 +19174,7 @@ export default {
 			//EF_BLINK_BODY	The actor blinks pale blue and dark for 60 ticks (BlinkBody.js, kRO 2025 0xbc070d)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function (Params) {
+			func: Params => {
 				startBlinkBody(Params.Init.ownerEntity);
 			}
 		}
