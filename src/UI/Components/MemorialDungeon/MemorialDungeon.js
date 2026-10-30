@@ -16,6 +16,7 @@ import Renderer from 'Renderer/Renderer.js';
 import 'UI/Elements/Elements.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import UIManager from 'UI/UIManager.js';
+import { appendColorText } from 'UI/ColorText.js';
 import htmlText from './MemorialDungeon.html?raw';
 import cssText from './MemorialDungeon.css?raw';
 
@@ -159,11 +160,11 @@ MemorialDungeon.refresh = function refresh() {
 	switch (_data.state) {
 		case STATE.STANDBY:
 			// Your Standby Priority: %d
-			appendColored(info, DB.getMessage(1342).replace('%d', _data.priority));
+			appendColorText(info, DB.getMessage(1342).replace('%d', _data.priority));
 			break;
 		case STATE.AVAILABLE:
 			// The requested dungeon will be removed if you do not enter before %s.
-			appendColored(info, DB.getMessage(1343).replace('%s', formatDate(_data.enterDate)));
+			appendColorText(info, DB.getMessage(1343).replace('%s', formatDate(_data.enterDate)));
 			break;
 		case STATE.PROGRESS:
 			if (_data.destroyDate) {
@@ -231,26 +232,6 @@ function formatDate(time) {
 	const date = new Date(time * 1000);
 	const pad = n => String(n).padStart(2, '0');
 	return `${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-/**
- * Append text with RO colour codes (^rrggbb) as spans
- *
- * @param {HTMLElement} parent
- * @param {string} text
- */
-function appendColored(parent, text) {
-	const parts = text.split(/\^([0-9a-fA-F]{6})/);
-	let node = parent;
-	for (let i = 0; i < parts.length; i++) {
-		if (i % 2) {
-			node = document.createElement('span');
-			if (parts[i] !== '000000') node.style.color = `#${parts[i]}`;
-			parent.appendChild(node);
-		} else if (parts[i]) {
-			node.appendChild(document.createTextNode(parts[i]));
-		}
-	}
 }
 
 MemorialDungeon.needFocus = false;
