@@ -286762,6 +286762,13 @@ function isFourthJob(job) {
 	return job >= 4252 && job <= 4281 || job >= 4302 && job <= 4316;
 }
 /**
+* Monster job ids: 1001-3999 and 20021-31999. The official client never gives
+* these a level aura, whatever level the server sends for them.
+*/
+function isMonsterJob(job) {
+	return job > 1e3 && job < 4e3 || job >= 20021 && job <= 31999;
+}
+/**
 * The aura settings: the defaults with the server's `aura` config over them.
 *
 * @param {object} server the server's `aura` config, or undefined
@@ -286771,6 +286778,7 @@ function auraSettings(server) {
 }
 /**
 * The tier a character wears: 99, 150, 185 or 'fourth', or null for none.
+* Monsters wear none.
 *
 * @param {number} level base level
 * @param {number} job job id
@@ -286778,7 +286786,7 @@ function auraSettings(server) {
 * @return {number|string|null}
 */
 function auraTier(level, job, settings) {
-	if (!(level >= settings.defaultLv)) return null;
+	if (!(level >= settings.defaultLv) || isMonsterJob(job)) return null;
 	if (isFourthJob(job) && level >= settings.fourthLv) return "fourth";
 	if (level >= settings.lv160) return 185;
 	if (level >= settings.lv150) return 150;
@@ -287380,6 +287388,8 @@ var init_BodyMotionSim = __esmMin((() => {
 		548: (age) => age <= 16 ? { red: age * 3 } : null,
 		625: (age) => age % 4 === 0 ? { ready: 20 } : null,
 		626: (age) => age % 4 === 0 ? { red: 20 } : null,
+		544: (age) => ({ red: age <= 200 ? Math.trunc(age * .125) : 25 }),
+		1003: () => ({ ready: 20 }),
 		602: (age) => age > 20 ? { quake: true } : null
 	};
 }));
@@ -287490,7 +287500,7 @@ var init_TaekwonBodyEffects = __esmMin((() => {
 * @param {number} frames
 * @return {object} effect table entry
 */
-function bodyGlow(effectId, frames) {
+function bodyGlow$1(effectId, frames) {
 	return {
 		type: "FUNC",
 		attachedEntity: true,
@@ -287503,9 +287513,294 @@ var GunslingerBodyEffects_default;
 var init_GunslingerBodyEffects = __esmMin((() => {
 	init_BodyMotion();
 	GunslingerBodyEffects_default = {
-		548: [bodyGlow(548, 60)],
-		625: [bodyGlow(625, 60)],
-		626: [bodyGlow(626, 60)]
+		548: [bodyGlow$1(548, 60)],
+		625: [bodyGlow$1(625, 60)],
+		626: [bodyGlow$1(626, 60)]
+	};
+}));
+// src/Renderer/Effects/FieldBandSim.js
+/**
+* A band as the client creates it.
+*
+* @param {function} [random] returns [0, 1)
+* @return {{angle: number, radius: number, lean: number, alpha: number, age: number}}
+*/
+function createBand(random = Math.random) {
+	return {
+		angle: Math.floor(random() * 360),
+		radius: f32$1(FIELD_BAND.radius),
+		lean: FIELD_BAND.lean,
+		alpha: Math.floor(random() * 100),
+		age: 0
+	};
+}
+/**
+* Advance a band by one tick, as the client's update does.
+*
+* @param {object} band from createBand
+*/
+function stepBand(band) {
+	band.age++;
+	band.radius = f32$1(band.radius + f32$1(FIELD_BAND.radiusStep));
+	band.lean--;
+	if (band.lean < FIELD_BAND.leanMin) {
+		band.lean = FIELD_BAND.leanMin;
+		band.alpha = 0;
+	}
+	if (band.radius < FIELD_BAND.fadeInBelow) band.alpha += FIELD_BAND.alphaUp;
+	else {
+		band.alpha -= FIELD_BAND.alphaDown;
+		if (band.alpha < 1) {
+			band.alpha = 0;
+			band.radius = f32$1(FIELD_BAND.cycleRadius);
+			band.lean = FIELD_BAND.cycleLean;
+		}
+	}
+}
+/**
+* Height of point `j` (0 to 10) on the band's current tick, in world units.
+*
+* @param {object} band
+* @param {number} j
+* @return {number}
+*/
+function pointHeight$2(band, j) {
+	const h = FIELD_BAND.height;
+	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$10) * Math.sin(band.age % 360 * DEG$10);
+}
+/**
+* Write one vertex in roBrowser's GL space, from client units about `center`.
+*/
+function vertex$9(out, i, center, x, y, up, u, v) {
+	out[i + 0] = center[0] + .5 + x / 5;
+	out[i + 1] = -center[2] - up / 5;
+	out[i + 2] = center[1] + .5 + y / 5;
+	out[i + 3] = u;
+	out[i + 4] = v;
+	return i + 5;
+}
+/**
+* Fill `out` with the band's triangles.
+*
+* @param {Float32Array} out FIELD_BAND_VERTICES * 5 floats
+* @param {object} band
+* @param {Array} center cell position (x, y, height)
+* @return {number} vertices written
+*/
+function buildBand$2(out, band, center) {
+	const lean = Math.cos(band.lean * DEG$10);
+	const rise = Math.sin(band.lean * DEG$10);
+	let prev = null;
+	let o = 0;
+	for (let j = 0; j <= 10; j++) {
+		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$10;
+		const cos = Math.cos(angle);
+		const sin = Math.sin(angle);
+		const h = pointHeight$2(band, j);
+		const point = {
+			fx: band.radius * cos,
+			fy: band.radius * sin,
+			tx: (band.radius + h * lean) * cos,
+			ty: (band.radius + h * lean) * sin,
+			up: h * rise
+		};
+		if (prev) {
+			const u0 = (j - 1) / 21;
+			const u1 = j / 21;
+			o = vertex$9(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$9(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$9(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$9(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$9(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$9(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+		}
+		prev = point;
+	}
+	return o / 5;
+}
+var DEG$10, f32$1, FIELD_BAND;
+var init_FieldBandSim = __esmMin((() => {
+	init_EffectPrimSim();
+	DEG$10 = Math.PI / 180;
+	f32$1 = Math.fround;
+	FIELD_BAND = {
+		height: 15,
+		wobble: .3,
+		pointStep: 9,
+		angleStep: 36,
+		radius: 2.6,
+		radiusStep: .04,
+		fadeInBelow: 2.5,
+		alphaUp: 20,
+		alphaDown: 2,
+		lean: 80,
+		leanMin: 10,
+		cycleRadius: 2.14,
+		cycleLean: 74
+	};
+}));
+// src/Renderer/Effects/FieldBand.js
+function loadTexture$12(gl, name) {
+	if (_textures$8.has(name)) return;
+	_textures$8.set(name, null);
+	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+		WebGL_default.texture(gl, buffer, (texture) => {
+			if (!_textures$8.has(name)) {
+				gl.deleteTexture(texture);
+				return;
+			}
+			_textures$8.set(name, texture);
+		});
+	});
+}
+var _program$18, _textures$8, FieldBand;
+var init_FieldBand = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_SpriteRenderer();
+	init_FieldBandSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	_program$18 = null;
+	_textures$8 = /* @__PURE__ */ new Map();
+	FieldBand = class {
+		/**
+		* @param {Array} position cell position (x, y, height)
+		* @param {number} startTick
+		* @param {string} texture file under data/texture/effect/
+		* @param {function} [random] returns [0, 1), for the start angle and alpha
+		* @param {number[]} [color] [r, g, b] 0-255 the texture is tinted with (white when left out)
+		*/
+		constructor(position, startTick, texture, random = Math.random, color = [
+			255,
+			255,
+			255
+		]) {
+			this.position = position;
+			this.startTick = startTick || 0;
+			this.texture = texture;
+			this.band = createBand(random);
+			this.vertices = /* @__PURE__ */ new Float32Array(300);
+			this.color = new Float32Array([
+				color[0] / 255,
+				color[1] / 255,
+				color[2] / 255,
+				1
+			]);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			loadTexture$12(gl, this.texture);
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			if (t - this.band.age > 600) this.band.age = t - 600;
+			while (this.band.age < t) stepBand(this.band);
+			const texture = _textures$8.get(this.texture);
+			const alpha = Math.min(255, this.band.alpha);
+			if (!texture || alpha <= 0) return;
+			const count = buildBand$2(this.vertices, this.band, this.position);
+			const attribute = _program$18.attribute;
+			const self = this;
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
+				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				self.color[3] = alpha / 255;
+				gl.uniform4fv(_program$18.uniform.uColor, self.color);
+				gl.drawArrays(gl.TRIANGLES, 0, count);
+			});
+		}
+		static init(gl) {
+			_program$18 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			if (_program$18) {
+				gl.deleteProgram(_program$18);
+				_program$18 = null;
+			}
+			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
+			_textures$8.clear();
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$18.uniform;
+			const attribute = _program$18.attribute;
+			gl.useProgram(_program$18);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$18.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$18.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/DB/Effects/ChampionMonsterEffects.js
+/**
+* A body glow that lasts until it is removed.
+*
+* @param {number} effectId 544 or 1003
+* @return {object} effect table entry
+*/
+function bodyGlow(effectId) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.add(new BodyMotion(Params.Init.ownerEntity, Params.Inst.startTick, effectId, Infinity), Params);
+		}
+	};
+}
+var SUITON_COLOR, ChampionMonsterEffects_default;
+var init_ChampionMonsterEffects = __esmMin((() => {
+	init_BodyMotion();
+	init_FieldBand();
+	init_SwirlingAura();
+	SUITON_COLOR = [
+		120,
+		120,
+		255
+	];
+	ChampionMonsterEffects_default = {
+		544: [bodyGlow(544)],
+		620: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, "ring_blue.tga", void 0, SUITON_COLOR), Params);
+			}
+		}],
+		679: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new SwirlingAura(Params.Init.ownerEntity.position, "ring_white.tga", Params.Inst.startTick, 7), Params);
+			}
+		}],
+		1003: [bodyGlow(1003)]
 	};
 }));
 // src/Renderer/Effects/CasterMarks.js
@@ -287933,7 +288228,7 @@ var init_Tiles$1 = __esmMin((() => {
 	Tiles_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\nuniform sampler2D uDiffuse;\r\nuniform float alpha;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n    void main(void) {\r\n        vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n        if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n            discard;\r\n        }\r\n        textureSample.a = alpha;\r\n        fragColor = textureSample;\r\n    \r\n    if (uFogUse) {\r\n    float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n    float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n    fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/Tiles.js
-function loadTexture$12(gl, texture, cb) {
+function loadTexture$11(gl, texture, cb) {
 	const _texture = gl.createTexture();
 	Client.loadFile(texture.filename, function(buffer) {
 		Texture.load(buffer, function(canvas) {
@@ -288004,7 +288299,7 @@ var init_Tiles = __esmMin((() => {
 				0,
 				0
 			]), gl.STATIC_DRAW);
-			loadTexture$12(gl, {
+			loadTexture$11(gl, {
 				filename: textureFilename,
 				size
 			}, (texture) => {
@@ -288282,7 +288577,7 @@ var init_LockOnTarget$1 = __esmMin((() => {
 	LockOnTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uColor;\r\nout vec4 fragColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    fragColor     = textureSample;\r\n    fragColor.gb *= uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/LockOnTarget.js
-var _texture$8, _program$18, _buffer$6, mat4$7, _matrix$2, LockOnTarget;
+var _texture$8, _program$17, _buffer$6, mat4$7, _matrix$2, LockOnTarget;
 var init_LockOnTarget = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -288327,9 +288622,9 @@ var init_LockOnTarget = __esmMin((() => {
 			time /= 50;
 			time = Math.max(time, 1);
 			time = Math.min(time, 5);
-			gl.uniform3fv(_program$18.uniform.uPosition, this.target.position);
-			gl.uniform1f(_program$18.uniform.uSize, (6 - time) * 3);
-			gl.uniform1f(_program$18.uniform.uColor, color);
+			gl.uniform3fv(_program$17.uniform.uPosition, this.target.position);
+			gl.uniform1f(_program$17.uniform.uSize, (6 - time) * 3);
+			gl.uniform1f(_program$17.uniform.uColor, color);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			this.needCleanUp = this.endTick < tick;
 		}
@@ -288339,7 +288634,7 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static init(gl) {
-			_program$18 = WebGL_default.createShaderProgram(gl, LockOnTarget_default$1, LockOnTarget_default);
+			_program$17 = WebGL_default.createShaderProgram(gl, LockOnTarget_default$1, LockOnTarget_default);
 			_buffer$6 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$6);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -288398,9 +288693,9 @@ var init_LockOnTarget = __esmMin((() => {
 				gl.deleteTexture(_texture$8);
 				_texture$8 = null;
 			}
-			if (_program$18) {
-				gl.deleteProgram(_program$18);
-				_program$18 = null;
+			if (_program$17) {
+				gl.deleteProgram(_program$17);
+				_program$17 = null;
 			}
 			if (_buffer$6) gl.deleteBuffer(_buffer$6);
 			this.ready = false;
@@ -288411,11 +288706,11 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$18.uniform;
-			const attribute = _program$18.attribute;
+			const uniform = _program$17.uniform;
+			const attribute = _program$17.attribute;
 			mat4$7.identity(_matrix$2);
 			mat4$7.rotateY(_matrix$2, _matrix$2, tick / 4 / 180 * Math.PI);
-			gl.useProgram(_program$18);
+			gl.useProgram(_program$17);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$2);
@@ -288438,8 +288733,8 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$18.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$18.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$17.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$17.attribute.aTextureCoord);
 		}
 	};
 	/**
@@ -288661,7 +288956,7 @@ var init_MagicTarget$1 = __esmMin((() => {
 	MagicTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uAlpha;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n        discard;\r\n    }\r\n\r\n    fragColor = vec4(textureSample.rgb, textureSample.a * uAlpha);\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/MagicTarget.js
-var _texture$7, _program$17, mat4$6, MagicTarget;
+var _texture$7, _program$16, mat4$6, MagicTarget;
 var init_MagicTarget = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -288716,14 +289011,14 @@ var init_MagicTarget = __esmMin((() => {
 		render(gl, tick) {
 			this.needCleanUp = this.endTick < tick;
 			if (!this.vertCount) return;
-			const attribute = _program$17.attribute;
+			const attribute = _program$16.attribute;
 			const angle = spinAngle(Math.max(0, Math.floor((tick - this.startTick) / PRIM_TICK_MS)), this.size);
 			mat4$6.identity(this.matrix);
 			mat4$6.rotateZ(this.matrix, this.matrix, angle);
-			gl.uniformMatrix4fv(_program$17.uniform.uRotationMat, false, this.matrix);
-			gl.uniform1f(_program$17.uniform.uAlpha, targetAlpha(angle) / 255);
+			gl.uniformMatrix4fv(_program$16.uniform.uRotationMat, false, this.matrix);
+			gl.uniform1f(_program$16.uniform.uAlpha, targetAlpha(angle) / 255);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			gl.uniform1f(_program$17.uniform.uCameraLatitude, Camera.getLatitude());
+			gl.uniform1f(_program$16.uniform.uCameraLatitude, Camera.getLatitude());
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
@@ -288734,7 +289029,7 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static init(gl) {
-			_program$17 = WebGL_default.createShaderProgram(gl, MagicTarget_default$1, MagicTarget_default);
+			_program$16 = WebGL_default.createShaderProgram(gl, MagicTarget_default$1, MagicTarget_default);
 			Client.loadFile("data/texture/effect/magic_target.tga", (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					_texture$7 = texture;
@@ -288752,9 +289047,9 @@ var init_MagicTarget = __esmMin((() => {
 				gl.deleteTexture(_texture$7);
 				_texture$7 = null;
 			}
-			if (_program$17) {
-				gl.deleteProgram(_program$17);
-				_program$17 = null;
+			if (_program$16) {
+				gl.deleteProgram(_program$16);
+				_program$16 = null;
 			}
 			this.ready = false;
 		}
@@ -288764,9 +289059,9 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$17.uniform;
-			const attribute = _program$17.attribute;
-			gl.useProgram(_program$17);
+			const uniform = _program$16.uniform;
+			const attribute = _program$16.attribute;
+			gl.useProgram(_program$16);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -288785,249 +289080,14 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$17.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$17.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$16.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$16.attribute.aTextureCoord);
 		}
 	};
 	/**
 	* @var {boolean} should we render it before entities ?
 	*/
 	MagicTarget.renderBeforeEntities = true;
-}));
-// src/Renderer/Effects/FieldBandSim.js
-/**
-* A band as the client creates it.
-*
-* @param {function} [random] returns [0, 1)
-* @return {{angle: number, radius: number, lean: number, alpha: number, age: number}}
-*/
-function createBand(random = Math.random) {
-	return {
-		angle: Math.floor(random() * 360),
-		radius: f32$1(FIELD_BAND.radius),
-		lean: FIELD_BAND.lean,
-		alpha: Math.floor(random() * 100),
-		age: 0
-	};
-}
-/**
-* Advance a band by one tick, as the client's update does.
-*
-* @param {object} band from createBand
-*/
-function stepBand(band) {
-	band.age++;
-	band.radius = f32$1(band.radius + f32$1(FIELD_BAND.radiusStep));
-	band.lean--;
-	if (band.lean < FIELD_BAND.leanMin) {
-		band.lean = FIELD_BAND.leanMin;
-		band.alpha = 0;
-	}
-	if (band.radius < FIELD_BAND.fadeInBelow) band.alpha += FIELD_BAND.alphaUp;
-	else {
-		band.alpha -= FIELD_BAND.alphaDown;
-		if (band.alpha < 1) {
-			band.alpha = 0;
-			band.radius = f32$1(FIELD_BAND.cycleRadius);
-			band.lean = FIELD_BAND.cycleLean;
-		}
-	}
-}
-/**
-* Height of point `j` (0 to 10) on the band's current tick, in world units.
-*
-* @param {object} band
-* @param {number} j
-* @return {number}
-*/
-function pointHeight$2(band, j) {
-	const h = FIELD_BAND.height;
-	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$10) * Math.sin(band.age % 360 * DEG$10);
-}
-/**
-* Write one vertex in roBrowser's GL space, from client units about `center`.
-*/
-function vertex$9(out, i, center, x, y, up, u, v) {
-	out[i + 0] = center[0] + .5 + x / 5;
-	out[i + 1] = -center[2] - up / 5;
-	out[i + 2] = center[1] + .5 + y / 5;
-	out[i + 3] = u;
-	out[i + 4] = v;
-	return i + 5;
-}
-/**
-* Fill `out` with the band's triangles.
-*
-* @param {Float32Array} out FIELD_BAND_VERTICES * 5 floats
-* @param {object} band
-* @param {Array} center cell position (x, y, height)
-* @return {number} vertices written
-*/
-function buildBand$2(out, band, center) {
-	const lean = Math.cos(band.lean * DEG$10);
-	const rise = Math.sin(band.lean * DEG$10);
-	let prev = null;
-	let o = 0;
-	for (let j = 0; j <= 10; j++) {
-		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$10;
-		const cos = Math.cos(angle);
-		const sin = Math.sin(angle);
-		const h = pointHeight$2(band, j);
-		const point = {
-			fx: band.radius * cos,
-			fy: band.radius * sin,
-			tx: (band.radius + h * lean) * cos,
-			ty: (band.radius + h * lean) * sin,
-			up: h * rise
-		};
-		if (prev) {
-			const u0 = (j - 1) / 21;
-			const u1 = j / 21;
-			o = vertex$9(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex$9(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex$9(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$9(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex$9(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$9(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-		}
-		prev = point;
-	}
-	return o / 5;
-}
-var DEG$10, f32$1, FIELD_BAND;
-var init_FieldBandSim = __esmMin((() => {
-	init_EffectPrimSim();
-	DEG$10 = Math.PI / 180;
-	f32$1 = Math.fround;
-	FIELD_BAND = {
-		height: 15,
-		wobble: .3,
-		pointStep: 9,
-		angleStep: 36,
-		radius: 2.6,
-		radiusStep: .04,
-		fadeInBelow: 2.5,
-		alphaUp: 20,
-		alphaDown: 2,
-		lean: 80,
-		leanMin: 10,
-		cycleRadius: 2.14,
-		cycleLean: 74
-	};
-}));
-// src/Renderer/Effects/FieldBand.js
-function loadTexture$11(gl, name) {
-	if (_textures$8.has(name)) return;
-	_textures$8.set(name, null);
-	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
-		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$8.has(name)) {
-				gl.deleteTexture(texture);
-				return;
-			}
-			_textures$8.set(name, texture);
-		});
-	});
-}
-var _program$16, _textures$8, FieldBand;
-var init_FieldBand = __esmMin((() => {
-	init_WebGL();
-	init_Client();
-	init_SpriteRenderer();
-	init_FieldBandSim();
-	init_EffectPrim$2();
-	init_EffectPrim$1();
-	_program$16 = null;
-	_textures$8 = /* @__PURE__ */ new Map();
-	FieldBand = class {
-		/**
-		* @param {Array} position cell position (x, y, height)
-		* @param {number} startTick
-		* @param {string} texture file under data/texture/effect/
-		* @param {function} [random] returns [0, 1), for the start angle and alpha
-		*/
-		constructor(position, startTick, texture, random = Math.random) {
-			this.position = position;
-			this.startTick = startTick || 0;
-			this.texture = texture;
-			this.band = createBand(random);
-			this.vertices = /* @__PURE__ */ new Float32Array(300);
-			this.color = new Float32Array([
-				1,
-				1,
-				1,
-				1
-			]);
-		}
-		init(gl) {
-			this.buffer = gl.createBuffer();
-			loadTexture$11(gl, this.texture);
-			this.ready = true;
-		}
-		free(gl) {
-			this.ready = false;
-			if (this.buffer) {
-				gl.deleteBuffer(this.buffer);
-				this.buffer = null;
-			}
-		}
-		render(gl, tick) {
-			if (tick < this.startTick) return;
-			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
-			if (t - this.band.age > 600) this.band.age = t - 600;
-			while (this.band.age < t) stepBand(this.band);
-			const texture = _textures$8.get(this.texture);
-			const alpha = Math.min(255, this.band.alpha);
-			if (!texture || alpha <= 0) return;
-			const count = buildBand$2(this.vertices, this.band, this.position);
-			const attribute = _program$16.attribute;
-			const self = this;
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
-				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-				gl.bindTexture(gl.TEXTURE_2D, texture);
-				self.color[3] = alpha / 255;
-				gl.uniform4fv(_program$16.uniform.uColor, self.color);
-				gl.drawArrays(gl.TRIANGLES, 0, count);
-			});
-		}
-		static init(gl) {
-			_program$16 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			this.ready = true;
-			this.renderBeforeEntities = false;
-		}
-		static free(gl) {
-			if (_program$16) {
-				gl.deleteProgram(_program$16);
-				_program$16 = null;
-			}
-			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
-			_textures$8.clear();
-			this.ready = false;
-		}
-		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$16.uniform;
-			const attribute = _program$16.attribute;
-			gl.useProgram(_program$16);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$16.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$16.attribute.aTextureCoord);
-		}
-	};
 }));
 // src/Renderer/Effects/SpiderWeb.vs?raw
 var SpiderWeb_default$1;
@@ -296145,6 +296205,7 @@ var init_EffectTable = __esmMin((() => {
 	init_BodyEffects();
 	init_TaekwonBodyEffects();
 	init_GunslingerBodyEffects();
+	init_ChampionMonsterEffects();
 	init_CloseConfineEffect();
 	init_Songs();
 	init_Events();
@@ -300746,7 +300807,7 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		240: [{
 			type: "FUNC",
-			attachedEntity: false,
+			attachedEntity: true,
 			func: function(Params) {
 				this.add(new FieldBand(Params.Inst.position, Params.Inst.startTick, "ring_blue.tga"), Params);
 			}
@@ -317050,6 +317111,7 @@ var init_EffectTable = __esmMin((() => {
 		...BodyEffects_default,
 		...TaekwonBodyEffects_default,
 		...GunslingerBodyEffects_default,
+		...ChampionMonsterEffects_default,
 		...CloseConfineEffect_default
 	};
 }));
@@ -344895,6 +344957,1116 @@ var init_ShadowTable = __esmMin((() => {
 		6051: 1.2
 	};
 }));
+// src/DB/Monsters/MonsterSizeEffect.js
+/**
+* The size the client draws a monster at, 1 when it is not in the table.
+*
+* @param {number} job
+* @return {number}
+*/
+function monsterSize(job) {
+	const entry = MonsterSizeEffect[job];
+	return entry ? entry[0] : 1;
+}
+/**
+* The effects the client puts on a monster when it appears.
+*
+* @param {number} job
+* @return {number[]}
+*/
+function monsterEffects(job) {
+	const entry = MonsterSizeEffect[job];
+	return entry ? entry[1] : [];
+}
+var MonsterSizeEffect;
+var init_MonsterSizeEffect = __esmMin((() => {
+	MonsterSizeEffect = {
+		1039: [1, [
+			678,
+			679,
+			680
+		]],
+		1046: [1, [
+			678,
+			679,
+			680
+		]],
+		1059: [1, [
+			678,
+			679,
+			680
+		]],
+		1086: [1, [
+			678,
+			679,
+			680
+		]],
+		1087: [1, [
+			678,
+			679,
+			680
+		]],
+		1112: [1, [
+			678,
+			679,
+			680
+		]],
+		1115: [1, [
+			678,
+			679,
+			680
+		]],
+		1136: [1.5, [1048, 418]],
+		1137: [1.5, [946, 1035]],
+		1147: [1, [
+			678,
+			679,
+			680
+		]],
+		1150: [1, [
+			678,
+			679,
+			680
+		]],
+		1157: [1, [
+			678,
+			679,
+			680
+		]],
+		1159: [1, [
+			678,
+			679,
+			680
+		]],
+		1190: [1, [
+			678,
+			679,
+			680
+		]],
+		1251: [1, [
+			678,
+			679,
+			680
+		]],
+		1252: [1, [
+			678,
+			679,
+			680
+		]],
+		1272: [1, [
+			678,
+			679,
+			680
+		]],
+		1312: [1, [
+			678,
+			679,
+			680
+		]],
+		1373: [1, [
+			678,
+			679,
+			680
+		]],
+		1389: [1, [
+			678,
+			679,
+			680
+		]],
+		1418: [1, [
+			678,
+			679,
+			680
+		]],
+		1492: [1, [
+			678,
+			679,
+			680
+		]],
+		1511: [1, [
+			678,
+			679,
+			680
+		]],
+		1518: [1, [
+			678,
+			679,
+			680
+		]],
+		1583: [1, [
+			678,
+			679,
+			680
+		]],
+		1623: [1, [
+			678,
+			679,
+			680
+		]],
+		1630: [1, [
+			678,
+			679,
+			680
+		]],
+		1685: [1, [
+			678,
+			679,
+			680
+		]],
+		1688: [1, [
+			678,
+			679,
+			680
+		]],
+		1719: [1, [
+			678,
+			679,
+			680
+		]],
+		1734: [1, [
+			678,
+			679,
+			680
+		]],
+		1751: [1, [
+			678,
+			679,
+			680
+		]],
+		1768: [1, [
+			678,
+			679,
+			680
+		]],
+		1779: [1, [
+			678,
+			679,
+			680
+		]],
+		1785: [1, [
+			678,
+			679,
+			680
+		]],
+		1832: [1, [
+			678,
+			679,
+			680
+		]],
+		1871: [1, [
+			678,
+			679,
+			680
+		]],
+		1874: [1, [
+			678,
+			679,
+			680
+		]],
+		1885: [1, [
+			678,
+			679,
+			680
+		]],
+		1917: [1, [
+			678,
+			679,
+			680
+		]],
+		2068: [1, [
+			678,
+			679,
+			680
+		]],
+		2080: [.6, []],
+		2087: [1, [
+			678,
+			679,
+			680
+		]],
+		2156: [1, [
+			678,
+			679,
+			680
+		]],
+		2165: [1, [
+			678,
+			679,
+			680
+		]],
+		2202: [1, [
+			678,
+			679,
+			680
+		]],
+		2209: [1.5, [768]],
+		2249: [1, [
+			678,
+			679,
+			680
+		]],
+		2251: [1, [
+			678,
+			679,
+			680
+		]],
+		2253: [1, [
+			678,
+			679,
+			680
+		]],
+		2255: [1, [
+			678,
+			679,
+			680
+		]],
+		2362: [1, [
+			678,
+			679,
+			680
+		]],
+		2603: [1.2, [240]],
+		2604: [1.2, [679]],
+		2605: [1.2, [1003]],
+		2606: [1.2, [544]],
+		2607: [1.2, [620]],
+		2608: [1.2, [240]],
+		2609: [1.2, [679]],
+		2610: [1.2, [1003]],
+		2611: [1.2, [544]],
+		2612: [1.2, [620]],
+		2613: [1.2, [240]],
+		2614: [1.2, [679]],
+		2615: [1.2, [1003]],
+		2616: [1.2, [544]],
+		2617: [1.2, [620]],
+		2618: [1.2, [679]],
+		2619: [1.2, [1003]],
+		2620: [1.2, [544]],
+		2621: [1.2, [620]],
+		2622: [1.2, [240]],
+		2623: [1.2, [679]],
+		2624: [1.2, [1003]],
+		2625: [1.2, [544]],
+		2626: [1.2, [620]],
+		2627: [1.2, [240]],
+		2628: [1.2, [679]],
+		2629: [1.2, [1003]],
+		2630: [1.2, [544]],
+		2631: [1.2, [620]],
+		2632: [1.2, [679]],
+		2633: [1.2, [1003]],
+		2634: [1.2, [544]],
+		2635: [1.2, [620]],
+		2636: [1.2, [240]],
+		2637: [1.2, [679]],
+		2638: [1.2, [1003]],
+		2639: [1.2, [544]],
+		2640: [1.2, [620]],
+		2641: [1.2, [240]],
+		2642: [1.2, [679]],
+		2643: [1.2, [1003]],
+		2644: [1.2, [544]],
+		2645: [1.2, [620]],
+		2646: [1.2, [240]],
+		2647: [1.2, [679]],
+		2648: [1.2, [1003]],
+		2649: [1.2, [544]],
+		2650: [1.2, [620]],
+		2651: [1.2, [240]],
+		2652: [1.2, [679]],
+		2653: [1.2, [1003]],
+		2654: [1.2, [544]],
+		2655: [1.2, [620]],
+		2656: [1.2, [240]],
+		2657: [1.2, [679]],
+		2658: [1.2, [1003]],
+		2659: [1.2, [544]],
+		2660: [1.2, [620]],
+		2661: [1.2, [240]],
+		2662: [1.2, [679]],
+		2663: [1.2, [1003]],
+		2664: [1.2, [544]],
+		2665: [1.2, [620]],
+		2666: [1.2, [240]],
+		2667: [1.2, [679]],
+		2668: [1.2, [1003]],
+		2669: [1.2, [544]],
+		2670: [1.2, [620]],
+		2671: [1.2, [240]],
+		2672: [1.2, [679]],
+		2673: [1.2, [1003]],
+		2674: [1.2, [544]],
+		2675: [1.2, [620]],
+		2676: [1.2, [240]],
+		2677: [1.2, [679]],
+		2678: [1.2, [1003]],
+		2679: [1.2, [544]],
+		2680: [1.2, [620]],
+		2681: [1.2, [240]],
+		2682: [1.2, [679]],
+		2683: [1.2, [1003]],
+		2684: [1.2, [544]],
+		2685: [1.2, [620]],
+		2686: [1.2, [240]],
+		2687: [1.2, [679]],
+		2688: [1.2, [1003]],
+		2689: [1.2, [620]],
+		2690: [1.2, [240]],
+		2691: [1.2, [679]],
+		2692: [1.2, [1003]],
+		2693: [1.2, [544]],
+		2694: [1.2, [620]],
+		2695: [1.2, [240]],
+		2696: [1.2, [1003]],
+		2697: [1.2, [544]],
+		2698: [1.2, [620]],
+		2699: [1.2, [240]],
+		2700: [1.2, [679]],
+		2701: [1.2, [1003]],
+		2702: [1.2, [544]],
+		2703: [1.2, [620]],
+		2704: [1.2, [240]],
+		2705: [1.2, [679]],
+		2706: [1.2, [1003]],
+		2707: [1.2, [544]],
+		2708: [1.2, [620]],
+		2709: [1.2, [240]],
+		2710: [1.2, [679]],
+		2711: [1.2, [1003]],
+		2712: [1.2, [544]],
+		2713: [1.2, [620]],
+		2714: [1.2, [240]],
+		2715: [1.2, [679]],
+		2716: [1.2, [1003]],
+		2717: [1.2, [544]],
+		2718: [1.2, [620]],
+		2719: [1.2, [240]],
+		2720: [1.2, [679]],
+		2721: [1.2, [1003]],
+		2722: [1.2, [544]],
+		2723: [1.2, [620]],
+		2724: [1.2, [240]],
+		2725: [1.2, [679]],
+		2726: [1.2, [1003]],
+		2727: [1.2, [544]],
+		2728: [1.2, [620]],
+		2729: [1.2, [240]],
+		2730: [1.2, [679]],
+		2731: [1.2, [1003]],
+		2732: [1.2, [544]],
+		2733: [1.2, [620]],
+		2734: [1.2, [240]],
+		2735: [1.2, [679]],
+		2736: [1.2, [1003]],
+		2737: [1.2, [544]],
+		2738: [1.2, [620]],
+		2739: [1.2, [240]],
+		2740: [1.2, [679]],
+		2741: [1.2, [1003]],
+		2742: [1.2, [544]],
+		2743: [1.2, [620]],
+		2744: [1.2, [240]],
+		2745: [1.2, [679]],
+		2746: [1.2, [1003]],
+		2747: [1.2, [544]],
+		2748: [1.2, [620]],
+		2749: [1.2, [240]],
+		2750: [1.2, [679]],
+		2751: [1.2, [1003]],
+		2752: [1.2, [544]],
+		2753: [1.2, [620]],
+		2754: [1.2, [240]],
+		2755: [1.2, [679]],
+		2756: [1.2, [1003]],
+		2757: [1.2, [544]],
+		2758: [1.2, [620]],
+		2759: [1.2, [240]],
+		2760: [1.2, [679]],
+		2761: [1.2, [1003]],
+		2762: [1.2, [544]],
+		2763: [1.2, [620]],
+		2764: [1.2, [240]],
+		2765: [1.2, [679]],
+		2766: [1.2, [1003]],
+		2767: [1.2, [544]],
+		2768: [1.2, [620]],
+		2769: [1.2, [240]],
+		2770: [1.2, [679]],
+		2771: [1.2, [1003]],
+		2772: [1.2, [544]],
+		2773: [1.2, [620]],
+		2774: [1.2, [240]],
+		2775: [1.2, [679]],
+		2776: [1.2, [1003]],
+		2777: [1.2, [544]],
+		2778: [1.2, [620]],
+		2779: [1.2, [240]],
+		2780: [1.2, [679]],
+		2781: [1.2, [1003]],
+		2782: [1.2, [544]],
+		2783: [1.2, [620]],
+		2784: [1.2, [240]],
+		2785: [1.2, [679]],
+		2786: [1.2, [1003]],
+		2787: [1.2, [544]],
+		2788: [1.2, [620]],
+		2789: [1.2, [240]],
+		2790: [1.2, [679]],
+		2791: [1.2, [1003]],
+		2792: [1.2, [544]],
+		2793: [1.2, [620]],
+		2794: [1.2, [240]],
+		2795: [1.2, [679]],
+		2796: [1.2, [1003]],
+		2797: [1.2, [544]],
+		2798: [1.2, [620]],
+		2799: [1.2, [240]],
+		2800: [1.2, [679]],
+		2801: [1.2, [1003]],
+		2802: [1.2, [544]],
+		2803: [1.2, [620]],
+		2804: [1.2, [240]],
+		2805: [1.2, [679]],
+		2806: [1.2, [1003]],
+		2807: [1.2, [544]],
+		2808: [1.2, [620]],
+		2809: [1.2, [240]],
+		2810: [1.2, [679]],
+		2811: [1.2, [1003]],
+		2812: [1.2, [544]],
+		2813: [1.2, [620]],
+		2814: [1.2, [240]],
+		2815: [1.2, [679]],
+		2816: [1.2, [1003]],
+		2817: [1.2, [544]],
+		2818: [1.2, [620]],
+		2819: [1.2, [240]],
+		2820: [1.2, [679]],
+		2821: [1.2, [1003]],
+		2822: [1.2, [544]],
+		2823: [1.2, [620]],
+		2824: [1.2, [240]],
+		2825: [1.2, [679]],
+		2826: [1.2, [1003]],
+		2827: [1.2, [544]],
+		2828: [1.2, [620]],
+		2829: [1.2, [240]],
+		2830: [1.2, [679]],
+		2831: [1.2, [1003]],
+		2832: [1.2, [544]],
+		2833: [1.2, [620]],
+		2834: [1.2, [240]],
+		2835: [1.2, [679]],
+		2836: [1.2, [1003]],
+		2837: [1.2, [544]],
+		2838: [1.2, [620]],
+		2839: [1.2, [240]],
+		2840: [1.2, [679]],
+		2841: [1.2, [1003]],
+		2842: [1.2, [544]],
+		2843: [1.2, [240]],
+		2844: [1.2, [679]],
+		2845: [1.2, [1003]],
+		2846: [1.2, [544]],
+		2847: [1.2, [620]],
+		2848: [1.2, [240]],
+		2849: [1.2, [679]],
+		2850: [1.2, [1003]],
+		2851: [1.2, [544]],
+		2852: [1.2, [620]],
+		2853: [1.2, [240]],
+		2854: [1.2, [679]],
+		2855: [1.2, [1003]],
+		2856: [1.2, [544]],
+		2857: [1.2, [620]],
+		2858: [1.2, [240]],
+		2859: [1.2, [679]],
+		2860: [1.2, [1003]],
+		2861: [1.2, [544]],
+		2862: [1.2, [620]],
+		2863: [1.2, [240]],
+		2864: [1.2, [679]],
+		2865: [1.2, [1003]],
+		2866: [1.2, [544]],
+		2867: [1.2, [620]],
+		2868: [1.2, [240]],
+		2869: [1.2, [679]],
+		2870: [1.2, [1003]],
+		2871: [1.2, [544]],
+		2872: [1.2, [620]],
+		2873: [1.2, [240]],
+		2874: [1.2, [679]],
+		2875: [1.2, [1003]],
+		2876: [1.2, [544]],
+		2877: [1.2, [620]],
+		2878: [1.2, [240]],
+		2879: [1.2, [679]],
+		2880: [1.2, [1003]],
+		2881: [1.2, [544]],
+		2882: [1.2, [620]],
+		2883: [1.2, [240]],
+		2884: [1.2, [1003]],
+		2885: [1.2, [544]],
+		2886: [1.2, [620]],
+		2887: [1.2, [240]],
+		2888: [1.2, [679]],
+		2889: [1.2, [1003]],
+		2890: [1.2, [544]],
+		2891: [1.2, [620]],
+		2892: [1.2, [240]],
+		2893: [1.2, [679]],
+		2894: [1.2, [1003]],
+		2895: [1.2, [544]],
+		2896: [1.2, [620]],
+		2897: [1.2, [240]],
+		2898: [1.2, [679]],
+		2899: [1.2, [544]],
+		2900: [1.2, [620]],
+		2901: [1.2, [240]],
+		2902: [1.2, [679]],
+		2903: [1.2, [1003]],
+		2904: [1.2, [544]],
+		2905: [1.2, [620]],
+		2906: [1.2, [240]],
+		2907: [1.2, [679]],
+		2908: [1.2, [1003]],
+		2909: [1.2, [544]],
+		2910: [1.2, [620]],
+		2911: [1.2, [240]],
+		2912: [1.2, [679]],
+		2913: [1.2, [1003]],
+		3039: [1.3, [544]],
+		3040: [1.4, [679]],
+		3041: [1.5, [240]],
+		3105: [1.5, [544]],
+		3106: [1.5, [544]],
+		3214: [1, [485]],
+		3215: [1, [485]],
+		3216: [1, [485]],
+		3217: [1, [485]],
+		3218: [1, [485]],
+		3219: [1, [485]],
+		3220: [1, [203]],
+		3221: [1, [203]],
+		3222: [1, [203]],
+		3223: [1, [203]],
+		3224: [1, [203]],
+		3225: [1, [203]],
+		3233: [1, [485]],
+		3234: [1, [485]],
+		3235: [1, [485]],
+		3236: [1, [485]],
+		3237: [1, [485]],
+		3238: [1, [485]],
+		3239: [1, [485]],
+		3240: [1, [203]],
+		3241: [1, [203]],
+		3242: [1, [203]],
+		3243: [1, [203]],
+		3244: [1, [203]],
+		3245: [1, [203]],
+		3246: [1, [203]],
+		3259: [1, [486]],
+		3260: [1, [486]],
+		3292: [1, [486]],
+		3293: [2, []],
+		3421: [1.2, [1003]],
+		3422: [1.2, [1003]],
+		3423: [1.2, [1003]],
+		3424: [1.2, [1003]],
+		3425: [1.2, [1003]],
+		3426: [1.2, [1065]],
+		3427: [1.2, [1065]],
+		3428: [1.2, [1065]],
+		3429: [1.2, [1065]],
+		3430: [1.2, [1065]],
+		3445: [1.2, [1003]],
+		3446: [1.2, [1003]],
+		3447: [1.2, [1003]],
+		3448: [1.5, [544]],
+		3490: [1.5, [544]],
+		3505: [1.5, [486]],
+		3621: [1, [203]],
+		3626: [2, []],
+		3633: [1, [
+			678,
+			679,
+			680
+		]],
+		3634: [2.5, []],
+		3636: [.7, [783]],
+		3657: [2, []],
+		3741: [1, [
+			678,
+			679,
+			680
+		]],
+		3751: [1.2, []],
+		3799: [.67, []],
+		3800: [.67, []],
+		3801: [.67, []],
+		3802: [.67, []],
+		3803: [.67, []],
+		3804: [2, []],
+		3809: [.5, []],
+		3811: [2.5, []],
+		3812: [2.5, []],
+		3818: [1.5, []],
+		3896: [.67, []],
+		3897: [1, [1003]],
+		3898: [1, [1003]],
+		3899: [1, [1003]],
+		3900: [1, [1003]],
+		3901: [1.3, [1003]],
+		3902: [1.3, [1003]],
+		3910: [1.8, [1025]],
+		3911: [1, [963]],
+		3912: [1, [963]],
+		3913: [1, [963]],
+		3914: [1, [963]],
+		3915: [1.8, [695]],
+		3969: [2.5, []],
+		3970: [2.5, [98]],
+		10403: [.7, []],
+		10404: [.5, []],
+		10405: [.6, []],
+		10406: [.5, []],
+		10407: [.6, []],
+		10408: [.5, []],
+		10409: [.6, []],
+		10410: [.5, []],
+		10411: [.6, []],
+		10412: [.5, []],
+		10413: [.6, []],
+		10414: [.5, []],
+		10415: [.6, []],
+		10428: [.3, []],
+		10429: [.3, []],
+		10430: [.3, []],
+		10431: [.3, []],
+		10432: [.3, []],
+		10527: [1, [2389]],
+		20062: [2, []],
+		20063: [2, [544, 418]],
+		20064: [2, [1003, 203]],
+		20065: [2, [544, 418]],
+		20066: [1.5, [1003, 203]],
+		20112: [1, [822]],
+		20118: [1, [
+			678,
+			679,
+			680
+		]],
+		20271: [.7, []],
+		20277: [1.5, []],
+		20341: [1.4, [1003, 419]],
+		20342: [.7, []],
+		20343: [.7, []],
+		20344: [1.5, []],
+		20345: [1.5, []],
+		20351: [1, [829]],
+		20353: [1.3, []],
+		20381: [1, [
+			678,
+			679,
+			680
+		]],
+		20386: [1, [394]],
+		20387: [1, [394]],
+		20389: [1, [368]],
+		20391: [1, [368]],
+		20392: [1, [419]],
+		20393: [1, [419]],
+		20394: [1, [419]],
+		20419: [1, [
+			678,
+			679,
+			680
+		]],
+		20421: [1, [
+			678,
+			679,
+			680
+		]],
+		20422: [1, [
+			678,
+			679,
+			680
+		]],
+		20426: [1, [696]],
+		20519: [1.7, []],
+		20520: [1.5, []],
+		20573: [1, [1419]],
+		20580: [1, [1003]],
+		20601: [1.2, [
+			678,
+			679,
+			680
+		]],
+		20610: [1, [
+			678,
+			679,
+			680
+		]],
+		20611: [1, [
+			678,
+			679,
+			680
+		]],
+		20618: [1, [
+			678,
+			679,
+			680
+		]],
+		20648: [1, [
+			678,
+			679,
+			680
+		]],
+		20690: [1, [1614, 1615]],
+		20693: [1, [1611, 1612]],
+		20694: [1.3, [1614, 1615]],
+		20813: [1, [1419]],
+		20846: [1, [674]],
+		20847: [1, [650]],
+		20928: [1, [
+			678,
+			679,
+			680
+		]],
+		20934: [1, [
+			678,
+			679,
+			680
+		]],
+		20943: [1, [
+			678,
+			679,
+			680
+		]],
+		21064: [.7, []],
+		21066: [1.5, []],
+		21301: [1, [
+			678,
+			679,
+			680
+		]],
+		21313: [1.7, [
+			655,
+			485,
+			485,
+			485
+		]],
+		21319: [1.3, []],
+		21384: [1.9, []],
+		21531: [1.7, []],
+		21537: [1, [
+			678,
+			679,
+			680
+		]],
+		21548: [1, [2357]],
+		21549: [1, [2364]],
+		21550: [1, [2362]],
+		21551: [1, [2362]],
+		21552: [1, [2357]],
+		21553: [1, [2364]],
+		21554: [1, [2357]],
+		21555: [1, [2362]],
+		21556: [1, [2357]],
+		21557: [1, [2359]],
+		21558: [1, [2363]],
+		21559: [1, [2363]],
+		21560: [1, [2357]],
+		21561: [1, [2359]],
+		21562: [1, [2359]],
+		21563: [1, [2359]],
+		21564: [1, [2363]],
+		21565: [1, [2363]],
+		21566: [1, [2363]],
+		21567: [1, [2362]],
+		21568: [1, [2363]],
+		21569: [1, [2356]],
+		21570: [1, [2363]],
+		21571: [1, [2357]],
+		21572: [1, [2365]],
+		21573: [1, [2365]],
+		21574: [1, [2365]],
+		21575: [1, [2365]],
+		21576: [1, [2358]],
+		21577: [1, [2358]],
+		21578: [1, [2361]],
+		21579: [1, [2358]],
+		21588: [2.5, []],
+		21590: [1.4, [544]],
+		21634: [1, [2379]],
+		21635: [1, [2380]],
+		21636: [1, [2381]],
+		21637: [1, [2376]],
+		21638: [1, [2377]],
+		21639: [1, [2378]],
+		21651: [.8, []],
+		21809: [1, [2383]],
+		21810: [1, [2386]],
+		21811: [1, [2384]],
+		21812: [1, [2387]],
+		21813: [1, [2385]],
+		21814: [1, [2388]],
+		21853: [1.2, [2359]],
+		21854: [1.2, [2358]],
+		21889: [1, [1614]],
+		21890: [1, [1614]],
+		21891: [1, [1614]],
+		21892: [1, [1614]],
+		21893: [1, [1614]],
+		21894: [1, [1614]],
+		21895: [1, [1617]],
+		21896: [1, [1617]],
+		21897: [1, [1617]],
+		21898: [1, [1617]],
+		21899: [1, [1614]],
+		21900: [1, [1614]],
+		21901: [1, [1614]],
+		21902: [1, [1614]],
+		21903: [1, [1614]],
+		21904: [1, [1616]],
+		21905: [1, [1614]],
+		21906: [1, [1614]],
+		21907: [1, [1614]],
+		21920: [1, [2356]],
+		21921: [1, [2356]],
+		21922: [1, [2356]],
+		21923: [1, [2363]],
+		21924: [1, [2356]],
+		21925: [1, [2362]],
+		21926: [1, [2357]],
+		21927: [1, [2356]],
+		21928: [1, [2357]],
+		21929: [1, [2357]],
+		21930: [1, [2357]],
+		21931: [1, [2357]],
+		21932: [1, [2360]],
+		21933: [1, [2364]],
+		21934: [1, [2362]],
+		21935: [1, [2357]],
+		21936: [1, [2357]],
+		21937: [1, [2358]],
+		21938: [1, [2358]],
+		21939: [1, [2363]],
+		21940: [1, [2363]],
+		21941: [1, [2363]],
+		21942: [1, [2365]],
+		21943: [1, [2363]],
+		21950: [1, [
+			678,
+			679,
+			680
+		]],
+		21955: [1, [
+			678,
+			679,
+			680
+		]],
+		21980: [1, [
+			678,
+			679,
+			680
+		]],
+		21996: [1, [
+			678,
+			679,
+			680
+		]],
+		22004: [1.2, [2359]],
+		22005: [1.2, [2358]],
+		22140: [1, [2360, 1618]],
+		22141: [1, [2365, 1618]],
+		22142: [1, [2362, 1618]],
+		22143: [1, [2357, 1618]],
+		22144: [1, [2361, 1618]],
+		22145: [1, [2363, 1618]],
+		22146: [1, [2356, 1618]],
+		22147: [1, [2357, 1618]],
+		22148: [1, [2356, 1618]],
+		22149: [1, [2356, 1618]],
+		22150: [1, [2360, 1618]],
+		22151: [1, [2365, 1618]],
+		22152: [1, [2364, 1618]],
+		22153: [1, [2362, 1618]],
+		22154: [1, [2356, 1618]],
+		22155: [1, [2364, 1618]],
+		22183: [1, [2402]],
+		22184: [1, [2401]],
+		22195: [1.4, []],
+		22199: [1.4, []],
+		22200: [1, [1617]],
+		22201: [1, [1617]],
+		22202: [1, [1618]],
+		22203: [1.4, [1619]],
+		22204: [1, [1617]],
+		22205: [1, [1617]],
+		22206: [1, [1618]],
+		22207: [1.4, [1619]],
+		22211: [1.4, []],
+		22215: [1.4, []],
+		22219: [1.4, []],
+		22223: [1.4, []],
+		22224: [1, [1617]],
+		22225: [1, [1617]],
+		22226: [1, [1618]],
+		22227: [1.4, [1619]],
+		22228: [1, [1617]],
+		22229: [1, [1617]],
+		22230: [1, [1618]],
+		22231: [1.4, [1619]],
+		22235: [1.4, []],
+		22239: [1.4, []],
+		22252: [1, [1612, 1618]],
+		22253: [1, [1612, 1618]],
+		22254: [1, [1612, 1618]],
+		22255: [1, [1612, 1618]],
+		22256: [1, [1612, 1618]],
+		22257: [1, [1612, 1618]],
+		22258: [1, [1612, 1618]],
+		22259: [1, [1612, 1618]],
+		22260: [1, [1612, 1618]],
+		22261: [1, [1612, 1618]],
+		22362: [1, [
+			678,
+			679,
+			680
+		]],
+		22363: [1, [
+			678,
+			679,
+			680
+		]],
+		22364: [1, [
+			678,
+			679,
+			680
+		]],
+		22374: [1.2, [2359]],
+		22384: [1.3, [203]],
+		22386: [1.3, [203]],
+		22388: [1.3, [203]],
+		22390: [1.3, [203]],
+		22392: [1.3, [203]],
+		22394: [1, [
+			678,
+			679,
+			680
+		]],
+		22396: [1.3, [203]],
+		22398: [1.3, [203]],
+		22400: [1.3, [203]],
+		22402: [1.3, [203]],
+		22404: [1, [
+			678,
+			679,
+			680
+		]],
+		22411: [1.5, [2363]],
+		22421: [1, [
+			678,
+			679,
+			680
+		]],
+		22422: [1, [
+			678,
+			679,
+			680
+		]],
+		22433: [1.3, [203]],
+		22438: [1, [
+			678,
+			679,
+			680
+		]],
+		22439: [1.3, [203]],
+		22440: [1.3, [203]],
+		22441: [1.3, [203]],
+		22442: [1.3, [203]],
+		22477: [1.3, [203]],
+		22479: [1.3, [203]],
+		22481: [1.3, [203]],
+		22483: [1.3, [203]],
+		22485: [1.3, [203]],
+		22487: [1.3, [203]],
+		22488: [1.1, []],
+		22489: [1.4, [203]],
+		22494: [1, [
+			678,
+			679,
+			680
+		]],
+		22495: [1, [
+			678,
+			679,
+			680
+		]],
+		22551: [.7, []],
+		22553: [1.5, []],
+		22554: [2, []],
+		22555: [.7, []],
+		22557: [1.5, []],
+		22558: [2, []],
+		22559: [.7, []],
+		22561: [.7, []],
+		22563: [1.5, []],
+		22564: [.7, []],
+		22566: [1.5, []],
+		22567: [2, []],
+		22568: [.7, []],
+		22570: [1.5, []],
+		22571: [2, []],
+		22572: [.7, []],
+		22574: [1.5, []],
+		22575: [.7, []],
+		22577: [1.5, []],
+		22578: [.7, []],
+		22580: [1.5, []],
+		22581: [2, []],
+		22582: [.7, []],
+		22584: [1.5, []],
+		22585: [2, []],
+		22586: [.7, []],
+		22588: [1.5, []],
+		22589: [.7, []],
+		22591: [1.5, []],
+		22592: [2, []],
+		22593: [.7, []],
+		22595: [1.5, []],
+		22596: [2, []],
+		22597: [.7, []],
+		22599: [1.5, []],
+		22600: [.7, []],
+		22602: [1.5, []],
+		22603: [.7, []],
+		22605: [1.5, []],
+		22606: [2, []],
+		22607: [.7, []],
+		22609: [1.5, []],
+		22610: [2, []],
+		22611: [.7, []],
+		22613: [1.5, []],
+		22614: [.7, []],
+		22616: [1.5, []],
+		22617: [.7, []],
+		22619: [1.5, []],
+		22620: [2, []],
+		22621: [.7, []],
+		22623: [1.5, []],
+		22624: [2, []],
+		22625: [.7, []],
+		22627: [1.5, []],
+		22668: [1.5, []],
+		22680: [1.3, [1614, 1615]],
+		22681: [1, [1611, 1612]],
+		23e3: [.7, []]
+	};
+}));
 // src/Renderer/Entity/EntityView.js
 /**
 * Load the first body in `paths` whose .spr and .act both load, and call onload
@@ -345064,7 +346236,7 @@ function UpdateBody(job) {
 	if (!isTransformation) this._job = job;
 	this._effectiveJob = getEffectiveJob.call(this);
 	if (this.costume) job = this.costume;
-	this.xSize = this.ySize = DB.isBaby(job) ? 4 : 5;
+	this.xSize = this.ySize = (DB.isBaby(job) ? 4 : 5) * monsterSize(job);
 	this.files.shadow.size = job in ShadowTable_default ? ShadowTable_default[job] : 1;
 	const showAdminSprite = SessionStorage_default.showsAdmin(this, "sprite") && !shouldSuppressHead.call(this);
 	let path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
@@ -345547,6 +346719,7 @@ var init_EntityView = __esmMin((() => {
 	init_Client();
 	init_DBManager();
 	init_ShadowTable();
+	init_MonsterSizeEffect();
 	init_MountTable();
 	init_AllMountTable();
 	init_EntityAction();
@@ -364188,6 +365361,53 @@ var init_StatusEffects = __esmMin((() => {
 	init_StatusEffectTable();
 	init_EffectManager();
 }));
+// src/Engine/MapEngine/MonsterSizeEffects.js
+/**
+* The job the table is looked up by: the one the entity is drawn as (its
+* effective job, which a monster transformation changes).
+*
+* @param {object} entity
+* @return {number}
+*/
+function jobOf(entity) {
+	return entity.job;
+}
+/**
+* Put the table's effects on an entity that has just appeared or changed
+* looks, once each. When it now looks like another job, the effects of the
+* job it looked like come off first.
+*
+* @param {object} entity
+*/
+function showMonsterEffects(entity) {
+	const job = jobOf(entity);
+	if (entity._sizeEffectJob !== void 0 && entity._sizeEffectJob !== job) removeMonsterEffects(entity);
+	const effects = monsterEffects(job);
+	if (effects.length) entity._sizeEffectJob = job;
+	for (let i = 0; i < effects.length; i++) {
+		if (EffectManager.has(entity.GID, effects[i])) continue;
+		EffectManager.spam({
+			effectId: effects[i],
+			ownerAID: entity.GID,
+			persistent: true
+		});
+	}
+}
+/**
+* Take off the effects it was given (the monster died or changed looks).
+*
+* @param {object} entity
+*/
+function removeMonsterEffects(entity) {
+	if (entity._sizeEffectJob === void 0) return;
+	const effects = monsterEffects(entity._sizeEffectJob);
+	delete entity._sizeEffectJob;
+	EffectManager.remove(null, entity.GID, effects);
+}
+var init_MonsterSizeEffects = __esmMin((() => {
+	init_MonsterSizeEffect();
+	init_EffectManager();
+}));
 // src/Engine/MapEngine/FalconFlight.js
 /**
 * Engine/MapEngine/FalconFlight.js
@@ -364349,6 +365569,7 @@ function onEntitySpam(pkt) {
 	}
 	if (entity.GUID) requestEntityGuildEmblem(entity);
 	entity.aura.load(EffectManager);
+	showMonsterEffects(entity);
 }
 /**
 * Remove an entity from the map
@@ -364408,7 +365629,10 @@ function onEntityVanish(pkt) {
 					entity.wug = null;
 				}
 			case Entity.VT.DEAD:
-				if (entity.objecttype !== Entity.TYPE_PC) entity.aura.remove(EffectManager);
+				if (entity.objecttype !== Entity.TYPE_PC) {
+					entity.aura.remove(EffectManager);
+					removeMonsterEffects(entity);
+				}
 				if (pkt.type === Entity.VT.DEAD) EntityManager.removeLife(pkt.GID);
 		}
 		if (pkt.GID === SessionStorage_default.Entity.GID && pkt.type === 1) Escape_default.showDeathMenu(haveSiegfriedItem());
@@ -364975,6 +366199,7 @@ function onEntityViewChange(pkt) {
 			} else {
 				if (entity._job_transform || entity._monster_transform || entity._active_monster_transform) entity._job = pkt.value;
 				else entity.job = pkt.value;
+				showMonsterEffects(entity);
 				if (entity === SessionStorage_default.Entity) {
 					if (PacketVerManager_default.value >= 20200520) {
 						const previous = BasicInfoController.getUI();
@@ -365086,7 +366311,10 @@ function onEntityViewChange(pkt) {
 */
 function onNPCViewChange(pkt) {
 	const entity = EntityManager.get(pkt.GID);
-	if (entity) entity.job = pkt.value;
+	if (entity) {
+		entity.job = pkt.value;
+		showMonsterEffects(entity);
+	}
 }
 /**
 * Entity use skill on another entity (no damage : heal, boost, etc.)
@@ -366230,6 +367458,7 @@ var init_Entity = __esmMin((() => {
 	init_ScreenEffectManager();
 	init_Footprints();
 	init_StatusEffects();
+	init_MonsterSizeEffects();
 	init_FalconFlight();
 	init_ArrowFlight();
 	SkillNameDisplayExclude = [
