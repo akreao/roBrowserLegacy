@@ -26506,12 +26506,16 @@ export default {
 		}
 	],
 
-	// Solar Burst (SJ_SOLARBURST), from the client's own effect folders.
+	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
+	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
 		{
+			//EF_SOLARBURST (1218)
 			type: 'STR',
 			file: 'solar_burst/solar_burst',
-			texturePath: 'solar_burst/'
+			texturePath: 'solar_burst/',
+			wav: 'effect/g\xb5\xa5\xb8\xf0\xb4\xd0\xc8\xad\xc0\xcc\xbe\xee', // g데모닉화이어
+			attachedEntity: true
 		}
 	],
 
