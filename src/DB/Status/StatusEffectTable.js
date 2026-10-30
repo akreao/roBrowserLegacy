@@ -403,5 +403,27 @@ export default {
 		start: [1061],
 		restart: [1075],
 		stop: [1075]
-	}
+	},
+
+	// Soul Link (Soul Linker spirits) and the Soul Reaper souls: the official client puts 424 on the
+	// target from the use packet and removes it when the status ends. See effect-port/soul-linker-audit.md.
+	[StatusConst.SOULLINK]: { stop: [424] },
+	[StatusConst.SOULSHADOW]: { stop: [424] },
+	[StatusConst.SOULFAIRY]: { stop: [424] },
+	[StatusConst.SOULFALCON]: { stop: [424] },
+	[StatusConst.SOULGOLEM]: { stop: [424] },
+
+	// Kaite (SL_KAITE): the official client removes the actor's 419 whenever the status changes and
+	// plays it again while it is on.
+	[StatusConst.KAITE]: {
+		restart: [419],
+		stop: [419]
+	},
+
+	// Warmth (SG_SUN_WARM / MOON_WARM / STAR_WARM): the official client removes 418 and 544 whenever
+	// the status changes and plays both again while it is on. 418's rising particles (prim 99) are
+	// not drawn yet. See effect-port/star-gladiator-audit.md.
+	[StatusConst.SG_SUN_WARM]: { restart: [544], stop: [544] },
+	[StatusConst.SG_MOON_WARM]: { restart: [544], stop: [544] },
+	[StatusConst.SG_STAR_WARM]: { restart: [544], stop: [544] }
 };

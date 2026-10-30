@@ -7,7 +7,8 @@ import SK from '../../src/DB/Skills/SkillConst.js';
 // Kaizel 462, Kaahi 463, Kaupe 464 and Kaite 465: the official client casts them with the blue aura
 // 441 and, when the use packet succeeds, plays the skill's sound at the player and its effects on
 // the target (kRO 2025-07-16): Kaizel priest_resurrection.wav + 543 + 590, Kaahi T_보조마법.wav + 543,
-// Kaupe T_치잉.wav + 542, Kaite T_마법반사.wav + 419 + 542. 543 and 590 have no sound of their own.
+// Kaupe T_치잉.wav + 542, Kaite T_마법반사.wav + 419 + 542 (419 is played from the Kaite status instead, which
+// removes and relaunches it). 543 and 590 have no sound of their own.
 // Spec: effect-port/soul-linker-skills.md.
 
 const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
@@ -23,7 +24,7 @@ describe('Soul Linker Ka-spell effects', () => {
 		['SL_KAIZEL', 'sl_kaizel_sound', [543, 590]],
 		['SL_KAAHI', 'sl_kaahi_sound', 543],
 		['SL_KAUPE', 'sl_kaupe_sound', 542],
-		['SL_KAITE', 'sl_kaite_sound', [419, 542]]
+		['SL_KAITE', 'sl_kaite_sound', 542]
 	])('%s: blue cast aura, sound and effects only on success', (name, sound, effects) => {
 		expect(SkillEffect[SK[name]]).toEqual({
 			castAuraEffectId: 441,
