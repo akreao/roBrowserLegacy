@@ -1360,6 +1360,7 @@ function onEntityViewChange(pkt) {
 				} else {
 					entity.job = pkt.value;
 				}
+				showMonsterEffects(entity);
 				if (entity === Session.Entity) {
 					//Interchange UI depending on Job
 					if (PACKETVER.value >= 20200520) {
@@ -1507,6 +1508,7 @@ function onNPCViewChange(pkt) {
 	// Type is fixed 1 and no other values. No need to do anything with it
 	if (entity) {
 		entity.job = pkt.value;
+		showMonsterEffects(entity);
 	}
 }
 
