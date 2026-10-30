@@ -127,6 +127,14 @@ export function isFourthJob(job) {
 }
 
 /**
+ * Monster job ids: 1001-3999 and 20021-31999. The official client never gives
+ * these a level aura, whatever level the server sends for them.
+ */
+export function isMonsterJob(job) {
+	return (job > 1000 && job < 4000) || (job >= 20021 && job <= 31999);
+}
+
+/**
  * The aura settings: the defaults with the server's `aura` config over them.
  *
  * @param {object} server the server's `aura` config, or undefined
@@ -137,6 +145,7 @@ export function auraSettings(server) {
 
 /**
  * The tier a character wears: 99, 150, 185 or 'fourth', or null for none.
+ * Monsters wear none.
  *
  * @param {number} level base level
  * @param {number} job job id
@@ -144,7 +153,7 @@ export function auraSettings(server) {
  * @return {number|string|null}
  */
 export function auraTier(level, job, settings) {
-	if (!(level >= settings.defaultLv)) {
+	if (!(level >= settings.defaultLv) || isMonsterJob(job)) {
 		return null;
 	}
 	if (isFourthJob(job) && level >= settings.fourthLv) {
