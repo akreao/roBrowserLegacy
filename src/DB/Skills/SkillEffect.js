@@ -729,7 +729,7 @@ SkillEffect[SK.SL_KAAHI] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl
 SkillEffect[SK.SL_KAUPE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaupe_sound', successEffectId: 542 }; //Kaupe
 SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: 542 }; //Kaite (419 comes from the Kaite status, StatusEffectTable.js)
 // Estin, Estun, Esma: blue cast aura; as each damage packet arrives the client plays one effect on the
-// caster and the rest on the target (550, 429, 425, 431 and 554 are not drawn yet).
+// caster and the rest on the target (550, 425, 431 and 554 are not drawn yet).
 SkillEffect[SK.SL_STIN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 547, damageEffectIdOnTarget: 550 }; //Estin
 SkillEffect[SK.SL_STUN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 555, damageEffectIdOnTarget: 429 }; //Estun
 SkillEffect[SK.SL_SMA] = { castAuraEffectId: 441, damageEffectIdOnCaster: 553, damageEffectIdOnTarget: [425, 431, 554] }; //Esma
@@ -2214,8 +2214,8 @@ SkillEffect[SK.SJ_FALLINGSTAR] = {}; //Falling Star: nothing from its use packet
 SkillEffect[SK.SJ_DOCUMENT] = { successEffectIdOnCaster: 'ef_sj_document' }; //Document of Sun Moon and Star
 SkillEffect[SK.SJ_SOLARBURST] = { successEffectIdOnCaster: 'ef_sj_solarburst' }; //Solar Burst
 // Official client: when the damage arrives, 1224 (sound and spin, TaekwonBodyEffects.js) and 429 (EF_HITLINE4,
-// not ported) play on the target.
-SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick', damageEffectIdOnTarget: 1224 }; //Prominence Kick
+// HitLineEffect.js) play on the target.
+SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick', damageEffectIdOnTarget: [1224, 429] }; //Prominence Kick
 SkillEffect[SK.SP_SOULGOLEM] = { castAuraEffectId: 441, successEffectId: [503, 424, 'ef_sp_soulgolem'] }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { castAuraEffectId: 454, successEffectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { castAuraEffectId: 441, successEffectId: 'ef_sp_soulrevolve' }; //Soul Revolution
