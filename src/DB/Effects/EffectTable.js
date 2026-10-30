@@ -26703,6 +26703,23 @@ export default {
 		}
 	],
 
+	// Soul Explosion (SP_SOULEXPLOSION): official effect 1242 and hunter_landmine.wav, on the target as each
+	// damage packet arrives (skilleffectinfo; its 1208, EF_ENERGYDRAIN_BLACK, is not ported). See
+	// effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_soulexplosion: [
+		{
+			//EF_SOUL_EXPLOSION (1242): CSpriteEffect, 이팩트\soul_explosion\soul_explosion.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'soul_explosion/soul_explosion',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
+			wav: 'effect/hunter_landmine', // hunter_landmine
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
