@@ -12,8 +12,8 @@ import SK from '../../src/DB/Skills/SkillConst.js';
 const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
 
 describe('Hammer of God', () => {
-	it('plays 1062 from the ground packet', () => {
-		expect(SkillEffect[SK.RL_HAMMER_OF_GOD]).toEqual({ effectId: 1062 });
+	it('plays 1062 from the ground packet only, at every level', () => {
+		expect(SkillEffect[SK.RL_HAMMER_OF_GOD]).toEqual({ groundEffectIdByLevel: [1062] });
 	});
 
 	it('loads the client file at the cell, without the Storm Gust STR', () => {
