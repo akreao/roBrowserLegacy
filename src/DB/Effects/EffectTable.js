@@ -26532,6 +26532,16 @@ export default {
 		}
 	],
 
+	// Light of the Moon / Stars / Sun (SJ_LIGHTOFMOON / SJ_LIGHTOFSTAR / SJ_LIGHTOFSUN): when the use packet
+	// has the result set, the skilleffectinfo row plays t_피링.wav and launches the light sphere (1198 / 1199 /
+	// 1197, CLightSphereEffect, not ported) on the caster. See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sj_lightof_sound: [
+		{
+			wav: 'effect/t_\xc7\xc7\xb8\xb5', // t_피링
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [

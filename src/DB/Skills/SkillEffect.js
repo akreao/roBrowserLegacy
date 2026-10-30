@@ -2216,6 +2216,9 @@ SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prom
 SkillEffect[SK.SP_SOULGOLEM] = { effectId: 'ef_sp_soulgolem' }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { effectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { effectId: 'ef_sp_soulrevolve' }; //Soul Revolution
+SkillEffect[SK.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Moon
+SkillEffect[SK.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Stars
+SkillEffect[SK.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: 'ef_sj_lightof_sound' }; //Light of the Sun
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)
