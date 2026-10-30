@@ -26692,7 +26692,8 @@ export default {
 
 	// Kunai Explosion (KO_BAKURETSU): the skilleffectinfo row's sound, on the caster when the use packet
 	// has the result set. The client also throws a kunai (983, CThrowItemEffect) at the target; not ported.
-	// See effect-port/kagerou-oboro-skills.md.
+	// Rapid Throw (KO_MUCHANAGE) plays the same sound from its ground packet. See
+	// effect-port/kagerou-oboro-skills.md.
 	ef_ko_bakuretsu_sound: [
 		{
 			wav: 'effect/\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2', // 닌자_던지기
