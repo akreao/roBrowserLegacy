@@ -20,9 +20,11 @@ import { SOUL, planSouls, soulAt, trailLook } from 'Renderer/Effects/SoulStrikeS
  * @param {Array} dir unit direction to the target on the map, [x, y]
  * @param {number} distance to the target, units
  * @param {number} i
+ * @param {number} [rise] the target's height above the caster's, cells: the
+ *   soul climbs to it as it goes
  * @return {object}
  */
-export function soulTrailEffect(soul, dir, distance, i) {
+export function soulTrailEffect(soul, dir, distance, i, rise = 0) {
 	const look = trailLook(i);
 	return {
 		type: '3D',
@@ -43,7 +45,7 @@ export function soulTrailEffect(soul, dir, distance, i) {
 			return {
 				x: p.x / UNITS_PER_CELL,
 				y: p.y / UNITS_PER_CELL,
-				z: p.up / UNITS_PER_CELL,
+				z: p.up / UNITS_PER_CELL + rise * soulProgress(p, dir, distance),
 				size: look.scale * 100,
 				alpha: look.alpha / 255
 			};
@@ -52,17 +54,34 @@ export function soulTrailEffect(soul, dir, distance, i) {
 }
 
 /**
- * Direction and distance from the caster to the target, in units.
+ * How far along the way to the target a soul is, 0 to 1.
  *
- * @param {Array} from caster [x, y]
- * @param {Array} to target [x, y]
- * @return {object} { dir: [x, y], distance }
+ * @param {object} p from soulAt
+ * @param {Array} dir
+ * @param {number} distance units
+ * @return {number}
+ */
+export function soulProgress(p, dir, distance) {
+	if (!distance) {
+		return 1;
+	}
+	return Math.min(1, Math.max(0, (p.x * dir[0] + p.y * dir[1]) / distance));
+}
+
+/**
+ * Direction and distance from the caster to the target, in units, and how
+ * much higher the target stands, in cells.
+ *
+ * @param {Array} from caster [x, y, z]
+ * @param {Array} to target [x, y, z]
+ * @return {object} { dir: [x, y], distance, rise }
  */
 export function soulAim(from, to) {
 	const dx = (to[0] - from[0]) * UNITS_PER_CELL;
 	const dy = (to[1] - from[1]) * UNITS_PER_CELL;
 	const distance = Math.hypot(dx, dy);
-	return distance ? { dir: [dx / distance, dy / distance], distance } : { dir: [0, 1], distance: 0 };
+	const rise = (to[2] || 0) - (from[2] || 0);
+	return distance ? { dir: [dx / distance, dy / distance], distance, rise } : { dir: [0, 1], distance: 0, rise };
 }
 
 /** EffectTable rows for 15. */
@@ -74,11 +93,11 @@ export const soulStrikeEffect = [
 		func: function (Params) {
 			const from = Params.Inst.position;
 			const to = Params.Inst.otherPosition || from;
-			const { dir, distance } = soulAim(from, to);
+			const { dir, distance, rise } = soulAim(from, to);
 			planSouls(Params.Init.hitCount || 1).forEach((soul, s) => {
 				for (let i = 0; i < SOUL.trail; i++) {
 					this.spamEffect({
-						effect: soulTrailEffect(soul, dir, distance, i),
+						effect: soulTrailEffect(soul, dir, distance, i, rise),
 						Inst: {
 							effectID: 15,
 							duplicateID: s * SOUL.trail + i,
