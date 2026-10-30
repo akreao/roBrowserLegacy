@@ -225872,7 +225872,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GD_RESTORE] = {};
 	SkillEffect[SkillConst_default.GD_EMERGENCYCALL] = {};
 	SkillEffect[SkillConst_default.GD_ITEMEMERGENCYCALL] = {};
-	SkillEffect[SkillConst_default.SJ_FULLMOONKICK] = { effectId: "ef_sj_fullmoonkick" };
+	SkillEffect[SkillConst_default.SJ_FULLMOONKICK] = { successEffectIdOnCaster: [399, "ef_sj_fullmoonkick"] };
 	SkillEffect[SkillConst_default.SJ_NEWMOONKICK] = { effectId: "ef_sj_newmoonkick" };
 	SkillEffect[SkillConst_default.SJ_FLASHKICK] = { effectId: "ef_sj_flashkick" };
 	SkillEffect[SkillConst_default.SJ_FALLINGSTAR] = { effectId: "ef_sj_fallingstar" };
@@ -225882,6 +225882,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SP_SOULGOLEM] = { effectId: "ef_sp_soulgolem" };
 	SkillEffect[SkillConst_default.SP_SOULCURSE] = { effectId: "ef_sp_soulcurse" };
 	SkillEffect[SkillConst_default.SP_SOULREVOLVE] = { effectId: "ef_sp_soulrevolve" };
+	SkillEffect[SkillConst_default.SJ_LIGHTOFMOON] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
+	SkillEffect[SkillConst_default.SJ_LIGHTOFSTAR] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
+	SkillEffect[SkillConst_default.SJ_LIGHTOFSUN] = { successEffectIdOnCaster: "ef_sj_lightof_sound" };
 	SkillEffect[SkillConst_default.NV_HELPANGEL] = { successEffectIdOnCaster: "ef_nv_helpangel" };
 	SkillEffect[SkillConst_default.DR_WEREWOLF] = { effectId: "ef_druid_werewolf" };
 	SkillEffect[SkillConst_default.DR_WERERAPTOR] = { effectId: "ef_druid_wereraptor" };
@@ -316228,7 +316231,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_sj_fullmoonkick: [{
 			type: "STR",
 			file: "fullmoon_kick/fullmoon_kick",
-			texturePath: "fullmoon_kick/"
+			texturePath: "fullmoon_kick/",
+			attachedEntity: true
 		}],
 		ef_sj_newmoonkick: [{
 			type: "STR",
@@ -316274,6 +316278,10 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "soul_revolve/soul_revolve",
 			texturePath: "soul_revolve/"
+		}],
+		ef_sj_lightof_sound: [{
+			wav: "effect/t_ÇÇ¸µ",
+			attachedEntity: true
 		}],
 		ef_ko_jyumonjikiri: [{
 			type: "STR",
