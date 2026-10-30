@@ -26652,6 +26652,19 @@ export default {
 		}
 	],
 
+	// 16th Night (KO_IZAYOI): when the use packet has the result set, the skilleffectinfo row plays
+	// ab_renovatio.wav and launches 999 (ez_cure.str) on the caster. See effect-port/kagerou-oboro-skills.md.
+	ef_ko_izayoi: [
+		{
+			//EF_KO_IZAYOI (999)
+			type: 'STR',
+			file: 'ez_cure',
+			texturePath: '',
+			wav: 'effect/ab_renovatio',
+			attachedEntity: true
+		}
+	],
+
 	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
 	ef_ra_unlimit: [
 		{
