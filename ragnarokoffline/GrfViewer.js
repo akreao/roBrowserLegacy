@@ -352222,6 +352222,42 @@ var init_GUIComponent = __esmMin((() => {
 		}
 	};
 }));
+// src/UI/ColorText.js
+/**
+* UI/ColorText.js
+*
+* Draw text that carries RO colour codes (^RRGGBB) as coloured spans.
+*
+* This file is part of ROBrowser, (http://www.robrowser.com/).
+*/
+/**
+* Put text into an element, honouring ^RRGGBB colour codes. Each code starts a
+* span in that colour, and ^000000 goes back to the element's own colour. The
+* text is added as text nodes, never parsed as HTML.
+*
+* @param {HTMLElement} parent
+* @param {string} text
+*/
+function appendColorText(parent, text) {
+	const parts = String(text ?? "").split(/\^([0-9a-fA-F]{6})/);
+	let node = parent;
+	for (let i = 0; i < parts.length; i++) if (i % 2) {
+		node = document.createElement("span");
+		if (parts[i] !== "000000") node.style.color = `#${parts[i]}`;
+		parent.appendChild(node);
+	} else if (parts[i]) node.appendChild(document.createTextNode(parts[i]));
+}
+/**
+* Replace an element's content with colour-coded text.
+*
+* @param {HTMLElement} el
+* @param {string} text
+*/
+function setColorText(el, text) {
+	el.textContent = "";
+	appendColorText(el, text);
+}
+var init_ColorText = __esmMin((() => {}));
 // src/Utils/Queue.js
 /**
 * Queue Constructor
@@ -361335,21 +361371,6 @@ function formatDate(time) {
 	const pad = (n) => String(n).padStart(2, "0");
 	return `${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
-/**
-* Append text with RO colour codes (^rrggbb) as spans
-*
-* @param {HTMLElement} parent
-* @param {string} text
-*/
-function appendColored(parent, text) {
-	const parts = text.split(/\^([0-9a-fA-F]{6})/);
-	let node = parent;
-	for (let i = 0; i < parts.length; i++) if (i % 2) {
-		node = document.createElement("span");
-		if (parts[i] !== "000000") node.style.color = `#${parts[i]}`;
-		parent.appendChild(node);
-	} else if (parts[i]) node.appendChild(document.createTextNode(parts[i]));
-}
 var STATE, COMMAND_DESTROY_FORCE, MemorialDungeon, _preferences$10, _data, MemorialDungeon_default;
 var init_MemorialDungeon$1 = __esmMin((() => {
 	init_DBManager();
@@ -361361,6 +361382,7 @@ var init_MemorialDungeon$1 = __esmMin((() => {
 	init_Elements();
 	init_GUIComponent();
 	init_UIManager();
+	init_ColorText();
 	init_MemorialDungeon$3();
 	init_MemorialDungeon$2();
 	STATE = {
@@ -361486,10 +361508,10 @@ var init_MemorialDungeon$1 = __esmMin((() => {
 		info.textContent = "";
 		switch (_data.state) {
 			case STATE.STANDBY:
-				appendColored(info, DB.getMessage(1342).replace("%d", _data.priority));
+				appendColorText(info, DB.getMessage(1342).replace("%d", _data.priority));
 				break;
 			case STATE.AVAILABLE:
-				appendColored(info, DB.getMessage(1343).replace("%s", formatDate(_data.enterDate)));
+				appendColorText(info, DB.getMessage(1343).replace("%s", formatDate(_data.enterDate)));
 				break;
 			case STATE.PROGRESS: if (_data.destroyDate) {
 				const date = document.createElement("div");
@@ -388123,6 +388145,7 @@ var init_UIManager = __esmMin((() => {
 	init_UIVersionManager();
 	init_KeyEventHandler();
 	init_ClampToViewport();
+	init_ColorText();
 	init_preload_helper();
 	(function injectCommonCSS() {
 		let style = document.querySelector("style[data-common]");
@@ -388223,7 +388246,7 @@ var init_UIManager = __esmMin((() => {
 			let overlay;
 			WinError.init = function Init() {
 				const root = this._shadow;
-				root.querySelector(".text").textContent = text;
+				setColorText(root.querySelector(".text"), text);
 				Object.assign(this._host.style, _popupPosition());
 				root.querySelector(".btns").appendChild(_createButton("ok", () => {
 					overlay.remove();
@@ -388258,7 +388281,7 @@ var init_UIManager = __esmMin((() => {
 			WinMSG.init = function Init() {
 				this.draggable();
 				const root = this._shadow;
-				root.querySelector(".text").textContent = text;
+				setColorText(root.querySelector(".text"), text);
 				Object.assign(this._host.style, _popupPosition());
 				if (btn_name) root.querySelector(".btns").appendChild(_createButton(btn_name, () => {
 					WinMSG.remove();
@@ -388294,7 +388317,7 @@ var init_UIManager = __esmMin((() => {
 			WinPrompt.init = function Init() {
 				this.draggable();
 				const root = this._shadow;
-				root.querySelector(".text").textContent = text;
+				setColorText(root.querySelector(".text"), text);
 				Object.assign(this._host.style, _popupPosition());
 				const btnsContainer = root.querySelector(".btns");
 				btnsContainer.appendChild(_createButton(btn_yes, () => {
