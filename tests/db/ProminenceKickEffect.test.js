@@ -5,12 +5,12 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 import { SCHEDULES } from 'Renderer/Effects/BodyMotionSim.js';
 
 // Prominence Kick (SJ_PROMINENCEKICK 2593): when the damage arrives, the official client plays 1224 (and
-// 429, EF_HITLINE4, not ported) on the target. 1224 (kRO 2025-07-16 case 0xbc0798) plays mon_침투경.wav
+// 429, EF_HITLINE4, HitLineEffect.js) on the target. 1224 (kRO 2025-07-16 case 0xbc0798) plays mon_침투경.wav
 // on its tick 5 and, from tick 14 until its 50 ticks are up, spins the target's sprite one full turn.
 
 describe('Prominence Kick', () => {
-	it('plays 1224 on the target as the damage arrives', () => {
-		expect(SkillEffect[SK.SJ_PROMINENCEKICK]).toMatchObject({ damageEffectIdOnTarget: 1224 });
+	it('plays 1224 and 429 on the target as the damage arrives', () => {
+		expect(SkillEffect[SK.SJ_PROMINENCEKICK]).toMatchObject({ damageEffectIdOnTarget: [1224, 429] });
 	});
 
 	it('plays mon_침투경 on tick 5 and spins the target', () => {
