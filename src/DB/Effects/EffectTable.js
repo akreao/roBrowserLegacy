@@ -26518,6 +26518,28 @@ export default {
 		}
 	],
 
+	// Anti-Material Blast (RL_AM_BLAST): its skilleffectinfo row plays only this sound as each damage packet
+	// arrives. See effect-port/rebellion-skills.md.
+	ef_rl_am_blast_sound: [
+		{
+			wav: 'effect/rl_am_blast',
+			attachedEntity: true
+		}
+	],
+
+	// ANTI_M_BLAST status: official effect 1136 on the actor while the status is on (kept alive while its
+	// owner lives, removed when the status ends).
+	1136: [
+		{
+			//EF_ANTI_M_BLAST
+			type: 'STR',
+			file: 'rl_anti_material/anti',
+			texturePath: 'rl_anti_material/',
+			repeat: true,
+			attachedEntity: true
+		}
+	],
+
 	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
 	ef_sj_fullmoonkick: [
 		{
