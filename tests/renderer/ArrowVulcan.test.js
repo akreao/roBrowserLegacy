@@ -75,6 +75,8 @@ describe('Arrow Vulcan streaks', () => {
 describe('Arrow Vulcan effect', () => {
 	it('draws the streaks and keeps the sound on tick 30', () => {
 		const rows = EffectTable[393];
+		// lasts as long as the last streak, so the manager can drop it while out of view
+		expect(rows[0].duration).toBeGreaterThanOrEqual((LAST_TICK + 1) * (1000 / 60));
 		expect(rows[0]).toMatchObject({ type: 'FUNC', attachedEntity: false });
 		expect(rows[1]).toMatchObject({ delayWav: 500, attachedEntity: true });
 	});

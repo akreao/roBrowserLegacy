@@ -9555,6 +9555,8 @@ export default {
 			//EF_TRIPLEATTACK3	   Arrow Vulcan: 36 pink streaks from the caster to past the target (ArrowVulcan.js, kRO 2025 0xbfff50)
 			type: 'FUNC',
 			attachedEntity: false,
+			// 208 ticks (ArrowVulcanSim LAST_TICK + 1): also lets the manager drop it while it is culled
+			duration: Math.ceil(208 * PRIM_TICK_MS),
 			func: function (Params) {
 				this.add(
 					new ArrowVulcan(Params.Inst.position, Params.Inst.otherPosition, Params.Inst.startTick),
