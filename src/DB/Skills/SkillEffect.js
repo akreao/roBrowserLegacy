@@ -1326,7 +1326,10 @@ SkillEffect[5501 /* NW_MIDNIGHT_FALLEN */] = {
 }; //Midnight Fallen
 // Kagerou & Oboro
 SkillEffect[SK.KO_YAMIKUMO] = {}; //Shadow Hiding
-SkillEffect[SK.KO_JYUMONJIKIRI] = { effectId: 'ef_ko_jyumonjikiri' }; //Cross Slash
+SkillEffect[SK.KO_JYUMONJIKIRI] = {
+	successEffectIdOnCaster: 'ef_ko_jyumonjikiri_sound',
+	damageEffectIdOnTarget: 'ef_ko_jyumonjikiri'
+}; //Cross Slash: the red cross on the marked target comes from the KO_JYUMONJIKIRI status
 SkillEffect[SK.KO_SETSUDAN] = { effectId: 'ef_ko_setsudan' }; //Soul Cutter
 SkillEffect[SK.KO_BAKURETSU] = {}; //Kunai Explosion
 SkillEffect[SK.KO_HAPPOKUNAI] = {}; //Kunai Splash
