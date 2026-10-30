@@ -26371,13 +26371,26 @@ export default {
 		}
 	],
 
-	// Howling Mine (RL_H_MINE), from the client's own effect folders.
+	// Howling Mine (RL_H_MINE): the official client's skilleffectinfo row plays only this sound as each
+	// damage packet arrives. The mine itself (1139) comes from the H_MINE status. See
+	// effect-port/rebellion-skills.md.
 	ef_rl_h_mine: [
 		{
+			wav: 'effect/rl_h_mine',
+			attachedEntity: true
+		}
+	],
+
+	// H_MINE status: the mine on the actor while the status is on (official effect 1139, kept alive
+	// while its owner lives, removed when the status ends).
+	1139: [
+		{
+			//EF_H_MINE
 			type: 'STR',
 			file: 'rl_h_mine/mine',
 			texturePath: 'rl_h_mine/',
-			wav: 'effect/rl_h_mine'
+			repeat: true,
+			attachedEntity: true
 		}
 	],
 

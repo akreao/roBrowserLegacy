@@ -356,6 +356,12 @@ export default {
 		loop: [375]
 	},
 
+	// Howling Mine (RL_H_MINE): the official client keeps 1139 on the actor while the status is on.
+	// See effect-port/rebellion-skills.md.
+	[StatusConst.H_MINE]: {
+		loop: [1139]
+	},
+
 	// Crimson Marker (RL_C_MARKER): the official client removes the actor's 1075 whenever the status
 	// changes; when it starts, it plays 1061 and then 1075 on the actor, once each. (It skips 1061 for
 	// actors in a client-side list that was not identified.) See effect-port/rebellion-skills.md.
