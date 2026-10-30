@@ -162810,6 +162810,152 @@ var init_MapTable = __esmMin((() => {
 		"que_dan01.rsw": { displayName: "Hugel Field" }
 	};
 }));
+// src/DB/TipBox/TipBoxTable.js
+/**
+* A tip, created on first mention.
+*
+* @param {number} id
+* @return {object}
+*/
+function tip(id) {
+	let entry = _tips.get(id);
+	if (!entry) {
+		entry = {
+			id,
+			title: "",
+			search: false,
+			image: "",
+			position: 5,
+			size: 100,
+			effects: [],
+			pages: [],
+			isTag: false
+		};
+		_tips.set(id, entry);
+	}
+	return entry;
+}
+var _tips, RANDOM_TIP_LIMIT, TipBoxTable;
+var init_TipBoxTable = __esmMin((() => {
+	_tips = /* @__PURE__ */ new Map();
+	RANDOM_TIP_LIMIT = 1e3;
+	TipBoxTable = {
+		RANDOM_TIP_LIMIT,
+		/**
+		* Forget every tip, before a file is loaded again.
+		*/
+		reset() {
+			_tips.clear();
+		},
+		/**
+		* @return {number} how many tips are known
+		*/
+		get size() {
+			return _tips.size;
+		},
+		/**
+		* AddTip(id, title, search, image)
+		*/
+		addTip(id, title, search, image) {
+			const entry = tip(Number(id));
+			entry.title = String(title || "");
+			entry.search = Number(search) === 1;
+			entry.image = String(image || "");
+			return entry;
+		},
+		/**
+		* AddImgcoord(id, position, size): where the picture sits and how large,
+		* in percent. Every tip in the official files is 5 (centred), 100.
+		*/
+		addImgCoord(id, position, size) {
+			const entry = tip(Number(id));
+			entry.position = Number(position);
+			entry.size = Number(size);
+		},
+		/**
+		* AddPageEx(id, effectNum, twinkle, startX, startY, distX, distY, moveTime):
+		* a marker drawn over the picture (tipbox/ico_effect<n>.bmp), at window
+		* coordinates. Effect -1 is the call a tip without markers makes.
+		*/
+		addPageEx(id, effectNum, twinkle, startX, startY, distX, distY, moveTime) {
+			const entry = tip(Number(id));
+			effectNum = Number(effectNum);
+			if (!(effectNum >= 0)) return;
+			entry.effects.push({
+				effect: effectNum,
+				twinkle: Number(twinkle) === 1,
+				x: Number(startX) || 0,
+				y: Number(startY) || 0,
+				distX: Number(distX) || 0,
+				distY: Number(distY) || 0,
+				moveTime: Number(moveTime) || 0
+			});
+		},
+		/**
+		* AddPage(id, text)
+		*/
+		addPage(id, text) {
+			tip(Number(id)).pages.push(String(text || ""));
+		},
+		/**
+		* AddIsTag(id, isTag)
+		*/
+		addIsTag(id, isTag) {
+			tip(Number(id)).isTag = Number(isTag) === 1;
+		},
+		/**
+		* @param {number} id
+		* @return {object|null}
+		*/
+		get(id) {
+			return _tips.get(Number(id)) || null;
+		},
+		/**
+		* The tips the window may open on: under 1000, and searchable.
+		*
+		* @return {Array<number>}
+		*/
+		randomCandidates() {
+			const ids = [];
+			for (const entry of _tips.values()) if (entry.id < RANDOM_TIP_LIMIT && entry.search) ids.push(entry.id);
+			return ids;
+		},
+		/**
+		* A tip to open on, as the official window does: one of the general tips,
+		* at random.
+		*
+		* @param {function} [random] - returns [0, 1)
+		* @return {number|null}
+		*/
+		randomTip(random = Math.random) {
+			const ids = this.randomCandidates();
+			if (!ids.length) return null;
+			return ids[Math.min(ids.length - 1, Math.floor(random() * ids.length))];
+		},
+		/**
+		* Searchable tips whose title holds the text, in id order.
+		*
+		* @param {string} text
+		* @return {Array<object>}
+		*/
+		search(text) {
+			const needle = String(text || "").trim().toLowerCase();
+			if (!needle) return [];
+			const found = [];
+			for (const entry of _tips.values()) if (entry.search && entry.title.toLowerCase().includes(needle)) found.push(entry);
+			return found.sort((a, b) => a.id - b.id);
+		},
+		/**
+		* A title as the window shows it: the lines split at '#', at most two.
+		*
+		* @param {string} title
+		* @return {Array<string>}
+		*/
+		titleLines(title) {
+			return String(title || "").split("#").map((line) => line.trim()).filter(Boolean).slice(0, 2);
+		}
+	};
+}));
 // src/DB/Map/SignboardMerge.js
 /**
 * DB/Map/SignboardMerge.js
@@ -228679,6 +228825,17 @@ var init_ShortCutControls = __esmMin((() => {
 		component: "MercenaryInformations",
 		cmd: "AGGRESSIVE"
 	};
+	ShortCuts$2.TipBox = {
+		init: {
+			key: KEYS.D,
+			alt: true,
+			ctrl: false,
+			shift: false
+		},
+		cust: false,
+		component: "TipBox",
+		cmd: "TOGGLE"
+	};
 	ShortCuts$2.Quest = {
 		init: {
 			key: KEYS.U,
@@ -230122,7 +230279,7 @@ function onResize$8(event) {
 	event.stopPropagation();
 	stopResize();
 	const startY = event.clientY;
-	const startRows = _preferences$43.height;
+	const startRows = _preferences$44.height;
 	const scale = ChatBoxSettings.scale || 1;
 	const move = (moveEvent) => {
 		if (ChatBoxSettings._host.style.display === "none") {
@@ -230157,8 +230314,8 @@ function resize$5(rows) {
 	list.style.height = `${rows * 20 + 3}px`;
 	ChatBoxSettings._host.style.height = `${rows * 20 + 40}px`;
 	list._roScrollbarRestart?.();
-	_preferences$43.height = rows;
-	_preferences$43.save();
+	_preferences$44.height = rows;
+	_preferences$44.save();
 }
 function updateAllCheckbox() {
 	const root = ChatBoxSettings.getRoot();
@@ -230173,7 +230330,7 @@ function fitWindowWidth() {
 	host.style.width = `${Math.max(280, ...Array.from(labels, (label) => label.offsetWidth + 67))}px`;
 	host.style.display = display;
 }
-var ChatBoxSettings, stopResize, _preferences$43, ChatBoxSettings_default;
+var ChatBoxSettings, stopResize, _preferences$44, ChatBoxSettings_default;
 var init_ChatBoxSettings = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -230196,7 +230353,7 @@ var init_ChatBoxSettings = __esmMin((() => {
 	ChatBoxSettings.isOpen = false;
 	ChatBoxSettings.tabOption = [];
 	ChatBoxSettings.activeTab = 0;
-	_preferences$43 = Preferences.get("ChatBoxSettings", {
+	_preferences$44 = Preferences.get("ChatBoxSettings", {
 		x: 480,
 		y: 200,
 		width: 7,
@@ -230236,10 +230393,10 @@ var init_ChatBoxSettings = __esmMin((() => {
 	*/
 	ChatBoxSettings.onAppend = function onAppend() {
 		fitWindowWidth();
-		resize$5(_preferences$43.height);
+		resize$5(_preferences$44.height);
 		const rect = this._host.getBoundingClientRect();
-		this._host.style.top = Math.max(0, Math.min(_preferences$43.y, Renderer.height - rect.height)) + "px";
-		this._host.style.left = Math.max(0, Math.min(_preferences$43.x, Renderer.width - rect.width)) + "px";
+		this._host.style.top = Math.max(0, Math.min(_preferences$44.y, Renderer.height - rect.height)) + "px";
+		this._host.style.left = Math.max(0, Math.min(_preferences$44.x, Renderer.width - rect.width)) + "px";
 		this._host.style.display = "none";
 	};
 	/**
@@ -230272,9 +230429,9 @@ var init_ChatBoxSettings = __esmMin((() => {
 	};
 	ChatBoxSettings.onRemove = function onRemove() {
 		stopResize();
-		_preferences$43.y = parseInt(this._host.style.top, 10) || 0;
-		_preferences$43.x = parseInt(this._host.style.left, 10) || 0;
-		_preferences$43.save();
+		_preferences$44.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences$44.x = parseInt(this._host.style.left, 10) || 0;
+		_preferences$44.save();
 	};
 	ChatBoxSettings.mouseMode = GUIComponent.MouseMode.STOP;
 	ChatBoxSettings_default = UIManager.addComponent(ChatBoxSettings);
@@ -231391,7 +231548,7 @@ function itemName(itemId) {
 function currentMap() {
 	return PrivateAirship$1.normalize(MapRenderer.currentMap);
 }
-var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, BASE_ITEM_ROWS, PrivateAirship, _targetMap, _requests, PENDING_TIMEOUT, PrivateAirship_default;
+var MSG, FALLBACK, NYANGVINE_FRUIT, RESULT_MESSAGE, ITEM_ROW_HEIGHT, WINDOW_WIDTH$1, WINDOW_HEIGHT$1, BASE_ITEM_ROWS, PrivateAirship, _targetMap, _requests, PENDING_TIMEOUT, PrivateAirship_default;
 var init_PrivateAirship = __esmMin((() => {
 	init_DBManager();
 	init_PrivateAirship$3();
@@ -231441,8 +231598,8 @@ var init_PrivateAirship = __esmMin((() => {
 		5: MSG.CANNOT_USE_ITEM
 	};
 	ITEM_ROW_HEIGHT = 26;
-	WINDOW_WIDTH = 208;
-	WINDOW_HEIGHT = 110;
+	WINDOW_WIDTH$1 = 208;
+	WINDOW_HEIGHT$1 = 110;
 	BASE_ITEM_ROWS = 2;
 	PrivateAirship = new GUIComponent("PrivateAirship", PrivateAirship_default$1);
 	PrivateAirship.render = () => PrivateAirship_default$2;
@@ -231482,8 +231639,8 @@ var init_PrivateAirship = __esmMin((() => {
 	*/
 	PrivateAirship.onAppend = function onAppend() {
 		Object.assign(this._host.style, {
-			top: `${Math.max(0, Math.floor((Renderer.height - WINDOW_HEIGHT) / 2))}px`,
-			left: `${Math.max(0, Math.floor((Renderer.width - WINDOW_WIDTH) / 2))}px`
+			top: `${Math.max(0, Math.floor((Renderer.height - WINDOW_HEIGHT$1) / 2))}px`,
+			left: `${Math.max(0, Math.floor((Renderer.width - WINDOW_WIDTH$1) / 2))}px`
 		});
 	};
 	/**
@@ -231537,7 +231694,7 @@ var init_PrivateAirship = __esmMin((() => {
 			list.appendChild(button);
 		}
 		const extra = Math.max(0, row - BASE_ITEM_ROWS) * ITEM_ROW_HEIGHT;
-		this._host.style.height = `${WINDOW_HEIGHT + extra}px`;
+		this._host.style.height = `${WINDOW_HEIGHT$1 + extra}px`;
 		this._host.style.setProperty("--extra-rows-height", `${extra}px`);
 	};
 	/**
@@ -232836,7 +232993,7 @@ function stopPropagation$12(event) {
 function onClose$8() {
 	WorldMap._host.style.display = "none";
 }
-var WorldMap, _preferences$42, _partyMembersByMap, _hoveredSection, C_TITLEBARHEIGHT, C_BASEWIDTH, C_BASEHEIGHT, C_ASPECTX, C_ASPECTY, WorldMap_default;
+var WorldMap, _preferences$43, _partyMembersByMap, _hoveredSection, C_TITLEBARHEIGHT, C_BASEWIDTH, C_BASEHEIGHT, C_ASPECTX, C_ASPECTY, WorldMap_default;
 var init_WorldMap = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -232854,7 +233011,7 @@ var init_WorldMap = __esmMin((() => {
 	init_Navigation();
 	WorldMap = new GUIComponent("WorldMap", WorldMap_default$1);
 	WorldMap.render = () => WorldMap_default$2;
-	_preferences$42 = Preferences.get("WorldMap", {
+	_preferences$43 = Preferences.get("WorldMap", {
 		x: 0,
 		y: 0,
 		width: window.innerWidth,
@@ -232894,7 +233051,7 @@ var init_WorldMap = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	WorldMap.onAppend = function onAppend() {
-		if (!_preferences$42.show) this._host.style.display = "none";
+		if (!_preferences$43.show) this._host.style.display = "none";
 		this.settings = {
 			episode: 98,
 			add: [],
@@ -232917,12 +233074,12 @@ var init_WorldMap = __esmMin((() => {
 		this._host.style.left = "0px";
 	};
 	WorldMap.onRemove = function onRemove() {
-		_preferences$42.show = this._host.style.display !== "none";
-		_preferences$42.y = 0;
-		_preferences$42.x = 0;
-		_preferences$42.width = 0;
-		_preferences$42.height = 0;
-		_preferences$42.save();
+		_preferences$43.show = this._host.style.display !== "none";
+		_preferences$43.y = 0;
+		_preferences$43.x = 0;
+		_preferences$43.width = 0;
+		_preferences$43.height = 0;
+		_preferences$43.save();
 	};
 	/**
 	* Show/Hide UI
@@ -233921,9 +234078,9 @@ function onClickClose$2(e) {
 	e.stopImmediatePropagation();
 	Rodex.openType = 0;
 	Rodex.closeRodexBox();
-	_preferences$41.y = parseInt(Rodex._host.style.top, 10);
-	_preferences$41.x = parseInt(Rodex._host.style.left, 10);
-	_preferences$41.save();
+	_preferences$42.y = parseInt(Rodex._host.style.top, 10);
+	_preferences$42.x = parseInt(Rodex._host.style.left, 10);
+	_preferences$42.save();
 	Rodex._host.style.display = "none";
 }
 function onClickRefresh(e) {
@@ -234019,7 +234176,7 @@ function onClickReplyMail(e) {
 	const sender = e.currentTarget.getAttribute("sender");
 	Rodex.requestOpenWriteRodex(sender);
 }
-var Rodex, _preferences$41, Rodex_default;
+var Rodex, _preferences$42, Rodex_default;
 var init_Rodex$1 = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -234080,7 +234237,7 @@ var init_Rodex$1 = __esmMin((() => {
 		if (zeny) return "basic_interface/rodexsystem/renewal/icon_zeny.bmp";
 		return "";
 	};
-	_preferences$41 = Preferences.get("Rodex", {
+	_preferences$42 = Preferences.get("Rodex", {
 		x: 350,
 		y: 350,
 		show: false
@@ -234112,8 +234269,8 @@ var init_Rodex$1 = __esmMin((() => {
 	*/
 	Rodex.onAppend = function OnAppend() {
 		const root = _root$20();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$41.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$41.x), Renderer.width - this._host.offsetWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$42.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$42.x), Renderer.width - this._host.offsetWidth)}px`;
 		root.querySelector(".search").value = "";
 		Rodex.openType = 0;
 		root.querySelectorAll(".nav-item.active").forEach((el) => el.classList.remove("active"));
@@ -234126,10 +234283,10 @@ var init_Rodex$1 = __esmMin((() => {
 	*/
 	Rodex.onRemove = function OnRemove() {
 		this.list.length = 0;
-		_preferences$41.show = this._host.style.display !== "none";
-		_preferences$41.y = parseInt(this._host.style.top, 10);
-		_preferences$41.x = parseInt(this._host.style.left, 10);
-		_preferences$41.save();
+		_preferences$42.show = this._host.style.display !== "none";
+		_preferences$42.y = parseInt(this._host.style.top, 10);
+		_preferences$42.x = parseInt(this._host.style.left, 10);
+		_preferences$42.save();
 		Rodex.openType = 0;
 	};
 	/**
@@ -237575,7 +237732,7 @@ function onItemUsed$1(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 }
-var CartItems, _realSize$1, _preferences$40, CartItems_default;
+var CartItems, _realSize$1, _preferences$41, CartItems_default;
 var init_CartItems = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -237605,7 +237762,7 @@ var init_CartItems = __esmMin((() => {
 	*/
 	CartItems.list = [];
 	_realSize$1 = 0;
-	_preferences$40 = Preferences.get("CartItems", {
+	_preferences$41 = Preferences.get("CartItems", {
 		x: 200,
 		y: 200,
 		width: 7,
@@ -237667,12 +237824,12 @@ var init_CartItems = __esmMin((() => {
 	*/
 	CartItems.onAppend = function OnAppend() {
 		if (SessionStorage_default.Entity.hasCart === false) this._host.style.display = "none";
-		if (!_preferences$40.show) this._host.style.display = "none";
-		this.resize(_preferences$40.width, _preferences$40.height);
+		if (!_preferences$41.show) this._host.style.display = "none";
+		this.resize(_preferences$41.width, _preferences$41.height);
 		const hostRect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$40.y), Renderer.height - hostRect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$40.x), Renderer.width - hostRect.width)}px`;
-		_realSize$1 = _preferences$40.reduce ? 0 : hostRect.height;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$41.y), Renderer.height - hostRect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$41.x), Renderer.width - hostRect.width)}px`;
+		_realSize$1 = _preferences$41.reduce ? 0 : hostRect.height;
 		const miniBtn = this.getRoot().querySelector(".titlebar .mini");
 		if (miniBtn) miniBtn.dispatchEvent(new Event("mousedown"));
 	};
@@ -237684,14 +237841,14 @@ var init_CartItems = __esmMin((() => {
 		if (content) content.innerHTML = "";
 		this.list.length = 0;
 		document.querySelectorAll(".ItemInfo").forEach((el) => el.remove());
-		_preferences$40.show = this._host.style.display !== "none";
-		_preferences$40.reduce = !!_realSize$1;
-		_preferences$40.y = parseInt(this._host.style.top, 10);
-		_preferences$40.x = parseInt(this._host.style.left, 10);
+		_preferences$41.show = this._host.style.display !== "none";
+		_preferences$41.reduce = !!_realSize$1;
+		_preferences$41.y = parseInt(this._host.style.top, 10);
+		_preferences$41.x = parseInt(this._host.style.left, 10);
 		const hostRect = this._host.getBoundingClientRect();
-		_preferences$40.width = Math.floor((hostRect.width - 25) / 32);
-		_preferences$40.height = Math.floor((hostRect.height - 20) / 32);
-		_preferences$40.save();
+		_preferences$41.width = Math.floor((hostRect.width - 25) / 32);
+		_preferences$41.height = Math.floor((hostRect.height - 20) / 32);
+		_preferences$41.save();
 	};
 	/**
 	* Process shortcut
@@ -240053,7 +240210,7 @@ function reqCloseBank() {
 	pkt.AID = SessionStorage_default.AID;
 	Network.sendPacket(pkt);
 }
-var Bank, maxInt, _preferences$39, Bank_default;
+var Bank, maxInt, _preferences$40, Bank_default;
 var init_Bank$1 = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -240076,7 +240233,7 @@ var init_Bank$1 = __esmMin((() => {
 	*/
 	Bank.render = () => Bank_default$2;
 	maxInt = 2147483647;
-	_preferences$39 = Preferences.get("Bank", {
+	_preferences$40 = Preferences.get("Bank", {
 		x: 230,
 		y: 295
 	}, 2);
@@ -240141,8 +240298,8 @@ var init_Bank$1 = __esmMin((() => {
 	*/
 	Bank.onAppend = function onAppend() {
 		const root = this.getRoot();
-		this._host.style.top = Math.min(Math.max(0, _preferences$39.y), Renderer.height - this._host.offsetHeight) + "px";
-		this._host.style.left = Math.min(Math.max(0, _preferences$39.x), Renderer.width - this._host.offsetWidth) + "px";
+		this._host.style.top = Math.min(Math.max(0, _preferences$40.y), Renderer.height - this._host.offsetHeight) + "px";
+		this._host.style.left = Math.min(Math.max(0, _preferences$40.x), Renderer.width - this._host.offsetWidth) + "px";
 		const input = root.querySelector(".depo");
 		input.value = "";
 		input.focus();
@@ -240193,9 +240350,9 @@ var init_Bank$1 = __esmMin((() => {
 	* Remove Bank from window
 	*/
 	Bank.onRemove = function onRemove() {
-		_preferences$39.y = parseInt(this._host.style.top, 10);
-		_preferences$39.x = parseInt(this._host.style.left, 10);
-		_preferences$39.save();
+		_preferences$40.y = parseInt(this._host.style.top, 10);
+		_preferences$40.x = parseInt(this._host.style.left, 10);
+		_preferences$40.save();
 		const error = this.getRoot().querySelector(".errorupdate");
 		if (error) error.textContent = "";
 	};
@@ -240302,7 +240459,7 @@ function add$1({ background, hover, down, title, onClick } = {}) {
 		background,
 		hover,
 		down
-	})) if ((key === "background" || value !== void 0) && (typeof value !== "string" || !PICTURE.test(value))) throw new TypeError(`MenuHooks.add: ${key} must be a picture in the interface folder`);
+	})) if ((key === "background" || value !== void 0) && (typeof value !== "string" || !PICTURE$1.test(value))) throw new TypeError(`MenuHooks.add: ${key} must be a picture in the interface folder`);
 	if (typeof onClick !== "function") throw new TypeError("MenuHooks.add: onClick must be a function");
 	const button = Object.freeze({
 		background,
@@ -240351,9 +240508,9 @@ function onChange$1(listener) {
 		if (index > -1) _listeners$2.splice(index, 1);
 	};
 }
-var PICTURE, _buttons, _listeners$2, MenuHooks_default;
+var PICTURE$1, _buttons, _listeners$2, MenuHooks_default;
 var init_MenuHooks = __esmMin((() => {
-	PICTURE = /^(?!.*\.\.)[A-Za-z0-9_][A-Za-z0-9_./-]*\.(bmp|tga|png|jpe?g)$/i;
+	PICTURE$1 = /^(?!.*\.\.)[A-Za-z0-9_][A-Za-z0-9_./-]*\.(bmp|tga|png|jpe?g)$/i;
 	_buttons = [];
 	_listeners$2 = [];
 	MenuHooks_default = {
@@ -240401,7 +240558,7 @@ function onToggleBGM() {
 	if (Audio_default.BGM.play) BGM.play(BGM.filename);
 	else BGM.stop();
 }
-var SoundOption, _preferences$38, SoundOption_default;
+var SoundOption, _preferences$39, SoundOption_default;
 var init_SoundOption = __esmMin((() => {
 	init_Preferences$1();
 	init_Audio();
@@ -240414,7 +240571,7 @@ var init_SoundOption = __esmMin((() => {
 	init_SoundOption$1();
 	SoundOption = new GUIComponent("SoundOption", SoundOption_default$1);
 	SoundOption.render = () => SoundOption_default$2;
-	_preferences$38 = Preferences.get("SoundOption", {
+	_preferences$39 = Preferences.get("SoundOption", {
 		x: 300,
 		y: 300
 	}, 1);
@@ -240439,8 +240596,8 @@ var init_SoundOption = __esmMin((() => {
 		this.draggable(".titlebar");
 	};
 	SoundOption.onAppend = function onAppend() {
-		this._host.style.top = _preferences$38.y + "px";
-		this._host.style.left = _preferences$38.x + "px";
+		this._host.style.top = _preferences$39.y + "px";
+		this._host.style.left = _preferences$39.x + "px";
 		const root = this.getRoot();
 		const soundSlider = root.querySelector(".sound");
 		if (soundSlider) soundSlider.value = Audio_default.Sound.volume * 100;
@@ -240452,9 +240609,9 @@ var init_SoundOption = __esmMin((() => {
 		if (bgmState) bgmState.checked = Audio_default.BGM.play;
 	};
 	SoundOption.onRemove = function onRemove() {
-		_preferences$38.x = parseInt(this._host.style.left, 10);
-		_preferences$38.y = parseInt(this._host.style.top, 10);
-		_preferences$38.save();
+		_preferences$39.x = parseInt(this._host.style.left, 10);
+		_preferences$39.y = parseInt(this._host.style.top, 10);
+		_preferences$39.save();
 	};
 	SoundOption_default = UIManager.addComponent(SoundOption);
 }));
@@ -240599,7 +240756,7 @@ var init_FPS$1 = __esmMin((() => {
 	FPS_default$1 = ":host {\r\n	top: 100px;\r\n	left: 100px;\r\n	width: 80px;\r\n	height: 20px;\r\n}\r\n\r\n#FPS {\r\n	position: absolute;\r\n	background: white;\r\n	border-radius: 2px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n#FPS .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n}\r\n#FPS .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n";
 }));
 // src/UI/Components/FPS/FPS.js
-var FPS, _maxFPSRegistered, _minFPSRegistered, _tickFn, _preferences$37, FPS_default;
+var FPS, _maxFPSRegistered, _minFPSRegistered, _tickFn, _preferences$38, FPS_default;
 var init_FPS = __esmMin((() => {
 	init_Preferences$1();
 	init_Renderer();
@@ -240614,7 +240771,7 @@ var init_FPS = __esmMin((() => {
 	_maxFPSRegistered = 0;
 	_minFPSRegistered = Infinity;
 	_tickFn = null;
-	_preferences$37 = Preferences.get("FPS", {
+	_preferences$38 = Preferences.get("FPS", {
 		show: false,
 		x: 100,
 		y: 100
@@ -240638,9 +240795,9 @@ var init_FPS = __esmMin((() => {
 	* When appended to DOM
 	*/
 	FPS.onAppend = function onAppend() {
-		this._host.style.top = _preferences$37.y + "px";
-		this._host.style.left = _preferences$37.x + "px";
-		this._host.style.display = _preferences$37.show ? "" : "none";
+		this._host.style.top = _preferences$38.y + "px";
+		this._host.style.left = _preferences$38.x + "px";
+		this._host.style.display = _preferences$38.show ? "" : "none";
 		const root = this.getRoot();
 		const fpsEl = root.querySelector("#fpsCounter");
 		const fpsRoot = root.querySelector("#FPS");
@@ -240705,21 +240862,21 @@ var init_FPS = __esmMin((() => {
 			Renderer.stop(_tickFn);
 			_tickFn = null;
 		}
-		_preferences$37.x = parseInt(this._host.style.left, 10);
-		_preferences$37.y = parseInt(this._host.style.top, 10);
-		_preferences$37.show = this._host.style.display !== "none";
-		_preferences$37.save();
+		_preferences$38.x = parseInt(this._host.style.left, 10);
+		_preferences$38.y = parseInt(this._host.style.top, 10);
+		_preferences$38.show = this._host.style.display !== "none";
+		_preferences$38.save();
 	};
 	/**
 	* Show/Hide UI
 	*/
 	FPS.toggle = function toggle(isVisible) {
-		_preferences$37.x = parseInt(this._host.style.left, 10);
-		_preferences$37.y = parseInt(this._host.style.top, 10);
+		_preferences$38.x = parseInt(this._host.style.left, 10);
+		_preferences$38.y = parseInt(this._host.style.top, 10);
 		if (typeof isVisible === "boolean") this._host.style.display = isVisible ? "" : "none";
 		else this._host.style.display = this._host.style.display === "none" ? "" : "none";
-		_preferences$37.show = this._host.style.display !== "none";
-		_preferences$37.save();
+		_preferences$38.show = this._host.style.display !== "none";
+		_preferences$38.save();
 		if (this._host.style.display !== "none") this.focus();
 	};
 	FPS_default = UIManager.addComponent(FPS);
@@ -241005,7 +241162,7 @@ function onResetToDefaults() {
 	GraphicsSettings.save();
 	GraphicsOption.onAppend();
 }
-var GraphicsOption, _preferences$36, GraphicsOption_default;
+var GraphicsOption, _preferences$37, GraphicsOption_default;
 var init_GraphicsOption = __esmMin((() => {
 	init_FPS();
 	init_Configs();
@@ -241021,7 +241178,7 @@ var init_GraphicsOption = __esmMin((() => {
 	init_MemoryManager();
 	init_ChatBox();
 	GraphicsOption = new GUIComponent("GraphicsOption", GraphicsOption_default$1);
-	_preferences$36 = Preferences.get("GraphicsOption", {
+	_preferences$37 = Preferences.get("GraphicsOption", {
 		x: 300,
 		y: 300
 	}, 1.1);
@@ -241092,8 +241249,8 @@ var init_GraphicsOption = __esmMin((() => {
 	* When append the element to html
 	*/
 	GraphicsOption.onAppend = function onAppend() {
-		this._host.style.top = `${_preferences$36.y}px`;
-		this._host.style.left = `${_preferences$36.x}px`;
+		this._host.style.top = `${_preferences$37.y}px`;
+		this._host.style.left = `${_preferences$37.x}px`;
 		const root = this.getRoot();
 		root.querySelector(".details").value = GraphicsSettings.quality;
 		root.querySelector(".screensize").value = GraphicsSettings.screensize;
@@ -241129,9 +241286,9 @@ var init_GraphicsOption = __esmMin((() => {
 	* Once remove, save preferences
 	*/
 	GraphicsOption.onRemove = function onRemove() {
-		_preferences$36.x = parseInt(this._host.style.left, 10);
-		_preferences$36.y = parseInt(this._host.style.top, 10);
-		_preferences$36.save();
+		_preferences$37.x = parseInt(this._host.style.left, 10);
+		_preferences$37.y = parseInt(this._host.style.top, 10);
+		_preferences$37.save();
 	};
 	GraphicsOption.needFocus = true;
 	GraphicsOption.mouseMode = GUIComponent.MouseMode.STOP;
@@ -242789,8 +242946,8 @@ function onResize$6(event) {
 		h = Math.min(Math.max(h, 1), _rowCount);
 		if (h === lastHeight) return;
 		host.style.height = `${h * 34}px`;
-		_preferences$35.size = h;
-		_preferences$35.save();
+		_preferences$36.size = h;
+		_preferences$36.save();
 		lastHeight = h;
 	}
 	const _Interval = setInterval(resizing, 30);
@@ -242955,8 +243112,8 @@ function clickElement(index) {
 */
 function onClose$7() {
 	ShortCut._host.style.height = "0px";
-	_preferences$35.size = 0;
-	_preferences$35.save();
+	_preferences$36.size = 0;
+	_preferences$36.save();
 }
 /**
 * Hook Inventory, get informations when there is a change
@@ -243131,7 +243288,7 @@ function haveHotkeysChanged(currentData) {
 	if (!_lastServerHotkeys) return true;
 	return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
 }
-var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$35, ShortCut_default;
+var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$36, ShortCut_default;
 var init_ShortCut = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -243164,7 +243321,7 @@ var init_ShortCut = __esmMin((() => {
 	_rowCount = 0;
 	_lastServerHotkeys = null;
 	_activeAnimations = /* @__PURE__ */ new Map();
-	_preferences$35 = Preferences.get("ShortCut", {
+	_preferences$36 = Preferences.get("ShortCut", {
 		x: 480,
 		y: 0,
 		size: 1,
@@ -243230,14 +243387,14 @@ var init_ShortCut = __esmMin((() => {
 	* Append to body
 	*/
 	ShortCut.onAppend = function onAppend() {
-		this._host.style.height = `${34 * _preferences$35.size}px`;
+		this._host.style.height = `${34 * _preferences$36.size}px`;
 		const rect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$35.y), Renderer.height - rect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$35.x), Renderer.width - rect.width)}px`;
-		this.magnet.TOP = _preferences$35.magnet_top;
-		this.magnet.BOTTOM = _preferences$35.magnet_bottom;
-		this.magnet.LEFT = _preferences$35.magnet_left;
-		this.magnet.RIGHT = _preferences$35.magnet_right;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$36.y), Renderer.height - rect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$36.x), Renderer.width - rect.width)}px`;
+		this.magnet.TOP = _preferences$36.magnet_top;
+		this.magnet.BOTTOM = _preferences$36.magnet_bottom;
+		this.magnet.LEFT = _preferences$36.magnet_left;
+		this.magnet.RIGHT = _preferences$36.magnet_right;
 		Controller$4.onUpdateSkill = onUpdateSkill;
 		updateEmptySlotTooltips();
 	};
@@ -243249,14 +243406,14 @@ var init_ShortCut = __esmMin((() => {
 		if (tooltip) tooltip.classList.remove("show");
 		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
 		_activeAnimations.clear();
-		_preferences$35.y = parseInt(this._host.style.top, 10);
-		_preferences$35.x = parseInt(this._host.style.left, 10);
-		_preferences$35.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
-		_preferences$35.magnet_top = this.magnet.TOP;
-		_preferences$35.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$35.magnet_left = this.magnet.LEFT;
-		_preferences$35.magnet_right = this.magnet.RIGHT;
-		_preferences$35.save();
+		_preferences$36.y = parseInt(this._host.style.top, 10);
+		_preferences$36.x = parseInt(this._host.style.left, 10);
+		_preferences$36.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
+		_preferences$36.magnet_top = this.magnet.TOP;
+		_preferences$36.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$36.magnet_left = this.magnet.LEFT;
+		_preferences$36.magnet_right = this.magnet.RIGHT;
+		_preferences$36.save();
 	};
 	/**
 	* Request to clean the list
@@ -243281,9 +243438,9 @@ var init_ShortCut = __esmMin((() => {
 				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
 				break;
 			case "EXTEND":
-				_preferences$35.size = (_preferences$35.size + 1) % (_rowCount + 1);
-				_preferences$35.save();
-				this._host.style.height = `${_preferences$35.size * 34}px`;
+				_preferences$36.size = (_preferences$36.size + 1) % (_rowCount + 1);
+				_preferences$36.save();
+				this._host.style.height = `${_preferences$36.size * 34}px`;
 		}
 	};
 	ShortCut.useSkill = function useSkill(id, level) {
@@ -252624,7 +252781,7 @@ function onUpdateUIFocus() {
 	Controls_default.joyUIFocus = !!this.checked;
 	Controls_default.save();
 }
-var JOY_RANGES, JOY_CHECKBOXES, ShortCutOption, ShortCuts$1, ShortCutsTemp, _preferences$34, MAPPING_ROLES, ShortCutOption_default;
+var JOY_RANGES, JOY_CHECKBOXES, ShortCutOption, ShortCuts$1, ShortCutsTemp, _preferences$35, MAPPING_ROLES, ShortCutOption_default;
 var init_ShortCutOption = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Preferences$1();
@@ -252662,7 +252819,7 @@ var init_ShortCutOption = __esmMin((() => {
 	ShortCuts$1 = ShortCutControls_default.ShortCuts;
 	ShortCutsTemp = {};
 	ShortCutOption.isCapturing = false;
-	_preferences$34 = Preferences.get("ShortCutOption", {
+	_preferences$35 = Preferences.get("ShortCutOption", {
 		x: 300,
 		y: 300
 	}, 1);
@@ -252790,8 +252947,8 @@ var init_ShortCutOption = __esmMin((() => {
 		const cycleMode = this.getRoot().querySelector(".joyCycleMode");
 		if (cycleMode) cycleMode.value = String(shownCategory());
 		reflectGamepadSettings(this.getRoot());
-		this._host.style.left = _preferences$34.x + "px";
-		this._host.style.top = _preferences$34.y + "px";
+		this._host.style.left = _preferences$35.x + "px";
+		this._host.style.top = _preferences$35.y + "px";
 		this._host.style.zIndex = 100;
 	};
 	/**
@@ -252800,9 +252957,9 @@ var init_ShortCutOption = __esmMin((() => {
 	ShortCutOption.onRemove = function() {
 		JoystickButtonMap_default.cancelCapture();
 		JoystickStickFilter_default.cancelCalibration();
-		_preferences$34.x = parseInt(this._host.style.left, 10);
-		_preferences$34.y = parseInt(this._host.style.top, 10);
-		_preferences$34.save();
+		_preferences$35.x = parseInt(this._host.style.left, 10);
+		_preferences$35.y = parseInt(this._host.style.top, 10);
+		_preferences$35.save();
 	};
 	/**
 	* Process key
@@ -253123,7 +253280,7 @@ function onClickAttendance(e) {
 	const _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 	Network.sendPacket(_pkt);
 }
-var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$33, CheckAttendance_default;
+var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$34, CheckAttendance_default;
 var init_CheckAttendance = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -253137,7 +253294,7 @@ var init_CheckAttendance = __esmMin((() => {
 	init_Elements();
 	CheckAttendance = new GUIComponent("CheckAttendance", CheckAttendance_default$1);
 	CheckAttendance.render = () => CheckAttendance_default$2;
-	_preferences$33 = Preferences.get("CheckAttendance", {
+	_preferences$34 = Preferences.get("CheckAttendance", {
 		x: 200,
 		y: 200
 	}, 1);
@@ -253162,10 +253319,10 @@ var init_CheckAttendance = __esmMin((() => {
 	*/
 	CheckAttendance.onAppend = function onAppend() {
 		Object.assign(this._host.style, {
-			top: `${Math.min(Math.max(0, _preferences$33.y), Renderer.height - this._host.getBoundingClientRect().height)}px`,
-			left: `${Math.min(Math.max(0, _preferences$33.x), Renderer.width - this._host.getBoundingClientRect().width)}px`
+			top: `${Math.min(Math.max(0, _preferences$34.y), Renderer.height - this._host.getBoundingClientRect().height)}px`,
+			left: `${Math.min(Math.max(0, _preferences$34.x), Renderer.width - this._host.getBoundingClientRect().width)}px`
 		});
-		if (!_preferences$33.show) this._host.style.display = "none";
+		if (!_preferences$34.show) this._host.style.display = "none";
 		if (_checkAttendanceData >= 0 && _CheckAttendanceInfo.Config) {
 			CheckAttendance.updateUI();
 			this.focus();
@@ -254147,14 +254304,14 @@ function isInCooldown(quest) {
 	if (quest.end_time > epoch_seconds) return true;
 	return false;
 }
-var _preferences$32, QuestWindow, QuestWindow_default;
+var _preferences$33, QuestWindow, QuestWindow_default;
 var init_QuestWindow = __esmMin((() => {
 	init_Preferences$1();
 	init_UIManager();
 	init_GUIComponent();
 	init_QuestWindow$2();
 	init_QuestWindow$1();
-	_preferences$32 = Preferences.get("Quest", {
+	_preferences$33 = Preferences.get("Quest", {
 		x: 200,
 		y: 200,
 		show: false,
@@ -254174,7 +254331,7 @@ var init_QuestWindow = __esmMin((() => {
 	* Once append to the DOM, start to position the UI
 	*/
 	QuestWindow.onAppend = function onAppend() {
-		if (!_preferences$32.showwindow) this.ui.hide();
+		if (!_preferences$33.showwindow) this.ui.hide();
 	};
 	/**
 	* Clean up UI
@@ -254329,7 +254486,7 @@ var init_Achievement$2 = __esmMin((() => {
 	Achievement_default$1 = ":host {\r\n	width: 750px;\r\n	height: 468px;\r\n	top: 100px;\r\n	left: 100px;\r\n	position: absolute;\r\n	color: #666;\r\n	font-family: inherit;\r\n	font-size: 11px;\r\n}\r\n\r\n/* Background layers */\r\n.bg-summary {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 649px;\r\n	height: 405px;\r\n	pointer-events: none;\r\n	background-size: 100% 100%;\r\n}\r\n\r\n.bg-list {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 649px;\r\n	height: 405px;\r\n	background-size: 100% 100%;\r\n	pointer-events: none;\r\n	display: none;\r\n}\r\n\r\n/* Titlebar */\r\n.titlebar {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 18px;\r\n}\r\n\r\n.titlebar .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 20px;\r\n	color: #000;\r\n	font-weight: bold;\r\n}\r\n\r\n.titlebar {\r\n	width: 750px;\r\n	height: 17px;\r\n}\r\n.titlebar .corner {\r\n	position: absolute;\r\n	width: 12px;\r\n	height: 17px;\r\n}\r\n.titlebar .corner.left {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n.titlebar .corner.right {\r\n	top: 0px;\r\n	right: 0px;\r\n}\r\n.titlebar .center {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 12px;\r\n	width: 726px;\r\n	height: 17px;\r\n}\r\n.titlebar .title {\r\n	position: absolute;\r\n	top: 2px;\r\n	left: 16px;\r\n	font-size: 13px;\r\n}\r\n.titlebar .btn-left {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 4px;\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background: none;\r\n}\r\n.titlebar .btn-right {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 2px;\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background: none;\r\n}\r\n\r\n/* Header Area */\r\n.header {\r\n	position: absolute;\r\n	top: 17px;\r\n	left: 0;\r\n	width: 750px;\r\n	height: 46px;\r\n}\r\n\r\n.header .rank-badge {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 5px;\r\n	width: 35px;\r\n	height: 35px;\r\n	text-align: center;\r\n	line-height: 40px;\r\n	font-weight: bold;\r\n	color: #7b4f2c;\r\n}\r\n\r\n.header .overall-points {\r\n	position: absolute;\r\n	top: 10px;\r\n	left: 325px;\r\n	width: 100px;\r\n	text-align: center;\r\n	font-weight: bold;\r\n	color: #000;\r\n}\r\n\r\n.header .rank-progress {\r\n	position: absolute;\r\n	top: 15px;\r\n	left: 45px;\r\n	width: 80px;\r\n}\r\n\r\n.header .rank-progress .progress-text {\r\n	text-align: right;\r\n	font-size: 10px;\r\n	margin-bottom: 1px;\r\n	color: #000;\r\n}\r\n\r\n.header .rank-progress .bar-bg {\r\n	width: 100%;\r\n	height: 7px;\r\n	background: #fff;\r\n	border: 1px solid #97b2dd;\r\n}\r\n\r\n.header .rank-progress .bar-fill {\r\n	height: 100%;\r\n	background: #5b85d9;\r\n}\r\n\r\n.header .cat-progress .cat-image {\r\n	position: absolute;\r\n	top: -13px;\r\n	left: -40px;\r\n	width: 39px;\r\n	height: 40px;\r\n}\r\n\r\n.js-cat-name {\r\n	color: #3030a4;\r\n}\r\n\r\n.header .cat-progress {\r\n	position: absolute;\r\n	top: 15px;\r\n	right: 15px;\r\n	width: 140px;\r\n}\r\n\r\n.header .cat-progress .cat-text {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	font-weight: bold;\r\n	font-size: 9px;\r\n	color: #000;\r\n	margin-bottom: 2px;\r\n}\r\n\r\n.header .cat-progress .bar-bg {\r\n	width: 100%;\r\n	height: 7px;\r\n	background: #fff;\r\n	border: 1px solid #97b2dd;\r\n}\r\n\r\n.header .cat-progress .bar-fill {\r\n	height: 100%;\r\n	background: #5b85d9;\r\n}\r\n\r\n.header .filter-group {\r\n	position: absolute;\r\n	top: 10px;\r\n	left: 160px;\r\n}\r\n\r\n.header .filter-group > div {\r\n	margin-bottom: 3px;\r\n	cursor: pointer;\r\n}\r\n\r\n.header .filter-group ui-image {\r\n	vertical-align: middle;\r\n	margin-right: 5px;\r\n}\r\n\r\n.header .filter-group .radio-container {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 2px;\r\n}\r\n\r\n.header .filter-group .radio-container .radio {\r\n	width: 12px;\r\n	height: 12px;\r\n}\r\n\r\n.header .filter-group .radio-container ui-image {\r\n	width: 12px;\r\n	height: 12px;\r\n}\r\n\r\n/* Tabs Sidebar */\r\n.sidebar {\r\n	position: absolute;\r\n	top: 60px;\r\n	left: 0;\r\n	width: 100px;\r\n	height: 405px;\r\n}\r\n\r\n.sidebar .major-tab {\r\n	position: relative;\r\n	height: 34px;\r\n	line-height: 40px;\r\n	text-align: left;\r\n	padding-left: 15px;\r\n	color: #6268b0;\r\n	border-bottom: 1px solid #aaa;\r\n}\r\n\r\n.sidebar .major-tab.active {\r\n	color: #3030a4;\r\n	font-weight: bold;\r\n}\r\n\r\n/* Background for specific tabs using the tab bg */\r\n.sidebar .tab-bg {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100px;\r\n	height: 40px;\r\n	z-index: -1;\r\n}\r\n\r\n.sidebar .minor-tabs {\r\n	background: #f9f9f9;\r\n	padding-bottom: 5px;\r\n	max-height: 75px; /* approx 3 tabs (25px each) */\r\n	overflow-y: auto;\r\n}\r\n\r\n.sidebar .minor-tab {\r\n	padding: 5px 0 5px 25px;\r\n	cursor: pointer;\r\n	color: #6d74be;\r\n	border-bottom: 1px dashed #bebebe;\r\n	font-size: 9px;\r\n}\r\n\r\n.sidebar .minor-tab:hover,\r\n.sidebar .minor-tab.active {\r\n	color: #3030a4;\r\n	background: #eef3fb;\r\n}\r\n\r\n/* Main Area - Overview Pane */\r\n.pane-overview {\r\n	position: absolute;\r\n	top: 60px;\r\n	left: 100px;\r\n	width: 648px;\r\n	height: 405px;\r\n	background-color: #fff;\r\n}\r\n\r\n.pane-overview .category-total {\r\n	position: absolute;\r\n	top: 37px;\r\n	left: 45px;\r\n	width: 555px;\r\n}\r\n\r\n.pane-overview .category-total .category-total-text .name {\r\n	margin-left: 35px;\r\n	margin-top: -10px;\r\n	margin-bottom: 12px;\r\n}\r\n\r\n.pane-overview .category-general {\r\n	position: absolute;\r\n	top: 110px;\r\n	left: 44px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-adventure {\r\n	position: absolute;\r\n	top: 110px;\r\n	left: 349px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-battle {\r\n	position: absolute;\r\n	top: 160px;\r\n	left: 44px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-quest {\r\n	position: absolute;\r\n	top: 160px;\r\n	left: 349px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-memorial {\r\n	position: absolute;\r\n	top: 210px;\r\n	left: 44px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-feat {\r\n	position: absolute;\r\n	top: 210px;\r\n	left: 349px;\r\n	width: 252px;\r\n}\r\n\r\n.pane-overview .category-gauge .name {\r\n	font-weight: bold;\r\n	margin-bottom: 2px;\r\n	float: left;\r\n}\r\n\r\n.name {\r\n	margin-left: 35px;\r\n}\r\n\r\n.pane-overview .category-gauge .progress-text {\r\n	float: right;\r\n	color: #912c2c;\r\n	font-size: 10px;\r\n}\r\n\r\n.pane-overview .category-gauge .bar-bg {\r\n	clear: both;\r\n	width: 100%;\r\n	height: 9px;\r\n	background: #fff;\r\n	border: 1px solid #97b2dd;\r\n}\r\n\r\n.pane-overview .category-gauge .bar-fill {\r\n	height: 100%;\r\n	background: #8aaaff;\r\n}\r\n\r\n/* Recent completed achievements in Overview */\r\n.pane-overview .recent-achievements {\r\n	position: absolute;\r\n	top: 295px;\r\n	left: 10px;\r\n	width: 625px;\r\n}\r\n\r\n.pane-overview .recent-title {\r\n	color: #2e519c;\r\n	margin-bottom: 5px;\r\n}\r\n\r\n.pane-overview .recent-items {\r\n	display: flex;\r\n	flex-direction: row;\r\n	gap: 5px;\r\n}\r\n\r\n/* Main Area - List/Detail Pane */\r\n.pane-listd {\r\n	position: absolute;\r\n	top: 60px;\r\n	left: 100px;\r\n	width: 648px;\r\n	height: 403px;\r\n	display: none;\r\n	background-color: #fff;\r\n}\r\n\r\n.ach-list-container {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 319px;\r\n	height: 403px;\r\n	overflow-y: scroll;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.ach-list {\r\n	width: 309px;\r\n}\r\n\r\n.ach-item {\r\n	height: 81px;\r\n	position: relative;\r\n	cursor: pointer;\r\n	width: 309px;\r\n}\r\n\r\n.ach-item-overview {\r\n	border: 1px solid #dae0ef;\r\n}\r\n\r\n.ach-item.selected {\r\n	background: rgba(200, 220, 255, 0.4);\r\n}\r\n\r\n.ach-item .icon {\r\n	position: absolute;\r\n	top: 4px;\r\n	left: 10px;\r\n	width: 38px;\r\n	height: 32px;\r\n}\r\n\r\n.ach-item .title {\r\n	position: absolute;\r\n	top: 15px;\r\n	left: 60px;\r\n	color: #2e519c;\r\n	width: 150px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.ach-item .desc {\r\n	position: absolute;\r\n	top: 55px;\r\n	left: 10px;\r\n	color: #002d8d;\r\n	font-size: 9px;\r\n	width: 140px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.ach-item .reward-icon {\r\n	position: absolute;\r\n	top: 10px;\r\n	right: 40px;\r\n	width: 20px;\r\n	height: 30px;\r\n	text-align: center;\r\n}\r\n\r\n.ach-item .reward-pts {\r\n	position: absolute;\r\n	top: 7px;\r\n	right: 15px;\r\n	width: 30px;\r\n	height: 23px;\r\n	font-weight: bold;\r\n	color: #555;\r\n	font-size: 10px;\r\n	text-align: center;\r\n	line-height: 23px;\r\n}\r\n\r\n.ach-item .date-completed {\r\n	position: absolute;\r\n	top: 50px;\r\n	right: 10px;\r\n	color: #8b3737;\r\n	font-size: 7px;\r\n	width: 30px;\r\n	height: 23px;\r\n	text-align: center;\r\n	line-height: 23px;\r\n}\r\n\r\n/* Overlay */\r\n.overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n\r\n/* Detail view (right side) */\r\n.detail-view {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0px;\r\n	width: 328px;\r\n	height: 405px;\r\n	overflow-y: auto;\r\n	background-size: 100% 100%;\r\n	padding-left: 12px;\r\n	font-size: 10px;\r\n}\r\n\r\n.detail-view .d-title {\r\n	font-weight: bold;\r\n	color: #2e519c;\r\n	height: 35px;\r\n	line-height: 35px;\r\n	align-items: center;\r\n	display: flex;\r\n}\r\n\r\n.detail-view .d-stamp {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 10px;\r\n	width: 64px;\r\n	height: 54px;\r\n}\r\n\r\n.detail-view .d-desc {\r\n	color: #6699ff;\r\n	height: 57px;\r\n	width: 200px;\r\n}\r\n\r\n.detail-view .d-goals {\r\n	padding-left: 10px;\r\n	padding-top: 10px;\r\n	height: 190px;\r\n	color: #2e519c;\r\n}\r\n\r\n.detail-view .d-goal-item {\r\n	margin-bottom: 4px;\r\n}\r\n\r\n.detail-view .d-goal-item::before {\r\n	content: '◆';\r\n	color: #2e519c;\r\n	margin-right: 5px;\r\n}\r\n\r\n/* Reward Area */\r\n.d-reward {\r\n	display: flex;\r\n	flex-direction: row;\r\n	gap: 5px;\r\n	width: 100%;\r\n	height: 80px;\r\n	margin-left: -10px;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.d-rewards-slot {\r\n	width: 62px;\r\n	height: 62px;\r\n	position: relative;\r\n}\r\n\r\n.d-reward-item {\r\n	position: absolute;\r\n	top: 19px;\r\n	left: 19px;\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	pointer-events: none;\r\n}\r\n\r\n.detail-view .d-claim-btn {\r\n	position: absolute;\r\n	bottom: 10px;\r\n	left: 90px;\r\n	width: 148px;\r\n	height: 20px;\r\n	text-align: center;\r\n}\r\n\r\n/* Scrollbar area */\r\n.scrollbar {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 2px;\r\n	width: 15px;\r\n	height: 320px;\r\n}\r\n";
 }));
 // src/UI/Components/Achievement/Achievement.js
-var _preferences$31, MAJOR_CATEGORIES, AchievementComponent, Achievement, Achievement_default;
+var _preferences$32, MAJOR_CATEGORIES, AchievementComponent, Achievement, Achievement_default;
 var init_Achievement$1 = __esmMin((() => {
 	init_GUIComponent();
 	init_UIManager();
@@ -254343,7 +254500,7 @@ var init_Achievement$1 = __esmMin((() => {
 	init_ItemInfo();
 	init_Achievement$3();
 	init_Achievement$2();
-	_preferences$31 = Preferences.get("Achievement", {
+	_preferences$32 = Preferences.get("Achievement", {
 		x: 100,
 		y: 100
 	}, 1);
@@ -254486,15 +254643,15 @@ var init_Achievement$1 = __esmMin((() => {
 			this._host.style.display = "none";
 		}
 		onAppend() {
-			this._host.style.left = `${_preferences$31.x}px`;
-			this._host.style.top = `${_preferences$31.y}px`;
+			this._host.style.left = `${_preferences$32.x}px`;
+			this._host.style.top = `${_preferences$32.y}px`;
 			this._fixPositionOverflow();
 			this.updateHeaderAndView();
 		}
 		onRemove() {
-			_preferences$31.x = parseInt(this._host.style.left, 10);
-			_preferences$31.y = parseInt(this._host.style.top, 10);
-			_preferences$31.save();
+			_preferences$32.x = parseInt(this._host.style.left, 10);
+			_preferences$32.y = parseInt(this._host.style.top, 10);
+			_preferences$32.save();
 		}
 		toggle() {
 			if (this.__active && this._host.style.display !== "none") this._host.style.display = "none";
@@ -255251,7 +255408,7 @@ function clearHighlights() {
 		el.dataset.highlight = "false";
 	});
 }
-var Reputation, _preferences$30, bg, bg_highlight, indicator_empty, indicator_blue, indicator_red, Reputation_default;
+var Reputation, _preferences$31, bg, bg_highlight, indicator_empty, indicator_blue, indicator_red, Reputation_default;
 var init_Reputation = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -255264,7 +255421,7 @@ var init_Reputation = __esmMin((() => {
 	init_Reputation$2();
 	init_Reputation$1();
 	Reputation = new GUIComponent("Reputation", Reputation_default$1);
-	_preferences$30 = Preferences.get("Reputation", {
+	_preferences$31 = Preferences.get("Reputation", {
 		x: 400,
 		y: 200,
 		show: true
@@ -255347,8 +255504,8 @@ var init_Reputation = __esmMin((() => {
 	* binding group selector events and rendering the default view.
 	*/
 	Reputation.onAppend = function onAppend() {
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$30.y), window.innerHeight - (this._host.offsetHeight || 0))}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$30.x), window.innerWidth - (this._host.offsetWidth || 0))}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$31.y), window.innerHeight - (this._host.offsetHeight || 0))}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$31.x), window.innerWidth - (this._host.offsetWidth || 0))}px`;
 		buildGroupSelector();
 		bindGroupSelector();
 		bindSearch();
@@ -255359,10 +255516,10 @@ var init_Reputation = __esmMin((() => {
 	* Once remove from body, save user preferences
 	*/
 	Reputation.onRemove = function onRemove() {
-		_preferences$30.show = this._host.style.display !== "none";
-		_preferences$30.y = parseInt(this._host.style.top, 10);
-		_preferences$30.x = parseInt(this._host.style.left, 10);
-		_preferences$30.save();
+		_preferences$31.show = this._host.style.display !== "none";
+		_preferences$31.y = parseInt(this._host.style.top, 10);
+		_preferences$31.x = parseInt(this._host.style.left, 10);
+		_preferences$31.save();
 	};
 	/**
 	* Request to toggle open/close reputation
@@ -255388,6 +255545,435 @@ var init_Reputation = __esmMin((() => {
 	Network.hookPacket(PACKET.ZC.REPUTE_INFO, onReputeInfo);
 	Network.hookPacket(PACKET.ZC_REPUTE_OPEN, onReputeOpen);
 	Reputation_default = UIManager.addComponent(Reputation);
+}));
+// src/UI/Components/TipBox/TipBox.html?raw
+var TipBox_default$2;
+var init_TipBox$2 = __esmMin((() => {
+	TipBox_default$2 = "<div class=\"TipBox\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"title\"><ui-text msg=\"3238\">TIPBOX</ui-text></div>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"picture-bg\" data-background=\"tipbox/TipboxBG.bmp\"></div>\r\n	<div class=\"picture\"></div>\r\n	<div class=\"effects\"></div>\r\n	<div class=\"text-bg\" data-background=\"tipbox/bg_tipbox.bmp\"></div>\r\n	<div class=\"bottom-bg\" data-background=\"tipbox/btnbar_bottom.bmp\"></div>\r\n\r\n	<input class=\"search-text\" type=\"text\" maxlength=\"150\" />\r\n	<ui-button\r\n		class=\"search\"\r\n		bg=\"tipbox/btn_searchbar_normal.bmp\"\r\n		hover=\"tipbox/btn_searchbar_over.bmp\"\r\n		down=\"tipbox/btn_searchbar_press.bmp\"\r\n	></ui-button>\r\n\r\n	<div class=\"title-line first\"></div>\r\n	<div class=\"title-line second\"></div>\r\n	<div class=\"page\"></div>\r\n	<div class=\"results\"></div>\r\n\r\n	<div class=\"arrow prev\" data-background=\"tipbox/bt_arrowL_off.bmp\" data-active=\"tipbox/bt_arrowL_on.bmp\"></div>\r\n	<div class=\"arrow next\" data-background=\"tipbox/bt_arrowR_off.bmp\" data-active=\"tipbox/bt_arrowR_on.bmp\"></div>\r\n\r\n	<div class=\"startup\">\r\n		<div class=\"checkbox\" data-background=\"tipbox/checkBox.bmp\" data-active=\"tipbox/checkBox_check.bmp\"></div>\r\n		<ui-text msg=\"3939\">Open on Startup</ui-text>\r\n	</div>\r\n\r\n	<ui-button\r\n		class=\"close-button\"\r\n		bg=\"tipbox/btn_close_normal.bmp\"\r\n		hover=\"tipbox/btn_close_over.bmp\"\r\n		down=\"tipbox/btn_close_press.bmp\"\r\n		><ui-text msg=\"1299\">Close</ui-text></ui-button\r\n	>\r\n</div>\r\n";
+}));
+// src/UI/Components/TipBox/TipBox.css?raw
+var TipBox_default$1;
+var init_TipBox$1 = __esmMin((() => {
+	TipBox_default$1 = "/*\r\n * The tip box, laid out as kRO's UITipboxWnd (480x365): the picture on the\r\n * left from y 17, the text panel from x 241, the button bar from y 337.\r\n * Button sizes are those of kRO's own pictures (2025 data.grf).\r\n */\r\n:host {\r\n	width: 480px;\r\n	height: 365px;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.TipBox {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background-color: #f0f0f0;\r\n	color: #000;\r\n	font-size: 12px;\r\n	overflow: hidden;\r\n}\r\n\r\n.TipBox .titlebar {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 480px;\r\n	height: 17px;\r\n	background-color: #fff;\r\n	background-repeat: repeat-x;\r\n	cursor: move;\r\n}\r\n\r\n.TipBox .title {\r\n	position: absolute;\r\n	top: 2px;\r\n	left: 6px;\r\n	color: #000;\r\n	text-shadow: 1px 1px 0 #fff;\r\n	white-space: nowrap;\r\n}\r\n\r\n.TipBox .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 465px;\r\n	width: 11px;\r\n	height: 11px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .picture-bg {\r\n	position: absolute;\r\n	top: 17px;\r\n	left: 0;\r\n	width: 241px;\r\n	height: 320px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .picture {\r\n	position: absolute;\r\n	top: 17px;\r\n	left: 1px;\r\n	width: 240px;\r\n	height: 320px;\r\n	overflow: hidden;\r\n}\r\n\r\n.TipBox .picture img {\r\n	position: absolute;\r\n	image-rendering: pixelated;\r\n}\r\n\r\n.TipBox .effects {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 0;\r\n	height: 0;\r\n}\r\n\r\n.TipBox .effects img {\r\n	position: absolute;\r\n}\r\n\r\n.TipBox .effects img.off {\r\n	visibility: hidden;\r\n}\r\n\r\n.TipBox .text-bg {\r\n	position: absolute;\r\n	top: 17px;\r\n	left: 241px;\r\n	width: 239px;\r\n	height: 320px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .bottom-bg {\r\n	position: absolute;\r\n	top: 337px;\r\n	left: 0;\r\n	width: 480px;\r\n	height: 28px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .search-text {\r\n	position: absolute;\r\n	top: 22px;\r\n	left: 253px;\r\n	width: 193px;\r\n	height: 15px;\r\n	margin: 0;\r\n	padding: 0 2px;\r\n	box-sizing: border-box;\r\n	border: none;\r\n	outline: none;\r\n	background: transparent;\r\n	color: #fff;\r\n	font-size: 12px;\r\n}\r\n\r\n.TipBox .search-text::placeholder {\r\n	color: #b1b1b1;\r\n}\r\n\r\n.TipBox .search {\r\n	position: absolute;\r\n	top: 21px;\r\n	left: 448px;\r\n	width: 26px;\r\n	height: 18px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .title-line {\r\n	position: absolute;\r\n	left: 254px;\r\n	width: 220px;\r\n	height: 18px;\r\n	color: #2c4da0;\r\n	font-size: 13px;\r\n	font-weight: bold;\r\n	line-height: 18px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.TipBox .title-line.first {\r\n	top: 50px;\r\n}\r\n\r\n.TipBox .title-line.second {\r\n	top: 70px;\r\n}\r\n\r\n.TipBox .page {\r\n	position: absolute;\r\n	top: 70px;\r\n	left: 250px;\r\n	width: 226px;\r\n	height: 245px;\r\n	padding: 2px 4px 2px 4px;\r\n	box-sizing: border-box;\r\n	overflow-y: auto;\r\n	white-space: pre-wrap;\r\n	word-wrap: break-word;\r\n	line-height: 16px;\r\n}\r\n\r\n.TipBox .page.two-lines {\r\n	top: 90px;\r\n	height: 225px;\r\n}\r\n\r\n.TipBox .results {\r\n	display: none;\r\n	position: absolute;\r\n	top: 50px;\r\n	left: 250px;\r\n	width: 216px;\r\n	height: 266px;\r\n	overflow-y: auto;\r\n	background-color: rgb(240, 240, 240);\r\n}\r\n\r\n.TipBox.searching .results {\r\n	display: block;\r\n}\r\n\r\n.TipBox.searching .title-line,\r\n.TipBox.searching .page {\r\n	display: none;\r\n}\r\n\r\n.TipBox .results .result {\r\n	padding: 1px 4px;\r\n	line-height: 16px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	cursor: pointer;\r\n}\r\n\r\n.TipBox .results .result:hover {\r\n	background-color: #d5e0f5;\r\n}\r\n\r\n.TipBox .arrow {\r\n	position: absolute;\r\n	top: 319px;\r\n	width: 11px;\r\n	height: 12px;\r\n	background-repeat: no-repeat;\r\n	cursor: default;\r\n}\r\n\r\n.TipBox .arrow.active {\r\n	cursor: pointer;\r\n}\r\n\r\n.TipBox .arrow.prev {\r\n	left: 415px;\r\n}\r\n\r\n.TipBox .arrow.next {\r\n	left: 462px;\r\n}\r\n\r\n.TipBox .startup {\r\n	position: absolute;\r\n	top: 347px;\r\n	left: 9px;\r\n	height: 10px;\r\n	line-height: 10px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n}\r\n\r\n.TipBox .startup .checkbox {\r\n	display: inline-block;\r\n	width: 10px;\r\n	height: 10px;\r\n	margin-right: 4px;\r\n	vertical-align: top;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .close-button {\r\n	position: absolute;\r\n	top: 341px;\r\n	left: 415px;\r\n	width: 60px;\r\n	height: 20px;\r\n	line-height: 20px;\r\n	text-align: center;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.TipBox .tipbox-link,\r\n.TipBox .navi-link,\r\n.TipBox .item-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.TipBox .tipbox-link:hover,\r\n.TipBox .navi-link:hover,\r\n.TipBox .item-link:hover {\r\n	color: #ff0000;\r\n}\r\n";
+}));
+// src/UI/Components/TipBox/TipBox.js
+/**
+* Escape text for HTML.
+*
+* @param {string} text
+* @return {string}
+*/
+function escapeHTML(text) {
+	return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+/**
+* Path of one of the window's own pictures (유저인터페이스/tipbox/).
+*
+* @param {string} name
+* @return {string}
+*/
+function uiPicture(name) {
+	return DB.INTERFACE_PATH + "tipbox/" + name;
+}
+/**
+* Path of a tip's picture. The file names it as kRO's client does, under
+* texture\ and without the extension.
+*
+* @param {string} image
+* @return {string}
+*/
+function tipPicture(image) {
+	return "data/texture/" + image.replace(/\\/g, "/") + ".bmp";
+}
+/**
+* Put a picture into the picture's area.
+*
+* @param {HTMLElement} box
+* @param {string} path
+* @param {object} [options]
+*/
+function setPicture(box, path, { position = 5, size = 100, onError } = {}) {
+	const img = document.createElement("img");
+	img.style.left = "0px";
+	img.style.top = "0px";
+	box.appendChild(img);
+	Client.loadFile(path, (uri) => {
+		if (!box.contains(img)) return;
+		img.onload = () => placePicture(img, position, size);
+		img.src = uri;
+	}, () => {
+		img.remove();
+		if (onError) onError();
+	});
+}
+/**
+* Size and place a loaded picture.
+*
+* @param {HTMLImageElement} img
+* @param {number} position - 1-9, as on a keypad
+* @param {number} size - percent
+*/
+function placePicture(img, position, size) {
+	if (position === 5 && size === 100) return;
+	const scale = (size > 0 ? size : 100) / 100;
+	const width = Math.round(img.naturalWidth * scale);
+	const height = Math.round(img.naturalHeight * scale);
+	const p = position >= 1 && position <= 9 ? position : 5;
+	const column = (p - 1) % 3;
+	const row = 2 - Math.floor((p - 1) / 3);
+	img.style.width = `${width}px`;
+	img.style.height = `${height}px`;
+	img.style.left = `${Math.round((PICTURE.width - width) * column / 2)}px`;
+	img.style.top = `${Math.round((PICTURE.height - height) * row / 2)}px`;
+}
+/**
+* Stop the twinkle timer
+*/
+function stopTwinkle() {
+	if (_twinkleTimer !== null) {
+		clearInterval(_twinkleTimer);
+		_twinkleTimer = null;
+	}
+}
+var WINDOW_WIDTH, WINDOW_HEIGHT, PICTURE, TWINKLE_PERIOD, TipBox, _preferences$30, _state, _twinkleTimer, _openedAtStartup, _openCount, TipBox_default;
+var init_TipBox = __esmMin((() => {
+	init_DBManager();
+	init_TipBoxTable();
+	init_Client();
+	init_Preferences$1();
+	init_KeyEventHandler();
+	init_Renderer();
+	init_UIManager();
+	init_GUIComponent();
+	init_Elements();
+	init_TipBox$2();
+	init_TipBox$1();
+	WINDOW_WIDTH = 480;
+	WINDOW_HEIGHT = 365;
+	PICTURE = {
+		left: 1,
+		top: 17,
+		width: 240,
+		height: 320
+	};
+	TWINKLE_PERIOD = 300;
+	TipBox = new GUIComponent("TipBox", TipBox_default$1);
+	TipBox.render = () => TipBox_default$2;
+	TipBox.needFocus = true;
+	_preferences$30 = Preferences.get("TipBox", {
+		x: -1,
+		y: -1,
+		showAtStartup: true
+	}, 1);
+	_state = {
+		tipId: null,
+		page: 0,
+		searching: false,
+		results: []
+	};
+	_twinkleTimer = null;
+	_openedAtStartup = false;
+	_openCount = 0;
+	/**
+	* A page of a tip as HTML: colour codes, line breaks, and its links to
+	* other tips (TIPBOX), places (NAVI) and items (ITEM).
+	*
+	* The files ROenglishRE ships strip ^i[<item id>] icons for clients that
+	* cannot draw them; any left are dropped here too.
+	*
+	* @param {string} text
+	* @return {string}
+	*/
+	TipBox.formatPage = function formatPage(text) {
+		let html = escapeHTML(String(text || "").replace(/\^i\[\d+\]/g, ""));
+		html = html.replace(/&lt;(ITEMLINK|ITEM)&gt;([\s\S]*?)&lt;INFO&gt;(\d+)&lt;\/INFO&gt;&lt;\/\1&gt;/g, (match, tag, name, id) => `<span class="item-link" data-item-id="${id}">${DB.formatMsgToHtml(name)}</span>`);
+		return DB.formatMsgToHtml(DB.formatDescriptionTags(html));
+	};
+	/**
+	* Initialize component
+	*/
+	TipBox.init = function init() {
+		const root = this.getRoot();
+		root.querySelector(".close").addEventListener("click", () => this.remove());
+		root.querySelector(".close-button").addEventListener("click", () => this.remove());
+		root.querySelector(".prev").addEventListener("click", () => this.setPage(_state.page - 1));
+		root.querySelector(".next").addEventListener("click", () => this.setPage(_state.page + 1));
+		const input = root.querySelector(".search-text");
+		input.placeholder = DB.getMessage(3253, "Please enter a search term");
+		input.addEventListener("keydown", (event) => {
+			if (event.which === KEYS.ENTER || event.key === "Enter") {
+				this.search(input.value);
+				event.preventDefault();
+			}
+			event.stopImmediatePropagation();
+		});
+		input.addEventListener("mousedown", (event) => event.stopImmediatePropagation());
+		root.querySelector(".search").addEventListener("click", () => this.search(input.value));
+		root.querySelector(".results").addEventListener("click", (event) => {
+			const row = event.target.closest(".result");
+			if (row) this.showTip(Number(row.dataset.tipId));
+		});
+		root.querySelector(".startup").addEventListener("click", () => {
+			_preferences$30.showAtStartup = !_preferences$30.showAtStartup;
+			_preferences$30.save();
+			this.updateStartup();
+		});
+		root.querySelector(".page").addEventListener("click", (event) => this.onLinkClick(event));
+		root.querySelector(".page").addEventListener("mousedown", (event) => event.stopImmediatePropagation());
+		this.draggable(".titlebar");
+	};
+	/**
+	* Place the window: where it was left, else in the middle of the screen
+	*/
+	TipBox.onAppend = function onAppend() {
+		const left = _preferences$30.x >= 0 ? _preferences$30.x : Math.floor((Renderer.width - WINDOW_WIDTH) / 2);
+		const top = _preferences$30.y >= 0 ? _preferences$30.y : Math.floor((Renderer.height - WINDOW_HEIGHT) / 2);
+		Object.assign(this._host.style, {
+			top: `${Math.max(0, Math.min(top, Renderer.height - WINDOW_HEIGHT))}px`,
+			left: `${Math.max(0, Math.min(left, Renderer.width - WINDOW_WIDTH))}px`
+		});
+		this.updateStartup();
+	};
+	/**
+	* Remember where it was, stop the markers
+	*/
+	TipBox.onRemove = function onRemove() {
+		stopTwinkle();
+		_preferences$30.x = parseInt(this._host.style.left, 10);
+		_preferences$30.y = parseInt(this._host.style.top, 10);
+		_preferences$30.save();
+	};
+	/**
+	* Close on Escape
+	*/
+	TipBox.onKeyDown = function onKeyDown(event) {
+		if (event.which === KEYS.ESCAPE || event.key === "Escape") {
+			this.remove();
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		}
+	};
+	/**
+	* Alt+D
+	*/
+	TipBox.onShortCut = function onShortCut(key) {
+		if (key.cmd === "TOGGLE") this.toggle();
+	};
+	/**
+	* Open, or close when open.
+	*/
+	TipBox.toggle = function toggle() {
+		if (this.__active) {
+			this.remove();
+			return;
+		}
+		this.open();
+	};
+	/**
+	* Open the window on a tip: the one given, else one at random.
+	*
+	* @param {number} [tipId]
+	* @return {Promise<void>}
+	*/
+	TipBox.open = function open(tipId) {
+		const count = ++_openCount;
+		if (!this.__active) this.append();
+		else this.focus();
+		return DB.loadTipBox().then(() => {
+			if (count !== _openCount || !this.__active) return;
+			const wanted = Number(tipId);
+			const id = tipId !== void 0 && tipId !== null && TipBoxTable.get(wanted) ? wanted : TipBoxTable.randomTip();
+			this.showTip(id);
+		});
+	};
+	/**
+	* Open the window once, on the first map of a session, when "Open on
+	* Startup" is on and there are tips to show.
+	*
+	* @return {Promise<void>}
+	*/
+	TipBox.openAtStartup = function openAtStartup() {
+		if (_openedAtStartup || !_preferences$30.showAtStartup) return Promise.resolve();
+		_openedAtStartup = true;
+		return DB.loadTipBox().then((loaded) => {
+			if (loaded && !this.__active) return this.open();
+		});
+	};
+	/**
+	* Show a tip, from its first page.
+	*
+	* @param {number|null} id
+	*/
+	TipBox.showTip = function showTip(id) {
+		const root = this.getRoot();
+		const tip = TipBoxTable.get(id);
+		_state.tipId = tip ? tip.id : null;
+		_state.page = 0;
+		_state.searching = false;
+		root.querySelector(".TipBox").classList.remove("searching");
+		const lines = tip ? TipBoxTable.titleLines(tip.title) : [];
+		root.querySelector(".title-line.first").textContent = lines[0] || "";
+		root.querySelector(".title-line.second").textContent = lines[1] || "";
+		root.querySelector(".page").classList.toggle("two-lines", lines.length > 1);
+		this.showPicture(tip);
+		this.showEffects(tip);
+		this.setPage(0);
+	};
+	/**
+	* Show a page of the current tip.
+	*
+	* @param {number} index
+	*/
+	TipBox.setPage = function setPage(index) {
+		const root = this.getRoot();
+		const tip = TipBoxTable.get(_state.tipId);
+		const pages = tip ? tip.pages : [];
+		if (_state.searching || index < 0 || pages.length && index >= pages.length) return;
+		_state.page = index;
+		const page = root.querySelector(".page");
+		page.innerHTML = this.formatPage(pages[index] || "");
+		page.scrollTop = 0;
+		root.querySelector(".prev").classList.toggle("active", index > 0);
+		root.querySelector(".next").classList.toggle("active", index < pages.length - 1);
+	};
+	/**
+	* The picture: tipbox/img_noImage.bmp for a tip without one. Drawn as it is
+	* when its place is 5 and its size 100, as every official tip's is;
+	* otherwise scaled by its size and placed as on a keypad (5 the middle).
+	*
+	* @param {object|null} tip
+	*/
+	TipBox.showPicture = function showPicture(tip) {
+		const box = this.getRoot().querySelector(".picture");
+		box.textContent = "";
+		const noImage = () => setPicture(box, uiPicture("img_noImage.bmp"));
+		if (!tip || !tip.image) {
+			noImage();
+			return;
+		}
+		setPicture(box, tipPicture(tip.image), {
+			position: tip.position,
+			size: tip.size,
+			onError: noImage
+		});
+	};
+	/**
+	* The markers over the picture (tipbox/ico_effect<n>.bmp), at window
+	* coordinates; a twinkling one shows and hides every 300 ms.
+	*
+	* @param {object|null} tip
+	*/
+	TipBox.showEffects = function showEffects(tip) {
+		const box = this.getRoot().querySelector(".effects");
+		box.textContent = "";
+		stopTwinkle();
+		const effects = tip ? tip.effects : [];
+		if (!effects.length) return;
+		for (const effect of effects) {
+			const img = document.createElement("img");
+			img.style.left = `${effect.x}px`;
+			img.style.top = `${effect.y}px`;
+			if (effect.twinkle) img.classList.add("twinkle");
+			box.appendChild(img);
+			Client.loadFile(uiPicture(`ico_effect${effect.effect}.bmp`), (uri) => {
+				img.src = uri;
+			}, () => img.remove());
+		}
+		if (effects.some((effect) => effect.twinkle)) _twinkleTimer = setInterval(() => {
+			box.querySelectorAll("img.twinkle").forEach((img) => img.classList.toggle("off"));
+		}, TWINKLE_PERIOD);
+	};
+	/**
+	* Search the tip titles. Empty text does nothing, as in the official window.
+	*
+	* @param {string} text
+	* @return {Promise<void>}
+	*/
+	TipBox.search = function search(text) {
+		if (!String(text || "").trim()) return Promise.resolve();
+		return DB.loadTipBox().then(() => {
+			if (!this.__active) return;
+			const root = this.getRoot();
+			const results = TipBoxTable.search(text);
+			_state.searching = true;
+			_state.results = results.map((tip) => tip.id);
+			root.querySelector(".TipBox").classList.add("searching");
+			root.querySelector(".search-text").value = "";
+			root.querySelector(".prev").classList.remove("active");
+			root.querySelector(".next").classList.remove("active");
+			const list = root.querySelector(".results");
+			list.textContent = "";
+			for (const tip of results) {
+				const row = document.createElement("div");
+				row.className = "result";
+				row.dataset.tipId = String(tip.id);
+				row.textContent = TipBoxTable.titleLines(tip.title)[0] || "";
+				list.appendChild(row);
+			}
+			list.scrollTop = 0;
+			const box = root.querySelector(".picture");
+			box.textContent = "";
+			setPicture(box, uiPicture(results.length ? "img_loading.bmp" : "img_NoSearchResults.bmp"));
+			this.getRoot().querySelector(".effects").textContent = "";
+			stopTwinkle();
+		});
+	};
+	/**
+	* "Open on Startup" box
+	*/
+	TipBox.updateStartup = function updateStartup() {
+		const box = this.getRoot().querySelector(".startup .checkbox");
+		if (box) box.classList.toggle("active", !!_preferences$30.showAtStartup);
+	};
+	/**
+	* A click on a link in a page: another tip, a place, or an item.
+	*
+	* @param {MouseEvent} event
+	*/
+	TipBox.onLinkClick = function onLinkClick(event) {
+		const tipLink = event.target.closest(".tipbox-link");
+		if (tipLink) {
+			const id = Number(tipLink.dataset.tipboxId);
+			if (TipBoxTable.get(id)) this.showTip(id);
+			return;
+		}
+		const naviLink = event.target.closest(".navi-link");
+		if (naviLink && naviLink.dataset.naviInfo) {
+			const Navigation = UIManager.getComponent("Navigation");
+			if (Navigation) {
+				Navigation.show();
+				Navigation.uid = naviLink.dataset.naviInfo;
+				Navigation.setNaviInfo(naviLink.dataset.naviInfo, naviLink.dataset.naviName);
+			}
+			return;
+		}
+		const itemLink = event.target.closest(".item-link");
+		if (itemLink) {
+			const itemId = parseInt(itemLink.dataset.itemId, 10);
+			const ItemInfo = UIManager.getComponent("ItemInfo");
+			if (!itemId || !ItemInfo) return;
+			if (ItemInfo.uid === itemId) {
+				ItemInfo.remove();
+				return;
+			}
+			ItemInfo.append();
+			ItemInfo.uid = itemId;
+			ItemInfo.setItem({
+				ITID: itemId,
+				IsIdentified: true
+			});
+		}
+	};
+	/**
+	* @return {object} what the window shows, for tests
+	*/
+	TipBox.getState = function getState() {
+		return {
+			..._state,
+			results: [..._state.results]
+		};
+	};
+	TipBox_default = UIManager.addComponent(TipBox);
 }));
 // src/UI/Components/BasicInfo/BasicInfoCommon.js
 function createBasicInfo(config) {
@@ -255468,7 +256054,10 @@ function createBasicInfo(config) {
 			case "achievment":
 				if (Configs.get("enableAchievements") && PacketVerManager_default.value >= 20150513) Achievement_default.toggle();
 				break;
-			case "repute": Reputation_default.toggle();
+			case "repute":
+				Reputation_default.toggle();
+				break;
+			case "tipbox": TipBox_default.toggle();
 		}
 	}
 	/**
@@ -255836,6 +256425,7 @@ var init_BasicInfoCommon = __esmMin((() => {
 	init_Quest$1();
 	init_Achievement$1();
 	init_Reputation();
+	init_TipBox();
 }));
 // src/UI/Components/BasicInfo/BasicInfoV1/BasicInfoV1.js
 var BasicInfoV1_default;
@@ -255957,7 +256547,6 @@ var init_BasicInfoV4 = __esmMin((() => {
 		hideIds: [
 			"battle",
 			"replay",
-			"tipbox",
 			"shortcut",
 			"agency"
 		],
@@ -255998,7 +256587,6 @@ var init_BasicInfoV5 = __esmMin((() => {
 		hideIds: [
 			"battle",
 			"replay",
-			"tipbox",
 			"shortcut",
 			"agency"
 		],
@@ -266535,7 +267123,7 @@ var init_ItemInfo$2 = __esmMin((() => {
 // src/UI/Components/ItemInfo/ItemInfo.css?raw
 var ItemInfo_default$1;
 var init_ItemInfo$1 = __esmMin((() => {
-	ItemInfo_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.ItemInfo {\r\n	position: relative;\r\n	width: 280px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .container {\r\n	height: 140px;\r\n	position: relative;\r\n	box-shadow:\r\n		white 0px 0px 0px 3px inset,\r\n		rgb(192, 192, 192) 0px 0px 0px 4px inset;\r\n	background-repeat: no-repeat;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .event_view {\r\n	position: absolute;\r\n}\r\n.ItemInfo .event_view .view {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	top: 6px;\r\n	left: 6px;\r\n}\r\n.ItemInfo .collection {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 10px;\r\n	width: 75px;\r\n	height: 100px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 86px;\r\n	width: 185px;\r\n	height: 14px;\r\n	padding-left: 4px;\r\n	padding-top: 6px;\r\n	text-shadow: 1px 1px 0px white;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n.ItemInfo .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 3px;\r\n	width: 11px;\r\n	height: 11px;\r\n	display: block;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n.ItemInfo .description {\r\n	position: absolute;\r\n	top: 35px;\r\n	left: 100px;\r\n	line-height: 18px;\r\n	width: 170px;\r\n	height: 75px;\r\n	overflow-y: auto;\r\n}\r\n.ItemInfo .description .description-inner {\r\n	width: 150px;\r\n	white-space: pre-wrap;\r\n}\r\n\r\n.ItemInfo .description .navi-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.ItemInfo .description .navi-link:hover {\r\n	color: #ff0000;\r\n}\r\n\r\n.ItemInfo .extend {\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 3px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.ItemInfo .cardlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .cardlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .cardlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .cardlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .cardlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .cardlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .book_open {\r\n	margin-top: 6px;\r\n	margin-left: 7px;\r\n}\r\n.ItemInfo .book_read {\r\n	position: absolute;\r\n	margin-top: 7px;\r\n}\r\n\r\n.ItemInfo .overlay_open {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 7px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n.ItemInfo .overlay_read {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 27px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n\r\n.ItemInfo .optionlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .optionlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .optionlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .optionlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .optionlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .optionlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .title.damaged {\r\n	text-shadow: red 1px 1px 0px;\r\n}\r\n\r\n.ItemInfo .preview-action {\r\n	padding-top: 115px;\r\n	padding-left: 9px;\r\n}\r\n\r\n.moveinfo-label {\r\n	color: #000000;\r\n	display: block;\r\n	text-decoration: underline;\r\n}\r\n\r\n/* The official client's round box (UIRoundBoxTooltipWnd): a 1px #b8b8ef edge\r\n   around #e7e7ef, dark blue 12px text, lines 4.8px apart, 5px above and below\r\n   and about 7px either side. */\r\n.moveinfo-box {\r\n	position: absolute;\r\n	display: none;\r\n	z-index: 1;\r\n	background: #e7e7ef;\r\n	border: 1px solid #b8b8ef;\r\n	border-radius: 4px;\r\n	padding: 5px 7px;\r\n	color: #1a3b80;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.moveinfo-box div + div {\r\n	margin-top: 5px;\r\n}\r\n\r\n.ItemInfo .btn_mounting {\r\n	border: 0;\r\n	width: 80px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
+	ItemInfo_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.ItemInfo {\r\n	position: relative;\r\n	width: 280px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .container {\r\n	height: 140px;\r\n	position: relative;\r\n	box-shadow:\r\n		white 0px 0px 0px 3px inset,\r\n		rgb(192, 192, 192) 0px 0px 0px 4px inset;\r\n	background-repeat: no-repeat;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .event_view {\r\n	position: absolute;\r\n}\r\n.ItemInfo .event_view .view {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	top: 6px;\r\n	left: 6px;\r\n}\r\n.ItemInfo .collection {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 10px;\r\n	width: 75px;\r\n	height: 100px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 86px;\r\n	width: 185px;\r\n	height: 14px;\r\n	padding-left: 4px;\r\n	padding-top: 6px;\r\n	text-shadow: 1px 1px 0px white;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n.ItemInfo .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 3px;\r\n	width: 11px;\r\n	height: 11px;\r\n	display: block;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n.ItemInfo .description {\r\n	position: absolute;\r\n	top: 35px;\r\n	left: 100px;\r\n	line-height: 18px;\r\n	width: 170px;\r\n	height: 75px;\r\n	overflow-y: auto;\r\n}\r\n.ItemInfo .description .description-inner {\r\n	width: 150px;\r\n	white-space: pre-wrap;\r\n}\r\n\r\n.ItemInfo .description .navi-link,\r\n.ItemInfo .description .tipbox-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.ItemInfo .description .navi-link:hover,\r\n.ItemInfo .description .tipbox-link:hover {\r\n	color: #ff0000;\r\n}\r\n\r\n.ItemInfo .extend {\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 3px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.ItemInfo .cardlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .cardlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .cardlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .cardlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .cardlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .cardlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .book_open {\r\n	margin-top: 6px;\r\n	margin-left: 7px;\r\n}\r\n.ItemInfo .book_read {\r\n	position: absolute;\r\n	margin-top: 7px;\r\n}\r\n\r\n.ItemInfo .overlay_open {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 7px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n.ItemInfo .overlay_read {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 27px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n\r\n.ItemInfo .optionlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .optionlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .optionlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .optionlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .optionlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .optionlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .title.damaged {\r\n	text-shadow: red 1px 1px 0px;\r\n}\r\n\r\n.ItemInfo .preview-action {\r\n	padding-top: 115px;\r\n	padding-left: 9px;\r\n}\r\n\r\n.moveinfo-label {\r\n	color: #000000;\r\n	display: block;\r\n	text-decoration: underline;\r\n}\r\n\r\n/* The official client's round box (UIRoundBoxTooltipWnd): a 1px #b8b8ef edge\r\n   around #e7e7ef, dark blue 12px text, lines 4.8px apart, 5px above and below\r\n   and about 7px either side. */\r\n.moveinfo-box {\r\n	position: absolute;\r\n	display: none;\r\n	z-index: 1;\r\n	background: #e7e7ef;\r\n	border: 1px solid #b8b8ef;\r\n	border-radius: 4px;\r\n	padding: 5px 7px;\r\n	color: #1a3b80;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.moveinfo-box div + div {\r\n	margin-top: 5px;\r\n}\r\n\r\n.ItemInfo .btn_mounting {\r\n	border: 0;\r\n	width: 80px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
 }));
 // src/UI/Components/ItemInfo/ItemInfo.js
 var ItemInfo_exports = /* @__PURE__ */ __exportAll({ default: () => ItemInfo_default });
@@ -266855,6 +267443,7 @@ var init_ItemInfo = __esmMin((() => {
 	init_Equipment();
 	init_Inventory();
 	init_Navigation();
+	init_TipBox();
 	init_HtmlHelper();
 	ItemInfo = new GUIComponent("ItemInfo", ItemInfo_default$1);
 	ItemInfo.render = () => ItemInfo_default$2;
@@ -266947,6 +267536,11 @@ var init_ItemInfo = __esmMin((() => {
 		});
 		const descInner = root.querySelector(".description-inner");
 		if (descInner) descInner.addEventListener("click", (e) => {
+			const tipLink = e.target.closest(".tipbox-link");
+			if (tipLink) {
+				TipBox_default.open(Number(tipLink.dataset.tipboxId));
+				return;
+			}
 			const naviLink = e.target.closest(".navi-link");
 			if (!naviLink || !naviLink.dataset.naviInfo) return;
 			const naviInfo = naviLink.dataset.naviInfo;
@@ -267103,7 +267697,7 @@ var init_NpcBox$2 = __esmMin((() => {
 // src/UI/Components/NpcBox/NpcBox.css?raw
 var NpcBox_default$1;
 var init_NpcBox$1 = __esmMin((() => {
-	NpcBox_default$1 = ":host {\r\n	width: 276px;\r\n	height: 176px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n#NpcBox {\r\n	position: absolute;\r\n	width: 276px;\r\n	height: 176px;\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	line-height: 18px;\r\n	letter-spacing: 0px;\r\n}\r\n#NpcBox .border {\r\n	border: 1px solid #c1c6c2;\r\n	width: 264px;\r\n	height: 164px;\r\n	padding: 5px;\r\n	border-radius: 5px;\r\n}\r\n#NpcBox .content {\r\n	white-space: pre-wrap;\r\n	background-color: #eff4f0;\r\n	width: 254px;\r\n	height: 130px;\r\n	overflow-y: auto;\r\n	padding: 5px;\r\n}\r\n#NpcBox .btns {\r\n	position: absolute;\r\n	bottom: 2px;\r\n	right: 8px;\r\n}\r\n#NpcBox .btn {\r\n	width: 42px;\r\n	height: 20px;\r\n	bottom: 4px;\r\n	display: none;\r\n}\r\n\r\n.item-link {\r\n	color: #0070c0;\r\n	cursor: pointer;\r\n}\r\n\r\n.item-link:hover {\r\n	color: #00a0ff;\r\n}\r\n\r\n.navi-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.navi-link:hover {\r\n	color: #ff0000;\r\n}\r\n";
+	NpcBox_default$1 = ":host {\r\n	width: 276px;\r\n	height: 176px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n#NpcBox {\r\n	position: absolute;\r\n	width: 276px;\r\n	height: 176px;\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	line-height: 18px;\r\n	letter-spacing: 0px;\r\n}\r\n#NpcBox .border {\r\n	border: 1px solid #c1c6c2;\r\n	width: 264px;\r\n	height: 164px;\r\n	padding: 5px;\r\n	border-radius: 5px;\r\n}\r\n#NpcBox .content {\r\n	white-space: pre-wrap;\r\n	background-color: #eff4f0;\r\n	width: 254px;\r\n	height: 130px;\r\n	overflow-y: auto;\r\n	padding: 5px;\r\n}\r\n#NpcBox .btns {\r\n	position: absolute;\r\n	bottom: 2px;\r\n	right: 8px;\r\n}\r\n#NpcBox .btn {\r\n	width: 42px;\r\n	height: 20px;\r\n	bottom: 4px;\r\n	display: none;\r\n}\r\n\r\n.item-link {\r\n	color: #0070c0;\r\n	cursor: pointer;\r\n}\r\n\r\n.item-link:hover {\r\n	color: #00a0ff;\r\n}\r\n\r\n.navi-link,\r\n.tipbox-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.navi-link:hover,\r\n.tipbox-link:hover {\r\n	color: #ff0000;\r\n}\r\n";
 }));
 // src/UI/Components/NpcBox/NpcBox.js
 /**
@@ -267117,6 +267711,18 @@ function processNAVITags(text) {
 		const colours = (displayName.match(/\^[0-9A-Fa-f]{6}/g) || []).length;
 		const shown = processColorCodes(displayName) + "</span>".repeat(colours);
 		return `<span class="navi-link" data-navi-info="${attr(naviInfo)}" data-navi-name="${attr(displayName)}">${shown}</span>`;
+	});
+}
+/**
+* Process TIPBOX tags in text (<TIPBOX>[List]<INFO>9163</INFO></TIPBOX>):
+* a link that opens that tip in the tip box
+*/
+function processTipBoxTags(text) {
+	if (!text) return "";
+	text = String(text);
+	return text.replace(/<TIPBOX>([\s\S]*?)<INFO>\s*(\d+)\s*<\/INFO><\/TIPBOX>/g, (match, displayName, tipId) => {
+		const colours = (displayName.match(/\^[0-9A-Fa-f]{6}/g) || []).length;
+		return `<span class="tipbox-link" data-tipbox-id="${tipId}">${processColorCodes(displayName) + "</span>".repeat(colours)}</span>`;
 	});
 }
 /**
@@ -267146,6 +267752,7 @@ function processText(text) {
 	if (!text) return "";
 	text = processItemTags(text);
 	text = processNAVITags(text);
+	text = processTipBoxTags(text);
 	text = processColorCodes(text);
 	return text;
 }
@@ -267161,6 +267768,7 @@ var init_NpcBox = __esmMin((() => {
 	init_Elements();
 	init_ItemInfo();
 	init_Navigation();
+	init_TipBox();
 	init_NpcBox$2();
 	init_NpcBox$1();
 	init_NpcMenu();
@@ -267204,6 +267812,11 @@ var init_NpcBox = __esmMin((() => {
 					ITID: itemId,
 					IsIdentified: true
 				});
+				return;
+			}
+			const tipLink = e.target.closest(".tipbox-link");
+			if (tipLink) {
+				TipBox_default.open(Number(tipLink.dataset.tipboxId));
 				return;
 			}
 			const naviLink = e.target.closest(".navi-link");
@@ -272577,6 +273190,7 @@ var init_ProcessCommand = __esmMin((() => {
 	init_CloudWeatherEffect();
 	init_ChatBox();
 	init_Navigation();
+	init_TipBox();
 	init_RankingTypes();
 	aliases = {};
 	CommandStore = {
@@ -273233,6 +273847,12 @@ var init_ProcessCommand = __esmMin((() => {
 					Network.sendPacket(pkt);
 					return;
 				}
+			}
+		},
+		tip: {
+			description: "Open the tip box",
+			callback: function() {
+				TipBox_default.toggle();
 			}
 		},
 		macro_register: {
@@ -336677,6 +337297,56 @@ function base64DecodeUtf8(str) {
 	}
 }
 /**
+* Load System/tipbox.lub into TipBoxTable. The file's main() registers every
+* tip through the five functions given to it here.
+*
+* @param {string} filename
+* @param {number|null} generation - the DB.init it was started for
+* @param {function} onEnd - called with whether the file was read
+*/
+function loadTipBoxFile(filename, generation, onEnd) {
+	Client.loadFile(filename, async function(file) {
+		let loaded = false;
+		try {
+			console.log("Loading file \"" + filename + "\"...");
+			const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+			const ctx = lua.ctx;
+			const current = () => generation === null || generation === void 0 || generation === _tipBoxGeneration;
+			const text = (value) => value instanceof Uint8Array ? userStringDecoder.decode(value, userCharpage) : String(value ?? "");
+			const path = (value) => value instanceof Uint8Array ? userStringDecoder.decode(value) : String(value ?? "");
+			ctx.AddTip = (id, title, search, image) => {
+				if (current()) TipBoxTable.addTip(id, text(title), search, path(image));
+				return 1;
+			};
+			ctx.AddImgcoord = (id, position, size) => {
+				if (current()) TipBoxTable.addImgCoord(id, position, size);
+				return 1;
+			};
+			ctx.AddPageEx = (id, effectNum, twinkle, startX, startY, distX, distY, moveTime) => {
+				if (current()) TipBoxTable.addPageEx(id, effectNum, twinkle, startX, startY, distX, distY, moveTime);
+				return 1;
+			};
+			ctx.AddPage = (id, page) => {
+				if (current()) TipBoxTable.addPage(id, text(page));
+				return 1;
+			};
+			ctx.AddIsTag = (id, isTag) => {
+				if (current()) TipBoxTable.addIsTag(id, isTag);
+				return 1;
+			};
+			lua.mountFile(filename, buffer);
+			await lua.doFile(filename);
+			lua.doStringSync("main()");
+			loaded = true;
+		} catch (error) {
+			console.error("[loadTipBoxFile] Error: ", error);
+		} finally {
+			lua.unmountFile(filename);
+			onEnd(loaded);
+		}
+	}, () => onEnd(false));
+}
+/**
 * Load ItemMoveInfoV5.txt and attach move info to ItemTable
 *
 * @param {function} onEnd
@@ -339623,7 +340293,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, garmentLayerGeneration, ModSkillDescription;
+var lua, _tipBoxLoad, _tipBoxGeneration, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, garmentLayerGeneration, ModSkillDescription;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -339676,6 +340346,7 @@ var init_DBManager = __esmMin((() => {
 	init_PetFriendlyState();
 	init_PetMessageConst();
 	init_MapTable();
+	init_TipBoxTable();
 	init_SignboardMerge();
 	init_NetworkManager();
 	init_PacketStructure();
@@ -339685,6 +340356,8 @@ var init_DBManager = __esmMin((() => {
 	init_LenientEnums();
 	init_LuaModuleLoader();
 	init_preload_helper();
+	_tipBoxLoad = null;
+	_tipBoxGeneration = 0;
 	lookTables = null;
 	itemPackages = /* @__PURE__ */ new Map();
 	mountPalettesProbe = null;
@@ -339772,6 +340445,9 @@ var init_DBManager = __esmMin((() => {
 			DB.isLoaded = false;
 			DB.count = 0;
 			DB.index = 0;
+			_tipBoxLoad = null;
+			_tipBoxGeneration++;
+			TipBoxTable.reset();
 			LuaModuleLoader.clearCache();
 			mountPalettes = void 0;
 			if (mountPalettesProbe) mountPalettesProbe.stale = true;
@@ -342381,19 +343057,42 @@ var init_DBManager = __esmMin((() => {
 		/**
 		* Convert the tags item descriptions carry into HTML, on text that has
 		* already been escaped. Each is <TAG>shown text<INFO>data</INFO></TAG>:
-		* NAVI becomes a .navi-link (data-navi-info, data-navi-name); URL and
-		* TIPBOX, which roBrowser has nowhere to open, keep their text. Anything
-		* else in angle brackets, such as "Energy <Guardian Dragon>", stays text.
+		* NAVI becomes a .navi-link (data-navi-info, data-navi-name), TIPBOX a
+		* .tipbox-link (data-tipbox-id) that opens that tip in the tip box, and
+		* URL, which roBrowser has nowhere to open, keeps its text. Anything else
+		* in angle brackets, such as "Energy <Guardian Dragon>", stays text.
 		*
 		* @param {string} html - escaped description
 		* @returns {string} html with the tags converted
 		*/
 		static formatDescriptionTags(html) {
 			return html.replace(/&lt;(NAVI|URL|TIPBOX)&gt;([\s\S]*?)&lt;INFO&gt;([\s\S]*?)&lt;\/INFO&gt;&lt;\/\1&gt;/g, (match, tag, text, info) => {
-				if (tag !== "NAVI") return text;
 				const attr = (value) => value.replace(/\^[0-9a-fA-F]{6}/g, "").replace(/"/g, "&quot;");
+				if (tag === "TIPBOX") {
+					const id = parseInt(attr(info).trim(), 10);
+					if (!(id >= 0)) return text;
+					return `<span class="tipbox-link" data-tipbox-id="${id}">${DB.formatMsgToHtml(text)}</span>`;
+				}
+				if (tag !== "NAVI") return text;
 				return `<span class="navi-link" data-navi-info="${attr(info)}" data-navi-name="${attr(text)}">${DB.formatMsgToHtml(text)}</span>`;
 			});
+		}
+		/**
+		* Load the tip box's tips (System/tipbox.lua, else System/tipbox.lub) into
+		* TipBoxTable, once. The table is only read when the tip box is first
+		* wanted, rather than with everything else at start.
+		*
+		* @return {Promise<boolean>} whether any tip was loaded
+		*/
+		static loadTipBox() {
+			if (!_tipBoxLoad) {
+				const generation = _tipBoxGeneration;
+				_tipBoxLoad = new Promise((resolve) => {
+					TipBoxTable.reset();
+					tryLoadLuaAliases(loadTipBoxFile, ["System/tipbox.lua", "System/tipbox.lub"], generation, () => resolve(generation === _tipBoxGeneration && TipBoxTable.size > 0));
+				});
+			}
+			return _tipBoxLoad;
 		}
 		/**
 		* Get pet data by job ID
@@ -375591,6 +376290,10 @@ var init_Trade = __esmMin((() => {
 */
 function onUIOpen(pkt) {
 	switch (pkt.ui_type) {
+		case 5:
+			_pendingTip = pkt.data;
+			if (!MapRenderer.loading) openPendingUI();
+			break;
 		case 7:
 			if (Configs.get("enableCheckAttendance") && PacketVerManager_default.value >= 20180307) {
 				_pendingAttendance = pkt.data;
@@ -375617,6 +376320,11 @@ function onUIOpen(pkt) {
 * Called by the map engine once the map is loaded.
 */
 function openPendingUI() {
+	if (_pendingTip !== null) {
+		const tip = _pendingTip;
+		_pendingTip = null;
+		TipBox_default.open(tip);
+	}
 	if (_pendingAttendance === null) return;
 	const data = _pendingAttendance;
 	_pendingAttendance = null;
@@ -375634,7 +376342,7 @@ function MainEngine$7() {
 	Network.hookPacket(PACKET.ZC.UI_OPEN, onUIOpen);
 	Network.hookPacket(PACKET.ZC.UI_OPEN_V3, onUIOpen);
 }
-var _pendingAttendance;
+var _pendingAttendance, _pendingTip;
 var init_UIOpen = __esmMin((() => {
 	init_Configs();
 	init_NetworkManager();
@@ -375644,7 +376352,9 @@ var init_UIOpen = __esmMin((() => {
 	init_CheckAttendance();
 	init_EnchantGrade();
 	init_Enchant();
+	init_TipBox();
 	_pendingAttendance = null;
+	_pendingTip = null;
 }));
 // src/Engine/MapEngine/Quest.js
 /**
@@ -377329,10 +378039,9 @@ function onMapChange(pkt) {
 		WinStatsController.append();
 		Controller$3.append();
 		if (Configs.get("enableCashShop")) CashShopIcon_default.append();
-		if (Configs.get("enableCheckAttendance") && PacketVerManager_default.value >= 20180307) {
-			CheckAttendance_default.append();
-			openPendingUI();
-		}
+		if (Configs.get("enableCheckAttendance") && PacketVerManager_default.value >= 20180307) CheckAttendance_default.append();
+		openPendingUI();
+		TipBox_default.openAtStartup();
 		Plugins.init();
 		Network.sendPacket(new PACKET.CZ.NOTIFY_ACTORINIT());
 		_mapReady = true;
@@ -377848,6 +378557,7 @@ var init_MapEngine = __esmMin((() => {
 	init_Trade();
 	init_Friends();
 	init_UIOpen();
+	init_TipBox();
 	init_Quest();
 	init_Rodex();
 	init_Roulette();
