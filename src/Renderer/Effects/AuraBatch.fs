@@ -5,7 +5,7 @@ precision highp float;
 // DISCARD_BLACK, DARKEN. Each matches what that effect's own shader does.
 
 in vec2 vTextureCoord;
-flat in vec4 vColor;
+in vec4 vColor;
 out vec4 fragColor;
 
 uniform sampler2D uDiffuse;

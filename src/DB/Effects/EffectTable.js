@@ -30,12 +30,15 @@ import SongEffects from 'Renderer/Effects/Songs.js';
 import Events from 'Core/Events.js';
 import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
+import { removeTrapEffect } from 'DB/Effects/RemoveTrapEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
+import ArrowVulcan from 'Renderer/Effects/ArrowVulcan.js';
 import LPEffect from 'Renderer/Effects/LPEffect.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
+import ColdHit from 'Renderer/Effects/ColdHit.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
 import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
@@ -43,6 +46,7 @@ import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
+import { smaBlackEffect } from 'DB/Effects/SmaBlackEffect.js';
 import { spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
 import { stormSlashEffects } from 'DB/Effects/StormSlashEffect.js';
 import { sandAttackEffect } from 'DB/Effects/SandAttackEffect.js';
@@ -2100,25 +2104,21 @@ export default {
 
 	51: [
 		{
-			// water hit	//EF_COLDHIT	Ice Elemental Hit
+			//EF_COLDHIT	Ice Elemental Hit: 9 ice shards flying out and two smoke puffs (ColdHit.js, kRO 2025 0xba6a80)
+			type: 'FUNC',
+			attachedEntity: true,
+			// 32 ticks (ColdHitSim LAST_TICK + 1): also lets the manager drop it while it is culled
+			duration: Math.ceil(32 * PRIM_TICK_MS),
+			func: function (Params) {
+				this.add(new ColdHit(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		},
+		{
+			// water hit
 			wav: '_hit_fist%d',
 			rand: [3, 4],
 			attachedEntity: true
-		} /*, {
-			type: '2D',
-			alphaMax: 1,
-			angle: 0,
-			angleDelta: 40,
-			attachedEntity: false,
-			duration: 140,
-			duplicates: 9,
-			fadeOut: true,
-			file: 'effect/ice.tga',
-			offsetxEnd: 3,
-			offsetxStart: 0.5,
-			size: 100,
-			timeBetweenDupli: 0
-		}*/
+		}
 	],
 
 	52: [
@@ -3708,14 +3708,7 @@ export default {
 		}
 	],
 
-	100: [
-		{
-			//EF_REMOVETRAP	Yellow ball fountain
-			//type: 'FUNC',
-			wav: 'effect/hunter_removetrap',
-			attachedEntity: false
-		}
-	],
+	100: removeTrapEffect, //EF_REMOVETRAP	Remove Trap fountain (DB/Effects/RemoveTrapEffect.js)
 
 	101: [
 		{
@@ -9520,7 +9513,19 @@ export default {
 
 	393: [
 		{
-			//EF_TRIPLEATTACK3	   Arrow Vulcan
+			//EF_TRIPLEATTACK3	   Arrow Vulcan: 36 pink streaks from the caster to past the target (ArrowVulcan.js, kRO 2025 0xbfff50)
+			type: 'FUNC',
+			attachedEntity: false,
+			// 208 ticks (ArrowVulcanSim LAST_TICK + 1): also lets the manager drop it while it is culled
+			duration: Math.ceil(208 * PRIM_TICK_MS),
+			func: function (Params) {
+				this.add(
+					new ArrowVulcan(Params.Inst.position, Params.Inst.otherPosition, Params.Inst.startTick),
+					Params
+				);
+			}
+		},
+		{
 			// On the caster as each damage packet arrives; the client plays the sound on its tick 30.
 			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad',
 			delayWav: 500,
@@ -19129,6 +19134,8 @@ export default {
 		}
 	],
 
+	1204: smaBlackEffect,
+
 	1207: energyDrainEffect(1207),
 
 	1208: energyDrainEffect(1208),
@@ -26635,7 +26642,7 @@ export default {
 	],
 
 	// Espa (SP_SPA): the skilleffectinfo row's sound, on the caster when the use packet has the result set
-	// (its 1204, EF_SMA_BLACK, is not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	// (its 1204, EF_SMA_BLACK, is SmaBlackEffect.js). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_spa_sound: [
 		{
 			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2', // t_에너지방출
