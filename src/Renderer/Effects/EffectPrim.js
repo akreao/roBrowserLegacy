@@ -10,8 +10,8 @@
  */
 
 import WebGL from 'Utils/WebGL.js';
-import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import { sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
 import {
 	PRIM_TICK_MS,
 	createPrimState,
@@ -28,6 +28,29 @@ import _fragmentShader from './EffectPrim.fs?raw';
  * @var {WebGLProgram}
  */
 let _program = null;
+
+// One texture per file for all primitives (Meteor Assault alone draws 32 slash quads), and the
+// number of primitives using each one; the last one deletes it.
+const _sharedTextures = new Map();
+const _sharedUsers = new Map();
+
+/**
+ * @param {object} gl context
+ * @param {string} name file in data/texture/effect/
+ */
+function releaseSharedTexture(gl, name) {
+	const users = (_sharedUsers.get(name) || 0) - 1;
+	if (users > 0) {
+		_sharedUsers.set(name, users);
+		return;
+	}
+	_sharedUsers.delete(name);
+	const entry = _sharedTextures.get(name);
+	if (entry && entry.texture) {
+		gl.deleteTexture(entry.texture);
+	}
+	_sharedTextures.delete(name);
+}
 
 class EffectPrim {
 	/**
@@ -60,15 +83,14 @@ class EffectPrim {
 	init(gl) {
 		this.buffer = gl.createBuffer();
 
-		Client.loadFile(`data/texture/effect/${this.effect.texture}.tga`, buffer => {
-			WebGL.texture(gl, buffer, texture => {
-				if (this.freed) {
-					gl.deleteTexture(texture);
-					return;
-				}
-				this.texture = texture;
-				this.ready = true;
-			});
+		this.textureName = `${this.effect.texture}.tga`;
+		_sharedUsers.set(this.textureName, (_sharedUsers.get(this.textureName) || 0) + 1);
+		sharedTexture(_sharedTextures, gl, this.textureName, texture => {
+			if (this.freed) {
+				return;
+			}
+			this.texture = texture;
+			this.ready = true;
 		});
 	}
 
@@ -84,10 +106,12 @@ class EffectPrim {
 			this.buffer = null;
 		}
 
-		if (this.texture) {
-			gl.deleteTexture(this.texture);
-			this.texture = null;
+		// The texture is shared: only the last primitive using it deletes it.
+		if (this.textureName) {
+			releaseSharedTexture(gl, this.textureName);
+			this.textureName = null;
 		}
+		this.texture = null;
 	}
 
 	/**
@@ -154,6 +178,8 @@ class EffectPrim {
 	 * @param {object} gl context
 	 */
 	static free(gl) {
+		freeSharedTextures(_sharedTextures, gl);
+		_sharedUsers.clear();
 		if (_program) {
 			gl.deleteProgram(_program);
 			_program = null;
