@@ -230,17 +230,25 @@
 	text-decoration: underline;
 }
 
-#moveinfo-tooltip {
+/* The official client's round box (UIRoundBoxTooltipWnd): a 1px #b8b8ef edge
+   around #e7e7ef, dark blue 12px text, lines 4.8px apart, 5px above and below
+   and about 7px either side. */
+.moveinfo-box {
 	position: absolute;
 	display: none;
-	pointer-events: none;
-	z-index: 9999;
-	background: #e6e7ef;
-	border: 2px solid #bdbdee;
-	padding: 6px 8px;
-	color: #183984;
+	z-index: 1;
+	background: #e7e7ef;
+	border: 1px solid #b8b8ef;
+	border-radius: 4px;
+	padding: 5px 7px;
+	color: #1a3b80;
+	font-size: 12px;
+	line-height: 14px;
 	white-space: nowrap;
-	border-radius: 8px;
+}
+
+.moveinfo-box div + div {
+	margin-top: 5px;
 }
 
 .ItemInfo .btn_mounting {

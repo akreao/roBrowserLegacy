@@ -69,7 +69,9 @@ const _start = 0;
 ItemInfo.uid = -1;
 
 /**
- * ItemMoveInfo messages mapping
+ * What an item can't be done with (data/ItemMoveInfoV5.txt), one message per
+ * line, in the order the official client lists them. 2793 (auction) is never
+ * shown there either.
  */
 const MOVE_INFO_MESSAGES = [
 	{ key: 'Drop', msgId: 2788 },
@@ -193,6 +195,12 @@ ItemInfo.init = function init() {
 		});
 	}
 
+	// A click on the transfer restrictions box closes it
+	const moveInfoBox = root.querySelector('.moveinfo-box');
+	if (moveInfoBox) {
+		moveInfoBox.addEventListener('click', () => ItemInfo.hideMoveInfoTooltip());
+	}
+
 	this.draggable('.title');
 };
 
@@ -205,6 +213,9 @@ ItemInfo.setItem = function setItem(item) {
 	const it = DB.getItemInfo(item.ITID);
 	const root = ItemInfo.getRoot();
 	const cardList = root.querySelector('.cardlist .border');
+
+	// The last item's restrictions box is not this item's.
+	ItemInfo.hideMoveInfoTooltip();
 	const optionContainer = root.querySelector('.option-container');
 
 	this.item = it;
@@ -306,48 +317,17 @@ ItemInfo.setItem = function setItem(item) {
 		}
 	}
 
-	if (it.moveInfo) {
-		const tooltipHtml = buildMoveInfoTooltip(it.moveInfo);
-		if (tooltipHtml) {
-			// Create the hoverable label
-			const label = document.createElement('span');
-			label.textContent = DB.getMessage(2796);
-			label.className = 'moveinfo-label';
-
-			// Append label to description
-			if (descInner) {
-				descInner.appendChild(label);
-			}
-
-			// Tooltip container (in light DOM for z-index)
-			let tooltip = document.getElementById('moveinfo-tooltip');
-			if (!tooltip) {
-				tooltip = document.createElement('div');
-				tooltip.id = 'moveinfo-tooltip';
-				document.body.appendChild(tooltip);
-			}
-
-			// Mouse enter → show tooltip
-			label.addEventListener('mouseenter', e => {
-				Cursor.setType(Cursor.ACTION.CLICK);
-				tooltip.innerHTML = tooltipHtml;
-				tooltip.style.display = 'block';
-				tooltip.style.left = `${e.pageX + 15}px`;
-				tooltip.style.top = `${e.pageY + 2}px`;
-			});
-
-			// Mouse leave → hide tooltip
-			label.addEventListener('mouseleave', () => {
-				tooltip.style.display = 'none';
-				Cursor.setType(Cursor.ACTION.DEFAULT);
-			});
-
-			// Mouse move → follow cursor
-			label.addEventListener('mousemove', e => {
-				tooltip.style.left = `${e.pageX + 20}px`;
-				tooltip.style.top = `${e.pageY + 2}px`;
-			});
-		}
+	// Transfer restrictions: a link under the description (2796) that, clicked,
+	// opens a small box beside the cursor listing them, as the official client does.
+	const moveInfoLines = it.moveInfo ? getMoveInfoLines(it.moveInfo) : [];
+	if (moveInfoLines.length && descInner) {
+		const label = document.createElement('span');
+		label.textContent = DB.getMessage(2796);
+		label.className = 'moveinfo-label';
+		label.addEventListener('mouseenter', () => Cursor.setType(Cursor.ACTION.CLICK));
+		label.addEventListener('mouseleave', () => Cursor.setType(Cursor.ACTION.DEFAULT));
+		label.addEventListener('click', event => showMoveInfoBox(moveInfoLines, event));
+		descInner.appendChild(label);
 	}
 
 	updatePreviewButton(item);
@@ -868,29 +848,67 @@ function onItemPreview(pkt) {
 }
 
 /**
- * Build moveInfo tooltip html content
- * @param {object} moveInfo
- * @returns {string} html content
+ * The restriction messages for an item's move info
+ *
+ * @param {object} moveInfo - from data/ItemMoveInfoV5.txt
+ * @returns {Array<string>} one message per restriction, in the client's order
  */
-function buildMoveInfoTooltip(moveInfo) {
-	const lines = [];
-
-	for (const entry of MOVE_INFO_MESSAGES) {
-		if (moveInfo[entry.key] === true) {
-			lines.push(DB.getMessage(entry.msgId));
-		}
-	}
-	return lines.map(l => `<div>${l}</div>`).join('');
+function getMoveInfoLines(moveInfo) {
+	return MOVE_INFO_MESSAGES.filter(entry => moveInfo[entry.key] === true).map(entry => DB.getMessage(entry.msgId));
 }
 
 /**
- * Cleanup moveInfo tooltip and restore cursor state.
- * Called when ItemInfo UI is removed.
+ * Open the restrictions box beside the cursor. The official client puts its
+ * top-left 26px right of the pointer, level with it; a second click on the
+ * link moves the box rather than opening another.
+ *
+ * @param {Array<string>} lines
+ * @param {MouseEvent} event - the click on the link
+ */
+function showMoveInfoBox(lines, event) {
+	const box = ItemInfo.getRoot().querySelector('.moveinfo-box');
+	if (!box) {
+		return;
+	}
+
+	box.replaceChildren(
+		...lines.map(text => {
+			const line = document.createElement('div');
+			line.textContent = text;
+			return line;
+		})
+	);
+
+	box.style.display = 'block';
+
+	// Place it on screen first. Near the right edge it goes to the pointer's
+	// left instead, so it never covers the link; near the bottom it moves up.
+	const WIDTH = Renderer.width || window.innerWidth;
+	const HEIGHT = Renderer.height || window.innerHeight;
+	const { width, height } = box.getBoundingClientRect();
+	let x = event.clientX + 26;
+	if (x + width > WIDTH) {
+		x = event.clientX - 26 - width;
+	}
+	x = Math.max(0, Math.min(x, WIDTH - width));
+	const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
+
+	// The box lives inside the window, which a plugin may draw scaled: turn
+	// the screen position into a window one.
+	const rect = ItemInfo._host.getBoundingClientRect();
+	const scale = ItemInfo.scale || 1;
+	box.style.left = `${(x - rect.left) / scale}px`;
+	box.style.top = `${(y - rect.top) / scale}px`;
+}
+
+/**
+ * Close the restrictions box and restore the cursor.
+ * Called when the window closes or shows another item.
  */
 ItemInfo.hideMoveInfoTooltip = function hideMoveInfoTooltip() {
-	const tooltip = document.getElementById('moveinfo-tooltip');
-	if (tooltip) {
-		tooltip.style.display = 'none';
+	const box = ItemInfo.getRoot?.()?.querySelector('.moveinfo-box');
+	if (box) {
+		box.style.display = 'none';
 	}
 	Cursor.setType(Cursor.ACTION.DEFAULT);
 };
