@@ -50,10 +50,20 @@ class BlitzStreaks {
 	}
 
 	init(gl) {
-		sharedTexture(_textures, gl, TEXTURE, texture => {
-			this.texture = texture;
-			this.ready = true;
-		});
+		// Ready either way: without the texture nothing is drawn, but the streaks still
+		// run out and the effect is cleaned up.
+		sharedTexture(
+			_textures,
+			gl,
+			TEXTURE,
+			texture => {
+				this.texture = texture;
+				this.ready = true;
+			},
+			() => {
+				this.ready = true;
+			}
+		);
 	}
 
 	free() {
