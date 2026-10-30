@@ -3,7 +3,8 @@
  *
  * What the official client's cast effects 934 (Nightmare Erasion), 2373
  * (Shinkirou) and 502 (Spiral Pierce Max), Shrink's 599, Wind Walk's 389,
- * Enchant Deadly Poison's 493 and Soul Destroyer's 361, do to the
+ * Enchant Deadly Poison's 493, Soul Destroyer's 361 and Meteor Assault's 409,
+ * do to the
  * caster's own sprite (and a few effects to their target's, such as Tarot
  * Card of Fate's 500). It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
@@ -154,6 +155,8 @@ export const SCHEDULES = {
 		const on = age <= 10;
 		return { add: on, glow: false, split: false, color: on ? MAGENTA : null };
 	},
+	// Meteor Assault (409): the same as Soul Destroyer's 361.
+	409: age => SCHEDULES[361](age),
 	// Wind Walk (389): ticks 5 to 25 added body and light green (220, 250, 220) on every tick.
 	389: age => {
 		const on = age >= 5 && age <= 25;
