@@ -19162,11 +19162,12 @@ export default {
 
 	1062: [
 		{
-			//EF_HAMMER_OF_GOD
+			//EF_HAMMER_OF_GOD: Hammer of God's ground packet launches it at the cell, with no owner and
+			// no sound (official client). See effect-port/rebellion-skills.md.
 			type: 'STR',
-			file: 'stormgust',
-			wav: 'effect/RL_HAMMER_OF_GOD',
-			attachedEntity: true
+			file: 'rl_hamer_god/hogg2',
+			texturePath: 'rl_hamer_god/',
+			attachedEntity: false
 		}
 	],
 
