@@ -17,7 +17,9 @@
  * Skills whose value comes from data roBrowser does not read (skilleffectinfo
  * rows, registered skill objects) are left out (UNKNOWN_RANGES). The
  * Kagerou / Oboro skilleffectinfo rows (3004-3029) are filled in by hand: the
- * row's beginEffectID when it has one, else the table's value.
+ * row's beginEffectID when it has one, else the table's value. The Star
+ * Emperor / Soul Reaper rows (2574-2610) have no beginEffectID, so they keep
+ * the table's value.
  * See effect-port/caster-motion-effect.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -110,19 +112,6 @@ export const UNKNOWN_RANGES = [
 	[2560, 2562],
 	[2564, 2564],
 	[2566, 2570],
-	[2574, 2574],
-	[2576, 2577],
-	[2579, 2579],
-	[2582, 2582],
-	[2586, 2586],
-	[2588, 2588],
-	[2590, 2590],
-	[2592, 2592],
-	[2594, 2594],
-	[2600, 2600],
-	[2602, 2603],
-	[2606, 2607],
-	[2609, 2610],
 	[3031, 3034],
 	[5002, 5002],
 	[5050, 5051],
