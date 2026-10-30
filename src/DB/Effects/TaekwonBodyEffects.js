@@ -11,7 +11,9 @@
  * - 415 EF_KICKEDBODY (Counter Kick): two hit sounds, kicked up from tick 30;
  * - 458 EF_QUAKEBODY2 (Flying Kick): quake;
  * - 449 EF_TAE_READY (stances, Tumbling): blue glow;
- * - 466 EF_SPINEDBODY2 (Roundhouse): sound at tick 5, spin from tick 14.
+ * - 466 EF_SPINEDBODY2 (Roundhouse): sound at tick 5, spin from tick 14;
+ * - 1224 (Prominence Kick, on the target as the damage arrives; kRO 2025-07-16
+ *   case 0xbc0798): mon_침투경.wav at tick 5, then the same spin from tick 14.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
@@ -82,5 +84,15 @@ export default {
 			attachedEntity: true
 		},
 		bodyMotion(466, 50)
+	],
+
+	1224: [
+		{
+			// Prominence Kick
+			wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6', // mon_침투경
+			delayWav: at(5),
+			attachedEntity: true
+		},
+		bodyMotion(1224, 50)
 	]
 };

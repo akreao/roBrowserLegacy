@@ -112,6 +112,8 @@ export const SCHEDULES = {
 	458: () => ({ quake: true }),
 	// EF_SPINEDBODY2: spin from age 14 to 49.
 	466: age => (age >= 14 && age < 50 ? { spin: age - 14 } : null),
+	// Prominence Kick's 1224 (kRO 2025 case 0xbc0798): the same spin from age 14.
+	1224: age => (age >= 14 && age < 50 ? { spin: age - 14 } : null),
 	// EF_RED_HIT (Fling): red glow on ticks 0 to 16, counter 3 x age.
 	548: age => (age <= 16 ? { red: age * 3 } : null),
 	// EF_MADNESS_BLUE (Madness Canceller): blue glow, counter 20, on one tick in four.
