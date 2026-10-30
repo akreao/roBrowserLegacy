@@ -26674,6 +26674,15 @@ export default {
 		}
 	],
 
+	// Soul Division (SP_SOULDIVISION): the skilleffectinfo row's sound, on the target as each damage packet
+	// arrives (its 1209, EF_BLINK_BODY, is not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_souldivision_sound: [
+		{
+			wav: 'effect/t_\xc4\xa1\xc0\xd7', // t_치잉
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
