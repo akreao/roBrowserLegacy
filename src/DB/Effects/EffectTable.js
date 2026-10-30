@@ -71,6 +71,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import ColdHit from 'Renderer/Effects/ColdHit.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -2132,25 +2133,19 @@ export default {
 
 	51: [
 		{
-			// water hit	//EF_COLDHIT	Ice Elemental Hit
+			//EF_COLDHIT	Ice Elemental Hit: 9 ice shards flying out and two smoke puffs (ColdHit.js, kRO 2025 0xba6a80)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new ColdHit(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		},
+		{
+			// water hit
 			wav: '_hit_fist%d',
 			rand: [3, 4],
 			attachedEntity: true
-		} /*, {
-			type: '2D',
-			alphaMax: 1,
-			angle: 0,
-			angleDelta: 40,
-			attachedEntity: false,
-			duration: 140,
-			duplicates: 9,
-			fadeOut: true,
-			file: 'effect/ice.tga',
-			offsetxEnd: 3,
-			offsetxStart: 0.5,
-			size: 100,
-			timeBetweenDupli: 0
-		}*/
+		}
 	],
 
 	52: [
