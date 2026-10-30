@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
-import SK from '../../src/DB/Skills/SkillConst.js';
+import SkillEffect from 'DB/Skills/SkillEffect.js';
+import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
-import { rotateLineFrames } from '../../src/Renderer/Effects/RotateLineSim.js';
+import { rotateLineFrames } from 'Renderer/Effects/RotateLineSim.js';
 
 // Kunai Splash (KO_HAPPOKUNAI, skill 3007): when the use packet has the result set, the official client's
 // skilleffectinfo row plays T_회오리차기.wav and launches 981 (eight kunai, not ported) and 986 (the gray
