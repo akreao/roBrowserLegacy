@@ -76,6 +76,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import { blitzBeatEffect } from 'DB/Effects/BlitzBeatEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -3922,13 +3923,7 @@ export default {
 		}
 	],
 
-	115: [
-		{
-			//blitzbeat on target hit	//EF_BLITZBEAT	Blitz Beat
-			wav: 'effect/hunter_blitzbeat',
-			attachedEntity: true
-		}
-	],
+	115: blitzBeatEffect, //EF_BLITZBEAT	Blitz Beat (DB/Effects/BlitzBeatEffect.js)
 
 	116: [
 		{
