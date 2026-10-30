@@ -152,6 +152,13 @@ const MouseMode = Object.freeze({
  * clicks until the pointer passed over that window again. Every trade starts
  * that way. No mousemove fires during a drag either, so the first one after a
  * dragstart comes once it is over, and that asks every entered guard.
+ *
+ * The map also turns Mouse.intersect back on by itself when it finishes
+ * loading. A Fly Wing used from the inventory warps with the pointer resting
+ * on the inventory, so the map then took the hover and the clicks through it
+ * until the pointer left the window and came back. A mousemove that finds the
+ * map taking the pointer while a guard is entered asks the guards too, and the
+ * one still under the pointer takes it back.
  */
 const _enteredGuards = new Set();
 let _dragged = false;
@@ -160,7 +167,7 @@ if (typeof window !== 'undefined') {
 	window.addEventListener(
 		'mousemove',
 		() => {
-			if (_dragged) {
+			if (_dragged || (Mouse.intersect && _enteredGuards.size > 0)) {
 				_dragged = false;
 				_enteredGuards.forEach(check => check());
 			}
@@ -1051,10 +1058,19 @@ class GUIComponent {
 			let _intersect;
 			let _enter = 0;
 
-			// The leave a drag swallowed, once the pointer is seen elsewhere.
+			// The leave a drag swallowed, once the pointer is seen elsewhere;
+			// or, still over the window, the pointer the map took back.
 			const check = () => {
-				if (_enter > 0 && !(element.isConnected && element.matches(':hover'))) {
+				if (_enter === 0) {
+					return;
+				}
+				if (!(element.isConnected && element.matches(':hover'))) {
 					element.dispatchEvent(new Event('mouseleave'));
+				} else if (Mouse.intersect && !Session.FreezeUI) {
+					_intersect = true;
+					Mouse.intersect = false;
+					_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
+					_EntityManager?.setOverEntity(null);
 				}
 			};
 
