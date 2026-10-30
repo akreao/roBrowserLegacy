@@ -26552,12 +26552,16 @@ export default {
 		}
 	],
 
-	// Soul Revolution (SP_SOULREVOLVE), from the client's own effect folders.
+	// Soul Revolution (SP_SOULREVOLVE): official effect 1243 (CEZ2STREffect) and t_방어형.wav, on the target
+	// from the use case (result set). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_soulrevolve: [
 		{
+			//EF_SOUL_REVOLVE (1243)
 			type: 'STR',
 			file: 'soul_revolve/soul_revolve',
-			texturePath: 'soul_revolve/'
+			texturePath: 'soul_revolve/',
+			wav: 'effect/t_\xb9\xe6\xbe\xee\xc7\xfc', // t_방어형
+			attachedEntity: true
 		}
 	],
 
