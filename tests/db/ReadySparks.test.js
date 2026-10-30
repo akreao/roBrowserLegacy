@@ -55,7 +55,7 @@ describe('Blue sparks (effects 543 and 546)', () => {
 
 	it('draws them added and tinted, and plays 546 when a combo is ready', () => {
 		const row = sparkEffect({ spawn: 0, k: 0, x: 0, z: 0, rise: 0.1, size: 2 });
-		expect(row).toMatchObject({ fileList: SPARK_TEXTURES, blendMode: 2 });
+		expect(row).toMatchObject({ fileList: SPARK_TEXTURES, sharedTexture: true, blendMode: 2 });
 		expect(row.track(5).color).toEqual([150 / 255, 150 / 255, 250 / 255]);
 		expect(EffectTable[543].map(r => r.type)).toContain('FUNC');
 		expect(EffectTable[546][0].type).toBe('FUNC');

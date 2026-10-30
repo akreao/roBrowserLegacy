@@ -27,6 +27,7 @@ export function sparkEffect(spark) {
 	return {
 		type: '3D',
 		fileList: SPARK_TEXTURES,
+		sharedTexture: true,
 		alphaMax: 1,
 		blendMode: 2,
 		attachedEntity: true,
