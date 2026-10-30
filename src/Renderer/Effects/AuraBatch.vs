@@ -7,7 +7,8 @@ in vec4 aColor;
 in float aDepthOffset;
 
 out vec2 vTextureCoord;
-flat out vec4 vColor;
+// Interpolated: a cold-hit shard fades from its white tail to its head.
+out vec4 vColor;
 
 uniform mat4 uModelViewMat;
 uniform mat4 uProjectionMat;
