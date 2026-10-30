@@ -369,6 +369,7 @@ class ThreeDEffect {
 		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
 		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down). frame picks a
 		// sprite's animation frame (wrapping), for a sprite whose animation starts on its own tick.
+		// texture picks one picture of fileList, and color ([r, g, b], 0..1) tints it this frame.
 		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
@@ -760,6 +761,14 @@ class ThreeDEffect {
 				SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
 			}
 			trackFrame = sample.frame;
+			if (sample.texture !== undefined && this.textureList[sample.texture]) {
+				SpriteRenderer.image.texture = this.textureList[sample.texture];
+			}
+			if (sample.color) {
+				SpriteRenderer.color[0] = sample.color[0];
+				SpriteRenderer.color[1] = sample.color[1];
+				SpriteRenderer.color[2] = sample.color[2];
+			}
 		}
 
 		if (this.actRessource && this.spriteRessource) {

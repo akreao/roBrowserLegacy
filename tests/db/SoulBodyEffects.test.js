@@ -71,7 +71,7 @@ describe('Soul Linker / Star Gladiator body looks', () => {
 		}
 		expect(StatusEffectTable[StatusConst.KAITE]).toEqual({ restart: [419], stop: [419] });
 		for (const id of ['SG_SUN_WARM', 'SG_MOON_WARM', 'SG_STAR_WARM']) {
-			expect(StatusEffectTable[StatusConst[id]]).toEqual({ restart: [544], stop: [544] });
+			expect(StatusEffectTable[StatusConst[id]]).toEqual({ restart: [418, 544], stop: [418, 544] });
 		}
 	});
 });

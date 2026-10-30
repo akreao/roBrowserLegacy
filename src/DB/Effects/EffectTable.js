@@ -70,6 +70,7 @@ import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
+import { warmthEffect } from 'DB/Effects/WarmthEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
@@ -9949,7 +9950,8 @@ export default {
 	//415: [{}],	//EF_KICKEDBODY	   Counter Kick
 	//416: [{}],	//EF_AIRTEXTURE	   (Nothing)
 	//417: [{}],	//EF_HITBODY	   Flash
-	//418: [{}],	//EF_DOUBLEGUMGANG	   Warmth Lightning
+	// 418 EF_DOUBLEGUMGANG, Warmth's sparks while the status is on: WarmthEffect.js.
+	418: warmthEffect,
 	// 419 EF_REFLECTBODY (Kaite): SoulBodyEffects.js.
 
 	420: [
