@@ -47,7 +47,7 @@ describe('caster motion effect table', () => {
 	});
 
 	it('leaves out skills whose value comes from data it does not read', () => {
-		expect(getMotionEffect(3004)).toBe(null); // KO_JYUMONJIKIRI (skilleffectinfo)
+		expect(getMotionEffect(2556)).toBe(null); // RL_FLICKER (skilleffectinfo)
 		expect(getMotionEffect(1172)).toBe(null); // registered skill object
 	});
 });
