@@ -17,7 +17,8 @@
  *
  * The poison attack particles (effects 20 and 125, Enchant Poison and Venom
  * Splasher) are the same bubbles with the particle3 sprite, one every 5 ticks
- * for the effect's whole life: see DB/Effects/PoisonAttackEffect.js.
+ * for the effect's whole life: see DB/Effects/PoisonAttackEffect.js. Enchant
+ * Deadly Poison's (493) are a variant of them (EDP_BUBBLES).
  *
  * Units are the client's: world units (5 to a cell), ticks (60 a second).
  * r(k) is a whole number from 0 to k - 1.
@@ -38,21 +39,32 @@ export const DETOX = {
 const r = (random, k) => Math.floor(random() * k);
 
 /**
+ * Enchant Deadly Poison's particles (effect 493): one every 3 ticks, rising
+ * (30 + r(50)) / 100 units a tick, scale (20 + r(20)) / 100; the rest as above.
+ */
+export const EDP_BUBBLES = { every: 3, riseRand: 50, scaleBase: 20, scaleRand: 20 };
+
+/**
  * @param {function} [random] returns a number in [0, 1)
  * @param {number} [count] how many bubbles (one every 5 ticks)
+ * @param {object} [variant] other numbers: every (ticks), riseRand, scaleBase, scaleRand
  * @return {Array<object>} the bubbles, in client units
  */
-export function planBubbles(random = Math.random, count = DETOX.count) {
+export function planBubbles(random = Math.random, count = DETOX.count, variant = {}) {
+	const every = variant.every || DETOX.every;
+	const riseRand = variant.riseRand || 30;
+	const scaleBase = variant.scaleBase || 40;
+	const scaleRand = variant.scaleRand || 50;
 	const bubbles = [];
 	for (let i = 0; i < count; i++) {
 		const heading = (r(random, 360) * Math.PI) / 180;
 		const dist = 2 + r(random, 6);
 		bubbles.push({
-			spawn: i * DETOX.every,
+			spawn: i * every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r(random, 30)) / 100,
-			scale: (40 + r(random, 50)) / 100
+			rise: (30 + r(random, riseRand)) / 100,
+			scale: (scaleBase + r(random, scaleRand)) / 100
 		});
 	}
 	return bubbles;

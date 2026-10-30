@@ -67,7 +67,7 @@ import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
-import { poisonAttackEffect } from 'DB/Effects/PoisonAttackEffect.js';
+import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
@@ -11116,11 +11116,17 @@ export default {
 	],
 
 	493: [
+		// EF_EDP, Enchant Deadly Poison on the caster: particle3 particles every 3 ticks, the enchant
+		// sound six times (PoisonAttackEffect.js)
+		...edpEffect(),
 		{
-			// edp	//EF_EDP	Enchant Deadly Poison
-			wav: 'effect/assasin_cloaking',
-			//blinking
-			attachedEntity: true
+			// Ticks 0-80 the caster is drawn adding light and magenta on even ticks, white on odd
+			// ones (CasterMarks.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, EDP_LIFE, 493), Params);
+			}
 		}
 	],
 
