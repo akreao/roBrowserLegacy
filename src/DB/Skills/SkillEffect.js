@@ -1265,7 +1265,7 @@ SkillEffect[SK.MC_CARTDECORATE] = {}; //Decorate Cart
 // Rebellion
 SkillEffect[SK.RL_RICHS_COIN] = { successEffectIdOnCaster: 1134 }; //Rich's Coin
 SkillEffect[SK.RL_MASS_SPIRAL] = {}; //Mass Spiral
-SkillEffect[SK.RL_BANISHING_BUSTER] = {}; //Banishing Buster
+SkillEffect[SK.RL_BANISHING_BUSTER] = { damageEffectIdOnTarget: 'ef_rl_banishing_buster' }; //Banishing Buster
 SkillEffect[SK.RL_B_TRAP] = {}; //Bind Trap
 SkillEffect[SK.RL_FLICKER] = {}; //Flicker
 SkillEffect[SK.RL_S_STORM] = { effectId: 'ef_s_storm' }; //Shatter Storm
