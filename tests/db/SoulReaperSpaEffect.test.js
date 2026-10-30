@@ -5,7 +5,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 // Espa (SP_SPA, skill 2602): when the use packet has the result set, the official client's skilleffectinfo
 // row plays t_에너지방출.wav and launches 1204 (EF_SMA_BLACK, SmaBlackEffect.js) on the caster, told the target's
-// position. Hit flash 180 (EF_HITDARK, not in roBrowser). kRO 2025-07-16. Spec: effect-port/star-emperor-soul-reaper-skills.md.
+// position. Hit flash 180 (EF_HITDARK, HitDarkEffect.js). kRO 2025-07-16. Spec: effect-port/star-emperor-soul-reaper-skills.md.
 
 describe('Espa', () => {
 	it('plays the use sound on the caster on success', () => {
