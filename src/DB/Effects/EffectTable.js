@@ -71,6 +71,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -1118,48 +1119,7 @@ export default {
 		}
 	],
 
-	15: [
-		{
-			//soul strike caster	//EF_SOULSTRIKE	Soul Strike
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 200,
-			delayLate: 250,
-			//duplicate: -1,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			toSrc: true,
-			green: 1,
-			poszEnd: 1,
-			poszSmooth: true,
-			poszStartRand: 5,
-			poszStartRandMiddle: 6,
-			red: 1,
-			size: 50,
-			timeBetweenDupli: 150,
-			type: '3D',
-			wav: 'effect/ef_soulstrike',
-			zIndex: 1
-		},
-		{
-			type: '3D',
-			duration: 250,
-			duplicate: 5,
-			timeBetweenDupli: 20,
-			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
-			playSprite: true,
-			toSrc: true,
-			rotateToTarget: true,
-			sizeStart: 100.0,
-			sizeEnd: 500.0,
-			zOffset: 3,
-			arc: 4.0,
-			retreat: 3.0,
-			soulStrikePattern: true
-		}
-	],
+	15: soulStrikeEffect,
 
 	16: [
 		{
