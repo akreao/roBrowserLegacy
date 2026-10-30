@@ -20,6 +20,10 @@ import BodyEffects from 'DB/Effects/BodyEffects.js';
 import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
+import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
+import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
+import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
+import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
 import CloseConfineEffect from 'DB/Effects/CloseConfineEffect.js';
 
 import SongEffects from 'Renderer/Effects/Songs.js';
@@ -67,10 +71,12 @@ import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
+import { warmthEffect } from 'DB/Effects/WarmthEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import { blitzBeatEffect } from 'DB/Effects/BlitzBeatEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -3917,13 +3923,7 @@ export default {
 		}
 	],
 
-	115: [
-		{
-			//blitzbeat on target hit	//EF_BLITZBEAT	Blitz Beat
-			wav: 'effect/hunter_blitzbeat',
-			attachedEntity: true
-		}
-	],
+	115: blitzBeatEffect, //EF_BLITZBEAT	Blitz Beat (DB/Effects/BlitzBeatEffect.js)
 
 	116: [
 		{
@@ -9946,8 +9946,9 @@ export default {
 	//415: [{}],	//EF_KICKEDBODY	   Counter Kick
 	//416: [{}],	//EF_AIRTEXTURE	   (Nothing)
 	//417: [{}],	//EF_HITBODY	   Flash
-	//418: [{}],	//EF_DOUBLEGUMGANG	   Warmth Lightning
-	//419: [{}],	//EF_REFLECTBODY	   Kaite (Visual Effect)
+	// 418 EF_DOUBLEGUMGANG, Warmth's sparks while the status is on: WarmthEffect.js.
+	418: warmthEffect,
+	// 419 EF_REFLECTBODY (Kaite): SoulBodyEffects.js.
 
 	420: [
 		{
@@ -10015,7 +10016,7 @@ export default {
 		}
 	],
 
-	//424: [{}],	//EF_ASURABODY	   Spirit Link (Visual Effect)
+	// 424 EF_ASURABODY (Soul Link): SoulBodyEffects.js.
 	//425: [{}],	//EF_4WAYBODY	   Esma Hit (Visual Effect)
 
 	426: [
@@ -10967,16 +10968,7 @@ export default {
 	//485: [{}],	//EF_DOUBLEGUMGANG2	   Mental Strength Lightning but White
 	//486: [{}],	//EF_DOUBLEGUMGANG3	   Mental Strength Lightning
 	//487: [{}],	//EF_BLACKDEVIL	   Demon of The Sun Moon And Stars Ground Effect
-	488: [
-		{
-			//EF_FLOWERCAST	   Comfort Skills
-			// The official client plays T_안락한마법.wav on tick 5 (83 ms). Its body glow (ticks 0-400)
-			// and two rings (primitive 108) are not drawn yet.
-			wav: 'effect/t_\xbe\xc8\xb6\xf4\xc7\xd1\xb8\xb6\xb9\xfd',
-			delayWav: 5 * (1000 / 60),
-			attachedEntity: true
-		}
-	],
+	// 488 EF_FLOWERCAST (Comfort): SoulBodyEffects.js.
 	//489: [{}],	//EF_FLOWERCAST2	   (Nothing)
 	//490: [{}],	//EF_FLOWERCAST3	   (Nothing)
 
@@ -12265,13 +12257,13 @@ export default {
 	//540: [{}],	//EF_BABYBODY_BACK	   Instant Small->Normal
 	// EF_THROWITEM5, Aid Berserk Potion: the client's thrown bottle (ThrowStoneEffect.js)
 	541: berserkPotionThrowEffect,
-	//542: [{}],	//EF_BLUEBODY	   KA-Spell (1st Part)
+	// 542 EF_BLUEBODY (Kaupe, Kaite): SoulBodyEffects.js.
 
-	//543: [{}],	//EF_HATED	   Kaahi, Kaizel, Comfort, Hatred: a body glow and sparks, not drawn yet; no sound of its own
+	// 543 EF_HATED (Kaahi, Kaizel, Comfort, Hatred): SoulBodyEffects.js. No sound of its own.
 
 	//544: [{}],	//EF_REDLIGHTBODY	   Warmth Red Sprite
 	//545: [{}],	//EF_RO2YEAR	   Sound And... PUFF Client Crash :P
-	//546: [{}],	//EF_SMA_READY	   Kaupe
+	// 546 EF_SMA_READY, blue sparks when a combo is ready: SoulBodyEffects.js.
 
 	547: [
 		{
@@ -13229,7 +13221,7 @@ export default {
 		...throwVenomKnifeEffect
 	],
 
-	//601: [{}],	//EF_SIGHT2	   Sight Blaster
+	// 601 EF_SIGHT2, Sight Blaster's ring of Sight sprites: SightBlasterEffect.js.
 	//602: [{}],	//EF_QUAKEBODY4	   Close Confine (Grab Effect)
 
 	603: [
@@ -26567,7 +26559,7 @@ export default {
 
 	// Light of the Moon / Stars / Sun (SJ_LIGHTOFMOON / SJ_LIGHTOFSTAR / SJ_LIGHTOFSUN): when the use packet
 	// has the result set, the skilleffectinfo row plays t_피링.wav and launches the light sphere (1198 / 1199 /
-	// 1197, CLightSphereEffect, not ported) on the caster. See effect-port/star-emperor-soul-reaper-skills.md.
+	// 1197, CLightSphereEffect, LightSphereEffect.js) on the caster. See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_lightof_sound: [
 		{
 			wav: 'effect/t_\xc7\xc7\xb8\xb5', // t_피링
@@ -28847,6 +28839,18 @@ export default {
 
 	// Champion monster looks (Furious 544, Elusive 620, Solid 679, Ringleader 1003): ChampionMonsterEffects.js.
 	...ChampionMonsterEffects,
+
+	// Soul Linker / Star Gladiator body looks (Kaite 419, Soul Link 424, Comfort 488, 542, 543): SoulBodyEffects.js.
+	...SoulBodyEffects,
+
+	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
+	...StarEmperorStatusEffects,
+
+	// Sight Blaster's ring (601), held while the status is on: SightBlasterEffect.js.
+	...SightBlasterEffect,
+
+	// Light of the Sun / Moon / Stars spheres (1197-1199, CLightSphereEffect): LightSphereEffect.js.
+	...LightSphereEffect,
 
 	// Close Confine on its target (quake, red flicker): CloseConfineEffect.js.
 	...CloseConfineEffect

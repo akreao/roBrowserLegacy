@@ -100,4 +100,22 @@ describe('ThreeDEffect shared textures', () => {
 		held.forEach(run => run());
 		expect(deleted).toHaveLength(1);
 	});
+
+	it('shares every picture of a fileList, and frees them with the last instance', () => {
+		ThreeDEffect.free(gl);
+		deleted.length = 0;
+		loads.length = 0;
+		const row = { fileList: ['effect/super1.bmp', 'effect/super2.bmp'], sharedTexture: true };
+		const a = make(row);
+		const b = make(row);
+		a.init(gl);
+		b.init(gl);
+		expect(loads).toEqual(['data/texture/effect/super1.bmp', 'data/texture/effect/super2.bmp']);
+		expect(a.ready && b.ready).toBe(true);
+		expect(a.textureList).toEqual(b.textureList);
+		a.free(gl);
+		expect(deleted).toHaveLength(0);
+		b.free(gl);
+		expect(deleted).toHaveLength(2);
+	});
 });
