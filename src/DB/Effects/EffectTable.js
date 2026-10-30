@@ -26528,12 +26528,15 @@ export default {
 		}
 	],
 
-	// Golem's Soul (SP_SOULGOLEM), from the client's own effect folders.
+	// Golem's Soul (SP_SOULGOLEM): official effect 1228 (CEZ2STREffect), spawned on the target by the use case
+	// after 503 and 424. See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_soulgolem: [
 		{
+			//EF_SOUL_GOLEM (1228)
 			type: 'STR',
 			file: 'soul_golem/soul_golem',
-			texturePath: 'soul_golem/'
+			texturePath: 'soul_golem/',
+			attachedEntity: true
 		}
 	],
 
@@ -26577,6 +26580,51 @@ export default {
 			// starts its own copy
 			stackable: true,
 			wav: 'effect/so_elemental_shield', // so_elemental_shield
+			attachedEntity: true
+		}
+	],
+
+	// Shadow's Soul (SP_SOULSHADOW): official effect 1235, spawned on the target by the use case after 503 and
+	// 424. See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_soulshadow: [
+		{
+			//EF_SOUL_SHADOW (1235): CSpriteEffect, 이팩트\soul_shadow\soul_shadow.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'soul_shadow/soul_shadow',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
+			attachedEntity: true
+		}
+	],
+
+	// Falcon's Soul (SP_SOULFALCON): official effect 1237, spawned on the target by the use case after 503 and
+	// 424. See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_soulfalcon: [
+		{
+			//EF_SOUL_FALCON (1237): CSpriteEffect, 이팩트\soul_falcon\soul_falcon.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'soul_falcon/soul_falcon',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
+			attachedEntity: true
+		}
+	],
+
+	// Fairy's Soul (SP_SOULFAIRY): official effect 1236, spawned on the target by the use case after 503 and
+	// 424. See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_soulfairy: [
+		{
+			//EF_SOUL_FAIRY (1236): CSpriteEffect, 이팩트\soul_fairy\soul_fairy.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'soul_fairy/soul_fairy',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
 			attachedEntity: true
 		}
 	],
