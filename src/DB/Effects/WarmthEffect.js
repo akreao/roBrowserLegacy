@@ -39,6 +39,7 @@ export function warmthSparkRow(sparks, index, layer) {
 	return {
 		type: '3D',
 		fileList: WARMTH_TEXTURES,
+		sharedTexture: true,
 		alphaMax: 1,
 		blendMode: 2,
 		attachedEntity: true,
