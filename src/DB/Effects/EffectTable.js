@@ -26629,6 +26629,21 @@ export default {
 		}
 	],
 
+	// Curse Explosion (SP_CURSEEXPLOSION): official effect 1233, on the target as each damage packet arrives
+	// (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sp_curseexplosion: [
+		{
+			//EF_CURSE_EXPLOSION (1233): CSpriteEffect, 이팩트\curse_explosion\curse_explosion.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'curse_explosion/curse_explosion',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
