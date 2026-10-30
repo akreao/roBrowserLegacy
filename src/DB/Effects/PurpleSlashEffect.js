@@ -9,7 +9,7 @@
  */
 
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
-import { SLASH, headingTo, planAimedSlash, slashAt } from 'Renderer/Effects/PurpleSlashSim.js';
+import { SLASH, headingTo, planAimedSlash, planOutwardSlash, slashAt } from 'Renderer/Effects/PurpleSlashSim.js';
 
 /**
  * The PRIM row drawing one part: a square whose corners are 20 units from its
@@ -71,5 +71,20 @@ export const aimedSlashEffect = {
 		const from = Params.Inst.position;
 		const to = Params.Init.otherEntity ? Params.Init.otherEntity.position : from;
 		spawnSlashParts(this, Params, planAimedSlash(headingTo(to[0] - from[0], to[1] - from[1])));
+	}
+};
+
+/**
+ * EffectTable row for Meteor Assault's slashes (409): eight prim 92 from the
+ * caster, flying out at 0, 45, ... 315 degrees.
+ */
+export const outwardSlashEffect = {
+	//EF_SOULBREAKER2	eight sets of four purple slashes flying out from the caster (prim 92)
+	type: 'FUNC',
+	attachedEntity: false,
+	func: function (Params) {
+		for (let k = 0; k < 8; k++) {
+			spawnSlashParts(this, Params, planOutwardSlash(k * 45), k * SLASH.parts);
+		}
 	}
 };

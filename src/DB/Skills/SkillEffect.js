@@ -653,7 +653,11 @@ SkillEffect[SK.PF_MEMORIZE] = { effectId: 505 }; //Foresight
 SkillEffect[SK.PF_FOGWALL] = { groundEffectId: '405_ground' }; //Blinding Mist
 SkillEffect[SK.PF_SPIDERWEB] = { groundEffectId: 404 }; //Fiber Lock
 // Assassin Cross
-SkillEffect[SK.ASC_METEORASSAULT] = { hideCastAura: true, effectIdOnCaster: 409 }; //Meteor Assault
+// Official client: cast aura 59 whatever the element; 409 on the caster from the use packet, only when its
+// result is set (메테오 어썰트.wav, eight sets of purple slashes flying out, the caster lit and magenta on
+// ticks 0-10). Hit flash 0, but every rAthena hit is a splash packet, which plays no hit effect. No EF_BASH.
+// See effect-port/assassin-cross-skills.md.
+SkillEffect[SK.ASC_METEORASSAULT] = { castAuraEffectId: 59, successEffectIdOnCaster: 409, hitEffectId: 0 }; //Meteor Assault
 SkillEffect[SK.ASC_CDP] = {}; //Create Deadly Poison
 // Marriage Skills for Baby
 SkillEffect[SK.WE_BABY] = { effectId: 408 }; //Baby

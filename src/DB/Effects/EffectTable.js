@@ -68,7 +68,7 @@ import StreakLines from 'Renderer/Effects/StreakLines.js';
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
-import { aimedSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
+import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
@@ -9920,136 +9920,18 @@ export default {
 
 	409: [
 		{
-			//EF_SOULBREAKER2	   Meteor Assault
+			// EF_SOULBREAKER2, Meteor Assault, on the caster when the skill succeeds (official client):
+			// 메테오 어썰트.wav on tick 0; eight sets of four level purpleslash.tga slashes fly out from the
+			// caster from about tick 30 (PurpleSlashEffect.js); ticks 0-10 the caster added and magenta.
 			wav: 'effect/\xb8\xde\xc5\xd7\xbf\xc0\x20\xbe\xee\xbd\xe4\xc6\xae'
 		},
+		outwardSlashEffect,
 		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: -1,
-			posxEnd: -5,
-			posyStart: 0,
-			posyEnd: 0,
-			rotateWithCamera: true,
-			angle: 0
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: -0.7,
-			posxEnd: -3.53,
-			posyStart: -0.7,
-			posyEnd: -3.53,
-			rotateWithCamera: true,
-			angle: -45
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: 0,
-			posxEnd: 0,
-			posyStart: -1,
-			posyEnd: -5,
-			rotateWithCamera: true,
-			angle: -90
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: 0.7,
-			posxEnd: 3.53,
-			posyStart: -0.7,
-			posyEnd: -3.53,
-			rotateWithCamera: true,
-			angle: -135
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: 1,
-			posxEnd: 5,
-			posyStart: 0,
-			posyEnd: 0,
-			rotateWithCamera: true,
-			angle: -180
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: 0.7,
-			posxEnd: 3.53,
-			posyStart: 0.7,
-			posyEnd: 3.53,
-			rotateWithCamera: true,
-			angle: -225
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: 0,
-			posxEnd: 0,
-			posyStart: 1,
-			posyEnd: 5,
-			rotateWithCamera: true,
-			angle: -270
-		},
-		{
-			type: '3D',
-			file: 'effect/purpleslash.tga',
-			alphaMax: 0.6,
-			duration: 500,
-			fadeOut: true,
-			zIndex: 10,
-			sizeStart: 100,
-			sizeEnd: 200,
-			posxStart: -0.7,
-			posxEnd: -3.53,
-			posyStart: 0.7,
-			posyEnd: 3.53,
-			rotateWithCamera: true,
-			angle: -315
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 409), Params);
+			}
 		}
 	],
 
