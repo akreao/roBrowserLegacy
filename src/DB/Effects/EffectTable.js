@@ -89,6 +89,7 @@ import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
+import UnityLink from 'Renderer/Effects/UnityLink.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import { GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
@@ -19139,6 +19140,22 @@ export default {
 	1207: energyDrainEffect(1207),
 
 	1208: energyDrainEffect(1208),
+
+	1210: [
+		{
+			// Soul Unity's link: yellow and blue cloud tubes from the target to the caster (UnityLink.js, kRO 2025 0xbf1af0)
+			type: 'FUNC',
+			attachedEntity: true,
+			// 200 ticks: also lets the manager drop it while it is culled and not drawn
+			duration: Math.ceil(200 * PRIM_TICK_MS),
+			func: function (Params) {
+				this.add(
+					new UnityLink(Params.Init.ownerEntity, Params.Init.otherEntity, Params.Inst.startTick),
+					Params
+				);
+			}
+		}
+	],
 
 	1225: [
 		{
