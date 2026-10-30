@@ -34,6 +34,7 @@ import { removeTrapEffect } from 'DB/Effects/RemoveTrapEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
+import ArrowVulcan from 'Renderer/Effects/ArrowVulcan.js';
 import LPEffect from 'Renderer/Effects/LPEffect.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
@@ -9553,7 +9554,19 @@ export default {
 
 	393: [
 		{
-			//EF_TRIPLEATTACK3	   Arrow Vulcan
+			//EF_TRIPLEATTACK3	   Arrow Vulcan: 36 pink streaks from the caster to past the target (ArrowVulcan.js, kRO 2025 0xbfff50)
+			type: 'FUNC',
+			attachedEntity: false,
+			// 208 ticks (ArrowVulcanSim LAST_TICK + 1): also lets the manager drop it while it is culled
+			duration: Math.ceil(208 * PRIM_TICK_MS),
+			func: function (Params) {
+				this.add(
+					new ArrowVulcan(Params.Inst.position, Params.Inst.otherPosition, Params.Inst.startTick),
+					Params
+				);
+			}
+		},
+		{
 			// On the caster as each damage packet arrives; the client plays the sound on its tick 30.
 			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad',
 			delayWav: 500,
