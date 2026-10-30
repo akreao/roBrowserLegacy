@@ -26558,6 +26558,22 @@ export default {
 		}
 	],
 
+	// Book of Dimension (SJ_BOOKOFDIMENSION): official effect 1231 and so_elemental_shield.wav, on the caster
+	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
+	ef_sj_bookofdimension: [
+		{
+			//EF_BOOK_OF_DIMENSION (1231): CSpriteEffect, 이팩트\book_of_dimension\book_of_dimension.spr, 4 ticks a frame, once
+			type: 'SPR',
+			file: 'book_of_dimension/book_of_dimension',
+			delayFrame: 67, // 4 ticks
+			// the client's sprite effects are separate objects: a second packet on the same actor
+			// starts its own copy
+			stackable: true,
+			wav: 'effect/so_elemental_shield', // so_elemental_shield
+			attachedEntity: true
+		}
+	],
+
 	// Cross Slash (KO_JYUMONJIKIRI): official effect 996, launched on the target as each damage packet
 	// arrives (skilleffectinfo targetEffectID). See effect-port/kagerou-oboro-skills.md.
 	ef_ko_jyumonjikiri: [
