@@ -96,6 +96,8 @@ describe('Cold hit effect', () => {
 	it('draws on the target and keeps the hit sound', () => {
 		const rows = EffectTable[51];
 		expect(rows[0]).toMatchObject({ type: 'FUNC', attachedEntity: true });
+		// lasts as long as the last puff, so the manager can drop it while out of view
+		expect(rows[0].duration).toBeGreaterThanOrEqual((LAST_TICK + 1) * (1000 / 60));
 		expect(rows[1]).toEqual({ wav: '_hit_fist%d', rand: [3, 4], attachedEntity: true });
 	});
 

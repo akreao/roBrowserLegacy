@@ -2136,6 +2136,8 @@ export default {
 			//EF_COLDHIT	Ice Elemental Hit: 9 ice shards flying out and two smoke puffs (ColdHit.js, kRO 2025 0xba6a80)
 			type: 'FUNC',
 			attachedEntity: true,
+			// 32 ticks (ColdHitSim LAST_TICK + 1): also lets the manager drop it while it is culled
+			duration: Math.ceil(32 * PRIM_TICK_MS),
 			func: function (Params) {
 				this.add(new ColdHit(Params.Inst.position, Params.Inst.startTick), Params);
 			}
