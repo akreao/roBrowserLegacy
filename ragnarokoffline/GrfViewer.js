@@ -149831,6 +149831,27 @@ var init_StatusEffectTable = __esmMin((() => {
 			start: [1061],
 			restart: [1075],
 			stop: [1075]
+		},
+		[StatusConst_default.SOULLINK]: { stop: [424] },
+		[StatusConst_default.SOULSHADOW]: { stop: [424] },
+		[StatusConst_default.SOULFAIRY]: { stop: [424] },
+		[StatusConst_default.SOULFALCON]: { stop: [424] },
+		[StatusConst_default.SOULGOLEM]: { stop: [424] },
+		[StatusConst_default.KAITE]: {
+			restart: [419],
+			stop: [419]
+		},
+		[StatusConst_default.SG_SUN_WARM]: {
+			restart: [544],
+			stop: [544]
+		},
+		[StatusConst_default.SG_MOON_WARM]: {
+			restart: [544],
+			stop: [544]
+		},
+		[StatusConst_default.SG_STAR_WARM]: {
+			restart: [544],
+			stop: [544]
 		}
 	};
 }));
@@ -224000,12 +224021,13 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SG_SUN_WARM] = { successEffectIdOnCaster: 572 };
 	SkillEffect[SkillConst_default.SG_MOON_WARM] = { successEffectIdOnCaster: 572 };
 	SkillEffect[SkillConst_default.SG_STAR_WARM] = { successEffectIdOnCaster: 572 };
-	SkillEffect[SkillConst_default.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 };
-	SkillEffect[SkillConst_default.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 };
-	SkillEffect[SkillConst_default.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 };
+	SkillEffect[SkillConst_default.SG_SUN_COMFORT] = { successEffectIdOnCaster: [488, 543] };
+	SkillEffect[SkillConst_default.SG_MOON_COMFORT] = { successEffectIdOnCaster: [488, 543] };
+	SkillEffect[SkillConst_default.SG_STAR_COMFORT] = { successEffectIdOnCaster: [488, 543] };
 	SkillEffect[SkillConst_default.SG_HATE] = {
 		castAuraEffectId: 441,
-		successEffectIdOnCaster: "sg_hate_sound"
+		successEffectIdOnCaster: "sg_hate_sound",
+		successEffectId: 543
 	};
 	SkillEffect[SkillConst_default.SG_FUSION] = {
 		castAuraEffectId: 441,
@@ -224042,7 +224064,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SL_KAITE] = {
 		castAuraEffectId: 441,
 		successEffectIdOnCaster: "sl_kaite_sound",
-		successEffectId: [419, 542]
+		successEffectId: 542
 	};
 	SkillEffect[SkillConst_default.SL_STIN] = {
 		castAuraEffectId: 441,
@@ -287998,6 +288020,61 @@ function readyAlpha(n) {
 	return (51 - n) * 5;
 }
 /**
+* EF_HATED's glow counter on tick `age`.
+*
+* @param {number} age
+* @return {number}
+*/
+function hatedCounter(age) {
+	if (age <= 25) return age;
+	if (age <= 150) return 25;
+	if (age <= 175) return 175 - age;
+	return 0;
+}
+/**
+* Link glow alpha (0-255) the owner's marks ask for this tick, or 0.
+*
+* @param {object[]} marks
+* @return {number}
+*/
+function linkAlpha(marks) {
+	let alpha = 0;
+	for (let i = 0; i < marks.length; i++) if (marks[i].link !== void 0) alpha = Math.max(alpha, marks[i].link);
+	return Math.min(alpha, 255);
+}
+/**
+* Whether the owner's marks ask for Kaite's reflect look this tick.
+*
+* @param {object[]} marks
+* @return {boolean}
+*/
+function hasReflect(marks) {
+	for (let i = 0; i < marks.length; i++) if (marks[i].reflect) return true;
+	return false;
+}
+/**
+* Kaite's four ripples on draw `count` (the client counts draws, wrapping
+* after 200): each is a copy of the body grown by `pad` pixels on every side,
+* at alpha 100 - 5 pad (0-255), drawn the way the body is. They grow from 0
+* to 20 pixels and fade as they grow, 50 draws apart.
+*
+* @param {number} count
+* @return {{pad: number, alpha: number}[]}
+*/
+function reflectRipples(count) {
+	const c = (Math.floor(count) % 200 + 200) % 200;
+	const ripples = [];
+	for (let i = 5; i < 25; i += 5) {
+		let pad = c * .1 + i;
+		if (pad >= 20) pad -= 20;
+		ripples.push({
+			pad,
+			alpha: Math.trunc(100 - pad * 5)
+		});
+	}
+	return ripples;
+}
+/**
 * One layer's quad with the owner's marks applied. Sprite pixels, y down,
 * `oy` the layer centre and `h` its height; `ox` and `w` the same across.
 *
@@ -288085,7 +288162,7 @@ function marksOf(entity) {
 	});
 	return marks;
 }
-var DEG$11, READY_COLOR, RED_COLOR, SCHEDULES$1;
+var DEG$11, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
 var init_BodyMotionSim = __esmMin((() => {
 	DEG$11 = Math.PI / 180;
 	READY_COLOR = [
@@ -288111,8 +288188,19 @@ var init_BodyMotionSim = __esmMin((() => {
 		626: (age) => age % 4 === 0 ? { red: 20 } : null,
 		544: (age) => ({ red: age <= 200 ? Math.trunc(age * .125) : 25 }),
 		1003: () => ({ ready: 20 }),
-		602: (age) => age > 20 ? { quake: true } : null
+		602: (age) => age > 20 ? { quake: true } : null,
+		419: () => ({ reflect: true }),
+		424: (age) => ({ link: Math.min(age, 200) }),
+		488: (age) => age < 400 ? { link: age < 200 ? age : 144 - age & 255 } : null,
+		542: (age) => age <= 150 ? { ready: Math.trunc(age / 3) } : null,
+		543: (age) => age < 200 ? { ready: hatedCounter(age) } : null
 	};
+	LINK_COLOR = [
+		55,
+		55,
+		255
+	];
+	LINK_SCALES = [1.01, 1.02];
 }));
 // src/Renderer/Effects/BodyMotion.js
 var BodyMotion;
@@ -288170,7 +288258,7 @@ var init_BodyMotion = __esmMin((() => {
 * @param {number} frames
 * @return {object} effect table entry
 */
-function bodyMotion(effectId, frames) {
+function bodyMotion$1(effectId, frames) {
 	return {
 		type: "FUNC",
 		attachedEntity: true,
@@ -288189,8 +288277,8 @@ var init_TaekwonBodyEffects = __esmMin((() => {
 			wav: "effect/t_³»·ÁÂï±â",
 			delayWav: at(5),
 			attachedEntity: true
-		}, bodyMotion(413, 50)],
-		414: [bodyMotion(414, 50)],
+		}, bodyMotion$1(413, 50)],
+		414: [bodyMotion$1(414, 50)],
 		415: [
 			{
 				wav: "effect/ef_hit2",
@@ -288202,15 +288290,15 @@ var init_TaekwonBodyEffects = __esmMin((() => {
 				delayWav: at(25),
 				attachedEntity: true
 			},
-			bodyMotion(415, 100)
+			bodyMotion$1(415, 100)
 		],
-		449: [bodyMotion(449, 60)],
-		458: [bodyMotion(458, 35)],
+		449: [bodyMotion$1(449, 60)],
+		458: [bodyMotion$1(458, 35)],
 		466: [{
 			wav: "effect/t_µ¹·ÁÂ÷±â",
 			delayWav: at(5),
 			attachedEntity: true
-		}, bodyMotion(466, 50)]
+		}, bodyMotion$1(466, 50)]
 	};
 }));
 // src/DB/Effects/GunslingerBodyEffects.js
@@ -288522,6 +288610,39 @@ var init_ChampionMonsterEffects = __esmMin((() => {
 			}
 		}],
 		1003: [bodyGlow(1003)]
+	};
+}));
+// src/DB/Effects/SoulBodyEffects.js
+/**
+* The body look of effect `effectId`, for `frames` ticks.
+*
+* @param {number} effectId
+* @param {number} frames
+* @return {object} effect table entry
+*/
+function bodyMotion(effectId, frames) {
+	return {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.add(new BodyMotion(Params.Init.ownerEntity, Params.Inst.startTick, effectId, frames), Params);
+		}
+	};
+}
+var SoulBodyEffects_default;
+var init_SoulBodyEffects = __esmMin((() => {
+	init_BodyMotion();
+	init_EffectPrimSim();
+	SoulBodyEffects_default = {
+		419: [bodyMotion(419, Infinity)],
+		424: [bodyMotion(424, Infinity)],
+		488: [{
+			wav: "effect/t_¾È¶ôÇÑ¸¶¹ý",
+			delayWav: Math.round(5 * PRIM_TICK_MS),
+			attachedEntity: true
+		}, bodyMotion(488, 400)],
+		542: [bodyMotion(542, 200)],
+		543: [bodyMotion(543, 500)]
 	};
 }));
 // src/Renderer/Effects/CasterMarks.js
@@ -296927,6 +297048,7 @@ var init_EffectTable = __esmMin((() => {
 	init_TaekwonBodyEffects();
 	init_GunslingerBodyEffects();
 	init_ChampionMonsterEffects();
+	init_SoulBodyEffects();
 	init_CloseConfineEffect();
 	init_Songs();
 	init_Events();
@@ -305513,11 +305635,6 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		ef_tk_mission: [{ wav: "effect/t_ÇÇ¸µ" }],
-		488: [{
-			wav: "effect/t_¾È¶ôÇÑ¸¶¹ý",
-			delayWav: 5 * (1e3 / 60),
-			attachedEntity: true
-		}],
 		491: [{
 			type: "STR",
 			file: "Âý½Ò¶±",
@@ -317924,6 +318041,7 @@ var init_EffectTable = __esmMin((() => {
 		...TaekwonBodyEffects_default,
 		...GunslingerBodyEffects_default,
 		...ChampionMonsterEffects_default,
+		...SoulBodyEffects_default,
 		...CloseConfineEffect_default
 	};
 }));
@@ -348688,6 +348806,95 @@ function renderReadyGlow(entity, layers, spr, pal, files, _position, glowColor, 
 	color[3] = a;
 }
 /**
+* Link glow (Soul Link 424, Comfort 488): as the official client draws a
+* player whose actor has flag 0x800, two more copies of each layer, added, in
+* (55, 55, 255), 1% and 2% larger about the actor's feet, before the body, so
+* mostly their rim shows.
+*
+* @param {Entity} entity
+* @param {Array} layers
+* @param {object} spr
+* @param {object} pal
+* @param {object} files
+* @param {number[]} _position
+* @param {number} alpha 0-255
+*/
+function renderLinkGlow(entity, layers, spr, pal, files, _position, alpha) {
+	const color = entity.effectColor;
+	const r = color[0];
+	const g = color[1];
+	const b = color[2];
+	const a = color[3];
+	const x = _position[0];
+	const y = _position[1];
+	color[0] = LINK_COLOR[0] / 255;
+	color[1] = LINK_COLOR[1] / 255;
+	color[2] = LINK_COLOR[2] / 255;
+	color[3] = alpha / 255;
+	for (let k = 0; k < LINK_SCALES.length; k++) {
+		const s = LINK_SCALES[k];
+		_position[0] = x * s;
+		_position[1] = y * s;
+		for (let i = 0; i < layers.length; ++i) {
+			const layer = layers[i];
+			const sx = layer.scale[0];
+			const sy = layer.scale[1];
+			const px = layer.pos[0];
+			const py = layer.pos[1];
+			layer.scale[0] = sx * s;
+			layer.scale[1] = sy * s;
+			layer.pos[0] = px * s;
+			layer.pos[1] = py * s;
+			entity.renderLayer(layer, spr, pal, files.size, _position, "glow", true);
+			layer.scale[0] = sx;
+			layer.scale[1] = sy;
+			layer.pos[0] = px;
+			layer.pos[1] = py;
+		}
+	}
+	_position[0] = x;
+	_position[1] = y;
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
+	color[3] = a;
+}
+/**
+* Kaite's ripples (419, actor flag 0x200): four copies of each layer in the
+* sprite's own colour, drawn the way the body is (not added), each grown by
+* 0-20 pixels on every side and fading as it grows (reflectRipples). The
+* client counts its draws; this counts 60 a second.
+*
+* @param {Entity} entity
+* @param {Array} layers
+* @param {object} spr
+* @param {object} pal
+* @param {object} files
+* @param {number[]} _position
+*/
+function renderReflectRipples(entity, layers, spr, pal, files, _position) {
+	const color = entity.effectColor;
+	const a = color[3];
+	const ripples = reflectRipples(Date.now() / (1e3 / 60));
+	for (let k = 0; k < ripples.length; k++) {
+		const pad = ripples[k].pad;
+		color[3] = a * (ripples[k].alpha / 255);
+		for (let i = 0; i < layers.length; ++i) {
+			const layer = layers[i];
+			const frame = layer.index >= 0 ? spr.frames[layer.index] : null;
+			if (!frame || !frame.width || !frame.height) continue;
+			const oldX = layer.scale[0];
+			const oldY = layer.scale[1];
+			layer.scale[0] = oldX * (1 + 2 * pad / Math.abs(frame.width * oldX * files.size || 1));
+			layer.scale[1] = oldY * (1 + 2 * pad / Math.abs(frame.height * oldY * files.size || 1));
+			entity.renderLayer(layer, spr, pal, files.size, _position, "ripple", false);
+			layer.scale[0] = oldX;
+			layer.scale[1] = oldY;
+		}
+	}
+	color[3] = a;
+}
+/**
 * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
 * @param {Entity} entity
 * @param {Array} layers
@@ -349324,9 +349531,20 @@ var init_EntityRender = __esmMin((() => {
 			const isBERSERK = entity.getOpt3(StatusState_default.Status.BERSERK);
 			renderSecondBody(entity, layers, spr, pal, files, type, _position, entity.getOpt3(StatusState_default.Status.ASSUMPTIO) || !!entity._enableHalo, isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._fastMoveTrail || !!entity._enableTrail, isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1);
 			if (type !== "shadow" && type !== "cartshadow" && (entity._castGlow > 0 || entity._splitImageAge >= 0)) renderCasterMarks(entity, layers, spr, pal, files, _position);
+			const marks = type !== "shadow" && type !== "cartshadow" && entity._bodyMotions && entity._bodyMotions.size ? marksOf(entity) : null;
+			const bodyAlpha = entity.effectColor[3];
+			if (marks && marks.length) {
+				const link = linkAlpha(marks);
+				if (link > 0) renderLinkGlow(entity, layers, spr, pal, files, _position, link);
+				if (hasReflect(marks)) {
+					if (!isBlendModeOne) renderReflectRipples(entity, layers, spr, pal, files, _position);
+					entity.effectColor[3] = bodyAlpha * (150 / 255);
+				}
+			}
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
-			if (type !== "shadow" && type !== "cartshadow" && entity._bodyMotions && entity._bodyMotions.size) {
-				const glows = glowLayers(marksOf(entity));
+			entity.effectColor[3] = bodyAlpha;
+			if (marks && marks.length) {
+				const glows = glowLayers(marks);
 				for (let g = 0; g < glows.length; g++) renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
 			}
 			if (is_main && type === "body" && entity.waterDepthFrame === null) {
