@@ -690,10 +690,10 @@ SkillEffect[SK.SG_FEEL] = { castAuraEffectId: 441 }; //Feeling the Sun Moon and 
 SkillEffect[SK.SG_SUN_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Sun: on the source, only on success
 SkillEffect[SK.SG_MOON_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Moon: on the source, only on success
 SkillEffect[SK.SG_STAR_WARM] = { successEffectIdOnCaster: 572 }; //Warmth of the Stars: on the source, only on success
-SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Sun: on the source, only on success
-SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Moon: on the source, only on success
-SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: 488 }; //Comfort of the Stars: on the source, only on success
-SkillEffect[SK.SG_HATE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sg_hate_sound' }; //Hatred of the Sun Moon and Stars: blue cast aura; the sound on success, on the caster (the client plays it at the player)
+SkillEffect[SK.SG_SUN_COMFORT] = { successEffectIdOnCaster: [488, 543] }; //Comfort of the Sun: on the source, only on success
+SkillEffect[SK.SG_MOON_COMFORT] = { successEffectIdOnCaster: [488, 543] }; //Comfort of the Moon: on the source, only on success
+SkillEffect[SK.SG_STAR_COMFORT] = { successEffectIdOnCaster: [488, 543] }; //Comfort of the Stars: on the source, only on success
+SkillEffect[SK.SG_HATE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sg_hate_sound', successEffectId: 543 }; //Hatred of the Sun Moon and Stars: blue cast aura; the sound on success, on the caster (the client plays it at the player); 543 on the target
 SkillEffect[SK.SG_FUSION] = { castAuraEffectId: 441, successEffectIdOnCaster: ['sg_fusion_sound', 'quake'] }; //Union of the Sun Moon and Stars: blue cast aura; sound and quake on success
 // Alchemist
 // Official client: when the skill succeeds, 541 (the bottle) thrown from the caster at the target and
@@ -726,7 +726,7 @@ SkillEffect[SK.SL_HUNTER] = //↓		//Spirit of the Hunter
 SkillEffect[SK.SL_KAIZEL] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaizel_sound', successEffectId: [543, 590] }; //Kaizel
 SkillEffect[SK.SL_KAAHI] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaahi_sound', successEffectId: 543 }; //Kaahi
 SkillEffect[SK.SL_KAUPE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaupe_sound', successEffectId: 542 }; //Kaupe
-SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: [419, 542] }; //Kaite
+SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: 542 }; //Kaite (419 comes from the Kaite status, StatusEffectTable.js)
 // Estin, Estun, Esma: blue cast aura; as each damage packet arrives the client plays one effect on the
 // caster and the rest on the target (550, 429, 425, 431 and 554 are not drawn yet).
 SkillEffect[SK.SL_STIN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 547, damageEffectIdOnTarget: 550 }; //Estin

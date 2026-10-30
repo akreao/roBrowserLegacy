@@ -122,8 +122,102 @@ export const SCHEDULES = {
 	// EF_BLUELIGHTBODY (Ringleader champion monsters): blue glow, counter 20 (alpha 160).
 	1003: () => ({ ready: 20 }),
 	// EF_QUAKEBODY4 (Close Confine, on the target): quake after tick 20.
-	602: age => (age > 20 ? { quake: true } : null)
+	602: age => (age > 20 ? { quake: true } : null),
+	// EF_REFLECTBODY (Kaite): ripples and a see-through body all along.
+	419: () => ({ reflect: true }),
+	// EF_ASURABODY (Soul Link): link glow, alpha age up to 200, then 200.
+	424: age => ({ link: Math.min(age, 200) }),
+	// EF_FLOWERCAST (Comfort): link glow, alpha age up to 200, then down
+	// again as the client's byte 144 - age (200 at tick 200, 1 at tick 399).
+	488: age => (age < 400 ? { link: age < 200 ? age : (144 - age) & 0xff } : null),
+	// EF_BLUEBODY (Kaupe, Kaite): blue glow while age <= 150, counter age / 3.
+	542: age => (age <= 150 ? { ready: Math.trunc(age / 3) } : null),
+	// EF_HATED (Kaahi, Kaizel, Comfort, Hatred): blue glow while age < 200.
+	// The counter climbs with the age to 25, holds there (alpha 130), counts
+	// down from 24 to 0 on ticks 151-175 and stays 0.
+	543: age => (age < 200 ? { ready: hatedCounter(age) } : null)
 };
+
+/**
+ * EF_HATED's glow counter on tick `age`.
+ *
+ * @param {number} age
+ * @return {number}
+ */
+export function hatedCounter(age) {
+	if (age <= 25) {
+		return age;
+	}
+	if (age <= 150) {
+		return 25;
+	}
+	if (age <= 175) {
+		return 175 - age;
+	}
+	return 0;
+}
+
+/** Link glow colour (0-255): the client's 0x3737ff. */
+export const LINK_COLOR = [55, 55, 255];
+
+/** How much larger each of the two link glow copies is drawn. */
+export const LINK_SCALES = [1.01, 1.02];
+
+/**
+ * Link glow alpha (0-255) the owner's marks ask for this tick, or 0.
+ *
+ * @param {object[]} marks
+ * @return {number}
+ */
+export function linkAlpha(marks) {
+	let alpha = 0;
+	for (let i = 0; i < marks.length; i++) {
+		if (marks[i].link !== undefined) {
+			alpha = Math.max(alpha, marks[i].link);
+		}
+	}
+	return Math.min(alpha, 255);
+}
+
+/**
+ * Whether the owner's marks ask for Kaite's reflect look this tick.
+ *
+ * @param {object[]} marks
+ * @return {boolean}
+ */
+export function hasReflect(marks) {
+	for (let i = 0; i < marks.length; i++) {
+		if (marks[i].reflect) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/** Body alpha (0-255) while Kaite's reflect look is on. */
+export const REFLECT_BODY_ALPHA = 150;
+
+/**
+ * Kaite's four ripples on draw `count` (the client counts draws, wrapping
+ * after 200): each is a copy of the body grown by `pad` pixels on every side,
+ * at alpha 100 - 5 pad (0-255), drawn the way the body is. They grow from 0
+ * to 20 pixels and fade as they grow, 50 draws apart.
+ *
+ * @param {number} count
+ * @return {{pad: number, alpha: number}[]}
+ */
+export function reflectRipples(count) {
+	const c = ((Math.floor(count) % 200) + 200) % 200;
+	const ripples = [];
+	for (let i = 5; i < 25; i += 5) {
+		let pad = c * 0.1 + i;
+		if (pad >= 20) {
+			pad -= 20;
+		}
+		ripples.push({ pad, alpha: Math.trunc(100 - pad * 5) });
+	}
+	return ripples;
+}
 
 /**
  * One layer's quad with the owner's marks applied. Sprite pixels, y down,
