@@ -1394,7 +1394,7 @@ SkillEffect[5499 /* SS_FOUR_CHARM */] = {
 	}
 }; //Four Colors Charm
 SkillEffect[SK.KG_KAGEHUMI] = {}; //Shadow Trampling
-SkillEffect[SK.KG_KYOMU] = {}; //Empty Shadow
+SkillEffect[SK.KG_KYOMU] = { damageEffectIdOnTarget: 'ef_kg_kyomu' }; //Empty Shadow
 SkillEffect[SK.KG_KAGEMUSYA] = {}; //Shadow Warrior
 SkillEffect[SK.SOA_TALISMAN_OF_PROTECTION] = { effectId: 'ef_soa_talisman_of_protection', castAuraEffectId: 830 }; //Talisman Of Protection
 SkillEffect[SK.SOA_TALISMAN_OF_WARRIOR] = { effectId: 'ef_soa_talisman_of_warrior', castAuraEffectId: 830 }; //Talisman Of Warrior
