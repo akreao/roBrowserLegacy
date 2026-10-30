@@ -421,11 +421,10 @@ export default {
 	},
 
 	// Warmth (SG_SUN_WARM / MOON_WARM / STAR_WARM): the official client removes 418 and 544 whenever
-	// the status changes and plays both again while it is on. 418's rising particles (prim 99) are
-	// not drawn yet. See effect-port/star-gladiator-audit.md.
-	[StatusConst.SG_SUN_WARM]: { restart: [544], stop: [544] },
-	[StatusConst.SG_MOON_WARM]: { restart: [544], stop: [544] },
-	[StatusConst.SG_STAR_WARM]: { restart: [544], stop: [544] },
+	// the status changes and plays both again while it is on. See effect-port/star-gladiator-audit.md.
+	[StatusConst.SG_SUN_WARM]: { restart: [418, 544], stop: [418, 544] },
+	[StatusConst.SG_MOON_WARM]: { restart: [418, 544], stop: [418, 544] },
+	[StatusConst.SG_STAR_WARM]: { restart: [418, 544], stop: [418, 544] },
 
 	// Star Emperor stances, Gravity Control and Soul Unity: the official client keeps one copy of the
 	// look on the actor while the status is on and removes it when it ends.
