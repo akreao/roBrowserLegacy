@@ -41,13 +41,22 @@ describe('DB.formatDescriptionTags', () => {
 		expect(div.textContent).toBe('Talk to Elin in Alberta.');
 	});
 
-	it('keeps the text of URL and TIPBOX tags', () => {
+	it('turns a TIPBOX tag into a link to that tip, and keeps the text of a URL tag', () => {
 		const div = render(
 			'<TIPBOX>[How to use guide]<INFO>65</INFO></TIPBOX> and ' +
 				'<URL>[Series of tasks]<INFO>http://ro.zhaouc.com/data/features/6965.html</INFO></URL>'
 		);
 		expect(div.textContent).toBe('[How to use guide] and [Series of tasks]');
+		const link = div.querySelector('.tipbox-link');
+		expect(link.textContent).toBe('[How to use guide]');
+		expect(link.dataset.tipboxId).toBe('65');
 		expect(div.querySelector('a, .navi-link')).toBeNull();
+	});
+
+	it('keeps the text of a TIPBOX tag without a tip number', () => {
+		const div = render('<TIPBOX>[List]<INFO>none</INFO></TIPBOX>');
+		expect(div.textContent).toBe('[List]');
+		expect(div.querySelector('.tipbox-link')).toBeNull();
 	});
 
 	it('leaves other angle brackets as text', () => {

@@ -80,13 +80,15 @@
 	white-space: pre-wrap;
 }
 
-.ItemInfo .description .navi-link {
+.ItemInfo .description .navi-link,
+.ItemInfo .description .tipbox-link {
 	color: #c00000;
 	cursor: pointer;
 	text-decoration: underline;
 }
 
-.ItemInfo .description .navi-link:hover {
+.ItemInfo .description .navi-link:hover,
+.ItemInfo .description .tipbox-link:hover {
 	color: #ff0000;
 }
 

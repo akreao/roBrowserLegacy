@@ -38,6 +38,7 @@ import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
+import TipBox from 'UI/Components/TipBox/TipBox.js';
 
 export function createBasicInfo(config) {
 	const {
@@ -152,6 +153,9 @@ export function createBasicInfo(config) {
 				break;
 			case 'repute':
 				Reputation.toggle();
+				break;
+			case 'tipbox':
+				TipBox.toggle();
 				break;
 		}
 	}

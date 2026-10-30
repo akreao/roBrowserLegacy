@@ -336,6 +336,12 @@ ShortCuts.MercState = {
 	component: 'MercenaryInformations',
 	cmd: 'AGGRESSIVE'
 };
+ShortCuts.TipBox = {
+	init: { key: KEYS.D, alt: true, ctrl: false, shift: false },
+	cust: false,
+	component: 'TipBox',
+	cmd: 'TOGGLE'
+};
 ShortCuts.Quest = {
 	init: { key: KEYS.U, alt: true, ctrl: false, shift: false },
 	cust: false,

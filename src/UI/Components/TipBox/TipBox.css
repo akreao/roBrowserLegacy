@@ -1,0 +1,275 @@
+/*
+ * The tip box, laid out as kRO's UITipboxWnd (480x365): the picture on the
+ * left from y 17, the text panel from x 241, the button bar from y 337.
+ * Button sizes are those of kRO's own pictures (2025 data.grf).
+ */
+:host {
+	width: 480px;
+	height: 365px;
+	top: 0px;
+	left: 0px;
+}
+
+.TipBox {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background-color: #f0f0f0;
+	color: #000;
+	font-size: 12px;
+	overflow: hidden;
+}
+
+.TipBox .titlebar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 480px;
+	height: 17px;
+	background-color: #fff;
+	background-repeat: repeat-x;
+	cursor: move;
+}
+
+.TipBox .title {
+	position: absolute;
+	top: 2px;
+	left: 6px;
+	color: #000;
+	text-shadow: 1px 1px 0 #fff;
+	white-space: nowrap;
+}
+
+.TipBox .close {
+	position: absolute;
+	top: 3px;
+	left: 465px;
+	width: 11px;
+	height: 11px;
+	background-repeat: no-repeat;
+}
+
+.TipBox .picture-bg {
+	position: absolute;
+	top: 17px;
+	left: 0;
+	width: 241px;
+	height: 320px;
+	background-repeat: no-repeat;
+}
+
+.TipBox .picture {
+	position: absolute;
+	top: 17px;
+	left: 1px;
+	width: 240px;
+	height: 320px;
+	overflow: hidden;
+}
+
+.TipBox .picture img {
+	position: absolute;
+	image-rendering: pixelated;
+}
+
+.TipBox .effects {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+}
+
+.TipBox .effects img {
+	position: absolute;
+}
+
+.TipBox .effects img.off {
+	visibility: hidden;
+}
+
+.TipBox .text-bg {
+	position: absolute;
+	top: 17px;
+	left: 241px;
+	width: 239px;
+	height: 320px;
+	background-repeat: no-repeat;
+}
+
+.TipBox .bottom-bg {
+	position: absolute;
+	top: 337px;
+	left: 0;
+	width: 480px;
+	height: 28px;
+	background-repeat: no-repeat;
+}
+
+.TipBox .search-text {
+	position: absolute;
+	top: 22px;
+	left: 253px;
+	width: 193px;
+	height: 15px;
+	margin: 0;
+	padding: 0 2px;
+	box-sizing: border-box;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: #fff;
+	font-size: 12px;
+}
+
+.TipBox .search-text::placeholder {
+	color: #b1b1b1;
+}
+
+.TipBox .search {
+	position: absolute;
+	top: 21px;
+	left: 448px;
+	width: 26px;
+	height: 18px;
+	background-repeat: no-repeat;
+}
+
+.TipBox .title-line {
+	position: absolute;
+	left: 254px;
+	width: 220px;
+	height: 18px;
+	color: #2c4da0;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 18px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.TipBox .title-line.first {
+	top: 50px;
+}
+
+.TipBox .title-line.second {
+	top: 70px;
+}
+
+.TipBox .page {
+	position: absolute;
+	top: 70px;
+	left: 250px;
+	width: 226px;
+	height: 245px;
+	padding: 2px 4px 2px 4px;
+	box-sizing: border-box;
+	overflow-y: auto;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	line-height: 16px;
+}
+
+.TipBox .page.two-lines {
+	top: 90px;
+	height: 225px;
+}
+
+.TipBox .results {
+	display: none;
+	position: absolute;
+	top: 50px;
+	left: 250px;
+	width: 216px;
+	height: 266px;
+	overflow-y: auto;
+	background-color: rgb(240, 240, 240);
+}
+
+.TipBox.searching .results {
+	display: block;
+}
+
+.TipBox.searching .title-line,
+.TipBox.searching .page {
+	display: none;
+}
+
+.TipBox .results .result {
+	padding: 1px 4px;
+	line-height: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.TipBox .results .result:hover {
+	background-color: #d5e0f5;
+}
+
+.TipBox .arrow {
+	position: absolute;
+	top: 319px;
+	width: 11px;
+	height: 12px;
+	background-repeat: no-repeat;
+	cursor: default;
+}
+
+.TipBox .arrow.active {
+	cursor: pointer;
+}
+
+.TipBox .arrow.prev {
+	left: 415px;
+}
+
+.TipBox .arrow.next {
+	left: 462px;
+}
+
+.TipBox .startup {
+	position: absolute;
+	top: 347px;
+	left: 9px;
+	height: 10px;
+	line-height: 10px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.TipBox .startup .checkbox {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 4px;
+	vertical-align: top;
+	background-repeat: no-repeat;
+}
+
+.TipBox .close-button {
+	position: absolute;
+	top: 341px;
+	left: 415px;
+	width: 60px;
+	height: 20px;
+	line-height: 20px;
+	text-align: center;
+	background-repeat: no-repeat;
+}
+
+.TipBox .tipbox-link,
+.TipBox .navi-link,
+.TipBox .item-link {
+	color: #c00000;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.TipBox .tipbox-link:hover,
+.TipBox .navi-link:hover,
+.TipBox .item-link:hover {
+	color: #ff0000;
+}

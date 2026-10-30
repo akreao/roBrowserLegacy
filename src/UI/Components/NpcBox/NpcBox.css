@@ -51,12 +51,14 @@
 	color: #00a0ff;
 }
 
-.navi-link {
+.navi-link,
+.tipbox-link {
 	color: #c00000;
 	cursor: pointer;
 	text-decoration: underline;
 }
 
-.navi-link:hover {
+.navi-link:hover,
+.tipbox-link:hover {
 	color: #ff0000;
 }
