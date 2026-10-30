@@ -54,6 +54,7 @@ import { energyDrainEffect } from 'DB/Effects/EnergyDrainEffect.js';
 import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
 import { arrowFlightBetween } from 'Renderer/Effects/ArrowFlight.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
+import { startBlinkBody } from 'Renderer/Effects/BlinkBody.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
@@ -19141,6 +19142,17 @@ export default {
 
 	1208: energyDrainEffect(1208),
 
+	1209: [
+		{
+			//EF_BLINK_BODY	The actor blinks pale blue and dark for 60 ticks (BlinkBody.js, kRO 2025 0xbc070d)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: Params => {
+				startBlinkBody(Params.Init.ownerEntity);
+			}
+		}
+	],
+
 	1210: [
 		{
 			// Soul Unity's link: yellow and blue cloud tubes from the target to the caster (UnityLink.js, kRO 2025 0xbf1af0)
@@ -26668,7 +26680,7 @@ export default {
 	],
 
 	// Soul Division (SP_SOULDIVISION): the skilleffectinfo row's sound, on the target as each damage packet
-	// arrives (its 1209, EF_BLINK_BODY, is not ported). See effect-port/star-emperor-soul-reaper-skills.md.
+	// arrives (with its 1209, EF_BLINK_BODY: BlinkBody.js). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sp_souldivision_sound: [
 		{
 			wav: 'effect/t_\xc4\xa1\xc0\xd7', // t_치잉
