@@ -13,7 +13,10 @@ import StatusConst from 'DB/Status/StatusConst.js';
 describe('Flash Kick', () => {
 	it('keeps the mark on the actor while the status is on', () => {
 		expect(SkillEffect[SK.SJ_FLASHKICK]).toEqual({});
-		expect(StatusEffectTable[StatusConst.FLASHKICK]).toEqual({ loop: ['ef_sj_flashkick'] });
+		expect(StatusEffectTable[StatusConst.FLASHKICK]).toEqual({
+			restart: ['ef_sj_flashkick'],
+			stop: ['ef_sj_flashkick']
+		});
 		expect(EffectTable.ef_sj_flashkick).toEqual([
 			{ type: 'STR', file: 'flash_kick/flash_kick', texturePath: 'flash_kick/', repeat: true, attachedEntity: true }
 		]);
