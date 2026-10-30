@@ -76,6 +76,7 @@ import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
+import UnityLink from 'Renderer/Effects/UnityLink.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import { GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
@@ -19162,6 +19163,20 @@ export default {
 						Math.round(Params.Init.duration / PRIM_TICK_MS),
 						1195
 					),
+					Params
+				);
+			}
+		}
+	],
+
+	1210: [
+		{
+			// Soul Unity's link: yellow and blue cloud tubes from the target to the caster (UnityLink.js, kRO 2025 0xbf1af0)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new UnityLink(Params.Init.ownerEntity, Params.Init.otherEntity, Params.Inst.startTick),
 					Params
 				);
 			}
