@@ -71,6 +71,7 @@ import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import { poisonAttackEffect, edpEffect, EDP_LIFE } from 'DB/Effects/PoisonAttackEffect.js';
 import { aimedSlashEffect, outwardSlashEffect } from 'DB/Effects/PurpleSlashEffect.js';
 import { sonicBlowHitEffect } from 'DB/Effects/SonicBlowEffect.js';
+import { removeTrapEffect } from 'DB/Effects/RemoveTrapEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
@@ -3733,14 +3734,7 @@ export default {
 		}
 	],
 
-	100: [
-		{
-			//EF_REMOVETRAP	Yellow ball fountain
-			//type: 'FUNC',
-			wav: 'effect/hunter_removetrap',
-			attachedEntity: false
-		}
-	],
+	100: removeTrapEffect, //EF_REMOVETRAP	Remove Trap fountain (DB/Effects/RemoveTrapEffect.js)
 
 	101: [
 		{
