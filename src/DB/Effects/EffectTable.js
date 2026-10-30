@@ -19174,6 +19174,8 @@ export default {
 			// Soul Unity's link: yellow and blue cloud tubes from the target to the caster (UnityLink.js, kRO 2025 0xbf1af0)
 			type: 'FUNC',
 			attachedEntity: true,
+			// 200 ticks: also lets the manager drop it while it is culled and not drawn
+			duration: Math.ceil(200 * PRIM_TICK_MS),
 			func: function (Params) {
 				this.add(
 					new UnityLink(Params.Init.ownerEntity, Params.Init.otherEntity, Params.Inst.startTick),

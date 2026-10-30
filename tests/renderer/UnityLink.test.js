@@ -75,5 +75,7 @@ describe('Soul Unity link', () => {
 
 	it('is effect 1210', () => {
 		expect(EffectTable[1210]).toEqual([expect.objectContaining({ type: 'FUNC', attachedEntity: true })]);
+		// a duration, so the effect manager can drop it while it is out of view
+		expect(EffectTable[1210][0].duration).toBeGreaterThanOrEqual(200 * (1000 / 60));
 	});
 });
