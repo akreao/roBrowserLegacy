@@ -174061,6 +174061,15 @@ var init_PacketStructure = __esmMin((() => {
 		pkt_buf.writeShort(2716);
 		return pkt_buf;
 	};
+	PACKET.CZ.REQ_ONESWITCH = function PACKET_CZ_REQ_ONESWITCH() {
+		this.index = 0;
+	};
+	PACKET.CZ.REQ_ONESWITCH.prototype.build = function() {
+		const pkt_buf = new BinaryWriter(4);
+		pkt_buf.writeShort(2766);
+		pkt_buf.writeUShort(this.index);
+		return pkt_buf;
+	};
 	PACKET.ZC.REQ_FULLSWITCH_RESULT = function PACKET_ZC_REQ_FULLSWITCH_RESULT(fp, end) {
 		this.failed = fp.readUShort();
 	};
@@ -209910,6 +209919,7 @@ var init_PacketRegister = __esmMin((() => {
 		2763: PACKET.ZC.LONGLONGPAR_CHANGE,
 		2764: PACKET.ZC.NOTIFY_EXP2,
 		2765: PACKET.AC.LOGIN_TAREN_REFUSE2,
+		2766: PACKET.CZ.REQ_ONESWITCH,
 		2784: PACKET.AC.REFUSE_LOGIN_USA,
 		2799: PACKET.CZ.REQ_CHECK_ATTENDANCE,
 		2804: PACKET.CZ.USE_SKILL_TOGROUND3,
@@ -214849,8 +214859,8 @@ var init_KeyEventHandler = __esmMin((() => {
 		HANJA: 25,
 		ESCAPE: 27,
 		SPACE: 32,
-		PAGEDOWN: 33,
-		PAGEUP: 34,
+		PAGEUP: 33,
+		PAGEDOWN: 34,
 		HOME: 35,
 		END: 36,
 		LEFT: 37,
@@ -230781,7 +230791,7 @@ var init_WhisperBox$2 = __esmMin((() => {
 // src/UI/Components/WhisperBox/WhisperBox.css?raw
 var WhisperBox_default;
 var init_WhisperBox$1 = __esmMin((() => {
-	WhisperBox_default = ":host {\r\n	width: 280px;\r\n	height: 156px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n.whisper-container {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 156px;\r\n	border: 1px solid white;\r\n	border-radius: 5px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	display: flex;\r\n	flex-direction: column;\r\n	overflow: hidden;\r\n	color: #ffffff;\r\n	min-width: 150px;\r\n	min-height: 100px;\r\n}\r\n\r\n.whisper-header {\r\n	background: rgba(255, 255, 255, 0.2);\r\n	height: 18px;\r\n	padding: 0 5px;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	color: #ffffff;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n	cursor: move;\r\n}\r\n\r\n.whisper-header .close {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n.whisper-body {\r\n	flex: 1;\r\n	padding: 0 2px 2px 5px;\r\n	overflow: hidden;\r\n	border-bottom: 1px solid white;\r\n}\r\n\r\n.whisper-body .contentwrapper {\r\n	height: 100%;\r\n}\r\n\r\n.whisper-body .content {\r\n	height: 100%;\r\n	overflow-y: auto;\r\n	font-size: 12px;\r\n	text-shadow: 1px 1px 0px #000;\r\n	word-break: break-all;\r\n	line-height: 14px;\r\n}\r\n\r\n.whisper-footer {\r\n	height: 25px;\r\n	position: relative;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.whisper-footer .input-wrapper {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 23px;\r\n	width: calc(100% - 25px);\r\n	overflow: hidden;\r\n}\r\n\r\n.whisper-footer .message {\r\n	width: 100%;\r\n	padding-left: 2px;\r\n	line-height: 18px;\r\n	outline: none;\r\n	white-space: nowrap;\r\n	overflow-x: hidden;\r\n	overflow-y: hidden;\r\n	color: #ffffff;\r\n	font-size: 12px;\r\n	display: inline-block;\r\n}\r\n\r\n.whisper-container img {\r\n	max-height: 1.25em;\r\n	width: auto;\r\n	vertical-align: middle;\r\n	background: transparent !important;\r\n}\r\n\r\n.whisper-footer .resizer {\r\n	position: absolute;\r\n	right: 0px;\r\n	bottom: 1px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
+	WhisperBox_default = ":host {\r\n	width: 280px;\r\n	height: 156px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n.whisper-container {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 156px;\r\n	border: 1px solid white;\r\n	border-radius: 5px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	display: flex;\r\n	flex-direction: column;\r\n	overflow: hidden;\r\n	color: #ffffff;\r\n	min-width: 280px;\r\n	min-height: 120px;\r\n}\r\n\r\n.whisper-header {\r\n	background: rgba(255, 255, 255, 0.2);\r\n	height: 18px;\r\n	padding: 0 5px;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	color: #ffffff;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n	cursor: move;\r\n}\r\n\r\n.whisper-header .close {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n.whisper-body {\r\n	flex: 1;\r\n	padding: 0 2px 2px 5px;\r\n	overflow: hidden;\r\n	border-bottom: 1px solid white;\r\n}\r\n\r\n.whisper-body .contentwrapper {\r\n	height: 100%;\r\n}\r\n\r\n.whisper-body .content {\r\n	height: 100%;\r\n	overflow-y: auto;\r\n	font-size: 12px;\r\n	text-shadow: 1px 1px 0px #000;\r\n	word-break: break-all;\r\n	line-height: 14px;\r\n}\r\n\r\n.whisper-footer {\r\n	height: 25px;\r\n	position: relative;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.whisper-footer .input-wrapper {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 23px;\r\n	width: calc(100% - 25px);\r\n	overflow: hidden;\r\n}\r\n\r\n.whisper-footer .message {\r\n	width: 100%;\r\n	padding-left: 2px;\r\n	line-height: 18px;\r\n	outline: none;\r\n	white-space: nowrap;\r\n	overflow-x: hidden;\r\n	overflow-y: hidden;\r\n	color: #ffffff;\r\n	font-size: 12px;\r\n	display: inline-block;\r\n}\r\n\r\n.whisper-container img {\r\n	max-height: 1.25em;\r\n	width: auto;\r\n	vertical-align: middle;\r\n	background: transparent !important;\r\n}\r\n\r\n.whisper-footer .resizer {\r\n	position: absolute;\r\n	right: 0px;\r\n	bottom: 1px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
 }));
 // src/UI/Components/NpcMenu/NpcMenu.html?raw
 var NpcMenu_default$2;
@@ -230813,9 +230823,33 @@ function validate$2() {
 	let text = input ? input.value : "";
 	if (!InputBox.isPersistent || text.length) {
 		const innerRoot = root.querySelector("#inputbox");
-		if (innerRoot && innerRoot.classList.contains("number")) text = parseInt(text, 10) | 0;
+		if (InputBox.inputType === "price") {
+			text = readPrice(text);
+			if (text === null) return;
+		} else if (innerRoot && innerRoot.classList.contains("number")) text = parseInt(text, 10) | 0;
 		InputBox.onSubmitRequest(text);
 	}
+}
+/**
+* A shop price, read like the official vending window's price box
+* (UIMerchantShopMakeWnd vfunc19): digits only, with or without commas
+* (msgstringtable 602 otherwise), and at most 1,000,000,000 (2467).
+*
+* @param {string} text
+* @return {number|null} the price, or null when the text is refused
+*/
+function readPrice(text) {
+	const value = String(text).trim().replace(/,/g, "");
+	if (/\D/.test(value)) {
+		UIManager.showMessageBox(DB.getMessage(602, "Only the numbers (0~9) are available."), "ok");
+		return null;
+	}
+	const price = Number(value) || 0;
+	if (price > 1e9) {
+		UIManager.showMessageBox(DB.getMessage(2467, "You entered more than 1 Billion Zeny, the price will be set to 1 Billion Zeny."), "ok");
+		return 1e9;
+	}
+	return price;
 }
 var InputBox, InputBox_default;
 var init_InputBox = __esmMin((() => {
@@ -230914,6 +230948,7 @@ var init_InputBox = __esmMin((() => {
 	*/
 	InputBox.setType = function setType(type, isPersistent, defaultVal, itemId = null) {
 		this.isPersistent = !!isPersistent;
+		this.inputType = type;
 		const root = InputBox.getRoot();
 		const innerRoot = root.querySelector("#inputbox");
 		const textEl = root.querySelector(".text");
@@ -236064,11 +236099,17 @@ function onSwitchEquipInfo(event) {
 	return false;
 }
 /**
-* Double click on an equipment to remove it
+* Double click on an equipment to remove it from the set; Ctrl+double click
+* wears that one item instead (official UISwapEquipmentWnd vfunc26: message
+* 0x12f sends 0x0a99, with Ctrl message 0x131 sends 0x0ace).
 */
-function onSwitchEquipUnEquip() {
+function onSwitchEquipUnEquip(event) {
 	const index = parseInt(this.getAttribute("data-index"), 10);
-	SwitchEquip.onRemoveSwitchEquip(index);
+	if (event?.ctrlKey && PacketVerManager_default.value >= 20170502) {
+		const pkt = new PACKET.CZ.REQ_ONESWITCH();
+		pkt.index = index;
+		Network.sendPacket(pkt);
+	} else SwitchEquip.onRemoveSwitchEquip(index);
 	const overlay = SwitchEquip.getRoot().querySelector(".switchoverlay");
 	if (overlay) overlay.style.display = "none";
 }
@@ -236109,6 +236150,7 @@ var init_SwitchEquip = __esmMin((() => {
 	init_EquipmentLocation();
 	init_NetworkManager();
 	init_PacketStructure();
+	init_PacketVerManager();
 	init_ItemType();
 	init_Client();
 	init_SessionStorage();
@@ -236426,7 +236468,8 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		x: 0,
 		y: 233,
 		show: false,
-		reduce: false
+		reduce: false,
+		traits: true
 	}, 1);
 	let _root;
 	let _activeTooltip;
@@ -236513,15 +236556,20 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 				if (id) Component.onRequestUpdate(id, 1);
 			});
 		});
+		const toggleReduce = () => {
+			const panel = _root.querySelector(".panel");
+			hideTooltip();
+			if (panel) panel.style.display = panel.style.display === "none" ? "" : "none";
+		};
 		const miniBtn = _root.querySelector(".titlebar .mini");
 		if (miniBtn) {
 			miniBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
-			miniBtn.addEventListener("click", () => {
-				const panel = _root.querySelector(".panel");
-				hideTooltip();
-				if (panel) panel.style.display = panel.style.display === "none" ? "" : "none";
-			});
+			miniBtn.addEventListener("click", toggleReduce);
 		}
+		const titlebar = _root.querySelector(".titlebar");
+		if (titlebar) titlebar.addEventListener("dblclick", (e) => {
+			if (!e.target.closest("button")) toggleReduce();
+		});
 		const closeBtn = _root.querySelector(".titlebar .close");
 		if (closeBtn) {
 			closeBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
@@ -236534,6 +236582,9 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			const viewTraitsBtn = _root.querySelector(".view_traits");
 			if (viewTraitsBtn) viewTraitsBtn.addEventListener("click", () => toggleTraits());
 		}
+		const panel = _root.querySelector(".panel");
+		if (panel && _preferences.reduce) panel.style.display = "none";
+		if (hasTraits) setTraitsVisible(_preferences.traits !== false);
 	};
 	Component.stack = [];
 	const EMBED_CSS = `
@@ -236610,7 +236661,6 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		if (!_embedAnchor) _origFix.call(this);
 	};
 	Component.update = function update(type, val) {
-		let str;
 		if (!this.__loaded) {
 			this.stack.push(arguments);
 			return;
@@ -236644,9 +236694,11 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case "smatk":
 			case "hplus":
 			case "crate":
+				setText("." + type, val);
+				break;
 			case "res":
 			case "mres":
-				setText("." + type, val);
+				setText("." + type, Math.max(0, val));
 				break;
 			case "aspd":
 				setText("." + type, Math.floor(200 - val / 10));
@@ -236659,8 +236711,7 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case "def2":
 			case "mdef2":
 			case "flee2":
-				str = val < 0 ? "- " + -val : "+ " + val;
-				setText("." + type, str);
+				setText("." + type, "+ " + val);
 				break;
 			case "str":
 			case "agi":
@@ -236682,14 +236733,15 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case "int2":
 			case "dex2":
 			case "luk2":
+				setText(".bonus ." + type.replace("2", ""), val > 0 ? "+" + val : val < 0 ? String(val) : "");
+				break;
 			case "pow2":
 			case "sta2":
 			case "wis2":
 			case "spl2":
 			case "con2":
 			case "crt2":
-				str = val < 0 ? "- " + -val : val > 0 ? "+" + val : "";
-				setText(".bonus ." + type.replace("2", ""), str);
+				setText(".bonus ." + type.replace("2", ""), val > 0 ? "+" + val : "");
 				break;
 			case "str3":
 			case "agi3":
@@ -236710,17 +236762,21 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 				setUpVisibility(".t_up ." + type.replace("3", ""), val > 0 && val <= this.t_statuspoint);
 		}
 	};
-	function toggleTraits() {
-		hideTooltip();
+	function setTraitsVisible(visible) {
 		const traitsEl = _root.querySelector(".traits_component");
 		const selfBtn = _root.querySelector(".view_traits");
 		if (!traitsEl) return;
-		const isVisible = traitsEl.style.display !== "none";
-		traitsEl.style.display = isVisible ? "none" : "";
-		const state = isVisible ? "on" : "off";
+		traitsEl.style.display = visible ? "" : "none";
+		const state = visible ? "off" : "on";
 		Client.loadFile(DB.INTERFACE_PATH + "statuswnd/expand_" + state + "_normal.bmp", function(data) {
 			if (selfBtn) selfBtn.style.backgroundImage = "url(" + data + ")";
 		});
+	}
+	function toggleTraits() {
+		hideTooltip();
+		const traitsEl = _root.querySelector(".traits_component");
+		if (!traitsEl) return;
+		setTraitsVisible(traitsEl.style.display === "none");
 	}
 	Component.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
@@ -236737,6 +236793,8 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			}
 			const panel = _root.querySelector(".panel");
 			_preferences.reduce = panel ? panel.style.display === "none" : false;
+			const traitsEl = hasTraits && _root.querySelector(".traits_component");
+			if (traitsEl) _preferences.traits = traitsEl.style.display !== "none";
 			_preferences.save();
 		}
 	};
@@ -237008,10 +237066,15 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		}
 		const baseBtn = root.querySelector(".titlebar .base");
 		if (baseBtn) baseBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
-		const miniBtn = root.querySelector(".titlebar .mini");
-		if (miniBtn) miniBtn.addEventListener("click", () => {
+		const toggleReduce = () => {
 			const panel = root.querySelector(".panel");
-			if (panel) panel.style.display = panel.style.display === "none" ? "" : "none";
+			if (panel) setReduced(panel.style.display !== "none");
+		};
+		const miniBtn = root.querySelector(".titlebar .mini");
+		if (miniBtn) miniBtn.addEventListener("click", toggleReduce);
+		const titlebar = root.querySelector(".titlebar");
+		if (titlebar) titlebar.addEventListener("dblclick", (e) => {
+			if (!e.target.closest("button")) toggleReduce();
 		});
 		const closeBtn = root.querySelector(".titlebar .close");
 		if (closeBtn) closeBtn.addEventListener("click", () => {
@@ -237063,6 +237126,10 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 			content.addEventListener("dblclick", (e) => {
 				const item = e.target.closest(".item");
 				if (item) onEquipmentUnEquip.call(item, e);
+			});
+			content.addEventListener("click", (e) => {
+				const item = e.target.closest(".item");
+				if (item) onEquipmentClick.call(item, e);
 			});
 			content.addEventListener("mouseover", (e) => {
 				const btn = e.target.closest("button");
@@ -237186,16 +237253,22 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		const pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
+	/**
+	* The official window reduces to its 17px title bar (UIEquipWnd msg 0xca),
+	* so the tab row, which sits outside .panel, goes too.
+	*/
+	function setReduced(reduced) {
+		Component.getRoot().querySelectorAll(".panel, .tab-manager").forEach((el) => {
+			el.style.display = reduced ? "none" : "";
+		});
+	}
 	Component.onAppend = function onAppend() {
 		fitTabLabels();
 		const hostRect = this._host.getBoundingClientRect();
 		this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
 		this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;
 		if (!_preferences.show) this._host.style.display = "none";
-		if (_preferences.reduce) {
-			const panel = Component.getRoot().querySelector(".panel");
-			if (panel) panel.style.display = "none";
-		}
+		if (_preferences.reduce) setReduced(true);
 		if (UIVersionManager.getEquipmentVersion() > 0) {
 			if (_preferences.stats && _preferences.show) WinStatsController.embed(Component._host);
 			else Client.loadFile(DB.INTERFACE_PATH + "basic_interface/viewon.bmp", (data) => {
@@ -237526,6 +237599,23 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		event.stopImmediatePropagation();
 		return false;
 	}
+	/**
+	* Shift+click puts the worn item's link in the chat, as in the inventory
+	* (official UIEquipWnd mouse-down, vfunc25 at 0x008b95b0).
+	*/
+	function onEquipmentClick(event) {
+		if (!event.shiftKey || event.button !== 0) return;
+		const item = _list[parseInt(this.getAttribute("data-index"), 10)];
+		if (!item) return;
+		item.name = DB.getItemName(item);
+		const link = `<span data-item="${DB.createItemLink(item)}" class="item-link" style="color:#A9B95F;">&lt;${item.name}&gt;</span>`;
+		const msgBox = (ChatBox_default._shadow || ChatBox_default._host || document).querySelector(".input-chatbox");
+		if (msgBox) {
+			msgBox.innerHTML += link + " ";
+			msgBox.focus();
+		}
+		event.stopImmediatePropagation();
+	}
 	function onUnequipAll() {
 		for (const index of Object.keys(_list)) Component.onUnEquip(Number(index));
 		onEquipmentOut();
@@ -237559,7 +237649,18 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		const idx = parseInt(this.parentNode.getAttribute("data-index"), 10);
 		const item = _list[idx];
 		if (!item) return;
-		showTooltip(this, DB.getItemName(item), true);
+		showTooltip(this, getHoverName(item), true);
+	}
+	/**
+	* A stack (arrows, bullets...) also shows its amount, as the official
+	* hover does (UIEquipWnd vfunc28: msgstringtable 183 "%s: %d ea.", or
+	* 2551 "%s [%d Option] : %d Quantity" with random options).
+	*/
+	function getHoverName(item) {
+		if (!(item.count >= 2)) return DB.getItemName(item);
+		const options = (item.Options || []).filter((option) => option?.index).length;
+		if (options) return DB.getMessage(2551, "%s [%d Option] : %d Quantity").replace("%s", DB.getItemName(item, { showItemOptions: false })).replace("%d", options).replace("%d", item.count);
+		return DB.getMessage(183, "%s: %d ea.").replace("%s", DB.getItemName(item)).replace("%d", item.count);
 	}
 	function onEquipmentOut() {
 		const overlay = Component.getRoot().querySelector(".overlay");
@@ -237695,6 +237796,7 @@ var init_EquipmentCommon = __esmMin((() => {
 	init_WinStats();
 	init_Graphics();
 	init_Inventory();
+	init_ChatBox();
 	init_Entity$1();
 	init_HtmlHelper();
 }));
@@ -237961,8 +238063,8 @@ function onItemOver$13(_e) {
 	const idx = parseInt(this.getAttribute("data-index"), 10);
 	const item = CartItems.getItemByIndex(idx);
 	if (!item) return;
-	let quantity = " ea";
-	if ((item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR) && item.Options && item.Options.filter((Option) => Option.index !== 0).length > 0) quantity = " Quantity";
+	const count = item.count || 1;
+	const text = (item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR) && item.Options && item.Options.filter((Option) => Option.index !== 0).length > 0 ? DB.getMessage(2551, "%s [%d Option] : %d Quantity").replace("%s", DB.getItemName(item, { showItemOptions: false })).replace("%d", item.Options.filter((Option) => Option.index !== 0).length).replace("%d", count) : `${DB.getItemName(item)} ${count} ${DB.getMessage(588, "ea")}`;
 	const root = CartItems.getRoot();
 	const overlay = root.querySelector(".overlay");
 	const rootEl = root.querySelector("#cartitems") || root;
@@ -237972,7 +238074,7 @@ function onItemOver$13(_e) {
 		overlay.style.display = "block";
 		overlay.style.top = `${itemRect.top - rootRect.top}px`;
 		overlay.style.left = `${itemRect.left - rootRect.left + 35}px`;
-		overlay.innerHTML = sanitizeHtml(`${DB.getItemName(item)}: ${item.count || 1}${quantity}`);
+		overlay.innerHTML = sanitizeHtml(text);
 		if (item.IsIdentified) overlay.classList.remove("grey");
 		else overlay.classList.add("grey");
 	}
@@ -238043,6 +238145,23 @@ function onItemInfo$17(event) {
 	return false;
 }
 /**
+* Shift+click puts the item's link in the chat, as in the inventory
+* (official UIMerchantItemWnd mouse-down, vfunc25 at 0x0094b460).
+*/
+function onItemClick(event) {
+	if (!event.shiftKey || event.button !== 0) return;
+	const item = CartItems.getItemByIndex(parseInt(this.getAttribute("data-index"), 10));
+	if (!item) return;
+	item.name = DB.getItemName(item);
+	const link = `<span data-item="${DB.createItemLink(item)}" class="item-link" style="color:#A9B95F;">&lt;${item.name}&gt;</span>`;
+	const msgBox = (ChatBox_default._shadow || ChatBox_default._host || document).querySelector(".input-chatbox");
+	if (msgBox) {
+		msgBox.innerHTML += link + " ";
+		msgBox.focus();
+	}
+	event.stopImmediatePropagation();
+}
+/**
 * Alt Right Click Request Transfer
 */
 function transferItemToOtherUI(item) {
@@ -238055,19 +238174,6 @@ function transferItemToOtherUI(item) {
 	if (isStorageOpen) StorageController.reqAddItemFromCart(item.index, count);
 	else if (isInventoryOpen) CartItems.reqRemoveItem(item.index, count);
 	return true;
-}
-/**
-* Ask to use an item
-*/
-function onItemUsed$1(event) {
-	const index = parseInt(this.getAttribute("data-index"), 10);
-	const item = CartItems.getItemByIndex(index);
-	if (item) {
-		CartItems.useItem(item);
-		onItemOut$14();
-	}
-	event.stopImmediatePropagation();
-	event.preventDefault();
 }
 var CartItems, _realSize$1, _preferences$41, CartItems_default;
 var init_CartItems = __esmMin((() => {
@@ -238090,6 +238196,7 @@ var init_CartItems = __esmMin((() => {
 	init_Storage$1();
 	init_Inventory();
 	init_Equipment();
+	init_ChatBox();
 	init_WheelSteps();
 	init_HtmlHelper();
 	CartItems = new GUIComponent("CartItems", CartItems_default$1);
@@ -238149,9 +238256,9 @@ var init_CartItems = __esmMin((() => {
 				const item = e.target.closest(".item");
 				if (item) onItemInfo$17.call(item, e);
 			});
-			content.addEventListener("dblclick", (e) => {
+			content.addEventListener("click", (e) => {
 				const item = e.target.closest(".item");
-				if (item) onItemUsed$1.call(item, e);
+				if (item) onItemClick.call(item, e);
 			});
 		}
 		this.draggable(".titlebar");
@@ -242063,7 +242170,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 				onResetChoice(this);
 			});
 			root.querySelector(".apply")?.addEventListener("click", () => {
-				onApplyChoice(this);
+				UIManager.showPromptBox(DB.getMessage(1377, "Once used, skill points cannot be re-allocated. Would you like to use the skill points?"), "ok", "cancel", () => onApplyChoice(this));
 			});
 		}
 		const levelupBtn = root.querySelector(".btn.levelup");
@@ -249536,7 +249643,7 @@ function activeIndex(win, tabs) {
 	}
 	const drawn = tabs.findIndex(isDrawnOpen);
 	if (drawn !== -1) return drawn;
-	const last = _last.get(win.host);
+	const last = _last$1.get(win.host);
 	return last !== void 0 && last < tabs.length ? last : -1;
 }
 /**
@@ -249582,9 +249689,9 @@ function activeTab(win) {
 * @param {number} index
 */
 function remember(win, index) {
-	if (win && win.host) _last.set(win.host, index);
+	if (win && win.host) _last$1.set(win.host, index);
 }
-var STRIP, TAB, CONTROL, INNER, OPEN, REFUSED, _last, JoystickFocusTabs_default;
+var STRIP, TAB, CONTROL, INNER, OPEN, REFUSED, _last$1, JoystickFocusTabs_default;
 var init_JoystickFocusTabs = __esmMin((() => {
 	init_JoystickFocusScan();
 	STRIP = [
@@ -249617,7 +249724,7 @@ var init_JoystickFocusTabs = __esmMin((() => {
 		"[aria-selected=\"true\"]"
 	].join(",");
 	REFUSED = ".denied, .disabled, [disabled]";
-	_last = /* @__PURE__ */ new WeakMap();
+	_last$1 = /* @__PURE__ */ new WeakMap();
 	JoystickFocusTabs_default = {
 		isTab,
 		tabsOf,
@@ -263685,6 +263792,9 @@ function createPartyFriends(config) {
 		}
 		const content = root.querySelector(".content");
 		if (content) {
+			content.addEventListener("dblclick", (event) => {
+				if (event.target.closest(".node")) onMemberDoubleClick();
+			});
 			if (renewalParty) {
 				content.addEventListener("contextmenu", (event) => {
 					const node = event.target.closest(".node");
@@ -264741,6 +264851,11 @@ function createPartyFriends(config) {
 	* Add nick name to chatbox
 	* Or open a new conversation window (todo)
 	*/
+	function onMemberDoubleClick() {
+		if (_index < 0) return;
+		if (!_preferences.friend && _party[_index]?.AID === SessionStorage_default.AID) return;
+		onRequestPrivateMessage();
+	}
 	function onRequestPrivateMessage() {
 		if (_index < 0 || _preferences.lock) return;
 		const name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
@@ -265242,7 +265357,10 @@ var init_Friends = __esmMin((() => {
 	};
 }));
 // src/UI/Components/WhisperBox/WhisperBox.js
-var WhisperBox_exports = /* @__PURE__ */ __exportAll({ default: () => WhisperBox });
+var WhisperBox_exports = /* @__PURE__ */ __exportAll({
+	default: () => WhisperBox,
+	snapSize: () => snapSize
+});
 /**
 * Move caret to the end of a contenteditable element
 * @param {HTMLElement} el
@@ -265299,6 +265417,18 @@ function setupNicknameLinkHandler(instance) {
 	});
 }
 /**
+* The official whisper window resizes between 280x120 and 512x384, in 32px
+* steps from the minimum (UIWhisperWnd vfunc37 message 0xe/7).
+*
+* @param {number} size wanted
+* @param {number} min
+* @param {number} max
+* @return {number}
+*/
+function snapSize(size, min, max) {
+	return min + Math.floor((Math.min(max, Math.max(min, size)) - min) / 32) * 32;
+}
+/**
 * Initialize resizable logic for an instance
 * @param {GUIComponent} instance
 */
@@ -265309,8 +265439,8 @@ function initResizable(instance) {
 	const resize = (e) => {
 		const rect = instance._host.getBoundingClientRect();
 		const scale = instance.scale;
-		const width = Math.max(150, (e.pageX - rect.left) / scale);
-		const height = Math.max(100, (e.pageY - rect.top) / scale);
+		const width = snapSize((e.pageX - rect.left) / scale, 280, 512);
+		const height = snapSize((e.pageY - rect.top) / scale, 120, 384);
 		instance._host.style.width = `${width}px`;
 		instance._host.style.height = `${height}px`;
 		const container = root.querySelector(".whisper-container");
@@ -265427,6 +265557,15 @@ var init_WhisperBox = __esmMin((() => {
 							WhisperBox.onRequestTalk(this.nickname, msg);
 							this._inputEl.innerHTML = "";
 						}
+						event.stopImmediatePropagation();
+						return false;
+					}
+					case KEYS.PAGEUP:
+					case KEYS.PAGEDOWN: {
+						const content = this._contentEl;
+						const line = parseFloat(getComputedStyle(content).lineHeight) || 14;
+						const page = Math.max(line, content.clientHeight - line);
+						content.scrollTop += event.which === KEYS.PAGEUP ? -page : page;
 						event.stopImmediatePropagation();
 						return false;
 					}
@@ -266692,6 +266831,22 @@ var init_ChatBox = __esmMin((() => {
 					}
 				}
 				return true;
+			case KEYS.PAGEUP:
+			case KEYS.PAGEDOWN: {
+				const ownsFocus = !activeElement || activeElement === document.body || activeElement.tagName === "CANVAS" || isChatInputFocused || isChatCaption || root.contains(activeElement) || Array.from(views.values()).some((view) => view.floating?._host?.contains(activeElement));
+				const focusedView = Array.from(views.values()).find((view) => view.floating?._host?.contains(activeElement));
+				const selectedId = this.tabStore.selectedId ?? this.activeTab;
+				const content = focusedView?.log || views.get(selectedId)?.log || root.querySelector(`.content[data-content="${selectedId}"]`);
+				if (!ownsFocus || !content) return true;
+				const up = event.which === KEYS.PAGEUP;
+				if (event.ctrlKey) content.scrollTop = up ? 0 : content.scrollHeight;
+				else {
+					const line = parseFloat(getComputedStyle(content).lineHeight) || 14;
+					const page = Math.max(line, content.clientHeight - line);
+					content.scrollTop += up ? -page : page;
+				}
+				break;
+			}
 			case KEYS.UP:
 				if (!document.querySelector("#NpcMenu")) {
 					if (activeElement === messageBox) {
@@ -268480,6 +268635,20 @@ var NpcBox_default$1;
 var init_NpcBox$1 = __esmMin((() => {
 	NpcBox_default$1 = ":host {\r\n	width: 276px;\r\n	height: 176px;\r\n	top: 100px;\r\n	left: 100px;\r\n}\r\n\r\n#NpcBox {\r\n	position: absolute;\r\n	width: 276px;\r\n	height: 176px;\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	line-height: 18px;\r\n	letter-spacing: 0px;\r\n}\r\n#NpcBox .border {\r\n	border: 1px solid #c1c6c2;\r\n	width: 264px;\r\n	height: 164px;\r\n	padding: 5px;\r\n	border-radius: 5px;\r\n}\r\n#NpcBox .content {\r\n	white-space: pre-wrap;\r\n	background-color: #eff4f0;\r\n	width: 254px;\r\n	height: 130px;\r\n	overflow-y: auto;\r\n	padding: 5px;\r\n}\r\n#NpcBox .btns {\r\n	position: absolute;\r\n	bottom: 2px;\r\n	right: 8px;\r\n}\r\n#NpcBox .btn {\r\n	width: 42px;\r\n	height: 20px;\r\n	bottom: 4px;\r\n	display: none;\r\n}\r\n\r\n.item-link {\r\n	color: #0070c0;\r\n	cursor: pointer;\r\n}\r\n\r\n.item-link:hover {\r\n	color: #00a0ff;\r\n}\r\n\r\n.navi-link,\r\n.tipbox-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.navi-link:hover,\r\n.tipbox-link:hover {\r\n	color: #ff0000;\r\n}\r\n";
 }));
+// src/UI/Components/NpcBox/NpcAnswerGuard.js
+/**
+* @param {number} [now] - current time in ms
+* @return {boolean} true when the answer may go to the server
+*/
+function takeNpcAnswer(now = performance.now()) {
+	if (now - _last < 300) return false;
+	_last = now;
+	return true;
+}
+var _last;
+var init_NpcAnswerGuard = __esmMin((() => {
+	_last = -Infinity;
+}));
 // src/UI/Components/NpcBox/NpcBox.js
 /**
 * Process NAVI tags in text
@@ -268554,6 +268723,7 @@ var init_NpcBox = __esmMin((() => {
 	init_NpcBox$1();
 	init_NpcMenu();
 	init_InputBox();
+	init_NpcAnswerGuard();
 	NpcBox = new GUIComponent("NpcBox", NpcBox_default$1);
 	NpcBox.render = () => NpcBox_default$2;
 	/**
@@ -268704,6 +268874,7 @@ var init_NpcBox = __esmMin((() => {
 	* Press "next" button
 	*/
 	NpcBox.next = function next() {
+		if (!takeNpcAnswer()) return;
 		_needCleanUp = true;
 		const nextBtn = NpcBox.getRoot().querySelector(".next");
 		if (nextBtn) nextBtn.style.display = "none";
@@ -348339,6 +348510,34 @@ function prettifyZeny$2(value) {
 	return Number(value).toLocaleString("en-US");
 }
 /**
+* The official zeny box (UIExchangeWnd vfunc19) takes digits only (msgstringtable 602),
+* caps the amount at 1,000,000,000 (msgstringtable 2467) and shows it with commas.
+*
+* @param {HTMLInputElement} input
+*/
+function onZenyInput(input) {
+	if (/[^\d,]/.test(input.value)) UIManager.showMessageBox(DB.getMessage(602, "Only the numbers (0~9) are available."), "ok");
+	let zeny = parseZeny(input.value);
+	if (zeny > 1e9) {
+		UIManager.showMessageBox(DB.getMessage(2467, "You entered more than 1 Billion Zeny, the price will be set to 1 Billion Zeny."), "ok");
+		zeny = 1e9;
+	}
+	const caret = input.selectionStart ?? input.value.length;
+	const digitsBefore = input.value.slice(0, caret).replace(/\D/g, "").length;
+	input.value = prettifyZeny$2(zeny);
+	let position = 0;
+	for (let seen = 0; position < input.value.length && seen < digitsBefore; position++) if (/\d/.test(input.value[position])) seen++;
+	if (zeny === 0) input.setSelectionRange?.(0, input.value.length);
+	else input.setSelectionRange?.(position, position);
+}
+/**
+* @param {string} text - the zeny box, with or without commas
+* @return {number}
+*/
+function parseZeny(text) {
+	return parseInt(String(text).replace(/\D/g, ""), 10) || 0;
+}
+/**
 * Request to add an item to the trade UI
 *
 * @param {number} index - item index in inventory
@@ -348368,7 +348567,7 @@ function onCancel() {
 */
 function onConclude() {
 	const zenySend = Trade.getRoot().querySelector(".zeny.send");
-	let zeny = parseInt(zenySend ? zenySend.value : "0", 10) || 0;
+	let zeny = parseZeny(zenySend ? zenySend.value : "0");
 	zeny = Math.min(Math.max(0, zeny), SessionStorage_default.zeny);
 	onRequestAddItem(0, zeny);
 	Trade.onConclude();
@@ -348522,9 +348721,12 @@ var init_Trade$1 = __esmMin((() => {
 			e.stopImmediatePropagation();
 		});
 		const zenyInput = root.querySelector(".zeny.send");
-		if (zenyInput) zenyInput.addEventListener("mousedown", function() {
-			this.select();
-		});
+		if (zenyInput) {
+			zenyInput.addEventListener("mousedown", function() {
+				this.select();
+			});
+			zenyInput.addEventListener("input", () => onZenyInput(zenyInput));
+		}
 		root.querySelectorAll(".box").forEach((box) => {
 			box.addEventListener("mouseover", (e) => {
 				const itemEl = e.target.closest(".item");
@@ -367982,9 +368184,24 @@ function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, costumeTab
 		}
 		const baseBtns = _root.querySelectorAll(".titlebar .base");
 		for (const btn of baseBtns) btn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
+		const setReduced = (reduced) => {
+			_root.querySelectorAll(".panel, .vieweqtab-manager").forEach((el) => {
+				el.style.display = reduced ? "none" : "";
+			});
+		};
+		const toggleReduce = () => {
+			if (!_panel) return;
+			const expand = _panel.style.display === "none";
+			setReduced(!expand);
+			if (expand) Renderer.render(renderCharacter);
+			else Renderer.stop(renderCharacter);
+		};
+		setReduced(!!_preferences.reduce);
 		const miniBtn = _root.querySelector(".titlebar .mini");
-		if (miniBtn) miniBtn.addEventListener("click", () => {
-			if (_panel) _panel.style.display = _panel.style.display === "none" ? "" : "none";
+		if (miniBtn) miniBtn.addEventListener("click", toggleReduce);
+		const titlebar = _root.querySelector(".titlebar");
+		if (titlebar) titlebar.addEventListener("dblclick", (e) => {
+			if (!e.target.closest("button")) toggleReduce();
 		});
 		const closeBtn = _root.querySelector(".titlebar .close");
 		if (closeBtn) closeBtn.addEventListener("click", () => {
@@ -369494,6 +369711,7 @@ function onMenuAppear(pkt) {
 	NpcMenu_default.append();
 	NpcMenu_default.setMenu(pkt.msg, pkt.NAID);
 	NpcMenu_default.onSelectMenu = function onSelectMenu(NAID, index) {
+		if (index !== 255 && !takeNpcAnswer()) return;
 		NpcMenu_default.remove();
 		if (index === 255) NpcBox_default.remove();
 		const _pkt = new PACKET.CZ.CHOOSE_MENU();
@@ -369718,6 +369936,7 @@ var init_NPC = __esmMin((() => {
 	init_MiniMap();
 	init_ChatBox();
 	init_GUIComponent();
+	init_NpcAnswerGuard();
 	/**
 	* Next button pressed
 	*
@@ -373185,7 +373404,7 @@ var init_ItemObtain = __esmMin((() => {
 		const resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 		this.placeOnTop();
 		const content = root.querySelector(".content");
-		if (content) content.innerHTML = `<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="item-${item.ITID}" width="24" height="24" /> ` + _sanitizeHtml$6(`${display} ${DB.getMessage(696).replace("%d", item.count || 1)}`);
+		if (content) content.innerHTML = `<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="item-${item.ITID}" width="24" height="24" /> ` + _sanitizeHtml$6(DB.getMessage(153, "You got %s (%d).").replace("%d", item.count || 1).replace("%s", () => display));
 		const el = root.querySelector("#ItemObtain");
 		this._host.style.left = `${Renderer.width - (el ? el.getBoundingClientRect().width : 0) >> 1}px`;
 		Client.loadFile(DB.INTERFACE_PATH + "item/" + resource + ".bmp", (url) => {
@@ -377893,7 +378112,7 @@ function NPCEngine$1() {
 	Network.hookPacket(PACKET.ZC.CHANGESTATE_PET, onPetInformationUpdate);
 	Network.hookPacket(PACKET.ZC.PET_ACT, onPetAction);
 }
-var _nameRequestTick, NAME_REQUEST_DELAY;
+var _nameRequestTick, NAME_REQUEST_DELAY, _renamePrompt$1;
 var init_Pet = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -377948,15 +378167,20 @@ var init_Pet = __esmMin((() => {
 		pkt.cSub = 4;
 		Network.sendPacket(pkt);
 	};
+	_renamePrompt$1 = null;
 	/**
 	* Rename QPet
 	*
 	* @param {string} new pet name
 	*/
 	PetInformations_default.reqNameEdit = function reqNameEdit(name) {
-		const pkt = new PACKET.CZ.RENAME_PET();
-		pkt.szName = name;
-		Network.sendPacket(pkt);
+		if (_renamePrompt$1?._host?.isConnected) return;
+		const text = DB.getMessage(2931, "Pet name will be changed to ^0000ff%s^000000, do you want to continue?").replace("%s", () => name);
+		_renamePrompt$1 = UIManager.showPromptBox(text, "ok", "cancel", () => {
+			const pkt = new PACKET.CZ.RENAME_PET();
+			pkt.szName = name;
+			Network.sendPacket(pkt);
+		});
 	};
 	/**
 	* Request a pet evolution
@@ -378122,6 +378346,7 @@ function NPCEngine() {
 	Network.hookPacket(PACKET.ZC.HOSKILLINFO_LIST, onSkillList$1);
 	Network.hookPacket(PACKET.ZC.HOSKILLINFO_UPDATE, onSkillUpdate$1);
 }
+var _renamePrompt;
 var init_Homun = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -378203,15 +378428,20 @@ var init_Homun = __esmMin((() => {
 		pkt.dest[1] = y > 0 ? y : Mouse.world.y;
 		Network.sendPacket(pkt);
 	};
+	_renamePrompt = null;
 	/**
 	* Rename QHomunculus
 	*
 	* @param {string} new homunculus name
 	*/
 	HomunInformations_default.reqNameEdit = function reqNameEdit(name) {
-		const pkt = new PACKET.CZ.RENAME_MER();
-		pkt.name = name;
-		Network.sendPacket(pkt);
+		if (_renamePrompt?._host?.isConnected) return;
+		const text = DB.getMessage(2977, "Are you sure you want to change your Homunculus's name to ^0000ff%s^000000?").replace("%s", () => name);
+		_renamePrompt = UIManager.showPromptBox(text, "ok", "cancel", () => {
+			const pkt = new PACKET.CZ.RENAME_MER();
+			pkt.name = name;
+			Network.sendPacket(pkt);
+		});
 	};
 }));
 // src/Engine/MapEngine/Mercenary.js
@@ -378336,7 +378566,8 @@ var init_Mercenary = __esmMin((() => {
 	* Request to delete mercenary
 	*/
 	MercenaryInformations_default.reqDeleteMercenary = function reqDeleteMercenary() {
-		UIManager.showPromptBox(DB.getMessage(356), "ok", "cancel", function() {
+		const text = DB.getMessage(1370, "^ff0000Deleting a Mercenary Soldier^000000 will also delete his growth history. Do you really want to proceed with the deletion?");
+		UIManager.showPromptBox(text, "ok", "cancel", function() {
 			const pkt = new PACKET.CZ.MER_COMMAND();
 			pkt.command = 2;
 			Network.sendPacket(pkt);
