@@ -45,6 +45,7 @@ vi.mock('UI/UIManager.js', () => ({ default: { addComponent: c => c } }));
 vi.mock('UI/UIVersionManager.js', () => ({ default: { getEquipmentVersion: () => 0 } }));
 vi.mock('UI/Elements/Elements.js', () => ({}));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({ default: {} }));
+vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({ default: {} }));
 vi.mock('UI/Components/CartItems/CartItems.js', () => ({ default: mocks.cartItems }));
 vi.mock('UI/Components/SwitchEquip/SwitchEquip.js', () => ({ default: { append: vi.fn() } }));
 vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ embed: vi.fn() }) } }));
