@@ -255,7 +255,9 @@ export function createEquipment({
 
 		const toggleReduce = () => {
 			const panel = root.querySelector('.panel');
-			if (panel) setReduced(panel.style.display !== 'none');
+			if (panel) {
+				setReduced(panel.style.display !== 'none');
+			}
 		};
 		const miniBtn = root.querySelector('.titlebar .mini');
 		if (miniBtn) {
@@ -266,7 +268,9 @@ export function createEquipment({
 		const titlebar = root.querySelector('.titlebar');
 		if (titlebar) {
 			titlebar.addEventListener('dblclick', e => {
-				if (!e.target.closest('button')) toggleReduce();
+				if (!e.target.closest('button')) {
+					toggleReduce();
+				}
 			});
 		}
 
