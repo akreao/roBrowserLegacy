@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Ctrl + right click on an item, against the official client's item window
 // (UIItemWnd, right-click handler): one-click identify with a Magnifier.
-const net = vi.hoisted(() => ({ sent: [], chat: [] }));
+const net = vi.hoisted(() => ({ sent: [], chat: [], info: [], packetver: { value: 20211103 } }));
 
 const mocks = vi.hoisted(() => {
 	class MockGUIComponent {
@@ -37,7 +37,7 @@ vi.mock('Network/PacketStructure.js', () => ({
 		}
 	}
 }));
-vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20211103 } }));
+vi.mock('Network/PacketVerManager.js', () => ({ default: net.packetver }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: (_path, cb) => cb?.(''), loadFiles: (_paths, cb) => cb?.() } }));
 vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800 } }));
@@ -50,7 +50,9 @@ vi.mock('UI/TouchDrag.js', () => ({ attachTouchDrag: vi.fn() }));
 vi.mock('UI/Components/CartItems/CartItems.js', () => ({ default: {} }));
 vi.mock('UI/Components/InputBox/InputBox.js', () => ({ default: {} }));
 vi.mock('UI/Components/ItemCompare/ItemCompare.js', () => ({ default: {} }));
-vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({ default: {} }));
+vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({
+	default: { append() {}, setItem: item => net.info.push(item), remove() {} }
+}));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 	default: { addText: text => net.chat.push(text), TYPE: {}, FILTER: {} }
 }));
@@ -101,6 +103,8 @@ describe('inventory, Ctrl + right click', () => {
 		localStorage.clear();
 		net.sent.length = 0;
 		net.chat.length = 0;
+		net.info.length = 0;
+		net.packetver.value = 20211103;
 	});
 	afterEach(() => localStorage.clear());
 
@@ -139,5 +143,14 @@ describe('inventory, Ctrl + right click', () => {
 		ctrlRightClick(item);
 		expect(net.sent).toHaveLength(0);
 		expect(net.chat).toHaveLength(0);
+	});
+
+	it('opens the description as before on clients older than the packet', () => {
+		net.packetver.value = 20140416;
+		const { item } = mount();
+		ctrlRightClick(item);
+
+		expect(net.sent).toHaveLength(0);
+		expect(net.info).toHaveLength(1);
 	});
 });

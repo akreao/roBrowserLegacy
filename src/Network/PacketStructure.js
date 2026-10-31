@@ -13379,18 +13379,21 @@ PACKET.CZ.REQ_CHANGE_TITLE.prototype.build = function () {
 PACKET.CZ.REQ_CHANGE_TITLE.size = 6;
 
 // 0xa35
-PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY = function PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY() {
-	this.index = 0;
-};
-PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY.prototype.build = function () {
-	const pkt_len = 2 + 2;
-	const pkt_buf = new BinaryWriter(pkt_len);
+PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY = class PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY {
+	static size = 4;
 
-	pkt_buf.writeShort(0x0a35);
-	pkt_buf.writeShort(this.index);
-	return pkt_buf;
+	constructor() {
+		this.index = 0;
+	}
+
+	build() {
+		const pkt_buf = new BinaryWriter(PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY.size);
+
+		pkt_buf.writeShort(0x0a35);
+		pkt_buf.writeShort(this.index);
+		return pkt_buf;
+	}
 };
-PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY.size = 4;
 
 // 0xa37
 PACKET.ZC.ITEM_PICKUP_ACK7 = function PACKET_ZC_ITEM_PICKUP_ACK7(fp, end) {

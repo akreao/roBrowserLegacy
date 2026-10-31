@@ -69,6 +69,12 @@ function _sanitizeHtml(str) {
 const MAGNIFIER_IDS = [611, 12325];
 
 /**
+ * First packet version with CZ_REQ_ONECLICK_ITEMIDENTIFY; older clients keep
+ * Ctrl + right click as a plain right click (the item's description)
+ */
+const ONECLICK_IDENTIFY_PACKETVER = 20150513;
+
+/**
  * Create an Inventory component.
  *
  * @param {object} config
@@ -1369,7 +1375,7 @@ export function createInventory(config) {
 			return false;
 		}
 
-		if (event.ctrlKey && event.which === 3) {
+		if (event.ctrlKey && event.which === 3 && PACKETVER.value >= ONECLICK_IDENTIFY_PACKETVER) {
 			oneClickIdentify(item);
 			return false;
 		}
@@ -1414,7 +1420,7 @@ export function createInventory(config) {
 	 * @param {Item} item
 	 */
 	function oneClickIdentify(item) {
-		if (PACKETVER.value < 20150513 || (item.ITID >= 9001 && item.ITID <= 9499)) {
+		if (item.ITID >= 9001 && item.ITID <= 9499) {
 			return;
 		}
 
