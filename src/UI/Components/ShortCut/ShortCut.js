@@ -56,6 +56,11 @@ let _rowCount = 0;
 let _lastServerHotkeys = null;
 
 /**
+ * @var {Array} hotkeys of each bar (the official "Switch Hotkey Bar" has two)
+ */
+const _tabLists = [null, null];
+
+/**
  * Cache for active animation frames
  */
 const _activeAnimations = new Map();
@@ -69,6 +74,7 @@ const _preferences = Preferences.get(
 		x: 480,
 		y: 0,
 		size: 1,
+		tab: 0,
 		magnet_top: true,
 		magnet_bottom: false,
 		magnet_left: false,
@@ -116,6 +122,18 @@ ShortCut.init = function init() {
 			});
 			button.addEventListener('click', action);
 		}
+	}
+
+	// 2025 "Switch Hotkey Bar" button (msgstringtable 3596), 1 / 2 art
+	const barButton = root.querySelector('.btn-bar');
+	if (barButton) {
+		barButton.addEventListener('mouseenter', onContainerMouseEnter);
+		barButton.addEventListener('mouseleave', onContainerMouseLeave);
+		barButton.addEventListener('mousedown', e => {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		});
+		barButton.addEventListener('click', () => ShortCut.setTab(_preferences.tab ? 0 : 1));
 	}
 
 	// The 2025 window, drawn with its own art, when the client data has it
@@ -191,6 +209,12 @@ ShortCut.init = function init() {
  * Append to body
  */
 ShortCut.onAppend = function onAppend() {
+	const root = ShortCut.getRoot();
+	root.querySelector('#ShortCut').classList.toggle('tabs', hasTabs());
+	const barButton = root.querySelector('.btn-bar');
+	barButton?.classList.toggle('active', getTab() === 1);
+	barButton?.setAttribute('data-tooltip', DB.getMessage(3596, 'Switch Hotkey Bar'));
+
 	// Set height first so position clamping uses correct dimensions
 	this._host.style.height = `${rowsHeight(_preferences.size)}px`;
 	const rect = this._host.getBoundingClientRect();
@@ -246,6 +270,7 @@ ShortCut.clean = function clean() {
 	_activeAnimations.clear();
 
 	_list.length = 0;
+	_tabLists[0] = _tabLists[1] = null;
 	const root = ShortCut.getRoot();
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
@@ -301,7 +326,91 @@ ShortCut.getSkillById = function getSkillById(id) {
  *
  * @param {Array} shortcut list
  */
-ShortCut.setList = function setList(list) {
+ShortCut.setList = function setList(list, tab = 0) {
+	_tabLists[tab] = list.map(copySlot);
+	if (tab === getTab()) {
+		drawList(list);
+	}
+};
+
+/**
+ * @return {boolean} the server keeps a second hotkey bar (packets 0x0b20 / 0x0b21)
+ */
+function hasTabs() {
+	return PACKETVER.value >= 20190522;
+}
+
+/**
+ * @return {number} the bar shown: 0, or 1 for the second one
+ */
+function getTab() {
+	return hasTabs() && _preferences.tab ? 1 : 0;
+}
+
+ShortCut.getTab = getTab;
+
+/**
+ * Show the other hotkey bar. The official client (UIShortCutWnd SendMsg 6,
+ * id 0x225) keeps the choice as a client option and redraws every slot from
+ * that bar's list.
+ *
+ * @param {number} tab 0 or 1
+ */
+ShortCut.setTab = function setTab(tab) {
+	if (!hasTabs() || tab === getTab()) {
+		return;
+	}
+
+	_tabLists[getTab()] = Array.from(_list, copySlot);
+	_preferences.tab = tab;
+	_preferences.save();
+	ShortCut.getRoot()
+		.querySelector('.btn-bar')
+		?.classList.toggle('active', tab === 1);
+
+	cancelCooldowns();
+	ShortCut.getRoot()
+		.querySelectorAll('.container')
+		.forEach(el => el.removeAttribute('data-tooltip'));
+	drawList(_tabLists[tab] || emptyList(_list.length || 38));
+	ShortCut.updateAllTooltips();
+};
+
+/**
+ * @param {object} slot
+ * @return {{isSkill: number|boolean, ID: number, count: number}}
+ */
+function copySlot(slot) {
+	return { isSkill: slot?.isSkill || 0, ID: slot?.ID || 0, count: slot?.count || 0 };
+}
+
+/**
+ * @param {number} length
+ * @return {Array} empty slots
+ */
+function emptyList(length) {
+	return Array.from({ length }, () => ({ isSkill: 0, ID: 0, count: 0 }));
+}
+
+/**
+ * Stop every cooldown drawn on the bar
+ */
+function cancelCooldowns() {
+	for (const animationId of _activeAnimations.values()) {
+		cancelAnimationFrame(animationId);
+	}
+	_activeAnimations.clear();
+	ShortCut.getRoot()
+		.querySelectorAll('.cooldown-overlay')
+		.forEach(el => el.remove());
+}
+
+/**
+ * Draw a list of hotkeys in the slots
+ *
+ * @param {Array} list
+ */
+function drawList(list) {
 	let skill;
 	let needGuildSkills = false;
 	const root = ShortCut.getRoot();
@@ -309,6 +418,7 @@ ShortCut.setList = function setList(list) {
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
 	});
+	_list.length = 0;
 	_list.length = list.length;
 	_rowCount = Math.min(4, Math.floor(list.length / 9));
 	updateRowButtons(_preferences.size);
@@ -340,7 +450,7 @@ ShortCut.setList = function setList(list) {
 	if (needGuildSkills) {
 		ShortCut.onRequestGuildSkills();
 	}
-};
+}
 
 /**
  * Hook: ask the server for the guild skill list (set by MapEngine/Guild)

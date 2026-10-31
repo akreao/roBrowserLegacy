@@ -127,6 +127,7 @@
 }
 
 /* Classic window: no 2025 buttons */
+#ShortCut .btn-bar,
 #ShortCut .btn-minus,
 #ShortCut .btn-plus {
 	display: none;
@@ -153,6 +154,19 @@
 	left: 277px;
 	width: 11px;
 	height: 11px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	z-index: 1;
+}
+/* "Switch Hotkey Bar" (UIShortCutWnd checkbox 0x225 at 3, 4), over row 1's number */
+#ShortCut.v2025.tabs .btn-bar {
+	display: block;
+	position: absolute;
+	left: 3px;
+	top: 4px;
+	width: 10px;
+	height: 26px;
 	padding: 0;
 	border: none;
 	background-color: transparent;
