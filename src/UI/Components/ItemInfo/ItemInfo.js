@@ -38,894 +38,959 @@ import TipBox from 'UI/Components/TipBox/TipBox.js';
 import { sanitizeHtml } from 'Utils/HtmlHelper.js';
 
 /**
- * Create Component
+ * Create an item information window. The game has two: the main one and the
+ * one a card slot opens (see addCard).
+ *
+ * @param {string} componentName
+ * @param {boolean} isCardWindow
+ * @return {GUIComponent}
  */
-const ItemInfo = new GUIComponent('ItemInfo', cssText);
+function createItemInfo(componentName, isCardWindow) {
+	const ItemInfo = new GUIComponent(componentName, cssText);
 
-ItemInfo.render = () => htmlText;
+	/** @var {boolean} the second window, opened for a card from a card slot */
+	ItemInfo.isCardWindow = isCardWindow;
 
-/**
- * @let {Sprite,Action} objects
- */
-let _sprite, _action;
+	// Scaled as the item window it belongs to (UI/UIScale.js)
+	ItemInfo.scaleName = 'ItemInfo';
 
-/**
- * @let {CanvasRenderingContext2D}
- */
-let _ctx;
+	ItemInfo.render = () => htmlText;
 
-/**
- * @let {number} type
- */
-const _type = 0;
+	/**
+	 * @let {Sprite,Action} objects
+	 */
+	let _sprite, _action;
 
-/**
- * @let {number} start tick
- */
-const _start = 0;
+	/**
+	 * @let {CanvasRenderingContext2D}
+	 */
+	let _ctx;
 
-/**
- * @let {number} ItemInfo unique id
- */
-ItemInfo.uid = -1;
+	/**
+	 * @let {number} type
+	 */
+	const _type = 0;
 
-/**
- * What an item can't be done with (data/ItemMoveInfoV5.txt), one message per
- * line, in the order the official client lists them. 2793 (auction) is never
- * shown there either.
- */
-const MOVE_INFO_MESSAGES = [
-	{ key: 'Drop', msgId: 2788 },
-	{ key: 'Storage', msgId: 2789 },
-	{ key: 'Cart', msgId: 2790 },
-	{ key: 'Mail', msgId: 2791 },
-	{ key: 'Exchange', msgId: 2792 },
-	// 2793 Auction → intentionally skipped
-	{ key: 'GuildStorage', msgId: 2794 },
-	{ key: 'NPCSale', msgId: 2795 }
-];
+	/**
+	 * @let {number} start tick
+	 */
+	const _start = 0;
 
-/**
- * Helper: escape HTML keeping whitelisted tags
- */
-function _escapeHTML(text) {
-	const div = document.createElement('div');
-	div.textContent = text;
-	return div.innerHTML;
-}
+	/**
+	 * @let {number} ItemInfo unique id
+	 */
+	ItemInfo.uid = -1;
 
-/**
- * Once append to the DOM
- */
-ItemInfo.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
-		// Cleanup moveInfo tooltip & cursor
-		ItemInfo.hideMoveInfoTooltip();
+	/**
+	 * What an item can't be done with (data/ItemMoveInfoV5.txt), one message per
+	 * line, in the order the official client lists them. 2793 (auction) is never
+	 * shown there either.
+	 */
+	const MOVE_INFO_MESSAGES = [
+		{ key: 'Drop', msgId: 2788 },
+		{ key: 'Storage', msgId: 2789 },
+		{ key: 'Cart', msgId: 2790 },
+		{ key: 'Mail', msgId: 2791 },
+		{ key: 'Exchange', msgId: 2792 },
+		// 2793 Auction → intentionally skipped
+		{ key: 'GuildStorage', msgId: 2794 },
+		{ key: 'NPCSale', msgId: 2795 }
+	];
 
-		ItemInfo.remove();
-		if (ItemCompare.ui) {
-			ItemCompare.remove();
-		}
-		if (ItemPreview.ui) {
-			ItemPreview.remove();
-		}
-	}
-};
-
-/**
- * Once append
- */
-ItemInfo.onAppend = function onAppend() {
-	const root = ItemInfo.getRoot();
-	const descInner = root.querySelector('.description-inner');
-	if (descInner) {
-		resize(descInner.offsetHeight + 45);
-	}
-};
-
-/**
- * Once removed from html
- */
-ItemInfo.onRemove = function onRemove() {
-	this.uid = -1;
-
-	// Cleanup moveInfo tooltip & cursor
-	ItemInfo.hideMoveInfoTooltip();
-
-	// Remove existing compare UI if it's currently displayed
-	if (ItemCompare.ui) {
-		ItemCompare.remove();
-	}
-	if (ItemPreview.ui) {
-		ItemPreview.remove();
-	}
-};
-
-/**
- * Initialize UI
- */
-ItemInfo.init = function init() {
-	const root = ItemInfo.getRoot();
-
-	this._host.style.top = '200px';
-	this._host.style.left = '480px';
-
-	const extendBtn = root.querySelector('.extend');
-	if (extendBtn) {
-		extendBtn.addEventListener('mousedown', onResize);
+	/**
+	 * Helper: escape HTML keeping whitelisted tags
+	 */
+	function _escapeHTML(text) {
+		const div = document.createElement('div');
+		div.textContent = text;
+		return div.innerHTML;
 	}
 
-	const closeBtn = root.querySelector('.close');
-	if (closeBtn) {
-		closeBtn.addEventListener('mousedown', e => {
-			e.stopImmediatePropagation();
-		});
-		closeBtn.addEventListener('click', () => {
-			this.remove();
+	/**
+	 * Once append to the DOM
+	 */
+	ItemInfo.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
+			// Cleanup moveInfo tooltip & cursor
+			ItemInfo.hideMoveInfoTooltip();
+
+			ItemInfo.remove();
+			// The compare and preview windows belong to the main item window
+			if (ItemInfo.isCardWindow) {
+				return;
+			}
 			if (ItemCompare.ui) {
 				ItemCompare.remove();
 			}
-		});
-	}
-
-	// Ask to see card.
-	const viewBtn = root.querySelector('.view');
-	if (viewBtn) {
-		viewBtn.addEventListener('click', () => {
-			CardIllustration.append();
-			CardIllustration.setCard(this.item);
-		});
-	}
-
-	// A place named in the description opens the navigation to it, a tip
-	// the tip box on it
-	const descInner = root.querySelector('.description-inner');
-	if (descInner) {
-		descInner.addEventListener('click', e => {
-			const tipLink = e.target.closest('.tipbox-link');
-			if (tipLink) {
-				TipBox.open(Number(tipLink.dataset.tipboxId));
-				return;
-			}
-			const naviLink = e.target.closest('.navi-link');
-			if (!naviLink || !naviLink.dataset.naviInfo) {
-				return;
-			}
-			const naviInfo = naviLink.dataset.naviInfo;
-			if (Navigation.uid === naviInfo && Navigation._host && Navigation._host.style.display !== 'none') {
-				Navigation.hide();
-				return;
-			}
-			Navigation.show();
-			Navigation.uid = naviInfo;
-			Navigation.setNaviInfo(naviInfo, naviLink.dataset.naviName);
-		});
-	}
-
-	// A click on the transfer restrictions box closes it
-	const moveInfoBox = root.querySelector('.moveinfo-box');
-	if (moveInfoBox) {
-		moveInfoBox.addEventListener('click', () => ItemInfo.hideMoveInfoTooltip());
-	}
-
-	this.draggable('.title');
-};
-
-/**
- * Bind component
- *
- * @param {object} item
- */
-ItemInfo.setItem = function setItem(item) {
-	const it = DB.getItemInfo(item.ITID);
-	const root = ItemInfo.getRoot();
-	const cardList = root.querySelector('.cardlist .border');
-
-	// The last item's restrictions box is not this item's.
-	ItemInfo.hideMoveInfoTooltip();
-	const optionContainer = root.querySelector('.option-container');
-
-	this.item = it;
-	// The window is reused from item to item: clear the last item's picture, so
-	// one this client's data lacks shows none rather than the previous item's,
-	// and drop an answer that arrives after another item has been opened.
-	const collectionPath =
-		DB.INTERFACE_PATH +
-		'collection/' +
-		(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-		'.bmp';
-	const collection = root.querySelector('.collection');
-	if (collection) {
-		collection.style.backgroundImage = '';
-		collection.dataset.src = collectionPath;
-	}
-	Client.loadFile(collectionPath, data => {
-		if (collection && collection.dataset.src === collectionPath) {
-			collection.style.backgroundImage = `url(${data})`;
-		}
-	});
-
-	const itemName = DB.getItemName(item, { showItemOptions: false });
-
-	// Damaged status
-	const title = root.querySelector('.title');
-	if (title) {
-		if (item.IsDamaged) {
-			title.classList.add('damaged');
-		} else {
-			title.classList.remove('damaged');
-		}
-		title.innerHTML = sanitizeHtml(itemName);
-	}
-
-	if (item.Options && item.IsIdentified) {
-		//Clear all option list
-		if (optionContainer) {
-			optionContainer.innerHTML = '';
-		}
-
-		//Loop to Show Options
-		for (let i = 1; i <= 5; i++) {
-			if (item.Options[i].index > 0) {
-				const randomOptionName = DB.getOptionName(item.Options[i].index);
-				const optionList =
-					'<div class="optionlist">' +
-					'<div class="border">' +
-					randomOptionName.replace('%d', item.Options[i].value).replace('%%', '%') +
-					'</div>' +
-					'</div>';
-				if (optionContainer) {
-					optionContainer.insertAdjacentHTML('beforeend', optionList);
-				}
+			if (ItemPreview.ui) {
+				ItemPreview.remove();
 			}
 		}
-		if (optionContainer) {
-			optionContainer.style.display = 'block';
-		}
-	} else {
-		if (optionContainer) {
-			optionContainer.style.display = 'none';
-		}
-	}
+	};
 
-	/* Grade System */
-	const container = root.querySelector('.container');
-	if (item.enchantgrade) {
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g' + item.enchantgrade + '.bmp', data => {
-			if (container) {
-				container.style.backgroundImage = `url(${data})`;
-			}
-		});
-	} else {
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg.bmp', data => {
-			if (container) {
-				container.style.backgroundImage = `url(${data})`;
-			}
-		});
-	}
-
-	const descInner = root.querySelector('.description-inner');
-	if (descInner) {
-		const rawDesc = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
-		descInner.innerHTML = DB.formatMsgToHtml(DB.formatDescriptionTags(_escapeHTML(rawDesc)));
-	}
-
-	if (item.HireExpireDate) {
-		const dateText = DB.formatUnixDate(item.HireExpireDate);
-
-		// Get message and replace %s
-		let msg = DB.getMessage(1255).replace('%s', dateText);
-		msg = DB.formatMsgToHtml(msg);
-
-		if (descInner) {
-			const div = document.createElement('div');
-			div.innerHTML = msg;
-			descInner.insertBefore(div, descInner.firstChild);
-		}
-	}
-
-	// Transfer restrictions: a link under the description (2796) that, clicked,
-	// opens a small box beside the cursor listing them, as the official client does.
-	const moveInfoLines = it.moveInfo ? getMoveInfoLines(it.moveInfo) : [];
-	if (moveInfoLines.length && descInner) {
-		const label = document.createElement('span');
-		label.textContent = DB.getMessage(2796);
-		label.className = 'moveinfo-label';
-		label.addEventListener('mouseenter', () => Cursor.setType(Cursor.ACTION.CLICK));
-		label.addEventListener('mouseleave', () => Cursor.setType(Cursor.ACTION.DEFAULT));
-		label.addEventListener('click', event => showMoveInfoBox(moveInfoLines, event));
-		descInner.appendChild(label);
-	}
-
-	updatePreviewButton(item);
-
-	// Add view button (for cards)
-	addEvent(item);
-	let hideslots = false;
-
-	if (item.slot) {
-		switch (item.slot['card1']) {
-			case 0x00ff: // FORGE
-			case 0x00fe: // CREATE
-			case 0xff00: // PET
-				hideslots = true;
-				break;
-		}
-		switch (item.slot['card4']) {
-			case 0x1: //BELOVED PET
-				hideslots = true;
-				break;
-		}
-	}
-
-	const cardListParent = cardList ? cardList.parentElement : null;
-
-	switch (item.type) {
-		// Not an equipement = no card
-		default:
-			if (cardListParent) {
-				cardListParent.style.display = 'none';
-			}
-			break;
-
-		case ItemType.ARMOR:
-			// Pet Egg check for old versions (before ItemType.PETEGG existed)
-			if (DB.isPetEgg(item.ITID)) {
-				hideslots = true;
-			}
-		// falls through
-		case ItemType.WEAPON:
-		case ItemType.SHADOWGEAR: {
-			if (hideslots) {
-				if (cardListParent) {
-					cardListParent.style.display = 'none';
-				}
-				break;
-			}
-			const slotCount = it.slotCount || 0;
-
-			if (cardListParent) {
-				cardListParent.style.display = 'block';
-			}
-			if (cardList) {
-				cardList.innerHTML = '';
-			}
-
-			for (let i = 0; i < 4; ++i) {
-				addCard(cardList, (item.slot && item.slot['card' + (i + 1)]) || 0, i, slotCount);
-			}
-			if (!item.IsIdentified && cardListParent) {
-				cardListParent.style.display = 'none';
-			}
-			break;
-		}
-
-		case ItemType.PETEGG:
-			if (cardListParent) {
-				cardListParent.style.display = 'none';
-			}
-			break;
-	}
-
-	if (descInner) {
-		resize(descInner.offsetHeight + 45);
-	}
-};
-
-/**
- * Add a card into a slot
- *
- * @param {Element} cardList DOM element
- * @param {number} item id
- * @param {number} index
- * @param {number} slot count
- */
-function addCard(cardList, itemId, index, slotCount) {
-	let file,
-		name = '';
-	const card = DB.getItemInfo(itemId);
-
-	if (itemId && card) {
-		file = 'item/' + card.identifiedResourceName + '.bmp';
-		name = `<div class="name">${_escapeHTML(card.identifiedDisplayName)}</div>`;
-	} else if (index < slotCount) {
-		file = 'empty_card_slot.bmp';
-	} else {
-		file = 'basic_interface/coparison_disable_card_slot.bmp';
-	}
-
-	if (!cardList) {
-		return;
-	}
-
-	cardList.insertAdjacentHTML(
-		'beforeend',
-		`<div class="item" data-index="${index}"><div class="icon"></div>${name}</div>`
-	);
-
-	Client.loadFile(DB.INTERFACE_PATH + file, data => {
+	/**
+	 * Once append
+	 */
+	ItemInfo.onAppend = function onAppend() {
 		const root = ItemInfo.getRoot();
-		const element = root.querySelector(`.cardlist .item[data-index="${index}"] .icon`);
-		if (element) {
-			element.style.backgroundImage = `url(${data})`;
-
-			if (itemId && card) {
-				element.addEventListener('contextmenu', e => {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					ItemInfo.setItem({
-						ITID: itemId,
-						IsIdentified: true,
-						type: 6
-					});
-				});
-			}
+		const descInner = root.querySelector('.description-inner');
+		if (descInner) {
+			resize(descInner.offsetHeight + 45);
 		}
-	});
-}
+	};
 
-/**
- * Extend ItemInfo window size
- */
-function onResize() {
-	const top = ItemInfo._host.offsetTop;
-	let lastHeight = 0;
+	/**
+	 * Once removed from html
+	 */
+	ItemInfo.onRemove = function onRemove() {
+		this.uid = -1;
 
-	function resizing() {
-		// Screen distance to window distance (UI/UIScale.js)
-		const h = Math.floor((Mouse.screen.y - top) / ItemInfo.scale);
-		if (h === lastHeight) {
+		// Cleanup moveInfo tooltip & cursor
+		ItemInfo.hideMoveInfoTooltip();
+
+		// The compare and preview windows belong to the main item window
+		if (ItemInfo.isCardWindow) {
 			return;
-		}
-		resize(h);
-		lastHeight = h;
-	}
-
-	// Start resizing
-	const _Interval = setInterval(resizing, 30);
-
-	// Stop resizing on left click
-	const onMouseUp = event => {
-		if (event.which === 1) {
-			clearInterval(_Interval);
-			window.removeEventListener('mouseup', onMouseUp);
-		}
-	};
-	window.addEventListener('mouseup', onMouseUp);
-}
-
-/**
- * Extend ItemInfo window size
- *
- * @param {number} height
- */
-function resize(height) {
-	const root = ItemInfo.getRoot();
-	const container = root.querySelector('.container');
-	const description = root.querySelector('.description');
-	const descriptionInner = root.querySelector('.description-inner');
-	let containerHeight = height;
-	const minHeight = 140;
-	const innerH = descriptionInner ? descriptionInner.offsetHeight : 0;
-	const maxHeight = innerH + 45 > 140 ? Math.min(innerH + 45, 448) : 140;
-
-	if (containerHeight <= minHeight) {
-		containerHeight = minHeight;
-	}
-
-	if (containerHeight >= maxHeight) {
-		containerHeight = maxHeight;
-	}
-
-	if (container) {
-		container.style.height = `${containerHeight}px`;
-	}
-	if (description) {
-		description.style.height = `${containerHeight - 45}px`;
-	}
-}
-
-function addEvent(item) {
-	const root = ItemInfo.getRoot();
-	let event = root.querySelector('.event_view');
-	if (!event) {
-		if (!validateFieldsExist(event)) {
-			event = root.querySelector('.event_view');
-		}
-	}
-	if (!event) {
-		return;
-	}
-
-	const viewBtn = event.querySelector('.view');
-	if (viewBtn) {
-		viewBtn.style.display = 'none';
-	}
-	const canvases = event.querySelectorAll('canvas');
-	canvases.forEach(c => c.remove());
-
-	Renderer.stop(rendering);
-
-	switch (item.type) {
-		case ItemType.CARD:
-			if (viewBtn) {
-				viewBtn.style.display = 'block';
-			}
-			break;
-		case ItemType.ETC: {
-			const filenameBook = `data/book/${item.ITID}.txt`;
-			Client.loadFile(filenameBook, data => {
-				try {
-					MakeReadBook.startBook(data, item);
-				} catch (e) {
-					console.error('ItemInfo::addEvent() - startBook failed:', e.message);
-				}
-				eventsBooks();
-			});
-			break;
-		}
-		default:
-			if (viewBtn) {
-				viewBtn.style.display = 'none';
-			}
-			break;
-	}
-}
-
-function updatePreviewButton(item) {
-	const root = ItemInfo.getRoot();
-	const previewButton = root.querySelector('.btn_mounting');
-	if (!previewButton) {
-		return;
-	}
-
-	if (!canPreviewItem(item)) {
-		previewButton.style.display = 'none';
-		return;
-	}
-
-	previewButton.style.display = 'block';
-	// Remove old listener by cloning
-	const newBtn = previewButton.cloneNode(true);
-	previewButton.parentNode.replaceChild(newBtn, previewButton);
-	newBtn.addEventListener('click', e => {
-		e.stopImmediatePropagation();
-		toggleItemPreview(item);
-	});
-}
-
-function canPreviewItem(item) {
-	if (!item) {
-		return false;
-	}
-
-	const location = getPreviewLocation(item);
-	const previewLocations =
-		EquipLocation.HEAD_BOTTOM |
-		EquipLocation.HEAD_MID |
-		EquipLocation.HEAD_TOP |
-		EquipLocation.COSTUME_HEAD_BOTTOM |
-		EquipLocation.COSTUME_HEAD_MID |
-		EquipLocation.COSTUME_HEAD_TOP |
-		EquipLocation.COSTUME_ROBE;
-
-	if (!(location & previewLocations)) {
-		return false;
-	}
-
-	const it = DB.getItemInfo(item.ITID);
-	return getPreviewSpriteId(item, it) > 0;
-}
-
-function getPreviewLocation(item) {
-	if ('location' in item) {
-		return item.location;
-	}
-
-	if ('WearState' in item) {
-		return item.WearState;
-	}
-
-	if ('WearLocation' in item) {
-		return item.WearLocation;
-	}
-
-	return 0;
-}
-
-function getPreviewSpriteId(item, it) {
-	if (item && item.wItemSpriteNumber) {
-		return item.wItemSpriteNumber;
-	}
-
-	if (it && it.ClassNum) {
-		return it.ClassNum;
-	}
-
-	return 0;
-}
-
-function toggleItemPreview(item) {
-	if (
-		ItemPreview.ui &&
-		ItemPreview._host &&
-		ItemPreview._host.style.display !== 'none' &&
-		ItemPreview.uid === item.ITID
-	) {
-		ItemPreview.remove();
-		return;
-	}
-
-	ItemPreview.append();
-	ItemPreview.uid = item.ITID;
-	ItemPreview.setItem(item);
-}
-
-function eventsBooks() {
-	const root = ItemInfo.getRoot();
-	const event = root.querySelector('.event_view');
-	if (!event) {
-		return;
-	}
-
-	Client.getFiles(
-		['data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr', 'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'],
-		function (spr, act) {
-			try {
-				_sprite = new Sprite(spr);
-				_action = new Action(act);
-			} catch (e) {
-				console.error('Book::init() - ' + e.message);
-				return;
-			}
-			const canvas = _sprite.getCanvasFromFrame(0);
-			canvas.className = 'book_open event_add_cursor';
-			event.appendChild(canvas);
-
-			const bookOpen = root.querySelector('.book_open');
-			if (bookOpen) {
-				bookOpen.addEventListener('mouseover', e => {
-					e.stopImmediatePropagation();
-					const overlayOpen = root.querySelector('.overlay_open');
-					if (overlayOpen) {
-						overlayOpen.style.display = 'block';
-					}
-				});
-				bookOpen.addEventListener('mouseout', e => {
-					e.stopImmediatePropagation();
-					const overlayOpen = root.querySelector('.overlay_open');
-					if (overlayOpen) {
-						overlayOpen.style.display = 'none';
-					}
-				});
-				bookOpen.addEventListener('click', e => {
-					e.stopImmediatePropagation();
-					MakeReadBook.openBook();
-				});
-			}
-
-			// icon read book
-			const readCanvas = document.createElement('canvas');
-			readCanvas.width = 21;
-			readCanvas.height = 15;
-			readCanvas.className = 'book_read event_add_cursor';
-			event.appendChild(readCanvas);
-			_ctx = readCanvas.getContext('2d');
-
-			const bookRead = root.querySelector('.book_read');
-			if (bookRead) {
-				bookRead.addEventListener('mouseover', e => {
-					e.stopImmediatePropagation();
-					const overlayRead = root.querySelector('.overlay_read');
-					if (overlayRead) {
-						overlayRead.style.display = 'block';
-					}
-				});
-				bookRead.addEventListener('mouseout', e => {
-					e.stopImmediatePropagation();
-					const overlayRead = root.querySelector('.overlay_read');
-					if (overlayRead) {
-						overlayRead.style.display = 'none';
-					}
-				});
-				bookRead.addEventListener('click', e => {
-					e.stopImmediatePropagation();
-					MakeReadBook.highlighter();
-				});
-			}
-			Renderer.render(rendering);
-		}
-	);
-}
-
-/**
- * Rendering animation
- */
-const rendering = (function renderingClosure() {
-	const position = new Uint16Array([0, 0]);
-
-	return function render() {
-		const _entity = new Entity();
-		const action = _action.actions[_type];
-		const anim = Math.floor((Renderer.tick - _start) / action.delay);
-
-		const animation = action.animations[anim % action.animations.length];
-
-		let i, count;
-		count = animation.layers.length;
-
-		// Initialize context
-		SpriteRenderer.bind2DContext(_ctx, 10, 25);
-		_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
-
-		// Render layers
-		for (i = 0, count = animation.layers.length; i < count; ++i) {
-			_entity.renderLayer(animation.layers[i], _sprite, _sprite, 1.0, position, false);
-		}
-	};
-})();
-
-function validateFieldsExist(event) {
-	const root = ItemInfo.getRoot();
-
-	if (!event) {
-		const validExitElement =
-			'<div class="event_view">' +
-			'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>' +
-			'<span class="overlay_open">' +
-			DB.getMessage(1294) +
-			'</span>' +
-			'<span class="overlay_read">' +
-			DB.getMessage(1295) +
-			'</span>' +
-			'</div>';
-		const collection = root.querySelector('.collection');
-		if (collection) {
-			collection.insertAdjacentHTML('afterend', validExitElement);
-		}
-		return false;
-	}
-
-	if (!root.querySelector('.overlay_open') && !root.querySelector('.overlay_read')) {
-		event.insertAdjacentHTML(
-			'beforeend',
-			'<span class="overlay_open">' +
-				DB.getMessage(1294) +
-				'</span>' +
-				'<span class="overlay_read">' +
-				DB.getMessage(1295) +
-				'</span>'
-		);
-	}
-
-	if (!event.querySelector('button')) {
-		event.insertAdjacentHTML(
-			'beforeend',
-			'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'
-		);
-	}
-
-	return true;
-}
-
-/**
- * A function that handles previewing an item.
- *
- * @param {object} pkt - The packet containing information about the item
- * @return {boolean} Indicates success or failure of the preview action
- */
-function onItemPreview(pkt) {
-	if (pkt) {
-		const item = Inventory.getItemByIndex(pkt.index);
-
-		if (!item) {
-			return false;
 		}
 
 		// Remove existing compare UI if it's currently displayed
 		if (ItemCompare.ui) {
 			ItemCompare.remove();
 		}
+		if (ItemPreview.ui) {
+			ItemPreview.remove();
+		}
+		if (ItemInfoCard.__active) {
+			ItemInfoCard.remove();
+		}
+	};
 
-		// Don't add the same UI twice, remove it
-		if (ItemInfo.uid === item.ITID) {
-			ItemInfo.remove();
-			if (ItemCompare.ui) {
-				ItemCompare.remove();
+	/**
+	 * Initialize UI
+	 */
+	ItemInfo.init = function init() {
+		const root = ItemInfo.getRoot();
+
+		this._host.style.top = '200px';
+		this._host.style.left = ItemInfo.isCardWindow ? '780px' : '480px';
+
+		const extendBtn = root.querySelector('.extend');
+		if (extendBtn) {
+			extendBtn.addEventListener('mousedown', onResize);
+		}
+
+		const closeBtn = root.querySelector('.close');
+		if (closeBtn) {
+			closeBtn.addEventListener('mousedown', e => {
+				e.stopImmediatePropagation();
+			});
+			closeBtn.addEventListener('click', () => {
+				this.remove();
+				if (ItemCompare.ui && !ItemInfo.isCardWindow) {
+					ItemCompare.remove();
+				}
+			});
+		}
+
+		// Ask to see card.
+		const viewBtn = root.querySelector('.view');
+		if (viewBtn) {
+			viewBtn.addEventListener('click', () => {
+				CardIllustration.append();
+				CardIllustration.setCard(this.item);
+			});
+		}
+
+		// A place named in the description opens the navigation to it, a tip
+		// the tip box on it
+		const descInner = root.querySelector('.description-inner');
+		if (descInner) {
+			descInner.addEventListener('click', e => {
+				const tipLink = e.target.closest('.tipbox-link');
+				if (tipLink) {
+					TipBox.open(Number(tipLink.dataset.tipboxId));
+					return;
+				}
+				const naviLink = e.target.closest('.navi-link');
+				if (!naviLink || !naviLink.dataset.naviInfo) {
+					return;
+				}
+				const naviInfo = naviLink.dataset.naviInfo;
+				if (Navigation.uid === naviInfo && Navigation._host && Navigation._host.style.display !== 'none') {
+					Navigation.hide();
+					return;
+				}
+				Navigation.show();
+				Navigation.uid = naviInfo;
+				Navigation.setNaviInfo(naviInfo, naviLink.dataset.naviName);
+			});
+		}
+
+		// A click on the transfer restrictions box closes it
+		const moveInfoBox = root.querySelector('.moveinfo-box');
+		if (moveInfoBox) {
+			moveInfoBox.addEventListener('click', () => ItemInfo.hideMoveInfoTooltip());
+		}
+
+		this.draggable('.title');
+	};
+
+	/**
+	 * Bind component
+	 *
+	 * @param {object} item
+	 */
+	ItemInfo.setItem = function setItem(item) {
+		const it = DB.getItemInfo(item.ITID);
+		const root = ItemInfo.getRoot();
+		const cardList = root.querySelector('.cardlist .border');
+
+		// The last item's restrictions box is not this item's.
+		ItemInfo.hideMoveInfoTooltip();
+		const optionContainer = root.querySelector('.option-container');
+
+		this.item = it;
+		// The window is reused from item to item: clear the last item's picture, so
+		// one this client's data lacks shows none rather than the previous item's,
+		// and drop an answer that arrives after another item has been opened.
+		const collectionPath =
+			DB.INTERFACE_PATH +
+			'collection/' +
+			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+			'.bmp';
+		const collection = root.querySelector('.collection');
+		if (collection) {
+			collection.style.backgroundImage = '';
+			collection.dataset.src = collectionPath;
+		}
+		Client.loadFile(collectionPath, data => {
+			if (collection && collection.dataset.src === collectionPath) {
+				collection.style.backgroundImage = `url(${data})`;
+			}
+		});
+
+		const itemName = DB.getItemName(item, { showItemOptions: false });
+
+		// Damaged status
+		const title = root.querySelector('.title');
+		if (title) {
+			if (item.IsDamaged) {
+				title.classList.add('damaged');
+			} else {
+				title.classList.remove('damaged');
+			}
+			title.innerHTML = sanitizeHtml(itemName);
+		}
+
+		if (item.Options && item.IsIdentified) {
+			//Clear all option list
+			if (optionContainer) {
+				optionContainer.innerHTML = '';
+			}
+
+			//Loop to Show Options
+			for (let i = 1; i <= 5; i++) {
+				if (item.Options[i].index > 0) {
+					const randomOptionName = DB.getOptionName(item.Options[i].index);
+					const optionList =
+						'<div class="optionlist">' +
+						'<div class="border">' +
+						randomOptionName.replace('%d', item.Options[i].value).replace('%%', '%') +
+						'</div>' +
+						'</div>';
+					if (optionContainer) {
+						optionContainer.insertAdjacentHTML('beforeend', optionList);
+					}
+				}
+			}
+			if (optionContainer) {
+				optionContainer.style.display = 'block';
+			}
+		} else {
+			if (optionContainer) {
+				optionContainer.style.display = 'none';
+			}
+		}
+
+		/* Grade System */
+		const container = root.querySelector('.container');
+		if (item.enchantgrade) {
+			Client.loadFile(
+				DB.INTERFACE_PATH + 'basic_interface/collection_bg_g' + item.enchantgrade + '.bmp',
+				data => {
+					if (container) {
+						container.style.backgroundImage = `url(${data})`;
+					}
+				}
+			);
+		} else {
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg.bmp', data => {
+				if (container) {
+					container.style.backgroundImage = `url(${data})`;
+				}
+			});
+		}
+
+		const descInner = root.querySelector('.description-inner');
+		if (descInner) {
+			const rawDesc = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
+			descInner.innerHTML = DB.formatMsgToHtml(DB.formatDescriptionTags(_escapeHTML(rawDesc)));
+		}
+
+		if (item.HireExpireDate) {
+			const dateText = DB.formatUnixDate(item.HireExpireDate);
+
+			// Get message and replace %s
+			let msg = DB.getMessage(1255).replace('%s', dateText);
+			msg = DB.formatMsgToHtml(msg);
+
+			if (descInner) {
+				const div = document.createElement('div');
+				div.innerHTML = msg;
+				descInner.insertBefore(div, descInner.firstChild);
+			}
+		}
+
+		// Transfer restrictions: a link under the description (2796) that, clicked,
+		// opens a small box beside the cursor listing them, as the official client does.
+		const moveInfoLines = it.moveInfo ? getMoveInfoLines(it.moveInfo) : [];
+		if (moveInfoLines.length && descInner) {
+			const label = document.createElement('span');
+			label.textContent = DB.getMessage(2796);
+			label.className = 'moveinfo-label';
+			label.addEventListener('mouseenter', () => Cursor.setType(Cursor.ACTION.CLICK));
+			label.addEventListener('mouseleave', () => Cursor.setType(Cursor.ACTION.DEFAULT));
+			label.addEventListener('click', event => showMoveInfoBox(moveInfoLines, event));
+			descInner.appendChild(label);
+		}
+
+		updatePreviewButton(item);
+
+		// Add view button (for cards)
+		addEvent(item);
+		let hideslots = false;
+
+		if (item.slot) {
+			switch (item.slot['card1']) {
+				case 0x00ff: // FORGE
+				case 0x00fe: // CREATE
+				case 0xff00: // PET
+					hideslots = true;
+					break;
+			}
+			switch (item.slot['card4']) {
+				case 0x1: //BELOVED PET
+					hideslots = true;
+					break;
+			}
+		}
+
+		const cardListParent = cardList ? cardList.parentElement : null;
+
+		switch (item.type) {
+			// Not an equipement = no card
+			default:
+				if (cardListParent) {
+					cardListParent.style.display = 'none';
+				}
+				break;
+
+			case ItemType.ARMOR:
+				// Pet Egg check for old versions (before ItemType.PETEGG existed)
+				if (DB.isPetEgg(item.ITID)) {
+					hideslots = true;
+				}
+			// falls through
+			case ItemType.WEAPON:
+			case ItemType.SHADOWGEAR: {
+				if (hideslots) {
+					if (cardListParent) {
+						cardListParent.style.display = 'none';
+					}
+					break;
+				}
+				const slotCount = it.slotCount || 0;
+
+				if (cardListParent) {
+					cardListParent.style.display = 'block';
+				}
+				if (cardList) {
+					cardList.innerHTML = '';
+				}
+
+				for (let i = 0; i < 4; ++i) {
+					addCard(cardList, (item.slot && item.slot['card' + (i + 1)]) || 0, i, slotCount);
+				}
+				if (!item.IsIdentified && cardListParent) {
+					cardListParent.style.display = 'none';
+				}
+				break;
+			}
+
+			case ItemType.PETEGG:
+				if (cardListParent) {
+					cardListParent.style.display = 'none';
+				}
+				break;
+		}
+
+		if (descInner) {
+			resize(descInner.offsetHeight + 45);
+		}
+	};
+
+	/**
+	 * Add a card into a slot
+	 *
+	 * @param {Element} cardList DOM element
+	 * @param {number} item id
+	 * @param {number} index
+	 * @param {number} slot count
+	 */
+	function addCard(cardList, itemId, index, slotCount) {
+		let file,
+			name = '';
+		const card = DB.getItemInfo(itemId);
+
+		if (itemId && card) {
+			file = 'item/' + card.identifiedResourceName + '.bmp';
+			name = `<div class="name">${_escapeHTML(card.identifiedDisplayName)}</div>`;
+		} else if (index < slotCount) {
+			file = 'empty_card_slot.bmp';
+		} else {
+			file = 'basic_interface/coparison_disable_card_slot.bmp';
+		}
+
+		if (!cardList) {
+			return;
+		}
+
+		cardList.insertAdjacentHTML(
+			'beforeend',
+			`<div class="item" data-index="${index}"><div class="icon"></div>${name}</div>`
+		);
+
+		Client.loadFile(DB.INTERFACE_PATH + file, data => {
+			const root = ItemInfo.getRoot();
+			const element = root.querySelector(`.cardlist .item[data-index="${index}"] .icon`);
+			if (element) {
+				element.style.backgroundImage = `url(${data})`;
+
+				if (itemId && card) {
+					element.addEventListener('contextmenu', e => {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						// The official window opens the card in a window of its own
+						// (UIItemCollectionWnd vfunc32: window 0x52), keeping this item.
+						showCardInfo(itemId, ItemInfo);
+					});
+				}
+			}
+		});
+	}
+
+	/**
+	 * Extend ItemInfo window size
+	 */
+	function onResize() {
+		const top = ItemInfo._host.offsetTop;
+		let lastHeight = 0;
+
+		function resizing() {
+			// Screen distance to window distance (UI/UIScale.js)
+			const h = Math.floor((Mouse.screen.y - top) / ItemInfo.scale);
+			if (h === lastHeight) {
+				return;
+			}
+			resize(h);
+			lastHeight = h;
+		}
+
+		// Start resizing
+		const _Interval = setInterval(resizing, 30);
+
+		// Stop resizing on left click
+		const onMouseUp = event => {
+			if (event.which === 1) {
+				clearInterval(_Interval);
+				window.removeEventListener('mouseup', onMouseUp);
+			}
+		};
+		window.addEventListener('mouseup', onMouseUp);
+	}
+
+	/**
+	 * Extend ItemInfo window size
+	 *
+	 * @param {number} height
+	 */
+	function resize(height) {
+		const root = ItemInfo.getRoot();
+		const container = root.querySelector('.container');
+		const description = root.querySelector('.description');
+		const descriptionInner = root.querySelector('.description-inner');
+		let containerHeight = height;
+		const minHeight = 140;
+		const innerH = descriptionInner ? descriptionInner.offsetHeight : 0;
+		const maxHeight = innerH + 45 > 140 ? Math.min(innerH + 45, 448) : 140;
+
+		if (containerHeight <= minHeight) {
+			containerHeight = minHeight;
+		}
+
+		if (containerHeight >= maxHeight) {
+			containerHeight = maxHeight;
+		}
+
+		if (container) {
+			container.style.height = `${containerHeight}px`;
+		}
+		if (description) {
+			description.style.height = `${containerHeight - 45}px`;
+		}
+	}
+
+	function addEvent(item) {
+		const root = ItemInfo.getRoot();
+		let event = root.querySelector('.event_view');
+		if (!event) {
+			if (!validateFieldsExist(event)) {
+				event = root.querySelector('.event_view');
+			}
+		}
+		if (!event) {
+			return;
+		}
+
+		const viewBtn = event.querySelector('.view');
+		if (viewBtn) {
+			viewBtn.style.display = 'none';
+		}
+		const canvases = event.querySelectorAll('canvas');
+		canvases.forEach(c => c.remove());
+
+		Renderer.stop(rendering);
+
+		switch (item.type) {
+			case ItemType.CARD:
+				if (viewBtn) {
+					viewBtn.style.display = 'block';
+				}
+				break;
+			case ItemType.ETC: {
+				const filenameBook = `data/book/${item.ITID}.txt`;
+				Client.loadFile(filenameBook, data => {
+					try {
+						MakeReadBook.startBook(data, item);
+					} catch (e) {
+						console.error('ItemInfo::addEvent() - startBook failed:', e.message);
+					}
+					eventsBooks();
+				});
+				break;
+			}
+			default:
+				if (viewBtn) {
+					viewBtn.style.display = 'none';
+				}
+				break;
+		}
+	}
+
+	function updatePreviewButton(item) {
+		const root = ItemInfo.getRoot();
+		const previewButton = root.querySelector('.btn_mounting');
+		if (!previewButton) {
+			return;
+		}
+
+		if (!canPreviewItem(item)) {
+			previewButton.style.display = 'none';
+			return;
+		}
+
+		previewButton.style.display = 'block';
+		// Remove old listener by cloning
+		const newBtn = previewButton.cloneNode(true);
+		previewButton.parentNode.replaceChild(newBtn, previewButton);
+		newBtn.addEventListener('click', e => {
+			e.stopImmediatePropagation();
+			toggleItemPreview(item);
+		});
+	}
+
+	function canPreviewItem(item) {
+		if (!item) {
+			return false;
+		}
+
+		const location = getPreviewLocation(item);
+		const previewLocations =
+			EquipLocation.HEAD_BOTTOM |
+			EquipLocation.HEAD_MID |
+			EquipLocation.HEAD_TOP |
+			EquipLocation.COSTUME_HEAD_BOTTOM |
+			EquipLocation.COSTUME_HEAD_MID |
+			EquipLocation.COSTUME_HEAD_TOP |
+			EquipLocation.COSTUME_ROBE;
+
+		if (!(location & previewLocations)) {
+			return false;
+		}
+
+		const it = DB.getItemInfo(item.ITID);
+		return getPreviewSpriteId(item, it) > 0;
+	}
+
+	function getPreviewLocation(item) {
+		if ('location' in item) {
+			return item.location;
+		}
+
+		if ('WearState' in item) {
+			return item.WearState;
+		}
+
+		if ('WearLocation' in item) {
+			return item.WearLocation;
+		}
+
+		return 0;
+	}
+
+	function getPreviewSpriteId(item, it) {
+		if (item && item.wItemSpriteNumber) {
+			return item.wItemSpriteNumber;
+		}
+
+		if (it && it.ClassNum) {
+			return it.ClassNum;
+		}
+
+		return 0;
+	}
+
+	function toggleItemPreview(item) {
+		if (
+			ItemPreview.ui &&
+			ItemPreview._host &&
+			ItemPreview._host.style.display !== 'none' &&
+			ItemPreview.uid === item.ITID
+		) {
+			ItemPreview.remove();
+			return;
+		}
+
+		ItemPreview.append();
+		ItemPreview.uid = item.ITID;
+		ItemPreview.setItem(item);
+	}
+
+	function eventsBooks() {
+		const root = ItemInfo.getRoot();
+		const event = root.querySelector('.event_view');
+		if (!event) {
+			return;
+		}
+
+		Client.getFiles(
+			['data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr', 'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'],
+			function (spr, act) {
+				try {
+					_sprite = new Sprite(spr);
+					_action = new Action(act);
+				} catch (e) {
+					console.error('Book::init() - ' + e.message);
+					return;
+				}
+				const canvas = _sprite.getCanvasFromFrame(0);
+				canvas.className = 'book_open event_add_cursor';
+				event.appendChild(canvas);
+
+				const bookOpen = root.querySelector('.book_open');
+				if (bookOpen) {
+					bookOpen.addEventListener('mouseover', e => {
+						e.stopImmediatePropagation();
+						const overlayOpen = root.querySelector('.overlay_open');
+						if (overlayOpen) {
+							overlayOpen.style.display = 'block';
+						}
+					});
+					bookOpen.addEventListener('mouseout', e => {
+						e.stopImmediatePropagation();
+						const overlayOpen = root.querySelector('.overlay_open');
+						if (overlayOpen) {
+							overlayOpen.style.display = 'none';
+						}
+					});
+					bookOpen.addEventListener('click', e => {
+						e.stopImmediatePropagation();
+						MakeReadBook.openBook();
+					});
+				}
+
+				// icon read book
+				const readCanvas = document.createElement('canvas');
+				readCanvas.width = 21;
+				readCanvas.height = 15;
+				readCanvas.className = 'book_read event_add_cursor';
+				event.appendChild(readCanvas);
+				_ctx = readCanvas.getContext('2d');
+
+				const bookRead = root.querySelector('.book_read');
+				if (bookRead) {
+					bookRead.addEventListener('mouseover', e => {
+						e.stopImmediatePropagation();
+						const overlayRead = root.querySelector('.overlay_read');
+						if (overlayRead) {
+							overlayRead.style.display = 'block';
+						}
+					});
+					bookRead.addEventListener('mouseout', e => {
+						e.stopImmediatePropagation();
+						const overlayRead = root.querySelector('.overlay_read');
+						if (overlayRead) {
+							overlayRead.style.display = 'none';
+						}
+					});
+					bookRead.addEventListener('click', e => {
+						e.stopImmediatePropagation();
+						MakeReadBook.highlighter();
+					});
+				}
+				Renderer.render(rendering);
+			}
+		);
+	}
+
+	/**
+	 * Rendering animation
+	 */
+	const rendering = (function renderingClosure() {
+		const position = new Uint16Array([0, 0]);
+
+		return function render() {
+			const _entity = new Entity();
+			const action = _action.actions[_type];
+			const anim = Math.floor((Renderer.tick - _start) / action.delay);
+
+			const animation = action.animations[anim % action.animations.length];
+
+			let i, count;
+			count = animation.layers.length;
+
+			// Initialize context
+			SpriteRenderer.bind2DContext(_ctx, 10, 25);
+			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+
+			// Render layers
+			for (i = 0, count = animation.layers.length; i < count; ++i) {
+				_entity.renderLayer(animation.layers[i], _sprite, _sprite, 1.0, position, false);
+			}
+		};
+	})();
+
+	function validateFieldsExist(event) {
+		const root = ItemInfo.getRoot();
+
+		if (!event) {
+			const validExitElement =
+				'<div class="event_view">' +
+				'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>' +
+				'<span class="overlay_open">' +
+				DB.getMessage(1294) +
+				'</span>' +
+				'<span class="overlay_read">' +
+				DB.getMessage(1295) +
+				'</span>' +
+				'</div>';
+			const collection = root.querySelector('.collection');
+			if (collection) {
+				collection.insertAdjacentHTML('afterend', validExitElement);
 			}
 			return false;
 		}
 
-		// Add ui to window
-		ItemInfo.append();
-		ItemInfo.uid = item.ITID;
-		ItemInfo.setItem(item);
+		if (!root.querySelector('.overlay_open') && !root.querySelector('.overlay_read')) {
+			event.insertAdjacentHTML(
+				'beforeend',
+				'<span class="overlay_open">' +
+					DB.getMessage(1294) +
+					'</span>' +
+					'<span class="overlay_read">' +
+					DB.getMessage(1295) +
+					'</span>'
+			);
+		}
 
-		// Check if there is an equipped item in the same location
-		const compareItem = Equipment.isInEquipList(item.location);
+		if (!event.querySelector('button')) {
+			event.insertAdjacentHTML(
+				'beforeend',
+				'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'
+			);
+		}
 
-		// If a comparison item is found, display comparison
-		if (compareItem && Inventory.itemcomp) {
-			ItemCompare.prepare();
-			ItemCompare.append();
-			ItemCompare.uid = compareItem.ITID;
-			ItemCompare.setItem(compareItem);
+		return true;
+	}
+
+	/**
+	 * A function that handles previewing an item.
+	 *
+	 * @param {object} pkt - The packet containing information about the item
+	 * @return {boolean} Indicates success or failure of the preview action
+	 */
+	function onItemPreview(pkt) {
+		if (pkt) {
+			const item = Inventory.getItemByIndex(pkt.index);
+
+			if (!item) {
+				return false;
+			}
+
+			// Remove existing compare UI if it's currently displayed
+			if (ItemCompare.ui) {
+				ItemCompare.remove();
+			}
+
+			// Don't add the same UI twice, remove it
+			if (ItemInfo.uid === item.ITID) {
+				ItemInfo.remove();
+				if (ItemCompare.ui) {
+					ItemCompare.remove();
+				}
+				return false;
+			}
+
+			// Add ui to window
+			ItemInfo.append();
+			ItemInfo.uid = item.ITID;
+			ItemInfo.setItem(item);
+
+			// Check if there is an equipped item in the same location
+			const compareItem = Equipment.isInEquipList(item.location);
+
+			// If a comparison item is found, display comparison
+			if (compareItem && Inventory.itemcomp) {
+				ItemCompare.prepare();
+				ItemCompare.append();
+				ItemCompare.uid = compareItem.ITID;
+				ItemCompare.setItem(compareItem);
+			}
 		}
 	}
-}
 
-/**
- * The restriction messages for an item's move info
- *
- * @param {object} moveInfo - from data/ItemMoveInfoV5.txt
- * @returns {Array<string>} one message per restriction, in the client's order
- */
-function getMoveInfoLines(moveInfo) {
-	return MOVE_INFO_MESSAGES.filter(entry => moveInfo[entry.key] === true).map(entry => DB.getMessage(entry.msgId));
-}
-
-/**
- * Open the restrictions box beside the cursor. The official client puts its
- * top-left 26px right of the pointer, level with it; a second click on the
- * link moves the box rather than opening another.
- *
- * @param {Array<string>} lines
- * @param {MouseEvent} event - the click on the link
- */
-function showMoveInfoBox(lines, event) {
-	const box = ItemInfo.getRoot().querySelector('.moveinfo-box');
-	if (!box) {
-		return;
+	/**
+	 * The restriction messages for an item's move info
+	 *
+	 * @param {object} moveInfo - from data/ItemMoveInfoV5.txt
+	 * @returns {Array<string>} one message per restriction, in the client's order
+	 */
+	function getMoveInfoLines(moveInfo) {
+		return MOVE_INFO_MESSAGES.filter(entry => moveInfo[entry.key] === true).map(entry =>
+			DB.getMessage(entry.msgId)
+		);
 	}
 
-	box.replaceChildren(
-		...lines.map(text => {
-			const line = document.createElement('div');
-			line.textContent = text;
-			return line;
-		})
-	);
+	/**
+	 * Open the restrictions box beside the cursor. The official client puts its
+	 * top-left 26px right of the pointer, level with it; a second click on the
+	 * link moves the box rather than opening another.
+	 *
+	 * @param {Array<string>} lines
+	 * @param {MouseEvent} event - the click on the link
+	 */
+	function showMoveInfoBox(lines, event) {
+		const box = ItemInfo.getRoot().querySelector('.moveinfo-box');
+		if (!box) {
+			return;
+		}
 
-	box.style.display = 'block';
+		box.replaceChildren(
+			...lines.map(text => {
+				const line = document.createElement('div');
+				line.textContent = text;
+				return line;
+			})
+		);
 
-	// Place it on screen first. Near the right edge it goes to the pointer's
-	// left instead, so it never covers the link; near the bottom it moves up.
-	const WIDTH = Renderer.width || window.innerWidth;
-	const HEIGHT = Renderer.height || window.innerHeight;
-	const { width, height } = box.getBoundingClientRect();
-	let x = event.clientX + 26;
-	if (x + width > WIDTH) {
-		x = event.clientX - 26 - width;
+		box.style.display = 'block';
+
+		// Place it on screen first. Near the right edge it goes to the pointer's
+		// left instead, so it never covers the link; near the bottom it moves up.
+		const WIDTH = Renderer.width || window.innerWidth;
+		const HEIGHT = Renderer.height || window.innerHeight;
+		const { width, height } = box.getBoundingClientRect();
+		let x = event.clientX + 26;
+		if (x + width > WIDTH) {
+			x = event.clientX - 26 - width;
+		}
+		x = Math.max(0, Math.min(x, WIDTH - width));
+		const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
+
+		// The box lives inside the window, which a plugin may draw scaled: turn
+		// the screen position into a window one.
+		const rect = ItemInfo._host.getBoundingClientRect();
+		const scale = ItemInfo.scale || 1;
+		box.style.left = `${(x - rect.left) / scale}px`;
+		box.style.top = `${(y - rect.top) / scale}px`;
 	}
-	x = Math.max(0, Math.min(x, WIDTH - width));
-	const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
 
-	// The box lives inside the window, which a plugin may draw scaled: turn
-	// the screen position into a window one.
-	const rect = ItemInfo._host.getBoundingClientRect();
-	const scale = ItemInfo.scale || 1;
-	box.style.left = `${(x - rect.left) / scale}px`;
-	box.style.top = `${(y - rect.top) / scale}px`;
+	/**
+	 * Close the restrictions box and restore the cursor.
+	 * Called when the window closes or shows another item.
+	 */
+	ItemInfo.hideMoveInfoTooltip = function hideMoveInfoTooltip() {
+		const box = ItemInfo.getRoot?.()?.querySelector('.moveinfo-box');
+		if (box) {
+			box.style.display = 'none';
+		}
+		Cursor.setType(Cursor.ACTION.DEFAULT);
+	};
+
+	ItemInfo.onItemPreview = onItemPreview;
+
+	return ItemInfo;
 }
-
-/**
- * Close the restrictions box and restore the cursor.
- * Called when the window closes or shows another item.
- */
-ItemInfo.hideMoveInfoTooltip = function hideMoveInfoTooltip() {
-	const box = ItemInfo.getRoot?.()?.querySelector('.moveinfo-box');
-	if (box) {
-		box.style.display = 'none';
-	}
-	Cursor.setType(Cursor.ACTION.DEFAULT);
-};
 
 /**
  * Packet Hooks to functions
  */
-Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, onItemPreview);
+const ItemInfo = createItemInfo('ItemInfo', false);
+const ItemInfoCard = createItemInfo('ItemInfoCard', true);
+
+/**
+ * Show a card in the card window, beside the window it was right-clicked in
+ * (the item window, the compare window, or the card window itself). From the
+ * compare window it goes past the item window too, so it covers neither.
+ *
+ * @param {number} itemId card id
+ * @param {GUIComponent} [from]
+ */
+export function showCardInfo(itemId, from) {
+	const opening = !ItemInfoCard.__active;
+	ItemInfoCard.append();
+	ItemInfoCard.uid = itemId;
+	ItemInfoCard.setItem({ ITID: itemId, IsIdentified: true, type: 6 });
+	if (!opening || !from || from === ItemInfoCard || !from._host) {
+		return;
+	}
+	const rects = [from._host.getBoundingClientRect()];
+	if (from !== ItemInfo && ItemInfo.__active && ItemInfo._host) {
+		rects.push(ItemInfo._host.getBoundingClientRect());
+	}
+	const right = Math.max(...rects.map(rect => rect.right));
+	const leftEdge = Math.min(...rects.map(rect => rect.left));
+	const width = ItemInfoCard._host.getBoundingClientRect().width || rects[0].width;
+	const left = right + 4 + width <= Renderer.width ? right + 4 : Math.max(0, leftEdge - 4 - width);
+	ItemInfoCard._host.style.left = `${left}px`;
+	ItemInfoCard._host.style.top = `${Math.max(0, rects[0].top)}px`;
+}
+
+Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, ItemInfo.onItemPreview);
 
 /**
  * Create component and export it
  */
+UIManager.addComponent(ItemInfoCard);
+export { ItemInfoCard };
 export default UIManager.addComponent(ItemInfo);
