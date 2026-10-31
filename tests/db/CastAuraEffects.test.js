@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fixedCastAuras } from '../../src/DB/Skills/CastAuraRule.js';
+import { fixedCastAura } from '../../src/DB/Skills/CastAuraRule.js';
 
 // The aura a caster stands in while a skill with a cast time charges: one per
 // element (Entity.js, onEntityCastSkill). Each grows over its first second and
@@ -49,14 +49,14 @@ describe('cast auras', () => {
 	// kRO 2025-07-16 picker 0xd85467: a skill whose own aura is 12 shows the element aura for elements 1-6.
 	it('turns a fixed aura 12 into the element aura', () => {
 		// Dragon Breath (castAuraEffectId 12) cast as fire (3): the fire aura 55
-		expect(fixedCastAuras(12, 3, 55)).toEqual([55]);
+		expect(fixedCastAura(12, 3, 55)).toBe(55);
 		// neutral and shadow keep 12
-		expect(fixedCastAuras(12, 0, 12)).toEqual([12]);
-		expect(fixedCastAuras(12, 7, 454)).toEqual([12]);
-		// other auras and lists
-		expect(fixedCastAuras(58, 3, 55)).toEqual([58]);
-		expect(fixedCastAuras([12, 441], 1, 54)).toEqual([54, 441]);
+		expect(fixedCastAura(12, 0, 12)).toBe(12);
+		expect(fixedCastAura(12, 7, 454)).toBe(12);
+		// other auras
+		expect(fixedCastAura(58, 3, 55)).toBe(58);
+		expect(fixedCastAura(441, 1, 54)).toBe(441);
 		const entity = readFileSync(join(process.cwd(), 'src/Engine/MapEngine/Entity.js'), 'utf8');
-		expect(entity).toContain('fixedCastAuras(castSkill.castAuraEffectId, pkt.property, EF_Init_Par.effectId)');
+		expect(entity).toContain('effectId = fixedCastAura(effectId, pkt.property, EF_Init_Par.effectId);');
 	});
 });
