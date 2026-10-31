@@ -345,18 +345,25 @@ PetInformations.reqUnEquipPet = function reqUnEquipPet() {
 	Network.sendPacket(pkt);
 };
 
+/** @var {GUIComponent|null} the rename question, while it is open */
+let _renamePrompt = null;
+
 /**
  * Rename QPet
  *
  * @param {string} new pet name
  */
 PetInformations.reqNameEdit = function reqNameEdit(name) {
+	// Enter in the name box while the question is open must not ask again.
+	if (_renamePrompt?._host?.isConnected) {
+		return;
+	}
 	// A pet is renamed once, so the official client asks first (UIPetInfoWnd, msgstringtable 2931).
 	const text = DB.getMessage(2931, 'Pet name will be changed to ^0000ff%s^000000, do you want to continue?').replace(
 		'%s',
-		name
+		() => name
 	);
-	UIManager.showPromptBox(text, 'ok', 'cancel', () => {
+	_renamePrompt = UIManager.showPromptBox(text, 'ok', 'cancel', () => {
 		const pkt = new PACKET.CZ.RENAME_PET();
 		pkt.szName = name;
 		Network.sendPacket(pkt);

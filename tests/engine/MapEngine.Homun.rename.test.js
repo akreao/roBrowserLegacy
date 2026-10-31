@@ -5,13 +5,15 @@
  */
 import { expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ sent: [], prompt: vi.fn() }));
+const mocks = vi.hoisted(() => ({ sent: [], prompt: vi.fn(), messages: {} }));
 
 vi.mock('Network/NetworkManager.js', () => ({
 	default: { hookPacket: vi.fn(), sendPacket: pkt => mocks.sent.push(pkt) }
 }));
 vi.mock('DB/DBManager.js', () => ({
-	default: { getMessage: (id, defaultText) => (defaultText !== undefined ? defaultText : 'NO MSG ' + id) }
+	default: {
+		getMessage: (id, defaultText) => mocks.messages[id] ?? (defaultText !== undefined ? defaultText : 'NO MSG ' + id)
+	}
 }));
 vi.mock('UI/UIManager.js', () => ({ default: { showPromptBox: mocks.prompt } }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({ default: { addText: vi.fn(), TYPE: {}, FILTER: {} } }));
@@ -34,4 +36,26 @@ it('asks before sending the new name and sends it on OK', () => {
 	expect(mocks.sent).toHaveLength(1);
 	expect(mocks.sent[0]).toBeInstanceOf(PACKET.CZ.RENAME_MER);
 	expect(mocks.sent[0].name).toBe('Lif');
+});
+
+it('does not ask twice while the question is open', () => {
+	mocks.prompt.mockReset();
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	mocks.prompt.mockReturnValue({ _host: host });
+
+	HomunInformations.reqNameEdit('Amistr');
+	HomunInformations.reqNameEdit('Amistr');
+	expect(mocks.prompt).toHaveBeenCalledTimes(1);
+
+	host.remove();
+	HomunInformations.reqNameEdit('Amistr');
+	expect(mocks.prompt).toHaveBeenCalledTimes(2);
+});
+
+it('puts the name into a translated message', () => {
+	mocks.prompt.mockReset();
+	mocks.messages[2977] = 'Renommer en %s ?';
+	HomunInformations.reqNameEdit('Vanil$&');
+	expect(mocks.prompt.mock.calls[0][0]).toBe('Renommer en Vanil$& ?');
 });

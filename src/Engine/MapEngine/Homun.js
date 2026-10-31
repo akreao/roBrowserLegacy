@@ -304,18 +304,25 @@ HomunInformations.reqMoveTo = function reqMoveTo(GID, x = 0, y = 0) {
 	Network.sendPacket(pkt);
 };
 
+/** @var {GUIComponent|null} the rename question, while it is open */
+let _renamePrompt = null;
+
 /**
  * Rename QHomunculus
  *
  * @param {string} new homunculus name
  */
 HomunInformations.reqNameEdit = function reqNameEdit(name) {
+	// Enter in the name box while the question is open must not ask again.
+	if (_renamePrompt?._host?.isConnected) {
+		return;
+	}
 	// A homunculus is renamed once, so the official client asks first (UIHomunInfoWnd, msgstringtable 2977).
 	const text = DB.getMessage(
 		2977,
 		"Are you sure you want to change your Homunculus's name to ^0000ff%s^000000?"
-	).replace('%s', name);
-	UIManager.showPromptBox(text, 'ok', 'cancel', () => {
+	).replace('%s', () => name);
+	_renamePrompt = UIManager.showPromptBox(text, 'ok', 'cancel', () => {
 		const pkt = new PACKET.CZ.RENAME_MER();
 		pkt.name = name;
 		Network.sendPacket(pkt);
