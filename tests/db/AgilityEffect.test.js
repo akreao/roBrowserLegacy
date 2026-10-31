@@ -48,7 +48,7 @@ describe('Increase / Decrease AGI', () => {
 	});
 
 	it('fades streaks in by 10 to 200 and out over their last 20 ticks', () => {
-		expect([0, 5, 20, 29, 30, 40, 50].map(streakAlpha)).toEqual([0, 50, 200, 200, 200, 100, 0]);
+		expect([0, 5, 20, 29, 30, 40, 50].map(a => streakAlpha(a))).toEqual([0, 50, 200, 200, 200, 100, 0]);
 		expect(STREAK.life).toBe(50);
 	});
 
