@@ -435,7 +435,9 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	function setTraitsVisible(visible) {
 		const traitsEl = _root.querySelector('.traits_component');
 		const selfBtn = _root.querySelector('.view_traits');
-		if (!traitsEl) return;
+		if (!traitsEl) {
+			return;
+		}
 
 		traitsEl.style.display = visible ? '' : 'none';
 		// The official arrow reads "expand_off" while the traits are open and "expand_on" while closed.
@@ -449,7 +451,9 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	function toggleTraits() {
 		hideTooltip();
 		const traitsEl = _root.querySelector('.traits_component');
-		if (!traitsEl) return;
+		if (!traitsEl) {
+			return;
+		}
 		setTraitsVisible(traitsEl.style.display === 'none');
 	}
 
