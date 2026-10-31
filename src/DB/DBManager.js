@@ -132,7 +132,7 @@ const MapTable = {};
  * @const {Set<string>} maps where the minimap can't be enlarged or take memos
  * (data/ExceptionMinimapNameTable.txt, official reader 0x00d62700)
  */
-const ExceptionMinimapTable = new Set();
+let ExceptionMinimapTable = new Set();
 
 /**
  * @type {Object} SkillDescription Table
@@ -422,13 +422,16 @@ class DB {
 			onLoad(),
 			true
 		);
+		// Built apart and swapped in, so a client switch drops the old list
+		const exceptionMaps = new Set();
+		ExceptionMinimapTable = exceptionMaps;
 		loadTable(
 			'data/exceptionminimapnametable.txt',
 			'#',
 			1,
 			function (_index, map) {
 				if (map) {
-					ExceptionMinimapTable.add(map.toLowerCase());
+					exceptionMaps.add(map.toLowerCase());
 				}
 			},
 			onLoad()

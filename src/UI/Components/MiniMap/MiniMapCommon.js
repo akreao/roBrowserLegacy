@@ -383,8 +383,10 @@ export function createMiniMap({
 	 * @param {number} x position
 	 * @param {number} y position
 	 * @param {Array} color
+	 * @param {number} time - how long it stays, in ms
+	 * @param {string} [kind] - 'quest' for a quest NPC (the memo map navigates to it)
 	 */
-	MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
+	MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time, kind) {
 		const color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
 
 		for (let i = 0; i < _markers.length; ++i) {
@@ -393,6 +395,7 @@ export function createMiniMap({
 				_markers[i].y = y;
 				_markers[i].color = `rgb(${color[0]},${color[1]},${color[2]})`;
 				_markers[i].tick = Renderer.tick + time;
+				_markers[i].kind = kind;
 				return;
 			}
 		}
@@ -402,7 +405,8 @@ export function createMiniMap({
 			x,
 			y,
 			color: `rgb(${color[0]},${color[1]},${color[2]})`,
-			tick: Renderer.tick + time
+			tick: Renderer.tick + time,
+			kind
 		});
 	};
 

@@ -1277,7 +1277,7 @@ function onEntityQuestNotifyEffect(pkt) {
 	if (color === undefined) {
 		MiniMap.getUI().removeNpcMark(pkt.npcID);
 	} else {
-		MiniMap.getUI().addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
+		MiniMap.getUI().addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity, 'quest');
 	}
 }
 

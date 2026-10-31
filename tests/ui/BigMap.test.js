@@ -49,7 +49,7 @@ vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: '', getMessage: (
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
 vi.mock('Core/Preferences.js', () => ({ default: { get: (_key, def) => Object.assign(def, { save: vi.fn() }) } }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: { Entity: null } }));
-vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800, render: vi.fn(), stop: vi.fn() } }));
+vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() } }));
 vi.mock('Renderer/Map/Altitude.js', () => ({ default: mocks.altitude }));
 vi.mock('UI/Components/InputBox/InputBox.js', () => {
 	const root = document.createElement('div');
@@ -94,9 +94,18 @@ describe('marks', () => {
 
 	it('starts the navigation to a clicked quest NPC, by its name', () => {
 		mocks.npcs[110] = { display: { name: 'Quest Giver' } };
-		mocks.data.markers = [{ key: 110, x: 100, y: 50, color: 'rgb(255,0,0)' }];
+		mocks.data.markers = [{ key: 110, x: 100, y: 50, color: 'rgb(255,0,0)', tick: Infinity, kind: 'quest' }];
 		clickMap(256, 256);
 		expect(mocks.navigation.setNaviInfo).toHaveBeenCalledWith('prontera,100,50', 'Quest Giver');
+	});
+
+	it('leaves other marks (store search, viewpoints) and expired marks alone', () => {
+		mocks.data.markers = [
+			{ key: 'store-search', x: 100, y: 50, color: 'rgb(255,255,0)', tick: Infinity },
+			{ key: 111, x: 100, y: 50, color: 'rgb(255,0,0)', tick: -1, kind: 'quest' }
+		];
+		clickMap(256, 256);
+		expect(mocks.navigation.setNaviInfo).not.toHaveBeenCalled();
 	});
 
 	it('names the boss mark on hover and does nothing on click', () => {

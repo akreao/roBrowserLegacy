@@ -152,14 +152,15 @@ function markAt(data, px, py) {
 		const [mx, my] = toCanvas(x, y);
 		return Math.abs(mx - px) <= 7 && Math.abs(my - py) <= 7;
 	};
-	const markers = data.markers || [];
+	// Timed marks expire in the minimap's drawing, which may not run (minimap hidden)
+	const markers = (data.markers || []).filter(dot => !(dot.tick < Renderer.tick));
 	const boss = markers.find(dot => dot.key === 'mvp');
 	if (boss && near(boss.x, boss.y)) {
 		return { kind: 'boss', x: boss.x, y: boss.y, name: DB.getMessage(2749, 'Boss Monster') };
 	}
 	if (_preferences.quest) {
 		for (const dot of markers) {
-			if (dot.key !== 'mvp' && near(dot.x, dot.y)) {
+			if (dot.kind === 'quest' && near(dot.x, dot.y)) {
 				const npc = EntityManager.get(dot.key);
 				const name = npc && npc.display && npc.display.name;
 				return { kind: 'quest', x: dot.x, y: dot.y, name: name || DB.getMessage(2752, 'Quest NPC') };
@@ -411,7 +412,7 @@ function draw(tick) {
 	// Quest and other server marks, blinking like on the minimap
 	if (_preferences.quest && data.markers && tick % 1000 > 500) {
 		for (const dot of data.markers) {
-			if (dot.key === 'mvp') {
+			if (dot.key === 'mvp' || dot.tick < Renderer.tick) {
 				continue;
 			}
 			const [x, y] = toCanvas(dot.x, dot.y);
