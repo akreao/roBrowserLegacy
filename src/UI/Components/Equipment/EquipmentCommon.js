@@ -36,6 +36,7 @@ import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import { sanitizeHtml, truncateHtml } from 'Utils/HtmlHelper.js';
 
@@ -332,6 +333,12 @@ export function createEquipment({
 			content.addEventListener('dblclick', e => {
 				const item = e.target.closest('.item');
 				if (item) onEquipmentUnEquip.call(item, e);
+			});
+			content.addEventListener('click', e => {
+				const item = e.target.closest('.item');
+				if (item) {
+					onEquipmentClick.call(item, e);
+				}
 			});
 			content.addEventListener('mouseover', e => {
 				const btn = e.target.closest('button');
@@ -1013,6 +1020,32 @@ export function createEquipment({
 		return false;
 	}
 
+	/**
+	 * Shift+click puts the worn item's link in the chat, as in the inventory
+	 * (official UIEquipWnd mouse-down, vfunc25 at 0x008b95b0).
+	 */
+	function onEquipmentClick(event) {
+		if (!event.shiftKey || event.button !== 0) {
+			return;
+		}
+		const item = _list[parseInt(this.getAttribute('data-index'), 10)];
+		if (!item) {
+			return;
+		}
+
+		// Legacy (pre-2016) links carry item.name, so set it first as the inventory does.
+		item.name = DB.getItemName(item);
+		const link = `<span data-item="${DB.createItemLink(item)}" class="item-link" style="color:#A9B95F;">&lt;${item.name}&gt;</span>`;
+
+		const chatRoot = ChatBox._shadow || ChatBox._host || document;
+		const msgBox = chatRoot.querySelector('.input-chatbox');
+		if (msgBox) {
+			msgBox.innerHTML += link + ' ';
+			msgBox.focus();
+		}
+		event.stopImmediatePropagation();
+	}
+
 	function onUnequipAll() {
 		for (const index of Object.keys(_list)) {
 			Component.onUnEquip(Number(index));
@@ -1032,7 +1065,9 @@ export function createEquipment({
 	function onEquipmentDragStart(event) {
 		const index = parseInt(this.getAttribute('data-index'), 10);
 		const item = _list[index];
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		const img = new Image();
 		const btn = this.querySelector('button');
@@ -1062,7 +1097,9 @@ export function createEquipment({
 	function onEquipmentOver() {
 		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		const item = _list[idx];
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		showTooltip(this, DB.getItemName(item), true);
 	}
