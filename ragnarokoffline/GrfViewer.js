@@ -378976,6 +378976,14 @@ function initializeStoreSearch() {
 	};
 	StoreSearch_default.onVisit = (row) => {
 		if (!catalog || catalog.failed || catalog.pending || row.stale || !catalog.rows.includes(row)) return;
+		if (catalog.effect !== 0) {
+			UIManager.showPromptBox(DB.getMessage(1785, "Do you want to open the stall?"), "ok", "cancel", () => visit(row));
+			return;
+		}
+		visit(row);
+	};
+	const visit = (row) => {
+		if (!catalog || catalog.failed || catalog.pending || row.stale || !catalog.rows.includes(row)) return;
 		retireRemoteShop();
 		clearMarker();
 		catalog.status = "";
@@ -379008,6 +379016,7 @@ var init_StoreSearch = __esmMin((() => {
 	init_DBManager();
 	init_StoreSearch$1();
 	init_MiniMap();
+	init_UIManager();
 	marker = "store-search";
 	catalog = null;
 	timer = null;
