@@ -651,7 +651,10 @@ function onItemOver(_e) {
 		item.Options &&
 		item.Options.filter(Option => Option.index !== 0).length > 0;
 	const text = hasOptions
-		? `${DB.getItemName(item)} : ${count} Quantity`
+		? DB.getMessage(2551, '%s [%d Option] : %d Quantity')
+				.replace('%s', DB.getItemName(item, { showItemOptions: false }))
+				.replace('%d', item.Options.filter(Option => Option.index !== 0).length)
+				.replace('%d', count)
 		: `${DB.getItemName(item)} ${count} ${DB.getMessage(588, 'ea')}`;
 
 	const root = CartItems.getRoot();

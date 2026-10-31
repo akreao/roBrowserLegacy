@@ -11,7 +11,7 @@ const reqAddItemFromCart = vi.fn();
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, getActualType: vi.fn(), setType: vi.fn() } }));
 vi.mock('DB/DBManager.js', () => ({
-	default: { INTERFACE_PATH: '', getItemInfo: () => ({}), getItemName: () => 'Red Potion', getMessage: (_id, text) => text }
+	default: { INTERFACE_PATH: '', getItemInfo: () => ({}), getItemName: (item, { showItemOptions = true } = {}) => (item.ITID === 501 ? 'Red Potion' : showItemOptions ? 'Sword [1 Option]' : 'Sword'), getMessage: (_id, text) => text }
 }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn(), loadFiles: vi.fn() } }));
 vi.mock('Core/Preferences.js', () => ({ default: { get: (_name, defaults) => ({ ...defaults, save: vi.fn() }) } }));
@@ -38,4 +38,13 @@ it('writes the name, the amount and "ea" without a colon', () => {
 	const root = CartItems.getRoot();
 	root.querySelector('.item[data-index="3"]').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
 	expect(root.querySelector('.overlay').textContent).toBe('Red Potion 10 ea');
+});
+
+it('writes items with random options with message 2551', () => {
+	CartItems.prepare();
+	CartItems.list = [];
+	CartItems.setItems([{ index: 4, ITID: 1101, count: 1, type: 4, IsIdentified: true, Options: [{ index: 1 }] }]);
+	const root = CartItems.getRoot();
+	root.querySelector('.item[data-index="4"]').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+	expect(root.querySelector('.overlay').textContent).toBe('Sword [1 Option] : 1 Quantity');
 });
