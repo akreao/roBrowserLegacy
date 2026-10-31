@@ -48,4 +48,9 @@ it('adds a Shift+clicked item to the chat input only', () => {
 	item.dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }));
 	expect(input.querySelector('.item-link').dataset.item).toBe('LINK');
 	expect(input.textContent).toBe('<Red Potion> ');
+
+	// The Shift double-click that follows two Shift+clicks only links
+	CartItems.useItem = vi.fn();
+	item.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, shiftKey: true }));
+	expect(CartItems.useItem).not.toHaveBeenCalled();
 });

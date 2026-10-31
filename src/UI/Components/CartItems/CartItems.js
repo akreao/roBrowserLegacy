@@ -843,6 +843,13 @@ function transferItemToOtherUI(item) {
  * Ask to use an item
  */
 function onItemUsed(event) {
+	// A Shift double-click is two Shift+clicks that already linked the item.
+	if (event.shiftKey) {
+		event.stopImmediatePropagation();
+		event.preventDefault();
+		return;
+	}
+
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	const item = CartItems.getItemByIndex(index);
 
