@@ -60,7 +60,9 @@ vi.mock('DB/DBManager.js', () => ({
 	default: {
 		INTERFACE_PATH: '',
 		getMessage: (id, defaultText) =>
-			id in mocks.messages ? mocks.messages[id] : defaultText !== undefined ? defaultText : `NO MSG ${id}`
+			id in mocks.messages ? mocks.messages[id] : defaultText !== undefined ? defaultText : `NO MSG ${id}`,
+		CNameTable: {},
+		getNameByGID: GID => Promise.resolve(GID === 150001 ? 'Margaretha' : 'Unknown')
 	}
 }));
 vi.mock('DB/Skills/SkillInfo.js', () => ({ default: {} }));
@@ -862,6 +864,16 @@ describe('Guild member position', () => {
 				openMenuOn(MARGARETHA_ROW);
 				expect(entryLabelled('Request to Join Party')).toBeNull();
 				expect(entryLabelled('1:1 Chat')).not.toBeNull();
+			});
+
+			it('looks the name up by GID when the roster has none (0x0aa5)', async () => {
+				Guild.setMembers([member(MASTER), { ...member(MARGARETHA), CharName: '' }, member(HOWARD)]);
+				openMenuOn(MARGARETHA_ROW);
+				entryLabelled('Send a mail')();
+				await Promise.resolve();
+				await Promise.resolve();
+
+				expect(Guild.onRequestMail).toHaveBeenCalledWith('Margaretha');
 			});
 
 			it('offers none of them on ourselves', () => {
