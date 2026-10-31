@@ -148,7 +148,9 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		const toggleReduce = () => {
 			const panel = _root.querySelector('.panel');
 			hideTooltip();
-			if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+			if (panel) {
+				panel.style.display = panel.style.display === 'none' ? '' : 'none';
+			}
 		};
 		const miniBtn = _root.querySelector('.titlebar .mini');
 		if (miniBtn) {
@@ -160,7 +162,9 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		const titlebar = _root.querySelector('.titlebar');
 		if (titlebar) {
 			titlebar.addEventListener('dblclick', e => {
-				if (!e.target.closest('button')) toggleReduce();
+				if (!e.target.closest('button')) {
+					toggleReduce();
+				}
 			});
 		}
 
