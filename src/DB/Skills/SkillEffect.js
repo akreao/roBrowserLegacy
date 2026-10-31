@@ -991,7 +991,7 @@ SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = { hideCastAura: true, beginCastEffectId: [1587, 1588], hitEffectId: 1591, firstHitEffectId: 1592 }; //Soul Expansion: no aura, 1587 + 1588 while casting; 1591 every hit, 1592 with the first
-SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
+SkillEffect[SK.WL_FROSTMISTY] = { groundEffectIdByLevel: [726], firstHitEffectId: 51 }; //Frost Misty: 726 at the cell from the ground packet; 51 with the first hit
 SkillEffect[SK.WL_JACKFROST] = { successEffectIdOnCaster: 'ef_jackfrost', hitEffectId: 28 }; //Jack Frost
 SkillEffect[SK.WL_MARSHOFABYSS] = { effectId: 729 }; //Marsh of Abyss
 SkillEffect[SK.WL_RECOGNIZEDSPELL] = { effectId: 803 }; //Recognized Spell
