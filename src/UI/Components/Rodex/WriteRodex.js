@@ -176,7 +176,11 @@ function onClickSend(e) {
 
 	// The official compose window (UIRodexComposeWnd vfunc37 0x007c9d30) wants a title
 	// of 4 to 50 characters (msgstringtable 2596) and at most 1000 of text (2628).
-	const titleLength = root.querySelector('.title-text').value.length;
+	// Measured as it will be sent, without the leading $/% and tabs we strip.
+	const titleLength = root
+		.querySelector('.title-text')
+		.value.replace(/^(\$|\%)/, '')
+		.replace(/\t/g, '').length;
 	if (titleLength < 4 || titleLength > 50) {
 		ChatBox.addText(DB.getMessage(2596), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 		return;

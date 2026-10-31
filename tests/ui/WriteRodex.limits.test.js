@@ -59,8 +59,9 @@ function send(title, body = '') {
 it('refuses a title under 4 or over 50 characters', () => {
 	send('Hi');
 	send('x'.repeat(51));
+	send('\t\t\t\t');
 	expect(WriteRodex.requestSendRodex).not.toHaveBeenCalled();
-	expect(mocks.chat.mock.calls.map(call => call[0])).toEqual(['MSG 2596', 'MSG 2596']);
+	expect(mocks.chat.mock.calls.map(call => call[0])).toEqual(['MSG 2596', 'MSG 2596', 'MSG 2596']);
 });
 
 it('refuses text over 1000 characters', () => {
