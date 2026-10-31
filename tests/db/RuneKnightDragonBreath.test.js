@@ -13,8 +13,8 @@ const { facingAngle, facingQuarter } = await import('Renderer/Effects/ScreenDire
 
 // Dragon Breath (RK_DRAGONBREATH 2008) and Dragon Breath - Water (RK_DRAGONBREATH_WATER 5004): each damage
 // packet: the breath on the caster (05 / 01 / 11 / 07 o'clock by the caster's facing quarter, 200 ms in, not
-// again while it plays), the bomb and its floor on the target (350 ms in) with 폭염룡.wav; dragon_breath.wav as
-// the damage arrives. No use effect, no hit flash. kRO 2025-07-16, spec: effect-port/rune-knight-skills.md.
+// again while it plays), the bomb and its floor on the target (350 ms in) with 폭염룡.wav; dragon_breath.wav when
+// each packet's damage is due (misses and splash hits too). No use effect, no hit flash. kRO 2025-07-16, spec: effect-port/rune-knight-skills.md.
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
@@ -53,7 +53,7 @@ describe('Dragon Breath', () => {
 			expect(SkillEffect[skill]).toMatchObject({
 				damageEffectIdOnCasterByFacing: [`${key}_05`, `${key}_01`, `${key}_11`, `${key}_07`],
 				damageEffectIdOnTarget: `${key}_bomb`,
-				firstHitEffectId: 'ef_rk_dragonbreath_sound',
+				arrivalEffectIdOnTarget: 'ef_rk_dragonbreath_sound',
 				castAuraEffectId: 12
 			});
 			for (const clock of ['01', '05', '07', '11']) {
@@ -64,6 +64,7 @@ describe('Dragon Breath', () => {
 			}
 			const [bomb, floor] = EffectTable[`${key}_bomb`];
 			expect(bomb).toMatchObject({ type: 'STR', file: `${folder}/${folder}_bomb/${folder}_bomb`, delayStart: 350 });
+			expect(bomb.delayWav).toBe(350);
 			expect(bomb.wav).toBe('effect/\xc6\xf8\xbf\xb0\xb7\xe6');
 			expect(floor).toMatchObject({ file: `${folder}/${folder}_bomb_bottom/${folder}_bomb_bottom`, delayStart: 350, renderBeforeEntities: true });
 		}
@@ -81,8 +82,10 @@ describe('Dragon Breath', () => {
 		EffectManager.spamSkillDamage(SK.RK_DRAGONBREATH, 3, 0, 1);
 		expect(spammed.map(p => [p.effectId, p.ownerAID])).toEqual([
 			['ef_rk_dragonbreath_bomb', 2],
+			['ef_rk_dragonbreath_sound', 2],
 			['ef_rk_dragonbreath_05', 1],
-			['ef_rk_dragonbreath_bomb', 3]
+			['ef_rk_dragonbreath_bomb', 3],
+			['ef_rk_dragonbreath_sound', 3]
 		]);
 	});
 });
