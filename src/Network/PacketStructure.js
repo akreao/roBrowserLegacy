@@ -13378,6 +13378,23 @@ PACKET.CZ.REQ_CHANGE_TITLE.prototype.build = function () {
 };
 PACKET.CZ.REQ_CHANGE_TITLE.size = 6;
 
+// 0xa35
+PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY = class PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY {
+	static size = 4;
+
+	constructor() {
+		this.index = 0;
+	}
+
+	build() {
+		const pkt_buf = new BinaryWriter(PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY.size);
+
+		pkt_buf.writeShort(0x0a35);
+		pkt_buf.writeShort(this.index);
+		return pkt_buf;
+	}
+};
+
 // 0xa37
 PACKET.ZC.ITEM_PICKUP_ACK7 = function PACKET_ZC_ITEM_PICKUP_ACK7(fp, end) {
 	const option = new Struct('short index', 'short value', 'char param');
