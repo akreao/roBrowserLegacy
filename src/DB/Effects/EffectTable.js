@@ -26781,6 +26781,14 @@ export default {
 		}
 	],
 
+	// Storm Blast (RK_STORMBLAST): the use-packet sound, on the target. See effect-port/rune-knight-skills.md.
+	ef_rk_stormblast_sound: [
+		{
+			wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad', // effect/mon_맹룡과강
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
