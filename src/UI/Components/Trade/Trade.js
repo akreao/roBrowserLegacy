@@ -354,7 +354,12 @@ function onZenyInput(input) {
 			seen++;
 		}
 	}
-	input.setSelectionRange?.(position, position);
+	// A cleared box shows "0" selected, so the next digit replaces it instead of making "50".
+	if (zeny === 0) {
+		input.setSelectionRange?.(0, input.value.length);
+	} else {
+		input.setSelectionRange?.(position, position);
+	}
 }
 
 /**

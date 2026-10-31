@@ -85,6 +85,12 @@ it('reads a typed amount with commas and offers all of it', async () => {
 	expect(input.value).toBe('12,034,567');
 	expect(input.selectionStart).toBe(4);
 
+	// Clearing the box leaves "0" selected, so typing 5 gives 5, not 50
+	input.value = '';
+	input.dispatchEvent(new Event('input'));
+	expect(input.value).toBe('0');
+	expect([input.selectionStart, input.selectionEnd]).toEqual([0, 1]);
+
 	input.value = '1,234,567';
 	state.sent.length = 0;
 	root.querySelector('.ok.enabled').click();
