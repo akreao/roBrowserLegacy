@@ -253,11 +253,20 @@ export function createEquipment({
 		const baseBtn = root.querySelector('.titlebar .base');
 		if (baseBtn) baseBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 
+		const toggleReduce = () => {
+			const panel = root.querySelector('.panel');
+			if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+		};
 		const miniBtn = root.querySelector('.titlebar .mini');
 		if (miniBtn) {
-			miniBtn.addEventListener('click', () => {
-				const panel = root.querySelector('.panel');
-				if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+			miniBtn.addEventListener('click', toggleReduce);
+		}
+
+		// Double-clicking the title bar also reduces the official window (UIEquipWnd vfunc26, y < 17).
+		const titlebar = root.querySelector('.titlebar');
+		if (titlebar) {
+			titlebar.addEventListener('dblclick', e => {
+				if (!e.target.closest('button')) toggleReduce();
 			});
 		}
 
