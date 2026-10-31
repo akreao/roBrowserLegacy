@@ -26711,6 +26711,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
 			texturePath: 'new_soulexpansion/new_soulexpansion_cast/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast/',
 			castLoop: true,
 			attachedEntity: true
 		}
@@ -26723,6 +26725,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
 			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26736,6 +26740,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
 			texturePath: 'new_soulexpansion/new_soulexpansion_hit/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit/',
 			attachedEntity: true
 		}
 	],
@@ -26747,6 +26753,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
 			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26798,6 +26806,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26811,6 +26821,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
 			texturePath: 'new_hellinferno/new_hellinferno/',
+			min: 'mineffect/new_hellinferno/new_hellinferno/new_hellinferno',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno/',
 			attachedEntity: true
 		}
 	],
@@ -26822,6 +26834,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26882,6 +26896,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
 			texturePath: 'new_chainlightning/new_chainlightning_cast/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast/',
 			castLoop: true,
 			attachedEntity: true
 		}
@@ -26894,6 +26910,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
 			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26907,6 +26925,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_target/new_chainlightning_target',
 			texturePath: 'new_chainlightning/new_chainlightning_target/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_target/',
 			attachedEntity: true
 		}
 	],
