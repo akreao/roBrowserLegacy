@@ -229,3 +229,21 @@ describe('a pet talking in chat', () => {
 		expect(mocks.sent.filter(p => p instanceof PACKET.CZ.REQNAME)).toHaveLength(2);
 	});
 });
+
+describe('renaming the pet', () => {
+	it('asks before sending the new name and sends it on OK', async () => {
+		const { default: UIManager } = await import('UI/UIManager.js');
+		const { default: PetInformations } = await import('UI/Components/PetInformations/PetInformations.js');
+		UIManager.showPromptBox.mockClear();
+
+		PetInformations.reqNameEdit('Rex');
+
+		expect(mocks.sent).toHaveLength(0);
+		const [text, , , onYes] = UIManager.showPromptBox.mock.calls[0];
+		expect(text).toBe('Pet name will be changed to ^0000ffRex^000000, do you want to continue?');
+		onYes();
+		expect(mocks.sent).toHaveLength(1);
+		expect(mocks.sent[0]).toBeInstanceOf(PACKET.CZ.RENAME_PET);
+		expect(mocks.sent[0].szName).toBe('Rex');
+	});
+});
