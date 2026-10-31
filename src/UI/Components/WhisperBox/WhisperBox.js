@@ -352,6 +352,20 @@ function setupNicknameLinkHandler(instance) {
 WhisperBox.onRequestTalk = function onRequestTalk(_nickname, _text) {};
 
 /**
+ * The official whisper window resizes between 280x120 and 512x384, in 32px
+ * steps from the minimum (UIWhisperWnd vfunc37 message 0xe/7).
+ *
+ * @param {number} size wanted
+ * @param {number} min
+ * @param {number} max
+ * @return {number}
+ */
+export function snapSize(size, min, max) {
+	const clamped = Math.min(max, Math.max(min, size));
+	return min + Math.floor((clamped - min) / 32) * 32;
+}
+
+/**
  * Initialize resizable logic for an instance
  * @param {GUIComponent} instance
  */
@@ -366,8 +380,8 @@ function initResizable(instance) {
 		// Screen distance to window distance (UI/UIScale.js)
 		const rect = instance._host.getBoundingClientRect();
 		const scale = instance.scale;
-		const width = Math.max(150, (e.pageX - rect.left) / scale);
-		const height = Math.max(100, (e.pageY - rect.top) / scale);
+		const width = snapSize((e.pageX - rect.left) / scale, 280, 512);
+		const height = snapSize((e.pageY - rect.top) / scale, 120, 384);
 
 		instance._host.style.width = `${width}px`;
 		instance._host.style.height = `${height}px`;
