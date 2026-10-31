@@ -827,16 +827,7 @@ function onItemPreview(pkt) {
 			ItemCompare.remove();
 		}
 
-		// Don't add the same UI twice, remove it
-		if (ItemInfo.uid === item.ITID) {
-			ItemInfo.remove();
-			if (ItemCompare.ui) {
-				ItemCompare.remove();
-			}
-			return false;
-		}
-
-		// Add ui to window
+		// Show the changed item, also when its description is already open
 		ItemInfo.append();
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
