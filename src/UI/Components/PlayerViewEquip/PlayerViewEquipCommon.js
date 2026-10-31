@@ -271,7 +271,11 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 			});
 		};
 		const toggleReduce = () => {
-			if (_panel) setReduced(_panel.style.display !== 'none');
+			if (!_panel) return;
+			const expand = _panel.style.display === 'none';
+			setReduced(!expand);
+			// onAppend skips the character preview while the canvases are hidden.
+			if (expand) Renderer.render(renderCharacter);
 		};
 		// We saved the reduced state but never applied it.
 		setReduced(!!_preferences.reduce);
