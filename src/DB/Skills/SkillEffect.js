@@ -990,42 +990,35 @@ SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: 'ef_rk_abundance_sound
 SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting', successEffectId: 'ef_rk_bluecasting', castAuraEffectId: 12 }; //Phantom Thrust: 441 on caster and target on success (538 follow-up)
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
-SkillEffect[SK.WL_SOULEXPANSION] = {
-	effectIdOnCaster: 'ef_wl_soulexpansion_cast',
-	hitEffectId: 'ef_wl_soulexpansion_hit'
-}; //Soul Expansion
-SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
-SkillEffect[SK.WL_JACKFROST] = { successEffectIdOnCaster: 'ef_jackfrost', hitEffectId: 28 }; //Jack Frost
-SkillEffect[SK.WL_MARSHOFABYSS] = { effectId: 729 }; //Marsh of Abyss
-SkillEffect[SK.WL_RECOGNIZEDSPELL] = { effectId: 803 }; //Recognized Spell
+SkillEffect[SK.WL_SOULEXPANSION] = { hideCastAura: true, beginCastEffectId: [1587, 1588], hitEffectId: 1591, firstHitEffectId: 1592 }; //Soul Expansion: no aura, 1587 + 1588 while casting; 1591 every hit, 1592 with the first
+SkillEffect[SK.WL_FROSTMISTY] = { groundEffectIdByLevel: [726], firstHitEffectId: 51 }; //Frost Misty: 726 at the cell from the ground packet; 51 with the first hit
+SkillEffect[SK.WL_JACKFROST] = { castAuraEffectId: 1449, beginCastEffectId: 1446, successEffectIdOnCaster: 'ef_jackfrost', firstHitEffectId: 51 }; //Jack Frost: ice cast circle + new_jackfrost_cast; jack_frost.wav on success; 51 with the first hit
+SkillEffect[SK.WL_MARSHOFABYSS] = { successEffectId: 729 }; //Marsh of Abyss: 729 on the target on success (466 follow-up)
+SkillEffect[SK.WL_RECOGNIZEDSPELL] = { successEffectIdOnCaster: 'ef_wl_recognizedspell_sound', castAuraEffectId: 58 }; //Recognized Spell: wl_recognizedspell.wav on success; white cast aura (803 while casting: follow-up)
 SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna Execrate
-SkillEffect[SK.WL_STASIS] = { effectId: 799 }; //Stasis
-SkillEffect[SK.WL_DRAINLIFE] = {}; //Drain Life
-SkillEffect[SK.WL_CRIMSONROCK] = { effectId: 727 }; //Crimson Rock
-SkillEffect[SK.WL_HELLINFERNO] = {
-	groundEffectId: 728,
-	effectId: 'ef_wl_hellinferno',
-	effectIdOnCaster: 'ef_wl_hellinferno_cast'
-}; //Hell Inferno
-SkillEffect[SK.WL_COMET] = { effectId: 'ef_wl_comet', effectIdOnCaster: 'ef_wl_comet_cast' }; //Comet
-SkillEffect[SK.WL_CHAINLIGHTNING] = { effectIdOnCaster: 'ef_wl_chainlightning_cast' }; //Chain Lightning
-SkillEffect[SK.WL_CHAINLIGHTNING_ATK] = { effectId: 734 }; //Chain Lightning Attack
+SkillEffect[SK.WL_STASIS] = { successEffectIdOnCaster: 799, castAuraEffectId: 441 }; //Stasis: 799 on the caster on success; blue cast aura
+SkillEffect[SK.WL_DRAINLIFE] = { hitEffectIdOnCaster: 216, hitEffectOnce: true }; //Drain Life: 216 with the first hit, owned by the caster so the blood flows from the target to it
+SkillEffect[SK.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275] }; //Crimson Rock: crimson_r.wav, 1274 + 1275 on the target as the damage arrives
+SkillEffect[SK.WL_HELLINFERNO] = { hideCastAura: true, beginCastEffectId: 1552, arrivalEffectIdOnTarget: [1550, 1551], groundEffectId: 728 }; //Hell Inferno: no aura, 1552 while casting; 1550 + 1551 on the target as the damage arrives (sub flames follow-up)
+SkillEffect[SK.WL_COMET] = { hideCastAura: true, beginCastEffectId: [1415, 1421], damageEffectIdOnTarget: [1413, 1414] }; //Comet: 1415 + 1421 while casting (aura 1418 follow-up); 1413 + 1414 on each target as the damage packet arrives
+SkillEffect[SK.WL_CHAINLIGHTNING] = { hideCastAura: true, beginCastEffectId: [1635, 1636], arrivalEffectIdOnTarget: 1638 }; //Chain Lightning: no aura, 1635 + 1636 while casting; 1638 on the target as the damage arrives
+SkillEffect[SK.WL_CHAINLIGHTNING_ATK] = { arrivalEffectIdOnTarget: 1638 }; //Chain Lightning Attack: 1638 on the target as the damage arrives
 SkillEffect[SK.WL_EARTHSTRAIN] = { groundEffectId: 732 }; //Earth Strain
-SkillEffect[SK.WL_TETRAVORTEX] = { effectId: 804, beginCastEffectId: 805 }; //Tetra Vortex
-SkillEffect[SK.WL_TETRAVORTEX_FIRE] = { effectId: 'ef_wl_tetravortex_fire' }; //Tetra Vortex Fire
-SkillEffect[SK.WL_TETRAVORTEX_WATER] = { effectId: 'ef_wl_tetravortex_water' }; //Tetra Vortex Water
-SkillEffect[SK.WL_TETRAVORTEX_WIND] = { effectId: 'ef_wl_tetravortex_wind' }; //Tetra Vortex Wind
-SkillEffect[SK.WL_TETRAVORTEX_GROUND] = {}; //Tetra Vortex Earth
-SkillEffect[SK.WL_SUMMONFB] = {}; //Summon Fire Ball
-SkillEffect[SK.WL_SUMMONBL] = {}; //Summon Lightning Ball
-SkillEffect[SK.WL_SUMMONWB] = {}; //Summon Water Ball
-SkillEffect[SK.WL_SUMMON_ATK_FIRE] = { effectId: 'ef_wl_summon_atk_fire' }; //Summon Attack Fire
-SkillEffect[SK.WL_SUMMON_ATK_WIND] = {}; //Summon Attack Wind
-SkillEffect[SK.WL_SUMMON_ATK_WATER] = {}; //Summon Attack Water
-SkillEffect[SK.WL_SUMMON_ATK_GROUND] = {}; //Summon Attack Earth
-SkillEffect[SK.WL_SUMMONSTONE] = {}; //Summon Stone
+SkillEffect[SK.WL_TETRAVORTEX] = { castAuraEffectId: 805, beginCastEffectId: [1277, 1261] }; //Tetra Vortex: aura 805 + 1277 + 1261 while casting
+SkillEffect[SK.WL_TETRAVORTEX_FIRE] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1270, 1266] }; //Tetra Vortex Fire: sounds on the caster, 1270 + 1266 on the target on success
+SkillEffect[SK.WL_TETRAVORTEX_WATER] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1271, 1267], hitDelay: 500 }; //Tetra Vortex Water: sounds on the caster, 1271 + 1267 on the target on success; hit at attackMT + 500 ms
+SkillEffect[SK.WL_TETRAVORTEX_WIND] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1272, 1268], hitDelay: 1000 }; //Tetra Vortex Wind: sounds on the caster, 1272 + 1268 on the target on success; hit at attackMT + 1000 ms
+SkillEffect[SK.WL_TETRAVORTEX_GROUND] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1273, 1269], hitDelay: 1500 }; //Tetra Vortex Earth: sounds on the caster, 1273 + 1269 on the target on success; hit at attackMT + 1500 ms
+SkillEffect[SK.WL_SUMMONFB] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Fire Ball: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
+SkillEffect[SK.WL_SUMMONBL] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Lightning Ball: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
+SkillEffect[SK.WL_SUMMONWB] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Water Ball: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
+SkillEffect[SK.WL_SUMMON_ATK_FIRE] = { arrivalEffectIdOnTarget: 49 }; //Summon Attack Fire: 49 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMON_ATK_WIND] = { arrivalEffectIdOnTarget: 52 }; //Summon Attack Wind: 52 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMON_ATK_WATER] = { arrivalEffectIdOnTarget: 51 }; //Summon Attack Water: 51 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMON_ATK_GROUND] = { arrivalEffectIdOnTarget: 147 }; //Summon Attack Earth: 147 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMONSTONE] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Stone: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
 SkillEffect[SK.WL_RELEASE] = { effectId: 751 }; //Release //CHECK Should it be left to do multi hit or single hit?
-SkillEffect[SK.WL_READING_SB] = {}; //Reading Spellbook
+SkillEffect[SK.WL_READING_SB] = { castAuraEffectId: 58 }; //Reading Spellbook: white cast aura
 // GC Guillotine Cross
 SkillEffect[SK.GC_VENOMIMPRESS] = { effectId: 788 }; //Venom Impress
 SkillEffect[SK.GC_CROSSIMPACT] = { effectId: 'ef_gc_crossimpact' }; //Cross Impact
@@ -2282,6 +2275,7 @@ SkillEffect[SK.SJ_NOVAEXPLOSING] = { castAuraEffectId: 58 }; //Nova Explosion
 SkillEffect[SK.SJ_GRAVITYCONTROL] = { castAuraEffectId: 58 }; //Gravity Control
 SkillEffect[SK.SJ_BOOKOFCREATINGSTAR] = { castAuraEffectId: 58 }; //Book of Creating Star
 SkillEffect[SK.SP_SWHOO] = { castAuraEffectId: 454 }; //Eswhoo
+SkillEffect[SK.WL_READING_SB_READING] = { castAuraEffectId: 58 }; //Reading Spellbook (reading): white cast aura
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)

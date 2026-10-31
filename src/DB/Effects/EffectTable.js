@@ -21273,7 +21273,7 @@ export default {
 
 	ef_jackfrost: [
 		{
-			wav: 'effect/wl_jackfrost',
+			wav: 'jack_frost',
 			attachedEntity: true
 		},
 		{
@@ -25325,142 +25325,6 @@ export default {
 		}
 	],
 
-	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
-	ef_wl_soulexpansion_cast: [
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
-			texturePath: 'new_soulexpansion/new_soulexpansion_cast/'
-		},
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
-			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
-	ef_wl_soulexpansion_hit: [
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
-			texturePath: 'new_soulexpansion/new_soulexpansion_hit/'
-		},
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
-			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
-	ef_wl_hellinferno: [
-		{
-			type: 'STR',
-			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
-			texturePath: 'new_hellinferno/new_hellinferno/'
-		},
-		{
-			type: 'STR',
-			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
-			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
-	ef_wl_hellinferno_cast: [
-		{
-			type: 'STR',
-			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
-			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Comet (WL_COMET), from the client's own effect folders.
-	ef_wl_comet: [
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet/new_comet',
-			texturePath: 'new_comet/new_comet/'
-		},
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet_bottom/new_comet_bottom',
-			texturePath: 'new_comet/new_comet_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Comet (WL_COMET), from the client's own effect folders.
-	ef_wl_comet_cast: [
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet_cast/new_comet_cast',
-			texturePath: 'new_comet/new_comet_cast/'
-		},
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet_cast_bottom/new_comet_cast_bottom',
-			texturePath: 'new_comet/new_comet_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Chain Lightning (WL_CHAINLIGHTNING), from the client's own effect folders.
-	ef_wl_chainlightning_cast: [
-		{
-			type: 'STR',
-			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
-			texturePath: 'new_chainlightning/new_chainlightning_cast/'
-		},
-		{
-			type: 'STR',
-			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
-			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE), from the client's own effect folders.
-	ef_wl_tetravortex_fire: [
-		{
-			type: 'STR',
-			file: 'mineffect/new_tetravortex/new_tetravortex_fire/new_tetravortex_fire',
-			texturePath: 'mineffect/new_tetravortex/new_tetravortex_fire/'
-		}
-	],
-
-	// Tetra Vortex Water (WL_TETRAVORTEX_WATER), from the client's own effect folders.
-	ef_wl_tetravortex_water: [
-		{
-			type: 'STR',
-			file: 'mineffect/new_tetravortex/new_tetravortex_water/new_tetravortex_water',
-			texturePath: 'mineffect/new_tetravortex/new_tetravortex_water/'
-		}
-	],
-
-	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND), from the client's own effect folders.
-	ef_wl_tetravortex_wind: [
-		{
-			type: 'STR',
-			file: 'mineffect/new_tetravortex/new_tetravortex_wind/new_tetravortex_wind',
-			texturePath: 'mineffect/new_tetravortex/new_tetravortex_wind/'
-		}
-	],
-
-	// Summon Attack Fire (WL_SUMMON_ATK_FIRE), from the client's own effect folders.
-	ef_wl_summon_atk_fire: [
-		{
-			type: 'STR',
-			file: 'fire',
-			texturePath: ''
-		}
-	],
-
 	// Cross Impact (GC_CROSSIMPACT), from the client's own effect folders.
 	ef_gc_crossimpact: [
 		{
@@ -26796,6 +26660,367 @@ export default {
 	ef_rk_abundance_sound: [
 		{
 			wav: 'effect/\xc8\xed\xb1\xe2', // effect/흡기
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) cast, with 1588: the client plays it on the caster for the cast time. See effect-port/warlock-skills.md.
+	1587: [
+		{
+			//(1587): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_cast\\new_soulexpansion_cast.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
+			texturePath: 'new_soulexpansion/new_soulexpansion_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) cast floor, with 1587. See effect-port/warlock-skills.md.
+	1588: [
+		{
+			//(1588): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_cast_bottom\\new_soulexpansion_cast_bottom.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
+			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) hit flash: every hit. See effect-port/warlock-skills.md.
+	1591: [
+		{
+			//(1591): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_hit\\new_soulexpansion_hit.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
+			texturePath: 'new_soulexpansion/new_soulexpansion_hit/',
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) hit-map effect: the first hit of each damage packet. See effect-port/warlock-skills.md.
+	1592: [
+		{
+			//(1592): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_hit_bottom\\new_soulexpansion_hit_bottom.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
+			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Recognized Spell (WL_RECOGNIZEDSPELL): the use-packet sound, on the caster. See effect-port/warlock-skills.md.
+	ef_wl_recognizedspell_sound: [
+		{
+			wav: 'effect/wl_recognizedspell',
+			attachedEntity: true
+		}
+	],
+
+	// Crimson Rock (WL_CRIMSONROCK): the damage-arrival sound, on the target. See effect-port/warlock-skills.md.
+	ef_wl_crimsonrock_sound: [
+		{
+			wav: 'crimson_r',
+			attachedEntity: true
+		}
+	],
+
+	// Crimson Rock (WL_CRIMSONROCK), with 1275: on the target when the damage arrives. See effect-port/warlock-skills.md.
+	1274: [
+		{
+			//(1274): CEZ2STREffect, new_crimsonrock\\new_crimsonrock\\new_crimsonrock.str
+			type: 'STR',
+			file: 'new_crimsonrock/new_crimsonrock/new_crimsonrock',
+			texturePath: 'new_crimsonrock/new_crimsonrock/',
+			attachedEntity: true
+		}
+	],
+
+	// Crimson Rock (WL_CRIMSONROCK) floor, with 1274. See effect-port/warlock-skills.md.
+	1275: [
+		{
+			//(1275): CEZ2STREffect, new_crimsonrock\\new_crimsonrock_bottom\\new_crimsonrock_bottom.str
+			type: 'STR',
+			file: 'new_crimsonrock/new_crimsonrock_bottom/new_crimsonrock_bottom',
+			texturePath: 'new_crimsonrock/new_crimsonrock_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) cast floor: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1552: [
+		{
+			//(1552): CEZ2STREffect, new_hellInferno\\new_hellInferno_cast_bottom\\new_hellInferno_cast_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO), with 1551: on the target when the damage arrives. See effect-port/warlock-skills.md.
+	1550: [
+		{
+			//(1550): CEZ2STREffect, new_hellInferno\\new_hellInferno\\new_hellInferno.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
+			texturePath: 'new_hellinferno/new_hellinferno/',
+			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) floor, with 1550. See effect-port/warlock-skills.md.
+	1551: [
+		{
+			//(1551): CEZ2STREffect, new_hellInferno\\new_hellInferno_bottom\\new_hellInferno_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) cast floor, with 1421: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1415: [
+		{
+			//(1415): CEZ2STREffect, new_comet\\new_comet_cast_bottom\\new_comet_cast_bottom.str
+			type: 'STR',
+			file: 'new_comet/new_comet_cast_bottom/new_comet_cast_bottom',
+			texturePath: 'new_comet/new_comet_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) cast, with 1415. See effect-port/warlock-skills.md.
+	1421: [
+		{
+			//(1421): CEZ2STREffect, new_comet\\new_comet_cast\\new_comet_cast.str
+			type: 'STR',
+			file: 'new_comet/new_comet_cast/new_comet_cast',
+			texturePath: 'new_comet/new_comet_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET), with 1414: on each target as its damage packet arrives. See effect-port/warlock-skills.md.
+	1413: [
+		{
+			//(1413): CEZ2STREffect, new_comet\\new_comet\\new_comet.str
+			type: 'STR',
+			file: 'new_comet/new_comet/new_comet',
+			texturePath: 'new_comet/new_comet/',
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) floor, with 1413. See effect-port/warlock-skills.md.
+	1414: [
+		{
+			//(1414): CEZ2STREffect, new_comet\\new_comet_bottom\\new_comet_bottom.str
+			type: 'STR',
+			file: 'new_comet/new_comet_bottom/new_comet_bottom',
+			texturePath: 'new_comet/new_comet_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING) cast, with 1636: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1635: [
+		{
+			//(1635): CEZ2STREffect, new_chainlightning\\new_chainlightning_cast\\new_chainlightning_cast.str
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
+			texturePath: 'new_chainlightning/new_chainlightning_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING) cast floor, with 1635. See effect-port/warlock-skills.md.
+	1636: [
+		{
+			//(1636): CEZ2STREffect, new_chainlightning\\new_chainlightning_cast_bottom\\new_chainlightning_cast_bottom.str
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
+			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING, WL_CHAINLIGHTNING_ATK): on the target when the damage arrives. See effect-port/warlock-skills.md.
+	1638: [
+		{
+			//(1638): CEZ2STREffect, new_chainlightning\\new_chainlightning_target\\new_chainlightning_target.str
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_target/new_chainlightning_target',
+			texturePath: 'new_chainlightning/new_chainlightning_target/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex elements (WL_TETRAVORTEX_FIRE ... _GROUND): the three use-packet sounds, on the caster. See effect-port/warlock-skills.md.
+	ef_wl_tetravortex_sound: [
+		{
+			wav: 'effect/wizard_meteo',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wl_tetravortex',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex (WL_TETRAVORTEX) cast floor, with 1261: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1277: [
+		{
+			//(1277): CEZ2STREffect, tetravortex\\tetra_ball_00_core_ground\\tetra_ball_00_core_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_ball_00_core_ground/tetra_ball_00_core_grd',
+			texturePath: 'tetravortex/tetra_ball_00_core_ground/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex (WL_TETRAVORTEX) cast, with 1277. See effect-port/warlock-skills.md.
+	1261: [
+		{
+			//(1261): CEZ2STREffect, tetravortex\\tetra_ball_00_core\\tetra_ball_00_core.str
+			type: 'STR',
+			file: 'tetravortex/tetra_ball_00_core/tetra_ball_00_core',
+			texturePath: 'tetravortex/tetra_ball_00_core/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE) floor, with 1266: on the target on success. See effect-port/warlock-skills.md.
+	1270: [
+		{
+			//(1270): CEZ2STREffect, tetravortex\\tetra_01_fire_ground\\tetra_01_fire_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_01_fire_ground/tetra_01_fire_grd',
+			texturePath: 'tetravortex/tetra_01_fire_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE) explosion, with 1270. See effect-port/warlock-skills.md.
+	1266: [
+		{
+			//(1266): CEZ2STREffect, tetravortex\\tetra_01_fire_explosion\\tetra_01_fire_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_01_fire_explosion/tetra_01_fire_expn',
+			texturePath: 'tetravortex/tetra_01_fire_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Water (WL_TETRAVORTEX_WATER) floor, with 1267: on the target on success. See effect-port/warlock-skills.md.
+	1271: [
+		{
+			//(1271): CEZ2STREffect, tetravortex\\tetra_04_water_ground\\tetra_04_water_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_04_water_ground/tetra_04_water_grd',
+			texturePath: 'tetravortex/tetra_04_water_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Water (WL_TETRAVORTEX_WATER) explosion, with 1271. See effect-port/warlock-skills.md.
+	1267: [
+		{
+			//(1267): CEZ2STREffect, tetravortex\\tetra_04_water_explosion\\tetra_04_water_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_04_water_explosion/tetra_04_water_expn',
+			texturePath: 'tetravortex/tetra_04_water_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND) floor, with 1268: on the target on success. See effect-port/warlock-skills.md.
+	1272: [
+		{
+			//(1272): CEZ2STREffect, tetravortex\\tetra_02_wind_ground\\tetra_02_wind_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_02_wind_ground/tetra_02_wind_grd',
+			texturePath: 'tetravortex/tetra_02_wind_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND) explosion, with 1272. See effect-port/warlock-skills.md.
+	1268: [
+		{
+			//(1268): CEZ2STREffect, tetravortex\\tetra_02_wind_explosion\\tetra_02_wind_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_02_wind_explosion/tetra_02_wind_expn',
+			texturePath: 'tetravortex/tetra_02_wind_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Earth (WL_TETRAVORTEX_GROUND) floor, with 1269: on the target on success. See effect-port/warlock-skills.md.
+	1273: [
+		{
+			//(1273): CEZ2STREffect, tetravortex\\tetra_03_earth_ground\\tetra_03_earth_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_03_earth_ground/tetra_03_earth_grd',
+			texturePath: 'tetravortex/tetra_03_earth_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Earth (WL_TETRAVORTEX_GROUND) explosion, with 1273. See effect-port/warlock-skills.md.
+	1269: [
+		{
+			//(1269): CEZ2STREffect, tetravortex\\tetra_03_earth_explosion\\tetra_03_earth_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_03_earth_explosion/tetra_03_earth_expn',
+			texturePath: 'tetravortex/tetra_03_earth_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Summon Fire Ball / Lightning Ball / Water Ball / Stone (WL_SUMMONFB ... WL_SUMMONSTONE) cast aura: on the
+	// caster for the cast time. See effect-port/warlock-skills.md.
+	1260: [
+		{
+			//(1260): CEZ2STREffect, tetravortex\\tetra_cast\\tetra_cast.str
+			type: 'STR',
+			file: 'tetravortex/tetra_cast/tetra_cast',
+			texturePath: 'tetravortex/tetra_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Summon Fire Ball / Lightning Ball / Water Ball / Stone: EF_BeginSpell.wav, played once as the cast starts. See effect-port/warlock-skills.md.
+	ef_wl_summon_cast_sound: [
+		{
+			wav: 'effect/ef_beginspell',
 			attachedEntity: true
 		}
 	],
