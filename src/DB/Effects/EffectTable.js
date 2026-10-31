@@ -25325,36 +25325,6 @@ export default {
 		}
 	],
 
-	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
-	ef_wl_soulexpansion_cast: [
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
-			texturePath: 'new_soulexpansion/new_soulexpansion_cast/'
-		},
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
-			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
-	ef_wl_soulexpansion_hit: [
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
-			texturePath: 'new_soulexpansion/new_soulexpansion_hit/'
-		},
-		{
-			type: 'STR',
-			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
-			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
 	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
 	ef_wl_hellinferno: [
 		{
@@ -26796,6 +26766,54 @@ export default {
 	ef_rk_abundance_sound: [
 		{
 			wav: 'effect/\xc8\xed\xb1\xe2', // effect/흡기
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) cast, with 1588: the client plays it on the caster for the cast time. See effect-port/warlock-skills.md.
+	1587: [
+		{
+			//(1587): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_cast\\new_soulexpansion_cast.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
+			texturePath: 'new_soulexpansion/new_soulexpansion_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) cast floor, with 1587. See effect-port/warlock-skills.md.
+	1588: [
+		{
+			//(1588): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_cast_bottom\\new_soulexpansion_cast_bottom.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
+			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) hit flash: every hit. See effect-port/warlock-skills.md.
+	1591: [
+		{
+			//(1591): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_hit\\new_soulexpansion_hit.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
+			texturePath: 'new_soulexpansion/new_soulexpansion_hit/',
+			attachedEntity: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION) hit-map effect: the first hit of each damage packet. See effect-port/warlock-skills.md.
+	1592: [
+		{
+			//(1592): CEZ2STREffect, new_soulexpansion\\new_soulexpansion_hit_bottom\\new_soulexpansion_hit_bottom.str
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
+			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
+			renderBeforeEntities: true,
 			attachedEntity: true
 		}
 	],

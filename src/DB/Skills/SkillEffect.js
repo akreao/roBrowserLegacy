@@ -990,10 +990,7 @@ SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: 'ef_rk_abundance_sound
 SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting', successEffectId: 'ef_rk_bluecasting', castAuraEffectId: 12 }; //Phantom Thrust: 441 on caster and target on success (538 follow-up)
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
-SkillEffect[SK.WL_SOULEXPANSION] = {
-	effectIdOnCaster: 'ef_wl_soulexpansion_cast',
-	hitEffectId: 'ef_wl_soulexpansion_hit'
-}; //Soul Expansion
+SkillEffect[SK.WL_SOULEXPANSION] = { hideCastAura: true, beginCastEffectId: [1587, 1588], hitEffectId: 1591, firstHitEffectId: 1592 }; //Soul Expansion: no aura, 1587 + 1588 while casting; 1591 every hit, 1592 with the first
 SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
 SkillEffect[SK.WL_JACKFROST] = { successEffectIdOnCaster: 'ef_jackfrost', hitEffectId: 28 }; //Jack Frost
 SkillEffect[SK.WL_MARSHOFABYSS] = { effectId: 729 }; //Marsh of Abyss
