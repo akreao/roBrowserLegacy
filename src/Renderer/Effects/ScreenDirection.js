@@ -85,4 +85,43 @@ export function screenSide(angle) {
 	return angle <= 90 || angle >= 270 ? 'right' : 'left';
 }
 
-export default { screenAngle, screenSector, screenSide };
+/**
+ * The official client's facing angle of an entity, which picks one of four
+ * variants of some skill effects (Wind Cutter's floor slash, Dragon Breath's
+ * breath): the camera's turn plus the entity's facing, in degrees
+ * counter-clockwise from "down" on an unturned screen (0 south, 90 east,
+ * 180 north, 270 west), in [0, 360). The client keeps the facing as
+ * (packet direction + 4) x 45; roBrowser's direction d is drawn as sprite
+ * (Camera.direction + d), so the same angle is -(45 d + camera turn).
+ *
+ * @param {number} direction entity.direction (0 south, 2 west, 4 north, 6 east)
+ * @param {number} [cameraTurn] degrees, Camera.angle[1] by default
+ * @return {number}
+ */
+export function facingAngle(direction, cameraTurn = Camera.angle[1]) {
+	const angle = -(direction * 45 + cameraTurn) % 360;
+	return angle < 0 ? angle + 360 : angle + 0;
+}
+
+/**
+ * The official four-way split of that angle: 0 strictly between 0 and 90
+ * degrees, 1 from 90 up to 180, 2 from 180 up to 270, 3 for the rest
+ * (0 itself, and 270 up to 360).
+ *
+ * @param {number} angle from facingAngle
+ * @return {number} 0 to 3
+ */
+export function facingQuarter(angle) {
+	if (angle > 0 && angle < 90) {
+		return 0;
+	}
+	if (angle >= 90 && angle < 180) {
+		return 1;
+	}
+	if (angle >= 180 && angle < 270) {
+		return 2;
+	}
+	return 3;
+}
+
+export default { screenAngle, screenSector, screenSide, facingAngle, facingQuarter };

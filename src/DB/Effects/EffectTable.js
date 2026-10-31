@@ -25325,15 +25325,6 @@ export default {
 		}
 	],
 
-	// Wind Cutter (RK_WINDCUTTER), from the client's own effect folders.
-	ef_rk_windcutter: [
-		{
-			type: 'STR',
-			file: 'new_windcutter/new_windcutter/new_windcutter',
-			texturePath: 'new_windcutter/new_windcutter/'
-		}
-	],
-
 	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
 	ef_wl_soulexpansion_cast: [
 		{
@@ -26545,6 +26536,53 @@ export default {
 			topSize: 5,
 			type: 'CYLINDER',
 			wav: 'effect/ef_beginspell'
+		}
+	],
+
+	// Wind Cutter (RK_WINDCUTTER): official effect 1690 on the caster when the use packet has the result set,
+	// then 1691 / 1692 (floor slash, by the caster's facing). See effect-port/rune-knight-skills.md.
+	ef_rk_windcutter: [
+		{
+			//new_windcutter (1690): CEZ2STREffect, new_windcutter\\new_windcutter\\new_windcutter.str
+			type: 'STR',
+			file: 'new_windcutter/new_windcutter/new_windcutter',
+			texturePath: 'new_windcutter/new_windcutter/',
+			attachedEntity: true
+		}
+	],
+
+	// Wind Cutter's floor slash toward 1 o'clock (1691).
+	ef_rk_windcutter_bottom_01: [
+		{
+			//new_windcutter_bottom_01clock (1691): CEZ2STREffect, new_windcutter\\new_windcutter_bottom_01clock\\new_windcutter_bottom_01clock.str
+			type: 'STR',
+			file: 'new_windcutter/new_windcutter_bottom_01clock/new_windcutter_bottom_01clock',
+			texturePath: 'new_windcutter/new_windcutter_bottom_01clock/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Wind Cutter's floor slash toward 5 o'clock (1692).
+	ef_rk_windcutter_bottom_05: [
+		{
+			//new_windcutter_bottom_05clock (1692): CEZ2STREffect, new_windcutter\\new_windcutter_bottom_05clock\\new_windcutter_bottom_05clock.str
+			type: 'STR',
+			file: 'new_windcutter/new_windcutter_bottom_05clock/new_windcutter_bottom_05clock',
+			texturePath: 'new_windcutter/new_windcutter_bottom_05clock/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Wind Cutter on each target other than the caster, as the damage packet arrives (1693).
+	ef_rk_windcutter_target: [
+		{
+			//new_windcutter_target (1693): CEZ2STREffect, new_windcutter\\new_windcutter_target\\new_windcutter_target.str
+			type: 'STR',
+			file: 'new_windcutter/new_windcutter_target/new_windcutter_target',
+			texturePath: 'new_windcutter/new_windcutter_target/',
+			attachedEntity: true
 		}
 	],
 

@@ -31,7 +31,7 @@ import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import { screenAngle, screenSector, screenSide } from 'Renderer/Effects/ScreenDirection.js';
+import { screenAngle, screenSector, screenSide, facingAngle, facingQuarter } from 'Renderer/Effects/ScreenDirection.js';
 import shuffledGrid from 'Renderer/Effects/ShuffledGrid.js';
 import spinSets, { SPIN_SLOT } from 'Renderer/Effects/SpinSets.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -1220,6 +1220,24 @@ class EffectManager {
 			}
 		}
 
+		// One of four effects on the caster, picked by the caster's facing on
+		// screen (ScreenDirection.facingQuarter). Wind Cutter's floor slash.
+		const byFacing = SkillEffect[skillId].successEffectIdOnCasterByFacing;
+		if (byFacing && srcAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			if (srcEntity) {
+				const effectId = byFacing[facingQuarter(facingAngle(srcEntity.direction))];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
+			}
+		}
+
 		// One effect on the caster, turned on screen toward the target once, at
 		// the start (screenTurn = ScreenDirection.screenAngle). Needs a target.
 		// Quill Spear.
@@ -1441,6 +1459,10 @@ class EffectManager {
 
 		play('damageEffectIdOnCaster', srcAID, destAID);
 		play('damageEffectIdOnTarget', destAID, srcAID);
+		// Only on a target that is not the caster (Wind Cutter's slash on its targets)
+		if (destAID !== srcAID) {
+			play('damageEffectIdOnOtherTarget', destAID, srcAID);
+		}
 
 		const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
 		const destEntity = destAID ? EntityManager.get(destAID) : null;
