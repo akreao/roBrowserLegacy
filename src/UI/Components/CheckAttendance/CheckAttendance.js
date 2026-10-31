@@ -18,6 +18,7 @@ import PACKET from 'Network/PacketStructure.js';
 import htmlText from './CheckAttendance.html?raw';
 import cssText from './CheckAttendance.css?raw';
 import 'UI/Elements/Elements.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 
 /**
  * Create Component
@@ -49,6 +50,11 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * @var {string|null} the reward slot whose description is open
+ */
+let _infoSlot = null;
+
+/**
  * Initialize the component (event listener, etc.)
  */
 CheckAttendance.init = function init() {
@@ -65,6 +71,32 @@ CheckAttendance.init = function init() {
 
 	root.querySelector('.close-container-btn').addEventListener('click', () => {
 		CheckAttendance._host.style.display = 'none';
+	});
+
+	// Right-clicking a reward shows its description, as the official window does
+	// (UICheckAttendanceWnd vfunc32 0x007a3e00).
+	root.addEventListener('contextmenu', event => {
+		const slot = event.target.closest?.('.attendance-item');
+		if (!slot) {
+			return;
+		}
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		const reward = _CheckAttendanceInfo?.Rewards?.[parseInt(slot.id.replace('attendance_day_', ''), 10)];
+		if (!reward) {
+			return;
+		}
+		// A second right-click on the same slot closes it, as in the inventory; another
+		// day with the same item shows that day's reward instead.
+		if (ItemInfo.uid === reward.item_id && _infoSlot === slot.id) {
+			ItemInfo.remove();
+			_infoSlot = null;
+			return;
+		}
+		ItemInfo.append();
+		ItemInfo.uid = reward.item_id;
+		_infoSlot = slot.id;
+		ItemInfo.setItem({ ITID: reward.item_id, IsIdentified: true, count: reward.quantity });
 	});
 
 	this.draggable(root.querySelector('.titlebar'));
@@ -145,7 +177,8 @@ CheckAttendance.updateUI = function updateUI() {
 		// A period that runs for over a year (a server giving attendance all
 		// the time, e.g. until 2099) has no end worth showing: the dates would
 		// be misleading and the counter would show thousands of days.
-		const ongoing = end_date.getTime() - new Date(`${start[1]}-${start[2]}-${start[3]}`).getTime() > 366 * 24 * 3600 * 1000;
+		const ongoing =
+			end_date.getTime() - new Date(`${start[1]}-${start[2]}-${start[3]}`).getTime() > 366 * 24 * 3600 * 1000;
 		const period_string = ongoing
 			? 'Event Period: Ongoing'
 			: `Event Period: From ${start[2]}/${start[3]} ~ Until ${end[2]}/${end[3]} (Month/Day) 24:00`;
