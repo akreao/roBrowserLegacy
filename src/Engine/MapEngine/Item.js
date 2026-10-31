@@ -21,6 +21,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ItemObtain from 'UI/Components/ItemObtain/ItemObtain.js';
 import ItemSelection from 'UI/Components/ItemSelection/ItemSelection.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip.js';
@@ -585,15 +586,18 @@ function onBodyItemSize(pkt) {
 }
 
 /**
- * Result of Inventory Expansion
+ * Weight percentage at which the Basic Info window turns the weight red.
+ *
+ * The official client keeps the last value above zero and ignores the rest.
  *
  * @param {object} pkt - PACKET.ZC.RECOVER_PENALTY_OVERWEIGHT
  */
 function onRecoverPenaltyOverweight(pkt) {
-	// TODO add it as status check
-	// show percent to status, still a wip
-	if (Session.Entity) {
-		Session.Entity.overWeightPercent = pkt.percentage;
+	if (pkt.percentage > 0) {
+		Session.overWeightPercent = pkt.percentage;
+	}
+	if (Session.Entity && BasicInfo.weight_max > 0) {
+		BasicInfo.update('weight', Session.Entity.weight, BasicInfo.weight_max);
 	}
 }
 
