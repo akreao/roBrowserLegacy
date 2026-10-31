@@ -57,6 +57,9 @@ vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({ default: { addGuildMemberMa
 // The engine only assigns onRequestGuildSkills on it; the real module reaches
 // NpcBox and ItemInfo, which register components at import time.
 vi.mock('UI/Components/ShortCut/ShortCut.js', () => ({ default: {} }));
+vi.mock('UI/Components/PartyFriends/PartyFriends.js', () => ({ default: {} }));
+vi.mock('UI/Components/Rodex/Rodex.js', () => ({ default: {} }));
+vi.mock('Engine/MapEngine/Group.js', () => ({ default: {} }));
 vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
 vi.mock('Renderer/EntityManager.js', () => ({
 	default: { forEach: fn => mocks.entities.forEach(fn), get: AID => mocks.entityGet(AID) }
