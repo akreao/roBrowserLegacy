@@ -26,6 +26,7 @@ import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import GUIComponent from 'UI/GUIComponent.js';
+import { takeNpcAnswer } from 'UI/Components/NpcBox/NpcAnswerGuard.js';
 
 /**
  * NPC write a message
@@ -111,6 +112,11 @@ function onMenuAppear(pkt) {
 	NpcMenu.setMenu(pkt.msg, pkt.NAID);
 
 	NpcMenu.onSelectMenu = function onSelectMenu(NAID, index) {
+		// An NPC answer within 300 ms of the last Next/OK is dropped; Cancel never is.
+		// (Warp portal lists reuse NpcMenu but are a separate window in the client.)
+		if (index !== 255 && !takeNpcAnswer()) {
+			return;
+		}
 		NpcMenu.remove();
 
 		// Remove npc box when pressed "cancel"

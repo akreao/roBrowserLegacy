@@ -20,6 +20,7 @@ import htmlText from './NpcBox.html?raw';
 import cssText from './NpcBox.css?raw';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
+import { takeNpcAnswer } from './NpcAnswerGuard.js';
 
 /**
  * Create NpcBox component
@@ -331,6 +332,9 @@ NpcBox.addClose = function addClose(gid) {
  * Press "next" button
  */
 NpcBox.next = function next() {
+	if (!takeNpcAnswer()) {
+		return;
+	}
 	_needCleanUp = true;
 	const root = NpcBox.getRoot();
 	const nextBtn = root.querySelector('.next');
