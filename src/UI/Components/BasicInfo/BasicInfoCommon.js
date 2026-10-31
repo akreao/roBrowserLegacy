@@ -576,7 +576,8 @@ export function createBasicInfo(config) {
 				});
 				root.querySelectorAll('.weight').forEach(el => {
 					el.style.color = val1 < val2 / 2 ? '' : 'red';
-					el.title = `${((val1 / val2) * 100).toFixed(1)}%`;
+					// The official hover text is "Weight %d%%", a whole percentage.
+					el.title = `Weight ${val2 ? Math.floor((val1 * 100) / val2) : 0}%`;
 				});
 				break;
 
