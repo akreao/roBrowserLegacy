@@ -658,7 +658,8 @@ export default class ReplayPlayer {
 
 		// Apply hotkeys
 		if (this._hotkeysBuffer?.length > 0 && typeof ShortCut?.setList === 'function') {
-			ShortCut.setList(this._hotkeysBuffer);
+			// A recording holds one bar: show it on the bar the window shows
+			ShortCut.setList(this._hotkeysBuffer, ShortCut.getTab?.() ?? 0);
 		}
 
 		// Apply party and friends

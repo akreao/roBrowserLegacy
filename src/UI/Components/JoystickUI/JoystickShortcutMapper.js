@@ -148,10 +148,19 @@ function prepare() {
 		};
 
 		const oldSetList = ShortCut.setList;
-		ShortCut.setList = function (list) {
-			oldSetList.call(ShortCut, list);
+		ShortCut.setList = function (...args) {
+			oldSetList.apply(ShortCut, args);
 			JoystickUIRenderer.sync();
 		};
+
+		// The hotbar's other bar, or its rows shifted: the HUD shows what the bar now holds
+		for (const name of ['setTab', 'rotate']) {
+			const old = ShortCut[name];
+			ShortCut[name] = function (...args) {
+				old.apply(ShortCut, args);
+				JoystickUIRenderer.sync();
+			};
+		}
 
 		const oldSetElement = ShortCut.setElement;
 		ShortCut.setElement = function (isSkill, ID, count) {
