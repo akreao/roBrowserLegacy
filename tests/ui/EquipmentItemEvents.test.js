@@ -92,6 +92,7 @@ vi.mock('UI/UIManager.js', () => ({
 vi.mock('UI/GUIComponent.js', () => ({ default: mocks.MockGUIComponent }));
 vi.mock('UI/Elements/Elements.js', () => ({}));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({ default: {} }));
+vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({ default: {} }));
 vi.mock('UI/Components/CartItems/CartItems.js', () => ({ default: {} }));
 vi.mock('UI/Components/SwitchEquip/SwitchEquip.js', () => ({ default: { equip: vi.fn(), ui: null } }));
 vi.mock('UI/Components/WinStats/WinStats.js', () => ({
