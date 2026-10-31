@@ -49,6 +49,12 @@
  *	- damageEffectIdOnTarget:	Triggers on the target as soon as each damage packet of the skill arrives (splash
  *								and misses included). An entry that is a list plays one of its effects, picked at random.
  *
+ *	- arrivalEffectIdOnCaster:	Triggers on the caster once per damage packet of the skill, when its damage is due
+ *								(attackMT, plus hitDelay), misses and splash hits included: the official client's
+ *								damage-arrival effects.
+ *
+ *	- arrivalEffectIdOnTarget:	The same on the target.
+ *
  *	- splashEffectIdOnTarget:	Triggers on the target as a damage packet of the skill arrives with skill level -1,
  *								the server's mark on the targets a splash reaches (Venom Splasher's burst).
  *
@@ -78,6 +84,18 @@
  *	- successEffectIdOnTargetByScreenSide:
  *								{ right, left }; plays one on the ground where the target stands when the skill
  *								succeeds, picked by which half of the screen the target is in, seen from the caster.
+ *
+ *	- successEffectIdOnCasterByFacing:
+ *								4 effects; plays one on the caster when the skill succeeds, picked by the caster's
+ *								facing on screen (ScreenDirection.facingQuarter). Wind Cutter's floor slash.
+ *
+ *	- damageEffectIdOnOtherTarget:
+ *								Like damageEffectIdOnTarget, only when the packet's target is not the caster.
+ *
+ *	- damageEffectIdOnCasterByFacing:
+ *								4 effects; plays one on the caster as each damage packet arrives, picked by the
+ *								caster's facing on screen (ScreenDirection.facingQuarter), unless the caster
+ *								still has it from an earlier packet. Dragon Breath's breath.
  *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
@@ -936,24 +954,40 @@ SkillEffect[SK.SA_ELEMENTGROUND] = { successEffectId: 258 }; //Elemental Change 
 SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fire
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
 // RK Rune Knight
-SkillEffect[SK.RK_ENCHANTBLADE] = { effectId: 756 }; //Enchant Blade
-SkillEffect[SK.RK_SONICWAVE] = { effectId: 832 }; //Sonic Wave
-SkillEffect[SK.RK_DEATHBOUND] = {}; //Death Bound
-SkillEffect[SK.RK_HUNDREDSPEAR] = { effectId: 723 }; //Hundred Spear
-SkillEffect[SK.RK_WINDCUTTER] = { effectId: 'ef_rk_windcutter' }; //Wind Cutter
-SkillEffect[SK.RK_IGNITIONBREAK] = { effectIdOnCaster: 722 }; //Ignition Break
-SkillEffect[SK.RK_DRAGONBREATH] = { hitEffectId: 587 }; //Dragon Breath
-SkillEffect[SK.RK_DRAGONHOWLING] = { effectId: 731 }; //Dragon Howling
-SkillEffect[SK.RK_MILLENNIUMSHIELD] = { effectId: 749 }; //Millenium Shield
-SkillEffect[SK.RK_CRUSHSTRIKE] = {}; //Crush Strike
-SkillEffect[SK.RK_REFRESH] = {}; //Refresh
-SkillEffect[SK.RK_GIANTGROWTH] = {}; //Giant Growth
-SkillEffect[SK.RK_STONEHARDSKIN] = {}; //Stone Hard Skin
-SkillEffect[SK.RK_VITALITYACTIVATION] = {}; //Vitality Activation
-SkillEffect[SK.RK_STORMBLAST] = {}; //Storm Blast
-SkillEffect[SK.RK_FIGHTINGSPIRIT] = {}; //Fighting Spirit //CHECK Is this splash needed?
-SkillEffect[SK.RK_ABUNDANCE] = {}; //Abundance
-SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
+SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Enchant Blade: 756 + 닌자_던지기.wav on success
+SkillEffect[SK.RK_SONICWAVE] = { arrivalEffectIdOnCaster: 832, castAuraEffectId: 12 }; //Sonic Wave: 기공포.wav (832) on the caster as the damage arrives; 1678 follow-up
+SkillEffect[SK.RK_DEATHBOUND] = { successEffectIdOnCaster: 'ef_rk_bluecasting', damageEffectIdOnTarget: 183 }; //Death Bound: 441 on success; 183 on the knight from the reflect packet
+SkillEffect[SK.RK_HUNDREDSPEAR] = { castAuraEffectId: 12 }; //Hundred Spear: 723 + 835 on the caster as the damage arrives (follow-up)
+SkillEffect[SK.RK_WINDCUTTER] = {
+	successEffectIdOnCaster: 'ef_rk_windcutter',
+	successEffectIdOnCasterByFacing: [
+		'ef_rk_windcutter_bottom_05',
+		'ef_rk_windcutter_bottom_01',
+		'ef_rk_windcutter_bottom_05',
+		'ef_rk_windcutter_bottom_01'
+	],
+	damageEffectIdOnOtherTarget: 'ef_rk_windcutter_target',
+	firstHitEffectId: 122,
+	hideCastAura: true
+}; //Wind Cutter: 1690 + floor slash by facing on success; 1693 on other targets; hit map 122
+SkillEffect[SK.RK_IGNITIONBREAK] = { successEffectIdOnCaster: 'ef_rk_ignitionbreak', castAuraEffectId: 12 }; //Ignition Break: 1624 + 1625 + wl_jackfrost.wav on success; yellow cast aura
+SkillEffect[SK.RK_DRAGONBREATH] = {
+	damageEffectIdOnCasterByFacing: ['ef_rk_dragonbreath_05', 'ef_rk_dragonbreath_01', 'ef_rk_dragonbreath_11', 'ef_rk_dragonbreath_07'],
+	damageEffectIdOnTarget: 'ef_rk_dragonbreath_bomb',
+	arrivalEffectIdOnTarget: 'ef_rk_dragonbreath_sound',
+	castAuraEffectId: 12
+}; //Dragon Breath: breath by facing on the caster, bomb on the target, sound as the damage arrives
+SkillEffect[SK.RK_DRAGONHOWLING] = { successEffectIdOnCaster: [731, 'quake'] }; //Dragon Howling: quake + 731 (with dragon_h.wav) on success
+SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecasting', 749, 'ef_rk_millenniumshield_sound'], castAuraEffectId: 12 }; //Millennium Shield: 441 + 749 + ef_soulstrike.wav on success
+SkillEffect[SK.RK_CRUSHSTRIKE] = { arrivalEffectIdOnTarget: ['quake', 589, 'ef_rk_crushstrike_sound'], castAuraEffectId: 12 }; //Crush Strike: quake + 589 + _enemy_hit_wind2.wav as its damage arrives
+SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: 'ef_rk_refresh_sound', castAuraEffectId: 58 }; //Refresh: _heal_effect.wav on success (538 follow-up); white cast aura
+SkillEffect[SK.RK_GIANTGROWTH] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Giant Growth: 756 + 닌자_던지기.wav on success
+SkillEffect[SK.RK_STONEHARDSKIN] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Stone Hard Skin: 756 + 441 on success
+SkillEffect[SK.RK_VITALITYACTIVATION] = { successEffectIdOnCaster: 309 }; //Vitality Activation: 309 on success
+SkillEffect[SK.RK_STORMBLAST] = { successEffectIdOnCaster: 17, successEffectId: ['quake', 'ef_rk_stormblast_sound', 263] }; //Storm Blast: 17 on the caster; quake + mon_맹룡과강.wav + 263 on the target, on success (330 follow-up)
+SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Fighting Spirit: 756 + 441 on success
+SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: 'ef_rk_abundance_sound', castAuraEffectId: 12 }; //Abundance: 흡기.wav on success (538 follow-up)
+SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting', successEffectId: 'ef_rk_bluecasting', castAuraEffectId: 12 }; //Phantom Thrust: 441 on caster and target on success (538 follow-up)
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = {
@@ -1516,7 +1550,12 @@ SkillEffect[6510 /* BO_DUST_EXPLOSION */] = {
 	effectId: 'ef_bo_dust_explosion',
 	hitEffectId: 'ef_bo_dust_explosion_hit'
 }; //Dust Explosion
-SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
+SkillEffect[SK.RK_DRAGONBREATH_WATER] = {
+	damageEffectIdOnCasterByFacing: ['ef_rk_dragonbreath_water_05', 'ef_rk_dragonbreath_water_01', 'ef_rk_dragonbreath_water_11', 'ef_rk_dragonbreath_water_07'],
+	damageEffectIdOnTarget: 'ef_rk_dragonbreath_water_bomb',
+	arrivalEffectIdOnTarget: 'ef_rk_dragonbreath_sound',
+	castAuraEffectId: 12
+}; //Dragon Breath - Water: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.WH_WIND_SIGN] = { effectId: 'ef_wh_wind_sign' }; //Wind Sign
 SkillEffect[SK.WH_HAWKRUSH] = { effectId: 'ef_wh_hawkrush' }; //Hawk Rush
 SkillEffect[SK.WH_CALAMITYGALE] = { effectIdOnCaster: 'ef_wh_calamitygale_cast' }; //Calamity Gale
@@ -1556,7 +1595,7 @@ SkillEffect[6520 /* WH_WILD_WALK */] = {
 	effectIdOnCaster: 'ef_wh_wild_walk_cast',
 	hitEffectId: 'ef_wh_wild_walk_hit'
 }; //Wild Walk
-SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
+SkillEffect[SK.RK_LUXANIMA] = { successEffectIdOnCaster: 1044 }; //Lux Anima: 1044 on the caster on success
 SkillEffect[SK.DK_SERVANTWEAPON] = {
 	effectId: 'ef_dk_servantweapon',
 	effectIdOnCaster: 'ef_dk_servantweapon_cast',

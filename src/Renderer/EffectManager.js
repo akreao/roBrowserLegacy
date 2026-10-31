@@ -31,7 +31,7 @@ import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import { screenAngle, screenSector, screenSide } from 'Renderer/Effects/ScreenDirection.js';
+import { screenAngle, screenSector, screenSide, facingAngle, facingQuarter } from 'Renderer/Effects/ScreenDirection.js';
 import shuffledGrid from 'Renderer/Effects/ShuffledGrid.js';
 import spinSets, { SPIN_SLOT } from 'Renderer/Effects/SpinSets.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -1220,6 +1220,24 @@ class EffectManager {
 			}
 		}
 
+		// One of four effects on the caster, picked by the caster's facing on
+		// screen (ScreenDirection.facingQuarter). Wind Cutter's floor slash.
+		const byFacing = SkillEffect[skillId].successEffectIdOnCasterByFacing;
+		if (byFacing && srcAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			if (srcEntity) {
+				const effectId = byFacing[facingQuarter(facingAngle(srcEntity.direction))];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
+			}
+		}
+
 		// One effect on the caster, turned on screen toward the target once, at
 		// the start (screenTurn = ScreenDirection.screenAngle). Needs a target.
 		// Quill Spear.
@@ -1415,14 +1433,15 @@ class EffectManager {
 	 * @param {number} srcAID caster aid
 	 * @param {function} [random] returns a number in [0, 1)
 	 * @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
+	 * @param {number} [arrivalTick] when the packet's damage is due (attackMT on), for the arrival effects
 	 */
-	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1, arrivalTick = tick) {
 		const skill = SkillEffect[skillId];
 		if (!skill) {
 			return;
 		}
 
-		const play = (field, ownerAID, otherAID) => {
+		const play = (field, ownerAID, otherAID, startTick = tick) => {
 			if (!skill[field] || !ownerAID) {
 				return;
 			}
@@ -1432,7 +1451,7 @@ class EffectManager {
 				EffectManager.spam({
 					effectId: effectId,
 					ownerAID: ownerAID,
-					startTick: tick,
+					startTick: startTick,
 					otherAID: otherAID,
 					hitCount: hitCount
 				});
@@ -1441,6 +1460,31 @@ class EffectManager {
 
 		play('damageEffectIdOnCaster', srcAID, destAID);
 		play('damageEffectIdOnTarget', destAID, srcAID);
+		// Only on a target that is not the caster (Wind Cutter's slash on its targets)
+		if (destAID !== srcAID) {
+			play('damageEffectIdOnOtherTarget', destAID, srcAID);
+		}
+		// Once per packet when its damage is due, misses and splash hits included:
+		// the official client's damage-arrival effects
+		play('arrivalEffectIdOnCaster', srcAID, destAID, arrivalTick);
+		play('arrivalEffectIdOnTarget', destAID, srcAID, arrivalTick);
+
+		// One of four effects on the caster by its facing on screen
+		// (ScreenDirection.facingQuarter), once: not again while the caster
+		// still has it from an earlier packet. Dragon Breath's breath.
+		const byFacing = skill.damageEffectIdOnCasterByFacing;
+		const caster = byFacing && srcAID ? EntityManager.get(srcAID) : null;
+		if (caster) {
+			const effectId = byFacing[facingQuarter(facingAngle(caster.direction))];
+			if (effectId && !EffectManager.has(srcAID, effectId)) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				});
+			}
+		}
 
 		const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
 		const destEntity = destAID ? EntityManager.get(destAID) : null;
