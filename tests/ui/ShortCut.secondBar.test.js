@@ -97,6 +97,14 @@ describe('ShortCut second hotkey bar', () => {
 		expect(ShortCut.getList()[8]).toMatchObject({ ID: FIREBOLT });
 	});
 
+	it('carries cooldowns over to the other bar', () => {
+		ShortCut.setSkillDelay(FIREBOLT, 5000);
+		ShortCut.setTab(1);
+		expect(ShortCut.getList()[5].Delay).toBe(5000);
+		expect(slot(5).querySelector('.cooldown-overlay')).not.toBeNull();
+		expect(slot(0).querySelector('.cooldown-overlay')).toBeNull();
+	});
+
 	it('draws a list the server sends for the bar shown', () => {
 		ShortCut.setTab(1);
 		ShortCut.setList(slots({ 2: { isSkill: 1, ID: FIREBOLT, count: 1 } }), 1);

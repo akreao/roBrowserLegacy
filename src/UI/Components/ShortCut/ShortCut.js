@@ -368,12 +368,13 @@ ShortCut.setTab = function setTab(tab) {
 		.querySelector('.btn-bar')
 		?.classList.toggle('active', tab === 1);
 
-	cancelCooldowns();
+	const cooldowns = takeCooldowns();
 	ShortCut.getRoot()
 		.querySelectorAll('.container')
 		.forEach(el => el.removeAttribute('data-tooltip'));
 	drawList(_tabLists[tab] || emptyList(_list.length || 38));
 	ShortCut.updateAllTooltips();
+	restoreCooldowns(cooldowns);
 };
 
 /**
@@ -393,9 +394,18 @@ function emptyList(length) {
 }
 
 /**
- * Stop every cooldown drawn on the bar
+ * Stop every cooldown drawn on the bar, and say what was left of each
+ *
+ * @return {Map<number, number>} skill ID to remaining ms
  */
-function cancelCooldowns() {
+function takeCooldowns() {
+	const left = new Map();
+	for (const slot of _list) {
+		if (slot?.isSkill && slot.Delay > Renderer.tick) {
+			left.set(slot.ID, Math.max(left.get(slot.ID) || 0, slot.Delay - Renderer.tick));
+		}
+	}
+
 	for (const animationId of _activeAnimations.values()) {
 		cancelAnimationFrame(animationId);
 	}
@@ -403,6 +413,20 @@ function cancelCooldowns() {
 	ShortCut.getRoot()
 		.querySelectorAll('.cooldown-overlay')
 		.forEach(el => el.remove());
+	return left;
+}
+
+/**
+ * Draw again the cooldowns takeCooldowns returned, on the slots now holding those skills
+ *
+ * @param {Map<number, number>} left skill ID to remaining ms
+ */
+function restoreCooldowns(left) {
+	_list.forEach((slot, index) => {
+		if (slot?.isSkill && left.has(slot.ID)) {
+			setDelayOnIndex(index, left.get(slot.ID));
+		}
+	});
 }
 
 /**
