@@ -25325,21 +25325,6 @@ export default {
 		}
 	],
 
-	// Chain Lightning (WL_CHAINLIGHTNING), from the client's own effect folders.
-	ef_wl_chainlightning_cast: [
-		{
-			type: 'STR',
-			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
-			texturePath: 'new_chainlightning/new_chainlightning_cast/'
-		},
-		{
-			type: 'STR',
-			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
-			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
 	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE), from the client's own effect folders.
 	ef_wl_tetravortex_fire: [
 		{
@@ -26882,6 +26867,42 @@ export default {
 			file: 'new_comet/new_comet_bottom/new_comet_bottom',
 			texturePath: 'new_comet/new_comet_bottom/',
 			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING) cast, with 1636: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1635: [
+		{
+			//(1635): CEZ2STREffect, new_chainlightning\\new_chainlightning_cast\\new_chainlightning_cast.str
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
+			texturePath: 'new_chainlightning/new_chainlightning_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING) cast floor, with 1635. See effect-port/warlock-skills.md.
+	1636: [
+		{
+			//(1636): CEZ2STREffect, new_chainlightning\\new_chainlightning_cast_bottom\\new_chainlightning_cast_bottom.str
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
+			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING, WL_CHAINLIGHTNING_ATK): on the target when the damage arrives. See effect-port/warlock-skills.md.
+	1638: [
+		{
+			//(1638): CEZ2STREffect, new_chainlightning\\new_chainlightning_target\\new_chainlightning_target.str
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_target/new_chainlightning_target',
+			texturePath: 'new_chainlightning/new_chainlightning_target/',
 			attachedEntity: true
 		}
 	],
