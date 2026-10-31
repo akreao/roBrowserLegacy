@@ -242913,12 +242913,12 @@ var init_SkillList = __esmMin((() => {
 // src/UI/Components/ShortCut/ShortCut.html?raw
 var ShortCut_default$2;
 var init_ShortCut$2 = __esmMin((() => {
-	ShortCut_default$2 = "<div id=\"ShortCut\" data-background=\"basic_interface/shortitem_bg.bmp\">\r\n	<button\r\n		class=\"close\"\r\n		data-background=\"basic_interface/sys_close_off.bmp\"\r\n		data-hover=\"basic_interface/sys_close_on.bmp\"\r\n	></button>\r\n	<button class=\"resize\" data-background=\"btn_resize.bmp\"></button>\r\n	<button\r\n		class=\"btn-minus\"\r\n		data-background=\"shortcut/btn_minus_normal.bmp\"\r\n		data-hover=\"shortcut/btn_minus_over.bmp\"\r\n		data-down=\"shortcut/btn_minus_press.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn-plus\"\r\n		data-background=\"shortcut/btn_plus_normal.bmp\"\r\n		data-hover=\"shortcut/btn_plus_over.bmp\"\r\n		data-down=\"shortcut/btn_plus_press.bmp\"\r\n		data-active=\"shortcut/btn_plus_disable.bmp\"\r\n	></button>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"0\"></div>\r\n		<div class=\"container\" data-index=\"1\"></div>\r\n		<div class=\"container\" data-index=\"2\"></div>\r\n		<div class=\"container\" data-index=\"3\"></div>\r\n		<div class=\"container\" data-index=\"4\"></div>\r\n		<div class=\"container\" data-index=\"5\"></div>\r\n		<div class=\"container\" data-index=\"6\"></div>\r\n		<div class=\"container\" data-index=\"7\"></div>\r\n		<div class=\"container\" data-index=\"8\"></div>\r\n		<div class=\"index\">1</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"9\"></div>\r\n		<div class=\"container\" data-index=\"10\"></div>\r\n		<div class=\"container\" data-index=\"11\"></div>\r\n		<div class=\"container\" data-index=\"12\"></div>\r\n		<div class=\"container\" data-index=\"13\"></div>\r\n		<div class=\"container\" data-index=\"14\"></div>\r\n		<div class=\"container\" data-index=\"15\"></div>\r\n		<div class=\"container\" data-index=\"16\"></div>\r\n		<div class=\"container\" data-index=\"17\"></div>\r\n		<div class=\"index\">2</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"18\"></div>\r\n		<div class=\"container\" data-index=\"19\"></div>\r\n		<div class=\"container\" data-index=\"20\"></div>\r\n		<div class=\"container\" data-index=\"21\"></div>\r\n		<div class=\"container\" data-index=\"22\"></div>\r\n		<div class=\"container\" data-index=\"23\"></div>\r\n		<div class=\"container\" data-index=\"24\"></div>\r\n		<div class=\"container\" data-index=\"25\"></div>\r\n		<div class=\"container\" data-index=\"26\"></div>\r\n		<div class=\"index\">3</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"27\"></div>\r\n		<div class=\"container\" data-index=\"28\"></div>\r\n		<div class=\"container\" data-index=\"29\"></div>\r\n		<div class=\"container\" data-index=\"30\"></div>\r\n		<div class=\"container\" data-index=\"31\"></div>\r\n		<div class=\"container\" data-index=\"32\"></div>\r\n		<div class=\"container\" data-index=\"33\"></div>\r\n		<div class=\"container\" data-index=\"34\"></div>\r\n		<div class=\"container\" data-index=\"35\"></div>\r\n		<div class=\"index\">4</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"shortcut-tooltip\"></div>\r\n</div>\r\n";
+	ShortCut_default$2 = "<div id=\"ShortCut\" data-background=\"basic_interface/shortitem_bg.bmp\">\r\n	<button\r\n		class=\"close\"\r\n		data-background=\"basic_interface/sys_close_off.bmp\"\r\n		data-hover=\"basic_interface/sys_close_on.bmp\"\r\n	></button>\r\n	<button class=\"resize\" data-background=\"btn_resize.bmp\"></button>\r\n	<button class=\"btn-bar\" data-background=\"shortcut_1_bts.bmp\" data-active=\"shortcut_2_bts.bmp\"></button>\r\n	<button\r\n		class=\"btn-minus\"\r\n		data-background=\"shortcut/btn_minus_normal.bmp\"\r\n		data-hover=\"shortcut/btn_minus_over.bmp\"\r\n		data-down=\"shortcut/btn_minus_press.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn-plus\"\r\n		data-background=\"shortcut/btn_plus_normal.bmp\"\r\n		data-hover=\"shortcut/btn_plus_over.bmp\"\r\n		data-down=\"shortcut/btn_plus_press.bmp\"\r\n		data-active=\"shortcut/btn_plus_disable.bmp\"\r\n	></button>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"0\"></div>\r\n		<div class=\"container\" data-index=\"1\"></div>\r\n		<div class=\"container\" data-index=\"2\"></div>\r\n		<div class=\"container\" data-index=\"3\"></div>\r\n		<div class=\"container\" data-index=\"4\"></div>\r\n		<div class=\"container\" data-index=\"5\"></div>\r\n		<div class=\"container\" data-index=\"6\"></div>\r\n		<div class=\"container\" data-index=\"7\"></div>\r\n		<div class=\"container\" data-index=\"8\"></div>\r\n		<div class=\"index\">1</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"9\"></div>\r\n		<div class=\"container\" data-index=\"10\"></div>\r\n		<div class=\"container\" data-index=\"11\"></div>\r\n		<div class=\"container\" data-index=\"12\"></div>\r\n		<div class=\"container\" data-index=\"13\"></div>\r\n		<div class=\"container\" data-index=\"14\"></div>\r\n		<div class=\"container\" data-index=\"15\"></div>\r\n		<div class=\"container\" data-index=\"16\"></div>\r\n		<div class=\"container\" data-index=\"17\"></div>\r\n		<div class=\"index\">2</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"18\"></div>\r\n		<div class=\"container\" data-index=\"19\"></div>\r\n		<div class=\"container\" data-index=\"20\"></div>\r\n		<div class=\"container\" data-index=\"21\"></div>\r\n		<div class=\"container\" data-index=\"22\"></div>\r\n		<div class=\"container\" data-index=\"23\"></div>\r\n		<div class=\"container\" data-index=\"24\"></div>\r\n		<div class=\"container\" data-index=\"25\"></div>\r\n		<div class=\"container\" data-index=\"26\"></div>\r\n		<div class=\"index\">3</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"27\"></div>\r\n		<div class=\"container\" data-index=\"28\"></div>\r\n		<div class=\"container\" data-index=\"29\"></div>\r\n		<div class=\"container\" data-index=\"30\"></div>\r\n		<div class=\"container\" data-index=\"31\"></div>\r\n		<div class=\"container\" data-index=\"32\"></div>\r\n		<div class=\"container\" data-index=\"33\"></div>\r\n		<div class=\"container\" data-index=\"34\"></div>\r\n		<div class=\"container\" data-index=\"35\"></div>\r\n		<div class=\"index\">4</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"shortcut-tooltip\"></div>\r\n</div>\r\n";
 }));
 // src/UI/Components/ShortCut/ShortCut.css?raw
 var ShortCut_default$1;
 var init_ShortCut$1 = __esmMin((() => {
-	ShortCut_default$1 = ":host {\r\n	width: 280px;\r\n	top: 0px;\r\n	left: 480px;\r\n	overflow: hidden;\r\n}\r\n\r\n#ShortCut {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 100%;\r\n	background-repeat: repeat-y;\r\n}\r\n#ShortCut .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 11px;\r\n	height: 11px;\r\n}\r\n#ShortCut .resize {\r\n	position: absolute;\r\n	bottom: 1px;\r\n	right: 1px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n\r\n#ShortCut .row {\r\n	position: relative;\r\n}\r\n#ShortCut .row .container {\r\n	float: left;\r\n	width: 24px;\r\n	height: 23px;\r\n	margin-top: 5px;\r\n	margin-left: 5px;\r\n	margin-bottom: 6px;\r\n}\r\n#ShortCut .row .container:hover {\r\n	background-color: #b5ffb5;\r\n}\r\n#ShortCut .row .index {\r\n	float: left;\r\n	position: relative;\r\n	top: 13px;\r\n	left: 5px;\r\n}\r\n#ShortCut .row .clear {\r\n}\r\n\r\n#ShortCut .icon {\r\n	position: relative;\r\n}\r\n#ShortCut .icon .img {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n	background-color: transparent;\r\n}\r\n#ShortCut .icon .name {\r\n	display: none;\r\n	z-index: 1;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	background-color: rgba(0, 0, 0, 0.6);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 5px;\r\n	white-space: nowrap;\r\n}\r\n#ShortCut .icon:hover .name {\r\n	display: block;\r\n}\r\n#ShortCut .icon.hide .name {\r\n	display: none;\r\n}\r\n#ShortCut .icon .amount {\r\n	position: absolute;\r\n	right: 1px;\r\n	top: 20px;\r\n	text-shadow: 1px 1px 0px white;\r\n	text-align: right;\r\n	font-weight: bold;\r\n}\r\n\r\n.shortcut-tooltip {\r\n	display: none;\r\n	position: fixed;\r\n	background-color: rgba(0, 0, 0, 0.8);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 2px 6px;\r\n	white-space: nowrap;\r\n	z-index: 10000;\r\n	border-radius: 2px;\r\n	pointer-events: none;\r\n	line-height: 1.2;\r\n}\r\n.shortcut-tooltip.show {\r\n	display: block;\r\n}\r\n/* In the top layer while the hotbar is scaled (ShortCut.js): undo the popover defaults */\r\n.shortcut-tooltip[popover] {\r\n	inset: auto;\r\n	margin: 0;\r\n	border: none;\r\n	overflow: visible;\r\n}\r\n\r\n#ShortCut .cooldown-overlay {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	pointer-events: none;\r\n	border-radius: 2px;\r\n	z-index: 999;\r\n	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);\r\n}\r\n\r\n/* Classic window: no 2025 buttons */\r\n#ShortCut .btn-minus,\r\n#ShortCut .btn-plus {\r\n	display: none;\r\n}\r\n\r\n/*\r\n * 2025 window (kRO 2025 UIShortCutWnd), used when the client data has\r\n * shortcut/shortcut_frame.bmp: 290px wide, a frame every 33px, slots 24px at\r\n * x = 16 + 29 * column and y = 4 in their row, row numbers at x = 6, y = 13,\r\n * counts at x + 27, y + 17 in 11px white, - and + buttons at the right.\r\n */\r\n#ShortCut.v2025 {\r\n	width: 290px;\r\n	background-image: none !important;\r\n}\r\n#ShortCut.v2025 .close,\r\n#ShortCut.v2025 .resize {\r\n	display: none;\r\n}\r\n#ShortCut.v2025 .btn-minus,\r\n#ShortCut.v2025 .btn-plus {\r\n	display: block;\r\n	position: absolute;\r\n	left: 277px;\r\n	width: 11px;\r\n	height: 11px;\r\n	padding: 0;\r\n	border: none;\r\n	background-color: transparent;\r\n	z-index: 1;\r\n}\r\n#ShortCut.v2025 .btn-minus.disabled {\r\n	pointer-events: none;\r\n}\r\n#ShortCut.v2025 .row {\r\n	height: 33px;\r\n	background-repeat: no-repeat;\r\n}\r\n#ShortCut.v2025 .row .container {\r\n	position: absolute;\r\n	top: 4px;\r\n	left: calc(16px + 29px * var(--col));\r\n	float: none;\r\n	width: 24px;\r\n	height: 24px;\r\n	margin: 0;\r\n}\r\n#ShortCut.v2025 .row .index {\r\n	position: absolute;\r\n	float: none;\r\n	left: 6px;\r\n	top: 13px;\r\n	font-size: 11px;\r\n	line-height: 11px;\r\n	color: #2f4a4a;\r\n}\r\n#ShortCut.v2025 .icon .amount {\r\n	right: -3px;\r\n	top: 17px;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n	color: #ffffff;\r\n	text-shadow:\r\n		1px 0 0 #000,\r\n		-1px 0 0 #000,\r\n		0 1px 0 #000,\r\n		0 -1px 0 #000;\r\n}\r\n";
+	ShortCut_default$1 = ":host {\r\n	width: 280px;\r\n	top: 0px;\r\n	left: 480px;\r\n	overflow: hidden;\r\n}\r\n\r\n#ShortCut {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 100%;\r\n	background-repeat: repeat-y;\r\n}\r\n#ShortCut .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 11px;\r\n	height: 11px;\r\n}\r\n#ShortCut .resize {\r\n	position: absolute;\r\n	bottom: 1px;\r\n	right: 1px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n\r\n#ShortCut .row {\r\n	position: relative;\r\n}\r\n#ShortCut .row .container {\r\n	float: left;\r\n	width: 24px;\r\n	height: 23px;\r\n	margin-top: 5px;\r\n	margin-left: 5px;\r\n	margin-bottom: 6px;\r\n}\r\n#ShortCut .row .container:hover {\r\n	background-color: #b5ffb5;\r\n}\r\n#ShortCut .row .index {\r\n	float: left;\r\n	position: relative;\r\n	top: 13px;\r\n	left: 5px;\r\n}\r\n#ShortCut .row .clear {\r\n}\r\n\r\n#ShortCut .icon {\r\n	position: relative;\r\n}\r\n#ShortCut .icon .img {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n	background-color: transparent;\r\n}\r\n#ShortCut .icon .name {\r\n	display: none;\r\n	z-index: 1;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	background-color: rgba(0, 0, 0, 0.6);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 5px;\r\n	white-space: nowrap;\r\n}\r\n#ShortCut .icon:hover .name {\r\n	display: block;\r\n}\r\n#ShortCut .icon.hide .name {\r\n	display: none;\r\n}\r\n#ShortCut .icon .amount {\r\n	position: absolute;\r\n	right: 1px;\r\n	top: 20px;\r\n	text-shadow: 1px 1px 0px white;\r\n	text-align: right;\r\n	font-weight: bold;\r\n}\r\n\r\n.shortcut-tooltip {\r\n	display: none;\r\n	position: fixed;\r\n	background-color: rgba(0, 0, 0, 0.8);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 2px 6px;\r\n	white-space: nowrap;\r\n	z-index: 10000;\r\n	border-radius: 2px;\r\n	pointer-events: none;\r\n	line-height: 1.2;\r\n}\r\n.shortcut-tooltip.show {\r\n	display: block;\r\n}\r\n/* In the top layer while the hotbar is scaled (ShortCut.js): undo the popover defaults */\r\n.shortcut-tooltip[popover] {\r\n	inset: auto;\r\n	margin: 0;\r\n	border: none;\r\n	overflow: visible;\r\n}\r\n\r\n#ShortCut .cooldown-overlay {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	pointer-events: none;\r\n	border-radius: 2px;\r\n	z-index: 999;\r\n	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);\r\n}\r\n\r\n/* Classic window: no 2025 buttons */\r\n#ShortCut .btn-bar,\r\n#ShortCut .btn-minus,\r\n#ShortCut .btn-plus {\r\n	display: none;\r\n}\r\n\r\n/*\r\n * 2025 window (kRO 2025 UIShortCutWnd), used when the client data has\r\n * shortcut/shortcut_frame.bmp: 290px wide, a frame every 33px, slots 24px at\r\n * x = 16 + 29 * column and y = 4 in their row, row numbers at x = 6, y = 13,\r\n * counts at x + 27, y + 17 in 11px white, - and + buttons at the right.\r\n */\r\n#ShortCut.v2025 {\r\n	width: 290px;\r\n	background-image: none !important;\r\n}\r\n#ShortCut.v2025 .close,\r\n#ShortCut.v2025 .resize {\r\n	display: none;\r\n}\r\n#ShortCut.v2025 .btn-minus,\r\n#ShortCut.v2025 .btn-plus {\r\n	display: block;\r\n	position: absolute;\r\n	left: 277px;\r\n	width: 11px;\r\n	height: 11px;\r\n	padding: 0;\r\n	border: none;\r\n	background-color: transparent;\r\n	z-index: 1;\r\n}\r\n/* \"Switch Hotkey Bar\" (UIShortCutWnd checkbox 0x225 at 3, 4), over row 1's number */\r\n#ShortCut.v2025.tabs .btn-bar {\r\n	display: block;\r\n	position: absolute;\r\n	left: 3px;\r\n	top: 4px;\r\n	width: 10px;\r\n	height: 26px;\r\n	padding: 0;\r\n	border: none;\r\n	background-color: transparent;\r\n	z-index: 1;\r\n}\r\n#ShortCut.v2025 .btn-minus.disabled {\r\n	pointer-events: none;\r\n}\r\n#ShortCut.v2025 .row {\r\n	height: 33px;\r\n	background-repeat: no-repeat;\r\n}\r\n#ShortCut.v2025 .row .container {\r\n	position: absolute;\r\n	top: 4px;\r\n	left: calc(16px + 29px * var(--col));\r\n	float: none;\r\n	width: 24px;\r\n	height: 24px;\r\n	margin: 0;\r\n}\r\n#ShortCut.v2025 .row .index {\r\n	position: absolute;\r\n	float: none;\r\n	left: 6px;\r\n	top: 13px;\r\n	font-size: 11px;\r\n	line-height: 11px;\r\n	color: #2f4a4a;\r\n}\r\n#ShortCut.v2025 .icon .amount {\r\n	right: -3px;\r\n	top: 17px;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n	color: #ffffff;\r\n	text-shadow:\r\n		1px 0 0 #000,\r\n		-1px 0 0 #000,\r\n		0 1px 0 #000,\r\n		0 -1px 0 #000;\r\n}\r\n";
 }));
 // src/UI/Components/ShortCut/ShortCut.js
 var ShortCut_exports = /* @__PURE__ */ __exportAll({ default: () => ShortCut_default });
@@ -242933,6 +242933,87 @@ function getSkillOwner(id) {
 	if (id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST) return SkillListMH_default.homunculus;
 	if (id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST) return SkillListMH_default.mercenary;
 	return Controller$4;
+}
+/**
+* @return {boolean} the server keeps a second hotkey bar (packets 0x0b20 / 0x0b21)
+*/
+function hasTabs() {
+	return PacketVerManager_default.value >= 20190522;
+}
+/**
+* @return {number} the bar shown: 0, or 1 for the second one
+*/
+function getTab() {
+	return hasTabs() && _preferences$36.tab ? 1 : 0;
+}
+/**
+* @param {object} slot
+* @return {{isSkill: number|boolean, ID: number, count: number}}
+*/
+function copySlot(slot) {
+	return {
+		isSkill: slot?.isSkill || 0,
+		ID: slot?.ID || 0,
+		count: slot?.count || 0
+	};
+}
+/**
+* @param {number} length
+* @return {Array} empty slots
+*/
+function emptyList(length) {
+	return Array.from({ length }, () => ({
+		isSkill: 0,
+		ID: 0,
+		count: 0
+	}));
+}
+/**
+* Stop every cooldown drawn on the bar
+*/
+function cancelCooldowns() {
+	for (const animationId of _activeAnimations.values()) cancelAnimationFrame(animationId);
+	_activeAnimations.clear();
+	ShortCut.getRoot().querySelectorAll(".cooldown-overlay").forEach((el) => el.remove());
+}
+/**
+* Draw the running cooldowns on the skills the bar now shows, from what the
+* server said whichever bar was shown then
+*/
+function restoreCooldowns() {
+	_list$5.forEach((slot, index) => {
+		if (!slot?.isSkill) return;
+		const end = Math.max(_cooldownEnds.get(slot.ID) || 0, _globalCooldownEnd);
+		if (end > Renderer.tick) setDelayOnIndex(index, end - Renderer.tick);
+	});
+}
+/**
+* Draw a list of hotkeys in the slots
+*
+* @param {Array} list
+*/
+function drawList(list) {
+	let skill;
+	let needGuildSkills = false;
+	ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
+		el.innerHTML = "";
+	});
+	_list$5.length = 0;
+	_list$5.length = list.length;
+	_rowCount = Math.min(4, Math.floor(list.length / 9));
+	updateRowButtons(_preferences$36.size);
+	for (let i = 0, count = list.length; i < count; ++i) if (list[i].isSkill) {
+		skill = ShortCut.getSkillById(list[i].ID);
+		if (getSkillOwner(list[i].ID) === Guild_default) needGuildSkills = true;
+		if (skill && skill.level) ShortCut.addElement(i, true, list[i].ID, slotSkillLevel(list[i].ID, list[i].count, skill.level));
+		else {
+			if (!_list$5[i]) _list$5[i] = {};
+			_list$5[i].isSkill = true;
+			_list$5[i].ID = list[i].ID;
+			_list$5[i].count = list[i].count;
+		}
+	} else ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
+	if (needGuildSkills) ShortCut.onRequestGuildSkills();
 }
 /**
 * Update tooltip for empty slots with hotkey only
@@ -243537,7 +243618,7 @@ function haveHotkeysChanged(currentData) {
 	if (!_lastServerHotkeys) return true;
 	return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
 }
-var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$36, ShortCut_default;
+var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _tabLists, _cooldownEnds, _globalCooldownEnd, _activeAnimations, _preferences$36, ShortCut_default;
 var init_ShortCut = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -243569,11 +243650,15 @@ var init_ShortCut = __esmMin((() => {
 	_list$5 = [];
 	_rowCount = 0;
 	_lastServerHotkeys = null;
+	_tabLists = [null, null];
+	_cooldownEnds = /* @__PURE__ */ new Map();
+	_globalCooldownEnd = 0;
 	_activeAnimations = /* @__PURE__ */ new Map();
 	_preferences$36 = Preferences.get("ShortCut", {
 		x: 480,
 		y: 0,
 		size: 1,
+		tab: 0,
 		magnet_top: true,
 		magnet_bottom: false,
 		magnet_left: false,
@@ -243607,6 +243692,16 @@ var init_ShortCut = __esmMin((() => {
 				});
 				button.addEventListener("click", action);
 			}
+		}
+		const barButton = root.querySelector(".btn-bar");
+		if (barButton) {
+			barButton.addEventListener("mouseenter", onContainerMouseEnter);
+			barButton.addEventListener("mouseleave", onContainerMouseLeave);
+			barButton.addEventListener("mousedown", (e) => {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+			});
+			barButton.addEventListener("click", () => ShortCut.setTab(_preferences$36.tab ? 0 : 1));
 		}
 		Client.loadFile(`${DB.INTERFACE_PATH}shortcut/shortcut_frame.bmp`, (url) => {
 			container.classList.add("v2025");
@@ -243658,6 +243753,11 @@ var init_ShortCut = __esmMin((() => {
 	* Append to body
 	*/
 	ShortCut.onAppend = function onAppend() {
+		const root = ShortCut.getRoot();
+		root.querySelector("#ShortCut").classList.toggle("tabs", hasTabs());
+		const barButton = root.querySelector(".btn-bar");
+		barButton?.classList.toggle("active", getTab() === 1);
+		barButton?.setAttribute("data-tooltip", DB.getMessage(3596, "Switch Hotkey Bar"));
 		this._host.style.height = `${rowsHeight(_preferences$36.size)}px`;
 		const rect = this._host.getBoundingClientRect();
 		this._host.style.top = `${Math.min(Math.max(0, _preferences$36.y), Renderer.height - rect.height)}px`;
@@ -243693,6 +243793,9 @@ var init_ShortCut = __esmMin((() => {
 		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
 		_activeAnimations.clear();
 		_list$5.length = 0;
+		_tabLists[0] = _tabLists[1] = null;
+		_cooldownEnds.clear();
+		_globalCooldownEnd = 0;
 		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
 			el.innerHTML = "";
 		});
@@ -243721,27 +243824,29 @@ var init_ShortCut = __esmMin((() => {
 	*
 	* @param {Array} shortcut list
 	*/
-	ShortCut.setList = function setList(list) {
-		let skill;
-		let needGuildSkills = false;
-		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
-			el.innerHTML = "";
-		});
-		_list$5.length = list.length;
-		_rowCount = Math.min(4, Math.floor(list.length / 9));
-		updateRowButtons(_preferences$36.size);
-		for (let i = 0, count = list.length; i < count; ++i) if (list[i].isSkill) {
-			skill = ShortCut.getSkillById(list[i].ID);
-			if (getSkillOwner(list[i].ID) === Guild_default) needGuildSkills = true;
-			if (skill && skill.level) ShortCut.addElement(i, true, list[i].ID, slotSkillLevel(list[i].ID, list[i].count, skill.level));
-			else {
-				if (!_list$5[i]) _list$5[i] = {};
-				_list$5[i].isSkill = true;
-				_list$5[i].ID = list[i].ID;
-				_list$5[i].count = list[i].count;
-			}
-		} else ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
-		if (needGuildSkills) ShortCut.onRequestGuildSkills();
+	ShortCut.setList = function setList(list, tab = 0) {
+		_tabLists[tab] = list.map(copySlot);
+		if (tab === getTab()) drawList(list);
+	};
+	ShortCut.getTab = getTab;
+	/**
+	* Show the other hotkey bar. The official client (UIShortCutWnd SendMsg 6,
+	* id 0x225) keeps the choice as a client option and redraws every slot from
+	* that bar's list.
+	*
+	* @param {number} tab 0 or 1
+	*/
+	ShortCut.setTab = function setTab(tab) {
+		if (!hasTabs() || tab === getTab()) return;
+		_tabLists[getTab()] = Array.from(_list$5, copySlot);
+		_preferences$36.tab = tab;
+		_preferences$36.save();
+		ShortCut.getRoot().querySelector(".btn-bar")?.classList.toggle("active", tab === 1);
+		cancelCooldowns();
+		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => el.removeAttribute("data-tooltip"));
+		drawList(_tabLists[tab] || emptyList(_list$5.length || 38));
+		ShortCut.updateAllTooltips();
+		restoreCooldowns();
 	};
 	/**
 	* Hook: ask the server for the guild skill list (set by MapEngine/Guild)
@@ -243830,6 +243935,7 @@ var init_ShortCut = __esmMin((() => {
 	* @param {number} delay in ms
 	*/
 	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
+		_globalCooldownEnd = Math.max(_globalCooldownEnd, Renderer.tick + delay);
 		_list$5.forEach((element, index) => {
 			if (element.isSkill) setDelayOnIndex(index, delay);
 		});
@@ -243841,6 +243947,7 @@ var init_ShortCut = __esmMin((() => {
 	* @param {number} delay in ms
 	*/
 	ShortCut.setSkillDelay = function setSkillDelay(ID, delay) {
+		_cooldownEnds.set(ID, Math.max(_cooldownEnds.get(ID) || 0, Renderer.tick + delay));
 		_list$5.forEach((element, index) => {
 			if (element.isSkill && element.ID == ID) setDelayOnIndex(index, delay);
 		});
@@ -244093,8 +244200,13 @@ function prepare$1() {
 			JoystickUIRenderer_default.updateByIndex(index);
 		};
 		const oldSetList = ShortCut_default.setList;
-		ShortCut_default.setList = function(list) {
-			oldSetList.call(ShortCut_default, list);
+		ShortCut_default.setList = function(...args) {
+			oldSetList.apply(ShortCut_default, args);
+			JoystickUIRenderer_default.sync();
+		};
+		const oldSetTab = ShortCut_default.setTab;
+		ShortCut_default.setTab = function(...args) {
+			oldSetTab.apply(ShortCut_default, args);
 			JoystickUIRenderer_default.sync();
 		};
 		const oldSetElement = ShortCut_default.setElement;
@@ -376981,8 +377093,7 @@ function onSkillUpdate$2(pkt) {
 * @param {object} pkt - PACKET_ZC_SHORTCUT_KEY_LIST_V2
 */
 function onShortCutList(pkt) {
-	if (pkt.tab && pkt.tab > 0) return;
-	ShortCut_default.setList(pkt.ShortCutKey);
+	ShortCut_default.setList(pkt.ShortCutKey, pkt.tab === 1 ? 1 : 0);
 }
 /**
 * Add new skill to the list
@@ -377476,8 +377587,10 @@ var init_Skill = __esmMin((() => {
 	*/
 	ShortCut_default.onChange = function onChange(index, isSkill, ID, count) {
 		let pkt;
-		if (PacketVerManager_default.value >= 20190522) pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE2();
-		else pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE1();
+		if (PacketVerManager_default.value >= 20190522) {
+			pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE2();
+			pkt.tab = ShortCut_default.getTab();
+		} else pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE1();
 		pkt.Index = index;
 		pkt.ShortCutKey.isSkill = isSkill ? 1 : 0;
 		pkt.ShortCutKey.ID = ID;
@@ -391827,7 +391940,16 @@ var init_ReplayPlayer = __esmMin((() => {
 			if (this._homunBuffer && typeof HomunInformations_default?.setInformations === "function") HomunInformations_default.setInformations(this._homunBuffer);
 			if (this._mercenaryBuffer && typeof MercenaryInformations_default?.setInformations === "function") MercenaryInformations_default.setInformations(this._mercenaryBuffer);
 			if (this._petBuffer && typeof PetInformations_default?.setInformations === "function") PetInformations_default.setInformations(this._petBuffer);
-			if (this._hotkeysBuffer?.length > 0 && typeof ShortCut_default?.setList === "function") ShortCut_default.setList(this._hotkeysBuffer);
+			if (this._hotkeysBuffer?.length > 0 && typeof ShortCut_default?.setList === "function") {
+				const tab = ShortCut_default.getTab?.() ?? 0;
+				const empty = this._hotkeysBuffer.map(() => ({
+					isSkill: 0,
+					ID: 0,
+					count: 0
+				}));
+				ShortCut_default.setList(empty, tab ? 0 : 1);
+				ShortCut_default.setList(this._hotkeysBuffer, tab);
+			}
 			if (this._groupAndFriendsBuffer) {
 				if (this._groupAndFriendsBuffer.groupInfo?.length > 0 && typeof controller?.setParty === "function") controller.setParty(this._groupAndFriendsBuffer.groupName || "", this._groupAndFriendsBuffer.groupInfo);
 				if (this._groupAndFriendsBuffer.friendInfo?.length > 0 && typeof controller?.setFriends === "function") controller.setFriends(this._groupAndFriendsBuffer.friendInfo);
