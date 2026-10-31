@@ -64,12 +64,17 @@ describe('Equipment title bar', () => {
 		const root = Equipment.getRoot();
 		const panel = root.querySelector('.panel');
 		const dblclick = target => target.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+		const tabs = root.querySelector('.tab-manager');
 		dblclick(root.querySelector('.titlebar'));
 		expect(panel.style.display).toBe('none');
+		expect(tabs.style.display).toBe('none');
 		dblclick(root.querySelector('.titlebar'));
 		expect(panel.style.display).toBe('');
+		expect(tabs.style.display).toBe('');
 		dblclick(root.querySelector('.titlebar .close'));
 		expect(panel.style.display).toBe('');
+		root.querySelector('.titlebar .mini').click();
+		expect(tabs.style.display).toBe('none');
 	});
 });
 

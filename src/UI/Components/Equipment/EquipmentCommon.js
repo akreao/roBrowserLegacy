@@ -255,7 +255,7 @@ export function createEquipment({
 
 		const toggleReduce = () => {
 			const panel = root.querySelector('.panel');
-			if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+			if (panel) setReduced(panel.style.display !== 'none');
 		};
 		const miniBtn = root.querySelector('.titlebar .mini');
 		if (miniBtn) {
@@ -490,6 +490,17 @@ export function createEquipment({
 		Network.sendPacket(pkt);
 	}
 
+	/**
+	 * The official window reduces to its 17px title bar (UIEquipWnd msg 0xca),
+	 * so the tab row, which sits outside .panel, goes too.
+	 */
+	function setReduced(reduced) {
+		const root = Component.getRoot();
+		root.querySelectorAll('.panel, .tab-manager').forEach(el => {
+			el.style.display = reduced ? 'none' : '';
+		});
+	}
+
 	Component.onAppend = function onAppend() {
 		fitTabLabels();
 		const hostRect = this._host.getBoundingClientRect();
@@ -501,9 +512,7 @@ export function createEquipment({
 		}
 
 		if (_preferences.reduce) {
-			const root = Component.getRoot();
-			const panel = root.querySelector('.panel');
-			if (panel) panel.style.display = 'none';
+			setReduced(true);
 		}
 
 		if (UIVersionManager.getEquipmentVersion() > 0) {
