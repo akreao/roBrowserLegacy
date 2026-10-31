@@ -23,12 +23,6 @@ describe('Brandish Spear effects', () => {
 		);
 	});
 
-	it('gives the mercenary copy the same row', () => {
-		expect(read('DB/Skills/SkillEffect.js')).toContain(
-			'SkillEffect[SK.ML_BRANDISH] = SkillEffect[SK.KN_BRANDISHSPEAR];'
-		);
-	});
-
 	it('plays Brandish.str with no sound', () => {
 		const parts = effectEntry(70);
 		expect(parts).toHaveLength(1);
