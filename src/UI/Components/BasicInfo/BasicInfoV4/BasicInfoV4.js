@@ -21,6 +21,7 @@ export default createBasicInfo({
 	innerId: '#BasicInfoV4',
 	topbarItemSelector: '.topbar div',
 	topbarDblClick: true,
+	titleBarHeight: 17,
 	toggleButtonsEvent: 'click',
 	buttonsSelector: '.buttons button',
 	buttonsEvent: 'click',
