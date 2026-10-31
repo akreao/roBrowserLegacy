@@ -256,6 +256,10 @@ export function createCharSelect(config) {
 	 */
 	Component.onAppend = function onAppend() {
 		if (gridLayout) {
+			// Back on the character picked last time, as the official client
+			// does from its CURSLOT setting
+			_index = _preferences.index;
+
 			Component.updateCharSlot();
 
 			startCountdownInterval();
@@ -1369,7 +1373,7 @@ export function createCharSelect(config) {
 			});
 		}
 
-		const slotIndex = (_index = index > _maxSlots ? _maxSlots : index < 0 ? 0 : index);
+		const slotIndex = (_index = index > _maxSlots - 1 ? _maxSlots - 1 : index < 0 ? 0 : index);
 
 		// Not found, just clean up.
 		entity = _slots[_index];
