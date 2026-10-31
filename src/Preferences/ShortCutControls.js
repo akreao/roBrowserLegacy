@@ -514,6 +514,13 @@ ShortCuts.Flag9 = {
 	cmd: 'EXECUTE_FLAG_9'
 };
 
-const ShortCutControls = { ShortCuts: ShortCuts };
+const ShortCutControls = Preferences.get('ShortCutControls', { ShortCuts }, 1.2);
 
-export default Preferences.get('ShortCutControls', ShortCutControls, 1.2);
+// Keys saved before an entry existed don't hold it: give it its default
+for (const name of Object.keys(ShortCuts)) {
+	if (!ShortCutControls.ShortCuts[name]) {
+		ShortCutControls.ShortCuts[name] = ShortCuts[name];
+	}
+}
+
+export default ShortCutControls;
