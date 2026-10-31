@@ -63,6 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { increaseAgilityEffect, decreaseAgilityEffect } from 'DB/Effects/AgilityEffect.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
@@ -1677,126 +1678,10 @@ export default {
 
 	//36: [{}],	//EF_PORTAL	//warp portal unit
 
-	37: [
-		{
-			//EF_INCAGILITY	AGI Up
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			delayLate: 500,
-			duplicate: 7,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 0.75,
-			attachedEntity: true,
-			duration: 1000,
-			delayOffset: 400,
-			duplicate: 3,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			duplicate: 10,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/agi_up.bmp',
-			poszEnd: 3,
-			poszStart: 0.4,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: '3D',
-			wav: 'effect/ef_incagility',
-			overlay: true,
-			zIndex: 10
-		}
-	],
+	// EF_INCAGILITY / EF_DECAGILITY, Increase / Decrease AGI: the official client's picture and streaks (AgilityEffect.js)
+	37: increaseAgilityEffect,
 
-	38: [
-		{
-			//EF_DECAGILITY	AGI Down
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			duplicate: 20,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 1,
-			poszStartRand: 1,
-			poszStartRandMiddle: 6,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/slow.bmp',
-			poszEnd: 0.4,
-			poszStart: 2.8,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: '3D',
-			wav: 'effect/ef_decagility',
-			zIndex: 10
-		}
-	],
+	38: decreaseAgilityEffect,
 
 	39: [
 		{
