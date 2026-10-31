@@ -8,7 +8,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Drain Life blood drain with the first hit', () => {
 	it('matches the official client', () => {
-		expect(SkillEffect[SK.WL_DRAINLIFE]).toEqual({ firstHitEffectId: 216 });
+		expect(SkillEffect[SK.WL_DRAINLIFE]).toEqual({ hitEffectIdOnCaster: 216, hitEffectOnce: true });
 		expect(EffectTable[216]).toBeDefined();
 	});
 });
