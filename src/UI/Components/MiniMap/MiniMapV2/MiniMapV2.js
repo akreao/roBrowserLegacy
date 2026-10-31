@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
+import BigMap from 'UI/Components/BigMap/BigMap.js';
 import htmlText from './MiniMapV2.html?raw';
 import cssText from './MiniMapV2.css?raw';
 import { createMiniMap } from '../MiniMapCommon.js';
@@ -17,7 +17,9 @@ export default createMiniMap({
 	name: 'MiniMapV2',
 	htmlText,
 	cssText,
-	worldMap: WorldMap,
+	// The 2025 client's view button opens the memo map (UIMinimapZoomWnd message 0xbd);
+	// the world map keeps its own shortcut.
+	worldMap: BigMap,
 	townInfoToggle: true,
 	coordinates: true,
 	arrowShadow: true

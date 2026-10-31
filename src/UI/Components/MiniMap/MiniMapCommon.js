@@ -95,6 +95,11 @@ export function createMiniMap({
 	let _towninfo = [];
 
 	/**
+	 * @var {string} current map name, without extension
+	 */
+	let _mapName = '';
+
+	/**
 	 * Async image create helper
 	 */
 	function createAsyncImage() {
@@ -190,6 +195,8 @@ export function createMiniMap({
 		}
 
 		if (worldMap) {
+			// A memo map draws from this minimap's picture and marks
+			worldMap.setSource?.(() => MiniMap.getMapData());
 			const viewonBtn = root.querySelector('.viewon');
 			if (viewonBtn) {
 				viewonBtn.addEventListener('mousedown', () => {
@@ -217,7 +224,8 @@ export function createMiniMap({
 	MiniMap.setMap = function setMap(mapname) {
 		_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
-		_towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
+		_mapName = mapname.replace(/\..*/, '');
+		_towninfo = DB.getTownInfo(_mapName);
 
 		let path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/, '.bmp');
 		path = path.replace(/\//g, '\\');
@@ -616,6 +624,24 @@ export function createMiniMap({
 			}
 		};
 	})();
+
+	/**
+	 * What the memo map window (BigMap) draws: the same map picture and marks.
+	 *
+	 * @return {object}
+	 */
+	MiniMap.getMapData = function getMapData() {
+		return {
+			mapName: _mapName,
+			map: _map,
+			arrow: _arrow,
+			towninfo: _towninfo,
+			party: _party,
+			guild: _guild,
+			markers: _markers,
+			icons: [_toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra]
+		};
+	};
 
 	/**
 	 * Create component and return it
