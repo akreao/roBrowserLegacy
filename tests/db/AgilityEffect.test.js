@@ -26,6 +26,7 @@ describe('Increase / Decrease AGI', () => {
 		expect(spawned).toHaveLength(51);
 		expect(spawned[0].effect.file).toBe('effect/agi_up.bmp');
 		expect(spawned[1].effect.file).toBe('effect/ac_center2.tga');
+		expect(spawned.every(p => p.effect.sharedTexture)).toBe(true);
 		expect(Math.round((spawned[50].Inst.startTick * 60) / 1000)).toBe(98);
 	});
 
