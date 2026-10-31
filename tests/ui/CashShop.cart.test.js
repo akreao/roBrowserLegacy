@@ -108,12 +108,24 @@ describe('Cash Shop cart', () => {
 
 describe('Cash Shop purchase results', () => {
 	it('says nothing on success', () => {
-		CashShop.readPoints = vi.fn();
+		const readPoints = vi.spyOn(CashShop, 'readPoints').mockImplementation(() => {});
 		CashShop.cartItemLen = 1;
 		CashShop.setSuccessCashShopUpdate({ result: 0, cashPoints: 5, kafraPoints: 0 });
 		expect(mocks.addText).not.toHaveBeenCalled();
 		expect(mocks.messageBox).not.toHaveBeenCalled();
-		expect(CashShop.readPoints).toHaveBeenCalledWith(5, 0, 0);
+		expect(readPoints).toHaveBeenCalledWith(5, 0, 0);
+		readPoints.mockRestore();
+	});
+
+	it('keeps the cart on a partial purchase but updates the points', () => {
+		const readPoints = vi.spyOn(CashShop, 'readPoints').mockImplementation(() => {});
+		add(501);
+		CashShop.cartItemLen = 1;
+		CashShop.setSuccessCashShopUpdate({ result: 8, cashPoints: 5, kafraPoints: 0 });
+		expect(CashShop.cartItem).toHaveLength(1);
+		expect(readPoints).toHaveBeenCalledWith(5, 0, 0);
+		expect(mocks.addText).toHaveBeenLastCalledWith('msg1814 %d', 'error', 'log');
+		readPoints.mockRestore();
 	});
 
 	it('puts a failure in the chat in red', () => {

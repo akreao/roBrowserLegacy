@@ -464,7 +464,7 @@ CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
 	}
 	// Official ZC_SE_PC_BUY_CASHITEM_RESULT 0x00cd3b70: success only updates
 	// the points; a failure is a red line in the chat.
-	if (res.result === 0 || res.result === 8) {
+	if (res.result === 0) {
 		CashShop.checkCartItemLen += 1;
 		if (CashShop.checkCartItemLen >= CashShop.cartItemLen) {
 			CashShop.cartItemLen = 0;
@@ -472,14 +472,15 @@ CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
 			CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
 			onResetCartListCashShop();
 		}
-		if (res.result === 0) {
-			return;
-		}
-	} else {
-		// The server stops at the first failure: no more results for this purchase
-		CashShop.cartItemLen = 0;
-		CashShop.checkCartItemLen = 0;
+		return;
 	}
+	// A partial purchase (8) still updates the points; any failure ends this
+	// purchase and leaves the cart as it is.
+	if (res.result === 8) {
+		CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
+	}
+	CashShop.cartItemLen = 0;
+	CashShop.checkCartItemLen = 0;
 	ChatBox.addText(DB.getMessage(buyResultMessage(res.result)), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 };
 
