@@ -936,7 +936,7 @@ SkillEffect[SK.SA_ELEMENTGROUND] = { successEffectId: 258 }; //Elemental Change 
 SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fire
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
 // RK Rune Knight
-SkillEffect[SK.RK_ENCHANTBLADE] = { effectId: 756 }; //Enchant Blade
+SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'] }; //Enchant Blade: 756 + 닌자_던지기.wav on success
 SkillEffect[SK.RK_SONICWAVE] = { effectId: 832 }; //Sonic Wave
 SkillEffect[SK.RK_DEATHBOUND] = {}; //Death Bound
 SkillEffect[SK.RK_HUNDREDSPEAR] = { effectId: 723 }; //Hundred Spear

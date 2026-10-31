@@ -26514,6 +26514,15 @@ export default {
 		}
 	],
 
+	// Enchant Blade (RK_ENCHANTBLADE) and Giant Growth (RK_GIANTGROWTH): the use-packet sound, on the caster.
+	// See effect-port/rune-knight-skills.md.
+	ef_rk_ninja_throw_sound: [
+		{
+			wav: 'effect/\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2', // effect/닌자_던지기
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
