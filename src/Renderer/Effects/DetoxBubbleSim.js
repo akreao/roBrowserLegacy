@@ -7,7 +7,8 @@
  * As the official client plays it, on the target when Detoxify succeeds:
  *
  *  - Tick 0: effect/EF_Detoxication.wav.
- *  - Every 5 ticks from tick 0 to 95 (20 in all): one bubble (sprite particle2)
+ *  - Every 5 ticks from tick 0 to 95 (20 in all; in the low-effects mode every
+ *    15 ticks, 0 to 90, 7 in all): one bubble (sprite particle2)
  *    living 40 ticks. It starts on the ground 2 + r(6) units from the target in
  *    a random direction, and follows the target.
  *  - It rises at (30 + r(30)) / 100 units a tick, slowing by half that over its
@@ -35,6 +36,9 @@ export const DETOX = {
 	fadeStart: 32,
 	spin: 3
 };
+
+/** The low-effects mode (option 229, /mineffect): one bubble every 15 ticks while the effect's 100 ticks last. */
+export const DETOX_LOW = { count: 7, every: 15 };
 
 const r = (random, k) => Math.floor(random() * k);
 

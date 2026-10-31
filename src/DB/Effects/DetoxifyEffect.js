@@ -3,14 +3,16 @@
  *
  * Effect 21 (EF_DETOXICATION) as the official client draws it:
  * EF_Detoxication.wav and 20 particle2 bubbles, one every 5 ticks, rising
- * around the target. Motion in Renderer/Effects/DetoxBubbleSim.js.
+ * around the target (one every 15 ticks, 7 in all, under /mineffect).
+ * Motion in Renderer/Effects/DetoxBubbleSim.js.
  * Spec: effect-port/thief-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import Preferences from 'Preferences/Map.js';
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
-import { DETOX, planBubbles, bubbleAt } from 'Renderer/Effects/DetoxBubbleSim.js';
+import { DETOX, DETOX_LOW, planBubbles, bubbleAt } from 'Renderer/Effects/DetoxBubbleSim.js';
 
 /**
  * The 3D effect drawing one bubble, following the target. It starts on the
@@ -52,7 +54,11 @@ export const detoxifyEffect = [
 		type: 'FUNC',
 		attachedEntity: true,
 		func: function (Params) {
-			planBubbles().forEach((bubble, i) => {
+			// The client's low-effects mode (/mineffect) spawns one bubble every 15 ticks
+			const bubbles = Preferences.mineffect
+				? planBubbles(Math.random, DETOX_LOW.count, DETOX_LOW)
+				: planBubbles();
+			bubbles.forEach((bubble, i) => {
 				this.spamEffect({
 					effect: detoxBubbleEffect(bubble),
 					Inst: {

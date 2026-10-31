@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DETOX, planBubbles, bubbleAt, bubbleAlpha } from '../../src/Renderer/Effects/DetoxBubbleSim.js';
 import { detoxifyEffect, detoxBubbleEffect } from '../../src/DB/Effects/DetoxifyEffect.js';
+import MapPreferences from '../../src/Preferences/Map.js';
 
 // Detoxify (TF_DETOXIFY, skill 53): effect 21 on the target when it succeeds, EF_Detoxication.wav
 // and a particle2 bubble every 5 ticks rising around it. Spec: effect-port/thief-skills.md.
@@ -60,5 +61,19 @@ describe('Detoxify bubbles', () => {
 		expect(spawned[0].Inst.startTick).toBe(1000);
 		expect(spawned[19].Inst.startTick).toBeCloseTo(1000 + (95 * 1000) / 60);
 		expect(detoxifyEffect[1].wav).toBe('effect/ef_detoxication');
+	});
+
+	it('spawns one bubble every 15 ticks under /mineffect', () => {
+		const spawned = [];
+		MapPreferences.mineffect = true;
+		try {
+			detoxifyEffect[0].func.call(
+				{ spamEffect: p => spawned.push(p) },
+				{ Init: { ownerEntity: { position: [0, 0, 0] } }, Inst: { startTick: 0 } }
+			);
+		} finally {
+			MapPreferences.mineffect = false;
+		}
+		expect(spawned.map(p => Math.round((p.Inst.startTick * 60) / 1000))).toEqual([0, 15, 30, 45, 60, 75, 90]);
 	});
 });
