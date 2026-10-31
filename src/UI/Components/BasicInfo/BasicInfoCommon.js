@@ -50,6 +50,7 @@ export function createBasicInfo(config) {
 		innerId,
 		topbarItemSelector = '.topbar button',
 		topbarDblClick = false,
+		titleBarHeight = 0,
 		toggleButtonsEvent = 'mousedown',
 		buttonsSelector = '.buttons button',
 		buttonsEvent = 'mousedown',
@@ -248,6 +249,22 @@ export function createBasicInfo(config) {
 		buttons.addEventListener('scroll', hide);
 	}
 
+	/**
+	 * Whether a pointer event is on the window's title bar.
+	 *
+	 * @param {MouseEvent|TouchEvent} event
+	 * @return {boolean}
+	 */
+	function onTitleBar(event) {
+		const point = event.touches ? event.touches[0] : event;
+		if (!point || !Component._host) {
+			return false;
+		}
+		const top = Component._host.getBoundingClientRect().top;
+		const scale = Component.scale ?? 1;
+		return (point.clientY - top) / scale < titleBarHeight;
+	}
+
 	Component.init = function init() {
 		const root = this.getRoot();
 
@@ -259,7 +276,25 @@ export function createBasicInfo(config) {
 			el.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		});
 
-		if (topbarDblClick) {
+		if (titleBarHeight) {
+			// The official window is moved and reduced from its title bar only
+			// (UIBasicInfoWnd mouse handlers check y < 17).
+			const inner = root.querySelector(innerId);
+			if (topbarDblClick && inner) {
+				inner.addEventListener('dblclick', event => {
+					if (!event.target.closest('button') && onTitleBar(event)) {
+						Component.toggleMode();
+					}
+				});
+			}
+			// A drag re-checks with its first event while the window moves, so decide once.
+			Component.canStartDrag = event => {
+				if (event.basicInfoTitleBar === undefined) {
+					event.basicInfoTitleBar = onTitleBar(event);
+				}
+				return event.basicInfoTitleBar;
+			};
+		} else if (topbarDblClick) {
 			const topbar = root.querySelector('.topbar');
 			if (topbar) {
 				topbar.addEventListener('dblclick', () => Component.toggleMode());
