@@ -104,10 +104,12 @@ ShortCut.init = function init() {
 		const target = e.target.closest('.container');
 		if (target) {
 			onDrop(e, target);
+		} else {
+			onDropOffSlot(e);
 		}
 	});
 	container.addEventListener('dragover', e => {
-		if (e.target.closest('.container')) {
+		if (e.target.closest('.container') || isHotbarSkillDrag(window._OBJ_DRAG_)) {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 		}
@@ -879,6 +881,43 @@ function onDrop(event, target) {
 }
 
 /**
+ * Whether a drag payload is a skill picked up from a hotbar slot
+ *
+ * @param {object} data drag payload
+ * @return {boolean}
+ */
+function isHotbarSkillDrag(data) {
+	return !!data && data.from === 'ShortCut' && data.type === 'skill' && Number.isInteger(data.index);
+}
+
+/**
+ * Dropping on the hotbar away from any slot. The official client
+ * (UIShortCutWnd drop handler) empties the slot a skill was dragged from;
+ * an item dragged from the bar carries no slot there and stays.
+ */
+function onDropOffSlot(event) {
+	let data;
+
+	try {
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
+		return;
+	}
+
+	if (!isHotbarSkillDrag(data)) {
+		return;
+	}
+
+	event.stopImmediatePropagation();
+	event.preventDefault();
+
+	const slot = _list[data.index];
+	if (slot && slot.isSkill && slot.ID === data.data?.ID) {
+		ShortCut.removeAt(data.index);
+	}
+}
+
+/**
  * Stop the drag and drop
  */
 function onDragEnd(icon) {
@@ -909,6 +948,7 @@ function onDragStart(event, icon) {
 			(window._OBJ_DRAG_ = {
 				type: _list[index].isSkill ? 'skill' : 'item',
 				from: 'ShortCut',
+				index,
 				data: _list[index]
 			})
 		)
