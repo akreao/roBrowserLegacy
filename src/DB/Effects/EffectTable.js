@@ -26523,6 +26523,31 @@ export default {
 		}
 	],
 
+	// EF_BLUECASTING (441) launched by a use packet, not a cast: the cast-aura row 441 lasts as long as the
+	// cast, so on its own it would never end. The official client gives 441 a 60-tick (1 s) lifetime. Rune Knight
+	// buffs (Death Bound, Millennium Shield, Stone Hard Skin, Fighting Spirit, Phantom Thrust). See effect-port/rune-knight-skills.md.
+	ef_rk_bluecasting: [
+		{
+			//EF_BLUECASTING (441), 1 s
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 1000,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [

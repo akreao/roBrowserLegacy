@@ -938,7 +938,7 @@ SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wi
 // RK Rune Knight
 SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'] }; //Enchant Blade: 756 + 닌자_던지기.wav on success
 SkillEffect[SK.RK_SONICWAVE] = { effectId: 832 }; //Sonic Wave
-SkillEffect[SK.RK_DEATHBOUND] = {}; //Death Bound
+SkillEffect[SK.RK_DEATHBOUND] = { successEffectIdOnCaster: 'ef_rk_bluecasting', damageEffectIdOnTarget: 183 }; //Death Bound: 441 on success; 183 on the knight from the reflect packet
 SkillEffect[SK.RK_HUNDREDSPEAR] = { effectId: 723 }; //Hundred Spear
 SkillEffect[SK.RK_WINDCUTTER] = { effectId: 'ef_rk_windcutter' }; //Wind Cutter
 SkillEffect[SK.RK_IGNITIONBREAK] = { effectIdOnCaster: 722 }; //Ignition Break
