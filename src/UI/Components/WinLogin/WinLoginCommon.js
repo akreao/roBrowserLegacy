@@ -114,12 +114,7 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		_inputUsername.value = _preferences.saveID ? _preferences.ID : '';
 		_inputPassword.value = '';
 
-		Client.loadFile(
-			`${DB.INTERFACE_PATH}login_interface/chk_save${_preferences.saveID ? 'on' : 'off'}.bmp`,
-			url => {
-				_buttonSave.style.backgroundImage = 'url(' + url + ')';
-			}
-		);
+		updateSaveButton();
 
 		if (_preferences.ID.length) {
 			_inputPassword.focus();
@@ -171,12 +166,19 @@ export function createWinLogin({ name, htmlText, cssText }) {
 
 	function toggleSaveButton() {
 		_preferences.saveID = !_preferences.saveID;
-		Client.loadFile(
-			`${DB.INTERFACE_PATH}login_interface/chk_save${_preferences.saveID ? 'on' : 'off'}.bmp`,
-			url => {
-				_buttonSave.style.backgroundImage = 'url(' + url + ')';
-			}
-		);
+		updateSaveButton();
+	}
+
+	/**
+	 * The template names its checkbox art (data-on / data-off): the 2025
+	 * window draws a plain 12x12 box with a separate "Save ID" label, the
+	 * older ones a bitmap with the label baked in.
+	 */
+	function updateSaveButton() {
+		const { on = 'login_interface/chk_saveon.bmp', off = 'login_interface/chk_saveoff.bmp' } = _buttonSave.dataset;
+		Client.loadFile(`${DB.INTERFACE_PATH}${_preferences.saveID ? on : off}`, url => {
+			_buttonSave.style.backgroundImage = 'url(' + url + ')';
+		});
 	}
 
 	function exit() {
