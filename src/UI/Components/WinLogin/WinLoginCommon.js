@@ -29,6 +29,12 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	let _buttonSave;
 
 	/**
+	 * The "quit?" prompt while it is open, so a second Escape closes it
+	 * instead of stacking another one.
+	 */
+	let _exitPrompt = null;
+
+	/**
 	 * What a plugin drawing this screen sees (UI/ScreenHooks.js). login()
 	 * goes the way the Connect button does, so a different sign-in -- a
 	 * token in place of a password -- reaches the server the same way.
@@ -142,11 +148,25 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	};
 
 	Component.onRemove = function onRemove() {
+		closeExitPrompt();
 		ScreenHooks.hide('login');
 	};
 
 	Component.onKeyDown = function onKeyDown(event) {
 		if (this._host.style.display === 'none') return true;
+
+		// The prompt has no keys of its own: Escape answers No, and Enter must
+		// not log in behind it.
+		if (_exitPrompt) {
+			if (event.which === KEYS.ESCAPE) {
+				closeExitPrompt();
+			}
+			if (event.which === KEYS.ESCAPE || event.which === KEYS.ENTER) {
+				event.stopImmediatePropagation();
+				return false;
+			}
+			return true;
+		}
 
 		switch (event.which) {
 			case KEYS.ENTER:
@@ -179,9 +199,33 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		);
 	}
 
+	/**
+	 * The official client asks before quitting from the login window
+	 * (msgstringtable 17), from both the close button and Escape.
+	 */
 	function exit() {
-		Component.onExitRequest();
+		if (_exitPrompt) {
+			return false;
+		}
+		_exitPrompt = UIManager.showPromptBox(
+			DB.getMessage(17, 'Are you sure that you want to quit?'),
+			'ok',
+			'cancel',
+			() => {
+				_exitPrompt = null;
+				Component.onExitRequest();
+			},
+			() => {
+				_exitPrompt = null;
+			}
+		);
 		return false;
+	}
+
+	function closeExitPrompt() {
+		const prompt = _exitPrompt;
+		_exitPrompt = null;
+		prompt?.remove();
 	}
 
 	function connect() {
