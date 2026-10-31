@@ -23,6 +23,7 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Client from 'Core/Client.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import ScreenHooks from 'UI/ScreenHooks.js';
@@ -175,6 +176,9 @@ export function createCharCreate(config) {
 		chooseSex: hasRace,
 		hasStats,
 		create(look) {
+			if (!nameFits(String((look && look.name) || ''), false)) {
+				return;
+			}
 			const stats = (look && look.stats) || {};
 			const stat = key => (hasStats ? parseInt(stats[key], 10) || 1 : 1);
 			const args = [
@@ -414,9 +418,45 @@ export function createCharCreate(config) {
 	/**
 	 * Send back informations to send the packet
 	 */
+	/**
+	 * The official client checks the name's length before sending it
+	 * (UINewMakeCharWnd::SendMsg): under 4 is refused with msgstringtable 21,
+	 * over 23 with 531 and the name is cleared. It counts bytes in the
+	 * client's codepage, so a Korean character counts as two. Our
+	 * packet writes the name as UTF-8 into the same 24 bytes, so a name is
+	 * also too long when its UTF-8 form is, or it would be cut short.
+	 *
+	 * @param {string} charname
+	 * @param {boolean} clearOnTooLong - clear the stock name field (a plugin
+	 *   drawing the screen has its own field)
+	 * @return {boolean} whether the name can be sent
+	 */
+	function nameFits(charname, clearOnTooLong) {
+		const length = TextEncoding.encode(charname).length;
+		if (length < 4) {
+			UIManager.showMessageBox(DB.getMessage(21, 'Character Name must be at least 4 characters long.'), 'ok');
+			return false;
+		}
+		if (Math.max(length, TextEncoding.encode(charname, 'utf-8').length) > 23) {
+			UIManager.showMessageBox(
+				DB.getMessage(531, 'Name is too long. Please enter a name up to 23 english characters.'),
+				'ok'
+			);
+			if (clearOnTooLong) {
+				Component.getRoot().querySelector(nameInputSelector).value = '';
+			}
+			return false;
+		}
+		return true;
+	}
+
 	function create() {
 		const root = Component.getRoot();
 		const charname = root.querySelector(nameInputSelector).value;
+
+		if (!nameFits(charname, true)) {
+			return;
+		}
 
 		let str = 1;
 		let agi = 1;
