@@ -155,7 +155,9 @@ const mocks = vi.hoisted(() => {
 	};
 });
 
-vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: 'data/texture/À¯ÀúÀÎÅÍÆäÀÌ½º/' } }));
+vi.mock('DB/DBManager.js', () => ({
+	default: { INTERFACE_PATH: 'data/texture/À¯ÀúÀÎÅÍÆäÀÌ½º/', getMessage: (_id, text) => text }
+}));
 vi.mock('DB/Skills/SkillInfo.js', () => ({ default: mocks.skillInfo }));
 vi.mock('DB/Skills/SkillTreeView.js', () => ({ default: mocks.skillTreeView }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: mocks.session }));
@@ -194,7 +196,9 @@ vi.mock('UI/UIManager.js', () => ({
 			component.getRoot().innerHTML = component.render();
 			component.init();
 			return component;
-		}
+		},
+		// Answers Yes unless a test says otherwise
+		showPromptBox: vi.fn((_text, _yes, _no, onYes) => onYes())
 	}
 }));
 vi.mock('UI/Elements/Elements.js', () => ({}));
@@ -345,6 +349,26 @@ describe('SkillListV2 prerequisite planning', () => {
 		expect(getTreeSkill(root, mocks.ids.DEMON_BANE).querySelector('.current').textContent).toBe('0');
 		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.current').textContent).toBe('0');
 		expect(root.querySelector('.skpoints_count').textContent).toBe('10');
+	});
+
+	it('asks before spending the points and keeps the plan on No', async () => {
+		const component = createComponent();
+		const root = component.getRoot();
+		component.onIncreaseSkill = vi.fn();
+		const { default: UIManager } = await import('UI/UIManager.js');
+		UIManager.showPromptBox.mockImplementationOnce(() => {});
+
+		getTreeSkill(root, mocks.ids.HEAL).querySelector('.icon').click();
+		root.querySelector('.apply').click();
+
+		expect(UIManager.showPromptBox).toHaveBeenLastCalledWith(
+			'Once used, skill points cannot be re-allocated. Would you like to use the skill points?',
+			'ok',
+			'cancel',
+			expect.any(Function)
+		);
+		expect(component.onIncreaseSkill).not.toHaveBeenCalled();
+		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.plus').textContent).toBe('+1');
 	});
 
 	it('resets the correct tab and discards the plan on close and reopen', () => {

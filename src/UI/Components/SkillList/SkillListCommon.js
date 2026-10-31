@@ -165,8 +165,18 @@ export function createSkillList({
 			root.querySelector('.reset')?.addEventListener('click', () => {
 				onResetChoice(this);
 			});
+			// The official Apply button asks first (msgstringtable 1377) and spends
+			// the points only on Yes (UINewSkillListWnd message 0x10f).
 			root.querySelector('.apply')?.addEventListener('click', () => {
-				onApplyChoice(this);
+				UIManager.showPromptBox(
+					DB.getMessage(
+						1377,
+						'Once used, skill points cannot be re-allocated. Would you like to use the skill points?'
+					),
+					'ok',
+					'cancel',
+					() => onApplyChoice(this)
+				);
 			});
 		}
 
