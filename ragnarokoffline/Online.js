@@ -253929,7 +253929,7 @@ function onClickAttendance(e) {
 	const _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 	Network.sendPacket(_pkt);
 }
-var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$34, CheckAttendance_default;
+var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$34, _infoSlot, CheckAttendance_default;
 var init_CheckAttendance = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -253941,12 +253941,14 @@ var init_CheckAttendance = __esmMin((() => {
 	init_CheckAttendance$2();
 	init_CheckAttendance$1();
 	init_Elements();
+	init_ItemInfo();
 	CheckAttendance = new GUIComponent("CheckAttendance", CheckAttendance_default$1);
 	CheckAttendance.render = () => CheckAttendance_default$2;
 	_preferences$34 = Preferences.get("CheckAttendance", {
 		x: 200,
 		y: 200
 	}, 1);
+	_infoSlot = null;
 	/**
 	* Initialize the component (event listener, etc.)
 	*/
@@ -253960,6 +253962,27 @@ var init_CheckAttendance = __esmMin((() => {
 		});
 		root.querySelector(".close-container-btn").addEventListener("click", () => {
 			CheckAttendance._host.style.display = "none";
+		});
+		root.addEventListener("contextmenu", (event) => {
+			const slot = event.target.closest?.(".attendance-item");
+			if (!slot) return;
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			const reward = _CheckAttendanceInfo?.Rewards?.[parseInt(slot.id.replace("attendance_day_", ""), 10)];
+			if (!reward) return;
+			if (ItemInfo_default.uid === reward.item_id && _infoSlot === slot.id) {
+				ItemInfo_default.remove();
+				_infoSlot = null;
+				return;
+			}
+			ItemInfo_default.append();
+			ItemInfo_default.uid = reward.item_id;
+			_infoSlot = slot.id;
+			ItemInfo_default.setItem({
+				ITID: reward.item_id,
+				IsIdentified: true,
+				count: reward.quantity
+			});
 		});
 		this.draggable(root.querySelector(".titlebar"));
 	};
