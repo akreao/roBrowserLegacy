@@ -26772,6 +26772,15 @@ export default {
 		}
 	],
 
+	// Refresh (RK_REFRESH): the use-packet sound, on the caster. The client also launches 538 (EF_GREENBODY,
+	// not in roBrowser). See effect-port/rune-knight-skills.md.
+	ef_rk_refresh_sound: [
+		{
+			wav: '_heal_effect', // _heal_effect
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
