@@ -459,50 +459,52 @@ CashShop.getItemByIndex = function getItemByIndex(index) {
  * Success reponse buying cash shop item
  */
 CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
-	if (res) {
-		CashShop.checkCartItemLen += 1;
-		switch (res.result) {
-			case 0:
-				if (CashShop.checkCartItemLen >= CashShop.cartItemLen) {
-					CashShop.cartItemLen = 0;
-					CashShop.checkCartItemLen = 0;
-					UIManager.showMessageBox('Successfully done buying items from cash shop!', 'ok');
-					ChatBox.addText(
-						'Successfully done buying items from cash shop!',
-						ChatBox.TYPE.INFO,
-						ChatBox.FILTER.PUBLIC_LOG
-					);
-					CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
-					onResetCartListCashShop();
-				}
-				break;
-			case 2:
-				//insuficient cashpoint or kafra points
-				UIManager.showMessageBox('Insuficient cash points or kafra points!', 'ok');
-				ChatBox.addText(
-					'Insuficient cash points or kafra points!',
-					ChatBox.TYPE.ERROR,
-					ChatBox.FILTER.PUBLIC_LOG
-				);
-				break;
-
-			case 4:
-				//overweight limit
-				UIManager.showMessageBox("You are over you're weight limit!", 'ok');
-				ChatBox.addText('You are over youre weight limit!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-				break;
-
-			default:
-				UIManager.showMessageBox('Something went wrong while using cashshop!', 'ok');
-				ChatBox.addText(
-					'Something went wrong while using cashshop!',
-					ChatBox.TYPE.ERROR,
-					ChatBox.FILTER.PUBLIC_LOG
-				);
-				break;
-		}
+	if (!res) {
+		return;
 	}
+	// Official ZC_SE_PC_BUY_CASHITEM_RESULT 0x00cd3b70: success only updates
+	// the points; a failure is a red line in the chat.
+	if (res.result === 0 || res.result === 8) {
+		CashShop.checkCartItemLen += 1;
+		if (CashShop.checkCartItemLen >= CashShop.cartItemLen) {
+			CashShop.cartItemLen = 0;
+			CashShop.checkCartItemLen = 0;
+			CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
+			onResetCartListCashShop();
+		}
+		if (res.result === 0) {
+			return;
+		}
+	} else {
+		// The server stops at the first failure: no more results for this purchase
+		CashShop.cartItemLen = 0;
+		CashShop.checkCartItemLen = 0;
+	}
+	ChatBox.addText(DB.getMessage(buyResultMessage(res.result)), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 };
+
+/**
+ * msgstringtable line for a failed purchase (official 0x00cd3b70)
+ *
+ * @param {number} result - e_CASHSHOP_ACK
+ * @return {number}
+ */
+function buyResultMessage(result) {
+	switch (result) {
+		case 8:
+			return 1814; // Some items could not be purchased.
+		case 9:
+			return 1944; // runes over the limit
+		case 10:
+			return 1945; // too many of one item
+		case 11:
+			return 1946; // unknown error
+		case 12:
+			return 1947; // try again later
+		default:
+			return 57; // The deal has failed.
+	}
+}
 
 /**
  * Store a tab's items by its tab number, which is also the menu's data-index
@@ -793,6 +795,17 @@ function onClickSearch() {
 	CashShop.renderCashShopItems(CashShop.paginate(newList, CashShop.pageOffset, CashShop.pageEnd));
 }
 
+/** Kinds of items the cart holds */
+const MAX_CART_ITEMS = 8;
+
+/** Amount of one item the cart holds */
+const MAX_ITEM_AMOUNT = 100;
+
+function showMaxAmount() {
+	const text = DB.getMessage(1704, 'It is not possible to purchase the same item more than %d pieces at a time');
+	UIManager.showMessageBox(text.replace('%d', MAX_ITEM_AMOUNT), 'ok');
+}
+
 function onClickActionCounterButtonCart(target) {
 	const counter = target.dataset.index;
 	const itemEl = target.closest('.item');
@@ -802,9 +815,8 @@ function onClickActionCounterButtonCart(target) {
 
 	if (!itemCart) return;
 
-	if (itemCart.amount >= 99 && counter === 'up') {
-		UIManager.showMessageBox('Max Quantity 99!', 'ok');
-		ChatBox.addText('Max Quantity 99!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+	if (itemCart.amount >= MAX_ITEM_AMOUNT && counter === 'up') {
+		showMaxAmount();
 		return;
 	}
 
@@ -872,8 +884,11 @@ function onDropToCart(event) {
 		InputBox.append();
 		InputBox.setType('number', false, 1);
 		InputBox.onSubmitRequest = function OnSubmitRequest(count) {
-			addItemToCart(item.itemId, count);
 			InputBox.remove();
+			const amount = parseInt(count, 10);
+			if (amount > 0) {
+				addItemToCart(item.itemId, amount);
+			}
 		};
 	}
 
@@ -905,14 +920,15 @@ function addItemToCart(itemId, amount = 1) {
 		noItems.remove();
 	}
 
-	if (CashShop.cartItem.length > 7 && typeof itemCart === 'undefined') {
-		UIManager.showMessageBox('8 Items can only be stored in cart!', 'ok');
+	// The official cart holds 8 kinds of items, 100 of each (UICashShopWnd_Cart
+	// vfunc37 0x00798b80, messages 3312 and 1704)
+	if (CashShop.cartItem.length >= MAX_CART_ITEMS && typeof itemCart === 'undefined') {
+		UIManager.showMessageBox(DB.getMessage(3312, 'The number of items that can be purchased in 8.'), 'ok');
 		return;
 	}
 
-	if (item.amount >= 99) {
-		UIManager.showMessageBox('Max Quantity 99!', 'ok');
-		ChatBox.addText('Max Quantity 99!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+	if ((itemCart ? itemCart.amount : 0) + amount > MAX_ITEM_AMOUNT) {
+		showMaxAmount();
 		return;
 	}
 
