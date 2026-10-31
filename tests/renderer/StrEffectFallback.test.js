@@ -140,4 +140,40 @@ describe('STR effect fallbacks', () => {
 			['data/texture/effect/a/a.str', 'data/texture/effect/b/b.str']
 		);
 	});
+
+	it('loads a mineffect copy with its own texture folder', () => {
+		const spam = spamSTR(true);
+		const [filename, , , texturePath, fallbacks] = spam({
+			file: 'new_windcutter/new_windcutter/new_windcutter',
+			texturePath: 'new_windcutter/new_windcutter/',
+			min: 'mineffect/new_windcutter/new_windcutter/new_windcutter',
+			minTexturePath: 'mineffect/new_windcutter/new_windcutter/'
+		});
+		assert.equal(filename, 'data/texture/effect/mineffect/new_windcutter/new_windcutter/new_windcutter.str');
+		assert.equal(texturePath, 'mineffect/new_windcutter/new_windcutter/');
+		assert.deepEqual(JSON.parse(JSON.stringify(fallbacks)), [
+			{
+				filename: 'data/texture/effect/new_windcutter/new_windcutter/new_windcutter.str',
+				texturePath: 'new_windcutter/new_windcutter/'
+			}
+		]);
+	});
+
+	it('keeps the full texture folder without /mineffect', () => {
+		const spam = spamSTR(false);
+		const [filename, , , texturePath] = spam({
+			file: 'a/a',
+			texturePath: 'a/',
+			min: 'mineffect/a/a',
+			minTexturePath: 'mineffect/a/'
+		});
+		assert.equal(filename, 'data/texture/effect/a/a.str');
+		assert.equal(texturePath, 'a/');
+	});
+
+	it('leaves out a minSkip part only under /mineffect', () => {
+		const effect = { file: 'a/a_bottom', texturePath: 'a/', minSkip: true };
+		assert.equal(spamSTR(true)(effect), undefined);
+		assert.equal(spamSTR(false)(effect)[0], 'data/texture/effect/a/a_bottom.str');
+	});
 });
