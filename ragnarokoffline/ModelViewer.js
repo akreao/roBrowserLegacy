@@ -243092,6 +243092,17 @@ function updateEmptySlotTooltips() {
 	}
 }
 /**
+* An emptied slot's tooltip: its hotkey alone, or none
+*
+* @param {HTMLElement} container slot
+* @param {number} index of the slot
+*/
+function resetSlotTooltip(container, index) {
+	const hotkey = getHotKeyString(index);
+	if (hotkey) container.setAttribute("data-tooltip", hotkey);
+	else container.removeAttribute("data-tooltip");
+}
+/**
 * Get hotkey string for shortcut index
 *
 * @param {number} index of the shortcut slot
@@ -243236,6 +243247,24 @@ function onResize$6(event) {
 	event.preventDefault();
 }
 /**
+* @param {object} item inventory item
+* @return {boolean} whether the hotbar shows it with a count of 1
+*/
+function isEquipment(item) {
+	return item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR || item.type === ItemType_default.SHADOWGEAR;
+}
+/**
+* Item part of a slot's tooltip. The official client (UIShortCutWnd mouse
+* move handler, msgstringtable 184 "%s %s: %d") puts the count after the name.
+*
+* @param {object} item inventory item
+* @param {number} count
+* @return {string}
+*/
+function itemTooltipName(item, count) {
+	return `${DB.getItemName(item)}: ${count}`;
+}
+/**
 * Displays the cooldown overlay on an icon
 *
 * @param {number} index of the icon
@@ -243312,6 +243341,33 @@ function onDrop$11(event, target) {
 	ShortCut.onChange(index, entry.isSkill, entry.ID, entry.count);
 }
 /**
+* Whether a drag payload is a skill picked up from a hotbar slot
+*
+* @param {object} data drag payload
+* @return {boolean}
+*/
+function isHotbarSkillDrag(data) {
+	return !!data && data.from === "ShortCut" && data.type === "skill" && Number.isInteger(data.index);
+}
+/**
+* Dropping on the hotbar away from any slot. The official client
+* (UIShortCutWnd drop handler) empties the slot a skill was dragged from;
+* an item dragged from the bar carries no slot there and stays.
+*/
+function onDropOffSlot(event) {
+	let data;
+	try {
+		data = JSON.parse(event.dataTransfer.getData("Text"));
+	} catch (_e) {
+		return;
+	}
+	if (!isHotbarSkillDrag(data)) return;
+	event.stopImmediatePropagation();
+	event.preventDefault();
+	const slot = _list$5[data.index];
+	if (slot && slot.isSkill && slot.ID === data.data?.ID) ShortCut.removeAt(data.index);
+}
+/**
 * Stop the drag and drop
 */
 function onDragEnd$1(icon) {
@@ -243332,6 +243388,7 @@ function onDragStart$3(event, icon) {
 	event.dataTransfer.setData("Text", JSON.stringify(window._OBJ_DRAG_ = {
 		type: _list$5[index].isSkill ? "skill" : "item",
 		from: "ShortCut",
+		index,
 		data: _list$5[index]
 	}));
 }
@@ -243623,9 +243680,10 @@ var init_ShortCut = __esmMin((() => {
 		container.addEventListener("drop", (e) => {
 			const target = e.target.closest(".container");
 			if (target) onDrop$11(e, target);
+			else onDropOffSlot(e);
 		});
 		container.addEventListener("dragover", (e) => {
-			if (e.target.closest(".container")) {
+			if (e.target.closest(".container") || isHotbarSkillDrag(window._OBJ_DRAG_)) {
 				e.stopImmediatePropagation();
 				e.preventDefault();
 			}
@@ -243770,7 +243828,7 @@ var init_ShortCut = __esmMin((() => {
 				if (_list$5[i].isSkill && SkillInfo[_list$5[i].ID]) name = SkillInfo[_list$5[i].ID].SkillName;
 				else if (_list$5[i].ID) {
 					const item = InventoryController.getItemById(_list$5[i].ID);
-					if (item) name = DB.getItemName(item);
+					if (item) name = itemTooltipName(item, isEquipment(item) ? 1 : item.count);
 				}
 				if (name) {
 					const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
@@ -243798,6 +243856,9 @@ var init_ShortCut = __esmMin((() => {
 		const ui = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
 		if (!ui) return;
 		ui.innerHTML = "";
+		const hotkey = getHotKeyString(index);
+		if (hotkey) ui.setAttribute("data-tooltip", hotkey);
+		else ui.removeAttribute("data-tooltip");
 		if (!_list$5[index]) _list$5[index] = {};
 		_list$5[index].isSkill = isSkill;
 		_list$5[index].ID = ID;
@@ -243814,12 +243875,11 @@ var init_ShortCut = __esmMin((() => {
 			if (!item) return;
 			const it = DB.getItemInfo(ID);
 			file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-			name = DB.getItemName(item);
-			if (item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR || item.type === ItemType_default.SHADOWGEAR) count = 1;
+			if (isEquipment(item)) count = 1;
 			else count = item.count;
 			if (!count) return;
+			name = itemTooltipName(item, count);
 		}
-		const hotkey = getHotKeyString(index);
 		const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
 		Client.loadFile(`${DB.INTERFACE_PATH}item/${file}.bmp`, (url) => {
 			ui.innerHTML = "<div draggable=\"true\" class=\"icon\"><div class=\"img\"></div><div class=\"amount\"></div></div>";
@@ -243869,11 +243929,37 @@ var init_ShortCut = __esmMin((() => {
 	ShortCut.removeAt = function removeAt(index) {
 		if (!_list$5[index]) return;
 		const container = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
-		if (container) container.innerHTML = "";
+		if (container) {
+			container.innerHTML = "";
+			resetSlotTooltip(container, index);
+		}
 		_list$5[index].isSkill = 0;
 		_list$5[index].ID = 0;
 		_list$5[index].count = 0;
 		ShortCut.onChange(index, 0, 0, 0);
+	};
+	/**
+	* Whether an inventory item may go in a hotbar slot. The official client
+	* (UIShortCutWnd drop handler) takes consumables, ammunition and gear that can
+	* be worn, and refuses the rest without a message: etc items, cards, cash shop
+	* boxes, gear with no equip slot such as pet eggs, and any other kind.
+	*
+	* @param {object} item inventory item
+	* @return {boolean}
+	*/
+	ShortCut.canHoldItem = function canHoldItem(item) {
+		switch (item.type) {
+			case ItemType_default.HEALING:
+			case ItemType_default.UNKNOWN:
+			case ItemType_default.USABLE:
+			case ItemType_default.DELAYCONSUME:
+			case ItemType_default.AMMO: return true;
+			case ItemType_default.ARMOR:
+			case ItemType_default.WEAPON:
+			case ItemType_default.PETARMOR:
+			case ItemType_default.SHADOWGEAR: return !!item.location;
+		}
+		return false;
 	};
 	/**
 	* What a drag payload would put in a shortcut slot
@@ -243892,11 +243978,13 @@ var init_ShortCut = __esmMin((() => {
 				ID: element.SKID,
 				count: element.selectedLevel ? element.selectedLevel : element.level
 			};
-			case "Inventory": return {
-				isSkill: false,
-				ID: element.ITID,
-				count: 0
-			};
+			case "Inventory":
+				if (!ShortCut.canHoldItem(element)) return null;
+				return {
+					isSkill: false,
+					ID: element.ITID,
+					count: 0
+				};
 			case "ShortCut": return {
 				isSkill: element.isSkill,
 				ID: element.ID,
@@ -251553,7 +251641,6 @@ var SELF_CAST_HOLD_MS, HOLD_POLL_MS, selfCastWatch, JoystickInteractionService_d
 var init_JoystickInteractionService = __esmMin((() => {
 	init_ShortCut();
 	init_Inventory();
-	init_ItemType();
 	init_JoystickCharacterControl();
 	init_JoystickTargetService();
 	init_JoystickMouseCursorAdapter();
@@ -251758,7 +251845,7 @@ var init_JoystickInteractionService = __esmMin((() => {
 			if (!isSkill) {
 				const item = InventoryController.getItemByIndex(index);
 				if (item) {
-					if (item.type === ItemType_default.UNKNOWN || item.type === ItemType_default.ETC || item.type === ItemType_default.CARD || item.type === ItemType_default.PETEGG || item.type === ItemType_default.PETARMOR) return false;
+					if (!ShortCut_default.canHoldItem(item)) return false;
 					itemData = {
 						isSkill: false,
 						ID: item.ITID,
