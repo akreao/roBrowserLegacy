@@ -25325,36 +25325,6 @@ export default {
 		}
 	],
 
-	// Comet (WL_COMET), from the client's own effect folders.
-	ef_wl_comet: [
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet/new_comet',
-			texturePath: 'new_comet/new_comet/'
-		},
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet_bottom/new_comet_bottom',
-			texturePath: 'new_comet/new_comet_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Comet (WL_COMET), from the client's own effect folders.
-	ef_wl_comet_cast: [
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet_cast/new_comet_cast',
-			texturePath: 'new_comet/new_comet_cast/'
-		},
-		{
-			type: 'STR',
-			file: 'new_comet/new_comet_cast_bottom/new_comet_cast_bottom',
-			texturePath: 'new_comet/new_comet_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
 	// Chain Lightning (WL_CHAINLIGHTNING), from the client's own effect folders.
 	ef_wl_chainlightning_cast: [
 		{
@@ -26863,6 +26833,54 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) cast floor, with 1421: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1415: [
+		{
+			//(1415): CEZ2STREffect, new_comet\\new_comet_cast_bottom\\new_comet_cast_bottom.str
+			type: 'STR',
+			file: 'new_comet/new_comet_cast_bottom/new_comet_cast_bottom',
+			texturePath: 'new_comet/new_comet_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) cast, with 1415. See effect-port/warlock-skills.md.
+	1421: [
+		{
+			//(1421): CEZ2STREffect, new_comet\\new_comet_cast\\new_comet_cast.str
+			type: 'STR',
+			file: 'new_comet/new_comet_cast/new_comet_cast',
+			texturePath: 'new_comet/new_comet_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET), with 1414: on each target as its damage packet arrives. See effect-port/warlock-skills.md.
+	1413: [
+		{
+			//(1413): CEZ2STREffect, new_comet\\new_comet\\new_comet.str
+			type: 'STR',
+			file: 'new_comet/new_comet/new_comet',
+			texturePath: 'new_comet/new_comet/',
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) floor, with 1413. See effect-port/warlock-skills.md.
+	1414: [
+		{
+			//(1414): CEZ2STREffect, new_comet\\new_comet_bottom\\new_comet_bottom.str
+			type: 'STR',
+			file: 'new_comet/new_comet_bottom/new_comet_bottom',
+			texturePath: 'new_comet/new_comet_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
