@@ -588,6 +588,10 @@ export function createBasicInfo(config) {
 			case 'sp': {
 				const perc = Math.floor((val1 * 100) / val2);
 				updateBar(root, type, val1, val2, perc < 25 ? 'red' : 'blue');
+				// The reduced window writes HP and SP in red under a quarter, like the official client.
+				root.querySelectorAll(`.${type}_text`).forEach(el => {
+					el.style.color = val1 * 4 < val2 ? 'red' : '';
+				});
 				break;
 			}
 			case 'ap': {
