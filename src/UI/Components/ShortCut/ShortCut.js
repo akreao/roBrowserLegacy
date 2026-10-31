@@ -367,7 +367,7 @@ ShortCut.updateAllTooltips = function updateAllTooltips() {
 			} else if (_list[i].ID) {
 				const item = Inventory.getItemById(_list[i].ID);
 				if (item) {
-					name = DB.getItemName(item);
+					name = itemTooltipName(item, isEquipment(item) ? 1 : item.count);
 				}
 			}
 
@@ -596,6 +596,26 @@ function onResize(event) {
 }
 
 /**
+ * @param {object} item inventory item
+ * @return {boolean} whether the hotbar shows it with a count of 1
+ */
+function isEquipment(item) {
+	return item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR;
+}
+
+/**
+ * Item part of a slot's tooltip. The official client (UIShortCutWnd mouse
+ * move handler, msgstringtable 184 "%s %s: %d") puts the count after the name.
+ *
+ * @param {object} item inventory item
+ * @param {number} count
+ * @return {string}
+ */
+function itemTooltipName(item, count) {
+	return `${DB.getItemName(item)}: ${count}`;
+}
+
+/**
  * Add an element to shortcut
  *
  * @param {number} index of the element
@@ -637,10 +657,9 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 
 		const it = DB.getItemInfo(ID);
 		file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-		name = DB.getItemName(item);
 
 		// If equipment, do not display count
-		if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) {
+		if (isEquipment(item)) {
 			count = 1;
 		}
 		// Get item count
@@ -652,6 +671,8 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		if (!count) {
 			return;
 		}
+
+		name = itemTooltipName(item, count);
 	}
 
 	// Get hotkey for this slot
