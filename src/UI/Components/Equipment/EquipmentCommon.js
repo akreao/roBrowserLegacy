@@ -1101,7 +1101,26 @@ export function createEquipment({
 			return;
 		}
 
-		showTooltip(this, DB.getItemName(item), true);
+		showTooltip(this, getHoverName(item), true);
+	}
+
+	/**
+	 * A stack (arrows, bullets...) also shows its amount, as the official
+	 * hover does (UIEquipWnd vfunc28: msgstringtable 183 "%s: %d ea.", or
+	 * 2551 "%s [%d Option] : %d Quantity" with random options).
+	 */
+	function getHoverName(item) {
+		if (!(item.count >= 2)) {
+			return DB.getItemName(item);
+		}
+		const options = (item.Options || []).filter(option => option?.index).length;
+		if (options) {
+			return DB.getMessage(2551, '%s [%d Option] : %d Quantity')
+				.replace('%s', DB.getItemName(item, { showItemOptions: false }))
+				.replace('%d', options)
+				.replace('%d', item.count);
+		}
+		return DB.getMessage(183, '%s: %d ea.').replace('%s', DB.getItemName(item)).replace('%d', item.count);
 	}
 
 	function onEquipmentOut() {
