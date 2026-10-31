@@ -149,7 +149,7 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 					case KEYS.PAGEUP:
 					case KEYS.PAGEDOWN: {
 						const content = this._contentEl;
-						const line = content.lastElementChild?.offsetHeight || 14;
+						const line = parseFloat(getComputedStyle(content).lineHeight) || 14;
 						const page = Math.max(line, content.clientHeight - line);
 						content.scrollTop += event.which === KEYS.PAGEUP ? -page : page;
 						event.stopImmediatePropagation();

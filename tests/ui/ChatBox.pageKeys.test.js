@@ -130,6 +130,15 @@ describe('ChatBox - Page Up/Down', () => {
 		expect(content.scrollTop).toBe(1000);
 	});
 
+	it('leaves the keys to another focused window', () => {
+		const list = document.createElement('div');
+		list.tabIndex = 0;
+		document.body.appendChild(list);
+		list.focus();
+		expect(ChatBox.onKeyDown(keyEvent(KEYS.PAGEUP))).toBe(true);
+		expect(content.scrollTop).toBe(500);
+	});
+
 	it('uses the real Page Up and Page Down key codes', () => {
 		expect(KEYS.PAGEUP).toBe(33);
 		expect(KEYS.PAGEDOWN).toBe(34);

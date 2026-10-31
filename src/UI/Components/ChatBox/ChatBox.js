@@ -1292,15 +1292,25 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 		// (official UINewChatWnd messages 3 and 4).
 		case KEYS.PAGEUP:
 		case KEYS.PAGEDOWN: {
-			const content = root.querySelector(`.content[data-content="${this.activeTab}"]`);
-			if (!content) {
+			// Leave the keys to another focused window (a list, a scroll box...).
+			const ownsFocus =
+				!activeElement ||
+				activeElement === document.body ||
+				activeElement.tagName === 'CANVAS' ||
+				isChatInputFocused ||
+				isChatCaption;
+			// The selected tab may be a floating one; activeTab only names the docked one.
+			const selectedId = this.tabStore.selectedId ?? this.activeTab;
+			const content = views.get(selectedId)?.log || root.querySelector(`.content[data-content="${selectedId}"]`);
+			if (!ownsFocus || !content) {
 				return true;
 			}
 			const up = event.which === KEYS.PAGEUP;
 			if (event.ctrlKey) {
 				content.scrollTop = up ? 0 : content.scrollHeight;
 			} else {
-				const line = content.lastElementChild?.offsetHeight || 14;
+				// A page less one line, so consecutive pages overlap by a line.
+				const line = parseFloat(getComputedStyle(content).lineHeight) || 14;
 				const page = Math.max(line, content.clientHeight - line);
 				content.scrollTop += up ? -page : page;
 			}
