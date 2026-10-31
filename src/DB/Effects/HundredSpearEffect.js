@@ -15,6 +15,7 @@
  */
 
 import Camera from 'Renderer/Camera.js';
+import Renderer from 'Renderer/Renderer.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
 
@@ -85,7 +86,9 @@ export const hundredSpearEffect = [
 				effect: {
 					type: 'SPR',
 					file: SPRITE,
-					frame: hundredSpearAction(caster.position, target.position)
+					frame: hundredSpearAction(caster.position, target.position),
+					// A sprite starts when it loads: hold it back to the damage's arrival
+					delayStart: Math.max(0, Params.Inst.startTick - (Renderer.tick || 0))
 				},
 				Inst: { effectID: 723, startTick: Params.Inst.startTick },
 				Init: { ...Params.Init, ownerEntity: null, ownerAID: -1, position }
