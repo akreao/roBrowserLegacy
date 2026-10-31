@@ -35,7 +35,7 @@ vi.mock('Network/NetworkManager.js', () => ({ default: { sendPacket: vi.fn() } }
 vi.mock('DB/DBManager.js', () => ({
 	default: {
 		getCheckAttendanceInfo: () => ({
-			Rewards: Array.from({ length: 20 }, (_, i) => ({ item_id: 500 + i, quantity: i + 1 }))
+			Rewards: Array.from({ length: 20 }, (_, i) => ({ item_id: i === 4 ? 503 : 500 + i, quantity: i + 1 }))
 		}),
 		getItemInfo: () => ({}),
 		getMessage: () => ''
@@ -59,4 +59,12 @@ it('opens the description of the right-clicked reward', () => {
 	root.querySelector('#attendance_day_3 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
 	expect(info.remove).toHaveBeenCalledOnce();
 	expect(info.append).toHaveBeenCalledOnce();
+
+	// Another day with the same item shows that day's reward
+	list.insertAdjacentHTML('beforeend', '<li id="attendance_day_4" class="attendance-item"><div class="item"></div></li>');
+	info.uid = 503;
+	root.querySelector('#attendance_day_3 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+	root.querySelector('#attendance_day_4 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+	expect(info.setItem).toHaveBeenLastCalledWith({ ITID: 503, IsIdentified: true, count: 5 });
+	expect(info.remove).toHaveBeenCalledOnce();
 });
