@@ -162,6 +162,12 @@ export default {
 	///   minify str file stored in data/texture/effect/(.*).str
 	///   used when /mineffect is enabled
 	///
+	/// - minTexturePath:
+	///   texture path for the min file, when it sits in another folder
+	///
+	/// - minSkip:
+	///   the part is not drawn when /mineffect is enabled
+	///
 	/// - rand
 	///   replace the %d in the file name with a rand(val1, val2).
 	///
@@ -26547,6 +26553,8 @@ export default {
 			type: 'STR',
 			file: 'new_windcutter/new_windcutter/new_windcutter',
 			texturePath: 'new_windcutter/new_windcutter/',
+			min: 'mineffect/new_windcutter/new_windcutter/new_windcutter',
+			minTexturePath: 'mineffect/new_windcutter/new_windcutter/',
 			attachedEntity: true
 		}
 	],
@@ -26558,6 +26566,8 @@ export default {
 			type: 'STR',
 			file: 'new_windcutter/new_windcutter_bottom_01clock/new_windcutter_bottom_01clock',
 			texturePath: 'new_windcutter/new_windcutter_bottom_01clock/',
+			min: 'mineffect/new_windcutter/new_windcutter_bottom_01clock/new_windcutter_bottom_01clock',
+			minTexturePath: 'mineffect/new_windcutter/new_windcutter_bottom_01clock/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26570,6 +26580,8 @@ export default {
 			type: 'STR',
 			file: 'new_windcutter/new_windcutter_bottom_05clock/new_windcutter_bottom_05clock',
 			texturePath: 'new_windcutter/new_windcutter_bottom_05clock/',
+			min: 'mineffect/new_windcutter/new_windcutter_bottom_05clock/new_windcutter_bottom_05clock',
+			minTexturePath: 'mineffect/new_windcutter/new_windcutter_bottom_05clock/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26582,6 +26594,8 @@ export default {
 			type: 'STR',
 			file: 'new_windcutter/new_windcutter_target/new_windcutter_target',
 			texturePath: 'new_windcutter/new_windcutter_target/',
+			min: 'mineffect/new_windcutter/new_windcutter_target/new_windcutter_target',
+			minTexturePath: 'mineffect/new_windcutter/new_windcutter_target/',
 			attachedEntity: true
 		}
 	],
@@ -26594,6 +26608,8 @@ export default {
 			type: 'STR',
 			file: 'new_ignitionbreak/new_ignitionbreak/new_ignitionbreak',
 			texturePath: 'new_ignitionbreak/new_ignitionbreak/',
+			min: 'mineffect/new_ignitionbreak/new_ignitionbreak/new_ignitionbreak',
+			minTexturePath: 'mineffect/new_ignitionbreak/new_ignitionbreak/',
 			wav: 'effect/wl_jackfrost',
 			attachedEntity: true
 		},
@@ -26602,6 +26618,8 @@ export default {
 			type: 'STR',
 			file: 'new_ignitionbreak/new_ignitionbreak_bottom/new_ignitionbreak_bottom',
 			texturePath: 'new_ignitionbreak/new_ignitionbreak_bottom/',
+			min: 'mineffect/new_ignitionbreak/new_ignitionbreak_bottom/new_ignitionbreak_bottom',
+			minTexturePath: 'mineffect/new_ignitionbreak/new_ignitionbreak_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26615,6 +26633,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath/new_dragonbreath_01_clock/new_dragonbreath_01_clock',
 			texturePath: 'new_dragonbreath/new_dragonbreath_01_clock/',
+			min: 'mineffect/new_dragonbreath/new_dragonbreath_fire_01/new_dragonbreath_fire_01',
+			minTexturePath: 'mineffect/new_dragonbreath/new_dragonbreath_fire_01/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26627,6 +26647,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath/new_dragonbreath_05_clock/new_dragonbreath_05_clock',
 			texturePath: 'new_dragonbreath/new_dragonbreath_05_clock/',
+			min: 'mineffect/new_dragonbreath/new_dragonbreath_fire_05/new_dragonbreath_fire_05',
+			minTexturePath: 'mineffect/new_dragonbreath/new_dragonbreath_fire_05/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26639,6 +26661,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath/new_dragonbreath_07_clock/new_dragonbreath_07_clock',
 			texturePath: 'new_dragonbreath/new_dragonbreath_07_clock/',
+			min: 'mineffect/new_dragonbreath/new_dragonbreath_fire_07/new_dragonbreath_fire_07',
+			minTexturePath: 'mineffect/new_dragonbreath/new_dragonbreath_fire_07/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26651,6 +26675,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath/new_dragonbreath_11_clock/new_dragonbreath_11_clock',
 			texturePath: 'new_dragonbreath/new_dragonbreath_11_clock/',
+			min: 'mineffect/new_dragonbreath/new_dragonbreath_fire_11/new_dragonbreath_fire_11',
+			minTexturePath: 'mineffect/new_dragonbreath/new_dragonbreath_fire_11/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26663,6 +26689,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath/new_dragonbreath_bomb/new_dragonbreath_bomb',
 			texturePath: 'new_dragonbreath/new_dragonbreath_bomb/',
+			min: 'mineffect/new_dragonbreath/new_dragonbreath_fire_bomb/new_dragonbreath_fire_bomb',
+			minTexturePath: 'mineffect/new_dragonbreath/new_dragonbreath_fire_bomb/',
 			delayStart: 350,
 			delayWav: 350,
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
@@ -26673,6 +26701,7 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath/new_dragonbreath_bomb_bottom/new_dragonbreath_bomb_bottom',
 			texturePath: 'new_dragonbreath/new_dragonbreath_bomb_bottom/',
+			minSkip: true,
 			delayStart: 350,
 			renderBeforeEntities: true,
 			attachedEntity: true
@@ -26686,6 +26715,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath_water/new_dragonbreath_water_01_clock/new_dragonbreath_water_01_clock',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_01_clock/',
+			min: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_01/new_dragonbreath_water_01',
+			minTexturePath: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_01/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26698,6 +26729,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath_water/new_dragonbreath_water_05_clock/new_dragonbreath_water_05_clock',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_05_clock/',
+			min: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_05/new_dragonbreath_water_05',
+			minTexturePath: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_05/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26710,6 +26743,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath_water/new_dragonbreath_water_07_clock/new_dragonbreath_water_07_clock',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_07_clock/',
+			min: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_07/new_dragonbreath_water_07',
+			minTexturePath: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_07/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26722,6 +26757,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath_water/new_dragonbreath_water_11_clock/new_dragonbreath_water_11_clock',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_11_clock/',
+			min: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_11/new_dragonbreath_water_11',
+			minTexturePath: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_11/',
 			delayStart: 200,
 			attachedEntity: true
 		}
@@ -26734,6 +26771,8 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath_water/new_dragonbreath_water_bomb/new_dragonbreath_water_bomb',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_bomb/',
+			min: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_bomb/new_dragonbreath_water_bomb',
+			minTexturePath: 'mineffect/new_dragonbreath_water/new_dragonbreath_water_bomb/',
 			delayStart: 350,
 			delayWav: 350,
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
@@ -26744,6 +26783,7 @@ export default {
 			type: 'STR',
 			file: 'new_dragonbreath_water/new_dragonbreath_water_bomb_bottom/new_dragonbreath_water_bomb_bottom',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_bomb_bottom/',
+			minSkip: true,
 			delayStart: 350,
 			renderBeforeEntities: true,
 			attachedEntity: true
