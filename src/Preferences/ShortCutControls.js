@@ -366,6 +366,12 @@ ShortCuts.SkillBarSize = {
 	component: 'ShortCut',
 	cmd: 'EXTEND'
 };
+ShortCuts.SkillBarRotate = {
+	init: { key: KEYS.F12, alt: false, ctrl: true, shift: false },
+	cust: false,
+	component: 'ShortCut',
+	cmd: 'ROTATE'
+};
 ShortCuts.Bank = {
 	init: { key: KEYS.B, alt: false, ctrl: true, shift: false },
 	cust: false,
@@ -508,6 +514,29 @@ ShortCuts.Flag9 = {
 	cmd: 'EXECUTE_FLAG_9'
 };
 
-const ShortCutControls = { ShortCuts: ShortCuts };
+const ShortCutControls = Preferences.get('ShortCutControls', { ShortCuts }, 1.2);
 
-export default Preferences.get('ShortCutControls', ShortCutControls, 1.2);
+/**
+ * @param {object} shortcut entry
+ * @return {string} its key and modifiers as they act now, '' when unbound
+ */
+function combination(shortcut) {
+	const k = shortcut.cust || shortcut.init;
+	return k.key ? `${k.key}-${!!k.alt}-${!!k.ctrl}-${!!k.shift}` : '';
+}
+
+// Keys saved before an entry existed don't hold it: give it its default, or
+// leave it unbound when the player already uses that key for something else
+const used = new Set(Object.values(ShortCutControls.ShortCuts).map(combination));
+for (const name of Object.keys(ShortCuts)) {
+	if (!ShortCutControls.ShortCuts[name]) {
+		const entry = ShortCuts[name];
+		if (used.has(combination(entry))) {
+			entry.cust = { key: '', alt: false, ctrl: false, shift: false };
+		}
+		ShortCutControls.ShortCuts[name] = entry;
+		used.add(combination(entry));
+	}
+}
+
+export default ShortCutControls;

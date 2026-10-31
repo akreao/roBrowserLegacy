@@ -61,6 +61,12 @@ let _lastServerHotkeys = null;
 const _tabLists = [null, null];
 
 /**
+ * @var {Array} row shift of each bar (CZ_SHORTCUTKEYBAR_ROTATE): the first row
+ * shown is that row of the bar's list
+ */
+const _rotations = [0, 0];
+
+/**
  * @var {Map<number, number>} when each skill's cooldown ends (Renderer.tick),
  * kept for skills on a bar not shown
  */
@@ -284,6 +290,7 @@ ShortCut.clean = function clean() {
 
 	_list.length = 0;
 	_tabLists[0] = _tabLists[1] = null;
+	_rotations[0] = _rotations[1] = 0;
 	_cooldownEnds.clear();
 	_globalCooldownEnd = 0;
 	const root = ShortCut.getRoot();
@@ -305,6 +312,10 @@ ShortCut.onShortCut = function onShortCut(key) {
 
 		case 'EXTEND':
 			setRows((_preferences.size + 1) % (_rowCount + 1));
+			break;
+
+		case 'ROTATE':
+			ShortCut.rotate();
 			break;
 	}
 };
@@ -341,12 +352,103 @@ ShortCut.getSkillById = function getSkillById(id) {
  *
  * @param {Array} shortcut list
  */
-ShortCut.setList = function setList(list, tab = 0) {
+ShortCut.setList = function setList(list, tab = 0, rotate = 0) {
 	_tabLists[tab] = list.map(copySlot);
+	_rotations[tab] = (((rotate | 0) % 4) + 4) % 4;
 	if (tab === getTab()) {
-		drawList(list);
+		drawList(rotateList(_tabLists[tab], _rotations[tab]));
 	}
 };
+
+/**
+ * Slot of the bar's list shown at a slot of the window. The official client
+ * (fcn.00d83c80) adds the row shift times 9 to the first 36 slots, wrapping.
+ *
+ * @param {number} index shown
+ * @param {number} rotate row shift
+ * @param {number} length of the list
+ * @return {number} index in the list
+ */
+function storedIndex(index, rotate, length) {
+	return length >= 36 && index < 36 ? (index + rotate * 9) % 36 : index;
+}
+
+/**
+ * @param {number} index shown
+ * @return {number} the server's index for that slot of the bar shown
+ */
+ShortCut.toServerIndex = function toServerIndex(index) {
+	return storedIndex(index, _rotations[getTab()], _list.length);
+};
+
+/**
+ * @param {Array} list a bar's list
+ * @param {number} rotate row shift
+ * @return {Array} the list in the order the window shows it
+ */
+function rotateList(list, rotate) {
+	return list.map((_slot, i) => list[storedIndex(i, rotate, list.length)]);
+}
+
+/**
+ * @param {Array} shown slots in the order the window shows them
+ * @param {number} rotate row shift
+ * @return {Array} the bar's list
+ */
+function unrotateList(shown, rotate) {
+	const list = new Array(shown.length);
+	shown.forEach((slot, i) => {
+		list[storedIndex(i, rotate, shown.length)] = slot;
+	});
+	return list;
+}
+
+/**
+ * Keep what the window shows as the shown bar's list
+ */
+function saveShown() {
+	_tabLists[getTab()] = unrotateList(Array.from(_list, copySlot), _rotations[getTab()]);
+}
+
+/**
+ * Draw a bar again from its list, keeping running cooldowns
+ *
+ * @param {number} tab
+ */
+function redraw(tab) {
+	cancelCooldowns();
+	ShortCut.getRoot()
+		.querySelectorAll('.container')
+		.forEach(el => el.removeAttribute('data-tooltip'));
+	drawList(rotateList(_tabLists[tab] || emptyList(_list.length || 38), _rotations[tab]));
+	ShortCut.updateAllTooltips();
+	restoreCooldowns();
+}
+
+/**
+ * Shift the rows of the bar shown by one: the second row comes first. The
+ * official client does it on Ctrl+F12 (hotkey_v2.lub MSI_HK_SHORTCUTWND_ROTATE)
+ * and keeps the shift on the server.
+ */
+ShortCut.rotate = function rotate() {
+	// Before 20140129 the server has no row shift to keep (CZ_SHORTCUTKEYBAR_ROTATE1)
+	if (_list.length < 36 || PACKETVER.value < 20140129) {
+		return;
+	}
+	const tab = getTab();
+	saveShown();
+	_rotations[tab] = (_rotations[tab] + 1) % 4;
+	redraw(tab);
+	ShortCut.onRotate(tab, _rotations[tab]);
+};
+
+/**
+ * Hook: tell the server a bar's row shift (set by MapEngine/Skill)
+ *
+ * @param {number} tab
+ * @param {number} rotate
+ */
+ShortCut.onRotate = function onRotate(/* tab, rotate */) {};
 
 /**
  * @return {boolean} the server keeps a second hotkey bar (packets 0x0b20 / 0x0b21)
@@ -376,20 +478,14 @@ ShortCut.setTab = function setTab(tab) {
 		return;
 	}
 
-	_tabLists[getTab()] = Array.from(_list, copySlot);
+	saveShown();
 	_preferences.tab = tab;
 	_preferences.save();
 	ShortCut.getRoot()
 		.querySelector('.btn-bar')
 		?.classList.toggle('active', tab === 1);
 
-	cancelCooldowns();
-	ShortCut.getRoot()
-		.querySelectorAll('.container')
-		.forEach(el => el.removeAttribute('data-tooltip'));
-	drawList(_tabLists[tab] || emptyList(_list.length || 38));
-	ShortCut.updateAllTooltips();
-	restoreCooldowns();
+	redraw(tab);
 };
 
 /**

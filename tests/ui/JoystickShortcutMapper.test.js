@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
 	shortcut: {
 		setList: vi.fn(),
 		setTab: vi.fn(),
+		rotate: vi.fn(),
 		onChange: vi.fn(),
 		setElement: vi.fn()
 	},
@@ -29,6 +30,7 @@ describe('JoystickShortcutMapper.prepare', () => {
 
 		mocks.shortcut.setTab(1);
 		expect(setTab).toHaveBeenCalledWith(1);
-		expect(mocks.renderer.sync).toHaveBeenCalledTimes(2);
+		mocks.shortcut.rotate();
+		expect(mocks.renderer.sync).toHaveBeenCalledTimes(3);
 	});
 });
