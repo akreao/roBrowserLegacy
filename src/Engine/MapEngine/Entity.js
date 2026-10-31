@@ -16,7 +16,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 import StatusState from 'DB/Status/StatusState.js';
 import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
-import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
+import { hasElementCastAura, fixedCastAuras } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
 import { autoCounterBarMs } from 'DB/Skills/AutoCounterBar.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
@@ -2030,14 +2030,9 @@ function onEntityCastSkill(pkt) {
 
 		// Some skills always use the same cast aura, whatever the packet's element.
 		// A list plays each of its effects for the cast time.
-		// The official client turns a fixed aura 12 into the element aura for elements 1-6
-		// (water to holy); other elements keep 12.
+		// A fixed aura 12 still shows the element aura (CastAuraRule.fixedCastAuras).
 		if (castSkill && castSkill.castAuraEffectId) {
-			const elementAura = pkt.property >= 1 && pkt.property <= 6 ? EF_Init_Par.effectId : EffectConst.EF_BEGINSPELL;
-			[castSkill.castAuraEffectId].flat().forEach(effectId => {
-				if (effectId === EffectConst.EF_BEGINSPELL) {
-					effectId = elementAura;
-				}
+			fixedCastAuras(castSkill.castAuraEffectId, pkt.property, EF_Init_Par.effectId).forEach(effectId => {
 				EffectManager.spam({ ...EF_Init_Par, effectId });
 			});
 		} else {

@@ -29,3 +29,19 @@ export const NO_ELEMENT_AURA_RANGES = [
 export function hasElementCastAura(skillId) {
 	return !NO_ELEMENT_AURA_RANGES.some(([first, last]) => skillId >= first && skillId <= last);
 }
+
+/**
+ * The auras a skill with its own cast aura shows. The official client's
+ * picker (kRO 2025-07-16, 0xd85467) turns an aura of 12 into the element
+ * aura when the cast's element is 1-6 (water to holy), whichever case set it;
+ * other elements keep 12. Other auras are shown as they are.
+ *
+ * @param {number|number[]} castAuraEffectId the skill's own aura or list
+ * @param {number} element the cast packet's element
+ * @param {number} elementAura the element's aura
+ * @return {number[]}
+ */
+export function fixedCastAuras(castAuraEffectId, element, elementAura) {
+	const swap = element >= 1 && element <= 6;
+	return [castAuraEffectId].flat().map(effectId => (effectId === 12 && swap ? elementAura : effectId));
+}
