@@ -618,7 +618,8 @@ export function createBasicInfo(config) {
 				const limit = Session.overWeightPercent > 0 ? Session.overWeightPercent : 50;
 				root.querySelectorAll('.weight').forEach(el => {
 					el.style.color = percent < limit ? '' : 'red';
-					el.title = `${((val1 / val2) * 100).toFixed(1)}%`;
+					// The official hover text is "Weight %d%%", a whole percentage.
+					el.title = `Weight ${val2 ? percent : 0}%`;
 				});
 				break;
 			}
