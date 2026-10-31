@@ -99,6 +99,35 @@ ShortCut.init = function init() {
 
 	const container = root.querySelector('#ShortCut');
 
+	root.querySelectorAll('.container').forEach(el => {
+		el.style.setProperty('--col', String(parseInt(el.dataset.index, 10) % 9));
+	});
+
+	// 2025 window: + and - buttons instead of the close button and resize grip
+	for (const [selector, action] of [
+		['.btn-plus', onAddRow],
+		['.btn-minus', onRemoveRow]
+	]) {
+		const button = root.querySelector(selector);
+		if (button) {
+			button.addEventListener('mousedown', e => {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+			});
+			button.addEventListener('click', action);
+		}
+	}
+
+	// The 2025 window, drawn with its own art, when the client data has it
+	Client.loadFile(`${DB.INTERFACE_PATH}shortcut/shortcut_frame.bmp`, url => {
+		container.classList.add('v2025');
+		ShortCut._host.style.width = '290px';
+		root.querySelectorAll('.row').forEach(row => {
+			row.style.backgroundImage = `url(${url})`;
+		});
+		setRows(_preferences.size);
+	});
+
 	// Dropping to the shortcut
 	container.addEventListener('drop', e => {
 		const target = e.target.closest('.container');
@@ -165,7 +194,7 @@ ShortCut.init = function init() {
  */
 ShortCut.onAppend = function onAppend() {
 	// Set height first so position clamping uses correct dimensions
-	this._host.style.height = `${34 * _preferences.size}px`;
+	this._host.style.height = `${rowsHeight(_preferences.size)}px`;
 	const rect = this._host.getBoundingClientRect();
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height)}px`;
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - rect.width)}px`;
@@ -200,7 +229,6 @@ ShortCut.onRemove = function onRemove() {
 	// Save preferences
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
-	_preferences.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -238,9 +266,7 @@ ShortCut.onShortCut = function onShortCut(key) {
 			break;
 
 		case 'EXTEND':
-			_preferences.size = (_preferences.size + 1) % (_rowCount + 1);
-			_preferences.save();
-			this._host.style.height = `${_preferences.size * 34}px`;
+			setRows((_preferences.size + 1) % (_rowCount + 1));
 			break;
 	}
 };
@@ -287,6 +313,7 @@ ShortCut.setList = function setList(list) {
 	});
 	_list.length = list.length;
 	_rowCount = Math.min(4, Math.floor(list.length / 9));
+	updateRowButtons(_preferences.size);
 
 	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].isSkill) {
@@ -581,7 +608,7 @@ function onResize(event) {
 	let lastHeight = 0;
 
 	function resizing() {
-		let h = Math.floor((Mouse.screen.y - top) / ShortCut.scale / 34 + 1);
+		let h = Math.floor((Mouse.screen.y - top) / ShortCut.scale / rowHeight() + 1);
 
 		// Maximum and minimum window size
 		h = Math.min(Math.max(h, 1), _rowCount);
@@ -590,9 +617,7 @@ function onResize(event) {
 			return;
 		}
 
-		host.style.height = `${h * 34}px`;
-		_preferences.size = h;
-		_preferences.save();
+		setRows(h);
 		lastHeight = h;
 	}
 
@@ -1101,9 +1126,94 @@ function clickElement(index) {
  * Closing the window
  */
 function onClose() {
-	ShortCut._host.style.height = '0px';
-	_preferences.size = 0;
+	setRows(0);
+}
+
+/**
+ * Height of one row: the 2025 frame (shortcut_frame.bmp, 34px tall) is drawn
+ * every 33px, each row's top edge over the one above.
+ *
+ * @return {number} px
+ */
+function rowHeight() {
+	return is2025() ? 33 : 34;
+}
+
+/**
+ * @param {number} rows shown
+ * @return {number} window height in px; the last 2025 frame keeps its bottom edge
+ */
+function rowsHeight(rows) {
+	if (!rows) {
+		return 0;
+	}
+	return rows * rowHeight() + (is2025() ? 1 : 0);
+}
+
+/**
+ * @return {boolean} the window is drawn with the 2025 art
+ */
+function is2025() {
+	return !!ShortCut.getRoot().querySelector('#ShortCut.v2025');
+}
+
+/**
+ * Show a number of rows (0 hides the bar) and remember it
+ *
+ * @param {number} rows
+ */
+function setRows(rows) {
+	_preferences.size = rows;
 	_preferences.save();
+	if (ShortCut._host) {
+		ShortCut._host.style.height = `${rowsHeight(rows)}px`;
+	}
+	updateRowButtons(rows);
+}
+
+/**
+ * Place and enable the 2025 - and + buttons for a number of rows
+ *
+ * @param {number} rows
+ */
+function updateRowButtons(rows) {
+	// 2025 buttons sit at the right of the last row (UIShortCutWnd SendMsg 0xe):
+	// - at rows * 33 - 28, + at rows * 33 - 13. - is off with one row, + shows
+	// its disabled art with every row shown, and a click there hides the bar.
+	const root = ShortCut.getRoot();
+	const minus = root.querySelector('.btn-minus');
+	const plus = root.querySelector('.btn-plus');
+	if (minus && plus) {
+		minus.style.top = `${rows * 33 - 28}px`;
+		plus.style.top = `${rows * 33 - 13}px`;
+		minus.classList.toggle('disabled', rows <= 1);
+		plus.classList.toggle('active', rows >= maxRows());
+	}
+}
+
+/**
+ * @return {number} rows the server's hotkey list fills (4 when not known yet)
+ */
+function maxRows() {
+	return _rowCount || 4;
+}
+
+/**
+ * 2025 + button (UIShortCutWnd SendMsg 6, id 0xd8): one more row, and past the
+ * last one the bar hides and comes back with one row.
+ */
+function onAddRow() {
+	const rows = _preferences.size + 1;
+	setRows(rows > maxRows() ? 0 : rows);
+}
+
+/**
+ * 2025 - button (id 0xd9): one row less, down to one
+ */
+function onRemoveRow() {
+	if (_preferences.size > 1) {
+		setRows(_preferences.size - 1);
+	}
 }
 
 /**
