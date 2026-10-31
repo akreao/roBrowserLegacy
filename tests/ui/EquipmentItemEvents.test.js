@@ -62,7 +62,16 @@ vi.mock('DB/DBManager.js', () => ({
 }));
 vi.mock('Network/NetworkManager.js', () => ({ default: { sendPacket: vi.fn(), hookPacket: vi.fn() } }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005 } }));
-vi.mock('Network/PacketStructure.js', () => ({ default: { CZ: {}, ZC: {} } }));
+vi.mock('Network/PacketStructure.js', () => ({
+	default: {
+		CZ: {
+			REQ_ONESWITCH: class {
+				index = 0;
+			}
+		},
+		ZC: {}
+	}
+}));
 vi.mock('Core/Client.js', () => ({
 	default: {
 		loadFile(_path, callback) {
@@ -267,6 +276,19 @@ describe('Equipment item events', () => {
 
 		element.dispatchEvent(dragEvent('dragend', dataTransfer));
 		expect(window._OBJ_DRAG_).toBeUndefined();
+	});
+
+	it('wears an item dropped from the swap set on its own (0x0ace)', async () => {
+		const { default: Network } = await import('Network/NetworkManager.js');
+		Network.sendPacket.mockClear();
+		Equipment.onEquipItem = vi.fn();
+		const item = { index: 31, ITID: 1101, type: ItemType.WEAPON, IsIdentified: true, location: 2 };
+		Equipment._host.dispatchEvent(
+			dragEvent('drop', { getData: () => JSON.stringify({ type: 'item', from: 'SwitchEquip', data: item }) })
+		);
+		expect(Equipment.onEquipItem).not.toHaveBeenCalled();
+		expect(Network.sendPacket).toHaveBeenCalledOnce();
+		expect(Network.sendPacket.mock.calls[0][0].index).toBe(31);
 	});
 
 	it('does not re-equip an item dropped back onto the window it came from', () => {

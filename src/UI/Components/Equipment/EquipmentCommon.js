@@ -981,6 +981,22 @@ export function createEquipment({
 			return false;
 		}
 
+		// An item of the swap set dropped here is worn on its own, swapping out what
+		// is in its slot (official UIEquipWnd vfunc10: message 0x131, packet 0x0ace).
+		if (data && data.type === 'item' && data.from === 'SwitchEquip') {
+			Component.getRoot()
+				.querySelectorAll('td')
+				.forEach(td => {
+					td.style.backgroundImage = 'none';
+				});
+			if (PACKETVER.value >= 20170502) {
+				const pkt = new PACKET.CZ.REQ_ONESWITCH();
+				pkt.index = data.data.index;
+				Network.sendPacket(pkt);
+			}
+			return false;
+		}
+
 		if (data && data.type === 'item') {
 			item = data.data;
 			if (
