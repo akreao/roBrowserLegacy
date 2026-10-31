@@ -65,15 +65,21 @@ describe('Detoxify bubbles', () => {
 
 	it('spawns one bubble every 15 ticks under /mineffect', () => {
 		const spawned = [];
+		detoxifyEffect[0].func.call(
+			{ spamEffect: p => spawned.push(p) },
+			{ Init: { ownerEntity: { position: [0, 0, 0] } }, Inst: { startTick: 0 } }
+		);
+		const drawn = () =>
+			spawned
+				.filter(p => p.effect.track(0) !== null)
+				.map(p => Math.round((p.Inst.startTick * 60) / 1000));
 		MapPreferences.mineffect = true;
 		try {
-			detoxifyEffect[0].func.call(
-				{ spamEffect: p => spawned.push(p) },
-				{ Init: { ownerEntity: { position: [0, 0, 0] } }, Inst: { startTick: 0 } }
-			);
+			expect(drawn()).toEqual([0, 15, 30, 45, 60, 75, 90]);
 		} finally {
 			MapPreferences.mineffect = false;
 		}
-		expect(spawned.map(p => Math.round((p.Inst.startTick * 60) / 1000))).toEqual([0, 15, 30, 45, 60, 75, 90]);
+		// Decided when each bubble starts: turning the option off later keeps it hidden.
+		expect(drawn()).toEqual([0, 15, 30, 45, 60, 75, 90]);
 	});
 });

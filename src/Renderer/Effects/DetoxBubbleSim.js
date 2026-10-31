@@ -37,8 +37,8 @@ export const DETOX = {
 	spin: 3
 };
 
-/** The low-effects mode (option 229, /mineffect): one bubble every 15 ticks while the effect's 100 ticks last. */
-export const DETOX_LOW = { count: 7, every: 15 };
+/** The low-effects mode (option 229, /mineffect): one bubble every 15 ticks (0 to 90) while the effect's 100 ticks last. */
+export const DETOX_LOW = { every: 15 };
 
 const r = (random, k) => Math.floor(random() * k);
 

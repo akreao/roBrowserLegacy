@@ -20,9 +20,12 @@ import { DETOX, DETOX_LOW, planBubbles, bubbleAt } from 'Renderer/Effects/DetoxB
  *
  * @param {object} bubble from planBubbles
  * @param {string} [spriteName] the sprite under data/sprite/이팩트
+ * @param {number} [lowEvery] under /mineffect only bubbles spawned on a multiple of this many ticks are drawn,
+ *   decided when the bubble starts, as the client asks the option on each spawn tick
  * @return {object}
  */
-export function detoxBubbleEffect(bubble, spriteName = 'particle2') {
+export function detoxBubbleEffect(bubble, spriteName = 'particle2', lowEvery = 0) {
+	let hidden = null;
 	return {
 		type: '3D',
 		spriteName: spriteName,
@@ -31,6 +34,12 @@ export function detoxBubbleEffect(bubble, spriteName = 'particle2') {
 		duration: DETOX.life * PRIM_TICK_MS,
 		zIndex: 1,
 		track(age) {
+			if (hidden === null) {
+				hidden = !!(lowEvery && Preferences.mineffect && bubble.spawn % lowEvery !== 0);
+			}
+			if (hidden) {
+				return null;
+			}
 			const p = bubbleAt(bubble, age);
 			if (!p) {
 				return null;
@@ -55,12 +64,9 @@ export const detoxifyEffect = [
 		attachedEntity: true,
 		func: function (Params) {
 			// The client's low-effects mode (/mineffect) spawns one bubble every 15 ticks
-			const bubbles = Preferences.mineffect
-				? planBubbles(Math.random, DETOX_LOW.count, DETOX_LOW)
-				: planBubbles();
-			bubbles.forEach((bubble, i) => {
+			planBubbles().forEach((bubble, i) => {
 				this.spamEffect({
-					effect: detoxBubbleEffect(bubble),
+					effect: detoxBubbleEffect(bubble, 'particle2', DETOX_LOW.every),
 					Inst: {
 						effectID: 21,
 						duplicateID: i,
