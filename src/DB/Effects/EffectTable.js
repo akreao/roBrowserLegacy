@@ -21273,7 +21273,7 @@ export default {
 
 	ef_jackfrost: [
 		{
-			wav: 'effect/wl_jackfrost',
+			wav: 'jack_frost',
 			attachedEntity: true
 		},
 		{
