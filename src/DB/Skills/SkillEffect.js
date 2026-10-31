@@ -980,7 +980,7 @@ SkillEffect[SK.RK_VITALITYACTIVATION] = { successEffectIdOnCaster: 309 }; //Vita
 SkillEffect[SK.RK_STORMBLAST] = { successEffectIdOnCaster: 17, successEffectId: ['quake', 'ef_rk_stormblast_sound', 263] }; //Storm Blast: 17 on the caster; quake + mon_맹룡과강.wav + 263 on the target, on success (330 follow-up)
 SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Fighting Spirit: 756 + 441 on success
 SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: 'ef_rk_abundance_sound', castAuraEffectId: 12 }; //Abundance: 흡기.wav on success (538 follow-up)
-SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
+SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting', successEffectId: 'ef_rk_bluecasting', castAuraEffectId: 12 }; //Phantom Thrust: 441 on caster and target on success (538 follow-up)
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = {
