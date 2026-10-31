@@ -2030,8 +2030,14 @@ function onEntityCastSkill(pkt) {
 
 		// Some skills always use the same cast aura, whatever the packet's element.
 		// A list plays each of its effects for the cast time.
+		// The official client turns a fixed aura 12 into the element aura for elements 1-6
+		// (water to holy); other elements keep 12.
 		if (castSkill && castSkill.castAuraEffectId) {
+			const elementAura = pkt.property >= 1 && pkt.property <= 6 ? EF_Init_Par.effectId : EffectConst.EF_BEGINSPELL;
 			[castSkill.castAuraEffectId].flat().forEach(effectId => {
+				if (effectId === EffectConst.EF_BEGINSPELL) {
+					effectId = elementAura;
+				}
 				EffectManager.spam({ ...EF_Init_Par, effectId });
 			});
 		} else {

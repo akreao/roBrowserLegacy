@@ -44,4 +44,13 @@ describe('cast auras', () => {
 			}
 		});
 	}
+
+	// kRO 2025-07-16 picker 0xd85467: a skill whose own aura is 12 shows the element aura for elements 1-6.
+	it('turns a fixed aura 12 into the element aura', () => {
+		const entity = readFileSync(join(process.cwd(), 'src/Engine/MapEngine/Entity.js'), 'utf8').replace(/\r\n/g, '\n');
+		expect(entity).toMatch(
+			/const elementAura = pkt\.property >= 1 && pkt\.property <= 6 \? EF_Init_Par\.effectId : EffectConst\.EF_BEGINSPELL;/
+		);
+		expect(entity).toMatch(/if \(effectId === EffectConst\.EF_BEGINSPELL\) \{\n\t+effectId = elementAura;/);
+	});
 });
