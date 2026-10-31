@@ -1386,14 +1386,6 @@ export function createInventory(config) {
 			return false;
 		}
 
-		if (ItemInfo.uid === item.ITID) {
-			ItemInfo.remove();
-			if (favoriteTab && ItemCompare.ui) {
-				ItemCompare.remove();
-			}
-			return false;
-		}
-
 		if (favoriteTab && ItemCompare.ui) {
 			ItemCompare.remove();
 		}

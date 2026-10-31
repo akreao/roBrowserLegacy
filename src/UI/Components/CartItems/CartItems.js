@@ -751,15 +751,6 @@ function onItemInfo(event) {
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
-	if (ItemInfo.uid === item.ITID) {
-		ItemInfo.remove();
-		if (ItemCompare.ui) {
-			ItemCompare.remove();
-		}
-		return false;
-	}
-
 	// Remove existing compare UI if it's currently displayed
 	if (ItemCompare.ui) {
 		ItemCompare.remove();

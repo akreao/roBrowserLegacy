@@ -1110,12 +1110,6 @@ function onItemInfo(event) {
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
-	if (ItemInfo.uid === item.itemId) {
-		ItemInfo.remove();
-		return false;
-	}
-
 	const it = DB.getItemInfo(item.itemId);
 	it.ITID = item.itemId;
 	it.IsIdentified = true;
