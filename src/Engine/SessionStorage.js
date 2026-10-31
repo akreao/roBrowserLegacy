@@ -70,6 +70,12 @@ export default {
 		}
 	},
 
+	/**
+	 * Weight percentage at which the Basic Info window shows the weight in red.
+	 * The server sends it with ZC 0x0ade; the official client keeps 50 until then.
+	 */
+	overWeightPercent: 50,
+
 	petId: 0,
 	pet: {},
 

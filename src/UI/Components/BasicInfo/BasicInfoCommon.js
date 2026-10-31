@@ -567,18 +567,22 @@ export function createBasicInfo(config) {
 				break;
 			}
 
-			case 'weight':
+			case 'weight': {
 				root.querySelectorAll('.weight_value').forEach(el => {
 					el.textContent = (val1 / 10) | 0;
 				});
 				root.querySelectorAll('.weight_total').forEach(el => {
 					el.textContent = (val2 / 10) | 0;
 				});
+				// Red from the server's overweight percentage on, as a whole percentage like the official client.
+				const percent = Math.floor((val1 * 100) / Math.max(1, val2));
+				const limit = Session.overWeightPercent > 0 ? Session.overWeightPercent : 50;
 				root.querySelectorAll('.weight').forEach(el => {
-					el.style.color = val1 < val2 / 2 ? '' : 'red';
+					el.style.color = percent < limit ? '' : 'red';
 					el.title = `${((val1 / val2) * 100).toFixed(1)}%`;
 				});
 				break;
+			}
 
 			case 'hp':
 			case 'sp': {
