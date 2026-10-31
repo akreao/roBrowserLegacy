@@ -422,7 +422,9 @@ export function createCharCreate(config) {
 	 * The official client checks the name's length before sending it
 	 * (UINewMakeCharWnd::SendMsg): under 4 is refused with msgstringtable 21,
 	 * over 23 with 531 and the name is cleared. It counts bytes in the
-	 * client's codepage, so a Korean character counts as two.
+	 * client's codepage, so a Korean character counts as two. Our
+	 * packet writes the name as UTF-8 into the same 24 bytes, so a name is
+	 * also too long when its UTF-8 form is, or it would be cut short.
 	 *
 	 * @param {string} charname
 	 * @param {boolean} clearOnTooLong - clear the stock name field (a plugin
@@ -435,7 +437,7 @@ export function createCharCreate(config) {
 			UIManager.showMessageBox(DB.getMessage(21, 'Character Name must be at least 4 characters long.'), 'ok');
 			return false;
 		}
-		if (length > 23) {
+		if (Math.max(length, TextEncoding.encode(charname, 'utf-8').length) > 23) {
 			UIManager.showMessageBox(
 				DB.getMessage(531, 'Name is too long. Please enter a name up to 23 english characters.'),
 				'ok'

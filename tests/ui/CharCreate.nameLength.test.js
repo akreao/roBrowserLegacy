@@ -84,8 +84,9 @@ describe('CharCreate name length', () => {
 		try {
 			// 2 characters, 4 bytes: long enough
 			make('가나');
-			// 12 characters, 24 bytes: too long
-			make('가'.repeat(12));
+			// 9 characters: 18 bytes in windows-949, but 27 in the UTF-8
+			// the packet carries, which would be cut to 8 characters
+			make('가'.repeat(9));
 		} finally {
 			TextEncoding.setCharset('windows-1252');
 		}
