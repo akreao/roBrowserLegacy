@@ -207,6 +207,14 @@ export function createPartyFriends(config) {
 		// Context menu and selection on nodes
 		const content = root.querySelector('.content');
 		if (content) {
+			// Double-clicking a member or friend opens a whisper to them, as the
+			// official UIMessengerGroupWnd does (vfunc26 -> message 0xe8).
+			content.addEventListener('dblclick', event => {
+				if (event.target.closest('.node')) {
+					onMemberDoubleClick();
+				}
+			});
+
 			if (renewalParty) {
 				content.addEventListener('contextmenu', event => {
 					const node = event.target.closest('.node');
@@ -1780,6 +1788,17 @@ export function createPartyFriends(config) {
 	 * Add nick name to chatbox
 	 * Or open a new conversation window (todo)
 	 */
+	function onMemberDoubleClick() {
+		if (_index < 0) {
+			return;
+		}
+		// The selection was set by the mousedown; nobody whispers to themself.
+		if (!_preferences.friend && _party[_index]?.AID === Session.AID) {
+			return;
+		}
+		onRequestPrivateMessage();
+	}
+
 	function onRequestPrivateMessage() {
 		if (_index < 0 || _preferences.lock) {
 			return;
