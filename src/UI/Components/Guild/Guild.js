@@ -712,6 +712,26 @@ Guild.init = function init() {
 					};
 				});
 			}
+
+			// Then, for someone else (UIGuildMemberManageWnd vfunc37 0x00928200):
+			// online, a party invite when we have a party they are not in, and a
+			// 1:1 chat; online or not, a mail. The invite also needs us to lead
+			// the party, since rAthena only takes invites from the leader.
+			if (!isSelf && member.CharName) {
+				if (member.CurrentState) {
+					if (Session.hasParty && Session.isPartyLeader && !Guild.isPartyMember(member.CharName)) {
+						ContextMenu.addElement(DB.getMessage(1330, 'Request to Join Party'), () => {
+							Guild.onRequestPartyInvite(member.AID, member.CharName);
+						});
+					}
+					ContextMenu.addElement(DB.getMessage(2043, '1:1 Chat'), () => {
+						Guild.onRequestWhisper(member.CharName);
+					});
+				}
+				ContextMenu.addElement(DB.getMessage(2808, 'Send a mail'), () => {
+					Guild.onRequestMail(member.CharName);
+				});
+			}
 		});
 	}
 
@@ -2710,6 +2730,12 @@ Guild.onNoticeUpdateRequest = function () {};
 Guild.onRequestMemberInfo = function () {};
 Guild.onRequestLeave = function () {};
 Guild.onRequestMemberExpel = function () {};
+Guild.isPartyMember = function () {
+	return false;
+};
+Guild.onRequestPartyInvite = function () {};
+Guild.onRequestWhisper = function () {};
+Guild.onRequestMail = function () {};
 Guild.onRequestDeleteRelation = function () {};
 Guild.onRequestAccess = function () {};
 

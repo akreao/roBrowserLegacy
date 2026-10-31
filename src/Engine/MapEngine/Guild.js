@@ -28,6 +28,9 @@ import Configs from 'Core/Configs.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import UIPreferences from 'Preferences/UI.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import Rodex from 'UI/Components/Rodex/Rodex.js';
+import Group from 'Engine/MapEngine/Group.js';
 
 /**
  * @var {Object} emblem list
@@ -123,6 +126,10 @@ class GuildEngine {
 		Guild.onRequestLeave = GuildEngine.requestLeave;
 		Guild.onRequestMemberExpel = GuildEngine.requestMemberExpel;
 		Guild.onRequestMemberInfo = GuildEngine.requestMemberInfo;
+		Guild.isPartyMember = name => PartyFriends.isGroupMember(name);
+		Guild.onRequestPartyInvite = (AID, name) => Group.onRequestInvitation(AID, name);
+		Guild.onRequestWhisper = name => PartyFriends.onOpenChat1to1(name);
+		Guild.onRequestMail = name => Rodex.requestOpenWriteRodex(name);
 		Guild.onRequestDeleteRelation = GuildEngine.requestDeleteRelatedGuild;
 		Guild.onRequestAccess = GuildEngine.requestAccess;
 		Guild.onRequestCreateGuild = GuildEngine.createGuild;
