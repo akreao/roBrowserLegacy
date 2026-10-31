@@ -630,6 +630,14 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 	if (!ui) return;
 	ui.innerHTML = '';
 
+	// Until something is drawn here, the slot shows its hotkey alone
+	const hotkey = getHotKeyString(index);
+	if (hotkey) {
+		ui.setAttribute('data-tooltip', hotkey);
+	} else {
+		ui.removeAttribute('data-tooltip');
+	}
+
 	if (!_list[index]) {
 		_list[index] = {};
 	}
@@ -675,8 +683,6 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		name = itemTooltipName(item, count);
 	}
 
-	// Get hotkey for this slot
-	const hotkey = getHotKeyString(index);
 	const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
 
 	Client.loadFile(`${DB.INTERFACE_PATH}item/${file}.bmp`, url => {

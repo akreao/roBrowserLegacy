@@ -87,6 +87,12 @@ describe('ShortCut item tooltip', () => {
 		expect(tooltip(0)).toBe('Red Potion: 7');
 	});
 
+	it('drops the item from the tooltip when the last one is gone', () => {
+		mocks.items[501].count = 0;
+		ShortCut.setElement(false, 501, 0);
+		expect(tooltip(0)).toBeNull();
+	});
+
 	it('shows equipment as one', () => {
 		expect(tooltip(2)).toBe('Knife: 1');
 	});
