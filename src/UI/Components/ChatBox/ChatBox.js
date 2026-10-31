@@ -1288,6 +1288,37 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 			}
 			return true;
 
+		// Page Up/Down scroll the chat log a page, or to its top/bottom with Ctrl
+		// (official UINewChatWnd messages 3 and 4).
+		case KEYS.PAGEUP:
+		case KEYS.PAGEDOWN: {
+			// Leave the keys to another focused window (a list, a scroll box...).
+			const ownsFocus =
+				!activeElement ||
+				activeElement === document.body ||
+				activeElement.tagName === 'CANVAS' ||
+				isChatInputFocused ||
+				isChatCaption ||
+				root.contains(activeElement) ||
+				Array.from(views.values()).some(view => view.floating?._host?.contains(activeElement));
+			// The selected tab may be a floating one; activeTab only names the docked one.
+			const selectedId = this.tabStore.selectedId ?? this.activeTab;
+			const content = views.get(selectedId)?.log || root.querySelector(`.content[data-content="${selectedId}"]`);
+			if (!ownsFocus || !content) {
+				return true;
+			}
+			const up = event.which === KEYS.PAGEUP;
+			if (event.ctrlKey) {
+				content.scrollTop = up ? 0 : content.scrollHeight;
+			} else {
+				// A page less one line, so consecutive pages overlap by a line.
+				const line = parseFloat(getComputedStyle(content).lineHeight) || 14;
+				const page = Math.max(line, content.clientHeight - line);
+				content.scrollTop += up ? -page : page;
+			}
+			break;
+		}
+
 		// Message from history
 		case KEYS.UP:
 			if (!document.querySelector('#NpcMenu')) {
