@@ -145,13 +145,22 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		}
 
 		// Titlebar mini
+		const toggleReduce = () => {
+			const panel = _root.querySelector('.panel');
+			hideTooltip();
+			if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+		};
 		const miniBtn = _root.querySelector('.titlebar .mini');
 		if (miniBtn) {
 			miniBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
-			miniBtn.addEventListener('click', () => {
-				const panel = _root.querySelector('.panel');
-				hideTooltip();
-				if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+			miniBtn.addEventListener('click', toggleReduce);
+		}
+
+		// Double-clicking the title bar also reduces the official window (UIStatusWnd vfunc26, y < 17).
+		const titlebar = _root.querySelector('.titlebar');
+		if (titlebar) {
+			titlebar.addEventListener('dblclick', e => {
+				if (!e.target.closest('button')) toggleReduce();
 			});
 		}
 
