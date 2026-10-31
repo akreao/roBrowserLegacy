@@ -26764,6 +26764,14 @@ export default {
 		}
 	],
 
+	// Crush Strike (RK_CRUSHSTRIKE): the sound as its damage arrives, on the target. See effect-port/rune-knight-skills.md.
+	ef_rk_crushstrike_sound: [
+		{
+			wav: '_enemy_hit_wind2', // _enemy_hit_wind2
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
