@@ -63,6 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { hundredSpearEffect, hundredSpearDashEffect } from 'DB/Effects/HundredSpearEffect.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
@@ -14546,7 +14547,8 @@ export default {
 		}
 	],
 
-	//723: [{}],	//EF_CHIMTO2	   Hundred Spear (sound effect)
+	// EF_CHIMTO2, Hundred Spear: hundred.wav and the sprite at the target (HundredSpearEffect.js)
+	723: hundredSpearEffect,
 	//724: [{}],	//EF_WINDCUTTER	   Green version of Detecting
 	//725: [{}],	//EF_DETECT2	   Oratorio (like Detecting)
 	726: [
@@ -16174,7 +16176,8 @@ export default {
 	],
 
 	//834: [{}],	//EF_JOBLVUP50_2	   Light shooting away circlish
-	//835: [{}],	//EF_CHEMICAL2DASH2	   Fastness yellow-reddish
+	// EF_CHEMICAL2DASH2, Hundred Spear: quake and the caster's glow (HundredSpearEffect.js)
+	835: hundredSpearDashEffect,
 	//836: [{}],	//EF_CHEMICAL2DASH3	   Fastness yellow-pinkish
 	//837: [{}],	//EF_ROLLINGCAST	   Casting [S]
 	//838: [{}],	//EF_WATER_BELOW	   Watery aura
