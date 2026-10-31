@@ -59,15 +59,15 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		_inputPassword = root.querySelector('.pass');
 		_buttonSave = root.querySelector('.save');
 
-		// Input handlers — clear on mousedown
+		// Clicking a field only focuses it, as the official client's edit
+		// boxes do: the saved ID stays put. Stopping the event keeps the
+		// click from starting a window drag.
 		_inputUsername.addEventListener('mousedown', function (event) {
 			this.focus();
-			this.value = '';
 			event.stopImmediatePropagation();
 		});
 		_inputPassword.addEventListener('mousedown', function (event) {
 			this.focus();
-			this.value = '';
 			event.stopImmediatePropagation();
 		});
 
