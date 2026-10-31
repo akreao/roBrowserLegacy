@@ -350,7 +350,9 @@ function onZenyInput(input) {
 	input.value = prettifyZeny(zeny);
 	let position = 0;
 	for (let seen = 0; position < input.value.length && seen < digitsBefore; position++) {
-		if (/\d/.test(input.value[position])) seen++;
+		if (/\d/.test(input.value[position])) {
+			seen++;
+		}
 	}
 	input.setSelectionRange?.(position, position);
 }
