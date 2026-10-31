@@ -97,7 +97,20 @@ SwitchEquip.init = function init() {
 		});
 		content.addEventListener('mouseout', e => {
 			const btn = e.target.closest('button');
-			if (btn) onSwitchEquipOut();
+			if (btn) {
+				onSwitchEquipOut();
+			}
+		});
+		// Items drag out of the set; dropped on the equipment window they are worn
+		// (official UISwapEquipmentWnd vfunc25 drag, UIEquipWnd vfunc10 drop).
+		content.addEventListener('dragstart', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onSwitchEquipDragStart.call(item, e);
+			}
+		});
+		content.addEventListener('dragend', () => {
+			delete window._OBJ_DRAG_;
 		});
 	}
 };
@@ -203,7 +216,8 @@ SwitchEquip.equip = function equip(item, location, inSwitchList) {
 	const el = root.querySelector(selector);
 	if (el) {
 		el.innerHTML =
-			`<div class="item" data-index="${item.index}">` +
+			// Only items of the set drag out; worn gear shown greyed here does not.
+			`<div class="item" data-index="${item.index}" draggable="${inSwitchList ? 'true' : 'false'}">` +
 			'<button></button>' +
 			`<span class="itemName">${truncateHtml(sanitizeHtml(DB.getItemName(item)), 19)}</span>` +
 			'</div>';
@@ -392,8 +406,9 @@ function onDrop(event) {
 		// Ignore parsing error
 	}
 
-	// The switch set holds what is not worn; a drag off the equipment window is not one.
-	if (data && data.type === 'item' && data.from !== 'Equipment') {
+	// The switch set holds what is not worn; a drag off the equipment window is not one,
+	// and one of its own items dropped back on it changes nothing.
+	if (data && data.type === 'item' && data.from !== 'Equipment' && data.from !== 'SwitchEquip') {
 		const item = data.data;
 
 		if (
@@ -411,6 +426,29 @@ function onDrop(event) {
 
 	event.stopImmediatePropagation();
 	return false;
+}
+
+/**
+ * Start dragging an item of the set, with the same payload as the inventory
+ */
+function onSwitchEquipDragStart(event) {
+	const item = SwitchEquip._list[parseInt(this.getAttribute('data-index'), 10)];
+	if (!item || this.getAttribute('draggable') !== 'true') {
+		event.preventDefault();
+		return;
+	}
+	const btn = this.querySelector('button');
+	const url = btn ? btn.style.backgroundImage.match(/\((.*?)\)/)?.[1]?.replace(/('|")/g, '') : '';
+	if (url) {
+		const img = new Image();
+		img.src = url;
+		event.dataTransfer.setDragImage(img, 12, 12);
+	}
+	event.dataTransfer.setData(
+		'Text',
+		JSON.stringify((window._OBJ_DRAG_ = { type: 'item', from: 'SwitchEquip', data: item }))
+	);
+	onSwitchEquipOut();
 }
 
 /**
