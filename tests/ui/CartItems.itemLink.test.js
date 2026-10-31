@@ -49,8 +49,7 @@ it('adds a Shift+clicked item to the chat input only', () => {
 	expect(input.querySelector('.item-link').dataset.item).toBe('LINK');
 	expect(input.textContent).toBe('<Red Potion> ');
 
-	// The Shift double-click that follows two Shift+clicks only links
-	CartItems.useItem = vi.fn();
-	item.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, shiftKey: true }));
-	expect(CartItems.useItem).not.toHaveBeenCalled();
+	// The official cart does nothing on a double-click, Shift or not
+	expect(() => item.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, shiftKey: true }))).not.toThrow();
+	expect(input.querySelectorAll('.item-link')).toHaveLength(1);
 });

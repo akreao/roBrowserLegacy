@@ -137,12 +137,6 @@ CartItems.init = function Init() {
 				onItemInfo.call(item, e);
 			}
 		});
-		content.addEventListener('dblclick', e => {
-			const item = e.target.closest('.item');
-			if (item) {
-				onItemUsed.call(item, e);
-			}
-		});
 		content.addEventListener('click', e => {
 			const item = e.target.closest('.item');
 			if (item) {
@@ -837,29 +831,6 @@ function transferItemToOtherUI(item) {
 	}
 
 	return true;
-}
-
-/**
- * Ask to use an item
- */
-function onItemUsed(event) {
-	// A Shift double-click is two Shift+clicks that already linked the item.
-	if (event.shiftKey) {
-		event.stopImmediatePropagation();
-		event.preventDefault();
-		return;
-	}
-
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const item = CartItems.getItemByIndex(index);
-
-	if (item) {
-		CartItems.useItem(item);
-		onItemOut();
-	}
-
-	event.stopImmediatePropagation();
-	event.preventDefault();
 }
 
 CartItems.reqRemoveItem = function reqRemoveItem() {};
