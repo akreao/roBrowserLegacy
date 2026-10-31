@@ -219,18 +219,19 @@
 	text-align: center;
 }
 
-/* The label sits on the middle of the Poring, not at its crown. Centred on
-   its own: the button's display is set inline when it is shown. */
+/* As UINewSelectCharWnd draws it (kRO 2025-07-16): 18px bold white,
+   centred across the Poring with its top 57px down, over a 1px #d7d7d7
+   shadow, the same in every button state. Placed on its own: the button's
+   display is set inline when it is shown. */
 #CharSelectV4 .btn.ok ui-text {
 	position: absolute;
 	left: 0;
 	right: 0;
-	top: 50%;
-	transform: translateY(-50%);
-}
-
-#CharSelectV4 .btn.ok:hover {
-	text-shadow: #000 1px 1px;
+	top: 57px;
+	font-size: 18px;
+	font-weight: bold;
+	line-height: 18px;
+	text-shadow: #d7d7d7 1px 1px;
 }
 
 #CharSelectV4 .ok,
