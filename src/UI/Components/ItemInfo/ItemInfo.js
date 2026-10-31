@@ -816,11 +816,20 @@ function validateFieldsExist(event) {
  */
 function onItemPreview(pkt) {
 	if (pkt) {
-		const item = Inventory.getItemByIndex(pkt.index);
+		const owned = Inventory.getItemByIndex(pkt.index);
 
-		if (!item) {
+		if (!owned) {
 			return false;
 		}
+
+		// Show the item with the cards, options, refine and grade the packet carries
+		const item = Object.assign({}, owned, {
+			IsDamaged: pkt.isDamaged,
+			slot: pkt.slot,
+			Options: pkt.Options,
+			RefiningLevel: pkt.refiningLevel,
+			enchantgrade: pkt.enchantgrade
+		});
 
 		// Remove existing compare UI if it's currently displayed
 		if (ItemCompare.ui) {
