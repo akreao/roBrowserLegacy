@@ -25325,33 +25325,6 @@ export default {
 		}
 	],
 
-	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE), from the client's own effect folders.
-	ef_wl_tetravortex_fire: [
-		{
-			type: 'STR',
-			file: 'mineffect/new_tetravortex/new_tetravortex_fire/new_tetravortex_fire',
-			texturePath: 'mineffect/new_tetravortex/new_tetravortex_fire/'
-		}
-	],
-
-	// Tetra Vortex Water (WL_TETRAVORTEX_WATER), from the client's own effect folders.
-	ef_wl_tetravortex_water: [
-		{
-			type: 'STR',
-			file: 'mineffect/new_tetravortex/new_tetravortex_water/new_tetravortex_water',
-			texturePath: 'mineffect/new_tetravortex/new_tetravortex_water/'
-		}
-	],
-
-	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND), from the client's own effect folders.
-	ef_wl_tetravortex_wind: [
-		{
-			type: 'STR',
-			file: 'mineffect/new_tetravortex/new_tetravortex_wind/new_tetravortex_wind',
-			texturePath: 'mineffect/new_tetravortex/new_tetravortex_wind/'
-		}
-	],
-
 	// Summon Attack Fire (WL_SUMMON_ATK_FIRE), from the client's own effect folders.
 	ef_wl_summon_atk_fire: [
 		{
@@ -26903,6 +26876,139 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_target/new_chainlightning_target',
 			texturePath: 'new_chainlightning/new_chainlightning_target/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex elements (WL_TETRAVORTEX_FIRE ... _GROUND): the three use-packet sounds, on the caster. See effect-port/warlock-skills.md.
+	ef_wl_tetravortex_sound: [
+		{
+			wav: 'effect/wizard_meteo',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/wl_tetravortex',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex (WL_TETRAVORTEX) cast floor, with 1261: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1277: [
+		{
+			//(1277): CEZ2STREffect, tetravortex\\tetra_ball_00_core_ground\\tetra_ball_00_core_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_ball_00_core_ground/tetra_ball_00_core_grd',
+			texturePath: 'tetravortex/tetra_ball_00_core_ground/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex (WL_TETRAVORTEX) cast, with 1277. See effect-port/warlock-skills.md.
+	1261: [
+		{
+			//(1261): CEZ2STREffect, tetravortex\\tetra_ball_00_core\\tetra_ball_00_core.str
+			type: 'STR',
+			file: 'tetravortex/tetra_ball_00_core/tetra_ball_00_core',
+			texturePath: 'tetravortex/tetra_ball_00_core/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE) floor, with 1266: on the target on success. See effect-port/warlock-skills.md.
+	1270: [
+		{
+			//(1270): CEZ2STREffect, tetravortex\\tetra_01_fire_ground\\tetra_01_fire_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_01_fire_ground/tetra_01_fire_grd',
+			texturePath: 'tetravortex/tetra_01_fire_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE) explosion, with 1270. See effect-port/warlock-skills.md.
+	1266: [
+		{
+			//(1266): CEZ2STREffect, tetravortex\\tetra_01_fire_explosion\\tetra_01_fire_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_01_fire_explosion/tetra_01_fire_expn',
+			texturePath: 'tetravortex/tetra_01_fire_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Water (WL_TETRAVORTEX_WATER) floor, with 1267: on the target on success. See effect-port/warlock-skills.md.
+	1271: [
+		{
+			//(1271): CEZ2STREffect, tetravortex\\tetra_04_water_ground\\tetra_04_water_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_04_water_ground/tetra_04_water_grd',
+			texturePath: 'tetravortex/tetra_04_water_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Water (WL_TETRAVORTEX_WATER) explosion, with 1271. See effect-port/warlock-skills.md.
+	1267: [
+		{
+			//(1267): CEZ2STREffect, tetravortex\\tetra_04_water_explosion\\tetra_04_water_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_04_water_explosion/tetra_04_water_expn',
+			texturePath: 'tetravortex/tetra_04_water_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND) floor, with 1268: on the target on success. See effect-port/warlock-skills.md.
+	1272: [
+		{
+			//(1272): CEZ2STREffect, tetravortex\\tetra_02_wind_ground\\tetra_02_wind_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_02_wind_ground/tetra_02_wind_grd',
+			texturePath: 'tetravortex/tetra_02_wind_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND) explosion, with 1272. See effect-port/warlock-skills.md.
+	1268: [
+		{
+			//(1268): CEZ2STREffect, tetravortex\\tetra_02_wind_explosion\\tetra_02_wind_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_02_wind_explosion/tetra_02_wind_expn',
+			texturePath: 'tetravortex/tetra_02_wind_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Earth (WL_TETRAVORTEX_GROUND) floor, with 1269: on the target on success. See effect-port/warlock-skills.md.
+	1273: [
+		{
+			//(1273): CEZ2STREffect, tetravortex\\tetra_03_earth_ground\\tetra_03_earth_grd.str
+			type: 'STR',
+			file: 'tetravortex/tetra_03_earth_ground/tetra_03_earth_grd',
+			texturePath: 'tetravortex/tetra_03_earth_ground/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Earth (WL_TETRAVORTEX_GROUND) explosion, with 1273. See effect-port/warlock-skills.md.
+	1269: [
+		{
+			//(1269): CEZ2STREffect, tetravortex\\tetra_03_earth_explosion\\tetra_03_earth_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_03_earth_explosion/tetra_03_earth_expn',
+			texturePath: 'tetravortex/tetra_03_earth_explosion/',
 			attachedEntity: true
 		}
 	],
