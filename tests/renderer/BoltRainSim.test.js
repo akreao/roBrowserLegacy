@@ -112,7 +112,7 @@ describe('Cold Bolt wiring', () => {
 
 	it('hands the damage packet hit count to the damage-packet effects', () => {
 		expect(read('Engine/MapEngine/Entity.js')).toMatch(
-			/EffectManager\.spamSkillDamage\(pkt\.SKID, pkt\.targetID, Renderer\.tick, pkt\.AID, undefined, pkt\.count\);/
+			/EffectManager\.spamSkillDamage\(\s*pkt\.SKID,\s*pkt\.targetID,\s*Renderer\.tick,\s*pkt\.AID,\s*undefined,\s*pkt\.count[,)]/
 		);
 		expect(read('Renderer/EffectManager.js')).toMatch(/otherAID: otherAID,\n\t\t\t\t\thitCount: hitCount/);
 	});
