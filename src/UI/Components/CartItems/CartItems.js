@@ -29,6 +29,7 @@ import cssText from './CartItems.css?raw';
 import Storage from 'UI/Components/Storage/Storage.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import WheelSteps from 'UI/WheelSteps.js';
 import { sanitizeHtml } from 'Utils/HtmlHelper.js';
 
@@ -136,10 +137,10 @@ CartItems.init = function Init() {
 				onItemInfo.call(item, e);
 			}
 		});
-		content.addEventListener('dblclick', e => {
+		content.addEventListener('click', e => {
 			const item = e.target.closest('.item');
 			if (item) {
-				onItemUsed.call(item, e);
+				onItemClick.call(item, e);
 			}
 		});
 	}
@@ -779,6 +780,32 @@ function onItemInfo(event) {
 }
 
 /**
+ * Shift+click puts the item's link in the chat, as in the inventory
+ * (official UIMerchantItemWnd mouse-down, vfunc25 at 0x0094b460).
+ */
+function onItemClick(event) {
+	if (!event.shiftKey || event.button !== 0) {
+		return;
+	}
+	const item = CartItems.getItemByIndex(parseInt(this.getAttribute('data-index'), 10));
+	if (!item) {
+		return;
+	}
+
+	// Legacy (pre-2016) links carry item.name, so set it first as the inventory does.
+	item.name = DB.getItemName(item);
+	const link = `<span data-item="${DB.createItemLink(item)}" class="item-link" style="color:#A9B95F;">&lt;${item.name}&gt;</span>`;
+
+	const chatRoot = ChatBox._shadow || ChatBox._host || document;
+	const msgBox = chatRoot.querySelector('.input-chatbox');
+	if (msgBox) {
+		msgBox.innerHTML += link + ' ';
+		msgBox.focus();
+	}
+	event.stopImmediatePropagation();
+}
+
+/**
  * Alt Right Click Request Transfer
  */
 function transferItemToOtherUI(item) {
@@ -804,22 +831,6 @@ function transferItemToOtherUI(item) {
 	}
 
 	return true;
-}
-
-/**
- * Ask to use an item
- */
-function onItemUsed(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const item = CartItems.getItemByIndex(index);
-
-	if (item) {
-		CartItems.useItem(item);
-		onItemOut();
-	}
-
-	event.stopImmediatePropagation();
-	event.preventDefault();
 }
 
 CartItems.reqRemoveItem = function reqRemoveItem() {};
