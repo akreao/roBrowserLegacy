@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	RING_VERTICES,
 	SET_AGES,
+	WAVE_FRAMES,
 	taper,
 	simulateRing,
 	pointHeight,
@@ -14,6 +15,8 @@ import {
 describe('Sonic Wave rings', () => {
 	it('builds a pair of ring sets on ages 0, 20 and 40', () => {
 		expect(SET_AGES).toEqual([0, 20, 40]);
+		expect(WAVE_FRAMES).toBeGreaterThanOrEqual(40 + simulateRing(0, 1).length);
+		expect(WAVE_FRAMES).toBeLessThan(200);
 	});
 
 	it('tapers the five points at each end of the band', () => {

@@ -64,7 +64,7 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
-import { SET_AGES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
+import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
@@ -26548,6 +26548,8 @@ export default {
 		{
 			type: 'FUNC',
 			attachedEntity: false,
+			// The rings' whole life, so sets culled off screen still expire
+			duration: WAVE_FRAMES * WAVE_TICK_MS,
 			func: function (Params) {
 				const from = { entity: Params.Init.ownerEntity, position: Params.Inst.position };
 				const to = { entity: Params.Init.otherEntity, position: Params.Inst.otherPosition };

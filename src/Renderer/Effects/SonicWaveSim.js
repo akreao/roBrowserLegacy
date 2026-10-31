@@ -29,7 +29,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-import { PRIM_TICK_MS, UNITS_PER_CELL } from './EffectPrimSim.js';
+import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 
 export { PRIM_TICK_MS as WAVE_TICK_MS };
 
@@ -216,3 +216,11 @@ export function headingTo(from, to) {
 	const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) / DEG;
 	return (angle + 360) % 360;
 }
+
+/**
+ * Ticks from the effect's start to the last ring's end: the last set starts
+ * on age 40 and its longest ring runs this long.
+ */
+export const WAVE_FRAMES =
+	SET_AGES[SET_AGES.length - 1] +
+	Math.max(...[0, 1].flatMap(variant => [0, 1, 2, 3].map(i => simulateRing(i, variant).length)));

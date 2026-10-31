@@ -16,7 +16,14 @@ import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Preferences/Map.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import { WAVE_TICK_MS, WAVE_TEXTURES, RING_VERTICES, simulateRing, buildRing, headingTo } from './SonicWaveSim.js';
+import {
+	WAVE_TICK_MS,
+	WAVE_TEXTURES,
+	RING_VERTICES,
+	simulateRing,
+	buildRing,
+	headingTo
+} from 'Renderer/Effects/SonicWaveSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 
