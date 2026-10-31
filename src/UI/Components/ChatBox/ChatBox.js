@@ -1298,7 +1298,9 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 				activeElement === document.body ||
 				activeElement.tagName === 'CANVAS' ||
 				isChatInputFocused ||
-				isChatCaption;
+				isChatCaption ||
+				root.contains(activeElement) ||
+				Array.from(views.values()).some(view => view.floating?._host?.contains(activeElement));
 			// The selected tab may be a floating one; activeTab only names the docked one.
 			const selectedId = this.tabStore.selectedId ?? this.activeTab;
 			const content = views.get(selectedId)?.log || root.querySelector(`.content[data-content="${selectedId}"]`);
