@@ -101,3 +101,19 @@ it('opens a whisper to a double-clicked friend', () => {
 
 	expect(mocks.whisper).toHaveBeenCalledWith('Seyren');
 });
+
+it('does nothing while the window is locked', () => {
+	mocks.whisper.mockClear();
+	const Component = createPartyFriends({ name: 'FriendsLocked', htmlText: '', cssText: '' });
+	Component.getRoot().insertAdjacentHTML('beforeend', '<button class="lock off"></button>');
+	Component.init();
+	Component.setFriends([{ Name: 'Seyren', GID: 150001, AID: 2000001, State: 0 }]);
+	const root = Component.getRoot();
+	root.querySelector('.lock').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+	const node = root.querySelector('.friend .node');
+
+	node.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, which: 1 }));
+	node.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+
+	expect(mocks.whisper).not.toHaveBeenCalled();
+});
