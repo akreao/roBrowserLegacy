@@ -1018,7 +1018,7 @@ SkillEffect[SK.WL_SUMMON_ATK_WATER] = { arrivalEffectIdOnTarget: 51 }; //Summon 
 SkillEffect[SK.WL_SUMMON_ATK_GROUND] = { arrivalEffectIdOnTarget: 147 }; //Summon Attack Earth: 147 on the target as the damage arrives
 SkillEffect[SK.WL_SUMMONSTONE] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Stone: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
 SkillEffect[SK.WL_RELEASE] = { effectId: 751 }; //Release //CHECK Should it be left to do multi hit or single hit?
-SkillEffect[SK.WL_READING_SB] = {}; //Reading Spellbook
+SkillEffect[SK.WL_READING_SB] = { castAuraEffectId: 58 }; //Reading Spellbook: white cast aura
 // GC Guillotine Cross
 SkillEffect[SK.GC_VENOMIMPRESS] = { effectId: 788 }; //Venom Impress
 SkillEffect[SK.GC_CROSSIMPACT] = { effectId: 'ef_gc_crossimpact' }; //Cross Impact
@@ -2275,6 +2275,7 @@ SkillEffect[SK.SJ_NOVAEXPLOSING] = { castAuraEffectId: 58 }; //Nova Explosion
 SkillEffect[SK.SJ_GRAVITYCONTROL] = { castAuraEffectId: 58 }; //Gravity Control
 SkillEffect[SK.SJ_BOOKOFCREATINGSTAR] = { castAuraEffectId: 58 }; //Book of Creating Star
 SkillEffect[SK.SP_SWHOO] = { castAuraEffectId: 454 }; //Eswhoo
+SkillEffect[SK.WL_READING_SB_READING] = { castAuraEffectId: 58 }; //Reading Spellbook (reading): white cast aura
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)
