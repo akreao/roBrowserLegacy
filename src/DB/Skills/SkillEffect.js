@@ -971,7 +971,7 @@ SkillEffect[SK.RK_DRAGONBREATH] = {
 	castAuraEffectId: 12
 }; //Dragon Breath: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.RK_DRAGONHOWLING] = { successEffectIdOnCaster: [731, 'quake'] }; //Dragon Howling: quake + 731 (with dragon_h.wav) on success
-SkillEffect[SK.RK_MILLENNIUMSHIELD] = { effectId: 749 }; //Millenium Shield
+SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecasting', 749, 'ef_rk_millenniumshield_sound'] }; //Millennium Shield: 441 + 749 + ef_soulstrike.wav on success
 SkillEffect[SK.RK_CRUSHSTRIKE] = {}; //Crush Strike
 SkillEffect[SK.RK_REFRESH] = {}; //Refresh
 SkillEffect[SK.RK_GIANTGROWTH] = {}; //Giant Growth
