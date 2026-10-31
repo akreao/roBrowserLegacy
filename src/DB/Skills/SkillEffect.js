@@ -958,7 +958,7 @@ SkillEffect[SK.RK_WINDCUTTER] = {
 	damageEffectIdOnOtherTarget: 'ef_rk_windcutter_target',
 	firstHitEffectId: 122
 }; //Wind Cutter: 1690 + floor slash by facing on success; 1693 on other targets; hit map 122
-SkillEffect[SK.RK_IGNITIONBREAK] = { effectIdOnCaster: 722 }; //Ignition Break
+SkillEffect[SK.RK_IGNITIONBREAK] = { successEffectIdOnCaster: 'ef_rk_ignitionbreak', castAuraEffectId: 12 }; //Ignition Break: 1624 + 1625 + wl_jackfrost.wav on success; yellow cast aura
 SkillEffect[SK.RK_DRAGONBREATH] = { hitEffectId: 587 }; //Dragon Breath
 SkillEffect[SK.RK_DRAGONHOWLING] = { effectId: 731 }; //Dragon Howling
 SkillEffect[SK.RK_MILLENNIUMSHIELD] = { effectId: 749 }; //Millenium Shield

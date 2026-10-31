@@ -26586,6 +26586,27 @@ export default {
 		}
 	],
 
+	// Ignition Break (RK_IGNITIONBREAK): official effects 1624 and 1625 (floor) and wl_jackfrost.wav on the
+	// caster when the use packet has the result set. See effect-port/rune-knight-skills.md.
+	ef_rk_ignitionbreak: [
+		{
+			//new_ignitionbreak (1624): CEZ2STREffect, new_ignitionbreak\\new_ignitionbreak\\new_ignitionbreak.str
+			type: 'STR',
+			file: 'new_ignitionbreak/new_ignitionbreak/new_ignitionbreak',
+			texturePath: 'new_ignitionbreak/new_ignitionbreak/',
+			wav: 'effect/wl_jackfrost',
+			attachedEntity: true
+		},
+		{
+			//new_ignitionbreak_bottom (1625): CEZ2STREffect, new_ignitionbreak\\new_ignitionbreak_bottom\\new_ignitionbreak_bottom.str
+			type: 'STR',
+			file: 'new_ignitionbreak/new_ignitionbreak_bottom/new_ignitionbreak_bottom',
+			texturePath: 'new_ignitionbreak/new_ignitionbreak_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
