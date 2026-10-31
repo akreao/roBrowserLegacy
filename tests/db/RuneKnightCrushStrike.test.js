@@ -9,7 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Crush Strike', () => {
 	it('plays the official use effects on success', () => {
-		expect(SkillEffect[SK.RK_CRUSHSTRIKE]).toMatchObject({ firstHitEffectId: ['quake', 589, 'ef_rk_crushstrike_sound'] });
+		expect(SkillEffect[SK.RK_CRUSHSTRIKE]).toMatchObject({ arrivalEffectIdOnTarget: ['quake', 589, 'ef_rk_crushstrike_sound'] });
 		expect(EffectTable.ef_rk_crushstrike_sound).toEqual([{ wav: '_enemy_hit_wind2', attachedEntity: true }]);
 	});
 });
