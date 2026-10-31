@@ -25325,15 +25325,6 @@ export default {
 		}
 	],
 
-	// Summon Attack Fire (WL_SUMMON_ATK_FIRE), from the client's own effect folders.
-	ef_wl_summon_atk_fire: [
-		{
-			type: 'STR',
-			file: 'fire',
-			texturePath: ''
-		}
-	],
-
 	// Cross Impact (GC_CROSSIMPACT), from the client's own effect folders.
 	ef_gc_crossimpact: [
 		{
