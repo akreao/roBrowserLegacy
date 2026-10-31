@@ -23,7 +23,6 @@ describe('Mercenary skill effects', () => {
 			'MA_FREEZINGTRAP',
 			'MA_REMOVETRAP',
 			'ML_PIERCE',
-			'ML_SPIRALPIERCE',
 			'ML_DEVOTION',
 			'MER_QUICKEN',
 			'MER_PROVOKE',
@@ -53,7 +52,8 @@ describe('Mercenary skill effects', () => {
 	it('keeps only the bow arrow for the archer skills', () => {
 		expect(row('MA_DOUBLE')).toBe("{ damageEffectIdOnTarget: 'ef_arrow_projectile' }");
 		expect(row('MA_SHOWER')).toBe("{ releaseEffectId: 'ef_arrow_projectile' }");
-		expect(row('MA_SHARPSHOOTING')).toBe("{ releaseEffectId: 'ef_arrow_projectile' }");
+		expect(row('MA_SHARPSHOOTING')).toBe("{ castAuraEffectId: 58, releaseEffectId: 'ef_arrow_projectile' }");
+		expect(row('ML_SPIRALPIERCE')).toBe('{ castAuraEffectId: 502 }');
 		expect(row('MA_CHARGEARROW')).toBe('{ hideCastAura: true }');
 	});
 });
