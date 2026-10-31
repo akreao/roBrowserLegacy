@@ -29,7 +29,7 @@ vi.mock('DB/DBManager.js', () => ({
 	default: {
 		INTERFACE_PATH: '',
 		getItemInfo: () => ({ identifiedResourceName: 'apple' }),
-		getItemName: () => 'Apple',
+		getItemName: item => (item.ITID === 513 ? 'Banana %d' : 'Apple'),
 		getMessage: (_id, text) => text
 	}
 }));
@@ -42,4 +42,9 @@ const ItemObtain = (await import('UI/Components/ItemObtain/ItemObtain.js')).defa
 it('writes the item and its amount like the official popup', () => {
 	ItemObtain.set({ ITID: 512, count: 3, IsIdentified: true });
 	expect(ItemObtain.getRoot().querySelector('.content').textContent.trim()).toBe('You got Apple (3).');
+});
+
+it('keeps a %d inside the item name', () => {
+	ItemObtain.set({ ITID: 513, count: 2, IsIdentified: true });
+	expect(ItemObtain.getRoot().querySelector('.content').textContent.trim()).toBe('You got Banana %d (2).');
 });
