@@ -155,13 +155,14 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	Component.onKeyDown = function onKeyDown(event) {
 		if (this._host.style.display === 'none') return true;
 
-		// The prompt has no keys of its own: Escape answers No, and Enter must
-		// not log in behind it.
+		// The prompt has no keys of its own: Escape answers No. Enter only
+		// reaches a prompt button that has focus, never the login behind it.
 		if (_exitPrompt) {
+			const onPrompt = document.activeElement === _exitPrompt._host;
 			if (event.which === KEYS.ESCAPE) {
 				closeExitPrompt();
 			}
-			if (event.which === KEYS.ESCAPE || event.which === KEYS.ENTER) {
+			if (event.which === KEYS.ESCAPE || (event.which === KEYS.ENTER && !onPrompt)) {
 				event.stopImmediatePropagation();
 				return false;
 			}
@@ -212,19 +213,25 @@ export function createWinLogin({ name, htmlText, cssText }) {
 			'ok',
 			'cancel',
 			() => {
-				_exitPrompt = null;
+				promptClosed();
 				Component.onExitRequest();
 			},
-			() => {
-				_exitPrompt = null;
-			}
+			promptClosed
 		);
+		// Modal: nothing on the login window can be clicked or tabbed to
+		// while the question is open
+		Component._host.inert = true;
 		return false;
+	}
+
+	function promptClosed() {
+		_exitPrompt = null;
+		Component._host.inert = false;
 	}
 
 	function closeExitPrompt() {
 		const prompt = _exitPrompt;
-		_exitPrompt = null;
+		promptClosed();
 		prompt?.remove();
 	}
 

@@ -35,7 +35,7 @@ vi.mock('UI/UIManager.js', () => ({
 		addComponent: c => c,
 		showMessageBox: vi.fn(),
 		showPromptBox: vi.fn((text, yes, no, onYes, onNo) => {
-			const prompt = { text, onYes, onNo, remove: vi.fn() };
+			const prompt = { text, onYes, onNo, remove: vi.fn(), _host: document.createElement('div') };
 			mocks.prompts.push(prompt);
 			return prompt;
 		})
@@ -102,8 +102,34 @@ describe('WinLogin exit', () => {
 	it('does not log in when Enter is pressed behind the prompt', () => {
 		const WinLogin = mount();
 		key(WinLogin, KEYS.ESCAPE);
-		key(WinLogin, KEYS.ENTER);
 
+		expect(key(WinLogin, KEYS.ENTER)).toBe(false);
 		expect(WinLogin.onConnectionRequest).not.toHaveBeenCalled();
+	});
+
+	it('lets Enter press a prompt button that has focus', () => {
+		const WinLogin = mount();
+		key(WinLogin, KEYS.ESCAPE);
+		const host = mocks.prompts[0]._host;
+		host.tabIndex = 0;
+		document.body.appendChild(host);
+		host.focus();
+
+		expect(key(WinLogin, KEYS.ENTER)).toBe(true);
+		expect(WinLogin.onConnectionRequest).not.toHaveBeenCalled();
+		host.remove();
+	});
+
+	it('makes the login window inert while the prompt is open', () => {
+		const WinLogin = mount();
+		key(WinLogin, KEYS.ESCAPE);
+		expect(WinLogin._host.inert).toBe(true);
+
+		mocks.prompts[0].onNo();
+		expect(WinLogin._host.inert).toBe(false);
+
+		key(WinLogin, KEYS.ESCAPE);
+		key(WinLogin, KEYS.ESCAPE);
+		expect(WinLogin._host.inert).toBe(false);
 	});
 });
