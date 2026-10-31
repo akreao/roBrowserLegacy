@@ -318,8 +318,6 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	// ─── update ────────────────────────────────────────
 
 	Component.update = function update(type, val) {
-		let str;
-
 		if (!this.__loaded) {
 			this.stack.push(arguments);
 			return;
@@ -359,9 +357,13 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'smatk':
 			case 'hplus':
 			case 'crate':
+				setText('.' + type, val);
+				break;
+
+			// The official window never shows Res or MRes below 0.
 			case 'res':
 			case 'mres':
-				setText('.' + type, val);
+				setText('.' + type, Math.max(0, val));
 				break;
 
 			// ── ASPD ──
@@ -380,8 +382,8 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'def2':
 			case 'mdef2':
 			case 'flee2':
-				str = val < 0 ? '- ' + -val : '+ ' + val;
-				setText('.' + type, str);
+				// The official window prints these pairs as "%d + %d", even for a negative bonus.
+				setText('.' + type, '+ ' + val);
 				break;
 
 			// ── Base stats ──
@@ -408,6 +410,10 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'int2':
 			case 'dex2':
 			case 'luk2':
+				// Official formats: "+%d" above 0, "%d" below 0, nothing at 0.
+				setText('.bonus .' + type.replace('2', ''), val > 0 ? '+' + val : val < 0 ? String(val) : '');
+				break;
+
 			// ── Trait bonus ──
 			case 'pow2':
 			case 'sta2':
@@ -415,8 +421,8 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'spl2':
 			case 'con2':
 			case 'crt2':
-				str = val < 0 ? '- ' + -val : val > 0 ? '+' + val : '';
-				setText('.bonus .' + type.replace('2', ''), str);
+				// The official trait rows only show a positive bonus.
+				setText('.bonus .' + type.replace('2', ''), val > 0 ? '+' + val : '');
 				break;
 
 			// ── Base requirements ──
