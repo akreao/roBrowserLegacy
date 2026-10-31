@@ -63,6 +63,7 @@ const htmlText = `
 	<div class="titlebar">
 		<button class="base"></button>
 		<button class="mini"></button>
+		<button class="close"></button>
 	</div>
 	<div class="panel"></div>
 `;
@@ -170,5 +171,27 @@ describe('inventory window, restoring the reduced preference on reopen', () => {
 		clickMini(Component);
 
 		expect(Component._host.style.height).toBe(expanded);
+	});
+});
+
+describe('inventory window, closed with its X', () => {
+	beforeEach(() => {
+		localStorage.clear();
+	});
+
+	afterEach(() => {
+		localStorage.clear();
+	});
+
+	it('lets go of the pointer as it hides', () => {
+		savePreference({ show: true, reduce: false });
+
+		const Component = mount();
+		const left = vi.fn();
+		Component._host.addEventListener('mouseleave', left);
+		Component.getRoot().querySelector('.titlebar .close').click();
+
+		expect(Component._host.style.display).toBe('none');
+		expect(left).toHaveBeenCalledTimes(1);
 	});
 });

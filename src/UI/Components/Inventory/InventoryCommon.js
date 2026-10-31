@@ -207,8 +207,12 @@ export function createInventory(config) {
 
 		const closeBtn = root.querySelector('.titlebar .close');
 		if (closeBtn) {
+			// Close as the shortcut does: hiding the window under the pointer
+			// fires no mouseleave, so a bare display:none left its hover guard
+			// holding the map, and the next time the inventory was opened the
+			// map took the hover and the clicks through it.
 			closeBtn.addEventListener('click', () => {
-				Component._host.style.display = 'none';
+				Component.toggle();
 			});
 		}
 
