@@ -9,7 +9,7 @@ vi.mock('Renderer/Renderer.js', () => ({ default: { width:1200, height:800 } }))
 vi.mock('UI/CursorManager.js', () => ({default:{}}));
 vi.mock('Renderer/EntityManager.js', () => ({default:{get:()=>null}}));
 vi.mock('UI/Scrollbar.js', () => ({default:{}}));
-vi.mock('UI/UIManager.js', () => ({default:{addComponent: c => c}}));
+vi.mock('UI/UIManager.js', () => ({default:{addComponent: c => c, showPromptBox: (...args) => { state.prompts = (state.prompts || 0) + 1; args[3](); }}}));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({default:{append(){}, setItem: item => {state.detail=item;}}}));
 vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({default:{getUI: () => ({addNpcMark: (key,x,y) => state.marks.set(key,[x,y]),removeNpcMark: key => state.marks.delete(key)})}}));
 const stub = vi.hoisted(() => () => ({default:{}}));
@@ -39,6 +39,17 @@ const row = (id=100100) => ({SSI_ID:42,AID:200001,ITID:id,StoreName:'<img src=x 
 const ack = (rows=[row()], first=1,next=0,uses=9) => receive(PACKET.ZC.SEARCH_STORE_INFO_ACK2,{IsFirstPage:first,IsNexPage:next,RemainedSearchCnt:uses,SSI_List:rows});
 beforeEach(() => { vi.useFakeTimers(); resetStoreSearch(true); state.packets=[]; state.marks.clear(); state.detail=null; state.retired=0; initialize(); Store(); });
 afterEach(() => {resetStoreSearch(true);vi.clearAllTimers();vi.useRealTimers();});
+describe('opening a stall from the catalog', () => {
+ it('asks first only when the catalog opens stalls', () => {
+  state.prompts = 0;
+  open(0); search(); ack(); el('.result .visit').click();
+  expect(state.prompts).toBe(0);
+  resetStoreSearch(true); initialize(); Store();
+  open(1); search(); ack(); el('.result .visit').click();
+  expect(state.prompts).toBe(1);
+  expect(state.packets.at(-1)).toMatchObject({AID:200001,SSI_ID:42,ITID:100100});
+ });
+});
 describe('catalog controls and server lifecycle', () => {
  it('selects known item/card candidates and appends pages with server use counts and exact row tuples', () => {
   open(); choose('Sword','items',1); choose('100105','cards');

@@ -4,6 +4,7 @@ import PACKET from 'Network/PacketStructure.js';
 import DB from 'DB/DBManager.js';
 import Search from 'UI/Components/StoreSearch/StoreSearch.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
+import UIManager from 'UI/UIManager.js';
 
 const marker = 'store-search';
 let catalog = null;
@@ -178,6 +179,18 @@ export default function initializeStoreSearch() {
 		request(new PACKET.CZ.SEARCH_STORE_INFO_NEXT_PAGE(), { kind: 'page' });
 	};
 	Search.onVisit = row => {
+		if (!catalog || catalog.failed || catalog.pending || row.stale || !catalog.rows.includes(row)) return;
+		// A catalog that opens the stall asks first (official UISerachStoreInfoWnd vfunc26,
+		// msgstringtable 1785); the row may have gone stale by the answer.
+		if (catalog.effect !== 0) {
+			UIManager.showPromptBox(DB.getMessage(1785, 'Do you want to open the stall?'), 'ok', 'cancel', () =>
+				visit(row)
+			);
+			return;
+		}
+		visit(row);
+	};
+	const visit = row => {
 		if (!catalog || catalog.failed || catalog.pending || row.stale || !catalog.rows.includes(row)) return;
 		retireRemoteShop();
 		clearMarker();
