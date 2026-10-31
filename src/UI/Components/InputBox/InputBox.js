@@ -131,12 +131,42 @@ function validate() {
 
 	if (!InputBox.isPersistent || text.length) {
 		const innerRoot = root.querySelector('#inputbox');
-		if (innerRoot && innerRoot.classList.contains('number')) {
+		if (InputBox.inputType === 'price') {
+			text = readPrice(text);
+			if (text === null) {
+				return;
+			}
+		} else if (innerRoot && innerRoot.classList.contains('number')) {
 			text = parseInt(text, 10) | 0;
 		}
 
 		InputBox.onSubmitRequest(text);
 	}
+}
+
+/**
+ * A shop price, read like the official vending window's price box
+ * (UIMerchantShopMakeWnd vfunc19): digits only, with or without commas
+ * (msgstringtable 602 otherwise), and at most 1,000,000,000 (2467).
+ *
+ * @param {string} text
+ * @return {number|null} the price, or null when the text is refused
+ */
+function readPrice(text) {
+	const value = String(text).replace(/[,\s]/g, '');
+	if (/\D/.test(value)) {
+		UIManager.showMessageBox(DB.getMessage(602, 'Only the numbers (0~9) are available.'), 'ok');
+		return null;
+	}
+	const price = Number(value) || 0;
+	if (price > 1000000000) {
+		UIManager.showMessageBox(
+			DB.getMessage(2467, 'You entered more than 1 Billion Zeny, the price will be set to 1 Billion Zeny.'),
+			'ok'
+		);
+		return 1000000000;
+	}
+	return price;
 }
 
 /**
@@ -149,6 +179,7 @@ function validate() {
  */
 InputBox.setType = function setType(type, isPersistent, defaultVal, itemId = null) {
 	this.isPersistent = !!isPersistent;
+	this.inputType = type;
 	const root = InputBox.getRoot();
 	const innerRoot = root.querySelector('#inputbox');
 	const textEl = root.querySelector('.text');
