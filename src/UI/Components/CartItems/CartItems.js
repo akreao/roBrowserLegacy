@@ -644,14 +644,19 @@ function onItemOver(_e) {
 		return;
 	}
 
-	let quantity = ' ea';
-	if (
+	// Official UIMerchantItemWnd hover (vfunc28): "%s %d %s" with msgstringtable 588 "ea",
+	// or 2551 "%s [%d Option] : %d Quantity" with random options.
+	const count = item.count || 1;
+	const hasOptions =
 		(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) &&
 		item.Options &&
-		item.Options.filter(Option => Option.index !== 0).length > 0
-	) {
-		quantity = ' Quantity';
-	}
+		item.Options.filter(Option => Option.index !== 0).length > 0;
+	const text = hasOptions
+		? DB.getMessage(2551, '%s [%d Option] : %d Quantity')
+				.replace('%s', DB.getItemName(item, { showItemOptions: false }))
+				.replace('%d', item.Options.filter(Option => Option.index !== 0).length)
+				.replace('%d', count)
+		: `${DB.getItemName(item)} ${count} ${DB.getMessage(588, 'ea')}`;
 
 	const root = CartItems.getRoot();
 	const overlay = root.querySelector('.overlay');
@@ -664,7 +669,7 @@ function onItemOver(_e) {
 		overlay.style.display = 'block';
 		overlay.style.top = `${itemRect.top - rootRect.top}px`;
 		overlay.style.left = `${itemRect.left - rootRect.left + 35}px`;
-		overlay.innerHTML = sanitizeHtml(`${DB.getItemName(item)}: ${item.count || 1}${quantity}`);
+		overlay.innerHTML = sanitizeHtml(text);
 
 		if (item.IsIdentified) {
 			overlay.classList.remove('grey');
