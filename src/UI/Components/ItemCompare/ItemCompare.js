@@ -23,7 +23,7 @@ import Sprite from 'Loaders/Sprite.js';
 import Action from 'Loaders/Action.js';
 import htmlText from './ItemCompare.html?raw';
 import cssText from './ItemCompare.css?raw';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import ItemInfo, { showCardInfo } from 'UI/Components/ItemInfo/ItemInfo.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import { sanitizeHtml } from 'Utils/HtmlHelper.js';
 
@@ -311,15 +311,7 @@ function addCard(cardList, itemId, index, slotCount) {
 					e.stopImmediatePropagation();
 					// The official comparison window opens the card in a window of its own
 					// (UIItemCollection_ComparisonWnd vfunc32: window 0x52).
-					if (ItemCompare.onCardInfo) {
-						ItemCompare.onCardInfo(itemId);
-						return;
-					}
-					ItemCompare.setItem({
-						ITID: itemId,
-						IsIdentified: true,
-						type: 6
-					});
+					showCardInfo(itemId, ItemCompare);
 				});
 			}
 		}

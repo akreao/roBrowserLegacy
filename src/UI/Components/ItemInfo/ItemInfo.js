@@ -482,7 +482,7 @@ function createItemInfo(componentName, isCardWindow) {
 						e.stopImmediatePropagation();
 						// The official window opens the card in a window of its own
 						// (UIItemCollectionWnd vfunc32: window 0x52), keeping this item.
-						showCard(itemId, ItemInfo);
+						showCardInfo(itemId, ItemInfo);
 					});
 				}
 			}
@@ -960,27 +960,32 @@ const ItemInfoCard = createItemInfo('ItemInfoCard', true);
 
 /**
  * Show a card in the card window, beside the window it was right-clicked in
- * (the item window, the compare window, or the card window itself).
+ * (the item window, the compare window, or the card window itself). From the
+ * compare window it goes past the item window too, so it covers neither.
  *
  * @param {number} itemId card id
- * @param {GUIComponent} from
+ * @param {GUIComponent} [from]
  */
-function showCard(itemId, from) {
+export function showCardInfo(itemId, from) {
 	const opening = !ItemInfoCard.__active;
 	ItemInfoCard.append();
 	ItemInfoCard.uid = itemId;
 	ItemInfoCard.setItem({ ITID: itemId, IsIdentified: true, type: 6 });
-	if (opening && from && from !== ItemInfoCard && from._host) {
-		const rect = from._host.getBoundingClientRect();
-		const width = ItemInfoCard._host.getBoundingClientRect().width || rect.width;
-		const left = rect.right + 4 + width <= Renderer.width ? rect.right + 4 : Math.max(0, rect.left - 4 - width);
-		ItemInfoCard._host.style.left = `${left}px`;
-		ItemInfoCard._host.style.top = `${Math.max(0, rect.top)}px`;
+	if (!opening || !from || from === ItemInfoCard || !from._host) {
+		return;
 	}
+	const rects = [from._host.getBoundingClientRect()];
+	if (from !== ItemInfo && ItemInfo.__active && ItemInfo._host) {
+		rects.push(ItemInfo._host.getBoundingClientRect());
+	}
+	const right = Math.max(...rects.map(rect => rect.right));
+	const leftEdge = Math.min(...rects.map(rect => rect.left));
+	const width = ItemInfoCard._host.getBoundingClientRect().width || rects[0].width;
+	const left = right + 4 + width <= Renderer.width ? right + 4 : Math.max(0, leftEdge - 4 - width);
+	ItemInfoCard._host.style.left = `${left}px`;
+	ItemInfoCard._host.style.top = `${Math.max(0, rects[0].top)}px`;
 }
 
-// The compare window's card slots open the card window too
-ItemCompare.onCardInfo = itemId => showCard(itemId, ItemCompare);
 Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, ItemInfo.onItemPreview);
 
 /**

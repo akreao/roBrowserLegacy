@@ -82,7 +82,7 @@ vi.mock('Loaders/Action.js', () => ({ default: {} }));
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, setType: vi.fn() } }));
 vi.mock('UI/Elements/Elements.js', () => ({}));
 
-const { default: ItemInfo, ItemInfoCard } = await import('UI/Components/ItemInfo/ItemInfo.js');
+const { default: ItemInfo, ItemInfoCard, showCardInfo } = await import('UI/Components/ItemInfo/ItemInfo.js');
 
 function answerAll() {
 	while (mocks.pending.length) mocks.pending.shift()();
@@ -122,9 +122,17 @@ it('closes only itself on Escape or its close button', async () => {
 	expect(ItemCompare.remove).not.toHaveBeenCalled();
 });
 
-it('opens a compare window card in the card window', async () => {
+it('opens a compare window card in the card window, past the item window', async () => {
 	const { default: ItemCompare } = await import('UI/Components/ItemCompare/ItemCompare.js');
+	ItemInfoCard.remove();
+	ItemCompare._host = document.createElement('div');
+	ItemCompare._host.getBoundingClientRect = () => ({ left: 300, right: 580, top: 50, width: 280 });
+	ItemInfo._host.getBoundingClientRect = () => ({ left: 580, right: 860, top: 50, width: 280 });
+	ItemInfoCard._host.getBoundingClientRect = () => ({ width: 280 });
 	const setCard = vi.spyOn(ItemInfoCard, 'setItem');
-	ItemCompare.onCardInfo(4001);
+
+	showCardInfo(4001, ItemCompare);
+
 	expect(setCard).toHaveBeenLastCalledWith({ ITID: 4001, IsIdentified: true, type: 6 });
+	expect(ItemInfoCard._host.style.left).toBe('864px');
 });
