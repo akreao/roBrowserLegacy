@@ -26,7 +26,11 @@ vi.mock('DB/DBManager.js', () => ({
 	default: { INTERFACE_PATH: '', getMessage: id => `MSG ${id}` }
 }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { render: vi.fn(), stop: vi.fn(), tick: 0 } }));
-vi.mock('Renderer/Entity/Entity.js', () => ({ default: class {} }));
+vi.mock('Renderer/Entity/Entity.js', () => ({
+	default: class {
+		set() {}
+	}
+}));
 vi.mock('Renderer/SpriteRenderer.js', () => ({ default: {} }));
 vi.mock('Renderer/Camera.js', () => ({ default: {} }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: (_p, cb) => cb?.('') } }));
@@ -43,6 +47,8 @@ vi.mock('UI/ScreenHooks.js', () => ({ default: { show: vi.fn(), hide: vi.fn(), u
 vi.mock('UI/Elements/Elements.js', () => ({}));
 
 const CharCreate = (await import('UI/Components/CharCreate/CharCreatev4/CharCreatev4.js')).default;
+const ScreenHooks = (await import('UI/ScreenHooks.js')).default;
+const TextEncoding = (await import('Utils/CodepageManager.js')).default;
 
 function make(name) {
 	const root = CharCreate._host;
@@ -71,6 +77,31 @@ describe('CharCreate name length', () => {
 		expect(mocks.messages).toEqual(['MSG 531']);
 		expect(CharCreate.onCharCreationRequest).not.toHaveBeenCalled();
 		expect(input.value).toBe('');
+	});
+
+	it('counts bytes in the client codepage, as the official client does', () => {
+		TextEncoding.setCharset('windows-949');
+		try {
+			// 2 characters, 4 bytes: long enough
+			make('가나');
+			// 12 characters, 24 bytes: too long
+			make('가'.repeat(12));
+		} finally {
+			TextEncoding.setCharset('windows-1252');
+		}
+		expect(mocks.messages).toEqual(['MSG 531']);
+		expect(CharCreate.onCharCreationRequest).toHaveBeenCalledOnce();
+	});
+
+	it('leaves a plugin its own name field', () => {
+		CharCreate.onAppend();
+		const screen = ScreenHooks.show.mock.calls.at(-1)[1];
+		CharCreate._host.querySelector('#char_name').value = 'stock';
+		screen.create({ name: 'a'.repeat(24), hair: 1, hairColor: 0, job: 0, sex: 0 });
+
+		expect(mocks.messages).toEqual(['MSG 531']);
+		expect(CharCreate._host.querySelector('#char_name').value).toBe('stock');
+		expect(CharCreate.onCharCreationRequest).not.toHaveBeenCalled();
 	});
 
 	it('sends a name of 4 to 23 characters', () => {

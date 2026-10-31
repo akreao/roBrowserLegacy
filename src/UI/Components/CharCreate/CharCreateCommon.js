@@ -23,6 +23,7 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Client from 'Core/Client.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import ScreenHooks from 'UI/ScreenHooks.js';
@@ -175,7 +176,7 @@ export function createCharCreate(config) {
 		chooseSex: hasRace,
 		hasStats,
 		create(look) {
-			if (!nameFits(String((look && look.name) || ''))) {
+			if (!nameFits(String((look && look.name) || ''), false)) {
 				return;
 			}
 			const stats = (look && look.stats) || {};
@@ -419,25 +420,28 @@ export function createCharCreate(config) {
 	 */
 	/**
 	 * The official client checks the name's length before sending it
-	 * (UINewMakeCharWnd::SendMsg): under 4 characters is refused with
-	 * msgstringtable 21, over 23 with 531 and the name is cleared.
+	 * (UINewMakeCharWnd::SendMsg): under 4 is refused with msgstringtable 21,
+	 * over 23 with 531 and the name is cleared. It counts bytes in the
+	 * client's codepage, so a Korean character counts as two.
 	 *
 	 * @param {string} charname
+	 * @param {boolean} clearOnTooLong - clear the stock name field (a plugin
+	 *   drawing the screen has its own field)
 	 * @return {boolean} whether the name can be sent
 	 */
-	function nameFits(charname) {
-		if (charname.length < 4) {
+	function nameFits(charname, clearOnTooLong) {
+		const length = TextEncoding.encode(charname).length;
+		if (length < 4) {
 			UIManager.showMessageBox(DB.getMessage(21, 'Character Name must be at least 4 characters long.'), 'ok');
 			return false;
 		}
-		if (charname.length > 23) {
+		if (length > 23) {
 			UIManager.showMessageBox(
 				DB.getMessage(531, 'Name is too long. Please enter a name up to 23 english characters.'),
 				'ok'
 			);
-			const input = Component.getRoot().querySelector(nameInputSelector);
-			if (input) {
-				input.value = '';
+			if (clearOnTooLong) {
+				Component.getRoot().querySelector(nameInputSelector).value = '';
 			}
 			return false;
 		}
@@ -448,7 +452,7 @@ export function createCharCreate(config) {
 		const root = Component.getRoot();
 		const charname = root.querySelector(nameInputSelector).value;
 
-		if (!nameFits(charname)) {
+		if (!nameFits(charname, true)) {
 			return;
 		}
 
