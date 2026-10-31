@@ -2260,7 +2260,7 @@ export default {
 
 	56: [
 		{
-			//EF_BEGINSPELL4	Cast Initiation Aura (Wind Element)
+			//EF_BEGINSPELL4	Cast Initiation Aura (green: the official client plays it for earth casts)
 			alphaMax: 0.3,
 			animation: 1,
 			attachedEntity: true,
@@ -2316,7 +2316,7 @@ export default {
 
 	57: [
 		{
-			//EF_BEGINSPELL5	Cast Initiation Aura (Earth Element)
+			//EF_BEGINSPELL5	Cast Initiation Aura (yellow: the official client plays it for wind casts)
 			alphaMax: 0.5,
 			animation: 1,
 			attachedEntity: true,
