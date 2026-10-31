@@ -1023,12 +1023,9 @@ export function createEquipment({
 		const item = _list[parseInt(this.getAttribute('data-index'), 10)];
 		if (!item) return;
 
-		const link =
-			'<span data-item="' +
-			DB.createItemLink(item) +
-			'" class="item-link" style="color:#A9B95F;">&lt;' +
-			DB.getItemName(item) +
-			'&gt;</span>';
+		// Legacy (pre-2016) links carry item.name, so set it first as the inventory does.
+		item.name = DB.getItemName(item);
+		const link = `<span data-item="${DB.createItemLink(item)}" class="item-link" style="color:#A9B95F;">&lt;${item.name}&gt;</span>`;
 
 		const chatRoot = ChatBox._shadow || ChatBox._host || document;
 		const msgBox = chatRoot.querySelector('.input-chatbox');
