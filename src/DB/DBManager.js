@@ -129,6 +129,12 @@ const ScreamTable = [];
 const MapTable = {};
 
 /**
+ * @const {Set<string>} maps where the minimap can't be enlarged or take memos
+ * (data/ExceptionMinimapNameTable.txt, official reader 0x00d62700)
+ */
+const ExceptionMinimapTable = new Set();
+
+/**
  * @type {Object} SkillDescription Table
  */
 let SkillDescription = {};
@@ -415,6 +421,17 @@ class DB {
 			},
 			onLoad(),
 			true
+		);
+		loadTable(
+			'data/exceptionminimapnametable.txt',
+			'#',
+			1,
+			function (_index, map) {
+				if (map) {
+					ExceptionMinimapTable.add(map.toLowerCase());
+				}
+			},
+			onLoad()
 		);
 		const loadmsg = onLoad();
 		const readMsgString = (_index, val) => {
@@ -2866,6 +2883,16 @@ class DB {
 		const map = mapname.replace('.gat', '.rsw');
 
 		return MapTable[map] || null;
+	}
+
+	/**
+	 * Whether a map refuses the memo map (official 0x00d71f30, message 2767)
+	 *
+	 * @param {string} mapname - with or without extension
+	 * @return {boolean}
+	 */
+	static isMinimapException(mapname) {
+		return !!mapname && ExceptionMinimapTable.has(mapname.replace(/\..*$/, '').toLowerCase());
 	}
 
 	/**

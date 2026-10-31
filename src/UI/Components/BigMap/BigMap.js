@@ -21,6 +21,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
+import EntityManager from 'Renderer/EntityManager.js';
 import htmlText from './BigMap.html?raw';
 import cssText from './BigMap.css?raw';
 
@@ -50,6 +51,7 @@ let _source = () => null;
 let _ctx = null;
 let _marking = false;
 let _memoPoint = null;
+let _boss = null;
 let _memoReady = [];
 let _memoOk = [];
 
@@ -136,6 +138,60 @@ function memoAt(mapName, px, py) {
 }
 
 /**
+ * The mark under a canvas position: a memo point first, then the boss, quest
+ * NPCs and town facilities (official buttons 600+, 0xcd, 2001+ and 1000+).
+ *
+ * @return {{kind: string, index?: number, x?: number, y?: number, name?: string}|null}
+ */
+function markAt(data, px, py) {
+	const memo = memoAt(data.mapName, px, py);
+	if (memo !== -1) {
+		return { kind: 'memo', index: memo };
+	}
+	const near = (x, y) => {
+		const [mx, my] = toCanvas(x, y);
+		return Math.abs(mx - px) <= 7 && Math.abs(my - py) <= 7;
+	};
+	const markers = data.markers || [];
+	const boss = markers.find(dot => dot.key === 'mvp');
+	if (boss && near(boss.x, boss.y)) {
+		return { kind: 'boss', x: boss.x, y: boss.y, name: DB.getMessage(2749, 'Boss Monster') };
+	}
+	if (_preferences.quest) {
+		for (const dot of markers) {
+			if (dot.key !== 'mvp' && near(dot.x, dot.y)) {
+				const npc = EntityManager.get(dot.key);
+				const name = npc && npc.display && npc.display.name;
+				return { kind: 'quest', x: dot.x, y: dot.y, name: name || DB.getMessage(2752, 'Quest NPC') };
+			}
+		}
+	}
+	if (_preferences.facility) {
+		for (const dot of data.towninfo || []) {
+			if (near(dot.X, dot.Y)) {
+				return { kind: 'facility', x: dot.X, y: dot.Y, name: dot.Name };
+			}
+		}
+	}
+	return null;
+}
+
+/**
+ * Start the navigation to a quest NPC or a facility, as the official buttons
+ * 1000+ and 2001+ do (0x00b314f0).
+ */
+function navigateTo(mapName, mark) {
+	const Navigation = UIManager.getComponent('Navigation');
+	if (!Navigation || typeof Navigation.setNaviInfo !== 'function') {
+		return;
+	}
+	const naviInfo = `${mapName},${mark.x},${mark.y}`;
+	Navigation.show();
+	Navigation.uid = naviInfo;
+	Navigation.setNaviInfo(naviInfo, mark.name);
+}
+
+/**
  * Hook the minimap in: it owns the map picture and the marks.
  *
  * @param {function} source
@@ -193,6 +249,17 @@ function loadButtonImages() {
 		});
 	}
 	Client.loadFile(
+		`${DB.INTERFACE_PATH}minimap/boss_1.bmp`,
+		url => {
+			const img = new Image();
+			img.src = url;
+			_boss = img;
+		},
+		() => {
+			_boss = null;
+		}
+	);
+	Client.loadFile(
 		`${DB.INTERFACE_PATH}minimap/memopoint_1.bmp`,
 		url => {
 			const img = new Image();
@@ -242,12 +309,17 @@ function onMapClick(event) {
 	const [px, py] = canvasPosition(event);
 
 	if (!_marking) {
-		// A memo point asks before it goes (official message 600 + slot, msgstringtable 2751)
-		const index = memoAt(data.mapName, px, py);
-		if (index !== -1) {
+		const mark = markAt(data, px, py);
+		if (!mark) {
+			return;
+		}
+		if (mark.kind === 'memo') {
+			// A memo point asks before it goes (official message 600 + slot, msgstringtable 2751)
 			UIManager.showPromptBox(DB.getMessage(2751, 'Do you want to delete it?'), 'ok', 'cancel', () =>
-				BigMap.removeMemo(data.mapName, index)
+				BigMap.removeMemo(data.mapName, mark.index)
 			);
+		} else if (mark.kind === 'quest' || mark.kind === 'facility') {
+			navigateTo(data.mapName, mark);
 		}
 		return;
 	}
@@ -281,14 +353,16 @@ function onMapHover(event) {
 		return;
 	}
 	const [px, py] = canvasPosition(event);
-	const index = memoAt(data.mapName, px, py);
-	if (index === -1) {
+	const mark = markAt(data, px, py);
+	if (!mark || (mark.kind !== 'memo' && !mark.name)) {
 		tip.style.display = 'none';
+		event.target.style.cursor = '';
 		return;
 	}
-	const memo = BigMap.getMemos(data.mapName)[index];
-	const [mx, my] = toCanvas(memo.x, memo.y);
-	tip.textContent = memo.text;
+	const point = mark.kind === 'memo' ? BigMap.getMemos(data.mapName)[mark.index] : mark;
+	const [mx, my] = toCanvas(point.x, point.y);
+	tip.textContent = mark.kind === 'memo' ? point.text : mark.name;
+	event.target.style.cursor = mark.kind === 'quest' || mark.kind === 'facility' ? 'pointer' : '';
 	tip.style.display = 'block';
 	// The canvas may be drawn smaller than 512 px (narrow screens): place the
 	// name in on-screen pixels, and left of the point when it would overflow.
@@ -337,6 +411,9 @@ function draw(tick) {
 	// Quest and other server marks, blinking like on the minimap
 	if (_preferences.quest && data.markers && tick % 1000 > 500) {
 		for (const dot of data.markers) {
+			if (dot.key === 'mvp') {
+				continue;
+			}
 			const [x, y] = toCanvas(dot.x, dot.y);
 			_ctx.fillStyle = dot.color;
 			_ctx.fillRect(x - 1, y - 6, 3, 13);
@@ -362,6 +439,19 @@ function draw(tick) {
 			_ctx.lineTo(x - 5, y + 5);
 			_ctx.closePath();
 			_ctx.fill();
+		}
+	}
+
+	// The boss a Convex Mirror found (official button 0xcd, minimap/boss)
+	const boss = (data.markers || []).find(dot => dot.key === 'mvp');
+	if (boss) {
+		const [x, y] = toCanvas(boss.x, boss.y);
+		if (_boss && _boss.complete && _boss.width) {
+			_ctx.drawImage(_boss, (x - _boss.width / 2) | 0, (y - _boss.height / 2) | 0);
+		} else {
+			_ctx.fillStyle = 'red';
+			_ctx.fillRect(x - 1, y - 6, 3, 13);
+			_ctx.fillRect(x - 6, y - 1, 13, 3);
 		}
 	}
 

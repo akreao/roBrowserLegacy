@@ -10,6 +10,9 @@ import htmlText from 'UI/Components/BigMap/BigMap.html?raw';
 const mocks = vi.hoisted(() => ({
 	altitude: { width: 200, height: 100 },
 	prompt: vi.fn(),
+	navigation: { show: vi.fn(), setNaviInfo: vi.fn(), uid: null },
+	npcs: {},
+	data: { mapName: 'prontera', towninfo: [], party: [], guild: [], markers: [] },
 	input: { append: vi.fn(), remove: vi.fn(), setType: vi.fn(), onSubmitRequest: null, root: null }
 }));
 
@@ -34,7 +37,14 @@ vi.mock('UI/GUIComponent.js', () => ({
 		}
 	}
 }));
-vi.mock('UI/UIManager.js', () => ({ default: { addComponent: c => c, showPromptBox: mocks.prompt } }));
+vi.mock('UI/UIManager.js', () => ({
+	default: {
+		addComponent: c => c,
+		showPromptBox: mocks.prompt,
+		getComponent: name => (name === 'Navigation' ? mocks.navigation : null)
+	}
+}));
+vi.mock('Renderer/EntityManager.js', () => ({ default: { get: id => mocks.npcs[id] || null } }));
 vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: '', getMessage: (_id, text) => text } }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
 vi.mock('Core/Preferences.js', () => ({ default: { get: (_key, def) => Object.assign(def, { save: vi.fn() }) } }));
@@ -54,7 +64,7 @@ HTMLCanvasElement.prototype.getContext = function () {
 
 const { default: BigMap, toCanvas, toCell, MAX_MEMOS } = await import('UI/Components/BigMap/BigMap.js');
 
-BigMap.setSource(() => ({ mapName: 'prontera', towninfo: [], party: [], guild: [], markers: [] }));
+BigMap.setSource(() => mocks.data);
 BigMap.init();
 
 function clickMap(px, py) {
@@ -68,6 +78,43 @@ beforeEach(() => {
 		BigMap.removeMemo('prontera', 0);
 	}
 	mocks.prompt.mockReset();
+	mocks.navigation.show.mockReset();
+	mocks.navigation.setNaviInfo.mockReset();
+	Object.assign(mocks.data, { towninfo: [], markers: [] });
+});
+
+describe('marks', () => {
+	// cell 100,50 sits at 256,256 on the 512 map
+	it('starts the navigation to a clicked facility', () => {
+		mocks.data.towninfo = [{ Name: 'Kafra Employee', X: 100, Y: 50, Type: 6 }];
+		clickMap(258, 255);
+		expect(mocks.navigation.show).toHaveBeenCalled();
+		expect(mocks.navigation.setNaviInfo).toHaveBeenCalledWith('prontera,100,50', 'Kafra Employee');
+	});
+
+	it('starts the navigation to a clicked quest NPC, by its name', () => {
+		mocks.npcs[110] = { display: { name: 'Quest Giver' } };
+		mocks.data.markers = [{ key: 110, x: 100, y: 50, color: 'rgb(255,0,0)' }];
+		clickMap(256, 256);
+		expect(mocks.navigation.setNaviInfo).toHaveBeenCalledWith('prontera,100,50', 'Quest Giver');
+	});
+
+	it('names the boss mark on hover and does nothing on click', () => {
+		mocks.data.markers = [{ key: 'mvp', x: 100, y: 50, color: 'rgb(255,0,0)' }];
+		clickMap(256, 256);
+		expect(mocks.navigation.setNaviInfo).not.toHaveBeenCalled();
+		const canvas = BigMap.getRoot().querySelector('canvas');
+		canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 256, clientY: 256 }));
+		expect(BigMap.getRoot().querySelector('.memo-tip').textContent).toBe('Boss Monster');
+	});
+
+	it('lets a memo point win over a facility under it', () => {
+		mocks.data.towninfo = [{ Name: 'Kafra Employee', X: 100, Y: 50, Type: 6 }];
+		BigMap.addMemo('prontera', 100, 50, 'Kafra');
+		clickMap(256, 256);
+		expect(mocks.prompt).toHaveBeenCalled();
+		expect(mocks.navigation.setNaviInfo).not.toHaveBeenCalled();
+	});
 });
 
 describe('projection', () => {

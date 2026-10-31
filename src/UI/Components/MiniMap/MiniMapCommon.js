@@ -211,7 +211,15 @@ export function createMiniMap({
 			const miniBtn = root.querySelector('.mini');
 			if (miniBtn) {
 				miniBtn.addEventListener('mousedown', event => {
-					bigMap.toggle();
+					// Some maps (instances, events) refuse it (official UIMinimapZoomWnd 0x008c518f)
+					if (DB.isMinimapException(_mapName)) {
+						UIManager.showMessageBox(
+							DB.getMessage(2767, "In this map You can't memorize and zoom the minimap."),
+							'ok'
+						);
+					} else {
+						bigMap.toggle();
+					}
 					event.stopImmediatePropagation();
 					event.preventDefault();
 				});
