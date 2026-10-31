@@ -27,6 +27,7 @@ import 'UI/Elements/Elements.js';
  * @param {string} config.htmlText
  * @param {string} config.cssText
  * @param {object} [config.worldMap] WorldMap module, enables the ".viewon" button
+ * @param {object} [config.bigMap] memo map module (UI/Components/BigMap), enables the ".mini" button
  * @param {boolean} [config.townInfoToggle] enables the ".object" button and townInfoShow preference
  * @param {boolean} [config.coordinates] display current coordinates
  * @param {boolean} [config.arrowShadow] render the player arrow with a shadow
@@ -36,6 +37,7 @@ export function createMiniMap({
 	htmlText,
 	cssText,
 	worldMap = null,
+	bigMap = null,
 	townInfoToggle = false,
 	coordinates = false,
 	arrowShadow = false
@@ -195,8 +197,6 @@ export function createMiniMap({
 		}
 
 		if (worldMap) {
-			// A memo map draws from this minimap's picture and marks
-			worldMap.setSource?.(() => MiniMap.getMapData());
 			const viewonBtn = root.querySelector('.viewon');
 			if (viewonBtn) {
 				viewonBtn.addEventListener('mousedown', () => {
@@ -204,6 +204,33 @@ export function createMiniMap({
 				});
 			}
 		}
+
+		if (bigMap) {
+			// The memo map draws from this minimap's picture and marks
+			bigMap.setSource(() => MiniMap.getMapData());
+			const miniBtn = root.querySelector('.mini');
+			if (miniBtn) {
+				miniBtn.addEventListener('mousedown', event => {
+					bigMap.toggle();
+					event.stopImmediatePropagation();
+					event.preventDefault();
+				});
+			}
+		}
+
+		// The official buttons' tooltips (msgstringtable 2855-2859)
+		[
+			['.object', 2855, 'Show information'],
+			['.plus', 2856, 'Zoom in'],
+			['.minus', 2857, 'Zoom out'],
+			['.mini', 2858, 'Maximize'],
+			['.viewon', 2859, 'World Map']
+		].forEach(([selector, id, text]) => {
+			const button = root.querySelector(selector);
+			if (button) {
+				button.title = DB.getMessage(id, text);
+			}
+		});
 	};
 
 	/**
