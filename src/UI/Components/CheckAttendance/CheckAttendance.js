@@ -50,11 +50,6 @@ const _preferences = Preferences.get(
 );
 
 /**
- * @var {string|null} the reward slot whose description is open
- */
-let _infoSlot = null;
-
-/**
  * Initialize the component (event listener, etc.)
  */
 CheckAttendance.init = function init() {
@@ -86,16 +81,8 @@ CheckAttendance.init = function init() {
 		if (!reward) {
 			return;
 		}
-		// A second right-click on the same slot closes it, as in the inventory; another
-		// day with the same item shows that day's reward instead.
-		if (ItemInfo.uid === reward.item_id && _infoSlot === slot.id) {
-			ItemInfo.remove();
-			_infoSlot = null;
-			return;
-		}
 		ItemInfo.append();
 		ItemInfo.uid = reward.item_id;
-		_infoSlot = slot.id;
 		ItemInfo.setItem({ ITID: reward.item_id, IsIdentified: true, count: reward.quantity });
 	});
 

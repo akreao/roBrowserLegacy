@@ -5,7 +5,7 @@
  */
 import { expect, it, vi } from 'vitest';
 
-const info = vi.hoisted(() => ({ append: vi.fn(), setItem: vi.fn(), remove: vi.fn(), uid: -1 }));
+const info = vi.hoisted(() => ({ append: vi.fn(), setItem: vi.fn(), uid: -1, remove: vi.fn() }));
 
 vi.mock('UI/GUIComponent.js', () => ({
 	default: class {
@@ -35,7 +35,7 @@ vi.mock('Network/NetworkManager.js', () => ({ default: { sendPacket: vi.fn() } }
 vi.mock('DB/DBManager.js', () => ({
 	default: {
 		getCheckAttendanceInfo: () => ({
-			Rewards: Array.from({ length: 20 }, (_, i) => ({ item_id: i === 4 ? 503 : 500 + i, quantity: i + 1 }))
+			Rewards: Array.from({ length: 20 }, (_, i) => ({ item_id: 500 + i, quantity: i + 1 }))
 		}),
 		getItemInfo: () => ({}),
 		getMessage: () => ''
@@ -55,16 +55,8 @@ it('opens the description of the right-clicked reward', () => {
 	expect(info.append).toHaveBeenCalledOnce();
 	expect(info.setItem).toHaveBeenCalledWith({ ITID: 503, IsIdentified: true, count: 4 });
 
-	// A second right-click on the same reward closes it
+	// A second right-click shows it again, as in every item window
 	root.querySelector('#attendance_day_3 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-	expect(info.remove).toHaveBeenCalledOnce();
-	expect(info.append).toHaveBeenCalledOnce();
-
-	// Another day with the same item shows that day's reward
-	list.insertAdjacentHTML('beforeend', '<li id="attendance_day_4" class="attendance-item"><div class="item"></div></li>');
-	info.uid = 503;
-	root.querySelector('#attendance_day_3 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-	root.querySelector('#attendance_day_4 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-	expect(info.setItem).toHaveBeenLastCalledWith({ ITID: 503, IsIdentified: true, count: 5 });
-	expect(info.remove).toHaveBeenCalledOnce();
+	expect(info.remove).not.toHaveBeenCalled();
+	expect(info.append).toHaveBeenCalledTimes(2);
 });
