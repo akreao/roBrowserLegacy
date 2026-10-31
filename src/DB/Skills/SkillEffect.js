@@ -997,7 +997,7 @@ SkillEffect[SK.WL_MARSHOFABYSS] = { successEffectId: 729 }; //Marsh of Abyss: 72
 SkillEffect[SK.WL_RECOGNIZEDSPELL] = { successEffectIdOnCaster: 'ef_wl_recognizedspell_sound', castAuraEffectId: 58 }; //Recognized Spell: wl_recognizedspell.wav on success; white cast aura (803 while casting: follow-up)
 SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna Execrate
 SkillEffect[SK.WL_STASIS] = { successEffectIdOnCaster: 799, castAuraEffectId: 441 }; //Stasis: 799 on the caster on success; blue cast aura
-SkillEffect[SK.WL_DRAINLIFE] = { firstHitEffectId: 216 }; //Drain Life: 216 with the first hit
+SkillEffect[SK.WL_DRAINLIFE] = { hitEffectIdOnCaster: 216, hitEffectOnce: true }; //Drain Life: 216 with the first hit, owned by the caster so the blood flows from the target to it
 SkillEffect[SK.WL_CRIMSONROCK] = { effectId: 727 }; //Crimson Rock
 SkillEffect[SK.WL_HELLINFERNO] = {
 	groundEffectId: 728,
