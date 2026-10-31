@@ -9,7 +9,7 @@ vi.mock('Renderer/Renderer.js', () => ({ default: { width:1200, height:800 } }))
 vi.mock('UI/CursorManager.js', () => ({default:{}}));
 vi.mock('Renderer/EntityManager.js', () => ({default:{get:()=>null}}));
 vi.mock('UI/Scrollbar.js', () => ({default:{}}));
-vi.mock('UI/UIManager.js', () => ({default:{addComponent: c => c, showPromptBox: (...args) => { state.prompts = (state.prompts || 0) + 1; args[3](); }}}));
+vi.mock('UI/UIManager.js', () => ({default:{addComponent: c => c, showPromptBox: (...args) => { state.prompts = (state.prompts || 0) + 1; if (state.holdPrompt) { state.pendingYes = args[3]; } else { args[3](); } }}}));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({default:{append(){}, setItem: item => {state.detail=item;}}}));
 vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({default:{getUI: () => ({addNpcMark: (key,x,y) => state.marks.set(key,[x,y]),removeNpcMark: key => state.marks.delete(key)})}}));
 const stub = vi.hoisted(() => () => ({default:{}}));
@@ -48,6 +48,17 @@ describe('opening a stall from the catalog', () => {
   open(1); search(); ack(); el('.result .visit').click();
   expect(state.prompts).toBe(1);
   expect(state.packets.at(-1)).toMatchObject({AID:200001,SSI_ID:42,ITID:100100});
+ });
+ it('sends nothing on Cancel, nor on an OK that comes after the result went stale', () => {
+  open(1); search(); ack();
+  state.holdPrompt = true; state.packets = [];
+  el('.result .visit').click();
+  expect(state.packets).toHaveLength(0); // Cancel: the question is never answered Yes
+  el('.search').click(); ack([row(100103)]);
+  const sent = state.packets.length;
+  state.pendingYes();
+  expect(state.packets).toHaveLength(sent);
+  state.holdPrompt = false;
  });
 });
 describe('catalog controls and server lifecycle', () => {
