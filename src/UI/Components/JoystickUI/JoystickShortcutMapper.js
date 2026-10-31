@@ -148,8 +148,15 @@ function prepare() {
 		};
 
 		const oldSetList = ShortCut.setList;
-		ShortCut.setList = function (list) {
-			oldSetList.call(ShortCut, list);
+		ShortCut.setList = function (...args) {
+			oldSetList.apply(ShortCut, args);
+			JoystickUIRenderer.sync();
+		};
+
+		// The hotbar's other bar: the HUD shows what the bar now holds
+		const oldSetTab = ShortCut.setTab;
+		ShortCut.setTab = function (...args) {
+			oldSetTab.apply(ShortCut, args);
 			JoystickUIRenderer.sync();
 		};
 

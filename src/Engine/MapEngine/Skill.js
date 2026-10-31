@@ -334,10 +334,7 @@ function onSkillUpdate(pkt) {
  * @param {object} pkt - PACKET_ZC_SHORTCUT_KEY_LIST_V2
  */
 function onShortCutList(pkt) {
-	if (pkt.tab && pkt.tab > 0) {
-		return;
-	} // not available yet
-	ShortCut.setList(pkt.ShortCutKey);
+	ShortCut.setList(pkt.ShortCutKey, pkt.tab === 1 ? 1 : 0);
 }
 
 /**
@@ -632,6 +629,7 @@ ShortCut.onChange = function onChange(index, isSkill, ID, count) {
 	let pkt;
 	if (PACKETVER.value >= 20190522) {
 		pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE2();
+		pkt.tab = ShortCut.getTab();
 	} else {
 		pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE1();
 	}
