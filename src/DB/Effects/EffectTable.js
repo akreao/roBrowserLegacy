@@ -26826,6 +26826,37 @@ export default {
 		}
 	],
 
+	// Crimson Rock (WL_CRIMSONROCK): the damage-arrival sound, on the target. See effect-port/warlock-skills.md.
+	ef_wl_crimsonrock_sound: [
+		{
+			wav: 'crimson_r',
+			attachedEntity: true
+		}
+	],
+
+	// Crimson Rock (WL_CRIMSONROCK), with 1275: on the target when the damage arrives. See effect-port/warlock-skills.md.
+	1274: [
+		{
+			//(1274): CEZ2STREffect, new_crimsonrock\\new_crimsonrock\\new_crimsonrock.str
+			type: 'STR',
+			file: 'new_crimsonrock/new_crimsonrock/new_crimsonrock',
+			texturePath: 'new_crimsonrock/new_crimsonrock/',
+			attachedEntity: true
+		}
+	],
+
+	// Crimson Rock (WL_CRIMSONROCK) floor, with 1274. See effect-port/warlock-skills.md.
+	1275: [
+		{
+			//(1275): CEZ2STREffect, new_crimsonrock\\new_crimsonrock_bottom\\new_crimsonrock_bottom.str
+			type: 'STR',
+			file: 'new_crimsonrock/new_crimsonrock_bottom/new_crimsonrock_bottom',
+			texturePath: 'new_crimsonrock/new_crimsonrock_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [

@@ -998,7 +998,7 @@ SkillEffect[SK.WL_RECOGNIZEDSPELL] = { successEffectIdOnCaster: 'ef_wl_recognize
 SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna Execrate
 SkillEffect[SK.WL_STASIS] = { successEffectIdOnCaster: 799, castAuraEffectId: 441 }; //Stasis: 799 on the caster on success; blue cast aura
 SkillEffect[SK.WL_DRAINLIFE] = { firstHitEffectId: 216 }; //Drain Life: 216 with the first hit
-SkillEffect[SK.WL_CRIMSONROCK] = { effectId: 727 }; //Crimson Rock
+SkillEffect[SK.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275] }; //Crimson Rock: crimson_r.wav, 1274 + 1275 on the target as the damage arrives
 SkillEffect[SK.WL_HELLINFERNO] = {
 	groundEffectId: 728,
 	effectId: 'ef_wl_hellinferno',
