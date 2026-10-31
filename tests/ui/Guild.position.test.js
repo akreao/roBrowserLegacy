@@ -820,6 +820,56 @@ describe('Guild member position', () => {
 
 			expect(sent).toHaveLength(0);
 		});
+
+		describe('party, 1:1 chat and mail (UIGuildMemberManageWnd 0x00928200)', () => {
+			beforeEach(() => {
+				mocks.session.hasParty = true;
+				mocks.session.isPartyLeader = true;
+				Guild.isPartyMember = () => false;
+				Guild.onRequestPartyInvite = vi.fn();
+				Guild.onRequestWhisper = vi.fn();
+				Guild.onRequestMail = vi.fn();
+			});
+
+			it('offers all three on an online member and calls the hooks', () => {
+				openMenuOn(MARGARETHA_ROW);
+				entryLabelled('Request to Join Party')();
+				entryLabelled('1:1 Chat')();
+				entryLabelled('Send a mail')();
+
+				expect(Guild.onRequestPartyInvite).toHaveBeenCalledWith(MARGARETHA.AID, 'Margaretha');
+				expect(Guild.onRequestWhisper).toHaveBeenCalledWith('Margaretha');
+				expect(Guild.onRequestMail).toHaveBeenCalledWith('Margaretha');
+			});
+
+			it('offers only the mail to an offline member', () => {
+				Guild.setMembers([member(MASTER), { ...member(MARGARETHA), CurrentState: 0 }, member(HOWARD)]);
+				openMenuOn(MARGARETHA_ROW);
+
+				expect(entryLabelled('Request to Join Party')).toBeNull();
+				expect(entryLabelled('1:1 Chat')).toBeNull();
+				expect(entryLabelled('Send a mail')).not.toBeNull();
+			});
+
+			it('leaves the invite out without a party we lead, or for a party member', () => {
+				mocks.session.isPartyLeader = false;
+				openMenuOn(MARGARETHA_ROW);
+				expect(entryLabelled('Request to Join Party')).toBeNull();
+
+				mocks.contextMenu.addElement.mockClear();
+				mocks.session.isPartyLeader = true;
+				Guild.isPartyMember = name => name === 'Margaretha';
+				openMenuOn(MARGARETHA_ROW);
+				expect(entryLabelled('Request to Join Party')).toBeNull();
+				expect(entryLabelled('1:1 Chat')).not.toBeNull();
+			});
+
+			it('offers none of them on ourselves', () => {
+				openMenuOn(0);
+				expect(entryLabelled('1:1 Chat')).toBeNull();
+				expect(entryLabelled('Send a mail')).toBeNull();
+			});
+		});
 	});
 });
 
