@@ -86,6 +86,7 @@ describe('ShortCut drop away from a slot', () => {
 
 		expect(ShortCut.getList()[3]).toMatchObject({ isSkill: 0, ID: 0 });
 		expect(ShortCut.onChange).toHaveBeenCalledWith(3, 0, 0, 0);
+		expect(root.querySelector('.container[data-index="3"]').hasAttribute('data-tooltip')).toBe(false);
 	});
 
 	it('leaves an item dragged from the bar', () => {

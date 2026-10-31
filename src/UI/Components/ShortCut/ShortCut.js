@@ -382,6 +382,21 @@ ShortCut.updateAllTooltips = function updateAllTooltips() {
 };
 
 /**
+ * An emptied slot's tooltip: its hotkey alone, or none
+ *
+ * @param {HTMLElement} container slot
+ * @param {number} index of the slot
+ */
+function resetSlotTooltip(container, index) {
+	const hotkey = getHotKeyString(index);
+	if (hotkey) {
+		container.setAttribute('data-tooltip', hotkey);
+	} else {
+		container.removeAttribute('data-tooltip');
+	}
+}
+
+/**
  * Get hotkey string for shortcut index
  *
  * @param {number} index of the shortcut slot
@@ -809,6 +824,7 @@ ShortCut.removeAt = function removeAt(index) {
 	const container = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
 	if (container) {
 		container.innerHTML = '';
+		resetSlotTooltip(container, index);
 	}
 	_list[index].isSkill = 0;
 	_list[index].ID = 0;
