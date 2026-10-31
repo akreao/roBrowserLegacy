@@ -327,13 +327,9 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 				const item = _list[index];
 
 				if (item) {
-					if (ItemInfo.uid === item.ITID) {
-						ItemInfo.remove();
-					} else {
-						ItemInfo.append();
-						ItemInfo.uid = item.ITID;
-						ItemInfo.setItem(item);
-					}
+					ItemInfo.append();
+					ItemInfo.uid = item.ITID;
+					ItemInfo.setItem(item);
 				}
 
 				e.stopImmediatePropagation();

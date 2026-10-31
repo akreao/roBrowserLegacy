@@ -281,12 +281,6 @@ function onItemInfo(event) {
 	item.ITID = ITID;
 	item.IsIdentified = 1;
 
-	// Don't add the same UI twice, remove it
-	if (ItemInfo.uid === item.ITID) {
-		ItemInfo.remove();
-		return;
-	}
-
 	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;

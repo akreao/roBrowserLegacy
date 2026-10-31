@@ -606,11 +606,6 @@ function onItemInfo(event, itemEl) {
 		return;
 	}
 
-	if (ItemInfo.uid === item.ITID) {
-		ItemInfo.remove();
-		return;
-	}
-
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);

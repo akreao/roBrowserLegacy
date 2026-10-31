@@ -841,27 +841,27 @@ function createItemInfo(componentName, isCardWindow) {
 	 */
 	function onItemPreview(pkt) {
 		if (pkt) {
-			const item = Inventory.getItemByIndex(pkt.index);
+			const owned = Inventory.getItemByIndex(pkt.index);
 
-			if (!item) {
+			if (!owned) {
 				return false;
 			}
+
+			// Show the item with the cards, options, refine and grade the packet carries
+			const item = Object.assign({}, owned, {
+				IsDamaged: pkt.isDamaged,
+				slot: pkt.slot,
+				Options: pkt.Options,
+				RefiningLevel: pkt.refiningLevel,
+				enchantgrade: pkt.enchantgrade
+			});
 
 			// Remove existing compare UI if it's currently displayed
 			if (ItemCompare.ui) {
 				ItemCompare.remove();
 			}
 
-			// Don't add the same UI twice, remove it
-			if (ItemInfo.uid === item.ITID) {
-				ItemInfo.remove();
-				if (ItemCompare.ui) {
-					ItemCompare.remove();
-				}
-				return false;
-			}
-
-			// Add ui to window
+			// Show the changed item, also when its description is already open
 			ItemInfo.append();
 			ItemInfo.uid = item.ITID;
 			ItemInfo.setItem(item);

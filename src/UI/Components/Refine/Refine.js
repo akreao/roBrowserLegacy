@@ -1503,14 +1503,6 @@ function onItemInfo(event) {
 		ItemCompare.remove();
 	}
 
-	if (ItemInfo.uid === item.ITID) {
-		ItemInfo.remove();
-		if (ItemCompare.ui) {
-			ItemCompare.remove();
-		}
-		return;
-	}
-
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);

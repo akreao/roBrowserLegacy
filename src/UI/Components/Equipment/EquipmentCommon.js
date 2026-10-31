@@ -1023,13 +1023,9 @@ export function createEquipment({
 		const item = _list[index];
 
 		if (item) {
-			if (ItemInfo.uid === item.ITID) {
-				ItemInfo.remove();
-			} else {
-				ItemInfo.append();
-				ItemInfo.uid = item.ITID;
-				ItemInfo.setItem(item);
-			}
+			ItemInfo.append();
+			ItemInfo.uid = item.ITID;
+			ItemInfo.setItem(item);
 		}
 
 		event.stopImmediatePropagation();

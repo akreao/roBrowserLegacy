@@ -1313,11 +1313,6 @@ function onElementInfo(event, icon) {
 	}
 	// Display item informations
 	else {
-		if (ItemInfo.uid === _list[index].ID) {
-			ItemInfo.remove();
-			return;
-		}
-
 		ItemInfo.append();
 		ItemInfo.uid = _list[index].ID;
 		ItemInfo.setItem(Inventory.getItemById(_list[index].ID));
