@@ -17,7 +17,6 @@ import 'UI/Elements/Elements.js';
 import htmlText from './NpcMenu.html?raw';
 import cssText from './NpcMenu.css?raw';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
-import { takeNpcAnswer } from 'UI/Components/NpcBox/NpcAnswerGuard.js';
 
 /**
  * Create NPC Menu component
@@ -194,9 +193,6 @@ NpcMenu.setMenu = function setMenu(menu, gid) {
  * Submit an index
  */
 function validate() {
-	if (!takeNpcAnswer()) {
-		return;
-	}
 	NpcMenu.onSelectMenu(_ownerID, _index + 1);
 }
 
