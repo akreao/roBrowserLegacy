@@ -144,7 +144,12 @@ function onSkillUpdate(pkt) {
  * Request to delete mercenary
  */
 MercenaryInformations.reqDeleteMercenary = function reqDeleteMercenary() {
-	UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
+	// The official UIMerInfoWnd (vfunc37 0x00885800) warns that the growth history goes too.
+	const text = DB.getMessage(
+		1370,
+		'^ff0000Deleting a Mercenary Soldier^000000 will also delete his growth history. Do you really want to proceed with the deletion?'
+	);
+	UIManager.showPromptBox(text, 'ok', 'cancel', function () {
 		const pkt = new PACKET.CZ.MER_COMMAND();
 		pkt.command = 2;
 		Network.sendPacket(pkt);
