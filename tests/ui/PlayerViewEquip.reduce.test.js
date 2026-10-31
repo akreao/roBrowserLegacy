@@ -79,4 +79,7 @@ it('starts the character preview when a restored window is expanded', async () =
 	Renderer.render.mockClear();
 	root.querySelector('.titlebar .mini').click();
 	expect(Renderer.render).toHaveBeenCalledOnce();
+	Renderer.stop.mockClear();
+	root.querySelector('.titlebar .mini').click();
+	expect(Renderer.stop).toHaveBeenCalledOnce();
 });
