@@ -256693,7 +256693,7 @@ function createBasicInfo(config) {
 				const limit = SessionStorage_default.overWeightPercent > 0 ? SessionStorage_default.overWeightPercent : 50;
 				root.querySelectorAll(".weight").forEach((el) => {
 					el.style.color = percent < limit ? "" : "red";
-					el.title = `${(val1 / val2 * 100).toFixed(1)}%`;
+					el.title = `Weight ${val2 ? percent : 0}%`;
 				});
 				break;
 			}
