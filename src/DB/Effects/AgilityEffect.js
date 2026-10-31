@@ -131,6 +131,8 @@ function streakEffect(streak) {
 	return {
 		type: '3D',
 		file: 'effect/ac_center2.tga',
+		// One texture for every streak of every cast
+		sharedTexture: true,
 		attachedEntity: true,
 		alphaMax: 1,
 		duration: STREAK.life * PRIM_TICK_MS,
@@ -156,6 +158,7 @@ function billboardEffect(effectId) {
 	return {
 		type: '3D',
 		file: b.file,
+		sharedTexture: true,
 		attachedEntity: true,
 		alphaMax: 1,
 		duration: LIFE * PRIM_TICK_MS,
