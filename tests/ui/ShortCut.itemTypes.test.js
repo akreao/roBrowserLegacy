@@ -62,7 +62,8 @@ describe('ShortCut.fromDragData from the inventory', () => {
 		['etc', ItemType.ETC],
 		['card', ItemType.CARD],
 		['pet egg', ItemType.PETEGG],
-		['cash shop box', ItemType.CASH]
+		['cash shop box', ItemType.CASH],
+		['unknown kind', 9]
 	])('refuses %s items', (_name, type) => {
 		expect(fromInventory({ type })).toBeNull();
 	});
