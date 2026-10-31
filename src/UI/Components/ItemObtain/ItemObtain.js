@@ -110,7 +110,12 @@ ItemObtain.set = function set(item) {
 	if (content) {
 		content.innerHTML =
 			`<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="item-${item.ITID}" width="24" height="24" /> ` +
-			_sanitizeHtml(`${display} ${DB.getMessage(696).replace('%d', item.count || 1)}`);
+			// Official UINotifyItemObtainWnd (vfunc37 0x008c5860): msgstringtable 153 "You got %s (%d)."
+			_sanitizeHtml(
+				DB.getMessage(153, 'You got %s (%d).')
+					.replace('%s', () => display)
+					.replace('%d', item.count || 1)
+			);
 	}
 
 	const el = root.querySelector('#ItemObtain');
