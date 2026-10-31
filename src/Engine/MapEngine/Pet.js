@@ -351,9 +351,16 @@ PetInformations.reqUnEquipPet = function reqUnEquipPet() {
  * @param {string} new pet name
  */
 PetInformations.reqNameEdit = function reqNameEdit(name) {
-	const pkt = new PACKET.CZ.RENAME_PET();
-	pkt.szName = name;
-	Network.sendPacket(pkt);
+	// A pet is renamed once, so the official client asks first (UIPetInfoWnd, msgstringtable 2931).
+	const text = DB.getMessage(2931, 'Pet name will be changed to ^0000ff%s^000000, do you want to continue?').replace(
+		'%s',
+		name
+	);
+	UIManager.showPromptBox(text, 'ok', 'cancel', () => {
+		const pkt = new PACKET.CZ.RENAME_PET();
+		pkt.szName = name;
+		Network.sendPacket(pkt);
+	});
 };
 
 /// PACKET.CZ.PETEGG_INFO | Not implemented client side ?
