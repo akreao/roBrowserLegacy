@@ -61,6 +61,17 @@ let _lastServerHotkeys = null;
 const _tabLists = [null, null];
 
 /**
+ * @var {Map<number, number>} when each skill's cooldown ends (Renderer.tick),
+ * kept for skills on a bar not shown
+ */
+const _cooldownEnds = new Map();
+
+/**
+ * @var {number} when the cooldown on every skill ends (Renderer.tick)
+ */
+let _globalCooldownEnd = 0;
+
+/**
  * Cache for active animation frames
  */
 const _activeAnimations = new Map();
@@ -271,6 +282,8 @@ ShortCut.clean = function clean() {
 
 	_list.length = 0;
 	_tabLists[0] = _tabLists[1] = null;
+	_cooldownEnds.clear();
+	_globalCooldownEnd = 0;
 	const root = ShortCut.getRoot();
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
@@ -368,13 +381,13 @@ ShortCut.setTab = function setTab(tab) {
 		.querySelector('.btn-bar')
 		?.classList.toggle('active', tab === 1);
 
-	const cooldowns = takeCooldowns();
+	cancelCooldowns();
 	ShortCut.getRoot()
 		.querySelectorAll('.container')
 		.forEach(el => el.removeAttribute('data-tooltip'));
 	drawList(_tabLists[tab] || emptyList(_list.length || 38));
 	ShortCut.updateAllTooltips();
-	restoreCooldowns(cooldowns);
+	restoreCooldowns();
 };
 
 /**
@@ -394,18 +407,9 @@ function emptyList(length) {
 }
 
 /**
- * Stop every cooldown drawn on the bar, and say what was left of each
- *
- * @return {Map<number, number>} skill ID to remaining ms
+ * Stop every cooldown drawn on the bar
  */
-function takeCooldowns() {
-	const left = new Map();
-	for (const slot of _list) {
-		if (slot?.isSkill && slot.Delay > Renderer.tick) {
-			left.set(slot.ID, Math.max(left.get(slot.ID) || 0, slot.Delay - Renderer.tick));
-		}
-	}
-
+function cancelCooldowns() {
 	for (const animationId of _activeAnimations.values()) {
 		cancelAnimationFrame(animationId);
 	}
@@ -413,18 +417,20 @@ function takeCooldowns() {
 	ShortCut.getRoot()
 		.querySelectorAll('.cooldown-overlay')
 		.forEach(el => el.remove());
-	return left;
 }
 
 /**
- * Draw again the cooldowns takeCooldowns returned, on the slots now holding those skills
- *
- * @param {Map<number, number>} left skill ID to remaining ms
+ * Draw the running cooldowns on the skills the bar now shows, from what the
+ * server said whichever bar was shown then
  */
-function restoreCooldowns(left) {
+function restoreCooldowns() {
 	_list.forEach((slot, index) => {
-		if (slot?.isSkill && left.has(slot.ID)) {
-			setDelayOnIndex(index, left.get(slot.ID));
+		if (!slot?.isSkill) {
+			return;
+		}
+		const end = Math.max(_cooldownEnds.get(slot.ID) || 0, _globalCooldownEnd);
+		if (end > Renderer.tick) {
+			setDelayOnIndex(index, end - Renderer.tick);
 		}
 	});
 }
@@ -911,6 +917,7 @@ function setDelayOnIndex(index, delay) {
  * @param {number} delay in ms
  */
 ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
+	_globalCooldownEnd = Math.max(_globalCooldownEnd, Renderer.tick + delay);
 	_list.forEach((element, index) => {
 		if (element.isSkill) {
 			setDelayOnIndex(index, delay);
@@ -925,6 +932,7 @@ ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
  * @param {number} delay in ms
  */
 ShortCut.setSkillDelay = function setSkillDelay(ID, delay) {
+	_cooldownEnds.set(ID, Math.max(_cooldownEnds.get(ID) || 0, Renderer.tick + delay));
 	_list.forEach((element, index) => {
 		if (element.isSkill && element.ID == ID) {
 			setDelayOnIndex(index, delay);

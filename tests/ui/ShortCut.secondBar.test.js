@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: '', UpdateOwnerName: {}, getMessage: (_id, def) => def, getItemName: () => '' } }));
-vi.mock('DB/Skills/SkillInfo.js', () => ({ default: { 19: { Name: 'mg_firebolt', SkillName: 'Fire Bolt' } } }));
+vi.mock('DB/Skills/SkillInfo.js', () => ({ default: { 19: { Name: 'mg_firebolt', SkillName: 'Fire Bolt' }, 28: { Name: 'al_heal', SkillName: 'Heal' } } }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: (path, cb) => cb(path.endsWith('shortcut_frame.bmp') ? 'frame.png' : 'icon.png') } }));
 vi.mock('Core/Preferences.js', () => ({ default: { get: (_name, def) => ({ ...def, save: vi.fn() }) } }));
 vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
@@ -103,6 +103,15 @@ describe('ShortCut second hotkey bar', () => {
 		expect(ShortCut.getList()[5].Delay).toBe(5000);
 		expect(slot(5).querySelector('.cooldown-overlay')).not.toBeNull();
 		expect(slot(0).querySelector('.cooldown-overlay')).toBeNull();
+	});
+
+	it('keeps a cooldown for a skill the shown bar does not hold', () => {
+		ShortCut.setList(slots({ 1: { isSkill: 1, ID: 28, count: 10 } }), 0);
+		ShortCut.setTab(1);
+		ShortCut.setSkillDelay(28, 5000);
+		ShortCut.setTab(0);
+		expect(ShortCut.getList()[1].Delay).toBe(5000);
+		expect(slot(1).querySelector('.cooldown-overlay')).not.toBeNull();
 	});
 
 	it('draws a list the server sends for the bar shown', () => {
