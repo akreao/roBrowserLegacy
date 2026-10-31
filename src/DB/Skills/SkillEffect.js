@@ -999,11 +999,7 @@ SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna 
 SkillEffect[SK.WL_STASIS] = { successEffectIdOnCaster: 799, castAuraEffectId: 441 }; //Stasis: 799 on the caster on success; blue cast aura
 SkillEffect[SK.WL_DRAINLIFE] = { firstHitEffectId: 216 }; //Drain Life: 216 with the first hit
 SkillEffect[SK.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275] }; //Crimson Rock: crimson_r.wav, 1274 + 1275 on the target as the damage arrives
-SkillEffect[SK.WL_HELLINFERNO] = {
-	groundEffectId: 728,
-	effectId: 'ef_wl_hellinferno',
-	effectIdOnCaster: 'ef_wl_hellinferno_cast'
-}; //Hell Inferno
+SkillEffect[SK.WL_HELLINFERNO] = { hideCastAura: true, beginCastEffectId: 1552, arrivalEffectIdOnTarget: [1550, 1551], groundEffectId: 728 }; //Hell Inferno: no aura, 1552 while casting; 1550 + 1551 on the target as the damage arrives (sub flames follow-up)
 SkillEffect[SK.WL_COMET] = { effectId: 'ef_wl_comet', effectIdOnCaster: 'ef_wl_comet_cast' }; //Comet
 SkillEffect[SK.WL_CHAINLIGHTNING] = { effectIdOnCaster: 'ef_wl_chainlightning_cast' }; //Chain Lightning
 SkillEffect[SK.WL_CHAINLIGHTNING_ATK] = { effectId: 734 }; //Chain Lightning Attack

@@ -25325,31 +25325,6 @@ export default {
 		}
 	],
 
-	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
-	ef_wl_hellinferno: [
-		{
-			type: 'STR',
-			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
-			texturePath: 'new_hellinferno/new_hellinferno/'
-		},
-		{
-			type: 'STR',
-			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
-			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
-	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
-	ef_wl_hellinferno_cast: [
-		{
-			type: 'STR',
-			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
-			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
-			renderBeforeEntities: true
-		}
-	],
-
 	// Comet (WL_COMET), from the client's own effect folders.
 	ef_wl_comet: [
 		{
@@ -26852,6 +26827,42 @@ export default {
 			type: 'STR',
 			file: 'new_crimsonrock/new_crimsonrock_bottom/new_crimsonrock_bottom',
 			texturePath: 'new_crimsonrock/new_crimsonrock_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) cast floor: on the caster for the cast time. See effect-port/warlock-skills.md.
+	1552: [
+		{
+			//(1552): CEZ2STREffect, new_hellInferno\\new_hellInferno_cast_bottom\\new_hellInferno_cast_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO), with 1551: on the target when the damage arrives. See effect-port/warlock-skills.md.
+	1550: [
+		{
+			//(1550): CEZ2STREffect, new_hellInferno\\new_hellInferno\\new_hellInferno.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
+			texturePath: 'new_hellinferno/new_hellinferno/',
+			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) floor, with 1550. See effect-port/warlock-skills.md.
+	1551: [
+		{
+			//(1551): CEZ2STREffect, new_hellInferno\\new_hellInferno_bottom\\new_hellInferno_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
