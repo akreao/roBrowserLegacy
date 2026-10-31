@@ -548,9 +548,13 @@ export function createBasicInfo(config) {
 			case 'jexp': {
 				const expEl = root.querySelector(`.${type}`);
 				if (!val2) {
+					// No next level: the official client hides the bar and reads 100.0%.
 					if (expEl) {
 						expEl.style.display = 'none';
 					}
+					root.querySelectorAll(`.${type}_value`).forEach(el => {
+						el.textContent = '100.0%';
+					});
 					break;
 				}
 				if (expEl) {
