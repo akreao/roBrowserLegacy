@@ -2002,14 +2002,15 @@ function onEntityCastSkill(pkt) {
 			case 1:
 				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL2;
 				break;
+			// Earth: the official client's swap table (0xd85ee0) gives earth 56 and wind 57
 			case 2:
-				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL5;
+				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL4;
 				break;
 			case 3:
 				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL3;
 				break;
 			case 4:
-				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL4;
+				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL5;
 				break;
 			case 5:
 				EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL7;
