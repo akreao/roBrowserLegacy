@@ -29,6 +29,12 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	let _buttonSave;
 
 	/**
+	 * The "quit?" prompt while it is open, so a second Escape closes it
+	 * instead of stacking another one.
+	 */
+	let _exitPrompt = null;
+
+	/**
 	 * What a plugin drawing this screen sees (UI/ScreenHooks.js). login()
 	 * goes the way the Connect button does, so a different sign-in -- a
 	 * token in place of a password -- reaches the server the same way.
@@ -142,11 +148,26 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	};
 
 	Component.onRemove = function onRemove() {
+		closeExitPrompt();
 		ScreenHooks.hide('login');
 	};
 
 	Component.onKeyDown = function onKeyDown(event) {
 		if (this._host.style.display === 'none') return true;
+
+		// The prompt has no keys of its own: Escape answers No. Enter only
+		// reaches a prompt button that has focus, never the login behind it.
+		if (_exitPrompt) {
+			const onPrompt = document.activeElement === _exitPrompt._host;
+			if (event.which === KEYS.ESCAPE) {
+				closeExitPrompt();
+			}
+			if (event.which === KEYS.ESCAPE || (event.which === KEYS.ENTER && !onPrompt)) {
+				event.stopImmediatePropagation();
+				return false;
+			}
+			return true;
+		}
 
 		switch (event.which) {
 			case KEYS.ENTER:
@@ -179,9 +200,39 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		);
 	}
 
+	/**
+	 * The official client asks before quitting from the login window
+	 * (msgstringtable 17), from both the close button and Escape.
+	 */
 	function exit() {
-		Component.onExitRequest();
+		if (_exitPrompt) {
+			return false;
+		}
+		_exitPrompt = UIManager.showPromptBox(
+			DB.getMessage(17, 'Are you sure that you want to quit?'),
+			'ok',
+			'cancel',
+			() => {
+				promptClosed();
+				Component.onExitRequest();
+			},
+			promptClosed
+		);
+		// Modal: nothing on the login window can be clicked or tabbed to
+		// while the question is open
+		Component._host.inert = true;
 		return false;
+	}
+
+	function promptClosed() {
+		_exitPrompt = null;
+		Component._host.inert = false;
+	}
+
+	function closeExitPrompt() {
+		const prompt = _exitPrompt;
+		promptClosed();
+		prompt?.remove();
 	}
 
 	function connect() {
