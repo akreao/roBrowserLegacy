@@ -1,0 +1,81 @@
+#BigMap {
+	position: absolute;
+	box-sizing: border-box;
+	width: 518px;
+	max-width: 100vw;
+	background: #f7f7f7;
+	border: 1px solid #848484;
+	border-radius: 3px;
+	font-size: 12px;
+	user-select: none;
+}
+#BigMap .titlebar {
+	height: 17px;
+	line-height: 17px;
+	padding: 0 4px;
+	position: relative;
+	cursor: move;
+}
+#BigMap .titlebar .title {
+	white-space: nowrap;
+}
+#BigMap .titlebar .close {
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+}
+#BigMap .body {
+	position: relative;
+	margin: 0 2px;
+	width: 512px;
+	max-width: calc(100% - 4px);
+	aspect-ratio: 1;
+	background: #aaaaaa;
+}
+#BigMap .body canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+#BigMap .body.marking canvas {
+	cursor: crosshair;
+}
+#BigMap .memo-tip {
+	position: absolute;
+	display: none;
+	padding: 1px 4px;
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid #848484;
+	pointer-events: none;
+	white-space: nowrap;
+}
+#BigMap .footer {
+	position: relative;
+	height: 19px;
+	line-height: 19px;
+	padding: 0 4px;
+}
+#BigMap .footer .toggle {
+	margin-right: 10px;
+	cursor: pointer;
+}
+#BigMap .footer .toggle input {
+	vertical-align: middle;
+	margin: 0 2px 0 0;
+}
+#BigMap .footer .memo {
+	position: absolute;
+	right: 4px;
+	top: 1px;
+	width: 50px;
+	height: 17px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
