@@ -173286,7 +173286,7 @@ var init_PacketStructure = __esmMin((() => {
 	};
 	PACKET.ZC.NOTIFY_STANDENTRY11.size = -1;
 	PACKET.ZC.SHORTCUT_KEY_LIST_V3 = function PACKET_ZC_SHORTCUT_KEY_LIST_V3(fp, end) {
-		fp.seek(1, SEEK_CUR);
+		this.rotate = fp.readUChar();
 		this.ShortCutKey = (function() {
 			const count = 38;
 			const out = new Array(count);
@@ -173300,6 +173300,15 @@ var init_PacketStructure = __esmMin((() => {
 		})();
 	};
 	PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
+	PACKET.CZ.SHORTCUTKEYBAR_ROTATE1 = function PACKET_CZ_SHORTCUTKEYBAR_ROTATE1() {
+		this.rowshift = 0;
+	};
+	PACKET.CZ.SHORTCUTKEYBAR_ROTATE1.prototype.build = function() {
+		const pkt_buf = new BinaryWriter(3);
+		pkt_buf.writeShort(2561);
+		pkt_buf.writeUChar(this.rowshift);
+		return pkt_buf;
+	};
 	PACKET.ZC.ACK_REMOVE_ITEM_MAIL = function ACK_REMOVE_ITEM_MAIL(fp, end) {
 		this.success = fp.readChar();
 		this.index = fp.readUShort();
@@ -174739,6 +174748,17 @@ var init_PacketStructure = __esmMin((() => {
 		pkt_buf.writeChar(this.ShortCutKey.isSkill);
 		pkt_buf.writeULong(this.ShortCutKey.ID);
 		pkt_buf.writeShort(this.ShortCutKey.count);
+		return pkt_buf;
+	};
+	PACKET.CZ.SHORTCUTKEYBAR_ROTATE2 = function PACKET_CZ_SHORTCUTKEYBAR_ROTATE2() {
+		this.tab = 0;
+		this.rowshift = 0;
+	};
+	PACKET.CZ.SHORTCUTKEYBAR_ROTATE2.prototype.build = function() {
+		const pkt_buf = new BinaryWriter(5);
+		pkt_buf.writeShort(2850);
+		pkt_buf.writeUShort(this.tab);
+		pkt_buf.writeUChar(this.rowshift);
 		return pkt_buf;
 	};
 	PACKET.ZC.GUILD_AGIT_INFO = function PACKET_ZC_GUILD_AGIT_INFO(fp, end) {
@@ -209806,6 +209826,7 @@ var init_PacketRegister = __esmMin((() => {
 		2558: PACKET.ZC.NOTIFY_NEWENTRY11,
 		2559: PACKET.ZC.NOTIFY_STANDENTRY11,
 		2560: PACKET.ZC.SHORTCUT_KEY_LIST_V3,
+		2561: PACKET.CZ.SHORTCUTKEYBAR_ROTATE1,
 		2563: PACKET.CZ.REQ_CANCEL_WRITE_RODEX,
 		2564: PACKET.CZ.REQ_ADD_ITEM_RODEX,
 		2565: PACKET.ZC.ACK_ADD_ITEM_RODEX,
@@ -209949,6 +209970,7 @@ var init_PacketRegister = __esmMin((() => {
 		2853: PACKET.ZC.PAR_4JOB_CHANGE,
 		2855: PACKET.ZC.GUILD_AGIT_INFO,
 		2849: PACKET.CZ.SHORTCUT_KEY_CHANGE2,
+		2850: PACKET.CZ.SHORTCUTKEYBAR_ROTATE2,
 		2858: PACKET.ZC.ADD_SKILL2,
 		2863: PACKET.ZC.PROPERTY_HOMUN3,
 		2865: PACKET.ZC.ADD_SKILL3,
@@ -228522,7 +228544,15 @@ var init_Announce = __esmMin((() => {
 	Announce_default = UIManager.addComponent(Announce);
 }));
 // src/Preferences/ShortCutControls.js
-var ShortCuts$2, ShortCutControls, ShortCutControls_default;
+/**
+* @param {object} shortcut entry
+* @return {string} its key and modifiers as they act now, '' when unbound
+*/
+function combination(shortcut) {
+	const k = shortcut.cust || shortcut.init;
+	return k.key ? `${k.key}-${!!k.alt}-${!!k.ctrl}-${!!k.shift}` : "";
+}
+var ShortCuts$2, ShortCutControls, used;
 var init_ShortCutControls = __esmMin((() => {
 	init_Preferences$1();
 	init_KeyEventHandler();
@@ -229176,6 +229206,17 @@ var init_ShortCutControls = __esmMin((() => {
 		component: "ShortCut",
 		cmd: "EXTEND"
 	};
+	ShortCuts$2.SkillBarRotate = {
+		init: {
+			key: KEYS.F12,
+			alt: false,
+			ctrl: true,
+			shift: false
+		},
+		cust: false,
+		component: "ShortCut",
+		cmd: "ROTATE"
+	};
 	ShortCuts$2.Bank = {
 		init: {
 			key: KEYS.B,
@@ -229418,8 +229459,19 @@ var init_ShortCutControls = __esmMin((() => {
 		component: "ShortCuts",
 		cmd: "EXECUTE_FLAG_9"
 	};
-	ShortCutControls = { ShortCuts: ShortCuts$2 };
-	ShortCutControls_default = Preferences.get("ShortCutControls", ShortCutControls, 1.2);
+	ShortCutControls = Preferences.get("ShortCutControls", { ShortCuts: ShortCuts$2 }, 1.2);
+	used = new Set(Object.values(ShortCutControls.ShortCuts).map(combination));
+	for (const name of Object.keys(ShortCuts$2)) if (!ShortCutControls.ShortCuts[name]) {
+		const entry = ShortCuts$2[name];
+		if (used.has(combination(entry))) entry.cust = {
+			key: "",
+			alt: false,
+			ctrl: false,
+			shift: false
+		};
+		ShortCutControls.ShortCuts[name] = entry;
+		used.add(combination(entry));
+	}
 }));
 // src/Controls/BattleMode.js
 /**
@@ -229427,7 +229479,7 @@ var init_ShortCutControls = __esmMin((() => {
 */
 function getKeyTable() {
 	const keySettings = {};
-	const ShortCuts = ShortCutControls_default.ShortCuts;
+	const ShortCuts = ShortCutControls.ShortCuts;
 	if (ShortCuts) Object.keys(ShortCuts).forEach((SC) => {
 		let key = ShortCuts[SC].init.key;
 		let shift = ShortCuts[SC].init.shift;
@@ -241593,7 +241645,7 @@ var init_GraphicsOption = __esmMin((() => {
 // src/UI/Components/ShortCutOption/ShortCutOption.html?raw
 var ShortCutOption_default$2;
 var init_ShortCutOption$2 = __esmMin((() => {
-	ShortCutOption_default$2 = "<div id=\"ShortCutOption\" class=\"pt-page-fadeIn1\">\r\n	<div class=\"border\">\r\n		<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n			<div class=\"left\"><span class=\"text\">Shortcut key setting window</span></div>\r\n\r\n			<div class=\"right\">\r\n				<button\r\n					class=\"base close\"\r\n					data-background=\"basic_interface/sys_close_off.bmp\"\r\n					data-hover=\"basic_interface/sys_close_on.bmp\"\r\n				></button>\r\n			</div>\r\n\r\n			<div class=\"clear\"></div>\r\n		</div>\r\n\r\n		<div class=\"tabs\">\r\n			<button class=\"t_skillbar selectedtab\" data-index=\"t_skillbar\">Skill Bar</button\r\n			><button class=\"t_ui\" data-index=\"t_ui\">Interface</button\r\n			><button class=\"t_macro\" data-index=\"t_macro\">Macros</button\r\n			><button class=\"t_gamepad\" data-index=\"t_gamepad\">Gamepad</button>\r\n		</div>\r\n		<div class=\"panel\">\r\n			<div class=\"content t_skillbar selectedtab\">\r\n				<table border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr>\r\n							<td>Skill bar 1-1</td>\r\n							<td data-button=\"F1_1\" class=\"customize\"></td>\r\n							<td>Skill bar 2-1</td>\r\n							<td data-button=\"F2_1\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-2</td>\r\n							<td data-button=\"F1_2\" class=\"customize\"></td>\r\n							<td>Skill bar 2-2</td>\r\n							<td data-button=\"F2_2\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-3</td>\r\n							<td data-button=\"F1_3\" class=\"customize\"></td>\r\n							<td>Skill bar 2-3</td>\r\n							<td data-button=\"F2_3\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-4</td>\r\n							<td data-button=\"F1_4\" class=\"customize\"></td>\r\n							<td>Skill bar 2-4</td>\r\n							<td data-button=\"F2_4\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-5</td>\r\n							<td data-button=\"F1_5\" class=\"customize\"></td>\r\n							<td>Skill bar 2-5</td>\r\n							<td data-button=\"F2_5\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-6</td>\r\n							<td data-button=\"F1_6\" class=\"customize\"></td>\r\n							<td>Skill bar 2-6</td>\r\n							<td data-button=\"F2_6\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-7</td>\r\n							<td data-button=\"F1_7\" class=\"customize\"></td>\r\n							<td>Skill bar 2-7</td>\r\n							<td data-button=\"F2_7\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-8</td>\r\n							<td data-button=\"F1_8\" class=\"customize\"></td>\r\n							<td>Skill bar 2-8</td>\r\n							<td data-button=\"F2_8\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-9</td>\r\n							<td data-button=\"F1_9\" class=\"customize\"></td>\r\n							<td>Skill bar 2-9</td>\r\n							<td data-button=\"F2_9\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-1</td>\r\n							<td data-button=\"F3_1\" class=\"customize\"></td>\r\n							<td>Skill bar 4-1</td>\r\n							<td data-button=\"F4_1\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-2</td>\r\n							<td data-button=\"F3_2\" class=\"customize\"></td>\r\n							<td>Skill bar 4-2</td>\r\n							<td data-button=\"F4_2\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-3</td>\r\n							<td data-button=\"F3_3\" class=\"customize\"></td>\r\n							<td>Skill bar 4-3</td>\r\n							<td data-button=\"F4_3\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-4</td>\r\n							<td data-button=\"F3_4\" class=\"customize\"></td>\r\n							<td>Skill bar 4-4</td>\r\n							<td data-button=\"F4_4\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-5</td>\r\n							<td data-button=\"F3_5\" class=\"customize\"></td>\r\n							<td>Skill bar 4-5</td>\r\n							<td data-button=\"F4_5\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-6</td>\r\n							<td data-button=\"F3_6\" class=\"customize\"></td>\r\n							<td>Skill bar 4-6</td>\r\n							<td data-button=\"F4_6\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-7</td>\r\n							<td data-button=\"F3_7\" class=\"customize\"></td>\r\n							<td>Skill bar 4-7</td>\r\n							<td data-button=\"F4_7\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-8</td>\r\n							<td data-button=\"F3_8\" class=\"customize\"></td>\r\n							<td>Skill bar 4-8</td>\r\n							<td data-button=\"F4_8\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-9</td>\r\n							<td data-button=\"F3_9\" class=\"customize\"></td>\r\n							<td>Skill bar 4-9</td>\r\n							<td data-button=\"F4_9\" class=\"customize\"></td>\r\n						</tr>\r\n					</tbody>\r\n				</table>\r\n			</div>\r\n			<div class=\"content t_ui\">\r\n				<table border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr>\r\n							<td>Basic Info</td>\r\n							<td data-button=\"BasicInfo\" class=\"customize\"></td>\r\n							<td>Character Info</td>\r\n							<td data-button=\"Equipment\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill List</td>\r\n							<td data-button=\"SkillList\" class=\"customize\"></td>\r\n							<td>Emotion List</td>\r\n							<td data-button=\"Emotions\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Friends List</td>\r\n							<td data-button=\"Friends\" class=\"customize\"></td>\r\n							<td>Party Window</td>\r\n							<td data-button=\"Party\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Pet Info</td>\r\n							<td data-button=\"PetInfo\" class=\"customize\"></td>\r\n							<td>Chat Room</td>\r\n							<td data-button=\"ChatRoom\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Cart Window</td>\r\n							<td data-button=\"PushCart\" class=\"customize\"></td>\r\n							<td>Item Window</td>\r\n							<td data-button=\"Inventory\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>World Map</td>\r\n							<td data-button=\"WorldMap\" class=\"customize\"></td>\r\n							<td>Guild Info</td>\r\n							<td data-button=\"Guild\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Homunculus Info</td>\r\n							<td data-button=\"HomunInfo\" class=\"customize\"></td>\r\n							<td>Mercenary Info</td>\r\n							<td data-button=\"MercInfo\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Homunculus State</td>\r\n							<td data-button=\"HomunState\" class=\"customize\"></td>\r\n							<td>Mercenary State</td>\r\n							<td data-button=\"MercState\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Sit/Stand</td>\r\n							<td data-button=\"Sit\" class=\"customize\"></td>\r\n							<td>Short Cuts</td>\r\n							<td data-button=\"ShortCuts\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Chat Bar Size</td>\r\n							<td data-button=\"ChatSize\" class=\"customize\"></td>\r\n							<td>Skill Bar Size</td>\r\n							<td data-button=\"SkillBarSize\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Quest</td>\r\n							<td data-button=\"Quest\" class=\"customize\"></td>\r\n							<td>Bank</td>\r\n							<td data-button=\"Bank\" class=\"customize\"></td>\r\n						</tr>\r\n						<!--<tr>\r\n                     <td>MobileUI</td>\r\n                     <td data-button=\"M_UI\" class=\"customize\"></td>\r\n                     <td>MUi-Toggle</td>\r\n                     <td data-button=\"M_Toggle\" class=\"customize\"></td>\r\n                  </tr>\r\n                  <tr>\r\n                     <td>MUi-TG</td>\r\n                     <td data-button=\"M_Targeting\" class=\"customize\"></td>\r\n                     <td>MUi-AT</td>\r\n                     <td data-button=\"M_AutoTarget\" class=\"customize\"></td>\r\n                  </tr>\r\n                  <tr>\r\n                     <td>MUi-ATK</td>\r\n                     <td data-button=\"M_Attack\" class=\"customize\"></td>\r\n                  </tr>-->\r\n					</tbody>\r\n				</table>\r\n			</div>\r\n			<div class=\"content t_macro\">\r\n				<table border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr>\r\n							<td>Macro 1</td>\r\n							<td data-button=\"Macro1\" class=\"customize\"></td>\r\n							<td>Flag 1</td>\r\n							<td data-button=\"Flag1\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 2</td>\r\n							<td data-button=\"Macro2\" class=\"customize\"></td>\r\n							<td>Flag 2</td>\r\n							<td data-button=\"Flag2\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 3</td>\r\n							<td data-button=\"Macro3\" class=\"customize\"></td>\r\n							<td>Flag 3</td>\r\n							<td data-button=\"Flag3\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 4</td>\r\n							<td data-button=\"Macro4\" class=\"customize\"></td>\r\n							<td>Flag 4</td>\r\n							<td data-button=\"Flag4\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 5</td>\r\n							<td data-button=\"Macro5\" class=\"customize\"></td>\r\n							<td>Flag 5</td>\r\n							<td data-button=\"Flag5\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 6</td>\r\n							<td data-button=\"Macro6\" class=\"customize\"></td>\r\n							<td>Flag 6</td>\r\n							<td data-button=\"Flag6\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 7</td>\r\n							<td data-button=\"Macro7\" class=\"customize\"></td>\r\n							<td>Flag 7</td>\r\n							<td data-button=\"Flag7\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 8</td>\r\n							<td data-button=\"Macro8\" class=\"customize\"></td>\r\n							<td>Flag 8</td>\r\n							<td data-button=\"Flag8\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 9</td>\r\n							<td data-button=\"Macro9\" class=\"customize\"></td>\r\n							<td>Flag 9</td>\r\n							<td data-button=\"Flag9\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 10</td>\r\n							<td data-button=\"Macro10\" class=\"customize\"></td>\r\n						</tr>\r\n					</tbody>\r\n				</table>\r\n			</div>\r\n			<div class=\"content t_gamepad\">\r\n				<table class=\"joySettings\" border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr title=\"Show which button does what, and remap them\">\r\n							<td>Button Mapping</td>\r\n							<td>\r\n								<button type=\"button\" class=\"joyBtn joyMappingOpen\">Mapping</button>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Define how targets are selected in combat\">\r\n							<td>Attack Target Mode</td>\r\n							<td>\r\n								<select class=\"attackTargetMode\">\r\n									<option value=\"0\">Off</option>\r\n									<option value=\"1\">Lowest HP</option>\r\n									<option value=\"2\">Closest</option>\r\n								</select>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"What the pad targets: D-pad left/right and the aim pick from it. D-pad up/down switches in game. Support: the right stick opens a radial with your party\">\r\n							<td>Target Category</td>\r\n							<td>\r\n								<select class=\"joyCycleMode\">\r\n									<option value=\"0\">Mobs</option>\r\n									<option value=\"3\">NPCs &amp; portals</option>\r\n									<option value=\"5\">Players</option>\r\n									<option value=\"6\">NPCs, portals &amp; players</option>\r\n									<option value=\"1\">Items</option>\r\n									<option value=\"4\">Support (party)</option>\r\n								</select>\r\n							</td>\r\n						</tr>\r\n						<tr\r\n							title=\"Choose how skills are cast with gamepad. With Right-Stick Aiming on, Off is not available: skills go to the aimed target\"\r\n						>\r\n							<td>Quick-Cast Mode</td>\r\n							<td>\r\n								<select class=\"joyQuick\">\r\n									<option value=\"0\">Off</option>\r\n									<option value=\"1\">Release Mode</option>\r\n									<option value=\"2\">Instant Mode</option>\r\n								</select>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Adjust mouse movement sensitivity for R3 stick\">\r\n							<td>Mouse Move</td>\r\n							<td>\r\n								<label style=\"display: inline-block; width: 90px\">\r\n									Sensitivity:\r\n									<input\r\n										class=\"joySense\"\r\n										type=\"range\"\r\n										value=\"25.0\"\r\n										min=\"1.0\"\r\n										max=\"100.0\"\r\n										step=\"1.0\"\r\n										style=\"width: 90%; vertical-align: middle\"\r\n									/>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Disable mouse input from gamepad for UI interaction\">\r\n							<td>Disable Virtual Mouse</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyDisableVirtualMouse\" />\r\n							</td>\r\n						</tr>\r\n						<tr\r\n							title=\"Tap View to move between the buttons and items of open windows with the D-pad: A presses, X offers more and (held) picks an item up, LB / RB switch tabs. Dialogues (NPCs, amounts, message boxes) start it on their own.\"\r\n						>\r\n							<td>Menu Navigation</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyUIFocus\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Swap L3 and R3 stick functions\">\r\n							<td>Swap L3-R3 Sticks</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyReverseStick\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Automatically hide UI during gameplay mouse movement\">\r\n							<td>Auto Hide UI</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAutoHide\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Set deadzone threshold for analog sticks\">\r\n							<td>Axis Threshold</td>\r\n							<td>\r\n								<label style=\"display: inline-block; width: 90px\">\r\n									Deadline:\r\n									<input\r\n										class=\"joyDeadline\"\r\n										type=\"range\"\r\n										value=\"0.10\"\r\n										min=\"0.0\"\r\n										max=\"1.0\"\r\n										step=\"0.1\"\r\n										style=\"width: 90%; vertical-align: middle\"\r\n									/>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"How fast View + D-pad left/right turns the camera, in degrees per second\">\r\n							<td>Camera Turn Speed</td>\r\n							<td>\r\n								<input\r\n									class=\"joyCameraSpeed joyRange\"\r\n									type=\"range\"\r\n									value=\"90\"\r\n									min=\"30\"\r\n									max=\"360\"\r\n									step=\"10\"\r\n								/>\r\n								<span class=\"joyValue\" data-for=\"joyCameraSpeed\"></span>\r\n							</td>\r\n						</tr>\r\n						<tr class=\"joySection\">\r\n							<td colspan=\"2\">Stick Drift</td>\r\n						</tr>\r\n						<tr\r\n							title=\"Measure where the sticks rest and treat that as centre. Leave both sticks alone while it runs (one second)\"\r\n						>\r\n							<td>Calibrate Sticks</td>\r\n							<td>\r\n								<button type=\"button\" class=\"joyBtn joyCalibrate\">Calibrate</button>\r\n								<button type=\"button\" class=\"joyBtn joyCalibrateReset\">Reset</button>\r\n								<div class=\"joyCalibrateStatus\"></div>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Left stick: movement on each axis below this value is ignored\">\r\n							<td>Left Stick Drift</td>\r\n							<td>\r\n								<label class=\"joyAxis\">\r\n									X\r\n									<input\r\n										class=\"joyDriftLX joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftLX\"></span>\r\n								</label>\r\n								<label class=\"joyAxis\">\r\n									Y\r\n									<input\r\n										class=\"joyDriftLY joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftLY\"></span>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Right stick: movement on each axis below this value is ignored\">\r\n							<td>Right Stick Drift</td>\r\n							<td>\r\n								<label class=\"joyAxis\">\r\n									X\r\n									<input\r\n										class=\"joyDriftRX joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftRX\"></span>\r\n								</label>\r\n								<label class=\"joyAxis\">\r\n									Y\r\n									<input\r\n										class=\"joyDriftRY joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftRY\"></span>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr class=\"joySection\">\r\n							<td colspan=\"2\">Aim Settings</td>\r\n						</tr>\r\n						<tr title=\"Push the right stick toward a monster or item to target the first one in that direction. In game, tap RS click to switch the right stick between aiming and the cursor; hold it to recenter the cursor. Tap L3 to clear the target, hold L3 to sit or stand\">\r\n							<td>Right-Stick Aiming</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimEnabled\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"While aiming, a red ring marks a newly selected target on the ground, then fades out within two seconds\">\r\n							<td>Show Target Ring</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimRing\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"While aiming, draw a short line in the aimed direction, which connects to the target once the aim is on one\">\r\n							<td>Show Aim Line</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimLine\" />\r\n							</td>\r\n						</tr>\r\n						<tr\r\n							title=\"While the right stick aims, hide the game's cursor. Moving the mouse shows it again; tap RS click for the cursor mode\"\r\n						>\r\n							<td>Hide Cursor While Aiming</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimHideCursor\" />\r\n							</td>\r\n						</tr>\r\n					</tbody>\r\n				</table>\r\n				<div class=\"joyMapping\">\r\n					<div class=\"joyMappingHeader\">\r\n						<button type=\"button\" class=\"joyBtn joyMappingBack\">&#9664; Back</button>\r\n						<span class=\"joyMappingTitle\">Button mapping</span>\r\n						<button type=\"button\" class=\"joyBtn joyMappingReset\">Reset to defaults</button>\r\n					</div>\r\n					<div class=\"joyMappingStatus\">Remap: press Remap, then a button on the gamepad. The two buttons trade places.</div>\r\n					<div class=\"joyMappingScroll\">\r\n						<table class=\"joyMappingRoles\" border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n							<tbody></tbody>\r\n						</table>\r\n						<div class=\"joyMappingSub\">Combinations (follow the buttons above)</div>\r\n						<table class=\"joyMappingCombos\" border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n							<tbody></tbody>\r\n						</table>\r\n					</div>\r\n				</div>\r\n			</div>\r\n			<button\r\n				class=\"button reset left\"\r\n				data-background=\"btn_reset.bmp\"\r\n				data-hover=\"btn_reset_a.bmp\"\r\n				data-down=\"btn_reset_b.bmp\"\r\n			></button>\r\n			<button\r\n				class=\"button ok right\"\r\n				data-background=\"btn_ok.bmp\"\r\n				data-hover=\"btn_ok_a.bmp\"\r\n				data-down=\"btn_ok_b.bmp\"\r\n			></button>\r\n			<button\r\n				class=\"button cancel right\"\r\n				data-background=\"btn_cancel.bmp\"\r\n				data-hover=\"btn_cancel_a.bmp\"\r\n				data-down=\"btn_cancel_b.bmp\"\r\n			></button>\r\n			<button\r\n				class=\"button close right\"\r\n				data-background=\"btn_close.bmp\"\r\n				data-hover=\"btn_close_a.bmp\"\r\n				data-down=\"btn_close_b.bmp\"\r\n			></button>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+	ShortCutOption_default$2 = "<div id=\"ShortCutOption\" class=\"pt-page-fadeIn1\">\r\n	<div class=\"border\">\r\n		<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n			<div class=\"left\"><span class=\"text\">Shortcut key setting window</span></div>\r\n\r\n			<div class=\"right\">\r\n				<button\r\n					class=\"base close\"\r\n					data-background=\"basic_interface/sys_close_off.bmp\"\r\n					data-hover=\"basic_interface/sys_close_on.bmp\"\r\n				></button>\r\n			</div>\r\n\r\n			<div class=\"clear\"></div>\r\n		</div>\r\n\r\n		<div class=\"tabs\">\r\n			<button class=\"t_skillbar selectedtab\" data-index=\"t_skillbar\">Skill Bar</button\r\n			><button class=\"t_ui\" data-index=\"t_ui\">Interface</button\r\n			><button class=\"t_macro\" data-index=\"t_macro\">Macros</button\r\n			><button class=\"t_gamepad\" data-index=\"t_gamepad\">Gamepad</button>\r\n		</div>\r\n		<div class=\"panel\">\r\n			<div class=\"content t_skillbar selectedtab\">\r\n				<table border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr>\r\n							<td>Skill bar 1-1</td>\r\n							<td data-button=\"F1_1\" class=\"customize\"></td>\r\n							<td>Skill bar 2-1</td>\r\n							<td data-button=\"F2_1\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-2</td>\r\n							<td data-button=\"F1_2\" class=\"customize\"></td>\r\n							<td>Skill bar 2-2</td>\r\n							<td data-button=\"F2_2\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-3</td>\r\n							<td data-button=\"F1_3\" class=\"customize\"></td>\r\n							<td>Skill bar 2-3</td>\r\n							<td data-button=\"F2_3\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-4</td>\r\n							<td data-button=\"F1_4\" class=\"customize\"></td>\r\n							<td>Skill bar 2-4</td>\r\n							<td data-button=\"F2_4\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-5</td>\r\n							<td data-button=\"F1_5\" class=\"customize\"></td>\r\n							<td>Skill bar 2-5</td>\r\n							<td data-button=\"F2_5\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-6</td>\r\n							<td data-button=\"F1_6\" class=\"customize\"></td>\r\n							<td>Skill bar 2-6</td>\r\n							<td data-button=\"F2_6\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-7</td>\r\n							<td data-button=\"F1_7\" class=\"customize\"></td>\r\n							<td>Skill bar 2-7</td>\r\n							<td data-button=\"F2_7\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-8</td>\r\n							<td data-button=\"F1_8\" class=\"customize\"></td>\r\n							<td>Skill bar 2-8</td>\r\n							<td data-button=\"F2_8\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 1-9</td>\r\n							<td data-button=\"F1_9\" class=\"customize\"></td>\r\n							<td>Skill bar 2-9</td>\r\n							<td data-button=\"F2_9\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-1</td>\r\n							<td data-button=\"F3_1\" class=\"customize\"></td>\r\n							<td>Skill bar 4-1</td>\r\n							<td data-button=\"F4_1\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-2</td>\r\n							<td data-button=\"F3_2\" class=\"customize\"></td>\r\n							<td>Skill bar 4-2</td>\r\n							<td data-button=\"F4_2\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-3</td>\r\n							<td data-button=\"F3_3\" class=\"customize\"></td>\r\n							<td>Skill bar 4-3</td>\r\n							<td data-button=\"F4_3\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-4</td>\r\n							<td data-button=\"F3_4\" class=\"customize\"></td>\r\n							<td>Skill bar 4-4</td>\r\n							<td data-button=\"F4_4\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-5</td>\r\n							<td data-button=\"F3_5\" class=\"customize\"></td>\r\n							<td>Skill bar 4-5</td>\r\n							<td data-button=\"F4_5\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-6</td>\r\n							<td data-button=\"F3_6\" class=\"customize\"></td>\r\n							<td>Skill bar 4-6</td>\r\n							<td data-button=\"F4_6\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-7</td>\r\n							<td data-button=\"F3_7\" class=\"customize\"></td>\r\n							<td>Skill bar 4-7</td>\r\n							<td data-button=\"F4_7\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-8</td>\r\n							<td data-button=\"F3_8\" class=\"customize\"></td>\r\n							<td>Skill bar 4-8</td>\r\n							<td data-button=\"F4_8\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill bar 3-9</td>\r\n							<td data-button=\"F3_9\" class=\"customize\"></td>\r\n							<td>Skill bar 4-9</td>\r\n							<td data-button=\"F4_9\" class=\"customize\"></td>\r\n						</tr>\r\n					</tbody>\r\n				</table>\r\n			</div>\r\n			<div class=\"content t_ui\">\r\n				<table border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr>\r\n							<td>Basic Info</td>\r\n							<td data-button=\"BasicInfo\" class=\"customize\"></td>\r\n							<td>Character Info</td>\r\n							<td data-button=\"Equipment\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill List</td>\r\n							<td data-button=\"SkillList\" class=\"customize\"></td>\r\n							<td>Emotion List</td>\r\n							<td data-button=\"Emotions\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Friends List</td>\r\n							<td data-button=\"Friends\" class=\"customize\"></td>\r\n							<td>Party Window</td>\r\n							<td data-button=\"Party\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Pet Info</td>\r\n							<td data-button=\"PetInfo\" class=\"customize\"></td>\r\n							<td>Chat Room</td>\r\n							<td data-button=\"ChatRoom\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Cart Window</td>\r\n							<td data-button=\"PushCart\" class=\"customize\"></td>\r\n							<td>Item Window</td>\r\n							<td data-button=\"Inventory\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>World Map</td>\r\n							<td data-button=\"WorldMap\" class=\"customize\"></td>\r\n							<td>Guild Info</td>\r\n							<td data-button=\"Guild\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Homunculus Info</td>\r\n							<td data-button=\"HomunInfo\" class=\"customize\"></td>\r\n							<td>Mercenary Info</td>\r\n							<td data-button=\"MercInfo\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Homunculus State</td>\r\n							<td data-button=\"HomunState\" class=\"customize\"></td>\r\n							<td>Mercenary State</td>\r\n							<td data-button=\"MercState\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Sit/Stand</td>\r\n							<td data-button=\"Sit\" class=\"customize\"></td>\r\n							<td>Short Cuts</td>\r\n							<td data-button=\"ShortCuts\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Chat Bar Size</td>\r\n							<td data-button=\"ChatSize\" class=\"customize\"></td>\r\n							<td>Skill Bar Size</td>\r\n							<td data-button=\"SkillBarSize\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Quest</td>\r\n							<td data-button=\"Quest\" class=\"customize\"></td>\r\n							<td>Bank</td>\r\n							<td data-button=\"Bank\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Skill Bar Rotate</td>\r\n							<td data-button=\"SkillBarRotate\" class=\"customize\"></td>\r\n						</tr>\r\n						<!--<tr>\r\n                     <td>MobileUI</td>\r\n                     <td data-button=\"M_UI\" class=\"customize\"></td>\r\n                     <td>MUi-Toggle</td>\r\n                     <td data-button=\"M_Toggle\" class=\"customize\"></td>\r\n                  </tr>\r\n                  <tr>\r\n                     <td>MUi-TG</td>\r\n                     <td data-button=\"M_Targeting\" class=\"customize\"></td>\r\n                     <td>MUi-AT</td>\r\n                     <td data-button=\"M_AutoTarget\" class=\"customize\"></td>\r\n                  </tr>\r\n                  <tr>\r\n                     <td>MUi-ATK</td>\r\n                     <td data-button=\"M_Attack\" class=\"customize\"></td>\r\n                  </tr>-->\r\n					</tbody>\r\n				</table>\r\n			</div>\r\n			<div class=\"content t_macro\">\r\n				<table border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr>\r\n							<td>Macro 1</td>\r\n							<td data-button=\"Macro1\" class=\"customize\"></td>\r\n							<td>Flag 1</td>\r\n							<td data-button=\"Flag1\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 2</td>\r\n							<td data-button=\"Macro2\" class=\"customize\"></td>\r\n							<td>Flag 2</td>\r\n							<td data-button=\"Flag2\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 3</td>\r\n							<td data-button=\"Macro3\" class=\"customize\"></td>\r\n							<td>Flag 3</td>\r\n							<td data-button=\"Flag3\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 4</td>\r\n							<td data-button=\"Macro4\" class=\"customize\"></td>\r\n							<td>Flag 4</td>\r\n							<td data-button=\"Flag4\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 5</td>\r\n							<td data-button=\"Macro5\" class=\"customize\"></td>\r\n							<td>Flag 5</td>\r\n							<td data-button=\"Flag5\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 6</td>\r\n							<td data-button=\"Macro6\" class=\"customize\"></td>\r\n							<td>Flag 6</td>\r\n							<td data-button=\"Flag6\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 7</td>\r\n							<td data-button=\"Macro7\" class=\"customize\"></td>\r\n							<td>Flag 7</td>\r\n							<td data-button=\"Flag7\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 8</td>\r\n							<td data-button=\"Macro8\" class=\"customize\"></td>\r\n							<td>Flag 8</td>\r\n							<td data-button=\"Flag8\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 9</td>\r\n							<td data-button=\"Macro9\" class=\"customize\"></td>\r\n							<td>Flag 9</td>\r\n							<td data-button=\"Flag9\" class=\"customize\"></td>\r\n						</tr>\r\n						<tr>\r\n							<td>Macro 10</td>\r\n							<td data-button=\"Macro10\" class=\"customize\"></td>\r\n						</tr>\r\n					</tbody>\r\n				</table>\r\n			</div>\r\n			<div class=\"content t_gamepad\">\r\n				<table class=\"joySettings\" border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n					<tbody>\r\n						<tr title=\"Show which button does what, and remap them\">\r\n							<td>Button Mapping</td>\r\n							<td>\r\n								<button type=\"button\" class=\"joyBtn joyMappingOpen\">Mapping</button>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Define how targets are selected in combat\">\r\n							<td>Attack Target Mode</td>\r\n							<td>\r\n								<select class=\"attackTargetMode\">\r\n									<option value=\"0\">Off</option>\r\n									<option value=\"1\">Lowest HP</option>\r\n									<option value=\"2\">Closest</option>\r\n								</select>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"What the pad targets: D-pad left/right and the aim pick from it. D-pad up/down switches in game. Support: the right stick opens a radial with your party\">\r\n							<td>Target Category</td>\r\n							<td>\r\n								<select class=\"joyCycleMode\">\r\n									<option value=\"0\">Mobs</option>\r\n									<option value=\"3\">NPCs &amp; portals</option>\r\n									<option value=\"5\">Players</option>\r\n									<option value=\"6\">NPCs, portals &amp; players</option>\r\n									<option value=\"1\">Items</option>\r\n									<option value=\"4\">Support (party)</option>\r\n								</select>\r\n							</td>\r\n						</tr>\r\n						<tr\r\n							title=\"Choose how skills are cast with gamepad. With Right-Stick Aiming on, Off is not available: skills go to the aimed target\"\r\n						>\r\n							<td>Quick-Cast Mode</td>\r\n							<td>\r\n								<select class=\"joyQuick\">\r\n									<option value=\"0\">Off</option>\r\n									<option value=\"1\">Release Mode</option>\r\n									<option value=\"2\">Instant Mode</option>\r\n								</select>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Adjust mouse movement sensitivity for R3 stick\">\r\n							<td>Mouse Move</td>\r\n							<td>\r\n								<label style=\"display: inline-block; width: 90px\">\r\n									Sensitivity:\r\n									<input\r\n										class=\"joySense\"\r\n										type=\"range\"\r\n										value=\"25.0\"\r\n										min=\"1.0\"\r\n										max=\"100.0\"\r\n										step=\"1.0\"\r\n										style=\"width: 90%; vertical-align: middle\"\r\n									/>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Disable mouse input from gamepad for UI interaction\">\r\n							<td>Disable Virtual Mouse</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyDisableVirtualMouse\" />\r\n							</td>\r\n						</tr>\r\n						<tr\r\n							title=\"Tap View to move between the buttons and items of open windows with the D-pad: A presses, X offers more and (held) picks an item up, LB / RB switch tabs. Dialogues (NPCs, amounts, message boxes) start it on their own.\"\r\n						>\r\n							<td>Menu Navigation</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyUIFocus\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Swap L3 and R3 stick functions\">\r\n							<td>Swap L3-R3 Sticks</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyReverseStick\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Automatically hide UI during gameplay mouse movement\">\r\n							<td>Auto Hide UI</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAutoHide\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Set deadzone threshold for analog sticks\">\r\n							<td>Axis Threshold</td>\r\n							<td>\r\n								<label style=\"display: inline-block; width: 90px\">\r\n									Deadline:\r\n									<input\r\n										class=\"joyDeadline\"\r\n										type=\"range\"\r\n										value=\"0.10\"\r\n										min=\"0.0\"\r\n										max=\"1.0\"\r\n										step=\"0.1\"\r\n										style=\"width: 90%; vertical-align: middle\"\r\n									/>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"How fast View + D-pad left/right turns the camera, in degrees per second\">\r\n							<td>Camera Turn Speed</td>\r\n							<td>\r\n								<input\r\n									class=\"joyCameraSpeed joyRange\"\r\n									type=\"range\"\r\n									value=\"90\"\r\n									min=\"30\"\r\n									max=\"360\"\r\n									step=\"10\"\r\n								/>\r\n								<span class=\"joyValue\" data-for=\"joyCameraSpeed\"></span>\r\n							</td>\r\n						</tr>\r\n						<tr class=\"joySection\">\r\n							<td colspan=\"2\">Stick Drift</td>\r\n						</tr>\r\n						<tr\r\n							title=\"Measure where the sticks rest and treat that as centre. Leave both sticks alone while it runs (one second)\"\r\n						>\r\n							<td>Calibrate Sticks</td>\r\n							<td>\r\n								<button type=\"button\" class=\"joyBtn joyCalibrate\">Calibrate</button>\r\n								<button type=\"button\" class=\"joyBtn joyCalibrateReset\">Reset</button>\r\n								<div class=\"joyCalibrateStatus\"></div>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Left stick: movement on each axis below this value is ignored\">\r\n							<td>Left Stick Drift</td>\r\n							<td>\r\n								<label class=\"joyAxis\">\r\n									X\r\n									<input\r\n										class=\"joyDriftLX joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftLX\"></span>\r\n								</label>\r\n								<label class=\"joyAxis\">\r\n									Y\r\n									<input\r\n										class=\"joyDriftLY joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftLY\"></span>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr title=\"Right stick: movement on each axis below this value is ignored\">\r\n							<td>Right Stick Drift</td>\r\n							<td>\r\n								<label class=\"joyAxis\">\r\n									X\r\n									<input\r\n										class=\"joyDriftRX joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftRX\"></span>\r\n								</label>\r\n								<label class=\"joyAxis\">\r\n									Y\r\n									<input\r\n										class=\"joyDriftRY joyRange\"\r\n										type=\"range\"\r\n										value=\"0\"\r\n										min=\"0\"\r\n										max=\"0.5\"\r\n										step=\"0.01\"\r\n									/>\r\n									<span class=\"joyValue\" data-for=\"joyDriftRY\"></span>\r\n								</label>\r\n							</td>\r\n						</tr>\r\n						<tr class=\"joySection\">\r\n							<td colspan=\"2\">Aim Settings</td>\r\n						</tr>\r\n						<tr title=\"Push the right stick toward a monster or item to target the first one in that direction. In game, tap RS click to switch the right stick between aiming and the cursor; hold it to recenter the cursor. Tap L3 to clear the target, hold L3 to sit or stand\">\r\n							<td>Right-Stick Aiming</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimEnabled\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"While aiming, a red ring marks a newly selected target on the ground, then fades out within two seconds\">\r\n							<td>Show Target Ring</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimRing\" />\r\n							</td>\r\n						</tr>\r\n						<tr title=\"While aiming, draw a short line in the aimed direction, which connects to the target once the aim is on one\">\r\n							<td>Show Aim Line</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimLine\" />\r\n							</td>\r\n						</tr>\r\n						<tr\r\n							title=\"While the right stick aims, hide the game's cursor. Moving the mouse shows it again; tap RS click for the cursor mode\"\r\n						>\r\n							<td>Hide Cursor While Aiming</td>\r\n							<td>\r\n								<input type=\"checkbox\" class=\"joyAimHideCursor\" />\r\n							</td>\r\n						</tr>\r\n					</tbody>\r\n				</table>\r\n				<div class=\"joyMapping\">\r\n					<div class=\"joyMappingHeader\">\r\n						<button type=\"button\" class=\"joyBtn joyMappingBack\">&#9664; Back</button>\r\n						<span class=\"joyMappingTitle\">Button mapping</span>\r\n						<button type=\"button\" class=\"joyBtn joyMappingReset\">Reset to defaults</button>\r\n					</div>\r\n					<div class=\"joyMappingStatus\">Remap: press Remap, then a button on the gamepad. The two buttons trade places.</div>\r\n					<div class=\"joyMappingScroll\">\r\n						<table class=\"joyMappingRoles\" border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n							<tbody></tbody>\r\n						</table>\r\n						<div class=\"joyMappingSub\">Combinations (follow the buttons above)</div>\r\n						<table class=\"joyMappingCombos\" border=\"1\" cellspacing=\"0\" bordercolor=\"#aaa\">\r\n							<tbody></tbody>\r\n						</table>\r\n					</div>\r\n				</div>\r\n			</div>\r\n			<button\r\n				class=\"button reset left\"\r\n				data-background=\"btn_reset.bmp\"\r\n				data-hover=\"btn_reset_a.bmp\"\r\n				data-down=\"btn_reset_b.bmp\"\r\n			></button>\r\n			<button\r\n				class=\"button ok right\"\r\n				data-background=\"btn_ok.bmp\"\r\n				data-hover=\"btn_ok_a.bmp\"\r\n				data-down=\"btn_ok_b.bmp\"\r\n			></button>\r\n			<button\r\n				class=\"button cancel right\"\r\n				data-background=\"btn_cancel.bmp\"\r\n				data-hover=\"btn_cancel_a.bmp\"\r\n				data-down=\"btn_cancel_b.bmp\"\r\n			></button>\r\n			<button\r\n				class=\"button close right\"\r\n				data-background=\"btn_close.bmp\"\r\n				data-hover=\"btn_close_a.bmp\"\r\n				data-down=\"btn_close_b.bmp\"\r\n			></button>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/ShortCutOption/ShortCutOption.css?raw
 var ShortCutOption_default$1;
@@ -243104,6 +243156,56 @@ function getSkillOwner(id) {
 	return Controller$4;
 }
 /**
+* Slot of the bar's list shown at a slot of the window. The official client
+* (fcn.00d83c80) adds the row shift times 9 to the first 36 slots, wrapping.
+*
+* @param {number} index shown
+* @param {number} rotate row shift
+* @param {number} length of the list
+* @return {number} index in the list
+*/
+function storedIndex(index, rotate, length) {
+	return length >= 36 && index < 36 ? (index + rotate * 9) % 36 : index;
+}
+/**
+* @param {Array} list a bar's list
+* @param {number} rotate row shift
+* @return {Array} the list in the order the window shows it
+*/
+function rotateList(list, rotate) {
+	return list.map((_slot, i) => list[storedIndex(i, rotate, list.length)]);
+}
+/**
+* @param {Array} shown slots in the order the window shows them
+* @param {number} rotate row shift
+* @return {Array} the bar's list
+*/
+function unrotateList(shown, rotate) {
+	const list = new Array(shown.length);
+	shown.forEach((slot, i) => {
+		list[storedIndex(i, rotate, shown.length)] = slot;
+	});
+	return list;
+}
+/**
+* Keep what the window shows as the shown bar's list
+*/
+function saveShown() {
+	_tabLists[getTab()] = unrotateList(Array.from(_list$5, copySlot), _rotations[getTab()]);
+}
+/**
+* Draw a bar again from its list, keeping running cooldowns
+*
+* @param {number} tab
+*/
+function redraw(tab) {
+	cancelCooldowns();
+	ShortCut.getRoot().querySelectorAll(".container").forEach((el) => el.removeAttribute("data-tooltip"));
+	drawList(rotateList(_tabLists[tab] || emptyList(_list$5.length || 38), _rotations[tab]));
+	ShortCut.updateAllTooltips();
+	restoreCooldowns();
+}
+/**
 * @return {boolean} the server keeps a second hotkey bar (packets 0x0b20 / 0x0b21)
 */
 function hasTabs() {
@@ -243252,7 +243354,7 @@ function getHotKeyString(index) {
 	];
 	if (index < 0 || index >= shortcutKeys.length) return "";
 	const scKey = shortcutKeys[index];
-	const shortcut = ShortCutControls_default.ShortCuts[scKey];
+	const shortcut = ShortCutControls.ShortCuts[scKey];
 	if (!shortcut) return "";
 	const key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
 	const alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
@@ -243657,7 +243759,7 @@ function convertHotkeysToServerFormat() {
 		"Macro9",
 		"Macro10"
 	].forEach((key, index) => {
-		const shortcut = ShortCutControls_default.ShortCuts[key];
+		const shortcut = ShortCutControls.ShortCuts[key];
 		if (shortcut && shortcut.cust && shortcut.cust.emotion) serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;
 	});
 	[
@@ -243698,7 +243800,7 @@ function convertHotkeysToServerFormat() {
 		"F4_8",
 		"F4_9"
 	].forEach((key, index) => {
-		const shortcut = ShortCutControls_default.ShortCuts[key];
+		const shortcut = ShortCutControls.ShortCuts[key];
 		if (shortcut) {
 			const keyData = shortcut.cust || shortcut.init;
 			serverData.data.UserHotkey_V2.SkillBar_1Tab.push({
@@ -243728,8 +243830,8 @@ function convertHotkeysFromServerFormat(serverData) {
 		];
 		serverData.data.EmotionHotkey.forEach((emotion, index) => {
 			if (emotion && emotionKeys[index]) {
-				if (!ShortCutControls_default.ShortCuts[emotionKeys[index]].cust) ShortCutControls_default.ShortCuts[emotionKeys[index]].cust = {};
-				ShortCutControls_default.ShortCuts[emotionKeys[index]].cust.emotion = emotion;
+				if (!ShortCutControls.ShortCuts[emotionKeys[index]].cust) ShortCutControls.ShortCuts[emotionKeys[index]].cust = {};
+				ShortCutControls.ShortCuts[emotionKeys[index]].cust.emotion = emotion;
 			}
 		});
 	}
@@ -243776,8 +243878,8 @@ function convertHotkeysFromServerFormat(serverData) {
 			if (skillData && skillData.index < shortcutKeys.length) {
 				const key = shortcutKeys[skillData.index];
 				if (key && skillData.key1) {
-					if (!ShortCutControls_default.ShortCuts[key].cust) ShortCutControls_default.ShortCuts[key].cust = {};
-					ShortCutControls_default.ShortCuts[key].cust.key = skillData.key1;
+					if (!ShortCutControls.ShortCuts[key].cust) ShortCutControls.ShortCuts[key].cust = {};
+					ShortCutControls.ShortCuts[key].cust.key = skillData.key1;
 				}
 			}
 		});
@@ -243787,7 +243889,7 @@ function haveHotkeysChanged(currentData) {
 	if (!_lastServerHotkeys) return true;
 	return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
 }
-var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _tabLists, _cooldownEnds, _globalCooldownEnd, _activeAnimations, _preferences$36, ShortCut_default;
+var ShortCut, _list$5, _rowCount, _lastServerHotkeys, _tabLists, _rotations, _cooldownEnds, _globalCooldownEnd, _activeAnimations, _preferences$36, ShortCut_default;
 var init_ShortCut = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -243820,6 +243922,7 @@ var init_ShortCut = __esmMin((() => {
 	_rowCount = 0;
 	_lastServerHotkeys = null;
 	_tabLists = [null, null];
+	_rotations = [0, 0];
 	_cooldownEnds = /* @__PURE__ */ new Map();
 	_globalCooldownEnd = 0;
 	_activeAnimations = /* @__PURE__ */ new Map();
@@ -243963,6 +244066,7 @@ var init_ShortCut = __esmMin((() => {
 		_activeAnimations.clear();
 		_list$5.length = 0;
 		_tabLists[0] = _tabLists[1] = null;
+		_rotations[0] = _rotations[1] = 0;
 		_cooldownEnds.clear();
 		_globalCooldownEnd = 0;
 		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
@@ -243979,7 +244083,10 @@ var init_ShortCut = __esmMin((() => {
 			case "EXECUTE":
 				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
 				break;
-			case "EXTEND": setRows((_preferences$36.size + 1) % (_rowCount + 1));
+			case "EXTEND":
+				setRows((_preferences$36.size + 1) % (_rowCount + 1));
+				break;
+			case "ROTATE": ShortCut.rotate();
 		}
 	};
 	ShortCut.useSkill = function useSkill(id, level) {
@@ -243993,10 +244100,38 @@ var init_ShortCut = __esmMin((() => {
 	*
 	* @param {Array} shortcut list
 	*/
-	ShortCut.setList = function setList(list, tab = 0) {
+	ShortCut.setList = function setList(list, tab = 0, rotate = 0) {
 		_tabLists[tab] = list.map(copySlot);
-		if (tab === getTab()) drawList(list);
+		_rotations[tab] = ((rotate | 0) % 4 + 4) % 4;
+		if (tab === getTab()) drawList(rotateList(_tabLists[tab], _rotations[tab]));
 	};
+	/**
+	* @param {number} index shown
+	* @return {number} the server's index for that slot of the bar shown
+	*/
+	ShortCut.toServerIndex = function toServerIndex(index) {
+		return storedIndex(index, _rotations[getTab()], _list$5.length);
+	};
+	/**
+	* Shift the rows of the bar shown by one: the second row comes first. The
+	* official client does it on Ctrl+F12 (hotkey_v2.lub MSI_HK_SHORTCUTWND_ROTATE)
+	* and keeps the shift on the server.
+	*/
+	ShortCut.rotate = function rotate() {
+		if (_list$5.length < 36 || PacketVerManager_default.value < 20140129) return;
+		const tab = getTab();
+		saveShown();
+		_rotations[tab] = (_rotations[tab] + 1) % 4;
+		redraw(tab);
+		ShortCut.onRotate(tab, _rotations[tab]);
+	};
+	/**
+	* Hook: tell the server a bar's row shift (set by MapEngine/Skill)
+	*
+	* @param {number} tab
+	* @param {number} rotate
+	*/
+	ShortCut.onRotate = function onRotate() {};
 	ShortCut.getTab = getTab;
 	/**
 	* Show the other hotkey bar. The official client (UIShortCutWnd SendMsg 6,
@@ -244007,15 +244142,11 @@ var init_ShortCut = __esmMin((() => {
 	*/
 	ShortCut.setTab = function setTab(tab) {
 		if (!hasTabs() || tab === getTab()) return;
-		_tabLists[getTab()] = Array.from(_list$5, copySlot);
+		saveShown();
 		_preferences$36.tab = tab;
 		_preferences$36.save();
 		ShortCut.getRoot().querySelector(".btn-bar")?.classList.toggle("active", tab === 1);
-		cancelCooldowns();
-		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => el.removeAttribute("data-tooltip"));
-		drawList(_tabLists[tab] || emptyList(_list$5.length || 38));
-		ShortCut.updateAllTooltips();
-		restoreCooldowns();
+		redraw(tab);
 	};
 	/**
 	* Hook: ask the server for the guild skill list (set by MapEngine/Guild)
@@ -244373,11 +244504,13 @@ function prepare$1() {
 			oldSetList.apply(ShortCut_default, args);
 			JoystickUIRenderer_default.sync();
 		};
-		const oldSetTab = ShortCut_default.setTab;
-		ShortCut_default.setTab = function(...args) {
-			oldSetTab.apply(ShortCut_default, args);
-			JoystickUIRenderer_default.sync();
-		};
+		for (const name of ["setTab", "rotate"]) {
+			const old = ShortCut_default[name];
+			ShortCut_default[name] = function(...args) {
+				old.apply(ShortCut_default, args);
+				JoystickUIRenderer_default.sync();
+			};
+		}
 		const oldSetElement = ShortCut_default.setElement;
 		ShortCut_default.setElement = function(isSkill, ID, count) {
 			oldSetElement.call(ShortCut_default, isSkill, ID, count);
@@ -253057,7 +253190,7 @@ function applySettings() {
 			ShortCuts$1[SC].cust.shift = ShortCutsTemp[SC].cust.shift;
 		} else ShortCuts$1[SC].cust = false;
 	});
-	ShortCutControls_default.save();
+	ShortCutControls.save();
 	BattleMode.reload();
 	ShortCutsTemp = {};
 	updateKeyList();
@@ -253394,7 +253527,7 @@ var init_ShortCutOption = __esmMin((() => {
 		"joyUIFocus"
 	];
 	ShortCutOption = new GUIComponent("ShortCutOption", ShortCutOption_default$1);
-	ShortCuts$1 = ShortCutControls_default.ShortCuts;
+	ShortCuts$1 = ShortCutControls.ShortCuts;
 	ShortCutsTemp = {};
 	ShortCutOption.isCapturing = false;
 	_preferences$35 = Preferences.get("ShortCutOption", {
@@ -376368,7 +376501,7 @@ function onSkillUpdate$2(pkt) {
 * @param {object} pkt - PACKET_ZC_SHORTCUT_KEY_LIST_V2
 */
 function onShortCutList(pkt) {
-	ShortCut_default.setList(pkt.ShortCutKey, pkt.tab === 1 ? 1 : 0);
+	ShortCut_default.setList(pkt.ShortCutKey, pkt.tab === 1 ? 1 : 0, pkt.rotate || 0);
 }
 /**
 * Add new skill to the list
@@ -376866,10 +376999,26 @@ var init_Skill = __esmMin((() => {
 			pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE2();
 			pkt.tab = ShortCut_default.getTab();
 		} else pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE1();
-		pkt.Index = index;
+		pkt.Index = ShortCut_default.toServerIndex(index);
 		pkt.ShortCutKey.isSkill = isSkill ? 1 : 0;
 		pkt.ShortCutKey.ID = ID;
 		pkt.ShortCutKey.count = count;
+		Network.sendPacket(pkt);
+	};
+	/**
+	* Tell the server a hotkey bar's row shift
+	*
+	* @param {number} tab
+	* @param {number} rotate
+	*/
+	ShortCut_default.onRotate = function onRotate(tab, rotate) {
+		let pkt;
+		if (PacketVerManager_default.value >= 20190522) {
+			pkt = new PACKET.CZ.SHORTCUTKEYBAR_ROTATE2();
+			pkt.tab = tab;
+		} else if (PacketVerManager_default.value >= 20140129) pkt = new PACKET.CZ.SHORTCUTKEYBAR_ROTATE1();
+		else return;
+		pkt.rowshift = rotate;
 		Network.sendPacket(pkt);
 	};
 	Guild_default.onIncreaseSkill = SkillListMH_default.homunculus.onIncreaseSkill = SkillListMH_default.mercenary.onIncreaseSkill = onIncreaseSkill;
