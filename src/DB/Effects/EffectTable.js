@@ -63,6 +63,8 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import SonicWave from 'Renderer/Effects/SonicWave.js';
+import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
@@ -26417,6 +26419,27 @@ export default {
 			topSize: 5,
 			type: 'CYLINDER',
 			wav: 'effect/ef_beginspell'
+		}
+	],
+
+	// Sonic Wave (RK_SONICWAVE): official effect 1678 on the caster, aimed at the target, as the damage arrives.
+	// On ages 0, 20 and 40 two ring sets (son_wave_01 and son_wave_00) drift from the caster to the target
+	// (SonicWaveSim.js). See effect-port/sonic-wave.md.
+	1678: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			// The rings' whole life, so sets culled off screen still expire
+			duration: WAVE_FRAMES * WAVE_TICK_MS,
+			func: function (Params) {
+				const from = { entity: Params.Init.ownerEntity, position: Params.Inst.position };
+				const to = { entity: Params.Init.otherEntity, position: Params.Inst.otherPosition };
+				SET_AGES.forEach(age => {
+					[1, 0].forEach(variant => {
+						this.add(new SonicWave(variant, from, to, Params.Inst.startTick + age * WAVE_TICK_MS), Params);
+					});
+				});
+			}
 		}
 	],
 
