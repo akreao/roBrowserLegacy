@@ -60,7 +60,7 @@ BigMap.init();
 function clickMap(px, py) {
 	const canvas = BigMap.getRoot().querySelector('canvas');
 	canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 512, height: 512 });
-	canvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: px, clientY: py }));
+	canvas.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: px, clientY: py }));
 }
 
 beforeEach(() => {
@@ -96,6 +96,14 @@ describe('memo points', () => {
 		expect(text).toBe('Do you want to delete it?');
 		onYes();
 		expect(BigMap.getMemos('prontera')).toEqual([]);
+	});
+
+	it('ignores right-clicks on the map', () => {
+		BigMap.addMemo('prontera', 100, 50, 'Kafra');
+		const canvas = BigMap.getRoot().querySelector('canvas');
+		canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 512, height: 512 });
+		canvas.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 2, clientX: 256, clientY: 256 }));
+		expect(mocks.prompt).not.toHaveBeenCalled();
 	});
 
 	it('keeps at most 20 per map and cuts the text to 30 characters', () => {

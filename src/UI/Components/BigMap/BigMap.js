@@ -170,7 +170,9 @@ BigMap.init = function init() {
 	loadButtonImages();
 
 	const canvas = root.querySelector('canvas');
-	canvas.addEventListener('mousedown', onMapClick);
+	// On click, not mousedown: the memo box's overlay would take the click that follows
+	canvas.addEventListener('mousedown', event => event.stopImmediatePropagation());
+	canvas.addEventListener('click', onMapClick);
 	canvas.addEventListener('mousemove', onMapHover);
 	canvas.addEventListener('mouseleave', () => {
 		root.querySelector('.memo-tip').style.display = 'none';
@@ -229,6 +231,9 @@ function canvasPosition(event) {
 }
 
 function onMapClick(event) {
+	if (event.button !== 0) {
+		return;
+	}
 	event.stopImmediatePropagation();
 	const data = _source();
 	if (!data || !data.mapName) {
