@@ -63,7 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
-import { increaseAgilityEffect, decreaseAgilityEffect } from 'DB/Effects/AgilityEffect.js';
+import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
 	acidTerrorEffect,
@@ -7658,14 +7658,9 @@ export default {
 		}
 	],
 
-	// Increasing Accuracy (GS_INCREASING): the sound of the official client's effect 456 (its rising
-	// streaks are not ported). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
-	ef_gs_increasing_accuracy: [
-		{
-			wav: 'effect/ef_incagility',
-			attachedEntity: true
-		}
-	],
+	// Increasing Accuracy (GS_INCREASING): the official client's effect 456, its sound and 50 faint rising
+	// streaks (AgilityEffect.js). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
+	ef_gs_increasing_accuracy: increasingAccuracyEffect,
 
 	// Cracker (GS_CRACKER): the official client's use-packet sound. See effect-port/gunslinger-skills.md.
 	ef_gs_cracker: [
