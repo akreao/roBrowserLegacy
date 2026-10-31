@@ -289,9 +289,16 @@ function onMapHover(event) {
 	const memo = BigMap.getMemos(data.mapName)[index];
 	const [mx, my] = toCanvas(memo.x, memo.y);
 	tip.textContent = memo.text;
-	tip.style.left = `${mx + 8}px`;
-	tip.style.top = `${my - 8}px`;
 	tip.style.display = 'block';
+	// The canvas may be drawn smaller than 512 px (narrow screens): place the
+	// name in on-screen pixels, and left of the point when it would overflow.
+	const rect = event.target.getBoundingClientRect();
+	const factor = rect.width ? rect.width / SIZE : 1;
+	const x = mx * factor;
+	const width = tip.offsetWidth;
+	const left = x + 8 + width > rect.width ? Math.max(0, x - 8 - width) : x + 8;
+	tip.style.left = `${Math.round(left)}px`;
+	tip.style.top = `${Math.round(Math.max(0, my * factor - 8))}px`;
 }
 
 /**

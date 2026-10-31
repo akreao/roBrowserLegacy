@@ -98,6 +98,19 @@ describe('memo points', () => {
 		expect(BigMap.getMemos('prontera')).toEqual([]);
 	});
 
+	it('places memo names in on-screen pixels when the map is drawn smaller', () => {
+		BigMap.addMemo('prontera', 190, 50, 'Far east');
+		const canvas = BigMap.getRoot().querySelector('canvas');
+		canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 256, height: 256 });
+		const tip = BigMap.getRoot().querySelector('.memo-tip');
+		Object.defineProperty(tip, 'offsetWidth', { configurable: true, value: 60 });
+		// cell 190,50 is at 486,256 on the 512 map, 243,128 on screen
+		canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 243, clientY: 128 }));
+		expect(tip.style.display).toBe('block');
+		expect(tip.style.left).toBe('175px');
+		expect(tip.style.top).toBe('120px');
+	});
+
 	it('ignores right-clicks on the map', () => {
 		BigMap.addMemo('prontera', 100, 50, 'Kafra');
 		const canvas = BigMap.getRoot().querySelector('canvas');
