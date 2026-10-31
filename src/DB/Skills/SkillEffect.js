@@ -948,10 +948,10 @@ SkillEffect[SK.SA_ELEMENTGROUND] = { successEffectId: 258 }; //Elemental Change 
 SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fire
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
 // RK Rune Knight
-SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'] }; //Enchant Blade: 756 + 닌자_던지기.wav on success
-SkillEffect[SK.RK_SONICWAVE] = { hitEffectIdOnCaster: 832 }; //Sonic Wave: 기공포.wav (832) on the caster as the damage arrives; 1678 follow-up
+SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Enchant Blade: 756 + 닌자_던지기.wav on success
+SkillEffect[SK.RK_SONICWAVE] = { hitEffectIdOnCaster: 832, castAuraEffectId: 12 }; //Sonic Wave: 기공포.wav (832) on the caster as the damage arrives; 1678 follow-up
 SkillEffect[SK.RK_DEATHBOUND] = { successEffectIdOnCaster: 'ef_rk_bluecasting', damageEffectIdOnTarget: 183 }; //Death Bound: 441 on success; 183 on the knight from the reflect packet
-SkillEffect[SK.RK_HUNDREDSPEAR] = { effectId: 723 }; //Hundred Spear
+SkillEffect[SK.RK_HUNDREDSPEAR] = { castAuraEffectId: 12 }; //Hundred Spear: 723 + 835 on the caster as the damage arrives (follow-up)
 SkillEffect[SK.RK_WINDCUTTER] = {
 	successEffectIdOnCaster: 'ef_rk_windcutter',
 	successEffectIdOnCasterByFacing: [
@@ -961,7 +961,8 @@ SkillEffect[SK.RK_WINDCUTTER] = {
 		'ef_rk_windcutter_bottom_01'
 	],
 	damageEffectIdOnOtherTarget: 'ef_rk_windcutter_target',
-	firstHitEffectId: 122
+	firstHitEffectId: 122,
+	hideCastAura: true
 }; //Wind Cutter: 1690 + floor slash by facing on success; 1693 on other targets; hit map 122
 SkillEffect[SK.RK_IGNITIONBREAK] = { successEffectIdOnCaster: 'ef_rk_ignitionbreak', castAuraEffectId: 12 }; //Ignition Break: 1624 + 1625 + wl_jackfrost.wav on success; yellow cast aura
 SkillEffect[SK.RK_DRAGONBREATH] = {
@@ -971,8 +972,8 @@ SkillEffect[SK.RK_DRAGONBREATH] = {
 	castAuraEffectId: 12
 }; //Dragon Breath: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.RK_DRAGONHOWLING] = { successEffectIdOnCaster: [731, 'quake'] }; //Dragon Howling: quake + 731 (with dragon_h.wav) on success
-SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecasting', 749, 'ef_rk_millenniumshield_sound'] }; //Millennium Shield: 441 + 749 + ef_soulstrike.wav on success
-SkillEffect[SK.RK_CRUSHSTRIKE] = { firstHitEffectId: ['quake', 589, 'ef_rk_crushstrike_sound'] }; //Crush Strike: quake + 589 + _enemy_hit_wind2.wav as its damage arrives
+SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecasting', 749, 'ef_rk_millenniumshield_sound'], castAuraEffectId: 12 }; //Millennium Shield: 441 + 749 + ef_soulstrike.wav on success
+SkillEffect[SK.RK_CRUSHSTRIKE] = { firstHitEffectId: ['quake', 589, 'ef_rk_crushstrike_sound'], castAuraEffectId: 12 }; //Crush Strike: quake + 589 + _enemy_hit_wind2.wav as its damage arrives
 SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: 'ef_rk_refresh_sound', castAuraEffectId: 58 }; //Refresh: _heal_effect.wav on success (538 follow-up); white cast aura
 SkillEffect[SK.RK_GIANTGROWTH] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Giant Growth: 756 + 닌자_던지기.wav on success
 SkillEffect[SK.RK_STONEHARDSKIN] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Stone Hard Skin: 756 + 441 on success
