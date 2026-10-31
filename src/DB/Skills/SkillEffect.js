@@ -980,14 +980,14 @@ SkillEffect[SK.RK_DRAGONBREATH] = {
 SkillEffect[SK.RK_DRAGONHOWLING] = { successEffectIdOnCaster: [731, 'quake'] }; //Dragon Howling: quake + 731 (with dragon_h.wav) on success
 SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecasting', 749, 'ef_rk_millenniumshield_sound'], castAuraEffectId: 12 }; //Millennium Shield: 441 + 749 + ef_soulstrike.wav on success
 SkillEffect[SK.RK_CRUSHSTRIKE] = { arrivalEffectIdOnTarget: ['quake', 589, 'ef_rk_crushstrike_sound'], castAuraEffectId: 12 }; //Crush Strike: quake + 589 + _enemy_hit_wind2.wav as its damage arrives
-SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: 'ef_rk_refresh_sound', castAuraEffectId: 58 }; //Refresh: _heal_effect.wav on success (538 follow-up); white cast aura
+SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: [538, 'ef_rk_refresh_sound'], castAuraEffectId: 58 }; //Refresh: 538 + _heal_effect.wav on success; white cast aura
 SkillEffect[SK.RK_GIANTGROWTH] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Giant Growth: 756 + 닌자_던지기.wav on success
 SkillEffect[SK.RK_STONEHARDSKIN] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Stone Hard Skin: 756 + 441 on success
 SkillEffect[SK.RK_VITALITYACTIVATION] = { successEffectIdOnCaster: 309 }; //Vitality Activation: 309 on success
 SkillEffect[SK.RK_STORMBLAST] = { successEffectIdOnCaster: 17, successEffectId: ['quake', 'ef_rk_stormblast_sound', 263] }; //Storm Blast: 17 on the caster; quake + mon_맹룡과강.wav + 263 on the target, on success (330 follow-up)
 SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Fighting Spirit: 756 + 441 on success
-SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: 'ef_rk_abundance_sound', castAuraEffectId: 12 }; //Abundance: 흡기.wav on success (538 follow-up)
-SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting', successEffectId: 'ef_rk_bluecasting', castAuraEffectId: 12 }; //Phantom Thrust: 441 on caster and target on success (538 follow-up)
+SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: [538, 'ef_rk_abundance_sound'], castAuraEffectId: 12 }; //Abundance: 538 + 흡기.wav on success
+SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: [538, 'ef_rk_bluecasting'], successEffectId: [538, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Phantom Thrust: 538 + 441 on caster and target on success
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = { hideCastAura: true, beginCastEffectId: [1587, 1588], hitEffectId: 1591, firstHitEffectId: 1592 }; //Soul Expansion: no aura, 1587 + 1588 while casting; 1591 every hit, 1592 with the first
