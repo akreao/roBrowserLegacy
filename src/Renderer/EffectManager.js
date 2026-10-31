@@ -1433,14 +1433,15 @@ class EffectManager {
 	 * @param {number} srcAID caster aid
 	 * @param {function} [random] returns a number in [0, 1)
 	 * @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
+	 * @param {number} [arrivalTick] when the packet's damage is due (attackMT on), for the arrival effects
 	 */
-	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1, arrivalTick = tick) {
 		const skill = SkillEffect[skillId];
 		if (!skill) {
 			return;
 		}
 
-		const play = (field, ownerAID, otherAID) => {
+		const play = (field, ownerAID, otherAID, startTick = tick) => {
 			if (!skill[field] || !ownerAID) {
 				return;
 			}
@@ -1450,7 +1451,7 @@ class EffectManager {
 				EffectManager.spam({
 					effectId: effectId,
 					ownerAID: ownerAID,
-					startTick: tick,
+					startTick: startTick,
 					otherAID: otherAID,
 					hitCount: hitCount
 				});
@@ -1463,6 +1464,10 @@ class EffectManager {
 		if (destAID !== srcAID) {
 			play('damageEffectIdOnOtherTarget', destAID, srcAID);
 		}
+		// Once per packet when its damage is due, misses and splash hits included:
+		// the official client's damage-arrival effects
+		play('arrivalEffectIdOnCaster', srcAID, destAID, arrivalTick);
+		play('arrivalEffectIdOnTarget', destAID, srcAID, arrivalTick);
 
 		// One of four effects on the caster by its facing on screen
 		// (ScreenDirection.facingQuarter), once: not again while the caster

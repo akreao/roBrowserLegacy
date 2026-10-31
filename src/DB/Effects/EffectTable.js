@@ -26664,6 +26664,7 @@ export default {
 			file: 'new_dragonbreath/new_dragonbreath_bomb/new_dragonbreath_bomb',
 			texturePath: 'new_dragonbreath/new_dragonbreath_bomb/',
 			delayStart: 350,
+			delayWav: 350,
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
 			attachedEntity: true
 		},
@@ -26734,6 +26735,7 @@ export default {
 			file: 'new_dragonbreath_water/new_dragonbreath_water_bomb/new_dragonbreath_water_bomb',
 			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_bomb/',
 			delayStart: 350,
+			delayWav: 350,
 			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
 			attachedEntity: true
 		},
