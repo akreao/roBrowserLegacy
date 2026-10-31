@@ -973,7 +973,7 @@ SkillEffect[SK.RK_IGNITIONBREAK] = { successEffectIdOnCaster: 'ef_rk_ignitionbre
 SkillEffect[SK.RK_DRAGONBREATH] = {
 	damageEffectIdOnCasterByFacing: ['ef_rk_dragonbreath_05', 'ef_rk_dragonbreath_01', 'ef_rk_dragonbreath_11', 'ef_rk_dragonbreath_07'],
 	damageEffectIdOnTarget: 'ef_rk_dragonbreath_bomb',
-	firstHitEffectId: 'ef_rk_dragonbreath_sound',
+	arrivalEffectIdOnTarget: 'ef_rk_dragonbreath_sound',
 	castAuraEffectId: 12
 }; //Dragon Breath: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.RK_DRAGONHOWLING] = { effectId: 731 }; //Dragon Howling
@@ -1552,7 +1552,7 @@ SkillEffect[6510 /* BO_DUST_EXPLOSION */] = {
 SkillEffect[SK.RK_DRAGONBREATH_WATER] = {
 	damageEffectIdOnCasterByFacing: ['ef_rk_dragonbreath_water_05', 'ef_rk_dragonbreath_water_01', 'ef_rk_dragonbreath_water_11', 'ef_rk_dragonbreath_water_07'],
 	damageEffectIdOnTarget: 'ef_rk_dragonbreath_water_bomb',
-	firstHitEffectId: 'ef_rk_dragonbreath_sound',
+	arrivalEffectIdOnTarget: 'ef_rk_dragonbreath_sound',
 	castAuraEffectId: 12
 }; //Dragon Breath - Water: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.WH_WIND_SIGN] = { effectId: 'ef_wh_wind_sign' }; //Wind Sign
