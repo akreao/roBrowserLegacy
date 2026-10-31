@@ -309,6 +309,12 @@ function addCard(cardList, itemId, index, slotCount) {
 				element.addEventListener('contextmenu', e => {
 					e.preventDefault();
 					e.stopImmediatePropagation();
+					// The official comparison window opens the card in a window of its own
+					// (UIItemCollection_ComparisonWnd vfunc32: window 0x52).
+					if (ItemCompare.onCardInfo) {
+						ItemCompare.onCardInfo(itemId);
+						return;
+					}
 					ItemCompare.setItem({
 						ITID: itemId,
 						IsIdentified: true,

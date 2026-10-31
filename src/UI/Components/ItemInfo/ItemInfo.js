@@ -51,6 +51,9 @@ function createItemInfo(componentName, isCardWindow) {
 	/** @var {boolean} the second window, opened for a card from a card slot */
 	ItemInfo.isCardWindow = isCardWindow;
 
+	// Scaled as the item window it belongs to (UI/UIScale.js)
+	ItemInfo.scaleName = 'ItemInfo';
+
 	ItemInfo.render = () => htmlText;
 
 	/**
@@ -112,6 +115,10 @@ function createItemInfo(componentName, isCardWindow) {
 			ItemInfo.hideMoveInfoTooltip();
 
 			ItemInfo.remove();
+			// The compare and preview windows belong to the main item window
+			if (ItemInfo.isCardWindow) {
+				return;
+			}
 			if (ItemCompare.ui) {
 				ItemCompare.remove();
 			}
@@ -179,7 +186,7 @@ function createItemInfo(componentName, isCardWindow) {
 			});
 			closeBtn.addEventListener('click', () => {
 				this.remove();
-				if (ItemCompare.ui) {
+				if (ItemCompare.ui && !ItemInfo.isCardWindow) {
 					ItemCompare.remove();
 				}
 			});
@@ -475,14 +482,7 @@ function createItemInfo(componentName, isCardWindow) {
 						e.stopImmediatePropagation();
 						// The official window opens the card in a window of its own
 						// (UIItemCollectionWnd vfunc32: window 0x52), keeping this item.
-						const target = ItemInfo.isCardWindow ? ItemInfo : ItemInfoCard;
-						target.append();
-						target.uid = itemId;
-						target.setItem({
-							ITID: itemId,
-							IsIdentified: true,
-							type: 6
-						});
+						showCard(itemId, ItemInfo);
 					});
 				}
 			}
@@ -957,6 +957,30 @@ function createItemInfo(componentName, isCardWindow) {
  */
 const ItemInfo = createItemInfo('ItemInfo', false);
 const ItemInfoCard = createItemInfo('ItemInfoCard', true);
+
+/**
+ * Show a card in the card window, beside the window it was right-clicked in
+ * (the item window, the compare window, or the card window itself).
+ *
+ * @param {number} itemId card id
+ * @param {GUIComponent} from
+ */
+function showCard(itemId, from) {
+	const opening = !ItemInfoCard.__active;
+	ItemInfoCard.append();
+	ItemInfoCard.uid = itemId;
+	ItemInfoCard.setItem({ ITID: itemId, IsIdentified: true, type: 6 });
+	if (opening && from && from !== ItemInfoCard && from._host) {
+		const rect = from._host.getBoundingClientRect();
+		const width = ItemInfoCard._host.getBoundingClientRect().width || rect.width;
+		const left = rect.right + 4 + width <= Renderer.width ? rect.right + 4 : Math.max(0, rect.left - 4 - width);
+		ItemInfoCard._host.style.left = `${left}px`;
+		ItemInfoCard._host.style.top = `${Math.max(0, rect.top)}px`;
+	}
+}
+
+// The compare window's card slots open the card window too
+ItemCompare.onCardInfo = itemId => showCard(itemId, ItemCompare);
 Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, ItemInfo.onItemPreview);
 
 /**

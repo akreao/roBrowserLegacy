@@ -17,11 +17,18 @@ const mocks = vi.hoisted(() => {
 		}
 		draggable() {}
 		focus() {}
+		// Enough of the real lifecycle: init once, then onAppend / onRemove
 		append() {
+			if (!this.__inited) {
+				this.__inited = true;
+				this.init?.();
+			}
 			this.__active = true;
+			this.onAppend?.();
 		}
 		remove() {
 			this.__active = false;
+			this.onRemove?.();
 		}
 	}
 	return { MockGUIComponent, pending: [], missing: new Set() };
@@ -61,13 +68,13 @@ vi.mock('UI/UIManager.js', () => ({
 vi.mock('Network/NetworkManager.js', () => ({ default: { sendPacket: vi.fn(), hookPacket: vi.fn() } }));
 vi.mock('Network/PacketStructure.js', () => ({ default: { CZ: {}, ZC: {} } }));
 vi.mock('UI/Components/CardIllustration/CardIllustration.js', () => ({ default: {} }));
-vi.mock('UI/Components/ItemCompare/ItemCompare.js', () => ({ default: {} }));
-vi.mock('UI/Components/ItemPreview/ItemPreview.js', () => ({ default: {} }));
+vi.mock('UI/Components/ItemCompare/ItemCompare.js', () => ({ default: { ui: true, remove: vi.fn() } }));
+vi.mock('UI/Components/ItemPreview/ItemPreview.js', () => ({ default: { ui: true, remove: vi.fn() } }));
 vi.mock('UI/Components/MakeReadBook/MakeReadBook.js', () => ({ default: {} }));
 vi.mock('UI/Components/Equipment/Equipment.js', () => ({ default: {} }));
 vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: {} }));
 vi.mock('UI/Components/Navigation/Navigation.js', () => ({ default: {} }));
-vi.mock('Renderer/Renderer.js', () => ({ default: { render: vi.fn(), stop: vi.fn() } }));
+vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800, render: vi.fn(), stop: vi.fn() } }));
 vi.mock('Renderer/SpriteRenderer.js', () => ({ default: {} }));
 vi.mock('Renderer/Entity/Entity.js', () => ({ default: function Entity() {} }));
 vi.mock('Loaders/Sprite.js', () => ({ default: {} }));
@@ -95,4 +102,29 @@ it('opens a right-clicked card in its own window and keeps the item', () => {
 	expect(setCard).toHaveBeenCalledWith({ ITID: 4001, IsIdentified: true, type: 6 });
 	expect(ItemInfo.uid).toBe(1101);
 	expect(ItemInfoCard).not.toBe(ItemInfo);
+	expect(ItemInfoCard.scaleName).toBe('ItemInfo');
+});
+
+it('closes only itself on Escape or its close button', async () => {
+	const { default: ItemCompare } = await import('UI/Components/ItemCompare/ItemCompare.js');
+	const { default: ItemPreview } = await import('UI/Components/ItemPreview/ItemPreview.js');
+	ItemCompare.remove.mockClear();
+	ItemPreview.remove.mockClear();
+
+	ItemInfoCard.onKeyDown({ which: 27, key: 'Escape' });
+	expect(ItemInfoCard.__active).toBe(false);
+	expect(ItemInfo.__active).toBe(true);
+	expect(ItemCompare.remove).not.toHaveBeenCalled();
+	expect(ItemPreview.remove).not.toHaveBeenCalled();
+
+	ItemInfoCard.append();
+	ItemInfoCard.getRoot().querySelector('.close')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+	expect(ItemCompare.remove).not.toHaveBeenCalled();
+});
+
+it('opens a compare window card in the card window', async () => {
+	const { default: ItemCompare } = await import('UI/Components/ItemCompare/ItemCompare.js');
+	const setCard = vi.spyOn(ItemInfoCard, 'setItem');
+	ItemCompare.onCardInfo(4001);
+	expect(setCard).toHaveBeenLastCalledWith({ ITID: 4001, IsIdentified: true, type: 6 });
 });
