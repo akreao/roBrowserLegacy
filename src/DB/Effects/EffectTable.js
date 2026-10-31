@@ -27013,6 +27013,27 @@ export default {
 		}
 	],
 
+	// Summon Fire Ball / Lightning Ball / Water Ball / Stone (WL_SUMMONFB ... WL_SUMMONSTONE) cast aura: on the
+	// caster for the cast time. See effect-port/warlock-skills.md.
+	1260: [
+		{
+			//(1260): CEZ2STREffect, tetravortex\\tetra_cast\\tetra_cast.str
+			type: 'STR',
+			file: 'tetravortex/tetra_cast/tetra_cast',
+			texturePath: 'tetravortex/tetra_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Summon Fire Ball / Lightning Ball / Water Ball / Stone: EF_BeginSpell.wav, played once as the cast starts. See effect-port/warlock-skills.md.
+	ef_wl_summon_cast_sound: [
+		{
+			wav: 'effect/ef_beginspell',
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
