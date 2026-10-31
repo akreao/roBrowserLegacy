@@ -56,7 +56,7 @@ vi.mock('DB/DBManager.js', () => ({
 		INTERFACE_PATH: 'data/texture/',
 		getItemInfo: () => ({ identifiedResourceName: 'item' }),
 		getItemName: item => `item ${item.ITID}`,
-		getMessage: id => ({ 1590: 'Unequip All', 2986: 'Equipment Set' })[id] || '',
+		getMessage: (id, text) => ({ 1590: 'Unequip All', 2986: 'Equipment Set' })[id] || text || '',
 		getTitleString: id => `title ${id}`
 	}
 }));
@@ -193,6 +193,24 @@ describe('Equipment item events', () => {
 
 		expect(Equipment.onUnEquip).toHaveBeenNthCalledWith(1, 7);
 		expect(Equipment.onUnEquip).toHaveBeenNthCalledWith(2, 3);
+	});
+
+	it('adds the amount to a stacked item hover, as the official window does', () => {
+		const root = Equipment.getRoot();
+		const overlay = root.querySelector('.overlay');
+		overlay.showPopover = vi.fn();
+		overlay.hidePopover = vi.fn();
+		overlay.getBoundingClientRect = () => ({ width: 180, height: 24 });
+		const arrows = { index: 20, ITID: 1750, type: ItemType.AMMO, IsIdentified: true, count: 350 };
+		Equipment.equip(arrows, EquipLocation.AMMO);
+		const button = root.querySelector('.item[data-index="20"] button');
+		button.getBoundingClientRect = () => ({ left: 0, top: 100, right: 24, bottom: 124, width: 24, height: 24 });
+		button.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		expect(overlay.textContent).toBe('item 1750: 350 ea.');
+		arrows.count = 1;
+		button.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		expect(overlay.textContent).toBe('item 1750');
+		button.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
 	});
 
 	it('shows equipment tooltips above their targets and dismisses them without changing focus', () => {
