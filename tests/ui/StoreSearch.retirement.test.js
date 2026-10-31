@@ -9,7 +9,7 @@ vi.mock('Renderer/Renderer.js', () => ({ default: { width:1200, height:800 } }))
 vi.mock('UI/CursorManager.js', () => ({default:{setType(){},ACTION:{DEFAULT:0}}}));
 vi.mock('Renderer/EntityManager.js', () => ({default:{get:()=>null,setOverEntity(){}}}));
 vi.mock('UI/Scrollbar.js', () => ({default:{}}));
-vi.mock('UI/UIManager.js', () => ({default:{addComponent: c => c}}));
+vi.mock('UI/UIManager.js', () => ({default:{addComponent: c => c, showPromptBox: (...args) => { state.prompts = (state.prompts || 0) + 1; args[3](); }}}));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({default:{append(){}, setItem: item => {state.detail=item;}}}));
 vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({default:{getUI: () => ({addNpcMark: (key,x,y) => state.marks.set(key,[x,y]),removeNpcMark: key => state.marks.delete(key)})}}));
 const stub = vi.hoisted(() => () => ({default:{}}));
