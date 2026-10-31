@@ -66,3 +66,32 @@ it('removes on double-click and wears the one item on Ctrl+double-click', () => 
 	expect(pkt.index).toBe(9);
 	expect([...new Uint8Array(pkt.build().buffer)]).toEqual([0xce, 0x0a, 9, 0]);
 });
+
+it('drags a set item out as coming from SwitchEquip, and ignores it dropped back', () => {
+	SwitchEquip.onAddSwitchEquip = vi.fn();
+	SwitchEquip.equip({ index: 12, ITID: 2301, type: 4, IsIdentified: true }, 16, true);
+	const item = SwitchEquip.getRoot().querySelector('.item[data-index="12"]');
+	expect(item.getAttribute('draggable')).toBe('true');
+	let payload;
+	const start = new Event('dragstart', { bubbles: true });
+	Object.defineProperty(start, 'dataTransfer', { value: { setData: (_t, v) => (payload = v), setDragImage() {} } });
+	item.dispatchEvent(start);
+	expect(JSON.parse(payload)).toMatchObject({ type: 'item', from: 'SwitchEquip', data: { index: 12 } });
+
+	const drop = new Event('drop', { bubbles: true });
+	Object.defineProperty(drop, 'dataTransfer', { value: { getData: () => payload } });
+	SwitchEquip.getRoot().querySelector('.panel').dispatchEvent(drop);
+	expect(SwitchEquip.onAddSwitchEquip).not.toHaveBeenCalled();
+});
+
+it('does not drag worn gear that the swap window only shows greyed', () => {
+	SwitchEquip.equip({ index: 13, ITID: 2302, type: 4, IsIdentified: true }, 32, false);
+	const item = SwitchEquip.getRoot().querySelector('.item[data-index="13"]');
+	expect(item.getAttribute('draggable')).toBe('false');
+	let payload;
+	const start = new Event('dragstart', { bubbles: true, cancelable: true });
+	Object.defineProperty(start, 'dataTransfer', { value: { setData: (_t, v) => (payload = v), setDragImage() {} } });
+	item.dispatchEvent(start);
+	expect(payload).toBeUndefined();
+	expect(start.defaultPrevented).toBe(true);
+});

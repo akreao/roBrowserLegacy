@@ -233,9 +233,10 @@ export function createSkillList({
 			const target = e.target.closest('.skill .icon, .skill .name');
 			if (target) {
 				const skillID = _resolveSkillID(target);
-				if (SkillDescription.uid === skillID) {
+				// The official window closes the description and opens it again at
+				// the cursor, for the same skill too (UINewSkillListWnd vfunc33).
+				if (SkillDescription.__active) {
 					SkillDescription.remove();
-					return;
 				}
 				SkillDescription.append();
 				SkillDescription.setSkill(skillID);

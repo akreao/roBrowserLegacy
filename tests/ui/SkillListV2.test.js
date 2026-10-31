@@ -671,6 +671,26 @@ describe('SkillListV2 level arrows', () => {
 		document.body.innerHTML = '';
 	});
 
+	it('opens the description again at the cursor on a second right-click', async () => {
+		const { default: SkillDescription } = await import('UI/Components/SkillDescription/SkillDescription.js');
+		const component = createComponent();
+		const icon = getTreeSkill(component.getRoot(), mocks.ids.HEAL).querySelector('.icon');
+		SkillDescription.append.mockClear();
+		SkillDescription.remove.mockClear();
+		SkillDescription.setSkill.mockClear();
+
+		SkillDescription.__active = false;
+		icon.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+		SkillDescription.__active = true;
+		SkillDescription.uid = mocks.ids.HEAL;
+		icon.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+
+		expect(SkillDescription.remove).toHaveBeenCalledTimes(1);
+		expect(SkillDescription.append).toHaveBeenCalledTimes(2);
+		expect(SkillDescription.setSkill).toHaveBeenLastCalledWith(mocks.ids.HEAL);
+		SkillDescription.__active = false;
+	});
+
 	it('choose the cast level in the list row without staging a skill point', () => {
 		const component = createComponent();
 		const root = component.getRoot();
