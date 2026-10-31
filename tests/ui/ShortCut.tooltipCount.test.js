@@ -46,7 +46,9 @@ vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: 
 vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ default: {} }));
 vi.mock('UI/Components/Guild/Guild.js', () => ({ default: {} }));
 vi.mock('UI/Components/SkillList/SkillList.js', () => ({ default: { getSkillById: () => ({ level: 10 }) } }));
-vi.mock('Preferences/ShortCutControls.js', () => ({ default: { ShortCuts: {} } }));
+vi.mock('Preferences/ShortCutControls.js', () => ({
+	default: { ShortCuts: { F1_4: { init: { key: 'F4' } } } }
+}));
 
 const { default: ShortCut } = await import('UI/Components/ShortCut/ShortCut.js');
 
@@ -68,11 +70,13 @@ describe('ShortCut item tooltip', () => {
 
 	beforeEach(() => {
 		mocks.items[501] = { ITID: 501, name: 'Red Potion', count: 12, type: 0, IsIdentified: 1 };
+		mocks.items[502] = { ITID: 502, name: 'Orange Potion', count: 3, type: 0, IsIdentified: 1 };
 		mocks.items[1201] = { ITID: 1201, name: 'Knife', count: 1, type: 5, IsIdentified: 1 };
 		const list = slots();
 		list[0] = { isSkill: 0, ID: 501, count: 0 };
 		list[1] = { isSkill: 1, ID: FIREBOLT, count: 10 };
 		list[2] = { isSkill: 0, ID: 1201, count: 0 };
+		list[3] = { isSkill: 0, ID: 502, count: 0 };
 		ShortCut.setList(list);
 	});
 
@@ -91,6 +95,13 @@ describe('ShortCut item tooltip', () => {
 		mocks.items[501].count = 0;
 		ShortCut.setElement(false, 501, 0);
 		expect(tooltip(0)).toBeNull();
+	});
+
+	it('keeps the hotkey before the name, and alone once the item runs out', () => {
+		expect(tooltip(3)).toBe('[ F4 ] Orange Potion: 3');
+		mocks.items[502].count = 0;
+		ShortCut.setElement(false, 502, 0);
+		expect(tooltip(3)).toBe('F4');
 	});
 
 	it('shows equipment as one', () => {
