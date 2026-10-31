@@ -779,13 +779,15 @@ export function createCharSelect(config) {
 					'ok',
 					'cancel',
 					() => {
+						// Only once the player has said yes: answering no
+						// leaves the window up, and its countdowns running
+						stopCountdownInterval();
 						ExitHooks.emit('login', 'charSelect');
 						Component.onExitRequest();
 						Component.clearAllSlots();
 					},
 					null
 				);
-				stopCountdownInterval();
 			} else {
 				UIManager.showPromptBox(
 					DB.getMessage(17),
