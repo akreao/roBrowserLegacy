@@ -12232,7 +12232,18 @@ export default {
 		}
 	],
 
-	//538: [{}],	//EF_GREENBODY	   Player Become Green with Green Aura
+	538: [
+		{
+			//EF_GREENBODY	   Player Become Green with Green Aura (Refresh, Abundance, Phantom Thrust)
+			// As 500 in green: a glow copy round the actor on ticks 0-30, and the actor flickers green (added) on
+			// even ticks and white on odd ones (CasterMarks.js). Life 120 ticks. See effect-port/rune-knight-skills.md.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 120, 538), Params);
+			}
+		}
+	],
 	//539: [{}],	//EF_THROWITEM4	   Throw Random Bottle
 	//540: [{}],	//EF_BABYBODY_BACK	   Instant Small->Normal
 	// EF_THROWITEM5, Aid Berserk Potion: the client's thrown bottle (ThrowStoneEffect.js)
