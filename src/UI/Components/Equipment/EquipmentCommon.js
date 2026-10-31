@@ -256,7 +256,9 @@ export function createEquipment({
 
 		const toggleReduce = () => {
 			const panel = root.querySelector('.panel');
-			if (panel) setReduced(panel.style.display !== 'none');
+			if (panel) {
+				setReduced(panel.style.display !== 'none');
+			}
 		};
 		const miniBtn = root.querySelector('.titlebar .mini');
 		if (miniBtn) {
@@ -267,7 +269,9 @@ export function createEquipment({
 		const titlebar = root.querySelector('.titlebar');
 		if (titlebar) {
 			titlebar.addEventListener('dblclick', e => {
-				if (!e.target.closest('button')) toggleReduce();
+				if (!e.target.closest('button')) {
+					toggleReduce();
+				}
 			});
 		}
 
@@ -332,7 +336,9 @@ export function createEquipment({
 			});
 			content.addEventListener('click', e => {
 				const item = e.target.closest('.item');
-				if (item) onEquipmentClick.call(item, e);
+				if (item) {
+					onEquipmentClick.call(item, e);
+				}
 			});
 			content.addEventListener('mouseover', e => {
 				const btn = e.target.closest('button');
@@ -1019,9 +1025,13 @@ export function createEquipment({
 	 * (official UIEquipWnd mouse-down, vfunc25 at 0x008b95b0).
 	 */
 	function onEquipmentClick(event) {
-		if (!event.shiftKey || event.button !== 0) return;
+		if (!event.shiftKey || event.button !== 0) {
+			return;
+		}
 		const item = _list[parseInt(this.getAttribute('data-index'), 10)];
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		// Legacy (pre-2016) links carry item.name, so set it first as the inventory does.
 		item.name = DB.getItemName(item);
@@ -1055,7 +1065,9 @@ export function createEquipment({
 	function onEquipmentDragStart(event) {
 		const index = parseInt(this.getAttribute('data-index'), 10);
 		const item = _list[index];
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		const img = new Image();
 		const btn = this.querySelector('button');
@@ -1085,7 +1097,9 @@ export function createEquipment({
 	function onEquipmentOver() {
 		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		const item = _list[idx];
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		showTooltip(this, getHoverName(item), true);
 	}
