@@ -49,6 +49,12 @@
  *	- damageEffectIdOnTarget:	Triggers on the target as soon as each damage packet of the skill arrives (splash
  *								and misses included). An entry that is a list plays one of its effects, picked at random.
  *
+ *	- arrivalEffectIdOnCaster:	Triggers on the caster once per damage packet of the skill, when its damage is due
+ *								(attackMT, plus hitDelay), misses and splash hits included: the official client's
+ *								damage-arrival effects.
+ *
+ *	- arrivalEffectIdOnTarget:	The same on the target.
+ *
  *	- splashEffectIdOnTarget:	Triggers on the target as a damage packet of the skill arrives with skill level -1,
  *								the server's mark on the targets a splash reaches (Venom Splasher's burst).
  *
@@ -944,7 +950,7 @@ SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fi
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
 // RK Rune Knight
 SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'] }; //Enchant Blade: 756 + 닌자_던지기.wav on success
-SkillEffect[SK.RK_SONICWAVE] = { hitEffectIdOnCaster: 832 }; //Sonic Wave: 기공포.wav (832) on the caster as the damage arrives; 1678 follow-up
+SkillEffect[SK.RK_SONICWAVE] = { arrivalEffectIdOnCaster: 832 }; //Sonic Wave: 기공포.wav (832) on the caster as the damage arrives; 1678 follow-up
 SkillEffect[SK.RK_DEATHBOUND] = { successEffectIdOnCaster: 'ef_rk_bluecasting', damageEffectIdOnTarget: 183 }; //Death Bound: 441 on success; 183 on the knight from the reflect packet
 SkillEffect[SK.RK_HUNDREDSPEAR] = { effectId: 723 }; //Hundred Spear
 SkillEffect[SK.RK_WINDCUTTER] = {
