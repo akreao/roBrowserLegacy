@@ -29,7 +29,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	const Component = new GUIComponent(name, cssText);
 	Component.render = () => htmlText;
 
-	const _preferences = Preferences.get('WinStats', { x: 0, y: 233, show: false, reduce: false }, 1.0);
+	const _preferences = Preferences.get('WinStats', { x: 0, y: 233, show: false, reduce: false, traits: true }, 1.0);
 
 	let _root;
 	let _activeTooltip;
@@ -171,6 +171,15 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			if (viewTraitsBtn) {
 				viewTraitsBtn.addEventListener('click', () => toggleTraits());
 			}
+		}
+
+		// The official window restores its reduced and trait-panel states (STATUSWNDINFO).
+		const panel = _root.querySelector('.panel');
+		if (panel && _preferences.reduce) {
+			panel.style.display = 'none';
+		}
+		if (hasTraits) {
+			setTraitsVisible(_preferences.traits !== false);
 		}
 	};
 
@@ -423,19 +432,25 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 
 	// ─── toggleTraits ─────────────────────────────
 
-	function toggleTraits() {
-		hideTooltip();
+	function setTraitsVisible(visible) {
 		const traitsEl = _root.querySelector('.traits_component');
 		const selfBtn = _root.querySelector('.view_traits');
 		if (!traitsEl) return;
 
-		const isVisible = traitsEl.style.display !== 'none';
-		traitsEl.style.display = isVisible ? 'none' : '';
-		const state = isVisible ? 'on' : 'off';
+		traitsEl.style.display = visible ? '' : 'none';
+		// The official arrow reads "expand_off" while the traits are open and "expand_on" while closed.
+		const state = visible ? 'off' : 'on';
 
 		Client.loadFile(DB.INTERFACE_PATH + 'statuswnd/expand_' + state + '_normal.bmp', function (data) {
 			if (selfBtn) selfBtn.style.backgroundImage = 'url(' + data + ')';
 		});
+	}
+
+	function toggleTraits() {
+		hideTooltip();
+		const traitsEl = _root.querySelector('.traits_component');
+		if (!traitsEl) return;
+		setTraitsVisible(traitsEl.style.display === 'none');
 	}
 
 	// ─── onShortCut ────────────────────────────────────
@@ -461,6 +476,10 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			}
 			const panel = _root.querySelector('.panel');
 			_preferences.reduce = panel ? panel.style.display === 'none' : false;
+			const traitsEl = hasTraits && _root.querySelector('.traits_component');
+			if (traitsEl) {
+				_preferences.traits = traitsEl.style.display !== 'none';
+			}
 			_preferences.save();
 		}
 	};
