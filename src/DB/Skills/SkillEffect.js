@@ -1588,7 +1588,7 @@ SkillEffect[6520 /* WH_WILD_WALK */] = {
 	effectIdOnCaster: 'ef_wh_wild_walk_cast',
 	hitEffectId: 'ef_wh_wild_walk_hit'
 }; //Wild Walk
-SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
+SkillEffect[SK.RK_LUXANIMA] = { successEffectIdOnCaster: 1044 }; //Lux Anima: 1044 on the caster on success
 SkillEffect[SK.DK_SERVANTWEAPON] = {
 	effectId: 'ef_dk_servantweapon',
 	effectIdOnCaster: 'ef_dk_servantweapon_cast',
