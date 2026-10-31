@@ -139,10 +139,6 @@ export function createQuestHelper(config) {
 				if (!itemId) {
 					return;
 				}
-				if (ItemInfo.uid === itemId) {
-					ItemInfo.remove();
-					return;
-				}
 				ItemInfo.append();
 				ItemInfo.uid = itemId;
 				ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
