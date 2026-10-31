@@ -86,6 +86,11 @@
  *	- damageEffectIdOnOtherTarget:
  *								Like damageEffectIdOnTarget, only when the packet's target is not the caster.
  *
+ *	- damageEffectIdOnCasterByFacing:
+ *								4 effects; plays one on the caster as each damage packet arrives, picked by the
+ *								caster's facing on screen (ScreenDirection.facingQuarter), unless the caster
+ *								still has it from an earlier packet. Dragon Breath's breath.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *	- castAuraEffectId:		Effect used as the cast aura instead of the one picked from the packet's element.
@@ -959,7 +964,12 @@ SkillEffect[SK.RK_WINDCUTTER] = {
 	firstHitEffectId: 122
 }; //Wind Cutter: 1690 + floor slash by facing on success; 1693 on other targets; hit map 122
 SkillEffect[SK.RK_IGNITIONBREAK] = { successEffectIdOnCaster: 'ef_rk_ignitionbreak', castAuraEffectId: 12 }; //Ignition Break: 1624 + 1625 + wl_jackfrost.wav on success; yellow cast aura
-SkillEffect[SK.RK_DRAGONBREATH] = { hitEffectId: 587 }; //Dragon Breath
+SkillEffect[SK.RK_DRAGONBREATH] = {
+	damageEffectIdOnCasterByFacing: ['ef_rk_dragonbreath_05', 'ef_rk_dragonbreath_01', 'ef_rk_dragonbreath_11', 'ef_rk_dragonbreath_07'],
+	damageEffectIdOnTarget: 'ef_rk_dragonbreath_bomb',
+	firstHitEffectId: 'ef_rk_dragonbreath_sound',
+	castAuraEffectId: 12
+}; //Dragon Breath: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.RK_DRAGONHOWLING] = { effectId: 731 }; //Dragon Howling
 SkillEffect[SK.RK_MILLENNIUMSHIELD] = { effectId: 749 }; //Millenium Shield
 SkillEffect[SK.RK_CRUSHSTRIKE] = {}; //Crush Strike
@@ -1533,7 +1543,12 @@ SkillEffect[6510 /* BO_DUST_EXPLOSION */] = {
 	effectId: 'ef_bo_dust_explosion',
 	hitEffectId: 'ef_bo_dust_explosion_hit'
 }; //Dust Explosion
-SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
+SkillEffect[SK.RK_DRAGONBREATH_WATER] = {
+	damageEffectIdOnCasterByFacing: ['ef_rk_dragonbreath_water_05', 'ef_rk_dragonbreath_water_01', 'ef_rk_dragonbreath_water_11', 'ef_rk_dragonbreath_water_07'],
+	damageEffectIdOnTarget: 'ef_rk_dragonbreath_water_bomb',
+	firstHitEffectId: 'ef_rk_dragonbreath_sound',
+	castAuraEffectId: 12
+}; //Dragon Breath - Water: breath by facing on the caster, bomb on the target, sound as the damage arrives
 SkillEffect[SK.WH_WIND_SIGN] = { effectId: 'ef_wh_wind_sign' }; //Wind Sign
 SkillEffect[SK.WH_HAWKRUSH] = { effectId: 'ef_wh_hawkrush' }; //Hawk Rush
 SkillEffect[SK.WH_CALAMITYGALE] = { effectIdOnCaster: 'ef_wh_calamitygale_cast' }; //Calamity Gale

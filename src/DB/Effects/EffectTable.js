@@ -26607,6 +26607,155 @@ export default {
 		}
 	],
 
+	// Dragon Breath (RK_DRAGONBREATH): the breath on the caster as a damage packet arrives, one of 1380-1383 by the
+	// caster's facing, 200 ms in; then the bomb on each target. See effect-port/rune-knight-skills.md.
+	ef_rk_dragonbreath_01: [
+		{
+			//new_dragonbreath_01_clock (1380): CEZ2STREffect, new_dragonbreath\\new_dragonbreath_01_clock\\new_dragonbreath_01_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath/new_dragonbreath_01_clock/new_dragonbreath_01_clock',
+			texturePath: 'new_dragonbreath/new_dragonbreath_01_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// dragonbreath toward 5 o'clock (1381).
+	ef_rk_dragonbreath_05: [
+		{
+			//new_dragonbreath_05_clock (1381): CEZ2STREffect, new_dragonbreath\\new_dragonbreath_05_clock\\new_dragonbreath_05_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath/new_dragonbreath_05_clock/new_dragonbreath_05_clock',
+			texturePath: 'new_dragonbreath/new_dragonbreath_05_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// dragonbreath toward 7 o'clock (1382).
+	ef_rk_dragonbreath_07: [
+		{
+			//new_dragonbreath_07_clock (1382): CEZ2STREffect, new_dragonbreath\\new_dragonbreath_07_clock\\new_dragonbreath_07_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath/new_dragonbreath_07_clock/new_dragonbreath_07_clock',
+			texturePath: 'new_dragonbreath/new_dragonbreath_07_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// dragonbreath toward 11 o'clock (1383).
+	ef_rk_dragonbreath_11: [
+		{
+			//new_dragonbreath_11_clock (1383): CEZ2STREffect, new_dragonbreath\\new_dragonbreath_11_clock\\new_dragonbreath_11_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath/new_dragonbreath_11_clock/new_dragonbreath_11_clock',
+			texturePath: 'new_dragonbreath/new_dragonbreath_11_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// Dragon Breath on each target as the damage packet arrives: 1378 and 1379 (floor), 350 ms in, and 폭염룡.wav.
+	ef_rk_dragonbreath_bomb: [
+		{
+			//new_dragonbreath_bomb (1378): CEZ2STREffect, new_dragonbreath\\new_dragonbreath_bomb\\new_dragonbreath_bomb.str
+			type: 'STR',
+			file: 'new_dragonbreath/new_dragonbreath_bomb/new_dragonbreath_bomb',
+			texturePath: 'new_dragonbreath/new_dragonbreath_bomb/',
+			delayStart: 350,
+			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
+			attachedEntity: true
+		},
+		{
+			//new_dragonbreath_bomb_bottom (1379): CEZ2STREffect, new_dragonbreath\\new_dragonbreath_bomb_bottom\\new_dragonbreath_bomb_bottom.str
+			type: 'STR',
+			file: 'new_dragonbreath/new_dragonbreath_bomb_bottom/new_dragonbreath_bomb_bottom',
+			texturePath: 'new_dragonbreath/new_dragonbreath_bomb_bottom/',
+			delayStart: 350,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Dragon Breath - Water (RK_DRAGONBREATH_WATER): as Dragon Breath, with 1388-1391 on the caster.
+	ef_rk_dragonbreath_water_01: [
+		{
+			//new_dragonbreath_water_01_clock (1388): CEZ2STREffect, new_dragonbreath_water\\new_dragonbreath_water_01_clock\\new_dragonbreath_water_01_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath_water/new_dragonbreath_water_01_clock/new_dragonbreath_water_01_clock',
+			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_01_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// dragonbreath_water toward 5 o'clock (1389).
+	ef_rk_dragonbreath_water_05: [
+		{
+			//new_dragonbreath_water_05_clock (1389): CEZ2STREffect, new_dragonbreath_water\\new_dragonbreath_water_05_clock\\new_dragonbreath_water_05_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath_water/new_dragonbreath_water_05_clock/new_dragonbreath_water_05_clock',
+			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_05_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// dragonbreath_water toward 7 o'clock (1390).
+	ef_rk_dragonbreath_water_07: [
+		{
+			//new_dragonbreath_water_07_clock (1390): CEZ2STREffect, new_dragonbreath_water\\new_dragonbreath_water_07_clock\\new_dragonbreath_water_07_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath_water/new_dragonbreath_water_07_clock/new_dragonbreath_water_07_clock',
+			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_07_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// dragonbreath_water toward 11 o'clock (1391).
+	ef_rk_dragonbreath_water_11: [
+		{
+			//new_dragonbreath_water_11_clock (1391): CEZ2STREffect, new_dragonbreath_water\\new_dragonbreath_water_11_clock\\new_dragonbreath_water_11_clock.str
+			type: 'STR',
+			file: 'new_dragonbreath_water/new_dragonbreath_water_11_clock/new_dragonbreath_water_11_clock',
+			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_11_clock/',
+			delayStart: 200,
+			attachedEntity: true
+		}
+	],
+
+	// Dragon Breath - Water on each target: 1386 and 1387 (floor), 350 ms in, and 폭염룡.wav.
+	ef_rk_dragonbreath_water_bomb: [
+		{
+			//new_dragonbreath_water_bomb (1386): CEZ2STREffect, new_dragonbreath_water\\new_dragonbreath_water_bomb\\new_dragonbreath_water_bomb.str
+			type: 'STR',
+			file: 'new_dragonbreath_water/new_dragonbreath_water_bomb/new_dragonbreath_water_bomb',
+			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_bomb/',
+			delayStart: 350,
+			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡
+			attachedEntity: true
+		},
+		{
+			//new_dragonbreath_water_bomb_bottom (1387): CEZ2STREffect, new_dragonbreath_water\\new_dragonbreath_water_bomb_bottom\\new_dragonbreath_water_bomb_bottom.str
+			type: 'STR',
+			file: 'new_dragonbreath_water/new_dragonbreath_water_bomb_bottom/new_dragonbreath_water_bomb_bottom',
+			texturePath: 'new_dragonbreath_water/new_dragonbreath_water_bomb_bottom/',
+			delayStart: 350,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Dragon Breath and Dragon Breath - Water: dragon_breath.wav as the damage arrives.
+	ef_rk_dragonbreath_sound: [
+		{
+			wav: 'dragon_breath', // dragon_breath
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [

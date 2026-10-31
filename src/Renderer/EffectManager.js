@@ -1464,6 +1464,23 @@ class EffectManager {
 			play('damageEffectIdOnOtherTarget', destAID, srcAID);
 		}
 
+		// One of four effects on the caster by its facing on screen
+		// (ScreenDirection.facingQuarter), once: not again while the caster
+		// still has it from an earlier packet. Dragon Breath's breath.
+		const byFacing = skill.damageEffectIdOnCasterByFacing;
+		const caster = byFacing && srcAID ? EntityManager.get(srcAID) : null;
+		if (caster) {
+			const effectId = byFacing[facingQuarter(facingAngle(caster.direction))];
+			if (effectId && !EffectManager.has(srcAID, effectId)) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				});
+			}
+		}
+
 		const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
 		const destEntity = destAID ? EntityManager.get(destAID) : null;
 		if (!srcEntity || !destEntity) {
