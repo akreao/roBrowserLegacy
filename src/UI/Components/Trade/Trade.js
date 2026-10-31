@@ -344,7 +344,15 @@ function onZenyInput(input) {
 		);
 		zeny = 1000000000;
 	}
+	// Keep the caret after the same digit once the commas move.
+	const caret = input.selectionStart ?? input.value.length;
+	const digitsBefore = input.value.slice(0, caret).replace(/\D/g, '').length;
 	input.value = prettifyZeny(zeny);
+	let position = 0;
+	for (let seen = 0; position < input.value.length && seen < digitsBefore; position++) {
+		if (/\d/.test(input.value[position])) seen++;
+	}
+	input.setSelectionRange?.(position, position);
 }
 
 /**

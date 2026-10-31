@@ -78,6 +78,13 @@ it('reads a typed amount with commas and offers all of it', async () => {
 	expect(input.value).toBe('1,000,000,000');
 	expect(UIManager.showMessageBox).toHaveBeenLastCalledWith('2467', 'ok');
 
+	// Typing a digit inside the number keeps the caret after it
+	input.value = '1,2034,567';
+	input.setSelectionRange(4, 4);
+	input.dispatchEvent(new Event('input'));
+	expect(input.value).toBe('12,034,567');
+	expect(input.selectionStart).toBe(4);
+
 	input.value = '1,234,567';
 	state.sent.length = 0;
 	root.querySelector('.ok.enabled').click();
