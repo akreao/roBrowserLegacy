@@ -236068,7 +236068,7 @@ function onDrop$13(event) {
 	try {
 		data = JSON.parse(event.dataTransfer.getData("Text"));
 	} catch (_e) {}
-	if (data && data.type === "item" && data.from !== "Equipment") {
+	if (data && data.type === "item" && data.from !== "Equipment" && data.from !== "SwitchEquip") {
 		const item = data.data;
 		if ((item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR || item.type === ItemType_default.AMMO) && item.IsIdentified && !item.IsDamaged) {
 			SwitchEquip.getRoot().querySelectorAll("td").forEach((td) => {
@@ -236079,6 +236079,29 @@ function onDrop$13(event) {
 	}
 	event.stopImmediatePropagation();
 	return false;
+}
+/**
+* Start dragging an item of the set, with the same payload as the inventory
+*/
+function onSwitchEquipDragStart(event) {
+	const item = SwitchEquip._list[parseInt(this.getAttribute("data-index"), 10)];
+	if (!item || this.getAttribute("draggable") !== "true") {
+		event.preventDefault();
+		return;
+	}
+	const btn = this.querySelector("button");
+	const url = btn ? btn.style.backgroundImage.match(/\((.*?)\)/)?.[1]?.replace(/('|")/g, "") : "";
+	if (url) {
+		const img = new Image();
+		img.src = url;
+		event.dataTransfer.setDragImage(img, 12, 12);
+	}
+	event.dataTransfer.setData("Text", JSON.stringify(window._OBJ_DRAG_ = {
+		type: "item",
+		from: "SwitchEquip",
+		data: item
+	}));
+	onSwitchEquipOut();
 }
 /**
 * Right click on an item
@@ -236214,6 +236237,13 @@ var init_SwitchEquip = __esmMin((() => {
 			content.addEventListener("mouseout", (e) => {
 				if (e.target.closest("button")) onSwitchEquipOut();
 			});
+			content.addEventListener("dragstart", (e) => {
+				const item = e.target.closest(".item");
+				if (item) onSwitchEquipDragStart.call(item, e);
+			});
+			content.addEventListener("dragend", () => {
+				delete window._OBJ_DRAG_;
+			});
 		}
 	};
 	/**
@@ -236292,7 +236322,7 @@ var init_SwitchEquip = __esmMin((() => {
 		const root = SwitchEquip.getRoot();
 		const selector = getSelectorFromLocation$2(location);
 		const el = root.querySelector(selector);
-		if (el) el.innerHTML = `<div class="item" data-index="${item.index}"><button></button><span class="itemName">${truncateHtml(sanitizeHtml(DB.getItemName(item)), 19)}</span></div>`;
+		if (el) el.innerHTML = `<div class="item" data-index="${item.index}" draggable="${inSwitchList ? "true" : "false"}"><button></button><span class="itemName">${truncateHtml(sanitizeHtml(DB.getItemName(item)), 19)}</span></div>`;
 		Client.loadFile(DB.INTERFACE_PATH + "item/" + it.identifiedResourceName + ".bmp", (data) => {
 			const button = root.querySelector(`.item[data-index="${item.index}"] button`);
 			if (button) {
@@ -237572,6 +237602,17 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 			Component.getRoot().querySelectorAll("td").forEach((td) => {
 				td.style.backgroundImage = "none";
 			});
+			return false;
+		}
+		if (data && data.type === "item" && data.from === "SwitchEquip") {
+			Component.getRoot().querySelectorAll("td").forEach((td) => {
+				td.style.backgroundImage = "none";
+			});
+			if (PacketVerManager_default.value >= 20170502) {
+				const pkt = new PACKET.CZ.REQ_ONESWITCH();
+				pkt.index = data.data.index;
+				Network.sendPacket(pkt);
+			}
 			return false;
 		}
 		if (data && data.type === "item") {
@@ -242218,10 +242259,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 			const target = e.target.closest(".skill .icon, .skill .name");
 			if (target) {
 				const skillID = _resolveSkillID(target);
-				if (SkillDescription_default.uid === skillID) {
-					SkillDescription_default.remove();
-					return;
-				}
+				if (SkillDescription_default.__active) SkillDescription_default.remove();
 				SkillDescription_default.append();
 				SkillDescription_default.setSkill(skillID);
 			}
@@ -261301,6 +261339,15 @@ function onClickSend(e) {
 	zeny = zeny < 0 ? 0 : zeny;
 	if (WriteRodex.tax + zeny > SessionStorage_default.zeny) {
 		ChatBox_default.addText(DB.getMessage(2643), ChatBox_default.TYPE.INFO_MAIL, ChatBox_default.FILTER.PUBLIC_LOG);
+		return;
+	}
+	const titleLength = root.querySelector(".title-text").value.replace(/^(\$|\%)/, "").replace(/\t/g, "").length;
+	if (titleLength < 4 || titleLength > 50) {
+		ChatBox_default.addText(DB.getMessage(2596), ChatBox_default.TYPE.INFO_MAIL, ChatBox_default.FILTER.PUBLIC_LOG);
+		return;
+	}
+	if (root.querySelector(".content-text").value.length > 1e3) {
+		ChatBox_default.addText(DB.getMessage(2628), ChatBox_default.TYPE.INFO_MAIL, ChatBox_default.FILTER.PUBLIC_LOG);
 		return;
 	}
 	const title = root.querySelector(".title-text").value.replace(/^(\$|\%)/, "").replace(/\t/g, "").substring(0, 23) + String.fromCharCode(0);
