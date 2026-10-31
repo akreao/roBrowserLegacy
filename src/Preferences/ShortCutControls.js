@@ -516,10 +516,26 @@ ShortCuts.Flag9 = {
 
 const ShortCutControls = Preferences.get('ShortCutControls', { ShortCuts }, 1.2);
 
-// Keys saved before an entry existed don't hold it: give it its default
+/**
+ * @param {object} shortcut entry
+ * @return {string} its key and modifiers as they act now, '' when unbound
+ */
+function combination(shortcut) {
+	const k = shortcut.cust || shortcut.init;
+	return k.key ? `${k.key}-${!!k.alt}-${!!k.ctrl}-${!!k.shift}` : '';
+}
+
+// Keys saved before an entry existed don't hold it: give it its default, or
+// leave it unbound when the player already uses that key for something else
+const used = new Set(Object.values(ShortCutControls.ShortCuts).map(combination));
 for (const name of Object.keys(ShortCuts)) {
 	if (!ShortCutControls.ShortCuts[name]) {
-		ShortCutControls.ShortCuts[name] = ShortCuts[name];
+		const entry = ShortCuts[name];
+		if (used.has(combination(entry))) {
+			entry.cust = { key: '', alt: false, ctrl: false, shift: false };
+		}
+		ShortCutControls.ShortCuts[name] = entry;
+		used.add(combination(entry));
 	}
 }
 
