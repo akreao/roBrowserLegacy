@@ -975,10 +975,10 @@ SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecas
 SkillEffect[SK.RK_CRUSHSTRIKE] = { firstHitEffectId: ['quake', 589, 'ef_rk_crushstrike_sound'] }; //Crush Strike: quake + 589 + _enemy_hit_wind2.wav as its damage arrives
 SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: 'ef_rk_refresh_sound', castAuraEffectId: 58 }; //Refresh: _heal_effect.wav on success (538 follow-up); white cast aura
 SkillEffect[SK.RK_GIANTGROWTH] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Giant Growth: 756 + 닌자_던지기.wav on success
-SkillEffect[SK.RK_STONEHARDSKIN] = {}; //Stone Hard Skin
+SkillEffect[SK.RK_STONEHARDSKIN] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Stone Hard Skin: 756 + 441 on success
 SkillEffect[SK.RK_VITALITYACTIVATION] = {}; //Vitality Activation
 SkillEffect[SK.RK_STORMBLAST] = {}; //Storm Blast
-SkillEffect[SK.RK_FIGHTINGSPIRIT] = {}; //Fighting Spirit //CHECK Is this splash needed?
+SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Fighting Spirit: 756 + 441 on success
 SkillEffect[SK.RK_ABUNDANCE] = {}; //Abundance
 SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
 // WL Warlock
