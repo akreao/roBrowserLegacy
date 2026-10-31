@@ -153,7 +153,7 @@ function validate() {
  * @return {number|null} the price, or null when the text is refused
  */
 function readPrice(text) {
-	const value = String(text).replace(/[,\s]/g, '');
+	const value = String(text).trim().replace(/,/g, '');
 	if (/\D/.test(value)) {
 		UIManager.showMessageBox(DB.getMessage(602, 'Only the numbers (0~9) are available.'), 'ok');
 		return null;

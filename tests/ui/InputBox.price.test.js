@@ -63,6 +63,12 @@ it('caps the price at one billion with the official message', () => {
 	expect(ui.showMessageBox).toHaveBeenCalledWith('msg 2467', 'ok');
 });
 
+it('refuses a space inside the price', () => {
+	submit('1 500');
+	expect(InputBox.onSubmitRequest).not.toHaveBeenCalled();
+	expect(ui.showMessageBox).toHaveBeenCalledWith('msg 602', 'ok');
+});
+
 it('refuses anything but digits', () => {
 	submit('12k');
 	expect(InputBox.onSubmitRequest).not.toHaveBeenCalled();
