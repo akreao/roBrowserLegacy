@@ -71,3 +71,12 @@ it('comes back reduced', () => {
 	expect(root.querySelector('.panel').style.display).toBe('none');
 	expect(root.querySelector('.vieweqtab-manager').style.display).toBe('none');
 });
+
+it('starts the character preview when a restored window is expanded', async () => {
+	prefs.reduce = true;
+	const root = create();
+	const { default: Renderer } = await import('Renderer/Renderer.js');
+	Renderer.render.mockClear();
+	root.querySelector('.titlebar .mini').click();
+	expect(Renderer.render).toHaveBeenCalledOnce();
+});
