@@ -20,9 +20,19 @@ vi.mock('UI/GUIComponent.js', () => ({
 		draggable() {}
 	}
 }));
-vi.mock('UI/UIManager.js', () => ({ default: { addComponent: c => c } }));
+const mocks = vi.hoisted(() => ({ messageBox: vi.fn() }));
+
+vi.mock('UI/UIManager.js', () => ({ default: { addComponent: c => c, showMessageBox: mocks.messageBox } }));
 vi.mock('UI/Elements/Elements.js', () => ({}));
-vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: '', getMessage: (_id, text) => text, getTownInfo: () => [] } }));
+vi.mock('DB/DBManager.js', () => ({
+	default: {
+		INTERFACE_PATH: '',
+		getMessage: (_id, text) => text,
+		getTownInfo: () => [],
+		mapalias: {},
+		isMinimapException: map => map === '1@cata'
+	}
+}));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
 vi.mock('Core/Preferences.js', () => ({ default: { get: (_key, def) => Object.assign(def, { save: vi.fn() }) } }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: {} }));
@@ -50,4 +60,15 @@ it('opens the memo map from Maximize and the world map from World Map', () => {
 	expect(bigMap.setSource).toHaveBeenCalledOnce();
 	expect(root.querySelector('.mini').title).toBe('Maximize');
 	expect(root.querySelector('.viewon').title).toBe('World Map');
+});
+
+it('refuses the memo map on the maps of the exception list (message 2767)', () => {
+	const bigMap = { toggle: vi.fn(), setSource: vi.fn() };
+	const MiniMap = createMiniMap({ name: 'MiniMapV2', htmlText, cssText: '', bigMap, townInfoToggle: true });
+	MiniMap.init();
+	MiniMap.setMap('1@cata.gat');
+
+	MiniMap.getRoot().querySelector('.mini').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+	expect(bigMap.toggle).not.toHaveBeenCalled();
+	expect(mocks.messageBox).toHaveBeenCalledWith("In this map You can't memorize and zoom the minimap.", 'ok');
 });
