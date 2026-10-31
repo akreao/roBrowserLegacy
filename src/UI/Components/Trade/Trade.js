@@ -102,6 +102,7 @@ Trade.init = function init() {
 		zenyInput.addEventListener('mousedown', function () {
 			this.select();
 		});
+		zenyInput.addEventListener('input', () => onZenyInput(zenyInput));
 	}
 
 	// Item hover/info events on boxes
@@ -326,6 +327,35 @@ function prettifyZeny(value) {
 }
 
 /**
+ * The official zeny box (UIExchangeWnd vfunc19) takes digits only (msgstringtable 602),
+ * caps the amount at 1,000,000,000 (msgstringtable 2467) and shows it with commas.
+ *
+ * @param {HTMLInputElement} input
+ */
+function onZenyInput(input) {
+	if (/[^\d,]/.test(input.value)) {
+		UIManager.showMessageBox(DB.getMessage(602, 'Only the numbers (0~9) are available.'), 'ok');
+	}
+	let zeny = parseZeny(input.value);
+	if (zeny > 1000000000) {
+		UIManager.showMessageBox(
+			DB.getMessage(2467, 'You entered more than 1 Billion Zeny, the price will be set to 1 Billion Zeny.'),
+			'ok'
+		);
+		zeny = 1000000000;
+	}
+	input.value = prettifyZeny(zeny);
+}
+
+/**
+ * @param {string} text - the zeny box, with or without commas
+ * @return {number}
+ */
+function parseZeny(text) {
+	return parseInt(String(text).replace(/\D/g, ''), 10) || 0;
+}
+
+/**
  * Request to add an item to the trade UI
  *
  * @param {number} index - item index in inventory
@@ -423,7 +453,7 @@ function onCancel() {
 function onConclude() {
 	const root = Trade.getRoot();
 	const zenySend = root.querySelector('.zeny.send');
-	let zeny = parseInt(zenySend ? zenySend.value : '0', 10) || 0;
+	let zeny = parseZeny(zenySend ? zenySend.value : '0');
 	zeny = Math.min(Math.max(0, zeny), Session.zeny);
 
 	onRequestAddItem(0, zeny);
