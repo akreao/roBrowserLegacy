@@ -1481,6 +1481,14 @@ export function createInventory(config) {
 	 * Ask to use an item
 	 */
 	function onItemUsed(event) {
+		// The official client does nothing on a Shift double-click: its two
+		// clicks already put the item's link in the chat (onItemClick).
+		if (event.shiftKey) {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+			return;
+		}
+
 		const index = parseInt(this.getAttribute('data-index'), 10);
 		const item = Component.getItemByIndex(index);
 
