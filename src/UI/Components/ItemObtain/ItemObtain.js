@@ -113,8 +113,8 @@ ItemObtain.set = function set(item) {
 			// Official UINotifyItemObtainWnd (vfunc37 0x008c5860): msgstringtable 153 "You got %s (%d)."
 			_sanitizeHtml(
 				DB.getMessage(153, 'You got %s (%d).')
-					.replace('%s', () => display)
 					.replace('%d', item.count || 1)
+					.replace('%s', () => display)
 			);
 	}
 

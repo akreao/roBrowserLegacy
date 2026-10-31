@@ -1301,9 +1301,14 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 				isChatCaption ||
 				root.contains(activeElement) ||
 				Array.from(views.values()).some(view => view.floating?._host?.contains(activeElement));
-			// The selected tab may be a floating one; activeTab only names the docked one.
+			// A floating tab that holds the focus wins; otherwise the selected tab
+			// (it may be a floating one too; activeTab only names the docked one).
+			const focusedView = Array.from(views.values()).find(view => view.floating?._host?.contains(activeElement));
 			const selectedId = this.tabStore.selectedId ?? this.activeTab;
-			const content = views.get(selectedId)?.log || root.querySelector(`.content[data-content="${selectedId}"]`);
+			const content =
+				focusedView?.log ||
+				views.get(selectedId)?.log ||
+				root.querySelector(`.content[data-content="${selectedId}"]`);
 			if (!ownsFocus || !content) {
 				return true;
 			}
