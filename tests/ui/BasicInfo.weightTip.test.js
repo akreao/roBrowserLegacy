@@ -50,5 +50,7 @@ describe('the Basic Information weight hover text', () => {
 		const info = createBasicInfo({ name: 'TipTest', htmlText: '', cssText: '', prefKey: 'TipTest', innerId: '#x' });
 		info.update('weight', 4567, 10000);
 		expect(mocks.root.querySelector('.weight').title).toBe('Weight 45%');
+		info.update('weight', 4567, 0);
+		expect(mocks.root.querySelector('.weight').title).toBe('Weight 0%');
 	});
 });
