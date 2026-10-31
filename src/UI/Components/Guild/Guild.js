@@ -484,6 +484,38 @@ function reorderMemberRows(root, ordered) {
 }
 
 /**
+ * A member's name: the roster's, or one already looked up by GID (0x0aa5
+ * rosters carry no names)
+ *
+ * @return {string} '' when not known yet
+ */
+function memberName(member) {
+	if (member.CharName) {
+		return member.CharName;
+	}
+	const cached = DB.CNameTable && DB.CNameTable[member.GID];
+	return cached && cached !== 'Unknown' ? cached : '';
+}
+
+/**
+ * Run an action that needs the member's name, asking the server for it first
+ * when the roster has none (the official menu says msg 3041 meanwhile)
+ */
+function withMemberName(member, action) {
+	const name = memberName(member);
+	if (name) {
+		action(name);
+		return;
+	}
+	ChatBox.addText(DB.getMessage(3041, "Loading the player's name"), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
+	Promise.resolve(DB.getNameByGID(member.GID)).then(found => {
+		if (found && found !== 'Unknown') {
+			action(found);
+		}
+	});
+}
+
+/**
  * Helper: the roster, online first
  *
  * Stable, so members sharing a status keep the order the server sent them in.
@@ -717,19 +749,24 @@ Guild.init = function init() {
 			// online, a party invite when we have a party they are not in, and a
 			// 1:1 chat; online or not, a mail. The invite also needs us to lead
 			// the party, since rAthena only takes invites from the leader.
-			if (!isSelf && member.CharName) {
+			if (!isSelf) {
+				const knownName = memberName(member);
 				if (member.CurrentState) {
-					if (Session.hasParty && Session.isPartyLeader && !Guild.isPartyMember(member.CharName)) {
+					if (
+						Session.hasParty &&
+						Session.isPartyLeader &&
+						!(knownName && Guild.isPartyMember(knownName))
+					) {
 						ContextMenu.addElement(DB.getMessage(1330, 'Request to Join Party'), () => {
-							Guild.onRequestPartyInvite(member.AID, member.CharName);
+							withMemberName(member, name => Guild.onRequestPartyInvite(member.AID, name));
 						});
 					}
 					ContextMenu.addElement(DB.getMessage(2043, '1:1 Chat'), () => {
-						Guild.onRequestWhisper(member.CharName);
+						withMemberName(member, name => Guild.onRequestWhisper(name));
 					});
 				}
 				ContextMenu.addElement(DB.getMessage(2808, 'Send a mail'), () => {
-					Guild.onRequestMail(member.CharName);
+					withMemberName(member, name => Guild.onRequestMail(name));
 				});
 			}
 		});
