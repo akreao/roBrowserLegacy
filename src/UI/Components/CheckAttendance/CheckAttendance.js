@@ -81,6 +81,11 @@ CheckAttendance.init = function init() {
 		if (!reward) {
 			return;
 		}
+		// A second right-click on the same reward closes it, as in the inventory.
+		if (ItemInfo.uid === reward.item_id) {
+			ItemInfo.remove();
+			return;
+		}
 		ItemInfo.append();
 		ItemInfo.uid = reward.item_id;
 		ItemInfo.setItem({ ITID: reward.item_id, IsIdentified: true, count: reward.quantity });

@@ -5,7 +5,7 @@
  */
 import { expect, it, vi } from 'vitest';
 
-const info = vi.hoisted(() => ({ append: vi.fn(), setItem: vi.fn(), uid: -1 }));
+const info = vi.hoisted(() => ({ append: vi.fn(), setItem: vi.fn(), remove: vi.fn(), uid: -1 }));
 
 vi.mock('UI/GUIComponent.js', () => ({
 	default: class {
@@ -54,4 +54,9 @@ it('opens the description of the right-clicked reward', () => {
 
 	expect(info.append).toHaveBeenCalledOnce();
 	expect(info.setItem).toHaveBeenCalledWith({ ITID: 503, IsIdentified: true, count: 4 });
+
+	// A second right-click on the same reward closes it
+	root.querySelector('#attendance_day_3 .item').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+	expect(info.remove).toHaveBeenCalledOnce();
+	expect(info.append).toHaveBeenCalledOnce();
 });
