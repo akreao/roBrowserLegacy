@@ -243096,12 +243096,12 @@ var init_SkillList = __esmMin((() => {
 // src/UI/Components/ShortCut/ShortCut.html?raw
 var ShortCut_default$2;
 var init_ShortCut$2 = __esmMin((() => {
-	ShortCut_default$2 = "<div id=\"ShortCut\" data-background=\"basic_interface/shortitem_bg.bmp\">\r\n	<button\r\n		class=\"close\"\r\n		data-background=\"basic_interface/sys_close_off.bmp\"\r\n		data-hover=\"basic_interface/sys_close_on.bmp\"\r\n	></button>\r\n	<button class=\"resize\" data-background=\"btn_resize.bmp\"></button>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"0\"></div>\r\n		<div class=\"container\" data-index=\"1\"></div>\r\n		<div class=\"container\" data-index=\"2\"></div>\r\n		<div class=\"container\" data-index=\"3\"></div>\r\n		<div class=\"container\" data-index=\"4\"></div>\r\n		<div class=\"container\" data-index=\"5\"></div>\r\n		<div class=\"container\" data-index=\"6\"></div>\r\n		<div class=\"container\" data-index=\"7\"></div>\r\n		<div class=\"container\" data-index=\"8\"></div>\r\n		<div class=\"index\">1</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"9\"></div>\r\n		<div class=\"container\" data-index=\"10\"></div>\r\n		<div class=\"container\" data-index=\"11\"></div>\r\n		<div class=\"container\" data-index=\"12\"></div>\r\n		<div class=\"container\" data-index=\"13\"></div>\r\n		<div class=\"container\" data-index=\"14\"></div>\r\n		<div class=\"container\" data-index=\"15\"></div>\r\n		<div class=\"container\" data-index=\"16\"></div>\r\n		<div class=\"container\" data-index=\"17\"></div>\r\n		<div class=\"index\">2</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"18\"></div>\r\n		<div class=\"container\" data-index=\"19\"></div>\r\n		<div class=\"container\" data-index=\"20\"></div>\r\n		<div class=\"container\" data-index=\"21\"></div>\r\n		<div class=\"container\" data-index=\"22\"></div>\r\n		<div class=\"container\" data-index=\"23\"></div>\r\n		<div class=\"container\" data-index=\"24\"></div>\r\n		<div class=\"container\" data-index=\"25\"></div>\r\n		<div class=\"container\" data-index=\"26\"></div>\r\n		<div class=\"index\">3</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"27\"></div>\r\n		<div class=\"container\" data-index=\"28\"></div>\r\n		<div class=\"container\" data-index=\"29\"></div>\r\n		<div class=\"container\" data-index=\"30\"></div>\r\n		<div class=\"container\" data-index=\"31\"></div>\r\n		<div class=\"container\" data-index=\"32\"></div>\r\n		<div class=\"container\" data-index=\"33\"></div>\r\n		<div class=\"container\" data-index=\"34\"></div>\r\n		<div class=\"container\" data-index=\"35\"></div>\r\n		<div class=\"index\">4</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"shortcut-tooltip\"></div>\r\n</div>\r\n";
+	ShortCut_default$2 = "<div id=\"ShortCut\" data-background=\"basic_interface/shortitem_bg.bmp\">\r\n	<button\r\n		class=\"close\"\r\n		data-background=\"basic_interface/sys_close_off.bmp\"\r\n		data-hover=\"basic_interface/sys_close_on.bmp\"\r\n	></button>\r\n	<button class=\"resize\" data-background=\"btn_resize.bmp\"></button>\r\n	<button\r\n		class=\"btn-minus\"\r\n		data-background=\"shortcut/btn_minus_normal.bmp\"\r\n		data-hover=\"shortcut/btn_minus_over.bmp\"\r\n		data-down=\"shortcut/btn_minus_press.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn-plus\"\r\n		data-background=\"shortcut/btn_plus_normal.bmp\"\r\n		data-hover=\"shortcut/btn_plus_over.bmp\"\r\n		data-down=\"shortcut/btn_plus_press.bmp\"\r\n		data-active=\"shortcut/btn_plus_disable.bmp\"\r\n	></button>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"0\"></div>\r\n		<div class=\"container\" data-index=\"1\"></div>\r\n		<div class=\"container\" data-index=\"2\"></div>\r\n		<div class=\"container\" data-index=\"3\"></div>\r\n		<div class=\"container\" data-index=\"4\"></div>\r\n		<div class=\"container\" data-index=\"5\"></div>\r\n		<div class=\"container\" data-index=\"6\"></div>\r\n		<div class=\"container\" data-index=\"7\"></div>\r\n		<div class=\"container\" data-index=\"8\"></div>\r\n		<div class=\"index\">1</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"9\"></div>\r\n		<div class=\"container\" data-index=\"10\"></div>\r\n		<div class=\"container\" data-index=\"11\"></div>\r\n		<div class=\"container\" data-index=\"12\"></div>\r\n		<div class=\"container\" data-index=\"13\"></div>\r\n		<div class=\"container\" data-index=\"14\"></div>\r\n		<div class=\"container\" data-index=\"15\"></div>\r\n		<div class=\"container\" data-index=\"16\"></div>\r\n		<div class=\"container\" data-index=\"17\"></div>\r\n		<div class=\"index\">2</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"18\"></div>\r\n		<div class=\"container\" data-index=\"19\"></div>\r\n		<div class=\"container\" data-index=\"20\"></div>\r\n		<div class=\"container\" data-index=\"21\"></div>\r\n		<div class=\"container\" data-index=\"22\"></div>\r\n		<div class=\"container\" data-index=\"23\"></div>\r\n		<div class=\"container\" data-index=\"24\"></div>\r\n		<div class=\"container\" data-index=\"25\"></div>\r\n		<div class=\"container\" data-index=\"26\"></div>\r\n		<div class=\"index\">3</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"27\"></div>\r\n		<div class=\"container\" data-index=\"28\"></div>\r\n		<div class=\"container\" data-index=\"29\"></div>\r\n		<div class=\"container\" data-index=\"30\"></div>\r\n		<div class=\"container\" data-index=\"31\"></div>\r\n		<div class=\"container\" data-index=\"32\"></div>\r\n		<div class=\"container\" data-index=\"33\"></div>\r\n		<div class=\"container\" data-index=\"34\"></div>\r\n		<div class=\"container\" data-index=\"35\"></div>\r\n		<div class=\"index\">4</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"shortcut-tooltip\"></div>\r\n</div>\r\n";
 }));
 // src/UI/Components/ShortCut/ShortCut.css?raw
 var ShortCut_default$1;
 var init_ShortCut$1 = __esmMin((() => {
-	ShortCut_default$1 = ":host {\r\n	width: 280px;\r\n	top: 0px;\r\n	left: 480px;\r\n	overflow: hidden;\r\n}\r\n\r\n#ShortCut {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 100%;\r\n	background-repeat: repeat-y;\r\n}\r\n#ShortCut .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 11px;\r\n	height: 11px;\r\n}\r\n#ShortCut .resize {\r\n	position: absolute;\r\n	bottom: 1px;\r\n	right: 1px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n\r\n#ShortCut .row {\r\n	position: relative;\r\n}\r\n#ShortCut .row .container {\r\n	float: left;\r\n	width: 24px;\r\n	height: 23px;\r\n	margin-top: 5px;\r\n	margin-left: 5px;\r\n	margin-bottom: 6px;\r\n}\r\n#ShortCut .row .container:hover {\r\n	background-color: #b5ffb5;\r\n}\r\n#ShortCut .row .index {\r\n	float: left;\r\n	position: relative;\r\n	top: 13px;\r\n	left: 5px;\r\n}\r\n#ShortCut .row .clear {\r\n}\r\n\r\n#ShortCut .icon {\r\n	position: relative;\r\n}\r\n#ShortCut .icon .img {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n	background-color: transparent;\r\n}\r\n#ShortCut .icon .name {\r\n	display: none;\r\n	z-index: 1;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	background-color: rgba(0, 0, 0, 0.6);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 5px;\r\n	white-space: nowrap;\r\n}\r\n#ShortCut .icon:hover .name {\r\n	display: block;\r\n}\r\n#ShortCut .icon.hide .name {\r\n	display: none;\r\n}\r\n#ShortCut .icon .amount {\r\n	position: absolute;\r\n	right: 1px;\r\n	top: 20px;\r\n	text-shadow: 1px 1px 0px white;\r\n	text-align: right;\r\n	font-weight: bold;\r\n}\r\n\r\n.shortcut-tooltip {\r\n	display: none;\r\n	position: fixed;\r\n	background-color: rgba(0, 0, 0, 0.8);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 2px 6px;\r\n	white-space: nowrap;\r\n	z-index: 10000;\r\n	border-radius: 2px;\r\n	pointer-events: none;\r\n	line-height: 1.2;\r\n}\r\n.shortcut-tooltip.show {\r\n	display: block;\r\n}\r\n/* In the top layer while the hotbar is scaled (ShortCut.js): undo the popover defaults */\r\n.shortcut-tooltip[popover] {\r\n	inset: auto;\r\n	margin: 0;\r\n	border: none;\r\n	overflow: visible;\r\n}\r\n\r\n#ShortCut .cooldown-overlay {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	pointer-events: none;\r\n	border-radius: 2px;\r\n	z-index: 999;\r\n	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);\r\n}\r\n";
+	ShortCut_default$1 = ":host {\r\n	width: 280px;\r\n	top: 0px;\r\n	left: 480px;\r\n	overflow: hidden;\r\n}\r\n\r\n#ShortCut {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 100%;\r\n	background-repeat: repeat-y;\r\n}\r\n#ShortCut .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 11px;\r\n	height: 11px;\r\n}\r\n#ShortCut .resize {\r\n	position: absolute;\r\n	bottom: 1px;\r\n	right: 1px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n\r\n#ShortCut .row {\r\n	position: relative;\r\n}\r\n#ShortCut .row .container {\r\n	float: left;\r\n	width: 24px;\r\n	height: 23px;\r\n	margin-top: 5px;\r\n	margin-left: 5px;\r\n	margin-bottom: 6px;\r\n}\r\n#ShortCut .row .container:hover {\r\n	background-color: #b5ffb5;\r\n}\r\n#ShortCut .row .index {\r\n	float: left;\r\n	position: relative;\r\n	top: 13px;\r\n	left: 5px;\r\n}\r\n#ShortCut .row .clear {\r\n}\r\n\r\n#ShortCut .icon {\r\n	position: relative;\r\n}\r\n#ShortCut .icon .img {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n	background-color: transparent;\r\n}\r\n#ShortCut .icon .name {\r\n	display: none;\r\n	z-index: 1;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	background-color: rgba(0, 0, 0, 0.6);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 5px;\r\n	white-space: nowrap;\r\n}\r\n#ShortCut .icon:hover .name {\r\n	display: block;\r\n}\r\n#ShortCut .icon.hide .name {\r\n	display: none;\r\n}\r\n#ShortCut .icon .amount {\r\n	position: absolute;\r\n	right: 1px;\r\n	top: 20px;\r\n	text-shadow: 1px 1px 0px white;\r\n	text-align: right;\r\n	font-weight: bold;\r\n}\r\n\r\n.shortcut-tooltip {\r\n	display: none;\r\n	position: fixed;\r\n	background-color: rgba(0, 0, 0, 0.8);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 2px 6px;\r\n	white-space: nowrap;\r\n	z-index: 10000;\r\n	border-radius: 2px;\r\n	pointer-events: none;\r\n	line-height: 1.2;\r\n}\r\n.shortcut-tooltip.show {\r\n	display: block;\r\n}\r\n/* In the top layer while the hotbar is scaled (ShortCut.js): undo the popover defaults */\r\n.shortcut-tooltip[popover] {\r\n	inset: auto;\r\n	margin: 0;\r\n	border: none;\r\n	overflow: visible;\r\n}\r\n\r\n#ShortCut .cooldown-overlay {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	pointer-events: none;\r\n	border-radius: 2px;\r\n	z-index: 999;\r\n	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);\r\n}\r\n\r\n/* Classic window: no 2025 buttons */\r\n#ShortCut .btn-minus,\r\n#ShortCut .btn-plus {\r\n	display: none;\r\n}\r\n\r\n/*\r\n * 2025 window (kRO 2025 UIShortCutWnd), used when the client data has\r\n * shortcut/shortcut_frame.bmp: 290px wide, a frame every 33px, slots 24px at\r\n * x = 16 + 29 * column and y = 4 in their row, row numbers at x = 6, y = 13,\r\n * counts at x + 27, y + 17 in 11px white, - and + buttons at the right.\r\n */\r\n#ShortCut.v2025 {\r\n	width: 290px;\r\n	background-image: none !important;\r\n}\r\n#ShortCut.v2025 .close,\r\n#ShortCut.v2025 .resize {\r\n	display: none;\r\n}\r\n#ShortCut.v2025 .btn-minus,\r\n#ShortCut.v2025 .btn-plus {\r\n	display: block;\r\n	position: absolute;\r\n	left: 277px;\r\n	width: 11px;\r\n	height: 11px;\r\n	padding: 0;\r\n	border: none;\r\n	background-color: transparent;\r\n	z-index: 1;\r\n}\r\n#ShortCut.v2025 .btn-minus.disabled {\r\n	pointer-events: none;\r\n}\r\n#ShortCut.v2025 .row {\r\n	height: 33px;\r\n	background-repeat: no-repeat;\r\n}\r\n#ShortCut.v2025 .row .container {\r\n	position: absolute;\r\n	top: 4px;\r\n	left: calc(16px + 29px * var(--col));\r\n	float: none;\r\n	width: 24px;\r\n	height: 24px;\r\n	margin: 0;\r\n}\r\n#ShortCut.v2025 .row .index {\r\n	position: absolute;\r\n	float: none;\r\n	left: 6px;\r\n	top: 13px;\r\n	font-size: 11px;\r\n	line-height: 11px;\r\n	color: #2f4a4a;\r\n}\r\n#ShortCut.v2025 .icon .amount {\r\n	right: -3px;\r\n	top: 17px;\r\n	font-size: 11px;\r\n	font-weight: normal;\r\n	color: #ffffff;\r\n	text-shadow:\r\n		1px 0 0 #000,\r\n		-1px 0 0 #000,\r\n		0 1px 0 #000,\r\n		0 -1px 0 #000;\r\n}\r\n";
 }));
 // src/UI/Components/ShortCut/ShortCut.js
 var ShortCut_exports = /* @__PURE__ */ __exportAll({ default: () => ShortCut_default });
@@ -243259,16 +243259,13 @@ function slotSkillLevel(ID, slotLevel, level) {
 * Resizing hotkey window
 */
 function onResize$6(event) {
-	const host = ShortCut._host;
-	const top = host.offsetTop;
+	const top = ShortCut._host.offsetTop;
 	let lastHeight = 0;
 	function resizing() {
-		let h = Math.floor((Mouse.screen.y - top) / ShortCut.scale / 34 + 1);
+		let h = Math.floor((Mouse.screen.y - top) / ShortCut.scale / rowHeight() + 1);
 		h = Math.min(Math.max(h, 1), _rowCount);
 		if (h === lastHeight) return;
-		host.style.height = `${h * 34}px`;
-		_preferences$36.size = h;
-		_preferences$36.save();
+		setRows(h);
 		lastHeight = h;
 	}
 	const _Interval = setInterval(resizing, 30);
@@ -243478,9 +243475,77 @@ function clickElement(index) {
 * Closing the window
 */
 function onClose$7() {
-	ShortCut._host.style.height = "0px";
-	_preferences$36.size = 0;
+	setRows(0);
+}
+/**
+* Height of one row: the 2025 frame (shortcut_frame.bmp, 34px tall) is drawn
+* every 33px, each row's top edge over the one above.
+*
+* @return {number} px
+*/
+function rowHeight() {
+	return is2025() ? 33 : 34;
+}
+/**
+* @param {number} rows shown
+* @return {number} window height in px; the last 2025 frame keeps its bottom edge
+*/
+function rowsHeight(rows) {
+	if (!rows) return 0;
+	return rows * rowHeight() + (is2025() ? 1 : 0);
+}
+/**
+* @return {boolean} the window is drawn with the 2025 art
+*/
+function is2025() {
+	return !!ShortCut.getRoot().querySelector("#ShortCut.v2025");
+}
+/**
+* Show a number of rows (0 hides the bar) and remember it
+*
+* @param {number} rows
+*/
+function setRows(rows) {
+	_preferences$36.size = rows;
 	_preferences$36.save();
+	if (ShortCut._host) ShortCut._host.style.height = `${rowsHeight(rows)}px`;
+	updateRowButtons(rows);
+}
+/**
+* Place and enable the 2025 - and + buttons for a number of rows
+*
+* @param {number} rows
+*/
+function updateRowButtons(rows) {
+	const root = ShortCut.getRoot();
+	const minus = root.querySelector(".btn-minus");
+	const plus = root.querySelector(".btn-plus");
+	if (minus && plus) {
+		minus.style.top = `${rows * 33 - 28}px`;
+		plus.style.top = `${rows * 33 - 13}px`;
+		minus.classList.toggle("disabled", rows <= 1);
+		plus.classList.toggle("active", rows >= maxRows());
+	}
+}
+/**
+* @return {number} rows the server's hotkey list fills (4 when not known yet)
+*/
+function maxRows() {
+	return _rowCount || 4;
+}
+/**
+* 2025 + button (UIShortCutWnd SendMsg 6, id 0xd8): one more row, and past the
+* last one the bar hides and comes back with one row.
+*/
+function onAddRow() {
+	const rows = _preferences$36.size + 1;
+	setRows(rows > maxRows() ? 0 : rows);
+}
+/**
+* 2025 - button (id 0xd9): one row less, down to one
+*/
+function onRemoveRow() {
+	if (_preferences$36.size > 1) setRows(_preferences$36.size - 1);
 }
 /**
 * Hook Inventory, get informations when there is a change
@@ -243713,6 +243778,27 @@ var init_ShortCut = __esmMin((() => {
 			closeBtn.addEventListener("click", onClose$7);
 		}
 		const container = root.querySelector("#ShortCut");
+		root.querySelectorAll(".container").forEach((el) => {
+			el.style.setProperty("--col", String(parseInt(el.dataset.index, 10) % 9));
+		});
+		for (const [selector, action] of [[".btn-plus", onAddRow], [".btn-minus", onRemoveRow]]) {
+			const button = root.querySelector(selector);
+			if (button) {
+				button.addEventListener("mousedown", (e) => {
+					e.stopImmediatePropagation();
+					e.preventDefault();
+				});
+				button.addEventListener("click", action);
+			}
+		}
+		Client.loadFile(`${DB.INTERFACE_PATH}shortcut/shortcut_frame.bmp`, (url) => {
+			container.classList.add("v2025");
+			ShortCut._host.style.width = "290px";
+			root.querySelectorAll(".row").forEach((row) => {
+				row.style.backgroundImage = `url(${url})`;
+			});
+			setRows(_preferences$36.size);
+		});
 		container.addEventListener("drop", (e) => {
 			const target = e.target.closest(".container");
 			if (target) onDrop$11(e, target);
@@ -243755,7 +243841,7 @@ var init_ShortCut = __esmMin((() => {
 	* Append to body
 	*/
 	ShortCut.onAppend = function onAppend() {
-		this._host.style.height = `${34 * _preferences$36.size}px`;
+		this._host.style.height = `${rowsHeight(_preferences$36.size)}px`;
 		const rect = this._host.getBoundingClientRect();
 		this._host.style.top = `${Math.min(Math.max(0, _preferences$36.y), Renderer.height - rect.height)}px`;
 		this._host.style.left = `${Math.min(Math.max(0, _preferences$36.x), Renderer.width - rect.width)}px`;
@@ -243776,7 +243862,6 @@ var init_ShortCut = __esmMin((() => {
 		_activeAnimations.clear();
 		_preferences$36.y = parseInt(this._host.style.top, 10);
 		_preferences$36.x = parseInt(this._host.style.left, 10);
-		_preferences$36.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
 		_preferences$36.magnet_top = this.magnet.TOP;
 		_preferences$36.magnet_bottom = this.magnet.BOTTOM;
 		_preferences$36.magnet_left = this.magnet.LEFT;
@@ -243805,10 +243890,7 @@ var init_ShortCut = __esmMin((() => {
 			case "EXECUTE":
 				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
 				break;
-			case "EXTEND":
-				_preferences$36.size = (_preferences$36.size + 1) % (_rowCount + 1);
-				_preferences$36.save();
-				this._host.style.height = `${_preferences$36.size * 34}px`;
+			case "EXTEND": setRows((_preferences$36.size + 1) % (_rowCount + 1));
 		}
 	};
 	ShortCut.useSkill = function useSkill(id, level) {
@@ -243830,6 +243912,7 @@ var init_ShortCut = __esmMin((() => {
 		});
 		_list$5.length = list.length;
 		_rowCount = Math.min(4, Math.floor(list.length / 9));
+		updateRowButtons(_preferences$36.size);
 		for (let i = 0, count = list.length; i < count; ++i) if (list[i].isSkill) {
 			skill = ShortCut.getSkillById(list[i].ID);
 			if (getSkillOwner(list[i].ID) === Guild_default) needGuildSkills = true;
