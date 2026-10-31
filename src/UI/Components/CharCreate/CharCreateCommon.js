@@ -175,6 +175,9 @@ export function createCharCreate(config) {
 		chooseSex: hasRace,
 		hasStats,
 		create(look) {
+			if (!nameFits(String((look && look.name) || ''))) {
+				return;
+			}
 			const stats = (look && look.stats) || {};
 			const stat = key => (hasStats ? parseInt(stats[key], 10) || 1 : 1);
 			const args = [
@@ -414,9 +417,40 @@ export function createCharCreate(config) {
 	/**
 	 * Send back informations to send the packet
 	 */
+	/**
+	 * The official client checks the name's length before sending it
+	 * (UINewMakeCharWnd::SendMsg): under 4 characters is refused with
+	 * msgstringtable 21, over 23 with 531 and the name is cleared.
+	 *
+	 * @param {string} charname
+	 * @return {boolean} whether the name can be sent
+	 */
+	function nameFits(charname) {
+		if (charname.length < 4) {
+			UIManager.showMessageBox(DB.getMessage(21, 'Character Name must be at least 4 characters long.'), 'ok');
+			return false;
+		}
+		if (charname.length > 23) {
+			UIManager.showMessageBox(
+				DB.getMessage(531, 'Name is too long. Please enter a name up to 23 english characters.'),
+				'ok'
+			);
+			const input = Component.getRoot().querySelector(nameInputSelector);
+			if (input) {
+				input.value = '';
+			}
+			return false;
+		}
+		return true;
+	}
+
 	function create() {
 		const root = Component.getRoot();
 		const charname = root.querySelector(nameInputSelector).value;
+
+		if (!nameFits(charname)) {
+			return;
+		}
 
 		let str = 1;
 		let agi = 1;
