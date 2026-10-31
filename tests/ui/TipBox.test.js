@@ -168,6 +168,12 @@ describe('the tip box window', () => {
 
 		root().querySelector('.page .item-link').click();
 		expect(itemInfo.setItem).toHaveBeenCalledWith({ ITID: 512, IsIdentified: true });
+
+		// A second click shows it again instead of closing it
+		itemInfo.setItem.mockClear();
+		root().querySelector('.page .item-link').click();
+		expect(itemInfo.remove).not.toHaveBeenCalled();
+		expect(itemInfo.setItem).toHaveBeenCalledWith({ ITID: 512, IsIdentified: true });
 	});
 
 	it("shows a tip's picture, or the no-image picture without one", async () => {

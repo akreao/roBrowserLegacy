@@ -544,10 +544,6 @@ TipBox.onLinkClick = function onLinkClick(event) {
 		if (!itemId || !ItemInfo) {
 			return;
 		}
-		if (ItemInfo.uid === itemId) {
-			ItemInfo.remove();
-			return;
-		}
 		ItemInfo.append();
 		ItemInfo.uid = itemId;
 		ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
