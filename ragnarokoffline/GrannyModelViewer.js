@@ -383158,6 +383158,7 @@ function createCharSelect(config) {
 	*/
 	Component.onAppend = function onAppend() {
 		if (gridLayout) {
+			_index = _preferences.index;
 			Component.updateCharSlot();
 			startCountdownInterval();
 			moveCursorTo(_index);
@@ -383515,14 +383516,13 @@ function createCharSelect(config) {
 	*/
 	function cancel() {
 		if (_disable_UI === false) {
-			if (gridLayout) {
-				UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
-					ExitHooks_default.emit("login", "charSelect");
-					Component.onExitRequest();
-					Component.clearAllSlots();
-				}, null);
+			if (gridLayout) UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
 				stopCountdownInterval();
-			} else UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
+				ExitHooks_default.emit("login", "charSelect");
+				Component.onExitRequest();
+				Component.clearAllSlots();
+			}, null);
+			else UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
 				ExitHooks_default.emit("login", "charSelect");
 				Component.onExitRequest();
 			}, null);
@@ -383941,7 +383941,7 @@ function createCharSelect(config) {
 			const prevSlot = root.querySelector(`#slot${prevIndex}`);
 			if (prevSlot) prevSlot.style.backgroundImage = `url(${dataURI})`;
 		});
-		const slotIndex = _index = index > _maxSlots ? _maxSlots : index < 0 ? 0 : index;
+		const slotIndex = _index = index > _maxSlots - 1 ? _maxSlots - 1 : index < 0 ? 0 : index;
 		entity = _slots[_index];
 		if (!entity) {
 			charinfo.querySelectorAll("div").forEach((div) => {
@@ -384162,7 +384162,7 @@ var init_CharSelectV4$2 = __esmMin((() => {
 // src/UI/Components/CharSelect/CharSelectV4/CharSelectV4.css?raw
 var CharSelectV4_default$1;
 var init_CharSelectV4$1 = __esmMin((() => {
-	CharSelectV4_default$1 = ":host {\r\n	top: 0;\r\n	left: 0;\r\n	min-width: 100%;\r\n	min-height: 100%;\r\n}\r\n\r\n#CharSelectV4 {\r\n	position: absolute;\r\n	min-width: 100%;\r\n	min-height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-direction: column;\r\n}\r\n\r\n#CharSelectV4 .char_select_container {\r\n	position: absolute;\r\n	display: flex;\r\n	flex-direction: row;\r\n	background-color: rgba(0, 0, 0, 0.1);\r\n	border-radius: 5px;\r\n	padding-top: 20px;\r\n	padding-left: 5px;\r\n}\r\n\r\n/** Box **/\r\n#CharSelectV4 .char_list {\r\n	flex: 1;\r\n	max-width: 800px;\r\n	min-width: 157px;\r\n	height: 595px;\r\n	max-height: 80vh;\r\n	display: flex;\r\n	flex-direction: row;\r\n	flex-wrap: wrap;\r\n	overflow-y: auto;\r\n}\r\n\r\n#CharSelectV4 .box_select {\r\n	position: absolute;\r\n	width: 157px;\r\n	height: 159px;\r\n	top: 40px;\r\n	margin-left: -5px;\r\n}\r\n#CharSelectV4 .char_canvas {\r\n	width: 157px;\r\n	height: 195px;\r\n	position: relative;\r\n	z-index: 10;\r\n}\r\n#CharSelectV4 .char_canvas .name {\r\n	position: absolute;\r\n	bottom: 17px;\r\n	width: 100%;\r\n	text-align: center;\r\n	font-weight: bold;\r\n	color: #15154a;\r\n}\r\n\r\n#CharSelectV4 .char_canvas .job_icon {\r\n	position: absolute;\r\n	top: 15px;\r\n	right: 12px;\r\n	width: 25px;\r\n	height: 25px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n/** Slot info **/\r\n#CharSelectV4 .slotinfo {\r\n	position: absolute;\r\n	top: 195px;\r\n	right: 10px;\r\n	height: 20px;\r\n	display: block;\r\n	border: 1px solid #c6cee7;\r\n	border-radius: 4px;\r\n	padding-left: 10px;\r\n	padding-right: 10px;\r\n}\r\n#CharSelectV4 .slotinfo .number {\r\n	color: #58709e;\r\n	font-weight: bold;\r\n	margin-right: 10px;\r\n}\r\n#CharSelectV4 .slotinfo .content {\r\n	color: #555;\r\n	top: 6px;\r\n	right: 8px;\r\n}\r\n\r\n/** Page info **/\r\n#CharSelectV4 .pageinfo {\r\n	position: absolute;\r\n	left: 275px;\r\n	top: 185px;\r\n	font-weight: bold;\r\n	color: #646464;\r\n}\r\n#CharSelectV4 .pageinfo .current {\r\n	color: #fe3b7d;\r\n}\r\n\r\n/** Characters infos **/\r\n#CharSelectV4 .charinfo {\r\n	height: 585px;\r\n	max-height: 80vh;\r\n	width: 185px;\r\n	background-repeat: no-repeat;\r\n	margin-top: 10px;\r\n	margin-left: 10px;\r\n	position: relative;\r\n}\r\n#CharSelectV4 .charinfo div {\r\n	position: absolute;\r\n	width: 90px;\r\n	height: 13px;\r\n}\r\n#CharSelectV4 .charinfo .name {\r\n	left: 52px;\r\n	top: 2px;\r\n	white-space: nowrap;\r\n}\r\n#CharSelectV4 .charinfo .job {\r\n	left: 60px;\r\n	top: 105px;\r\n}\r\n#CharSelectV4 .charinfo .lvl {\r\n	left: 60px;\r\n	top: 123px;\r\n}\r\n#CharSelectV4 .charinfo .exp {\r\n	left: 60px;\r\n	top: 140px;\r\n}\r\n#CharSelectV4 .charinfo .hp {\r\n	left: 60px;\r\n	top: 157px;\r\n}\r\n#CharSelectV4 .charinfo .sp {\r\n	left: 60px;\r\n	top: 174px;\r\n}\r\n#CharSelectV4 .charinfo .map {\r\n	left: 60px;\r\n	top: 89px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n#CharSelectV4 .charinfo .str {\r\n	left: 60px;\r\n	top: 191px;\r\n}\r\n#CharSelectV4 .charinfo .agi {\r\n	left: 60px;\r\n	top: 208px;\r\n}\r\n#CharSelectV4 .charinfo .vit {\r\n	left: 60px;\r\n	top: 225px;\r\n}\r\n#CharSelectV4 .charinfo .int {\r\n	left: 60px;\r\n	top: 242px;\r\n}\r\n#CharSelectV4 .charinfo .dex {\r\n	left: 60px;\r\n	top: 259px;\r\n}\r\n#CharSelectV4 .charinfo .luk {\r\n	left: 60px;\r\n	top: 276px;\r\n}\r\n\r\n/** Buttons **/\r\n#CharSelectV4 .btn.delete {\r\n	position: absolute;\r\n	width: 131px;\r\n	height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.canceldelete {\r\n	position: absolute;\r\n	width: 131px;\r\n	height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.finaldelete {\r\n	position: absolute;\r\n	width: 131px;\r\n	height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.delete,\r\n#CharSelectV4 .btn.canceldelete,\r\n#CharSelectV4 .btn.finaldelete {\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	text-align: center;\r\n	line-height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.ok {\r\n	position: absolute;\r\n	width: 165px;\r\n	height: 110px;\r\n	color: white;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	text-align: center;\r\n}\r\n\r\n/* The label sits on the middle of the Poring, not at its crown. Centred on\r\n   its own: the button's display is set inline when it is shown. */\r\n#CharSelectV4 .btn.ok ui-text {\r\n	position: absolute;\r\n	left: 0;\r\n	right: 0;\r\n	top: 50%;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n#CharSelectV4 .btn.ok:hover {\r\n	text-shadow: #000 1px 1px;\r\n}\r\n\r\n#CharSelectV4 .ok,\r\n#CharSelectV4 .make {\r\n	right: 15px;\r\n	top: 380px;\r\n}\r\n#CharSelectV4 .cancel {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 5px;\r\n	width: 17px;\r\n	height: 18px;\r\n}\r\n#CharSelectV4 .delete {\r\n	right: 33px;\r\n	top: 300px;\r\n}\r\n\r\n#CharSelectV4 .canceldelete {\r\n	right: 33px;\r\n	top: 300px;\r\n}\r\n\r\n#CharSelectV4 .finaldelete {\r\n	right: 33px;\r\n	top: 330px;\r\n}\r\n\r\n#CharSelectV4 .timedelete {\r\n	position: relative;\r\n	height: 20px;\r\n	width: 100px;\r\n	top: -150px;\r\n	left: 55px;\r\n}\r\n\r\n#CharSelectV4 .hidden {\r\n	display: none;\r\n}\r\n";
+	CharSelectV4_default$1 = ":host {\r\n	top: 0;\r\n	left: 0;\r\n	min-width: 100%;\r\n	min-height: 100%;\r\n}\r\n\r\n#CharSelectV4 {\r\n	position: absolute;\r\n	min-width: 100%;\r\n	min-height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-direction: column;\r\n}\r\n\r\n#CharSelectV4 .char_select_container {\r\n	position: absolute;\r\n	display: flex;\r\n	flex-direction: row;\r\n	background-color: rgba(0, 0, 0, 0.1);\r\n	border-radius: 5px;\r\n	padding-top: 20px;\r\n	padding-left: 5px;\r\n}\r\n\r\n/** Box **/\r\n#CharSelectV4 .char_list {\r\n	flex: 1;\r\n	max-width: 800px;\r\n	min-width: 157px;\r\n	height: 595px;\r\n	max-height: 80vh;\r\n	display: flex;\r\n	flex-direction: row;\r\n	flex-wrap: wrap;\r\n	overflow-y: auto;\r\n}\r\n\r\n#CharSelectV4 .box_select {\r\n	position: absolute;\r\n	width: 157px;\r\n	height: 159px;\r\n	top: 40px;\r\n	margin-left: -5px;\r\n}\r\n#CharSelectV4 .char_canvas {\r\n	width: 157px;\r\n	height: 195px;\r\n	position: relative;\r\n	z-index: 10;\r\n}\r\n#CharSelectV4 .char_canvas .name {\r\n	position: absolute;\r\n	bottom: 17px;\r\n	width: 100%;\r\n	text-align: center;\r\n	font-weight: bold;\r\n	color: #15154a;\r\n}\r\n\r\n#CharSelectV4 .char_canvas .job_icon {\r\n	position: absolute;\r\n	top: 15px;\r\n	right: 12px;\r\n	width: 25px;\r\n	height: 25px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n/** Slot info **/\r\n#CharSelectV4 .slotinfo {\r\n	position: absolute;\r\n	top: 195px;\r\n	right: 10px;\r\n	height: 20px;\r\n	display: block;\r\n	border: 1px solid #c6cee7;\r\n	border-radius: 4px;\r\n	padding-left: 10px;\r\n	padding-right: 10px;\r\n}\r\n#CharSelectV4 .slotinfo .number {\r\n	color: #58709e;\r\n	font-weight: bold;\r\n	margin-right: 10px;\r\n}\r\n#CharSelectV4 .slotinfo .content {\r\n	color: #555;\r\n	top: 6px;\r\n	right: 8px;\r\n}\r\n\r\n/** Page info **/\r\n#CharSelectV4 .pageinfo {\r\n	position: absolute;\r\n	left: 275px;\r\n	top: 185px;\r\n	font-weight: bold;\r\n	color: #646464;\r\n}\r\n#CharSelectV4 .pageinfo .current {\r\n	color: #fe3b7d;\r\n}\r\n\r\n/** Characters infos **/\r\n#CharSelectV4 .charinfo {\r\n	height: 585px;\r\n	max-height: 80vh;\r\n	width: 185px;\r\n	background-repeat: no-repeat;\r\n	margin-top: 10px;\r\n	margin-left: 10px;\r\n	position: relative;\r\n}\r\n#CharSelectV4 .charinfo div {\r\n	position: absolute;\r\n	width: 90px;\r\n	height: 13px;\r\n}\r\n#CharSelectV4 .charinfo .name {\r\n	left: 52px;\r\n	top: 2px;\r\n	white-space: nowrap;\r\n}\r\n#CharSelectV4 .charinfo .job {\r\n	left: 60px;\r\n	top: 105px;\r\n}\r\n#CharSelectV4 .charinfo .lvl {\r\n	left: 60px;\r\n	top: 123px;\r\n}\r\n#CharSelectV4 .charinfo .exp {\r\n	left: 60px;\r\n	top: 140px;\r\n}\r\n#CharSelectV4 .charinfo .hp {\r\n	left: 60px;\r\n	top: 157px;\r\n}\r\n#CharSelectV4 .charinfo .sp {\r\n	left: 60px;\r\n	top: 174px;\r\n}\r\n#CharSelectV4 .charinfo .map {\r\n	left: 60px;\r\n	top: 89px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n#CharSelectV4 .charinfo .str {\r\n	left: 60px;\r\n	top: 191px;\r\n}\r\n#CharSelectV4 .charinfo .agi {\r\n	left: 60px;\r\n	top: 208px;\r\n}\r\n#CharSelectV4 .charinfo .vit {\r\n	left: 60px;\r\n	top: 225px;\r\n}\r\n#CharSelectV4 .charinfo .int {\r\n	left: 60px;\r\n	top: 242px;\r\n}\r\n#CharSelectV4 .charinfo .dex {\r\n	left: 60px;\r\n	top: 259px;\r\n}\r\n#CharSelectV4 .charinfo .luk {\r\n	left: 60px;\r\n	top: 276px;\r\n}\r\n\r\n/** Buttons **/\r\n#CharSelectV4 .btn.delete {\r\n	position: absolute;\r\n	width: 131px;\r\n	height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.canceldelete {\r\n	position: absolute;\r\n	width: 131px;\r\n	height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.finaldelete {\r\n	position: absolute;\r\n	width: 131px;\r\n	height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.delete,\r\n#CharSelectV4 .btn.canceldelete,\r\n#CharSelectV4 .btn.finaldelete {\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	text-align: center;\r\n	line-height: 24px;\r\n}\r\n\r\n#CharSelectV4 .btn.ok {\r\n	position: absolute;\r\n	width: 165px;\r\n	height: 110px;\r\n	color: white;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	text-align: center;\r\n}\r\n\r\n/* As UINewSelectCharWnd draws it (kRO 2025-07-16): 18px bold white,\r\n   centred across the Poring with its top 57px down, over a 1px #d7d7d7\r\n   shadow, the same in every button state. Placed on its own: the button's\r\n   display is set inline when it is shown. */\r\n#CharSelectV4 .btn.ok ui-text {\r\n	position: absolute;\r\n	left: 0;\r\n	right: 0;\r\n	top: 57px;\r\n	font-size: 18px;\r\n	font-weight: bold;\r\n	line-height: 18px;\r\n	text-shadow: #d7d7d7 1px 1px;\r\n}\r\n\r\n#CharSelectV4 .ok,\r\n#CharSelectV4 .make {\r\n	right: 15px;\r\n	top: 380px;\r\n}\r\n#CharSelectV4 .cancel {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 5px;\r\n	width: 17px;\r\n	height: 18px;\r\n}\r\n#CharSelectV4 .delete {\r\n	right: 33px;\r\n	top: 300px;\r\n}\r\n\r\n#CharSelectV4 .canceldelete {\r\n	right: 33px;\r\n	top: 300px;\r\n}\r\n\r\n#CharSelectV4 .finaldelete {\r\n	right: 33px;\r\n	top: 330px;\r\n}\r\n\r\n#CharSelectV4 .timedelete {\r\n	position: relative;\r\n	height: 20px;\r\n	width: 100px;\r\n	top: -150px;\r\n	left: 55px;\r\n}\r\n\r\n#CharSelectV4 .hidden {\r\n	display: none;\r\n}\r\n";
 }));
 // src/UI/Components/CharSelect/CharSelectV4/CharSelectV4.js
 var CharSelectV4_default;
@@ -384276,6 +384276,7 @@ function createCharCreate(config) {
 		chooseSex: hasRace,
 		hasStats,
 		create(look) {
+			if (!nameFits(String(look && look.name || ""), false)) return;
 			const stats = look && look.stats || {};
 			const stat = (key) => hasStats ? parseInt(stats[key], 10) || 1 : 1;
 			const args = [
@@ -384479,9 +384480,36 @@ function createCharCreate(config) {
 	/**
 	* Send back informations to send the packet
 	*/
+	/**
+	* The official client checks the name's length before sending it
+	* (UINewMakeCharWnd::SendMsg): under 4 is refused with msgstringtable 21,
+	* over 23 with 531 and the name is cleared. It counts bytes in the
+	* client's codepage, so a Korean character counts as two. Our
+	* packet writes the name as UTF-8 into the same 24 bytes, so a name is
+	* also too long when its UTF-8 form is, or it would be cut short.
+	*
+	* @param {string} charname
+	* @param {boolean} clearOnTooLong - clear the stock name field (a plugin
+	*   drawing the screen has its own field)
+	* @return {boolean} whether the name can be sent
+	*/
+	function nameFits(charname, clearOnTooLong) {
+		const length = CodepageManager.encode(charname).length;
+		if (length < 4) {
+			UIManager.showMessageBox(DB.getMessage(21, "Character Name must be at least 4 characters long."), "ok");
+			return false;
+		}
+		if (Math.max(length, CodepageManager.encode(charname, "utf-8").length) > 23) {
+			UIManager.showMessageBox(DB.getMessage(531, "Name is too long. Please enter a name up to 23 english characters."), "ok");
+			if (clearOnTooLong) Component.getRoot().querySelector(nameInputSelector).value = "";
+			return false;
+		}
+		return true;
+	}
 	function create() {
 		const root = Component.getRoot();
 		const charname = root.querySelector(nameInputSelector).value;
+		if (!nameFits(charname, true)) return;
 		let str = 1;
 		let agi = 1;
 		let vit = 1;
@@ -384983,6 +385011,7 @@ var init_CharCreateCommon = __esmMin((() => {
 	init_SpriteRenderer();
 	init_Camera();
 	init_Client();
+	init_CodepageManager();
 	init_UIManager();
 	init_GUIComponent();
 	init_ScreenHooks();
@@ -388729,7 +388758,7 @@ var init_Rijndael = __esmMin((() => {
 // src/UI/Components/WinLogin/WinLogin/WinLogin.html?raw
 var WinLogin_default$2;
 var init_WinLogin$3 = __esmMin((() => {
-	WinLogin_default$2 = "<div id=\"WinLogin\">\r\n	<ui-image src=\"login_interface/win_login.bmp\"></ui-image>\r\n	<!-- User Auth -->\r\n	<input class=\"user\" type=\"text\" value=\"\" />\r\n	<input class=\"pass\" type=\"password\" value=\"\" />\r\n	<button\r\n		class=\"save\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/chk_saveoff.bmp\"\r\n		data-preload=\"login_interface/chk_saveon.bmp\"\r\n	></button>\r\n\r\n	<!-- Buttons -->\r\n	<button\r\n		class=\"btn signup\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_request.bmp\"\r\n		data-hover=\"login_interface/btn_request_a.bmp\"\r\n		data-down=\"login_interface/btn_request_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn connect\"\r\n		type=\"submit\"\r\n		data-background=\"login_interface/btn_connect.bmp\"\r\n		data-hover=\"login_interface/btn_connect_a.bmp\"\r\n		data-down=\"login_interface/btn_connect_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn exit\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_exit.bmp\"\r\n		data-hover=\"login_interface/btn_exit_a.bmp\"\r\n		data-down=\"login_interface/btn_exit_b.bmp\"\r\n	></button>\r\n</div>\r\n";
+	WinLogin_default$2 = "<div id=\"WinLogin\">\r\n	<ui-image src=\"login_interface/win_login.bmp\"></ui-image>\r\n	<!-- User Auth -->\r\n	<input class=\"user\" type=\"text\" value=\"\" maxlength=\"24\" />\r\n	<input class=\"pass\" type=\"password\" value=\"\" maxlength=\"24\" />\r\n	<button\r\n		class=\"save\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/chk_saveoff.bmp\"\r\n		data-preload=\"login_interface/chk_saveon.bmp\"\r\n	></button>\r\n\r\n	<!-- Buttons -->\r\n	<button\r\n		class=\"btn signup\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_request.bmp\"\r\n		data-hover=\"login_interface/btn_request_a.bmp\"\r\n		data-down=\"login_interface/btn_request_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn connect\"\r\n		type=\"submit\"\r\n		data-background=\"login_interface/btn_connect.bmp\"\r\n		data-hover=\"login_interface/btn_connect_a.bmp\"\r\n		data-down=\"login_interface/btn_connect_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn exit\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_exit.bmp\"\r\n		data-hover=\"login_interface/btn_exit_a.bmp\"\r\n		data-down=\"login_interface/btn_exit_b.bmp\"\r\n	></button>\r\n</div>\r\n";
 }));
 // src/UI/Components/WinLogin/WinLogin/WinLogin.css?raw
 var WinLogin_default$1;
@@ -391111,6 +391140,11 @@ function createWinLogin({ name, htmlText, cssText }) {
 	let _inputPassword;
 	let _buttonSave;
 	/**
+	* The "quit?" prompt while it is open, so a second Escape closes it
+	* instead of stacking another one.
+	*/
+	let _exitPrompt = null;
+	/**
 	* What a plugin drawing this screen sees (UI/ScreenHooks.js). login()
 	* goes the way the Connect button does, so a different sign-in -- a
 	* token in place of a password -- reaches the server the same way.
@@ -391137,12 +391171,10 @@ function createWinLogin({ name, htmlText, cssText }) {
 		_buttonSave = root.querySelector(".save");
 		_inputUsername.addEventListener("mousedown", function(event) {
 			this.focus();
-			this.value = "";
 			event.stopImmediatePropagation();
 		});
 		_inputPassword.addEventListener("mousedown", function(event) {
 			this.focus();
-			this.value = "";
 			event.stopImmediatePropagation();
 		});
 		_buttonSave.addEventListener("mousedown", (event) => {
@@ -391172,9 +391204,7 @@ function createWinLogin({ name, htmlText, cssText }) {
 	Component.onAppend = function onAppend() {
 		_inputUsername.value = _preferences.saveID ? _preferences.ID : "";
 		_inputPassword.value = "";
-		Client.loadFile(`${DB.INTERFACE_PATH}login_interface/chk_save${_preferences.saveID ? "on" : "off"}.bmp`, (url) => {
-			_buttonSave.style.backgroundImage = "url(" + url + ")";
-		});
+		updateSaveButton();
 		if (_preferences.ID.length) _inputPassword.focus();
 		else _inputUsername.focus();
 		Component.placeOnTop();
@@ -391183,10 +391213,20 @@ function createWinLogin({ name, htmlText, cssText }) {
 		if (PerfProbe.start()) PerfProbe.loginShown();
 	};
 	Component.onRemove = function onRemove() {
+		closeExitPrompt();
 		ScreenHooks_default.hide("login");
 	};
 	Component.onKeyDown = function onKeyDown(event) {
 		if (this._host.style.display === "none") return true;
+		if (_exitPrompt) {
+			const onPrompt = document.activeElement === _exitPrompt._host;
+			if (event.which === KEYS.ESCAPE) closeExitPrompt();
+			if (event.which === KEYS.ESCAPE || event.which === KEYS.ENTER && !onPrompt) {
+				event.stopImmediatePropagation();
+				return false;
+			}
+			return true;
+		}
 		switch (event.which) {
 			case KEYS.ENTER:
 				connect();
@@ -391208,13 +391248,40 @@ function createWinLogin({ name, htmlText, cssText }) {
 	};
 	function toggleSaveButton() {
 		_preferences.saveID = !_preferences.saveID;
-		Client.loadFile(`${DB.INTERFACE_PATH}login_interface/chk_save${_preferences.saveID ? "on" : "off"}.bmp`, (url) => {
+		updateSaveButton();
+	}
+	/**
+	* The template names its checkbox art (data-on / data-off): the 2025
+	* window draws a plain 12x12 box with a separate "Save ID" label, the
+	* older ones a bitmap with the label baked in.
+	*/
+	function updateSaveButton() {
+		const { on = "login_interface/chk_saveon.bmp", off = "login_interface/chk_saveoff.bmp" } = _buttonSave.dataset;
+		Client.loadFile(`${DB.INTERFACE_PATH}${_preferences.saveID ? on : off}`, (url) => {
 			_buttonSave.style.backgroundImage = "url(" + url + ")";
 		});
 	}
+	/**
+	* The official client asks before quitting from the login window
+	* (msgstringtable 17), from both the close button and Escape.
+	*/
 	function exit() {
-		Component.onExitRequest();
+		if (_exitPrompt) return false;
+		_exitPrompt = UIManager.showPromptBox(DB.getMessage(17, "Are you sure that you want to quit?"), "ok", "cancel", () => {
+			promptClosed();
+			Component.onExitRequest();
+		}, promptClosed);
+		Component._host.inert = true;
 		return false;
+	}
+	function promptClosed() {
+		_exitPrompt = null;
+		Component._host.inert = false;
+	}
+	function closeExitPrompt() {
+		const prompt = _exitPrompt;
+		promptClosed();
+		prompt?.remove();
 	}
 	function connect() {
 		submit(_inputUsername.value, _inputPassword.value);
@@ -391285,12 +391352,12 @@ var init_WinLogin$1 = __esmMin((() => {
 // src/UI/Components/WinLogin/WinLoginV2/WinLoginV2.html?raw
 var WinLoginV2_default$2;
 var init_WinLoginV2$2 = __esmMin((() => {
-	WinLoginV2_default$2 = "<div id=\"WinLogin\" class=\"win_login\">\r\n	<div class=\"win_login\">\r\n		<ui-image src=\"login_interface/bg_login.tga\"></ui-image>\r\n		<!-- User Auth -->\r\n		<input id=\"user\" class=\"user\" type=\"text\" value=\"\" />\r\n		<input id=\"pass\" class=\"pass\" type=\"password\" value=\"\" />\r\n		<button\r\n			id=\"save\"\r\n			class=\"save\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/chk_saveoff.bmp\"\r\n			data-preload=\"login_interface/chk_saveon.bmp\"\r\n		></button>\r\n\r\n		<!-- Buttons -->\r\n		<button\r\n			class=\"btn replay\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_join_normal.bmp\"\r\n			data-hover=\"login_interface/bt_join_over.bmp\"\r\n			data-down=\"login_interface/bt_join_press.bmp\"\r\n		>\r\n			Replay\r\n		</button>\r\n		<input type=\"file\" class=\"replay-upload\" accept=\".rrf\" style=\"display: none\" />\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn connect\"\r\n			type=\"submit\"\r\n			data-background=\"login_interface/bt_start_normal.bmp\"\r\n			data-hover=\"login_interface/bt_start_over.bmp\"\r\n			data-down=\"login_interface/bt_start_press.bmp\"\r\n		></button>\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn signup\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_join_normal.bmp\"\r\n			data-hover=\"login_interface/bt_join_over.bmp\"\r\n			data-down=\"login_interface/bt_join_press.bmp\"\r\n		>\r\n			Sign Up\r\n		</button>\r\n		<button id=\"btn_exit\" class=\"btn exit\" type=\"button\"></button>\r\n	</div>\r\n</div>\r\n";
+	WinLoginV2_default$2 = "<div id=\"WinLogin\" class=\"win_login\">\r\n	<div class=\"win_login\">\r\n		<ui-image src=\"login_interface/bg_login.tga\"></ui-image>\r\n		<!-- User Auth -->\r\n		<input id=\"user\" class=\"user\" type=\"text\" value=\"\" maxlength=\"24\" />\r\n		<input id=\"pass\" class=\"pass\" type=\"password\" value=\"\" maxlength=\"24\" />\r\n		<button\r\n			id=\"save\"\r\n			class=\"save\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/checkbox_off.bmp\"\r\n			data-preload=\"login_interface/checkbox_on.bmp\"\r\n			data-on=\"login_interface/checkbox_on.bmp\"\r\n			data-off=\"login_interface/checkbox_off.bmp\"\r\n		></button>\r\n		<ui-text class=\"save-label\" msg=\"3411\">Save ID</ui-text>\r\n\r\n		<!-- Buttons -->\r\n		<button\r\n			class=\"btn replay\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_close_normal.bmp\"\r\n			data-hover=\"login_interface/bt_close_over.bmp\"\r\n			data-down=\"login_interface/bt_close_press.bmp\"\r\n		>\r\n			Replay\r\n		</button>\r\n		<input type=\"file\" class=\"replay-upload\" accept=\".rrf\" style=\"display: none\" />\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn connect\"\r\n			type=\"submit\"\r\n			data-background=\"login_interface/bt_start_normal.bmp\"\r\n			data-hover=\"login_interface/bt_start_over.bmp\"\r\n			data-down=\"login_interface/bt_start_press.bmp\"\r\n		></button>\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn signup\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_join_normal.bmp\"\r\n			data-hover=\"login_interface/bt_join_over.bmp\"\r\n			data-down=\"login_interface/bt_join_press.bmp\"\r\n		>\r\n			<ui-text msg=\"3414\">Sign Up</ui-text>\r\n		</button>\r\n		<button\r\n			id=\"btn_exit\"\r\n			class=\"btn exit\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_close2_normal.bmp\"\r\n			data-hover=\"login_interface/bt_close2_over.bmp\"\r\n			data-down=\"login_interface/bt_close2_press.bmp\"\r\n		></button>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/WinLogin/WinLoginV2/WinLoginV2.css?raw
 var WinLoginV2_default$1;
 var init_WinLoginV2$1 = __esmMin((() => {
-	WinLoginV2_default$1 = ":host {\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n#WinLogin .win_login {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n#WinLogin .win_login input {\r\n	position: absolute;\r\n	left: 17px;\r\n	height: 18px;\r\n	width: 127px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n	text-align: center;\r\n}\r\n#WinLogin .win_login input.user {\r\n	top: 39px;\r\n}\r\n#WinLogin .win_login input.pass {\r\n	top: 61px;\r\n}\r\n#WinLogin .win_login .save {\r\n	position: absolute;\r\n	top: 85px;\r\n	left: 57px;\r\n	display: block;\r\n	width: 38px;\r\n	height: 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .win_login .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	background-color: transparent;\r\n}\r\n#WinLogin .win_login .btn.connect {\r\n	width: 84px;\r\n	height: 84px;\r\n	right: 25px;\r\n	bottom: 15px;\r\n}\r\n#WinLogin .win_login .btn.signup {\r\n	width: 84px;\r\n	height: 21px;\r\n	right: 120px;\r\n	bottom: 10px;\r\n}\r\n#WinLogin .btn.replay {\r\n	width: 84px;\r\n	height: 21px;\r\n	right: 210px;\r\n	bottom: 10px;\r\n}\r\n#WinLogin .win_login .btn.exit {\r\n	width: 24px;\r\n	height: 23px;\r\n	right: 7px;\r\n	bottom: 96px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin .win_login input:-webkit-autofill,\r\n#WinLogin .win_login input:-webkit-autofill:hover,\r\n#WinLogin .win_login input:-webkit-autofill:focus,\r\n#WinLogin .win_login input:-webkit-autofill:active,\r\n#WinLogin .win_login input:-internal-autofill-selected,\r\n#WinLogin .win_login input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
+	WinLoginV2_default$1 = ":host {\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n#WinLogin .win_login {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* Positions and sizes from UILoginWnd::OnCreate (kRO 2025-07-16) */\r\n#WinLogin .win_login input {\r\n	position: absolute;\r\n	left: 15px;\r\n	height: 16px;\r\n	width: 153px;\r\n	padding: 0;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n	text-align: center;\r\n}\r\n#WinLogin .win_login input.user {\r\n	top: 40px;\r\n}\r\n#WinLogin .win_login input.pass {\r\n	top: 64px;\r\n}\r\n#WinLogin .win_login .save {\r\n	position: absolute;\r\n	top: 85px;\r\n	left: 56px;\r\n	display: block;\r\n	width: 12px;\r\n	height: 12px;\r\n	padding: 0;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .win_login .save-label {\r\n	position: absolute;\r\n	left: 73px;\r\n	top: 87px;\r\n	height: 22px;\r\n	font-size: 11px;\r\n	line-height: 11px;\r\n	color: #333333;\r\n	white-space: nowrap;\r\n	pointer-events: none;\r\n}\r\n#WinLogin .win_login .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	padding: 0;\r\n	background-color: transparent;\r\n	font-size: 12px;\r\n	color: #313131;\r\n}\r\n#WinLogin .win_login .btn.connect {\r\n	width: 84px;\r\n	height: 84px;\r\n	left: 192px;\r\n	top: 32px;\r\n}\r\n#WinLogin .win_login .btn.signup {\r\n	width: 84px;\r\n	height: 21px;\r\n	left: 87px;\r\n	top: 104px;\r\n}\r\n#WinLogin .btn.replay {\r\n	width: 67px;\r\n	height: 21px;\r\n	left: 13px;\r\n	top: 104px;\r\n}\r\n#WinLogin .win_login .btn.exit {\r\n	width: 19px;\r\n	height: 19px;\r\n	left: 273px;\r\n	top: 15px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin .win_login input:-webkit-autofill,\r\n#WinLogin .win_login input:-webkit-autofill:hover,\r\n#WinLogin .win_login input:-webkit-autofill:focus,\r\n#WinLogin .win_login input:-webkit-autofill:active,\r\n#WinLogin .win_login input:-internal-autofill-selected,\r\n#WinLogin .win_login input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
 }));
 // src/UI/Components/WinLogin/WinLoginV2/WinLoginV2.js
 var WinLoginV2_default;
