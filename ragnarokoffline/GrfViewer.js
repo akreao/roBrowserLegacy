@@ -224394,24 +224394,97 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SA_ELEMENTGROUND] = { successEffectId: 258 };
 	SkillEffect[SkillConst_default.SA_ELEMENTFIRE] = { successEffectId: 255 };
 	SkillEffect[SkillConst_default.SA_ELEMENTWIND] = { successEffectId: 257 };
-	SkillEffect[SkillConst_default.RK_ENCHANTBLADE] = { effectId: 756 };
-	SkillEffect[SkillConst_default.RK_SONICWAVE] = { effectId: 832 };
-	SkillEffect[SkillConst_default.RK_DEATHBOUND] = {};
-	SkillEffect[SkillConst_default.RK_HUNDREDSPEAR] = { effectId: 723 };
-	SkillEffect[SkillConst_default.RK_WINDCUTTER] = { effectId: "ef_rk_windcutter" };
-	SkillEffect[SkillConst_default.RK_IGNITIONBREAK] = { effectIdOnCaster: 722 };
-	SkillEffect[SkillConst_default.RK_DRAGONBREATH] = { hitEffectId: 587 };
-	SkillEffect[SkillConst_default.RK_DRAGONHOWLING] = { effectId: 731 };
-	SkillEffect[SkillConst_default.RK_MILLENNIUMSHIELD] = { effectId: 749 };
-	SkillEffect[SkillConst_default.RK_CRUSHSTRIKE] = {};
-	SkillEffect[SkillConst_default.RK_REFRESH] = {};
-	SkillEffect[SkillConst_default.RK_GIANTGROWTH] = {};
-	SkillEffect[SkillConst_default.RK_STONEHARDSKIN] = {};
-	SkillEffect[SkillConst_default.RK_VITALITYACTIVATION] = {};
-	SkillEffect[SkillConst_default.RK_STORMBLAST] = {};
-	SkillEffect[SkillConst_default.RK_FIGHTINGSPIRIT] = {};
-	SkillEffect[SkillConst_default.RK_ABUNDANCE] = {};
-	SkillEffect[SkillConst_default.RK_PHANTOMTHRUST] = {};
+	SkillEffect[SkillConst_default.RK_ENCHANTBLADE] = {
+		successEffectIdOnCaster: [756, "ef_rk_ninja_throw_sound"],
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_SONICWAVE] = {
+		arrivalEffectIdOnCaster: 832,
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_DEATHBOUND] = {
+		successEffectIdOnCaster: "ef_rk_bluecasting",
+		damageEffectIdOnTarget: 183
+	};
+	SkillEffect[SkillConst_default.RK_HUNDREDSPEAR] = { castAuraEffectId: 12 };
+	SkillEffect[SkillConst_default.RK_WINDCUTTER] = {
+		successEffectIdOnCaster: "ef_rk_windcutter",
+		successEffectIdOnCasterByFacing: [
+			"ef_rk_windcutter_bottom_05",
+			"ef_rk_windcutter_bottom_01",
+			"ef_rk_windcutter_bottom_05",
+			"ef_rk_windcutter_bottom_01"
+		],
+		damageEffectIdOnOtherTarget: "ef_rk_windcutter_target",
+		firstHitEffectId: 122,
+		hideCastAura: true
+	};
+	SkillEffect[SkillConst_default.RK_IGNITIONBREAK] = {
+		successEffectIdOnCaster: "ef_rk_ignitionbreak",
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_DRAGONBREATH] = {
+		damageEffectIdOnCasterByFacing: [
+			"ef_rk_dragonbreath_05",
+			"ef_rk_dragonbreath_01",
+			"ef_rk_dragonbreath_11",
+			"ef_rk_dragonbreath_07"
+		],
+		damageEffectIdOnTarget: "ef_rk_dragonbreath_bomb",
+		arrivalEffectIdOnTarget: "ef_rk_dragonbreath_sound",
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_DRAGONHOWLING] = { successEffectIdOnCaster: [731, "quake"] };
+	SkillEffect[SkillConst_default.RK_MILLENNIUMSHIELD] = {
+		successEffectIdOnCaster: [
+			"ef_rk_bluecasting",
+			749,
+			"ef_rk_millenniumshield_sound"
+		],
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_CRUSHSTRIKE] = {
+		arrivalEffectIdOnTarget: [
+			"quake",
+			589,
+			"ef_rk_crushstrike_sound"
+		],
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_REFRESH] = {
+		successEffectIdOnCaster: "ef_rk_refresh_sound",
+		castAuraEffectId: 58
+	};
+	SkillEffect[SkillConst_default.RK_GIANTGROWTH] = {
+		successEffectIdOnCaster: [756, "ef_rk_ninja_throw_sound"],
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_STONEHARDSKIN] = {
+		successEffectIdOnCaster: [756, "ef_rk_bluecasting"],
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_VITALITYACTIVATION] = { successEffectIdOnCaster: 309 };
+	SkillEffect[SkillConst_default.RK_STORMBLAST] = {
+		successEffectIdOnCaster: 17,
+		successEffectId: [
+			"quake",
+			"ef_rk_stormblast_sound",
+			263
+		]
+	};
+	SkillEffect[SkillConst_default.RK_FIGHTINGSPIRIT] = {
+		successEffectIdOnCaster: [756, "ef_rk_bluecasting"],
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_ABUNDANCE] = {
+		successEffectIdOnCaster: "ef_rk_abundance_sound",
+		castAuraEffectId: 12
+	};
+	SkillEffect[SkillConst_default.RK_PHANTOMTHRUST] = {
+		successEffectIdOnCaster: "ef_rk_bluecasting",
+		successEffectId: "ef_rk_bluecasting",
+		castAuraEffectId: 12
+	};
 	SkillEffect[SkillConst_default.WL_WHITEIMPRISON] = { effectId: 802 };
 	SkillEffect[SkillConst_default.WL_SOULEXPANSION] = {
 		effectIdOnCaster: "ef_wl_soulexpansion_cast",
@@ -225161,7 +225234,17 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: "ef_bo_dust_explosion",
 		hitEffectId: "ef_bo_dust_explosion_hit"
 	};
-	SkillEffect[SkillConst_default.RK_DRAGONBREATH_WATER] = { hitEffectId: "ef_dragonbreath_water" };
+	SkillEffect[SkillConst_default.RK_DRAGONBREATH_WATER] = {
+		damageEffectIdOnCasterByFacing: [
+			"ef_rk_dragonbreath_water_05",
+			"ef_rk_dragonbreath_water_01",
+			"ef_rk_dragonbreath_water_11",
+			"ef_rk_dragonbreath_water_07"
+		],
+		damageEffectIdOnTarget: "ef_rk_dragonbreath_water_bomb",
+		arrivalEffectIdOnTarget: "ef_rk_dragonbreath_sound",
+		castAuraEffectId: 12
+	};
 	SkillEffect[SkillConst_default.WH_WIND_SIGN] = { effectId: "ef_wh_wind_sign" };
 	SkillEffect[SkillConst_default.WH_HAWKRUSH] = { effectId: "ef_wh_hawkrush" };
 	SkillEffect[SkillConst_default.WH_CALAMITYGALE] = { effectIdOnCaster: "ef_wh_calamitygale_cast" };
@@ -225201,7 +225284,7 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_wh_wild_walk_cast",
 		hitEffectId: "ef_wh_wild_walk_hit"
 	};
-	SkillEffect[SkillConst_default.RK_LUXANIMA] = { effectId: 1044 };
+	SkillEffect[SkillConst_default.RK_LUXANIMA] = { successEffectIdOnCaster: 1044 };
 	SkillEffect[SkillConst_default.DK_SERVANTWEAPON] = {
 		effectId: "ef_dk_servantweapon",
 		effectIdOnCaster: "ef_dk_servantweapon_cast",
@@ -276548,7 +276631,7 @@ function createPrimState(effect) {
 * @param {number} direction roBrowser direction 0-7
 * @return {number} degrees
 */
-function facingAngle(direction) {
+function facingAngle$1(direction) {
 	const DX = [
 		0,
 		-1,
@@ -276581,7 +276664,7 @@ function facingAngle(direction) {
 * @param {number} direction roBrowser direction 0-7
 */
 function applyFacing(state, effect, direction) {
-	if (effect.facing) state.yaw = (180 - facingAngle(direction) + 360) % 360 + num(effect.yaw, 0);
+	if (effect.facing) state.yaw = (180 - facingAngle$1(direction) + 360) % 360 + num(effect.yaw, 0);
 }
 /**
 * Advance a primitive by one tick
@@ -280351,6 +280434,37 @@ function screenSector(angle) {
 function screenSide(angle) {
 	return angle <= 90 || angle >= 270 ? "right" : "left";
 }
+/**
+* The official client's facing angle of an entity, which picks one of four
+* variants of some skill effects (Wind Cutter's floor slash, Dragon Breath's
+* breath): the camera's turn plus the entity's facing, in degrees
+* counter-clockwise from "down" on an unturned screen (0 south, 90 east,
+* 180 north, 270 west), in [0, 360). The client keeps the facing as
+* (packet direction + 4) x 45; roBrowser's direction d is drawn as sprite
+* (Camera.direction + d), so the same angle is -(45 d + camera turn).
+*
+* @param {number} direction entity.direction (0 south, 2 west, 4 north, 6 east)
+* @param {number} [cameraTurn] degrees, Camera.angle[1] by default
+* @return {number}
+*/
+function facingAngle(direction, cameraTurn = Camera.angle[1]) {
+	const angle = -(direction * 45 + cameraTurn) % 360;
+	return angle < 0 ? angle + 360 : angle + 0;
+}
+/**
+* The official four-way split of that angle: 0 strictly between 0 and 90
+* degrees, 1 from 90 up to 180, 2 from 180 up to 270, 3 for the rest
+* (0 itself, and 270 up to 360).
+*
+* @param {number} angle from facingAngle
+* @return {number} 0 to 3
+*/
+function facingQuarter(angle) {
+	if (angle > 0 && angle < 90) return 0;
+	if (angle >= 90 && angle < 180) return 1;
+	if (angle >= 180 && angle < 270) return 2;
+	return 3;
+}
 var mat4$14, vec4$7, _matrix$4, _point;
 var init_ScreenDirection = __esmMin((() => {
 	init_gl_matrix();
@@ -282232,6 +282346,19 @@ var init_EffectManager = __esmMin((() => {
 					});
 				}
 			}
+			const byFacing = SkillEffect[skillId].successEffectIdOnCasterByFacing;
+			if (byFacing && srcAID) {
+				const srcEntity = EntityManager.get(srcAID);
+				if (srcEntity) {
+					const effectId = byFacing[facingQuarter(facingAngle(srcEntity.direction))];
+					if (effectId) EffectManager.spam({
+						effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
+			}
 			const aimed = SkillEffect[skillId].successEffectIdOnCasterAimed;
 			if (aimed && srcAID && destAID) {
 				const srcEntity = EntityManager.get(srcAID);
@@ -282396,18 +282523,19 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} srcAID caster aid
 		* @param {function} [random] returns a number in [0, 1)
 		* @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
+		* @param {number} [arrivalTick] when the packet's damage is due (attackMT on), for the arrival effects
 		*/
-		static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
+		static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1, arrivalTick = tick) {
 			const skill = SkillEffect[skillId];
 			if (!skill) return;
-			const play = (field, ownerAID, otherAID) => {
+			const play = (field, ownerAID, otherAID, startTick = tick) => {
 				if (!skill[field] || !ownerAID) return;
 				(Array.isArray(skill[field]) ? skill[field] : [skill[field]]).forEach((entry) => {
 					const effectId = Array.isArray(entry) ? entry[Math.floor(random() * entry.length)] : entry;
 					EffectManager.spam({
 						effectId,
 						ownerAID,
-						startTick: tick,
+						startTick,
 						otherAID,
 						hitCount
 					});
@@ -282415,6 +282543,20 @@ var init_EffectManager = __esmMin((() => {
 			};
 			play("damageEffectIdOnCaster", srcAID, destAID);
 			play("damageEffectIdOnTarget", destAID, srcAID);
+			if (destAID !== srcAID) play("damageEffectIdOnOtherTarget", destAID, srcAID);
+			play("arrivalEffectIdOnCaster", srcAID, destAID, arrivalTick);
+			play("arrivalEffectIdOnTarget", destAID, srcAID, arrivalTick);
+			const byFacing = skill.damageEffectIdOnCasterByFacing;
+			const caster = byFacing && srcAID ? EntityManager.get(srcAID) : null;
+			if (caster) {
+				const effectId = byFacing[facingQuarter(facingAngle(caster.direction))];
+				if (effectId && !EffectManager.has(srcAID, effectId)) EffectManager.spam({
+					effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				});
+			}
 			const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
 			const destEntity = destAID ? EntityManager.get(destAID) : null;
 			if (!srcEntity || !destEntity) return;
@@ -293485,7 +293627,7 @@ var init_HitDarkEffect = __esmMin((() => {
 		attachedEntity: true,
 		func: function(Params) {
 			const owner = Params.Init.ownerEntity;
-			const yaw = (180 - facingAngle(owner && owner.direction) + 360) % 360;
+			const yaw = (180 - facingAngle$1(owner && owner.direction) + 360) % 360;
 			const Init = Params.Init;
 			const startTick = Params.Inst.startTick;
 			this.spamEffect({
@@ -299217,7 +299359,7 @@ var init_BlitzStreaks = __esmMin((() => {
 				0
 			];
 			this.startTick = startTick || 0;
-			this.yaw = facingAngle(owner && owner.direction);
+			this.yaw = facingAngle$1(owner && owner.direction);
 			this.streaks = [];
 			for (let i = 0; i < STREAK.count; i++) this.streaks.push(createStreak(random));
 			this.ticks = 0;
@@ -299354,7 +299496,7 @@ var init_BlitzBeatEffect = __esmMin((() => {
 			const owner = Params.Init.ownerEntity;
 			const start = Params.Inst.startTick;
 			this.add(new BlitzStreaks(owner, start), Params);
-			const yaw = facingAngle(owner && owner.direction);
+			const yaw = facingAngle$1(owner && owner.direction);
 			coneTicks(Params.Init.hitCount).forEach((tick, i) => {
 				this.spamEffect({
 					effect: blitzBeatBand(yaw),
@@ -320902,11 +321044,6 @@ var init_EffectTable = __esmMin((() => {
 			min: "increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_rk_windcutter: [{
-			type: "STR",
-			file: "new_windcutter/new_windcutter/new_windcutter",
-			texturePath: "new_windcutter/new_windcutter/"
-		}],
 		ef_wl_soulexpansion_cast: [{
 			type: "STR",
 			file: "new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
@@ -321620,6 +321757,179 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "sj_document/sj_document",
 			texturePath: "sj_document/",
+			attachedEntity: true
+		}],
+		ef_rk_ninja_throw_sound: [{
+			wav: "effect/´ÑÀÚ_´øÁö±â",
+			attachedEntity: true
+		}],
+		ef_rk_bluecasting: [{
+			alphaMax: .8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 1e3,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: "ring_blue",
+			topSize: 5,
+			type: "CYLINDER",
+			wav: "effect/ef_beginspell"
+		}],
+		ef_rk_windcutter: [{
+			type: "STR",
+			file: "new_windcutter/new_windcutter/new_windcutter",
+			texturePath: "new_windcutter/new_windcutter/",
+			attachedEntity: true
+		}],
+		ef_rk_windcutter_bottom_01: [{
+			type: "STR",
+			file: "new_windcutter/new_windcutter_bottom_01clock/new_windcutter_bottom_01clock",
+			texturePath: "new_windcutter/new_windcutter_bottom_01clock/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_rk_windcutter_bottom_05: [{
+			type: "STR",
+			file: "new_windcutter/new_windcutter_bottom_05clock/new_windcutter_bottom_05clock",
+			texturePath: "new_windcutter/new_windcutter_bottom_05clock/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_rk_windcutter_target: [{
+			type: "STR",
+			file: "new_windcutter/new_windcutter_target/new_windcutter_target",
+			texturePath: "new_windcutter/new_windcutter_target/",
+			attachedEntity: true
+		}],
+		ef_rk_ignitionbreak: [{
+			type: "STR",
+			file: "new_ignitionbreak/new_ignitionbreak/new_ignitionbreak",
+			texturePath: "new_ignitionbreak/new_ignitionbreak/",
+			wav: "effect/wl_jackfrost",
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "new_ignitionbreak/new_ignitionbreak_bottom/new_ignitionbreak_bottom",
+			texturePath: "new_ignitionbreak/new_ignitionbreak_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_01: [{
+			type: "STR",
+			file: "new_dragonbreath/new_dragonbreath_01_clock/new_dragonbreath_01_clock",
+			texturePath: "new_dragonbreath/new_dragonbreath_01_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_05: [{
+			type: "STR",
+			file: "new_dragonbreath/new_dragonbreath_05_clock/new_dragonbreath_05_clock",
+			texturePath: "new_dragonbreath/new_dragonbreath_05_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_07: [{
+			type: "STR",
+			file: "new_dragonbreath/new_dragonbreath_07_clock/new_dragonbreath_07_clock",
+			texturePath: "new_dragonbreath/new_dragonbreath_07_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_11: [{
+			type: "STR",
+			file: "new_dragonbreath/new_dragonbreath_11_clock/new_dragonbreath_11_clock",
+			texturePath: "new_dragonbreath/new_dragonbreath_11_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_bomb: [{
+			type: "STR",
+			file: "new_dragonbreath/new_dragonbreath_bomb/new_dragonbreath_bomb",
+			texturePath: "new_dragonbreath/new_dragonbreath_bomb/",
+			delayStart: 350,
+			delayWav: 350,
+			wav: "effect/Æø¿°·æ",
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "new_dragonbreath/new_dragonbreath_bomb_bottom/new_dragonbreath_bomb_bottom",
+			texturePath: "new_dragonbreath/new_dragonbreath_bomb_bottom/",
+			delayStart: 350,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_water_01: [{
+			type: "STR",
+			file: "new_dragonbreath_water/new_dragonbreath_water_01_clock/new_dragonbreath_water_01_clock",
+			texturePath: "new_dragonbreath_water/new_dragonbreath_water_01_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_water_05: [{
+			type: "STR",
+			file: "new_dragonbreath_water/new_dragonbreath_water_05_clock/new_dragonbreath_water_05_clock",
+			texturePath: "new_dragonbreath_water/new_dragonbreath_water_05_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_water_07: [{
+			type: "STR",
+			file: "new_dragonbreath_water/new_dragonbreath_water_07_clock/new_dragonbreath_water_07_clock",
+			texturePath: "new_dragonbreath_water/new_dragonbreath_water_07_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_water_11: [{
+			type: "STR",
+			file: "new_dragonbreath_water/new_dragonbreath_water_11_clock/new_dragonbreath_water_11_clock",
+			texturePath: "new_dragonbreath_water/new_dragonbreath_water_11_clock/",
+			delayStart: 200,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_water_bomb: [{
+			type: "STR",
+			file: "new_dragonbreath_water/new_dragonbreath_water_bomb/new_dragonbreath_water_bomb",
+			texturePath: "new_dragonbreath_water/new_dragonbreath_water_bomb/",
+			delayStart: 350,
+			delayWav: 350,
+			wav: "effect/Æø¿°·æ",
+			attachedEntity: true
+		}, {
+			type: "STR",
+			file: "new_dragonbreath_water/new_dragonbreath_water_bomb_bottom/new_dragonbreath_water_bomb_bottom",
+			texturePath: "new_dragonbreath_water/new_dragonbreath_water_bomb_bottom/",
+			delayStart: 350,
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_rk_dragonbreath_sound: [{
+			wav: "dragon_breath",
+			attachedEntity: true
+		}],
+		ef_rk_millenniumshield_sound: [{
+			wav: "effect/ef_soulstrike",
+			attachedEntity: true
+		}],
+		ef_rk_crushstrike_sound: [{
+			wav: "_enemy_hit_wind2",
+			attachedEntity: true
+		}],
+		ef_rk_refresh_sound: [{
+			wav: "_heal_effect",
+			attachedEntity: true
+		}],
+		ef_rk_stormblast_sound: [{
+			wav: "effect/mon_¸Í·æ°ú°­",
+			attachedEntity: true
+		}],
+		ef_rk_abundance_sound: [{
+			wav: "effect/Èí±â",
 			attachedEntity: true
 		}],
 		ef_sj_solarburst: [{
@@ -372838,7 +373148,8 @@ function onEntityUseSkillToAttack(pkt) {
 			if (pushedEntity) pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 		}
 	}
-	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, void 0, pkt.count);
+	const arrivalDelay = pkt.attackMT + (SkillEffect[pkt.SKID] && SkillEffect[pkt.SKID].hitDelay || 0);
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, void 0, pkt.count, Renderer.tick + arrivalDelay);
 	EffectManager.spamSkillSplashMark(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, pkt.level);
 	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
 	if (srcEntity && dstEntity && packetLaunchesSkill(pkt.SKID, pkt.action)) {
