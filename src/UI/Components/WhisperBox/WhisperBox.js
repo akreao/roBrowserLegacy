@@ -144,6 +144,18 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 						return false;
 					}
 
+					// Page Up/Down scroll the conversation a page (official UIWhisperWnd
+					// messages 3 and 4; unlike the main chat, Ctrl changes nothing).
+					case KEYS.PAGEUP:
+					case KEYS.PAGEDOWN: {
+						const content = this._contentEl;
+						const line = parseFloat(getComputedStyle(content).lineHeight) || 14;
+						const page = Math.max(line, content.clientHeight - line);
+						content.scrollTop += event.which === KEYS.PAGEUP ? -page : page;
+						event.stopImmediatePropagation();
+						return false;
+					}
+
 					case KEYS.UP:
 					case KEYS.DOWN: {
 						const historyMsg = event.which === KEYS.UP ? this.history.previous() : this.history.next();
