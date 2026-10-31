@@ -81,7 +81,9 @@ describe('CharSelectV4 quit prompt', () => {
 		countdown.dataset.duration = '100';
 
 		CharSelect.onKeyDown({ which: KEYS.ESCAPE, stopImmediatePropagation: vi.fn() });
-		mocks.prompt.onNo?.();
+		// No has no callback: the prompt just closes (UIManager removes it),
+		// so the window is left as it was when the prompt opened
+		expect(mocks.prompt.onNo).toBeNull();
 		vi.advanceTimersByTime(3000);
 
 		expect(countdown.dataset.duration).toBe('97');
