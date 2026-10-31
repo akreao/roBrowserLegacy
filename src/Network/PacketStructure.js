@@ -12946,7 +12946,7 @@ PACKET.ZC.NOTIFY_STANDENTRY11.size = -1;
 
 // 0xa00
 PACKET.ZC.SHORTCUT_KEY_LIST_V3 = function PACKET_ZC_SHORTCUT_KEY_LIST_V3(fp, end) {
-	fp.seek(0x1, SEEK_CUR);
+	this.rotate = fp.readUChar();
 	this.ShortCutKey = (function () {
 		const count = 38;
 		const out = new Array(count);
@@ -12960,6 +12960,19 @@ PACKET.ZC.SHORTCUT_KEY_LIST_V3 = function PACKET_ZC_SHORTCUT_KEY_LIST_V3(fp, end
 	})();
 };
 PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
+
+// 0xa01
+PACKET.CZ.SHORTCUTKEYBAR_ROTATE1 = function PACKET_CZ_SHORTCUTKEYBAR_ROTATE1() {
+	this.rowshift = 0;
+};
+PACKET.CZ.SHORTCUTKEYBAR_ROTATE1.prototype.build = function () {
+	const pkt_len = 2 + 1;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0xa01);
+	pkt_buf.writeUChar(this.rowshift);
+	return pkt_buf;
+};
 
 // 0xa07
 PACKET.ZC.ACK_REMOVE_ITEM_MAIL = function ACK_REMOVE_ITEM_MAIL(fp, end) {
@@ -14694,6 +14707,21 @@ PACKET.CZ.SHORTCUT_KEY_CHANGE2.prototype.build = function () {
 	pkt_buf.writeChar(this.ShortCutKey.isSkill);
 	pkt_buf.writeULong(this.ShortCutKey.ID);
 	pkt_buf.writeShort(this.ShortCutKey.count);
+	return pkt_buf;
+};
+
+// 0xb22
+PACKET.CZ.SHORTCUTKEYBAR_ROTATE2 = function PACKET_CZ_SHORTCUTKEYBAR_ROTATE2() {
+	this.tab = 0;
+	this.rowshift = 0;
+};
+PACKET.CZ.SHORTCUTKEYBAR_ROTATE2.prototype.build = function () {
+	const pkt_len = 2 + 2 + 1;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0xb22);
+	pkt_buf.writeUShort(this.tab);
+	pkt_buf.writeUChar(this.rowshift);
 	return pkt_buf;
 };
 

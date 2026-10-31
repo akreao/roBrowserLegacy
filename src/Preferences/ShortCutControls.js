@@ -366,6 +366,12 @@ ShortCuts.SkillBarSize = {
 	component: 'ShortCut',
 	cmd: 'EXTEND'
 };
+ShortCuts.SkillBarRotate = {
+	init: { key: KEYS.F12, alt: false, ctrl: true, shift: false },
+	cust: false,
+	component: 'ShortCut',
+	cmd: 'ROTATE'
+};
 ShortCuts.Bank = {
 	init: { key: KEYS.B, alt: false, ctrl: true, shift: false },
 	cust: false,

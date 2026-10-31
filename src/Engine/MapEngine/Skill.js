@@ -334,7 +334,7 @@ function onSkillUpdate(pkt) {
  * @param {object} pkt - PACKET_ZC_SHORTCUT_KEY_LIST_V2
  */
 function onShortCutList(pkt) {
-	ShortCut.setList(pkt.ShortCutKey, pkt.tab === 1 ? 1 : 0);
+	ShortCut.setList(pkt.ShortCutKey, pkt.tab === 1 ? 1 : 0, pkt.rotate || 0);
 }
 
 /**
@@ -633,11 +633,31 @@ ShortCut.onChange = function onChange(index, isSkill, ID, count) {
 	} else {
 		pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE1();
 	}
-	pkt.Index = index;
+	pkt.Index = ShortCut.toServerIndex(index);
 	pkt.ShortCutKey.isSkill = isSkill ? 1 : 0;
 	pkt.ShortCutKey.ID = ID;
 	pkt.ShortCutKey.count = count;
 
+	Network.sendPacket(pkt);
+};
+
+/**
+ * Tell the server a hotkey bar's row shift
+ *
+ * @param {number} tab
+ * @param {number} rotate
+ */
+ShortCut.onRotate = function onRotate(tab, rotate) {
+	let pkt;
+	if (PACKETVER.value >= 20190522) {
+		pkt = new PACKET.CZ.SHORTCUTKEYBAR_ROTATE2();
+		pkt.tab = tab;
+	} else if (PACKETVER.value >= 20140129) {
+		pkt = new PACKET.CZ.SHORTCUTKEYBAR_ROTATE1();
+	} else {
+		return;
+	}
+	pkt.rowshift = rotate;
 	Network.sendPacket(pkt);
 };
 
