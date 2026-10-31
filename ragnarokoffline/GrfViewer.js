@@ -214575,7 +214575,7 @@ var init_Events = __esmMin((() => {
 * Render background (or a black background if no image is loaded yet)
 */
 function render$16() {
-	_ctx$5.clearRect(0, 0, _canvas.width, _canvas.height);
+	_ctx$4.clearRect(0, 0, _canvas.width, _canvas.height);
 	if (Background._progress > -1) Background.setPercent(Background._progress);
 }
 /**
@@ -214611,7 +214611,7 @@ function transition(callback) {
 	});
 	Background._overlayAnim = anim;
 }
-var _overlay$2, _container, _canvas, _ctx$5, Background;
+var _overlay$2, _container, _canvas, _ctx$4, Background;
 var init_Background = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -214644,7 +214644,7 @@ var init_Background = __esmMin((() => {
 		left: "0",
 		zIndex: "2"
 	});
-	_ctx$5 = _canvas.getContext("2d");
+	_ctx$4 = _canvas.getContext("2d");
 	Background = class Background {
 		/**
 		* Background loading progress
@@ -214698,7 +214698,7 @@ var init_Background = __esmMin((() => {
 				width: width + "px",
 				height: height + "px"
 			});
-			_ctx$5.clearRect(0, 0, width, height);
+			_ctx$4.clearRect(0, 0, width, height);
 			render$16();
 		}
 		/**
@@ -214850,14 +214850,14 @@ var init_Background = __esmMin((() => {
 			const height = 15;
 			const x = Math.floor((_canvas.width - width) * .5);
 			const y = Math.floor(_canvas.height * .75);
-			_ctx$5.fillStyle = "rgb(0,255,255)";
-			_ctx$5.fillRect(x, y, width, height);
-			_ctx$5.fillStyle = "rgb(140,140,140)";
-			_ctx$5.fillRect(x + 1, y + 1, 238, 13);
-			_ctx$5.fillStyle = "rgb(66,99,165)";
-			_ctx$5.fillRect(x + 2, y + 2, Math.floor(percent * 236 * .01), 11);
-			_ctx$5.fillStyle = "rgb(255,255,0)";
-			_ctx$5.fillText(percent + "%", Math.floor((_canvas.width - _ctx$5.measureText(percent + "%").width) * .5), y + 11);
+			_ctx$4.fillStyle = "rgb(0,255,255)";
+			_ctx$4.fillRect(x, y, width, height);
+			_ctx$4.fillStyle = "rgb(140,140,140)";
+			_ctx$4.fillRect(x + 1, y + 1, 238, 13);
+			_ctx$4.fillStyle = "rgb(66,99,165)";
+			_ctx$4.fillRect(x + 2, y + 2, Math.floor(percent * 236 * .01), 11);
+			_ctx$4.fillStyle = "rgb(255,255,0)";
+			_ctx$4.fillText(percent + "%", Math.floor((_canvas.width - _ctx$4.measureText(percent + "%").width) * .5), y + 11);
 		}
 	};
 }));
@@ -217009,7 +217009,7 @@ function syncAfterBatch() {
 	_texture$9 = null;
 	_groupId++;
 }
-var mat4$21, RenderCanvas2D, _program$40, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$21, RenderCanvas2D, _program$40, _buffer$21, _ctx$3, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -217076,17 +217076,17 @@ var init_SpriteRenderer = __esmMin((() => {
 				_size$7[1] *= -1;
 			}
 			const canvas = getFrameCanvas(frame, pal, this.color);
-			_ctx$4.save();
-			_ctx$4.translate(_x | 0, _y | 0);
-			_ctx$4.rotate(this.angle / 180 * Math.PI);
-			_ctx$4.scale(scale_x, scale_y);
-			_ctx$4.drawImage(canvas, 0, 0, width, height, -_size$7[0] >> 1, -_size$7[1] >> 1, _size$7[0] | 0, _size$7[1] | 0);
-			_ctx$4.restore();
+			_ctx$3.save();
+			_ctx$3.translate(_x | 0, _y | 0);
+			_ctx$3.rotate(this.angle / 180 * Math.PI);
+			_ctx$3.scale(scale_x, scale_y);
+			_ctx$3.drawImage(canvas, 0, 0, width, height, -_size$7[0] >> 1, -_size$7[1] >> 1, _size$7[0] | 0, _size$7[1] | 0);
+			_ctx$3.restore();
 		};
 	})();
 	_program$40 = null;
 	_buffer$21 = null;
-	_ctx$4 = null;
+	_ctx$3 = null;
 	_gl$3 = null;
 	_groupId = 0;
 	_lastGroupId = 0;
@@ -217286,7 +217286,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {number} y position
 		*/
 		static bind2DContext(ctx, x, y) {
-			_ctx$4 = ctx;
+			_ctx$3 = ctx;
 			_pos$8[0] = x;
 			_pos$8[1] = y;
 			this.render = RenderCanvas2D;
@@ -230631,7 +230631,7 @@ function onClickOption(btn) {
 /**
 * Resize ChatBoxSettings
 */
-function onResize$8(event) {
+function onResize$7(event) {
 	if (event.button !== 0) return;
 	event.preventDefault();
 	event.stopPropagation();
@@ -230644,7 +230644,7 @@ function onResize$8(event) {
 			stopResize();
 			return;
 		}
-		resize$5(startRows + Math.round((moveEvent.clientY - startY) / scale / 20));
+		resize$4(startRows + Math.round((moveEvent.clientY - startY) / scale / 20));
 		ChatBoxSettings._fixPositionOverflow();
 	};
 	stopResize = () => {
@@ -230666,7 +230666,7 @@ function updateOptionImage(button, isOn, tabID) {
 /**
 * Extend window size
 */
-function resize$5(rows) {
+function resize$4(rows) {
 	rows = Math.min(Math.max(rows, 8), 22);
 	const list = ChatBoxSettings.getRoot().querySelector(".listoption");
 	list.style.height = `${rows * 20 + 3}px`;
@@ -230723,7 +230723,7 @@ var init_ChatBoxSettings = __esmMin((() => {
 	ChatBoxSettings.init = function init() {
 		const root = this.getRoot();
 		const extendBtn = root.querySelector(".extend");
-		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$8);
+		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$7);
 		const closeBtn = root.querySelector(".close");
 		if (closeBtn) closeBtn.addEventListener("click", () => {
 			stopResize();
@@ -230751,7 +230751,7 @@ var init_ChatBoxSettings = __esmMin((() => {
 	*/
 	ChatBoxSettings.onAppend = function onAppend() {
 		fitWindowWidth();
-		resize$5(_preferences$44.height);
+		resize$4(_preferences$44.height);
 		const rect = this._host.getBoundingClientRect();
 		this._host.style.top = Math.max(0, Math.min(_preferences$44.y, Renderer.height - rect.height)) + "px";
 		this._host.style.left = Math.max(0, Math.min(_preferences$44.x, Renderer.width - rect.width)) + "px";
@@ -231024,7 +231024,7 @@ var init_InputBox = __esmMin((() => {
 /**
 * Helper: escape HTML
 */
-function _escapeHTML$5(text) {
+function _escapeHTML$4(text) {
 	const div = document.createElement("div");
 	div.textContent = text;
 	return div.innerHTML;
@@ -231155,7 +231155,7 @@ var init_NpcMenu = __esmMin((() => {
 		let j = 0;
 		for (let i = 0, count = list.length; i < count; ++i) if (list[i].length) {
 			const div = document.createElement("div");
-			div.innerHTML = DB.formatMsgToHtml(_escapeHTML$5(list[i]));
+			div.innerHTML = DB.formatMsgToHtml(_escapeHTML$4(list[i]));
 			div.dataset.index = j++;
 			content.appendChild(div);
 		}
@@ -232268,7 +232268,7 @@ function resetPathFindingWorker() {
 	terminatePathFindingWorker();
 	initializePathFindingWorker();
 }
-var PRIVATE_AIRSHIP_PACKETVER, Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$3, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
+var PRIVATE_AIRSHIP_PACKETVER, Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$2, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
 var init_Navigation = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Renderer();
@@ -232297,7 +232297,7 @@ var init_Navigation = __esmMin((() => {
 	_inn = createAsyncImage();
 	_kafra = createAsyncImage();
 	_map = createAsyncImage();
-	_ctx$3 = null;
+	_ctx$2 = null;
 	_towninfo = [];
 	_markers = [];
 	_path = [];
@@ -232346,7 +232346,7 @@ var init_Navigation = __esmMin((() => {
 		const canvas = document.createElement("canvas");
 		canvas.width = 280;
 		canvas.height = 230;
-		_ctx$3 = canvas.getContext("2d");
+		_ctx$2 = canvas.getContext("2d");
 		const mapDisplay = root.querySelector(".map-display");
 		if (mapDisplay) mapDisplay.appendChild(canvas);
 		Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
@@ -232653,7 +232653,7 @@ var init_Navigation = __esmMin((() => {
 		if ((this._host ? getComputedStyle(this._host).display : "none") === "none") return;
 		const width = 280;
 		const height = 230;
-		const ctx = _ctx$3;
+		const ctx = _ctx$2;
 		if (!ctx) return;
 		const currentMap = getCurrentMap();
 		const currentPos = getPlayerPosition();
@@ -233759,7 +233759,7 @@ function _root$21() {
 function onValidate$1() {
 	const root = _root$21();
 	const PartyFriends = UIManager.getComponent("PartyFriends");
-	switch (_type$6) {
+	switch (_type$5) {
 		case PartyHelper.Type.CREATE: {
 			const nameInput = root.querySelector(".content .name");
 			const name = nameInput ? nameInput.value : "";
@@ -233787,7 +233787,7 @@ function onValidate$1() {
 		}
 	}
 }
-var PartyHelper, _type$6, PartyHelper_default;
+var PartyHelper, _type$5, PartyHelper_default;
 var init_PartyHelper = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -233807,7 +233807,7 @@ var init_PartyHelper = __esmMin((() => {
 		INVITE: 2,
 		FRIEND_SETUP: 3
 	};
-	_type$6 = PartyHelper.Type.CREATE;
+	_type$5 = PartyHelper.Type.CREATE;
 	/**
 	* Render HTML
 	*/
@@ -234027,7 +234027,7 @@ var init_PartyHelper = __esmMin((() => {
 					el.style.display = "none";
 				});
 		}
-		_type$6 = type;
+		_type$5 = type;
 	};
 	/**
 	* Update party settings UI
@@ -234092,7 +234092,7 @@ var init_PartyHelper = __esmMin((() => {
 	* @returns {number}
 	*/
 	PartyHelper.getType = function getType() {
-		return _type$6;
+		return _type$5;
 	};
 	/**
 	* Hooks
@@ -238014,7 +238014,7 @@ var init_Equipment = __esmMin((() => {
 /**
 * Extend inventory window size
 */
-function onResize$7() {
+function onResize$6() {
 	const content = CartItems.getRoot().querySelector(".container .content");
 	const hideEl = CartItems.getRoot().querySelector(".hide");
 	const top = CartItems._host.offsetTop;
@@ -238276,7 +238276,7 @@ var init_CartItems = __esmMin((() => {
 		const miniBtn = root.querySelector(".titlebar .mini");
 		if (miniBtn) miniBtn.addEventListener("click", onToggleReduction);
 		const extendBtn = root.querySelector(".footer .extend");
-		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$7);
+		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$6);
 		const closeBtn = root.querySelector(".titlebar .close");
 		if (closeBtn) closeBtn.addEventListener("click", () => {
 			CartItems._host.style.display = "none";
@@ -239211,7 +239211,7 @@ function _orderByLogin(members) {
 /**
 * Helper: escape HTML
 */
-function _escapeHTML$4(text) {
+function _escapeHTML$3(text) {
 	const div = document.createElement("div");
 	div.textContent = text;
 	return div.innerHTML;
@@ -240101,7 +240101,7 @@ var init_Guild$1 = __esmMin((() => {
 				const own = !member.GPositionID ? " disabled" : "";
 				let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}"${own}>`;
 				_positions.forEach((position, key) => {
-					selectHTML += `<option value="${position.positionID}" ${key === member.GPositionID ? "selected" : ""}>${_escapeHTML$4(position.posName)}</option>`;
+					selectHTML += `<option value="${position.positionID}" ${key === member.GPositionID ? "selected" : ""}>${_escapeHTML$3(position.posName)}</option>`;
 				});
 				selectHTML += "</select>";
 				positionCell.innerHTML = selectHTML;
@@ -240348,7 +240348,7 @@ var init_Guild$1 = __esmMin((() => {
 		tr.className = `skill id${skill.SKID} ${className}`;
 		tr.setAttribute("data-index", skill.SKID);
 		tr.setAttribute("draggable", "true");
-		tr.innerHTML = `<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><div class="levelupcontainer"></div><div class="selectable"><div class="name">${_escapeHTML$4(sk.SkillName)}</div><div class="levelline"><div class="level">Lv : <span class="current">${skill.level}</span></div><div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : "Passive"}</div></div></div>`;
+		tr.innerHTML = `<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><div class="levelupcontainer"></div><div class="selectable"><div class="name">${_escapeHTML$3(sk.SkillName)}</div><div class="levelline"><div class="level">Lv : <span class="current">${skill.level}</span></div><div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : "Passive"}</div></div></div>`;
 		if (!skill.upgradable || !_skpoints || !SessionStorage_default.isGuildMaster) levelup.style.display = "none";
 		tr.querySelector(".levelupcontainer").appendChild(levelup);
 		const list = root.querySelector(".content.skills .skill_list");
@@ -242129,7 +242129,7 @@ function attachTouchDrag(container, { itemSelector, getPayload, createGhost = nu
 }
 var init_TouchDrag = __esmMin((() => {}));
 // src/UI/Components/SkillList/SkillListCommon.js
-function _escapeHTML$3(text) {
+function _escapeHTML$2(text) {
 	const div = document.createElement("div");
 	div.textContent = text;
 	return div.innerHTML;
@@ -242610,7 +242610,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 				element.className = `skill id${key} ${className}`;
 				element.setAttribute("data-index", key);
 				element.setAttribute("draggable", "true");
-				element.innerHTML = `<div class="name">${_escapeHTML$3(sk.SkillName)}</div><div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><span class="plus"></span><div class=selectable><span class="level" style="display: none">` + (sk.bSeperateLv ? `<button class="currentDown"></button><span class="current">0</span> / <span class="max">0</span><button class="currentUp"></button>` : "<span class=\"current\">0</span>") + "</span></div>";
+				element.innerHTML = `<div class="name">${_escapeHTML$2(sk.SkillName)}</div><div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><span class="plus"></span><div class=selectable><span class="level" style="display: none">` + (sk.bSeperateLv ? `<button class="currentDown"></button><span class="current">0</span> / <span class="max">0</span><button class="currentUp"></button>` : "<span class=\"current\">0</span>") + "</span></div>";
 				const upBtn = element.querySelector(".level .currentUp");
 				if (upBtn) {
 					if (_rArrow) upBtn.style.backgroundImage = _rArrow;
@@ -242632,7 +242632,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 								const miniTr = document.createElement("tr");
 								miniTr.className = `skill id${key} disabled`;
 								miniTr.setAttribute("data-index", key);
-								miniTr.innerHTML = `<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td><td class="levelupcontainer"></td><td class="selectable"><div class="name">${_escapeHTML$3(sk.SkillName)}<br/><span class="level">Lv : <span class="current">0</span></span></div></td><td class="selectable type"><div class="consume">Passive</div></td>`;
+								miniTr.innerHTML = `<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td><td class="levelupcontainer"></td><td class="selectable"><div class="name">${_escapeHTML$2(sk.SkillName)}<br/><span class="level">Lv : <span class="current">0</span></span></div></td><td class="selectable type"><div class="consume">Passive</div></td>`;
 								miniBox.appendChild(miniTr);
 								loadSkillIcon(sk, key, (data) => {
 									const img = miniTr.querySelector(".icon img");
@@ -242658,7 +242658,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 		element.classList.toggle("item", isItemSkill(skill));
 		element.setAttribute("data-index", skill.SKID);
 		element.setAttribute("draggable", "true");
-		element.innerHTML = `<div class="name">${_escapeHTML$3(sk.SkillName)}</div><div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><span class="plus"></span><div class="levelupcontainer"></div><div class=selectable><span class="level">` + (sk.bSeperateLv ? `<button class="currentDown"></button><span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>` : `<span class="current">${skill.level}</span>`) + "</span></div>";
+		element.innerHTML = `<div class="name">${_escapeHTML$2(sk.SkillName)}</div><div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><span class="plus"></span><div class="levelupcontainer"></div><div class=selectable><span class="level">` + (sk.bSeperateLv ? `<button class="currentDown"></button><span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>` : `<span class="current">${skill.level}</span>`) + "</span></div>";
 		const upBtn = element.querySelector(".level .currentUp");
 		if (upBtn) {
 			if (_rArrow) upBtn.style.backgroundImage = _rArrow;
@@ -242741,7 +242741,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 		tr.className = `skill id${skill.SKID} ${className}`;
 		tr.setAttribute("data-index", skill.SKID);
 		tr.setAttribute("draggable", "true");
-		tr.innerHTML = `<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td><td class="levelupcontainer"></td><td class=selectable><div class="name">${_escapeHTML$3(sk.SkillName)}<br/><span class="level">` + (sk.bSeperateLv ? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>` : `Lv : <span class="current">${skill.level}</span>`) + `</span></div></td><td class="selectable type"><div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : "Passive"}</div></td>`;
+		tr.innerHTML = `<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td><td class="levelupcontainer"></td><td class=selectable><div class="name">${_escapeHTML$2(sk.SkillName)}<br/><span class="level">` + (sk.bSeperateLv ? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>` : `Lv : <span class="current">${skill.level}</span>`) + `</span></div></td><td class="selectable type"><div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : "Passive"}</div></td>`;
 		if (!skill.upgradable || !_points) levelup.style.display = "none";
 		tr.querySelector(".levelupcontainer").appendChild(levelup);
 		const upBtn = tr.querySelector(".level .currentUp");
@@ -243572,7 +243572,7 @@ function slotSkillLevel(ID, slotLevel, level) {
 /**
 * Resizing hotkey window
 */
-function onResize$6(event) {
+function onResize$5(event) {
 	const top = ShortCut._host.offsetTop;
 	let lastHeight = 0;
 	function resizing() {
@@ -244087,7 +244087,7 @@ var init_ShortCut = __esmMin((() => {
 	ShortCut.init = function init() {
 		const root = ShortCut.getRoot();
 		const resizeBtn = root.querySelector(".resize");
-		if (resizeBtn) resizeBtn.addEventListener("mousedown", onResize$6);
+		if (resizeBtn) resizeBtn.addEventListener("mousedown", onResize$5);
 		const closeBtn = root.querySelector(".close");
 		if (closeBtn) {
 			closeBtn.addEventListener("mousedown", (e) => {
@@ -247382,12 +247382,12 @@ function close$2() {
 	if (_root$16) _root$16.style.display = "none";
 }
 function loadSprites() {
-	if (_action$4 || _loading$2) return;
+	if (_action$3 || _loading$2) return;
 	_loading$2 = true;
 	try {
 		Client.loadFiles(["data/sprite/ÀÌÆÑÆ®/emotion.act", "data/sprite/ÀÌÆÑÆ®/emotion.spr"], (act, spr) => {
-			_action$4 = act;
-			_sprite$4 = spr;
+			_action$3 = act;
+			_sprite$3 = spr;
 			_loading$2 = false;
 			render$8();
 		});
@@ -247421,7 +247421,7 @@ function getRoot() {
 * Draw one emote into a cell, as the Emoticons window does.
 */
 function drawEmote(canvas, emo) {
-	if (!_action$4 || !_sprite$4 || !_action$4.actions[emo]) {
+	if (!_action$3 || !_sprite$3 || !_action$3.actions[emo]) {
 		const ctx = canvas.getContext("2d");
 		ctx.fillStyle = "#bbb";
 		ctx.font = "11px sans-serif";
@@ -247430,12 +247430,12 @@ function drawEmote(canvas, emo) {
 		ctx.fillText("/" + Emotions_default.names[emo], CELL / 2, CELL / 2);
 		return;
 	}
-	const animations = _action$4.actions[emo].animations;
+	const animations = _action$3.actions[emo].animations;
 	const layers = animations[Math.floor(animations.length / 5)].layers;
 	if (!layers.length) return;
 	SpriteRenderer.bind2DContext(canvas.getContext("2d"), CELL / 2 - layers[0].pos[0], CELL - layers[0].pos[1]);
 	if (!_entity$2) _entity$2 = new Entity();
-	for (let i = 0; i < layers.length; ++i) _entity$2.renderLayer(layers[i], _sprite$4, _sprite$4, 1, [0, 0], false);
+	for (let i = 0; i < layers.length; ++i) _entity$2.renderLayer(layers[i], _sprite$3, _sprite$3, 1, [0, 0], false);
 }
 function render$8() {
 	const root = getRoot();
@@ -247502,7 +247502,7 @@ function dispose$3() {
 	if (_root$16 && _root$16.parentNode) _root$16.parentNode.removeChild(_root$16);
 	_root$16 = null;
 }
-var COLS, PER_PAGE, MAX_FAVORITES, CELL, BELOW_FEET, REPEAT_DELAY_MS$2, REPEAT_EVERY_MS$2, BTN$2, _root$16, _anchor, _open$2, _page$2, _row$1, _col$1, _repeatButton$1, _repeatAt$1, _action$4, _sprite$4, _loading$2, _entity$2, JoystickEmoteGrid_default;
+var COLS, PER_PAGE, MAX_FAVORITES, CELL, BELOW_FEET, REPEAT_DELAY_MS$2, REPEAT_EVERY_MS$2, BTN$2, _root$16, _anchor, _open$2, _page$2, _row$1, _col$1, _repeatButton$1, _repeatAt$1, _action$3, _sprite$3, _loading$2, _entity$2, JoystickEmoteGrid_default;
 var init_JoystickEmoteGrid = __esmMin((() => {
 	init_Emotions();
 	init_Client();
@@ -247541,8 +247541,8 @@ var init_JoystickEmoteGrid = __esmMin((() => {
 	_col$1 = 0;
 	_repeatButton$1 = -1;
 	_repeatAt$1 = 0;
-	_action$4 = null;
-	_sprite$4 = null;
+	_action$3 = null;
+	_sprite$3 = null;
 	_loading$2 = false;
 	_entity$2 = null;
 	JoystickEmoteGrid_default = {
@@ -267580,7 +267580,7 @@ var init_ItemCompare$1 = __esmMin((() => {
 /**
 * Helper: escape HTML
 */
-function _escapeHTML$2(text) {
+function _escapeHTML$1(text) {
 	const div = document.createElement("div");
 	div.textContent = text;
 	return div.innerHTML;
@@ -267593,12 +267593,12 @@ function _escapeHTML$2(text) {
 * @param {number} index
 * @param {number} slot count
 */
-function addCard$1(cardList, itemId, index, slotCount) {
+function addCard(cardList, itemId, index, slotCount) {
 	let file, name = "";
 	const card = DB.getItemInfo(itemId);
 	if (itemId && card) {
 		file = "item/" + card.identifiedResourceName + ".bmp";
-		name = `<div class="name">${_escapeHTML$2(card.identifiedDisplayName)}</div>`;
+		name = `<div class="name">${_escapeHTML$1(card.identifiedDisplayName)}</div>`;
 	} else if (index < slotCount) file = "empty_card_slot.bmp";
 	else file = "basic_interface/coparison_disable_card_slot.bmp";
 	if (!cardList) return;
@@ -267610,11 +267610,7 @@ function addCard$1(cardList, itemId, index, slotCount) {
 			if (itemId && card) element.addEventListener("contextmenu", (e) => {
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				ItemCompare.setItem({
-					ITID: itemId,
-					IsIdentified: true,
-					type: 6
-				});
+				showCardInfo(itemId, ItemCompare);
 			});
 		}
 	});
@@ -267622,13 +267618,13 @@ function addCard$1(cardList, itemId, index, slotCount) {
 /**
 * Extend ItemCompare window size
 */
-function onResize$5() {
+function onResize$4() {
 	const top = ItemCompare._host.offsetTop;
 	let lastHeight = 0;
 	function resizing() {
 		const h = Math.floor((Mouse.screen.y - top) / ItemCompare.scale);
 		if (h === lastHeight) return;
-		resize$4(h);
+		resize$3(h);
 		lastHeight = h;
 	}
 	const _Interval = setInterval(resizing, 30);
@@ -267645,7 +267641,7 @@ function onResize$5() {
 *
 * @param {number} height
 */
-function resize$4(height) {
+function resize$3(height) {
 	const root = ItemCompare.getRoot();
 	const container = root.querySelector(".container");
 	const description = root.querySelector(".description");
@@ -267659,17 +267655,17 @@ function resize$4(height) {
 	if (container) container.style.height = `${containerHeight}px`;
 	if (description) description.style.height = `${containerHeight - 45}px`;
 }
-function addEvent$1(item) {
+function addEvent(item) {
 	const root = ItemCompare.getRoot();
 	let event = root.querySelector(".event_view");
 	if (!event) {
-		if (!validateFieldsExist$1(event)) event = root.querySelector(".event_view");
+		if (!validateFieldsExist(event)) event = root.querySelector(".event_view");
 	}
 	if (!event) return;
 	const viewBtn = event.querySelector(".view");
 	if (viewBtn) viewBtn.style.display = "none";
 	event.querySelectorAll("canvas").forEach((c) => c.remove());
-	Renderer.stop(rendering$3);
+	Renderer.stop(rendering$2);
 	switch (item.type) {
 		case ItemType_default.CARD:
 			if (viewBtn) viewBtn.style.display = "block";
@@ -267682,26 +267678,26 @@ function addEvent$1(item) {
 				} catch (e) {
 					console.error("ItemCompare::addEvent() - startBook failed:", e.message);
 				}
-				eventsBooks$1();
+				eventsBooks();
 			});
 			break;
 		}
 		default: if (viewBtn) viewBtn.style.display = "none";
 	}
 }
-function eventsBooks$1() {
+function eventsBooks() {
 	const root = ItemCompare.getRoot();
 	const event = root.querySelector(".event_view");
 	if (!event) return;
 	Client.getFiles(["data/sprite/book/Ã¥ÀÐ±â.spr", "data/sprite/book/Ã¥ÀÐ±â.act"], function(spr, act) {
 		try {
-			_sprite$3 = new SPR(spr);
-			_action$3 = new ACT(act);
+			_sprite$2 = new SPR(spr);
+			_action$2 = new ACT(act);
 		} catch (e) {
 			console.error("Book::init() - " + e.message);
 			return;
 		}
-		const canvas = _sprite$3.getCanvasFromFrame(0);
+		const canvas = _sprite$2.getCanvasFromFrame(0);
 		canvas.className = "book_open event_add_cursor";
 		event.appendChild(canvas);
 		const bookOpen = root.querySelector(".book_open");
@@ -267726,7 +267722,7 @@ function eventsBooks$1() {
 		readCanvas.height = 15;
 		readCanvas.className = "book_read event_add_cursor";
 		event.appendChild(readCanvas);
-		_ctx$2 = readCanvas.getContext("2d");
+		_ctx$1 = readCanvas.getContext("2d");
 		const bookRead = root.querySelector(".book_read");
 		if (bookRead) {
 			bookRead.addEventListener("mouseover", (e) => {
@@ -267744,10 +267740,10 @@ function eventsBooks$1() {
 				MakeReadBook_default.highlighter();
 			});
 		}
-		Renderer.render(rendering$3);
+		Renderer.render(rendering$2);
 	});
 }
-function validateFieldsExist$1(event) {
+function validateFieldsExist(event) {
 	const root = ItemCompare.getRoot();
 	if (!event) {
 		const validExitElement = "<div class=\"event_view\"><button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button><span class=\"overlay_open\">" + DB.getMessage(1294) + "</span><span class=\"overlay_read\">" + DB.getMessage(1295) + "</span></div>";
@@ -267759,7 +267755,7 @@ function validateFieldsExist$1(event) {
 	if (!event.querySelector("button")) event.insertAdjacentHTML("beforeend", "<button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button>");
 	return true;
 }
-var _sprite$3, _action$3, _ctx$2, _type$5, _start$1, ItemCompare, rendering$3, ItemCompare_default;
+var _sprite$2, _action$2, _ctx$1, _type$4, _start, ItemCompare, rendering$2, ItemCompare_default;
 var init_ItemCompare = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -267779,8 +267775,8 @@ var init_ItemCompare = __esmMin((() => {
 	init_ItemInfo();
 	init_Entity$1();
 	init_HtmlHelper();
-	_type$5 = 0;
-	_start$1 = 0;
+	_type$4 = 0;
+	_start = 0;
 	ItemCompare = new GUIComponent("ItemCompare", ItemCompare_default$1);
 	ItemCompare.render = () => ItemCompare_default$2;
 	/**
@@ -267792,7 +267788,7 @@ var init_ItemCompare = __esmMin((() => {
 	*/
 	ItemCompare.onAppend = function onAppend() {
 		const descInner = ItemCompare.getRoot().querySelector(".description-inner");
-		if (descInner) resize$4(descInner.offsetHeight + 45);
+		if (descInner) resize$3(descInner.offsetHeight + 45);
 		if (ItemInfo_default._host) {
 			const itemInfoRect = ItemInfo_default._host.getBoundingClientRect();
 			const width = this._host.getBoundingClientRect().width;
@@ -267814,7 +267810,7 @@ var init_ItemCompare = __esmMin((() => {
 		this._host.style.top = "200px";
 		this._host.style.left = "200px";
 		const extendBtn = root.querySelector(".extend");
-		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$5);
+		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$4);
 		const viewBtn = root.querySelector(".view");
 		if (viewBtn) viewBtn.addEventListener("click", () => {
 			CardIllustration_default.append();
@@ -267857,9 +267853,9 @@ var init_ItemCompare = __esmMin((() => {
 		const descInner = root.querySelector(".description-inner");
 		if (descInner) {
 			const rawDesc = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
-			descInner.innerHTML = DB.formatMsgToHtml(DB.formatDescriptionTags(_escapeHTML$2(rawDesc)));
+			descInner.innerHTML = DB.formatMsgToHtml(DB.formatDescriptionTags(_escapeHTML$1(rawDesc)));
 		}
-		addEvent$1(item);
+		addEvent(item);
 		let hideslots = false;
 		if (item.slot) {
 			switch (item.slot["card1"]) {
@@ -267886,7 +267882,7 @@ var init_ItemCompare = __esmMin((() => {
 				const slotCount = it.slotCount || 0;
 				if (cardListParent) cardListParent.style.display = "block";
 				if (cardList) cardList.innerHTML = "";
-				for (let i = 0; i < 4; ++i) addCard$1(cardList, item.slot && item.slot["card" + (i + 1)] || 0, i, slotCount);
+				for (let i = 0; i < 4; ++i) addCard(cardList, item.slot && item.slot["card" + (i + 1)] || 0, i, slotCount);
 				if (!item.IsIdentified && cardListParent) cardListParent.style.display = "none";
 				break;
 			}
@@ -267894,22 +267890,22 @@ var init_ItemCompare = __esmMin((() => {
 		}
 		if (descInner) {
 			const rawDesc = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
-			descInner.innerHTML = DB.formatMsgToHtml(_escapeHTML$2(rawDesc));
-			resize$4(descInner.offsetHeight + 45);
+			descInner.innerHTML = DB.formatMsgToHtml(_escapeHTML$1(rawDesc));
+			resize$3(descInner.offsetHeight + 45);
 		}
 	};
-	rendering$3 = (function renderingClosure() {
+	rendering$2 = (function renderingClosure() {
 		const position = new Uint16Array([0, 0]);
 		return function render() {
 			const _entity = new Entity();
-			const action = _action$3.actions[_type$5];
-			const anim = Math.floor((Renderer.tick - _start$1) / action.delay);
+			const action = _action$2.actions[_type$4];
+			const anim = Math.floor((Renderer.tick - _start) / action.delay);
 			const animation = action.animations[anim % action.animations.length];
 			let i, count;
 			count = animation.layers.length;
-			SpriteRenderer.bind2DContext(_ctx$2, 10, 25);
-			_ctx$2.clearRect(0, 0, _ctx$2.canvas.width, _ctx$2.canvas.height);
-			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$3, _sprite$3, 1, position, false);
+			SpriteRenderer.bind2DContext(_ctx$1, 10, 25);
+			_ctx$1.clearRect(0, 0, _ctx$1.canvas.width, _ctx$1.canvas.height);
+			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$2, _sprite$2, 1, position, false);
 		};
 	})();
 	ItemCompare_default = UIManager.addComponent(ItemCompare);
@@ -267960,7 +267956,7 @@ function getItemLocation(item) {
 * @param {object} it
 * @returns {number}
 */
-function getPreviewSpriteId$1(item, it) {
+function getPreviewSpriteId(item, it) {
 	if (item && item.wItemSpriteNumber) return item.wItemSpriteNumber;
 	if (it && it.ClassNum) return it.ClassNum;
 	return 0;
@@ -267979,7 +267975,7 @@ function applyPreviewItem(entity) {
 	if (_previewLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) entity.accessory2 = _previewSpriteId;
 	if (_previewLocation & EquipmentLocation_default.COSTUME_ROBE) entity.robe = _previewSpriteId;
 }
-var ItemPreview, _ctx$1, _direction, _previewLocation, _previewSpriteId, _rendering, _remove, renderPreview, ItemPreview_default;
+var ItemPreview, _ctx, _direction, _previewLocation, _previewSpriteId, _rendering, _remove, renderPreview, ItemPreview_default;
 var init_ItemPreview = __esmMin((() => {
 	init_DBManager();
 	init_EquipmentLocation();
@@ -268013,7 +268009,7 @@ var init_ItemPreview = __esmMin((() => {
 	*/
 	ItemPreview.init = function init() {
 		const root = this.getRoot();
-		_ctx$1 = root.querySelector("canvas").getContext("2d");
+		_ctx = root.querySelector("canvas").getContext("2d");
 		root.querySelector(".close").addEventListener("click", () => {
 			ItemPreview.remove();
 		});
@@ -268077,7 +268073,7 @@ var init_ItemPreview = __esmMin((() => {
 		const it = DB.getItemInfo(item.ITID);
 		this.item = item;
 		_previewLocation = getItemLocation(item);
-		_previewSpriteId = getPreviewSpriteId$1(item, it);
+		_previewSpriteId = getPreviewSpriteId(item, it);
 		_direction = 0;
 	};
 	renderPreview = (function renderPreviewClosure() {
@@ -268098,8 +268094,8 @@ var init_ItemPreview = __esmMin((() => {
 			save: false
 		};
 		return function render() {
-			if (!_ctx$1) return;
-			_ctx$1.clearRect(0, 0, _ctx$1.canvas.width, _ctx$1.canvas.height);
+			if (!_ctx) return;
+			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 			if (!_previewSpriteId || !_previewLocation || !SessionStorage_default.Entity) return;
 			const previewCharacter = new Entity();
 			previewCharacter.set({
@@ -268125,8 +268121,8 @@ var init_ItemPreview = __esmMin((() => {
 			previewCharacter.headDir = 0;
 			previewCharacter.action = previewCharacter.ACTION.IDLE;
 			previewCharacter.animation = _animation;
-			SpriteRenderer.bind2DContext(_ctx$1, Math.floor(_ctx$1.canvas.width / 2), _ctx$1.canvas.height);
-			previewCharacter.renderEntity(_ctx$1);
+			SpriteRenderer.bind2DContext(_ctx, Math.floor(_ctx.canvas.width / 2), _ctx.canvas.height);
+			previewCharacter.renderEntity(_ctx);
 			previewCharacter.effectColor.set(_savedColor);
 		};
 	})();
@@ -268143,334 +268139,51 @@ var init_ItemInfo$1 = __esmMin((() => {
 	ItemInfo_default$1 = ":host {\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.ItemInfo {\r\n	position: relative;\r\n	width: 280px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .container {\r\n	height: 140px;\r\n	position: relative;\r\n	box-shadow:\r\n		white 0px 0px 0px 3px inset,\r\n		rgb(192, 192, 192) 0px 0px 0px 4px inset;\r\n	background-repeat: no-repeat;\r\n	background-color: white;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .event_view {\r\n	position: absolute;\r\n}\r\n.ItemInfo .event_view .view {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	top: 6px;\r\n	left: 6px;\r\n}\r\n.ItemInfo .collection {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 10px;\r\n	width: 75px;\r\n	height: 100px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n.ItemInfo .title {\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 86px;\r\n	width: 185px;\r\n	height: 14px;\r\n	padding-left: 4px;\r\n	padding-top: 6px;\r\n	text-shadow: 1px 1px 0px white;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n.ItemInfo .close {\r\n	position: absolute;\r\n	top: 3px;\r\n	right: 3px;\r\n	width: 11px;\r\n	height: 11px;\r\n	display: block;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n.ItemInfo .description {\r\n	position: absolute;\r\n	top: 35px;\r\n	left: 100px;\r\n	line-height: 18px;\r\n	width: 170px;\r\n	height: 75px;\r\n	overflow-y: auto;\r\n}\r\n.ItemInfo .description .description-inner {\r\n	width: 150px;\r\n	white-space: pre-wrap;\r\n}\r\n\r\n.ItemInfo .description .navi-link,\r\n.ItemInfo .description .tipbox-link {\r\n	color: #c00000;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n\r\n.ItemInfo .description .navi-link:hover,\r\n.ItemInfo .description .tipbox-link:hover {\r\n	color: #ff0000;\r\n}\r\n\r\n.ItemInfo .extend {\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 3px;\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.ItemInfo .cardlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .cardlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .cardlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .cardlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .cardlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .cardlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .book_open {\r\n	margin-top: 6px;\r\n	margin-left: 7px;\r\n}\r\n.ItemInfo .book_read {\r\n	position: absolute;\r\n	margin-top: 7px;\r\n}\r\n\r\n.ItemInfo .overlay_open {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 7px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n.ItemInfo .overlay_read {\r\n	pointer-events: none;\r\n	position: absolute;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	background: rgba(0, 0, 0, 0.5);\r\n	color: white;\r\n	text-shadow: black 1px 1px;\r\n	top: -7px;\r\n	left: 27px;\r\n	text-align: center;\r\n	padding: 3px 4px 1px 4px;\r\n	display: none;\r\n}\r\n\r\n.ItemInfo .optionlist {\r\n	border-radius: 5px;\r\n	background: white;\r\n	padding: 2px;\r\n	margin-top: 3px;\r\n}\r\n.ItemInfo .optionlist .border {\r\n	border: 1px solid #c1c6c2;\r\n	padding-top: 2px;\r\n	padding-left: 5px;\r\n	border-radius: 5px;\r\n}\r\n.ItemInfo .optionlist .item {\r\n	position: relative;\r\n	display: inline-block;\r\n}\r\n.ItemInfo .optionlist .item .icon {\r\n	width: 24px;\r\n	height: 24px;\r\n}\r\n.ItemInfo .optionlist .item .name {\r\n	position: absolute;\r\n	top: -20px;\r\n	left: -20px;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n.ItemInfo .optionlist .item:hover .name {\r\n	display: block;\r\n}\r\n\r\n.ItemInfo .title.damaged {\r\n	text-shadow: red 1px 1px 0px;\r\n}\r\n\r\n.ItemInfo .preview-action {\r\n	padding-top: 115px;\r\n	padding-left: 9px;\r\n}\r\n\r\n.moveinfo-label {\r\n	color: #000000;\r\n	display: block;\r\n	text-decoration: underline;\r\n}\r\n\r\n/* The official client's round box (UIRoundBoxTooltipWnd): a 1px #b8b8ef edge\r\n   around #e7e7ef, dark blue 12px text, lines 4.8px apart, 5px above and below\r\n   and about 7px either side. */\r\n.moveinfo-box {\r\n	position: absolute;\r\n	display: none;\r\n	z-index: 1;\r\n	background: #e7e7ef;\r\n	border: 1px solid #b8b8ef;\r\n	border-radius: 4px;\r\n	padding: 5px 7px;\r\n	color: #1a3b80;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.moveinfo-box div + div {\r\n	margin-top: 5px;\r\n}\r\n\r\n.ItemInfo .btn_mounting {\r\n	border: 0;\r\n	width: 80px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n";
 }));
 // src/UI/Components/ItemInfo/ItemInfo.js
-var ItemInfo_exports = /* @__PURE__ */ __exportAll({ default: () => ItemInfo_default });
+var ItemInfo_exports = /* @__PURE__ */ __exportAll({
+	ItemInfoCard: () => ItemInfoCard,
+	default: () => ItemInfo_default,
+	showCardInfo: () => showCardInfo
+});
 /**
-* Helper: escape HTML keeping whitelisted tags
-*/
-function _escapeHTML$1(text) {
-	const div = document.createElement("div");
-	div.textContent = text;
-	return div.innerHTML;
-}
-/**
-* Add a card into a slot
+* Create an item information window. The game has two: the main one and the
+* one a card slot opens (see addCard).
 *
-* @param {Element} cardList DOM element
-* @param {number} item id
-* @param {number} index
-* @param {number} slot count
+* @param {string} componentName
+* @param {boolean} isCardWindow
+* @return {GUIComponent}
 */
-function addCard(cardList, itemId, index, slotCount) {
-	let file, name = "";
-	const card = DB.getItemInfo(itemId);
-	if (itemId && card) {
-		file = "item/" + card.identifiedResourceName + ".bmp";
-		name = `<div class="name">${_escapeHTML$1(card.identifiedDisplayName)}</div>`;
-	} else if (index < slotCount) file = "empty_card_slot.bmp";
-	else file = "basic_interface/coparison_disable_card_slot.bmp";
-	if (!cardList) return;
-	cardList.insertAdjacentHTML("beforeend", `<div class="item" data-index="${index}"><div class="icon"></div>${name}</div>`);
-	Client.loadFile(DB.INTERFACE_PATH + file, (data) => {
-		const element = ItemInfo.getRoot().querySelector(`.cardlist .item[data-index="${index}"] .icon`);
-		if (element) {
-			element.style.backgroundImage = `url(${data})`;
-			if (itemId && card) element.addEventListener("contextmenu", (e) => {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				ItemInfo.setItem({
-					ITID: itemId,
-					IsIdentified: true,
-					type: 6
-				});
-			});
-		}
-	});
-}
-/**
-* Extend ItemInfo window size
-*/
-function onResize$4() {
-	const top = ItemInfo._host.offsetTop;
-	let lastHeight = 0;
-	function resizing() {
-		const h = Math.floor((Mouse.screen.y - top) / ItemInfo.scale);
-		if (h === lastHeight) return;
-		resize$3(h);
-		lastHeight = h;
-	}
-	const _Interval = setInterval(resizing, 30);
-	const onMouseUp = (event) => {
-		if (event.which === 1) {
-			clearInterval(_Interval);
-			window.removeEventListener("mouseup", onMouseUp);
-		}
-	};
-	window.addEventListener("mouseup", onMouseUp);
-}
-/**
-* Extend ItemInfo window size
-*
-* @param {number} height
-*/
-function resize$3(height) {
-	const root = ItemInfo.getRoot();
-	const container = root.querySelector(".container");
-	const description = root.querySelector(".description");
-	const descriptionInner = root.querySelector(".description-inner");
-	let containerHeight = height;
-	const minHeight = 140;
-	const innerH = descriptionInner ? descriptionInner.offsetHeight : 0;
-	const maxHeight = innerH + 45 > 140 ? Math.min(innerH + 45, 448) : 140;
-	if (containerHeight <= minHeight) containerHeight = minHeight;
-	if (containerHeight >= maxHeight) containerHeight = maxHeight;
-	if (container) container.style.height = `${containerHeight}px`;
-	if (description) description.style.height = `${containerHeight - 45}px`;
-}
-function addEvent(item) {
-	const root = ItemInfo.getRoot();
-	let event = root.querySelector(".event_view");
-	if (!event) {
-		if (!validateFieldsExist(event)) event = root.querySelector(".event_view");
-	}
-	if (!event) return;
-	const viewBtn = event.querySelector(".view");
-	if (viewBtn) viewBtn.style.display = "none";
-	event.querySelectorAll("canvas").forEach((c) => c.remove());
-	Renderer.stop(rendering$2);
-	switch (item.type) {
-		case ItemType_default.CARD:
-			if (viewBtn) viewBtn.style.display = "block";
-			break;
-		case ItemType_default.ETC: {
-			const filenameBook = `data/book/${item.ITID}.txt`;
-			Client.loadFile(filenameBook, (data) => {
-				try {
-					MakeReadBook_default.startBook(data, item);
-				} catch (e) {
-					console.error("ItemInfo::addEvent() - startBook failed:", e.message);
-				}
-				eventsBooks();
-			});
-			break;
-		}
-		default: if (viewBtn) viewBtn.style.display = "none";
-	}
-}
-function updatePreviewButton(item) {
-	const previewButton = ItemInfo.getRoot().querySelector(".btn_mounting");
-	if (!previewButton) return;
-	if (!canPreviewItem(item)) {
-		previewButton.style.display = "none";
-		return;
-	}
-	previewButton.style.display = "block";
-	const newBtn = previewButton.cloneNode(true);
-	previewButton.parentNode.replaceChild(newBtn, previewButton);
-	newBtn.addEventListener("click", (e) => {
-		e.stopImmediatePropagation();
-		toggleItemPreview(item);
-	});
-}
-function canPreviewItem(item) {
-	if (!item) return false;
-	if (!(getPreviewLocation(item) & (EquipmentLocation_default.HEAD_BOTTOM | EquipmentLocation_default.HEAD_MID | EquipmentLocation_default.HEAD_TOP | EquipmentLocation_default.COSTUME_HEAD_BOTTOM | EquipmentLocation_default.COSTUME_HEAD_MID | EquipmentLocation_default.COSTUME_HEAD_TOP | EquipmentLocation_default.COSTUME_ROBE))) return false;
-	return getPreviewSpriteId(item, DB.getItemInfo(item.ITID)) > 0;
-}
-function getPreviewLocation(item) {
-	if ("location" in item) return item.location;
-	if ("WearState" in item) return item.WearState;
-	if ("WearLocation" in item) return item.WearLocation;
-	return 0;
-}
-function getPreviewSpriteId(item, it) {
-	if (item && item.wItemSpriteNumber) return item.wItemSpriteNumber;
-	if (it && it.ClassNum) return it.ClassNum;
-	return 0;
-}
-function toggleItemPreview(item) {
-	if (ItemPreview_default.ui && ItemPreview_default._host && ItemPreview_default._host.style.display !== "none" && ItemPreview_default.uid === item.ITID) {
-		ItemPreview_default.remove();
-		return;
-	}
-	ItemPreview_default.append();
-	ItemPreview_default.uid = item.ITID;
-	ItemPreview_default.setItem(item);
-}
-function eventsBooks() {
-	const root = ItemInfo.getRoot();
-	const event = root.querySelector(".event_view");
-	if (!event) return;
-	Client.getFiles(["data/sprite/book/Ã¥ÀÐ±â.spr", "data/sprite/book/Ã¥ÀÐ±â.act"], function(spr, act) {
-		try {
-			_sprite$2 = new SPR(spr);
-			_action$2 = new ACT(act);
-		} catch (e) {
-			console.error("Book::init() - " + e.message);
-			return;
-		}
-		const canvas = _sprite$2.getCanvasFromFrame(0);
-		canvas.className = "book_open event_add_cursor";
-		event.appendChild(canvas);
-		const bookOpen = root.querySelector(".book_open");
-		if (bookOpen) {
-			bookOpen.addEventListener("mouseover", (e) => {
-				e.stopImmediatePropagation();
-				const overlayOpen = root.querySelector(".overlay_open");
-				if (overlayOpen) overlayOpen.style.display = "block";
-			});
-			bookOpen.addEventListener("mouseout", (e) => {
-				e.stopImmediatePropagation();
-				const overlayOpen = root.querySelector(".overlay_open");
-				if (overlayOpen) overlayOpen.style.display = "none";
-			});
-			bookOpen.addEventListener("click", (e) => {
-				e.stopImmediatePropagation();
-				MakeReadBook_default.openBook();
-			});
-		}
-		const readCanvas = document.createElement("canvas");
-		readCanvas.width = 21;
-		readCanvas.height = 15;
-		readCanvas.className = "book_read event_add_cursor";
-		event.appendChild(readCanvas);
-		_ctx = readCanvas.getContext("2d");
-		const bookRead = root.querySelector(".book_read");
-		if (bookRead) {
-			bookRead.addEventListener("mouseover", (e) => {
-				e.stopImmediatePropagation();
-				const overlayRead = root.querySelector(".overlay_read");
-				if (overlayRead) overlayRead.style.display = "block";
-			});
-			bookRead.addEventListener("mouseout", (e) => {
-				e.stopImmediatePropagation();
-				const overlayRead = root.querySelector(".overlay_read");
-				if (overlayRead) overlayRead.style.display = "none";
-			});
-			bookRead.addEventListener("click", (e) => {
-				e.stopImmediatePropagation();
-				MakeReadBook_default.highlighter();
-			});
-		}
-		Renderer.render(rendering$2);
-	});
-}
-function validateFieldsExist(event) {
-	const root = ItemInfo.getRoot();
-	if (!event) {
-		const validExitElement = "<div class=\"event_view\"><button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button><span class=\"overlay_open\">" + DB.getMessage(1294) + "</span><span class=\"overlay_read\">" + DB.getMessage(1295) + "</span></div>";
-		const collection = root.querySelector(".collection");
-		if (collection) collection.insertAdjacentHTML("afterend", validExitElement);
-		return false;
-	}
-	if (!root.querySelector(".overlay_open") && !root.querySelector(".overlay_read")) event.insertAdjacentHTML("beforeend", "<span class=\"overlay_open\">" + DB.getMessage(1294) + "</span><span class=\"overlay_read\">" + DB.getMessage(1295) + "</span>");
-	if (!event.querySelector("button")) event.insertAdjacentHTML("beforeend", "<button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button>");
-	return true;
-}
-/**
-* A function that handles previewing an item.
-*
-* @param {object} pkt - The packet containing information about the item
-* @return {boolean} Indicates success or failure of the preview action
-*/
-function onItemPreview(pkt) {
-	if (pkt) {
-		const item = InventoryController.getItemByIndex(pkt.index);
-		if (!item) return false;
-		if (ItemCompare_default.ui) ItemCompare_default.remove();
-		if (ItemInfo.uid === item.ITID) {
-			ItemInfo.remove();
-			if (ItemCompare_default.ui) ItemCompare_default.remove();
-			return false;
-		}
-		ItemInfo.append();
-		ItemInfo.uid = item.ITID;
-		ItemInfo.setItem(item);
-		const compareItem = EquipmentController.isInEquipList(item.location);
-		if (compareItem && InventoryController.itemcomp) {
-			ItemCompare_default.prepare();
-			ItemCompare_default.append();
-			ItemCompare_default.uid = compareItem.ITID;
-			ItemCompare_default.setItem(compareItem);
-		}
-	}
-}
-/**
-* The restriction messages for an item's move info
-*
-* @param {object} moveInfo - from data/ItemMoveInfoV5.txt
-* @returns {Array<string>} one message per restriction, in the client's order
-*/
-function getMoveInfoLines(moveInfo) {
-	return MOVE_INFO_MESSAGES.filter((entry) => moveInfo[entry.key] === true).map((entry) => DB.getMessage(entry.msgId));
-}
-/**
-* Open the restrictions box beside the cursor. The official client puts its
-* top-left 26px right of the pointer, level with it; a second click on the
-* link moves the box rather than opening another.
-*
-* @param {Array<string>} lines
-* @param {MouseEvent} event - the click on the link
-*/
-function showMoveInfoBox(lines, event) {
-	const box = ItemInfo.getRoot().querySelector(".moveinfo-box");
-	if (!box) return;
-	box.replaceChildren(...lines.map((text) => {
-		const line = document.createElement("div");
-		line.textContent = text;
-		return line;
-	}));
-	box.style.display = "block";
-	const WIDTH = Renderer.width || window.innerWidth;
-	const HEIGHT = Renderer.height || window.innerHeight;
-	const { width, height } = box.getBoundingClientRect();
-	let x = event.clientX + 26;
-	if (x + width > WIDTH) x = event.clientX - 26 - width;
-	x = Math.max(0, Math.min(x, WIDTH - width));
-	const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
-	const rect = ItemInfo._host.getBoundingClientRect();
-	const scale = ItemInfo.scale || 1;
-	box.style.left = `${(x - rect.left) / scale}px`;
-	box.style.top = `${(y - rect.top) / scale}px`;
-}
-var ItemInfo, _sprite$2, _action$2, _ctx, _type$4, _start, MOVE_INFO_MESSAGES, rendering$2, ItemInfo_default;
-var init_ItemInfo = __esmMin((() => {
-	init_DBManager();
-	init_ItemType();
-	init_EquipmentLocation();
-	init_Client();
-	init_KeyEventHandler();
-	init_CardIllustration();
-	init_UIManager();
-	init_MouseEventHandler();
-	init_GUIComponent();
-	init_Elements();
-	init_CursorManager();
-	init_ItemCompare();
-	init_ItemPreview();
-	init_MakeReadBook();
-	init_Renderer();
-	init_SpriteRenderer();
-	init_Sprite();
-	init_Action();
-	init_ItemInfo$2();
-	init_ItemInfo$1();
-	init_NetworkManager();
-	init_PacketStructure();
-	init_Entity$1();
-	init_Equipment();
-	init_Inventory();
-	init_Navigation();
-	init_TipBox();
-	init_HtmlHelper();
-	ItemInfo = new GUIComponent("ItemInfo", ItemInfo_default$1);
+function createItemInfo(componentName, isCardWindow) {
+	const ItemInfo = new GUIComponent(componentName, ItemInfo_default$1);
+	/** @var {boolean} the second window, opened for a card from a card slot */
+	ItemInfo.isCardWindow = isCardWindow;
+	ItemInfo.scaleName = "ItemInfo";
 	ItemInfo.render = () => ItemInfo_default$2;
-	_type$4 = 0;
-	_start = 0;
+	/**
+	* @let {Sprite,Action} objects
+	*/
+	let _sprite, _action;
+	/**
+	* @let {CanvasRenderingContext2D}
+	*/
+	let _ctx;
+	/**
+	* @let {number} type
+	*/
+	const _type = 0;
+	/**
+	* @let {number} start tick
+	*/
+	const _start = 0;
 	/**
 	* @let {number} ItemInfo unique id
 	*/
 	ItemInfo.uid = -1;
-	MOVE_INFO_MESSAGES = [
+	/**
+	* What an item can't be done with (data/ItemMoveInfoV5.txt), one message per
+	* line, in the order the official client lists them. 2793 (auction) is never
+	* shown there either.
+	*/
+	const MOVE_INFO_MESSAGES = [
 		{
 			key: "Drop",
 			msgId: 2788
@@ -268501,12 +268214,21 @@ var init_ItemInfo = __esmMin((() => {
 		}
 	];
 	/**
+	* Helper: escape HTML keeping whitelisted tags
+	*/
+	function _escapeHTML(text) {
+		const div = document.createElement("div");
+		div.textContent = text;
+		return div.innerHTML;
+	}
+	/**
 	* Once append to the DOM
 	*/
 	ItemInfo.onKeyDown = function onKeyDown(event) {
 		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this._host.style.display !== "none") {
 			ItemInfo.hideMoveInfoTooltip();
 			ItemInfo.remove();
+			if (ItemInfo.isCardWindow) return;
 			if (ItemCompare_default.ui) ItemCompare_default.remove();
 			if (ItemPreview_default.ui) ItemPreview_default.remove();
 		}
@@ -268516,7 +268238,7 @@ var init_ItemInfo = __esmMin((() => {
 	*/
 	ItemInfo.onAppend = function onAppend() {
 		const descInner = ItemInfo.getRoot().querySelector(".description-inner");
-		if (descInner) resize$3(descInner.offsetHeight + 45);
+		if (descInner) resize(descInner.offsetHeight + 45);
 	};
 	/**
 	* Once removed from html
@@ -268524,8 +268246,10 @@ var init_ItemInfo = __esmMin((() => {
 	ItemInfo.onRemove = function onRemove() {
 		this.uid = -1;
 		ItemInfo.hideMoveInfoTooltip();
+		if (ItemInfo.isCardWindow) return;
 		if (ItemCompare_default.ui) ItemCompare_default.remove();
 		if (ItemPreview_default.ui) ItemPreview_default.remove();
+		if (ItemInfoCard.__active) ItemInfoCard.remove();
 	};
 	/**
 	* Initialize UI
@@ -268533,9 +268257,9 @@ var init_ItemInfo = __esmMin((() => {
 	ItemInfo.init = function init() {
 		const root = ItemInfo.getRoot();
 		this._host.style.top = "200px";
-		this._host.style.left = "480px";
+		this._host.style.left = ItemInfo.isCardWindow ? "780px" : "480px";
 		const extendBtn = root.querySelector(".extend");
-		if (extendBtn) extendBtn.addEventListener("mousedown", onResize$4);
+		if (extendBtn) extendBtn.addEventListener("mousedown", onResize);
 		const closeBtn = root.querySelector(".close");
 		if (closeBtn) {
 			closeBtn.addEventListener("mousedown", (e) => {
@@ -268543,7 +268267,7 @@ var init_ItemInfo = __esmMin((() => {
 			});
 			closeBtn.addEventListener("click", () => {
 				this.remove();
-				if (ItemCompare_default.ui) ItemCompare_default.remove();
+				if (ItemCompare_default.ui && !ItemInfo.isCardWindow) ItemCompare_default.remove();
 			});
 		}
 		const viewBtn = root.querySelector(".view");
@@ -268619,7 +268343,7 @@ var init_ItemInfo = __esmMin((() => {
 		const descInner = root.querySelector(".description-inner");
 		if (descInner) {
 			const rawDesc = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
-			descInner.innerHTML = DB.formatMsgToHtml(DB.formatDescriptionTags(_escapeHTML$1(rawDesc)));
+			descInner.innerHTML = DB.formatMsgToHtml(DB.formatDescriptionTags(_escapeHTML(rawDesc)));
 		}
 		if (item.HireExpireDate) {
 			const dateText = DB.formatUnixDate(item.HireExpireDate);
@@ -268675,22 +268399,301 @@ var init_ItemInfo = __esmMin((() => {
 			}
 			case ItemType_default.PETEGG: if (cardListParent) cardListParent.style.display = "none";
 		}
-		if (descInner) resize$3(descInner.offsetHeight + 45);
+		if (descInner) resize(descInner.offsetHeight + 45);
 	};
-	rendering$2 = (function renderingClosure() {
+	/**
+	* Add a card into a slot
+	*
+	* @param {Element} cardList DOM element
+	* @param {number} item id
+	* @param {number} index
+	* @param {number} slot count
+	*/
+	function addCard(cardList, itemId, index, slotCount) {
+		let file, name = "";
+		const card = DB.getItemInfo(itemId);
+		if (itemId && card) {
+			file = "item/" + card.identifiedResourceName + ".bmp";
+			name = `<div class="name">${_escapeHTML(card.identifiedDisplayName)}</div>`;
+		} else if (index < slotCount) file = "empty_card_slot.bmp";
+		else file = "basic_interface/coparison_disable_card_slot.bmp";
+		if (!cardList) return;
+		cardList.insertAdjacentHTML("beforeend", `<div class="item" data-index="${index}"><div class="icon"></div>${name}</div>`);
+		Client.loadFile(DB.INTERFACE_PATH + file, (data) => {
+			const element = ItemInfo.getRoot().querySelector(`.cardlist .item[data-index="${index}"] .icon`);
+			if (element) {
+				element.style.backgroundImage = `url(${data})`;
+				if (itemId && card) element.addEventListener("contextmenu", (e) => {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					showCardInfo(itemId, ItemInfo);
+				});
+			}
+		});
+	}
+	/**
+	* Extend ItemInfo window size
+	*/
+	function onResize() {
+		const top = ItemInfo._host.offsetTop;
+		let lastHeight = 0;
+		function resizing() {
+			const h = Math.floor((Mouse.screen.y - top) / ItemInfo.scale);
+			if (h === lastHeight) return;
+			resize(h);
+			lastHeight = h;
+		}
+		const _Interval = setInterval(resizing, 30);
+		const onMouseUp = (event) => {
+			if (event.which === 1) {
+				clearInterval(_Interval);
+				window.removeEventListener("mouseup", onMouseUp);
+			}
+		};
+		window.addEventListener("mouseup", onMouseUp);
+	}
+	/**
+	* Extend ItemInfo window size
+	*
+	* @param {number} height
+	*/
+	function resize(height) {
+		const root = ItemInfo.getRoot();
+		const container = root.querySelector(".container");
+		const description = root.querySelector(".description");
+		const descriptionInner = root.querySelector(".description-inner");
+		let containerHeight = height;
+		const minHeight = 140;
+		const innerH = descriptionInner ? descriptionInner.offsetHeight : 0;
+		const maxHeight = innerH + 45 > 140 ? Math.min(innerH + 45, 448) : 140;
+		if (containerHeight <= minHeight) containerHeight = minHeight;
+		if (containerHeight >= maxHeight) containerHeight = maxHeight;
+		if (container) container.style.height = `${containerHeight}px`;
+		if (description) description.style.height = `${containerHeight - 45}px`;
+	}
+	function addEvent(item) {
+		const root = ItemInfo.getRoot();
+		let event = root.querySelector(".event_view");
+		if (!event) {
+			if (!validateFieldsExist(event)) event = root.querySelector(".event_view");
+		}
+		if (!event) return;
+		const viewBtn = event.querySelector(".view");
+		if (viewBtn) viewBtn.style.display = "none";
+		event.querySelectorAll("canvas").forEach((c) => c.remove());
+		Renderer.stop(rendering);
+		switch (item.type) {
+			case ItemType_default.CARD:
+				if (viewBtn) viewBtn.style.display = "block";
+				break;
+			case ItemType_default.ETC: {
+				const filenameBook = `data/book/${item.ITID}.txt`;
+				Client.loadFile(filenameBook, (data) => {
+					try {
+						MakeReadBook_default.startBook(data, item);
+					} catch (e) {
+						console.error("ItemInfo::addEvent() - startBook failed:", e.message);
+					}
+					eventsBooks();
+				});
+				break;
+			}
+			default: if (viewBtn) viewBtn.style.display = "none";
+		}
+	}
+	function updatePreviewButton(item) {
+		const previewButton = ItemInfo.getRoot().querySelector(".btn_mounting");
+		if (!previewButton) return;
+		if (!canPreviewItem(item)) {
+			previewButton.style.display = "none";
+			return;
+		}
+		previewButton.style.display = "block";
+		const newBtn = previewButton.cloneNode(true);
+		previewButton.parentNode.replaceChild(newBtn, previewButton);
+		newBtn.addEventListener("click", (e) => {
+			e.stopImmediatePropagation();
+			toggleItemPreview(item);
+		});
+	}
+	function canPreviewItem(item) {
+		if (!item) return false;
+		if (!(getPreviewLocation(item) & (EquipmentLocation_default.HEAD_BOTTOM | EquipmentLocation_default.HEAD_MID | EquipmentLocation_default.HEAD_TOP | EquipmentLocation_default.COSTUME_HEAD_BOTTOM | EquipmentLocation_default.COSTUME_HEAD_MID | EquipmentLocation_default.COSTUME_HEAD_TOP | EquipmentLocation_default.COSTUME_ROBE))) return false;
+		return getPreviewSpriteId(item, DB.getItemInfo(item.ITID)) > 0;
+	}
+	function getPreviewLocation(item) {
+		if ("location" in item) return item.location;
+		if ("WearState" in item) return item.WearState;
+		if ("WearLocation" in item) return item.WearLocation;
+		return 0;
+	}
+	function getPreviewSpriteId(item, it) {
+		if (item && item.wItemSpriteNumber) return item.wItemSpriteNumber;
+		if (it && it.ClassNum) return it.ClassNum;
+		return 0;
+	}
+	function toggleItemPreview(item) {
+		if (ItemPreview_default.ui && ItemPreview_default._host && ItemPreview_default._host.style.display !== "none" && ItemPreview_default.uid === item.ITID) {
+			ItemPreview_default.remove();
+			return;
+		}
+		ItemPreview_default.append();
+		ItemPreview_default.uid = item.ITID;
+		ItemPreview_default.setItem(item);
+	}
+	function eventsBooks() {
+		const root = ItemInfo.getRoot();
+		const event = root.querySelector(".event_view");
+		if (!event) return;
+		Client.getFiles(["data/sprite/book/Ã¥ÀÐ±â.spr", "data/sprite/book/Ã¥ÀÐ±â.act"], function(spr, act) {
+			try {
+				_sprite = new SPR(spr);
+				_action = new ACT(act);
+			} catch (e) {
+				console.error("Book::init() - " + e.message);
+				return;
+			}
+			const canvas = _sprite.getCanvasFromFrame(0);
+			canvas.className = "book_open event_add_cursor";
+			event.appendChild(canvas);
+			const bookOpen = root.querySelector(".book_open");
+			if (bookOpen) {
+				bookOpen.addEventListener("mouseover", (e) => {
+					e.stopImmediatePropagation();
+					const overlayOpen = root.querySelector(".overlay_open");
+					if (overlayOpen) overlayOpen.style.display = "block";
+				});
+				bookOpen.addEventListener("mouseout", (e) => {
+					e.stopImmediatePropagation();
+					const overlayOpen = root.querySelector(".overlay_open");
+					if (overlayOpen) overlayOpen.style.display = "none";
+				});
+				bookOpen.addEventListener("click", (e) => {
+					e.stopImmediatePropagation();
+					MakeReadBook_default.openBook();
+				});
+			}
+			const readCanvas = document.createElement("canvas");
+			readCanvas.width = 21;
+			readCanvas.height = 15;
+			readCanvas.className = "book_read event_add_cursor";
+			event.appendChild(readCanvas);
+			_ctx = readCanvas.getContext("2d");
+			const bookRead = root.querySelector(".book_read");
+			if (bookRead) {
+				bookRead.addEventListener("mouseover", (e) => {
+					e.stopImmediatePropagation();
+					const overlayRead = root.querySelector(".overlay_read");
+					if (overlayRead) overlayRead.style.display = "block";
+				});
+				bookRead.addEventListener("mouseout", (e) => {
+					e.stopImmediatePropagation();
+					const overlayRead = root.querySelector(".overlay_read");
+					if (overlayRead) overlayRead.style.display = "none";
+				});
+				bookRead.addEventListener("click", (e) => {
+					e.stopImmediatePropagation();
+					MakeReadBook_default.highlighter();
+				});
+			}
+			Renderer.render(rendering);
+		});
+	}
+	/**
+	* Rendering animation
+	*/
+	const rendering = (function renderingClosure() {
 		const position = new Uint16Array([0, 0]);
 		return function render() {
 			const _entity = new Entity();
-			const action = _action$2.actions[_type$4];
+			const action = _action.actions[_type];
 			const anim = Math.floor((Renderer.tick - _start) / action.delay);
 			const animation = action.animations[anim % action.animations.length];
 			let i, count;
 			count = animation.layers.length;
 			SpriteRenderer.bind2DContext(_ctx, 10, 25);
 			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
-			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$2, _sprite$2, 1, position, false);
+			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite, _sprite, 1, position, false);
 		};
 	})();
+	function validateFieldsExist(event) {
+		const root = ItemInfo.getRoot();
+		if (!event) {
+			const validExitElement = "<div class=\"event_view\"><button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button><span class=\"overlay_open\">" + DB.getMessage(1294) + "</span><span class=\"overlay_read\">" + DB.getMessage(1295) + "</span></div>";
+			const collection = root.querySelector(".collection");
+			if (collection) collection.insertAdjacentHTML("afterend", validExitElement);
+			return false;
+		}
+		if (!root.querySelector(".overlay_open") && !root.querySelector(".overlay_read")) event.insertAdjacentHTML("beforeend", "<span class=\"overlay_open\">" + DB.getMessage(1294) + "</span><span class=\"overlay_read\">" + DB.getMessage(1295) + "</span>");
+		if (!event.querySelector("button")) event.insertAdjacentHTML("beforeend", "<button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button>");
+		return true;
+	}
+	/**
+	* A function that handles previewing an item.
+	*
+	* @param {object} pkt - The packet containing information about the item
+	* @return {boolean} Indicates success or failure of the preview action
+	*/
+	function onItemPreview(pkt) {
+		if (pkt) {
+			const item = InventoryController.getItemByIndex(pkt.index);
+			if (!item) return false;
+			if (ItemCompare_default.ui) ItemCompare_default.remove();
+			if (ItemInfo.uid === item.ITID) {
+				ItemInfo.remove();
+				if (ItemCompare_default.ui) ItemCompare_default.remove();
+				return false;
+			}
+			ItemInfo.append();
+			ItemInfo.uid = item.ITID;
+			ItemInfo.setItem(item);
+			const compareItem = EquipmentController.isInEquipList(item.location);
+			if (compareItem && InventoryController.itemcomp) {
+				ItemCompare_default.prepare();
+				ItemCompare_default.append();
+				ItemCompare_default.uid = compareItem.ITID;
+				ItemCompare_default.setItem(compareItem);
+			}
+		}
+	}
+	/**
+	* The restriction messages for an item's move info
+	*
+	* @param {object} moveInfo - from data/ItemMoveInfoV5.txt
+	* @returns {Array<string>} one message per restriction, in the client's order
+	*/
+	function getMoveInfoLines(moveInfo) {
+		return MOVE_INFO_MESSAGES.filter((entry) => moveInfo[entry.key] === true).map((entry) => DB.getMessage(entry.msgId));
+	}
+	/**
+	* Open the restrictions box beside the cursor. The official client puts its
+	* top-left 26px right of the pointer, level with it; a second click on the
+	* link moves the box rather than opening another.
+	*
+	* @param {Array<string>} lines
+	* @param {MouseEvent} event - the click on the link
+	*/
+	function showMoveInfoBox(lines, event) {
+		const box = ItemInfo.getRoot().querySelector(".moveinfo-box");
+		if (!box) return;
+		box.replaceChildren(...lines.map((text) => {
+			const line = document.createElement("div");
+			line.textContent = text;
+			return line;
+		}));
+		box.style.display = "block";
+		const WIDTH = Renderer.width || window.innerWidth;
+		const HEIGHT = Renderer.height || window.innerHeight;
+		const { width, height } = box.getBoundingClientRect();
+		let x = event.clientX + 26;
+		if (x + width > WIDTH) x = event.clientX - 26 - width;
+		x = Math.max(0, Math.min(x, WIDTH - width));
+		const y = Math.max(0, Math.min(event.clientY, HEIGHT - height));
+		const rect = ItemInfo._host.getBoundingClientRect();
+		const scale = ItemInfo.scale || 1;
+		box.style.left = `${(x - rect.left) / scale}px`;
+		box.style.top = `${(y - rect.top) / scale}px`;
+	}
 	/**
 	* Close the restrictions box and restore the cursor.
 	* Called when the window closes or shows another item.
@@ -268700,10 +268703,73 @@ var init_ItemInfo = __esmMin((() => {
 		if (box) box.style.display = "none";
 		Cursor.setType(Cursor.ACTION.DEFAULT);
 	};
+	ItemInfo.onItemPreview = onItemPreview;
+	return ItemInfo;
+}
+/**
+* Show a card in the card window, beside the window it was right-clicked in
+* (the item window, the compare window, or the card window itself). From the
+* compare window it goes past the item window too, so it covers neither.
+*
+* @param {number} itemId card id
+* @param {GUIComponent} [from]
+*/
+function showCardInfo(itemId, from) {
+	const opening = !ItemInfoCard.__active;
+	ItemInfoCard.append();
+	ItemInfoCard.uid = itemId;
+	ItemInfoCard.setItem({
+		ITID: itemId,
+		IsIdentified: true,
+		type: 6
+	});
+	if (!opening || !from || from === ItemInfoCard || !from._host) return;
+	const rects = [from._host.getBoundingClientRect()];
+	if (from !== ItemInfo && ItemInfo.__active && ItemInfo._host) rects.push(ItemInfo._host.getBoundingClientRect());
+	const right = Math.max(...rects.map((rect) => rect.right));
+	const leftEdge = Math.min(...rects.map((rect) => rect.left));
+	const width = ItemInfoCard._host.getBoundingClientRect().width || rects[0].width;
+	const left = right + 4 + width <= Renderer.width ? right + 4 : Math.max(0, leftEdge - 4 - width);
+	ItemInfoCard._host.style.left = `${left}px`;
+	ItemInfoCard._host.style.top = `${Math.max(0, rects[0].top)}px`;
+}
+var ItemInfo, ItemInfoCard, ItemInfo_default;
+var init_ItemInfo = __esmMin((() => {
+	init_DBManager();
+	init_ItemType();
+	init_EquipmentLocation();
+	init_Client();
+	init_KeyEventHandler();
+	init_CardIllustration();
+	init_UIManager();
+	init_MouseEventHandler();
+	init_GUIComponent();
+	init_Elements();
+	init_CursorManager();
+	init_ItemCompare();
+	init_ItemPreview();
+	init_MakeReadBook();
+	init_Renderer();
+	init_SpriteRenderer();
+	init_Sprite();
+	init_Action();
+	init_ItemInfo$2();
+	init_ItemInfo$1();
+	init_NetworkManager();
+	init_PacketStructure();
+	init_Entity$1();
+	init_Equipment();
+	init_Inventory();
+	init_Navigation();
+	init_TipBox();
+	init_HtmlHelper();
+	ItemInfo = createItemInfo("ItemInfo", false);
+	ItemInfoCard = createItemInfo("ItemInfoCard", true);
+	Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, ItemInfo.onItemPreview);
 	/**
-	* Packet Hooks to functions
+	* Create component and export it
 	*/
-	Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, onItemPreview);
+	UIManager.addComponent(ItemInfoCard);
 	ItemInfo_default = UIManager.addComponent(ItemInfo);
 }));
 // src/UI/Components/NpcBox/NpcBox.html?raw
