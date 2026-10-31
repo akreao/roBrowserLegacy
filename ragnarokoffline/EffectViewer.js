@@ -231315,7 +231315,8 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, bigMap = null
 			bigMap.setSource(() => MiniMap.getMapData());
 			const miniBtn = root.querySelector(".mini");
 			if (miniBtn) miniBtn.addEventListener("mousedown", (event) => {
-				bigMap.toggle();
+				if (DB.isMinimapException(_mapName)) UIManager.showMessageBox(DB.getMessage(2767, "In this map You can't memorize and zoom the minimap."), "ok");
+				else bigMap.toggle();
 				event.stopImmediatePropagation();
 				event.preventDefault();
 			});
@@ -231476,8 +231477,10 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, bigMap = null
 	* @param {number} x position
 	* @param {number} y position
 	* @param {Array} color
+	* @param {number} time - how long it stays, in ms
+	* @param {string} [kind] - 'quest' for a quest NPC (the memo map navigates to it)
 	*/
-	MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
+	MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time, kind) {
 		const color = [
 			(lcolor & 16711680) >> 16,
 			(lcolor & 65280) >> 8,
@@ -231488,6 +231491,7 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, bigMap = null
 			_markers[i].y = y;
 			_markers[i].color = `rgb(${color[0]},${color[1]},${color[2]})`;
 			_markers[i].tick = Renderer.tick + time;
+			_markers[i].kind = kind;
 			return;
 		}
 		_markers.push({
@@ -231495,7 +231499,8 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, bigMap = null
 			x,
 			y,
 			color: `rgb(${color[0]},${color[1]},${color[2]})`,
-			tick: Renderer.tick + time
+			tick: Renderer.tick + time,
+			kind
 		});
 	};
 	/**
@@ -233646,6 +233651,64 @@ function memoAt(mapName, px, py) {
 	}
 	return -1;
 }
+/**
+* The mark under a canvas position: a memo point first, then the boss, quest
+* NPCs and town facilities (official buttons 600+, 0xcd, 2001+ and 1000+).
+*
+* @return {{kind: string, index?: number, x?: number, y?: number, name?: string}|null}
+*/
+function markAt(data, px, py) {
+	const memo = memoAt(data.mapName, px, py);
+	if (memo !== -1) return {
+		kind: "memo",
+		index: memo
+	};
+	const near = (x, y) => {
+		const [mx, my] = toCanvas(x, y);
+		return Math.abs(mx - px) <= 7 && Math.abs(my - py) <= 7;
+	};
+	const markers = (data.markers || []).filter((dot) => !(dot.tick < Renderer.tick));
+	const boss = markers.find((dot) => dot.key === "mvp");
+	if (boss && near(boss.x, boss.y)) return {
+		kind: "boss",
+		x: boss.x,
+		y: boss.y,
+		name: DB.getMessage(2749, "Boss Monster")
+	};
+	if (_preferences$43.quest) {
+		for (const dot of markers) if (dot.kind === "quest" && near(dot.x, dot.y)) {
+			const npc = EntityManager.get(dot.key);
+			const name = npc && npc.display && npc.display.name;
+			return {
+				kind: "quest",
+				x: dot.x,
+				y: dot.y,
+				name: name || DB.getMessage(2752, "Quest NPC")
+			};
+		}
+	}
+	if (_preferences$43.facility) {
+		for (const dot of data.towninfo || []) if (near(dot.X, dot.Y)) return {
+			kind: "facility",
+			x: dot.X,
+			y: dot.Y,
+			name: dot.Name
+		};
+	}
+	return null;
+}
+/**
+* Start the navigation to a quest NPC or a facility, as the official buttons
+* 1000+ and 2001+ do (0x00b314f0).
+*/
+function navigateTo(mapName, mark) {
+	const Navigation = UIManager.getComponent("Navigation");
+	if (!Navigation || typeof Navigation.setNaviInfo !== "function") return;
+	const naviInfo = `${mapName},${mark.x},${mark.y}`;
+	Navigation.show();
+	Navigation.uid = naviInfo;
+	Navigation.setNaviInfo(naviInfo, mark.name);
+}
 function loadButtonImages() {
 	_memoReady = [];
 	_memoOk = [];
@@ -233659,6 +233722,13 @@ function loadButtonImages() {
 			updateMemoButton();
 		});
 	}
+	Client.loadFile(`${DB.INTERFACE_PATH}minimap/boss_1.bmp`, (url) => {
+		const img = new Image();
+		img.src = url;
+		_boss = img;
+	}, () => {
+		_boss = null;
+	});
 	Client.loadFile(`${DB.INTERFACE_PATH}minimap/memopoint_1.bmp`, (url) => {
 		const img = new Image();
 		img.src = url;
@@ -233694,8 +233764,10 @@ function onMapClick(event) {
 	if (!data || !data.mapName) return;
 	const [px, py] = canvasPosition(event);
 	if (!_marking) {
-		const index = memoAt(data.mapName, px, py);
-		if (index !== -1) UIManager.showPromptBox(DB.getMessage(2751, "Do you want to delete it?"), "ok", "cancel", () => BigMap.removeMemo(data.mapName, index));
+		const mark = markAt(data, px, py);
+		if (!mark) return;
+		if (mark.kind === "memo") UIManager.showPromptBox(DB.getMessage(2751, "Do you want to delete it?"), "ok", "cancel", () => BigMap.removeMemo(data.mapName, mark.index));
+		else if (mark.kind === "quest" || mark.kind === "facility") navigateTo(data.mapName, mark);
 		return;
 	}
 	const [x, y] = toCell(px, py);
@@ -233719,14 +233791,16 @@ function onMapHover(event) {
 		return;
 	}
 	const [px, py] = canvasPosition(event);
-	const index = memoAt(data.mapName, px, py);
-	if (index === -1) {
+	const mark = markAt(data, px, py);
+	if (!mark || mark.kind !== "memo" && !mark.name) {
 		tip.style.display = "none";
+		event.target.style.cursor = "";
 		return;
 	}
-	const memo = BigMap.getMemos(data.mapName)[index];
-	const [mx, my] = toCanvas(memo.x, memo.y);
-	tip.textContent = memo.text;
+	const point = mark.kind === "memo" ? BigMap.getMemos(data.mapName)[mark.index] : mark;
+	const [mx, my] = toCanvas(point.x, point.y);
+	tip.textContent = mark.kind === "memo" ? point.text : mark.name;
+	event.target.style.cursor = mark.kind === "quest" || mark.kind === "facility" ? "pointer" : "";
 	tip.style.display = "block";
 	const rect = event.target.getBoundingClientRect();
 	const factor = rect.width ? rect.width / SIZE : 1;
@@ -233758,6 +233832,7 @@ function draw$1(tick) {
 		}
 	}
 	if (_preferences$43.quest && data.markers && tick % 1e3 > 500) for (const dot of data.markers) {
+		if (dot.key === "mvp" || dot.tick < Renderer.tick) continue;
 		const [x, y] = toCanvas(dot.x, dot.y);
 		_ctx$2.fillStyle = dot.color;
 		_ctx$2.fillRect(x - 1, y - 6, 3, 13);
@@ -233782,6 +233857,16 @@ function draw$1(tick) {
 			_ctx$2.fill();
 		}
 	}
+	const boss = (data.markers || []).find((dot) => dot.key === "mvp");
+	if (boss) {
+		const [x, y] = toCanvas(boss.x, boss.y);
+		if (_boss && _boss.complete && _boss.width) _ctx$2.drawImage(_boss, x - _boss.width / 2 | 0, y - _boss.height / 2 | 0);
+		else {
+			_ctx$2.fillStyle = "red";
+			_ctx$2.fillRect(x - 1, y - 6, 3, 13);
+			_ctx$2.fillRect(x - 6, y - 1, 13, 3);
+		}
+	}
 	for (const memo of BigMap.getMemos(data.mapName)) {
 		const [x, y] = toCanvas(memo.x, memo.y);
 		if (_memoPoint && _memoPoint.complete && _memoPoint.width) _ctx$2.drawImage(_memoPoint, x - _memoPoint.width / 2 | 0, y - _memoPoint.height / 2 | 0);
@@ -233803,7 +233888,7 @@ function draw$1(tick) {
 		_ctx$2.restore();
 	}
 }
-var BigMap, MAX_MEMO_TEXT, SIZE, _preferences$43, _memos, _source, _ctx$2, _marking, _memoPoint, _memoReady, _memoOk, BigMap_default;
+var BigMap, MAX_MEMO_TEXT, SIZE, _preferences$43, _memos, _source, _ctx$2, _marking, _memoPoint, _boss, _memoReady, _memoOk, BigMap_default;
 var init_BigMap = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -233814,6 +233899,7 @@ var init_BigMap = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
 	init_InputBox();
+	init_EntityManager();
 	init_BigMap$2();
 	init_BigMap$1();
 	BigMap = new GUIComponent("BigMap", BigMap_default$1);
@@ -233832,6 +233918,7 @@ var init_BigMap = __esmMin((() => {
 	_ctx$2 = null;
 	_marking = false;
 	_memoPoint = null;
+	_boss = null;
 	_memoReady = [];
 	_memoOk = [];
 	/**
@@ -240215,6 +240302,19 @@ var init_Guild$1 = __esmMin((() => {
 						Guild.onRequestMemberExpel(member.AID, member.GID, reason);
 					};
 				});
+				if (!isSelf && member.CharName) {
+					if (member.CurrentState) {
+						if (SessionStorage_default.hasParty && SessionStorage_default.isPartyLeader && !Guild.isPartyMember(member.CharName)) ContextMenu_default.addElement(DB.getMessage(1330, "Request to Join Party"), () => {
+							Guild.onRequestPartyInvite(member.AID, member.CharName);
+						});
+						ContextMenu_default.addElement(DB.getMessage(2043, "1:1 Chat"), () => {
+							Guild.onRequestWhisper(member.CharName);
+						});
+					}
+					ContextMenu_default.addElement(DB.getMessage(2808, "Send a mail"), () => {
+						Guild.onRequestMail(member.CharName);
+					});
+				}
 			});
 		}
 		const levelupBtn = root.querySelector(".btn.levelup");
@@ -240944,6 +241044,12 @@ var init_Guild$1 = __esmMin((() => {
 	Guild.onRequestMemberInfo = function() {};
 	Guild.onRequestLeave = function() {};
 	Guild.onRequestMemberExpel = function() {};
+	Guild.isPartyMember = function() {
+		return false;
+	};
+	Guild.onRequestPartyInvite = function() {};
+	Guild.onRequestWhisper = function() {};
+	Guild.onRequestMail = function() {};
 	Guild.onRequestDeleteRelation = function() {};
 	Guild.onRequestAccess = function() {};
 	/**
@@ -254520,7 +254626,7 @@ function onClickAttendance(e) {
 	const _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 	Network.sendPacket(_pkt);
 }
-var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$34, _infoSlot, CheckAttendance_default;
+var CheckAttendance, _checkAttendanceData, _CheckAttendanceInfo, _preferences$34, CheckAttendance_default;
 var init_CheckAttendance = __esmMin((() => {
 	init_DBManager();
 	init_Preferences$1();
@@ -254539,7 +254645,6 @@ var init_CheckAttendance = __esmMin((() => {
 		x: 200,
 		y: 200
 	}, 1);
-	_infoSlot = null;
 	/**
 	* Initialize the component (event listener, etc.)
 	*/
@@ -254561,14 +254666,8 @@ var init_CheckAttendance = __esmMin((() => {
 			event.stopImmediatePropagation();
 			const reward = _CheckAttendanceInfo?.Rewards?.[parseInt(slot.id.replace("attendance_day_", ""), 10)];
 			if (!reward) return;
-			if (ItemInfo_default.uid === reward.item_id && _infoSlot === slot.id) {
-				ItemInfo_default.remove();
-				_infoSlot = null;
-				return;
-			}
 			ItemInfo_default.append();
 			ItemInfo_default.uid = reward.item_id;
-			_infoSlot = slot.id;
 			ItemInfo_default.setItem({
 				ITID: reward.item_id,
 				IsIdentified: true,
@@ -255321,10 +255420,6 @@ function createQuestHelper(config) {
 			if (itemLink) {
 				const itemId = parseInt(itemLink.dataset.itemId, 10);
 				if (!itemId) return;
-				if (ItemInfo_default.uid === itemId) {
-					ItemInfo_default.remove();
-					return;
-				}
 				ItemInfo_default.append();
 				ItemInfo_default.uid = itemId;
 				ItemInfo_default.setItem({
@@ -257215,10 +257310,6 @@ var init_TipBox = __esmMin((() => {
 			const itemId = parseInt(itemLink.dataset.itemId, 10);
 			const ItemInfo = UIManager.getComponent("ItemInfo");
 			if (!itemId || !ItemInfo) return;
-			if (ItemInfo.uid === itemId) {
-				ItemInfo.remove();
-				return;
-			}
 			ItemInfo.append();
 			ItemInfo.uid = itemId;
 			ItemInfo.setItem({
@@ -269259,10 +269350,6 @@ var init_NpcBox = __esmMin((() => {
 			if (itemLink) {
 				const itemId = parseInt(itemLink.dataset.itemId, 10);
 				if (!itemId) return;
-				if (ItemInfo_default.uid === itemId) {
-					ItemInfo_default.remove();
-					return;
-				}
 				ItemInfo_default.append();
 				ItemInfo_default.uid = itemId;
 				ItemInfo_default.setItem({
@@ -271616,6 +271703,9 @@ var init_Guild = __esmMin((() => {
 	init_MiniMap();
 	init_ShortCut();
 	init_UI();
+	init_PartyFriends();
+	init_Rodex$1();
+	init_Group();
 	_emblems = {};
 	_pendingGuildSkillRequest = false;
 	_memberInfoTimer = 0;
@@ -271682,6 +271772,10 @@ var init_Guild = __esmMin((() => {
 			Guild_default.onRequestLeave = GuildEngine.requestLeave;
 			Guild_default.onRequestMemberExpel = GuildEngine.requestMemberExpel;
 			Guild_default.onRequestMemberInfo = GuildEngine.requestMemberInfo;
+			Guild_default.isPartyMember = (name) => controller.isGroupMember(name);
+			Guild_default.onRequestPartyInvite = (AID, name) => GroupEngine.onRequestInvitation(AID, name);
+			Guild_default.onRequestWhisper = (name) => controller.onOpenChat1to1(name);
+			Guild_default.onRequestMail = (name) => Rodex_default.requestOpenWriteRodex(name);
 			Guild_default.onRequestDeleteRelation = GuildEngine.requestDeleteRelatedGuild;
 			Guild_default.onRequestAccess = GuildEngine.requestAccess;
 			Guild_default.onRequestCreateGuild = GuildEngine.createGuild;
@@ -345806,7 +345900,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, _tipBoxLoad, _tipBoxGeneration, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, garmentLayerGeneration, ModSkillDescription;
+var lua, _tipBoxLoad, _tipBoxGeneration, lookTables, itemPackages, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, ExceptionMinimapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD, garmentLayerGeneration, ModSkillDescription;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -345878,6 +345972,7 @@ var init_DBManager = __esmMin((() => {
 	JokeTable = [];
 	ScreamTable = [];
 	MapTable = {};
+	ExceptionMinimapTable = /* @__PURE__ */ new Set();
 	SkillDescription = {};
 	SexTable = ["¿©", "³²"];
 	PetTalkTable = {};
@@ -345989,6 +346084,11 @@ var init_DBManager = __esmMin((() => {
 			loadTable("data/mapnametable.txt", "#", 2, function(_index, key, val) {
 				(MapTable[key] || (MapTable[key] = {})).name = val;
 			}, onLoad(), true);
+			const exceptionMaps = /* @__PURE__ */ new Set();
+			ExceptionMinimapTable = exceptionMaps;
+			loadTable("data/exceptionminimapnametable.txt", "#", 1, function(_index, map) {
+				if (map) exceptionMaps.add(map.toLowerCase());
+			}, onLoad());
 			const loadmsg = onLoad();
 			const readMsgString = (_index, val) => {
 				MsgStringTable[_index] = val;
@@ -347605,6 +347705,15 @@ var init_DBManager = __esmMin((() => {
 		static getMap(mapname) {
 			const map = mapname.replace(".gat", ".rsw");
 			return MapTable[map] || null;
+		}
+		/**
+		* Whether a map refuses the memo map (official 0x00d71f30, message 2767)
+		*
+		* @param {string} mapname - with or without extension
+		* @return {boolean}
+		*/
+		static isMinimapException(mapname) {
+			return !!mapname && ExceptionMinimapTable.has(mapname.replace(/\..*$/, "").toLowerCase());
 		}
 		/**
 		* Get a message from msgstringtable
@@ -364418,6 +364527,22 @@ function _processContent(container) {
 	if (container.matches && container.matches(selector)) GUIComponent.processDataAttrs(container);
 	container.querySelectorAll(selector).forEach((node) => GUIComponent.processDataAttrs(node));
 }
+/**
+* msgstringtable line for a failed purchase (official 0x00cd3b70)
+*
+* @param {number} result - e_CASHSHOP_ACK
+* @return {number}
+*/
+function buyResultMessage(result) {
+	switch (result) {
+		case 8: return 1814;
+		case 9: return 1944;
+		case 10: return 1945;
+		case 11: return 1946;
+		case 12: return 1947;
+		default: return 57;
+	}
+}
 function onClickPagination(target) {
 	const root = _root$6();
 	const index = parseInt(target.dataset.index);
@@ -364500,6 +364625,10 @@ function onClickSearch() {
 	CashShop.paginationOffsetLimit();
 	CashShop.renderCashShopItems(CashShop.paginate(newList, CashShop.pageOffset, CashShop.pageEnd));
 }
+function showMaxAmount() {
+	const text = DB.getMessage(1704, "It is not possible to purchase the same item more than %d pieces at a time");
+	UIManager.showMessageBox(text.replace("%d", MAX_ITEM_AMOUNT), "ok");
+}
 function onClickActionCounterButtonCart(target) {
 	const counter = target.dataset.index;
 	const itemEl = target.closest(".item");
@@ -364507,9 +364636,8 @@ function onClickActionCounterButtonCart(target) {
 	const itemId = parseInt(itemEl.getAttribute("data-index"), 10);
 	const itemCart = CashShop.cartItem.find((i) => i.itemId === itemId);
 	if (!itemCart) return;
-	if (itemCart.amount >= 99 && counter === "up") {
-		UIManager.showMessageBox("Max Quantity 99!", "ok");
-		ChatBox_default.addText("Max Quantity 99!", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
+	if (itemCart.amount >= MAX_ITEM_AMOUNT && counter === "up") {
+		showMaxAmount();
 		return;
 	}
 	if (itemCart.amount <= 1 && counter === "down") {
@@ -364561,8 +364689,9 @@ function onDropToCart(event) {
 		InputBox_default.append();
 		InputBox_default.setType("number", false, 1);
 		InputBox_default.onSubmitRequest = function OnSubmitRequest(count) {
-			addItemToCart(item.itemId, count);
 			InputBox_default.remove();
+			const amount = parseInt(count, 10);
+			if (amount > 0) addItemToCart(item.itemId, amount);
 		};
 	}
 	return false;
@@ -364584,13 +364713,12 @@ function addItemToCart(itemId, amount = 1) {
 	if (!item) return;
 	const noItems = cartContainer ? cartContainer.querySelector("#cart-list .items .no-items") : null;
 	if (noItems) noItems.remove();
-	if (CashShop.cartItem.length > 7 && typeof itemCart === "undefined") {
-		UIManager.showMessageBox("8 Items can only be stored in cart!", "ok");
+	if (CashShop.cartItem.length >= MAX_CART_ITEMS && typeof itemCart === "undefined") {
+		UIManager.showMessageBox(DB.getMessage(3312, "The number of items that can be purchased in 8."), "ok");
 		return;
 	}
-	if (item.amount >= 99) {
-		UIManager.showMessageBox("Max Quantity 99!", "ok");
-		ChatBox_default.addText("Max Quantity 99!", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
+	if ((itemCart ? itemCart.amount : 0) + amount > MAX_ITEM_AMOUNT) {
+		showMaxAmount();
 		return;
 	}
 	if (typeof itemCart === "undefined") {
@@ -364758,7 +364886,7 @@ function stopPropagation$6(event) {
 	event.preventDefault();
 	return false;
 }
-var CashShop, _preferences$12, CashShop_default;
+var CashShop, _preferences$12, MAX_CART_ITEMS, MAX_ITEM_AMOUNT, CashShop_default;
 var init_CashShop$1 = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -365076,32 +365204,21 @@ var init_CashShop$1 = __esmMin((() => {
 	* Success reponse buying cash shop item
 	*/
 	CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
-		if (res) {
+		if (!res) return;
+		if (res.result === 0) {
 			CashShop.checkCartItemLen += 1;
-			switch (res.result) {
-				case 0:
-					if (CashShop.checkCartItemLen >= CashShop.cartItemLen) {
-						CashShop.cartItemLen = 0;
-						CashShop.checkCartItemLen = 0;
-						UIManager.showMessageBox("Successfully done buying items from cash shop!", "ok");
-						ChatBox_default.addText("Successfully done buying items from cash shop!", ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
-						CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
-						onResetCartListCashShop();
-					}
-					break;
-				case 2:
-					UIManager.showMessageBox("Insuficient cash points or kafra points!", "ok");
-					ChatBox_default.addText("Insuficient cash points or kafra points!", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-					break;
-				case 4:
-					UIManager.showMessageBox("You are over you're weight limit!", "ok");
-					ChatBox_default.addText("You are over youre weight limit!", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-					break;
-				default:
-					UIManager.showMessageBox("Something went wrong while using cashshop!", "ok");
-					ChatBox_default.addText("Something went wrong while using cashshop!", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
+			if (CashShop.checkCartItemLen >= CashShop.cartItemLen) {
+				CashShop.cartItemLen = 0;
+				CashShop.checkCartItemLen = 0;
+				CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
+				onResetCartListCashShop();
 			}
+			return;
 		}
+		if (res.result === 8) CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
+		CashShop.cartItemLen = 0;
+		CashShop.checkCartItemLen = 0;
+		ChatBox_default.addText(DB.getMessage(buyResultMessage(res.result)), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	};
 	/**
 	* Store a tab's items by its tab number, which is also the menu's data-index
@@ -365233,6 +365350,8 @@ var init_CashShop$1 = __esmMin((() => {
 		CashShop.pageOffset = start;
 		CashShop.pageEnd = end;
 	};
+	MAX_CART_ITEMS = 8;
+	MAX_ITEM_AMOUNT = 100;
 	CashShop_default = UIManager.addComponent(CashShop);
 }));
 // src/UI/Components/ItemReform/ItemReform.html?raw
@@ -372352,7 +372471,7 @@ function onEntityQuestNotifyEffect(pkt) {
 	if (entity) attachQuestEffect(entity, hide ? QUEST_EFFECT_NONE : pkt.effect);
 	const color = hide ? void 0 : QuestMarkColors[pkt.color];
 	if (color === void 0) Controller$5.getUI().removeNpcMark(pkt.npcID);
-	else Controller$5.getUI().addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
+	else Controller$5.getUI().addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity, "quest");
 }
 /**
 * Draw a quest icon over an NPC's head, replacing the one it has
