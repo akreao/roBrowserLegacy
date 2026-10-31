@@ -10,7 +10,6 @@
 
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import InventoryUI from 'UI/Components/Inventory/Inventory.js';
-import ItemType from 'DB/Items/ItemType.js';
 import Character from './JoystickCharacterControl.js';
 import Target from './JoystickTargetService.js';
 import Cursor from './JoystickMouseCursorAdapter.js';
@@ -316,13 +315,7 @@ export default {
 		if (!isSkill) {
 			const item = InventoryUI.getItemByIndex(index);
 			if (item) {
-				if (
-					item.type === ItemType.UNKNOWN ||
-					item.type === ItemType.ETC ||
-					item.type === ItemType.CARD ||
-					item.type === ItemType.PETEGG ||
-					item.type === ItemType.PETARMOR
-				) {
+				if (!ShortCut.canHoldItem(item)) {
 					return false;
 				}
 

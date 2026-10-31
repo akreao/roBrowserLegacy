@@ -816,6 +816,33 @@ ShortCut.removeAt = function removeAt(index) {
 };
 
 /**
+ * Whether an inventory item may go in a hotbar slot. The official client
+ * (UIShortCutWnd drop handler) takes consumables, ammunition and gear that can
+ * be worn, and refuses the rest without a message: etc items, cards, cash shop
+ * boxes, gear with no equip slot such as pet eggs, and any other kind.
+ *
+ * @param {object} item inventory item
+ * @return {boolean}
+ */
+ShortCut.canHoldItem = function canHoldItem(item) {
+	switch (item.type) {
+		case ItemType.HEALING:
+		case ItemType.UNKNOWN:
+		case ItemType.USABLE:
+		case ItemType.DELAYCONSUME:
+		case ItemType.AMMO:
+			return true;
+
+		case ItemType.ARMOR:
+		case ItemType.WEAPON:
+		case ItemType.PETARMOR:
+		case ItemType.SHADOWGEAR:
+			return !!item.location;
+	}
+	return false;
+};
+
+/**
  * What a drag payload would put in a shortcut slot
  *
  * @param {object} data drag payload ({ type, from, data })
@@ -840,6 +867,9 @@ ShortCut.fromDragData = function fromDragData(data) {
 			};
 
 		case 'Inventory':
+			if (!ShortCut.canHoldItem(element)) {
+				return null;
+			}
 			return { isSkill: false, ID: element.ITID, count: 0 };
 
 		case 'ShortCut':
