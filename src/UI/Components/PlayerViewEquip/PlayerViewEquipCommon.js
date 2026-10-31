@@ -263,12 +263,26 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 			btn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		}
 
+		// The official window reduces to its 17px title bar, tab row included,
+		// from the mini button or a title bar double-click (UIEquipWnd vfunc26).
+		const setReduced = reduced => {
+			_root.querySelectorAll('.panel, .vieweqtab-manager').forEach(el => {
+				el.style.display = reduced ? 'none' : '';
+			});
+		};
+		const toggleReduce = () => {
+			if (_panel) setReduced(_panel.style.display !== 'none');
+		};
+		// We saved the reduced state but never applied it.
+		setReduced(!!_preferences.reduce);
 		const miniBtn = _root.querySelector('.titlebar .mini');
 		if (miniBtn) {
-			miniBtn.addEventListener('click', () => {
-				if (_panel) {
-					_panel.style.display = _panel.style.display === 'none' ? '' : 'none';
-				}
+			miniBtn.addEventListener('click', toggleReduce);
+		}
+		const titlebar = _root.querySelector('.titlebar');
+		if (titlebar) {
+			titlebar.addEventListener('dblclick', e => {
+				if (!e.target.closest('button')) toggleReduce();
 			});
 		}
 
