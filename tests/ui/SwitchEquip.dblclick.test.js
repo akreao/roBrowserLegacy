@@ -83,3 +83,15 @@ it('drags a set item out as coming from SwitchEquip, and ignores it dropped back
 	SwitchEquip.getRoot().querySelector('.panel').dispatchEvent(drop);
 	expect(SwitchEquip.onAddSwitchEquip).not.toHaveBeenCalled();
 });
+
+it('does not drag worn gear that the swap window only shows greyed', () => {
+	SwitchEquip.equip({ index: 13, ITID: 2302, type: 4, IsIdentified: true }, 32, false);
+	const item = SwitchEquip.getRoot().querySelector('.item[data-index="13"]');
+	expect(item.getAttribute('draggable')).toBe('false');
+	let payload;
+	const start = new Event('dragstart', { bubbles: true, cancelable: true });
+	Object.defineProperty(start, 'dataTransfer', { value: { setData: (_t, v) => (payload = v), setDragImage() {} } });
+	item.dispatchEvent(start);
+	expect(payload).toBeUndefined();
+	expect(start.defaultPrevented).toBe(true);
+});

@@ -216,7 +216,8 @@ SwitchEquip.equip = function equip(item, location, inSwitchList) {
 	const el = root.querySelector(selector);
 	if (el) {
 		el.innerHTML =
-			`<div class="item" data-index="${item.index}" draggable="true">` +
+			// Only items of the set drag out; worn gear shown greyed here does not.
+			`<div class="item" data-index="${item.index}" draggable="${inSwitchList ? 'true' : 'false'}">` +
 			'<button></button>' +
 			`<span class="itemName">${truncateHtml(sanitizeHtml(DB.getItemName(item)), 19)}</span>` +
 			'</div>';
@@ -432,7 +433,8 @@ function onDrop(event) {
  */
 function onSwitchEquipDragStart(event) {
 	const item = SwitchEquip._list[parseInt(this.getAttribute('data-index'), 10)];
-	if (!item) {
+	if (!item || this.getAttribute('draggable') !== 'true') {
+		event.preventDefault();
 		return;
 	}
 	const btn = this.querySelector('button');
