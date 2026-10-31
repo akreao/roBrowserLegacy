@@ -125,3 +125,73 @@
 	z-index: 999;
 	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);
 }
+
+/* Classic window: no 2025 buttons */
+#ShortCut .btn-minus,
+#ShortCut .btn-plus {
+	display: none;
+}
+
+/*
+ * 2025 window (kRO 2025 UIShortCutWnd), used when the client data has
+ * shortcut/shortcut_frame.bmp: 290px wide, a frame every 33px, slots 24px at
+ * x = 16 + 29 * column and y = 4 in their row, row numbers at x = 6, y = 13,
+ * counts at x + 27, y + 17 in 11px white, - and + buttons at the right.
+ */
+#ShortCut.v2025 {
+	width: 290px;
+	background-image: none !important;
+}
+#ShortCut.v2025 .close,
+#ShortCut.v2025 .resize {
+	display: none;
+}
+#ShortCut.v2025 .btn-minus,
+#ShortCut.v2025 .btn-plus {
+	display: block;
+	position: absolute;
+	left: 277px;
+	width: 11px;
+	height: 11px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	z-index: 1;
+}
+#ShortCut.v2025 .btn-minus.disabled {
+	pointer-events: none;
+}
+#ShortCut.v2025 .row {
+	height: 33px;
+	background-repeat: no-repeat;
+}
+#ShortCut.v2025 .row .container {
+	position: absolute;
+	top: 4px;
+	left: calc(16px + 29px * var(--col));
+	float: none;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+}
+#ShortCut.v2025 .row .index {
+	position: absolute;
+	float: none;
+	left: 6px;
+	top: 13px;
+	font-size: 11px;
+	line-height: 11px;
+	color: #2f4a4a;
+}
+#ShortCut.v2025 .icon .amount {
+	right: -3px;
+	top: 17px;
+	font-size: 11px;
+	font-weight: normal;
+	color: #ffffff;
+	text-shadow:
+		1px 0 0 #000,
+		-1px 0 0 #000,
+		0 1px 0 #000,
+		0 -1px 0 #000;
+}
