@@ -13873,6 +13873,18 @@ PACKET.CZ.REQ_FULLSWITCH.prototype.build = function () {
 	return pkt_buf;
 };
 
+// 0xace - Equip one item of the switch set (or add a worn item to it)
+PACKET.CZ.REQ_ONESWITCH = function PACKET_CZ_REQ_ONESWITCH() {
+	this.index = 0;
+};
+PACKET.CZ.REQ_ONESWITCH.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(4);
+
+	pkt_buf.writeShort(0xace);
+	pkt_buf.writeUShort(this.index);
+	return pkt_buf;
+};
+
 // 0xa9d - Equip switch reply packet
 PACKET.ZC.REQ_FULLSWITCH_RESULT = function PACKET_ZC_REQ_FULLSWITCH_RESULT(fp, end) {
 	this.failed = fp.readUShort();

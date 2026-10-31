@@ -12,6 +12,7 @@ import DB from 'DB/DBManager.js';
 import EquipLocation from 'DB/Items/EquipmentLocation.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import ItemType from 'DB/Items/ItemType.js';
 import Client from 'Core/Client.js';
 import Session from 'Engine/SessionStorage.js';
@@ -435,11 +436,19 @@ function onSwitchEquipInfo(event) {
 }
 
 /**
- * Double click on an equipment to remove it
+ * Double click on an equipment to remove it from the set; Ctrl+double click
+ * wears that one item instead (official UISwapEquipmentWnd vfunc26: message
+ * 0x12f sends 0x0a99, with Ctrl message 0x131 sends 0x0ace).
  */
-function onSwitchEquipUnEquip() {
+function onSwitchEquipUnEquip(event) {
 	const index = parseInt(this.getAttribute('data-index'), 10);
-	SwitchEquip.onRemoveSwitchEquip(index);
+	if (event?.ctrlKey && PACKETVER.value >= 20170502) {
+		const pkt = new PACKET.CZ.REQ_ONESWITCH();
+		pkt.index = index;
+		Network.sendPacket(pkt);
+	} else {
+		SwitchEquip.onRemoveSwitchEquip(index);
+	}
 
 	const root = SwitchEquip.getRoot();
 	const overlay = root.querySelector('.switchoverlay');
