@@ -619,7 +619,7 @@ export function createBasicInfo(config) {
 				root.querySelectorAll('.weight').forEach(el => {
 					el.style.color = percent < limit ? '' : 'red';
 					// The official hover text is "Weight %d%%", a whole percentage.
-					el.title = `Weight ${percent}%`;
+					el.title = `Weight ${val2 ? percent : 0}%`;
 				});
 				break;
 			}
