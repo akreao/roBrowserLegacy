@@ -1288,6 +1288,25 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 			}
 			return true;
 
+		// Page Up/Down scroll the chat log a page, or to its top/bottom with Ctrl
+		// (official UINewChatWnd messages 3 and 4).
+		case KEYS.PAGEUP:
+		case KEYS.PAGEDOWN: {
+			const content = root.querySelector(`.content[data-content="${this.activeTab}"]`);
+			if (!content) {
+				return true;
+			}
+			const up = event.which === KEYS.PAGEUP;
+			if (event.ctrlKey) {
+				content.scrollTop = up ? 0 : content.scrollHeight;
+			} else {
+				const line = content.lastElementChild?.offsetHeight || 14;
+				const page = Math.max(line, content.clientHeight - line);
+				content.scrollTop += up ? -page : page;
+			}
+			break;
+		}
+
 		// Message from history
 		case KEYS.UP:
 			if (!document.querySelector('#NpcMenu')) {
