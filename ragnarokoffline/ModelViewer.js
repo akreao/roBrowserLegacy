@@ -173647,6 +173647,18 @@ var init_PacketStructure = __esmMin((() => {
 		return pkt_buf;
 	};
 	PACKET.CZ.REQ_CHANGE_TITLE.size = 6;
+	PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY = class PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY {
+		static size = 4;
+		constructor() {
+			this.index = 0;
+		}
+		build() {
+			const pkt_buf = new BinaryWriter(PACKET_CZ_REQ_ONECLICK_ITEMIDENTIFY.size);
+			pkt_buf.writeShort(2613);
+			pkt_buf.writeShort(this.index);
+			return pkt_buf;
+		}
+	};
 	PACKET.ZC.ITEM_PICKUP_ACK7 = function PACKET_ZC_ITEM_PICKUP_ACK7(fp, end) {
 		const option = new Struct("short index", "short value", "char param");
 		this.index = fp.readUShort();
@@ -261109,7 +261121,7 @@ function createInventory(config) {
 		if (extendBtn) extendBtn.addEventListener("mousedown", onResize);
 		const closeBtn = root.querySelector(".titlebar .close");
 		if (closeBtn) closeBtn.addEventListener("click", () => {
-			Component._host.style.display = "none";
+			Component.toggle();
 		});
 		this._host.addEventListener("drop", onDrop);
 		this._host.addEventListener("dragover", (e) => {
@@ -261602,8 +261614,10 @@ function createInventory(config) {
 				else Component.onUseItem(item.index);
 				break;
 			case ItemType_default.HEALING:
-			case ItemType_default.CASH:
 				Component.onUseItem(item.index);
+				break;
+			case ItemType_default.CASH:
+				confirmOpenCashItem(item);
 				break;
 			case ItemType_default.CARD:
 				Component.onUseCard(item.index);
@@ -261874,6 +261888,10 @@ function createInventory(config) {
 			transferItemToOtherUI(item);
 			return false;
 		}
+		if (event.ctrlKey && event.which === 3 && PacketVerManager_default.value >= ONECLICK_IDENTIFY_PACKETVER) {
+			oneClickIdentify(item);
+			return false;
+		}
 		if (ItemInfo_default.uid === item.ITID) {
 			ItemInfo_default.remove();
 			if (favoriteTab && ItemCompare_default.ui) ItemCompare_default.remove();
@@ -261895,6 +261913,24 @@ function createInventory(config) {
 		return false;
 	}
 	/**
+	* Ctrl + right click: identify with a Magnifier, as the official client's
+	* item window does (UIItemWnd, right-click handler). Pet eggs are left
+	* alone. Without a Magnifier it says so (msgstringtable 2735) and still
+	* asks; the server checks for one too. The request goes only for an
+	* unidentified item shown in the Equip tab.
+	*
+	* @param {Item} item
+	*/
+	function oneClickIdentify(item) {
+		if (item.ITID >= 9001 && item.ITID <= 9499) return;
+		if (MAGNIFIER_IDS.reduce((sum, id) => sum + (Component.getItemById(id)?.count || 0), 0) < 1) ChatBox_default.addText(DB.getMessage(2735, "You don't have any Magnifier."), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
+		if (_preferences.tab === Component.TAB.EQUIP && !item.IsIdentified) {
+			const pkt = new PACKET.CZ.REQ_ONECLICK_ITEMIDENTIFY();
+			pkt.index = item.index;
+			Network.sendPacket(pkt);
+		}
+	}
+	/**
 	* Alt Right Click Request Transfer
 	*/
 	function transferItemToOtherUI(item) {
@@ -261912,6 +261948,11 @@ function createInventory(config) {
 	* Ask to use an item
 	*/
 	function onItemUsed(event) {
+		if (event.shiftKey) {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+			return;
+		}
 		const index = parseInt(this.getAttribute("data-index"), 10);
 		const item = Component.getItemByIndex(index);
 		if (item) {
@@ -261920,6 +261961,22 @@ function createInventory(config) {
 		}
 		event.stopImmediatePropagation();
 		event.preventDefault();
+	}
+	/**
+	* The official client asks before opening a cash shop item (type 18), from
+	* the inventory and from the shortcut bars alike (msgstringtable 1226: once
+	* opened its contents can only go to the Kafra storage), and uses it on Yes.
+	* The item may have left the inventory while the box was open, and its
+	* index gone to another item, so Yes uses it only if it is still there.
+	*
+	* @param {object} item
+	*/
+	function confirmOpenCashItem(item) {
+		const text = DB.getMessage(1226, "Do you want to open ^990099%s^000000? Once opened, the contents cannot be moved to other locations aside from the Kafra Storage. The item effect isn't doubled, even if the same items are used more than once.").replace("%s", htmlToText(DB.getItemName(item)));
+		UIManager.showPromptBox(text, "ok", "cancel", () => {
+			const current = Component.getItemByIndex(item.index);
+			if (current && current.ITID === item.ITID) Component.onUseItem(current.index);
+		});
 	}
 	/**
 	* Handle click event on an item
@@ -262175,6 +262232,7 @@ function createInventory(config) {
 	Component.reqMoveItemToCart = function reqMoveItemToCart() {};
 	return UIManager.addComponent(Component);
 }
+var MAGNIFIER_IDS, ONECLICK_IDENTIFY_PACKETVER;
 var init_InventoryCommon = __esmMin((() => {
 	init_DBManager();
 	init_PackageSelection();
@@ -262208,6 +262266,8 @@ var init_InventoryCommon = __esmMin((() => {
 	init_TouchDrag();
 	init_InventoryItemTransfer();
 	init_HtmlHelper();
+	MAGNIFIER_IDS = [611, 12325];
+	ONECLICK_IDENTIFY_PACKETVER = 20150513;
 }));
 // src/UI/Components/Inventory/InventoryV0/InventoryV0.js
 var InventoryV0_default;
@@ -356133,7 +356193,7 @@ var init_GUIComponent = __esmMin((() => {
 	if (typeof window !== "undefined") {
 		window.addEventListener("dragstart", () => _dragged = true, true);
 		window.addEventListener("mousemove", () => {
-			if (_dragged) {
+			if (_dragged || Mouse.intersect && _enteredGuards.size > 0) {
 				_dragged = false;
 				_enteredGuards.forEach((check) => check());
 			}
@@ -356741,7 +356801,14 @@ var init_GUIComponent = __esmMin((() => {
 				let _intersect;
 				let _enter = 0;
 				const check = () => {
-					if (_enter > 0 && !(element.isConnected && element.matches(":hover"))) element.dispatchEvent(new Event("mouseleave"));
+					if (_enter === 0) return;
+					if (!(element.isConnected && element.matches(":hover"))) element.dispatchEvent(new Event("mouseleave"));
+					else if (Mouse.intersect && !SessionStorage_default.FreezeUI) {
+						_intersect = true;
+						Mouse.intersect = false;
+						_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
+						_EntityManager?.setOverEntity(null);
+					}
 				};
 				element.addEventListener("mouseenter", () => {
 					if (_enter === 0) {
