@@ -429,7 +429,8 @@ function redraw(tab) {
  * and keeps the shift on the server.
  */
 ShortCut.rotate = function rotate() {
-	if (_list.length < 36) {
+	// Before 20140129 the server has no row shift to keep (CZ_SHORTCUTKEYBAR_ROTATE1)
+	if (_list.length < 36 || PACKETVER.value < 20140129) {
 		return;
 	}
 	const tab = getTab();

@@ -103,6 +103,14 @@ describe('ShortCut row shift', () => {
 		expect(ShortCut.getList()[11]).toMatchObject({ ID: FIREBOLT });
 	});
 
+	it('does nothing for servers that cannot keep a shift', () => {
+		mocks.packetver.value = 20131223;
+		ShortCut.setList(slots({ 9: { isSkill: 1, ID: FIREBOLT, count: 10 } }), 0, 0);
+		ShortCut.rotate();
+		expect(ShortCut.getList()[9]).toMatchObject({ ID: FIREBOLT });
+		expect(ShortCut.onRotate).not.toHaveBeenCalled();
+	});
+
 	it('keeps a shift for each bar', () => {
 		ShortCut.setList(slots({ 9: { isSkill: 1, ID: FIREBOLT, count: 10 } }), 0, 1);
 		ShortCut.setList(slots({ 9: { isSkill: 1, ID: FIREBOLT, count: 10 } }), 1, 0);
