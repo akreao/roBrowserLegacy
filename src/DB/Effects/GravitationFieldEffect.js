@@ -60,8 +60,8 @@ function gravitationRow(delay, length) {
 	};
 }
 
-/** EffectTable row for 522: a Gravitation Field skill unit's copy. */
-export const gravitationFieldEffect = [gravitationRow(0, GRAVITATION.unitLength)];
+/** EffectTable row for 522: a Gravitation Field skill unit's copy, played once (units are spawned persistent). */
+export const gravitationFieldEffect = [{ ...gravitationRow(0, GRAVITATION.unitLength), repeat: false }];
 
 /** EffectTable row for Gravitation Field's ground packet: the sound, then 522 at the cell. */
 export const gravitationCastEffect = [

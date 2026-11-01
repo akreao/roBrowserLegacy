@@ -25,6 +25,8 @@ describe('Gravitation Field effects', () => {
 		expect(gravitationCastEffect[0]).toEqual({ wav: 'effect/wizard_earthspike' });
 		expect(gravitationCastEffect[1].duration).toBeCloseTo(260 + (120 * 1000) / 60);
 		expect(gravitationFieldEffect[0].duration).toBeCloseTo((141 * 1000) / 60);
+		// a unit lives for seconds and is spawned persistent; 522 plays once as it appears
+		expect(gravitationFieldEffect[0].repeat).toBe(false);
 	});
 
 	it('shakes the screen once for copies that start together', () => {
