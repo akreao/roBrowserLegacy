@@ -15860,10 +15860,30 @@ export default {
 		}
 	],
 
+	// EF_TETRA (Tetra Vortex Fire, on the caster as the damage arrives). kRO 2025-07-16, case 0xbbb218 with
+	// 0xc08f50: wizard_meteo.wav and hunter_blastmine.wav at once, wl_tetravortex.wav on ticks 10, 20, 50 and
+	// 80, a screen quake on ticks 0, 40 and 80. Its tv-1..8.bmp pillar (prim 140) and ring_red rings (prim
+	// 137) are not drawn yet. See effect-port/warlock-skills.md.
 	804: [
 		{
-			//EF_TETRA	   Tetra Vortex [S]
-			wav: 'effect/wl_tetravortex'
+			wav: 'effect/wizard_meteo',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			attachedEntity: true
+		},
+		...[10, 20, 50, 80].map(tick => ({
+			wav: 'effect/wl_tetravortex',
+			delayWav: Math.round((tick * 1000) / 60),
+			attachedEntity: true
+		})),
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				[0, 40, 80].forEach(tick => Camera.setQuake(Params.Inst.startTick + (tick * 1000) / 60));
+			}
 		}
 	],
 
