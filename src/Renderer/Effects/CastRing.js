@@ -141,6 +141,10 @@ class CastRing {
 
 		// The client runs a tick before drawing, so the first frame shows tick 1.
 		const t = Math.min(this.frames, Math.floor((tick - this.startTick) / RING_TICK_MS) + 1);
+		// Epiclesis lives as long as its unit: after a long gap (a hidden tab), replay only the last ticks
+		if (this.epiclesis) {
+			this.ticks = Math.max(this.ticks, t - 300);
+		}
 		while (this.ticks < t) {
 			if (this.epiclesis) {
 				this.stepEpiclesis(gl);
@@ -164,6 +168,9 @@ class CastRing {
 			self.rings.forEach((ring, i) => {
 				gl.bindTexture(gl.TEXTURE_2D, textures[i]);
 				buildRing(ring.vertices, ring.sim, self.position);
+				if (!ring.buffer) {
+					ring.buffer = gl.createBuffer();
+				}
 				gl.bindBuffer(gl.ARRAY_BUFFER, ring.buffer);
 				gl.bufferData(gl.ARRAY_BUFFER, ring.vertices, gl.DYNAMIC_DRAW);
 				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
@@ -197,11 +204,12 @@ class CastRing {
 	 */
 	stepEpiclesis(gl) {
 		if (this.ticks % RING_EVERY === 0) {
+			// The GL buffer is made when the ring is first drawn, so replayed ticks make none
 			this.rings.push({
 				sim: createEpiclesisRing(),
 				vertices: new Float32Array(RING_VERTICES * 5),
 				color: new Float32Array(4),
-				buffer: gl.createBuffer()
+				buffer: null
 			});
 		}
 		for (const ring of this.rings) {
@@ -211,7 +219,9 @@ class CastRing {
 			if (ringRunning(ring.sim)) {
 				return true;
 			}
-			gl.deleteBuffer(ring.buffer);
+			if (ring.buffer) {
+				gl.deleteBuffer(ring.buffer);
+			}
 			return false;
 		});
 	}
