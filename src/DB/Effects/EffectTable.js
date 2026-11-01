@@ -133,6 +133,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import { sightEffect } from 'DB/Effects/SightEffect.js';
 import { releaseEffect } from 'DB/Effects/ReleaseEffect.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
+import { judexLightsEffect } from 'DB/Effects/JudexEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
 const getBragiSpellNote = SongEffects.getBragiSpellNote;
@@ -27461,6 +27462,129 @@ export default {
 			attachedEntity: true
 		}
 	],
+
+	// Judex (AB_JUDEX) cast, with 1630: on the caster for the cast time, EF_BeginSpell.wav on its first frame. See effect-port/arch-bishop-skills.md.
+	1629: [
+		{
+			//(1629): CEZ2STREffect, new_judex\\new_judex_cast_loop\\new_judex_cast_loop.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast_loop/new_judex_cast_loop',
+			texturePath: 'new_judex/new_judex_cast_loop/',
+			min: 'mineffect/new_judex/new_judex_cast_loop/new_judex_cast_loop',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast_loop/',
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX) cast floor, with 1629. See effect-port/arch-bishop-skills.md.
+	1630: [
+		{
+			//(1630): CEZ2STREffect, new_judex\\new_judex_cast_loop_bottom\\new_judex_cast_loop_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast_loop_bottom/new_judex_cast_loop_bottom',
+			texturePath: 'new_judex/new_judex_cast_loop_bottom/',
+			min: 'mineffect/new_judex/new_judex_cast_loop_bottom/new_judex_cast_loop_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast_loop_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): on the caster as each damage packet's damage arrives, with 1628. See effect-port/arch-bishop-skills.md.
+	1627: [
+		{
+			//(1627): CEZ2STREffect, new_judex\\new_judex_cast\\new_judex_cast.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast/new_judex_cast',
+			texturePath: 'new_judex/new_judex_cast/',
+			min: 'mineffect/new_judex/new_judex_cast/new_judex_cast',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast/',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): floor of 1627. See effect-port/arch-bishop-skills.md.
+	1628: [
+		{
+			//(1628): CEZ2STREffect, new_judex\\new_judex_cast_bottom\\new_judex_cast_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast_bottom/new_judex_cast_bottom',
+			texturePath: 'new_judex/new_judex_cast_bottom/',
+			min: 'mineffect/new_judex/new_judex_cast_bottom/new_judex_cast_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): on the target as each damage packet's damage arrives, with 1632. See effect-port/arch-bishop-skills.md.
+	1631: [
+		{
+			//(1631): CEZ2STREffect, new_judex\\new_judex_target\\new_judex_target.str
+			type: 'STR',
+			file: 'new_judex/new_judex_target/new_judex_target',
+			texturePath: 'new_judex/new_judex_target/',
+			min: 'mineffect/new_judex/new_judex_target/new_judex_target',
+			minTexturePath: 'mineffect/new_judex/new_judex_target/',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): floor of 1631. See effect-port/arch-bishop-skills.md.
+	1632: [
+		{
+			//(1632): CEZ2STREffect, new_judex\\new_judex_target_bottom\\new_judex_target_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_target_bottom/new_judex_target_bottom',
+			texturePath: 'new_judex/new_judex_target_bottom/',
+			min: 'mineffect/new_judex/new_judex_target_bottom/new_judex_target_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_target_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): one falling light, placed round the target by ef_ab_judex_lights. See effect-port/arch-bishop-skills.md.
+	1633: [
+		{
+			//(1633): CEZ2STREffect, new_judex\\new_judex_light\\new_judex_light.str
+			type: 'STR',
+			file: 'new_judex/new_judex_light/new_judex_light',
+			texturePath: 'new_judex/new_judex_light/',
+			min: 'mineffect/new_judex/new_judex_light/new_judex_light',
+			minTexturePath: 'mineffect/new_judex/new_judex_light/',
+			attachedEntity: false
+		}
+	],
+
+	// Judex (AB_JUDEX): floor of 1633. See effect-port/arch-bishop-skills.md.
+	1634: [
+		{
+			//(1634): CEZ2STREffect, new_judex\\new_judex_light_bottom\\new_judex_light_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_light_bottom/new_judex_light_bottom',
+			texturePath: 'new_judex/new_judex_light_bottom/',
+			min: 'mineffect/new_judex/new_judex_light_bottom/new_judex_light_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_light_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}
+	],
+
+	// Judex (AB_JUDEX): AB_judex.wav as each damage packet's damage arrives. See effect-port/arch-bishop-skills.md.
+	ef_ab_judex_sound: [
+		{
+			wav: 'effect/ab_judex',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): twelve 1633 + 1634 pairs round the target as each damage arrives (JudexEffect.js). See effect-port/arch-bishop-skills.md.
+	ef_ab_judex_lights: judexLightsEffect,
 
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
