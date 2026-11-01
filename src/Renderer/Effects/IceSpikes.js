@@ -40,17 +40,34 @@ let _loading = false;
  */
 let _generation = 0;
 
+/**
+ * The flickering colour of a glowing spike: red and green 40-50, blue 255
+ * (the client's ((r(11) << 8) + r(11)) << 8, minus 0xd7d701, as ARGB).
+ *
+ * @param {function} [random] returns a number in [0, 1)
+ * @return {number[]} [r, g, b]
+ */
+export function glowColor(random = Math.random) {
+	const a = Math.floor(random() * 11);
+	const b = Math.floor(random() * 11);
+	const c = (((a << 8) + b) << 8) - 0xd7d701;
+	return [(c >> 16) & 255, (c >> 8) & 255, c & 255];
+}
+
 class IceSpikes {
 	/**
 	 * @param {vec3} position effect position (kept by reference: a spike follows it)
 	 * @param {number} startTick
 	 * @param {Array} spikes from planPath or planShards
 	 * @param {number} life effect lifetime in ticks
+	 * @param {object} [options] glow: drawn adding light in a flickering deep blue (Jack Frost's 801,
+	 *   the builder's variant 3)
 	 */
-	constructor(position, startTick, spikes, life) {
+	constructor(position, startTick, spikes, life, options = {}) {
 		this.position = position;
 		this.startTick = startTick || 0;
 		this.spikes = spikes;
+		this.glow = !!options.glow;
 		this.endTick = this.startTick + life * SPIKE_TICK_MS;
 		this.vertices = new Float32Array(SPIKE_VERTICES * 5);
 		this.color = new Float32Array([1, 1, 1, 1]);
@@ -98,6 +115,15 @@ class IceSpikes {
 		const attribute = _program.attribute;
 		const self = this;
 
+		if (this.glow) {
+			// A new deep blue every frame, added to the scene
+			const [r, g, b] = glowColor();
+			this.color[0] = r / 255;
+			this.color[1] = g / 255;
+			this.color[2] = b / 255;
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		}
+
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
 			gl.bindTexture(gl.TEXTURE_2D, _texture);
@@ -116,6 +142,10 @@ class IceSpikes {
 				gl.drawArrays(gl.TRIANGLES, 0, SPIKE_VERTICES);
 			});
 		});
+
+		if (this.glow) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
 	}
 
 	static init(gl) {
