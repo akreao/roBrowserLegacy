@@ -18687,8 +18687,16 @@ export default {
 	1048: [
 		{
 			//EF_WL_TELEKINESIS_INTENSE
+			// Official client: drawn while the status is on (StatusEffectTable); its sound comes from the use packet
 			type: 'STR',
 			file: 'wl_telekinesis_intense',
+			attachedEntity: true
+		}
+	],
+
+	// Telekinesis Intense (WL_TELEKINESIS_INTENSE): the use packet's sound, on the caster. See effect-port/warlock-skills.md.
+	ef_wl_telekinesis_intense_sound: [
+		{
 			wav: 'effect/wl_telekinesis_intense',
 			attachedEntity: true
 		}

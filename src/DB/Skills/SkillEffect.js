@@ -1884,7 +1884,7 @@ SkillEffect[6518 /* CD_DIVINUS_FLOS */] = {
 	effectIdOnCaster: 'ef_cd_divinus_flos_cast',
 	hitEffectId: 'ef_cd_divinus_flos_hit'
 }; //Divinus Flos
-SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekinesis
+SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { successEffectIdOnCaster: 'ef_wl_telekinesis_intense_sound' }; //Intense Telekinesis: the sound on success; 1048 comes with the status
 SkillEffect[SK.AG_DEADLY_PROJECTION] = {
 	effectIdOnCaster: 'ef_ag_deadly_projection_cast',
 	hitEffectId: 'ef_ag_deadly_projection_hit'
