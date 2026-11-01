@@ -1810,23 +1810,23 @@ export default {
 			zIndex: 1
 		},
 		{
-			alphaMax: 0.3,
-			attachedEntity: false,
-			blendMode: 2,
-			blue: 1,
+			// Official client (kRO 2025-07-16, 0xba43f0): a flat prim-12 disc of alpha_down.tga, radius 10
+			// (band as wide as the radius), tinted (32, 176, 232), alpha 0 rising 100 / 30 a tick to 100,
+			// fading out over the last 30 of the effect's 150 ticks. Sound on tick 0.
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'alpha_down',
+			attachedEntity: true,
 			duration: 2500,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok2.tga',
-			green: 0.75,
-			posx: 0,
-			posy: 0,
-			posz: 0,
-			red: 0.1,
-			size: 140,
-			type: '3D',
-			wav: 'effect/ef_blessing',
-			zIndex: 10
+			frames: 150,
+			radius: 10,
+			width: 10,
+			color: [32, 176, 232],
+			alpha: 0,
+			alphaSpeed: 100 / 30,
+			alphaMax: 100,
+			fadeOutFrame: 120,
+			wav: 'effect/ef_blessing'
 		}
 	],
 
