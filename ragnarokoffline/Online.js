@@ -86491,7 +86491,7 @@ var init_PostProcess = __esmMin((() => {
 	};
 }));
 // src/Renderer/Effects/Shaders/VerticalFlip.js
-var _program$45, _buffer$24, _active$5, VerticalFlip;
+var _program$47, _buffer$24, _active$5, VerticalFlip;
 var init_VerticalFlip = __esmMin((() => {
 	init_VerticalFlip$2();
 	init_VerticalFlip$1();
@@ -86500,9 +86500,9 @@ var init_VerticalFlip = __esmMin((() => {
 	_active$5 = false;
 	VerticalFlip = class {
 		static init(gl) {
-			if (_program$45) return;
+			if (_program$47) return;
 			try {
-				_program$45 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
+				_program$47 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
 			} catch (e) {
 				console.error("Error when compiling shader VerticalFlip.", e);
 				return;
@@ -86535,19 +86535,19 @@ var init_VerticalFlip = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFbo - Target
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$24 || !_program$45 || !_active$5) return;
+			if (!_buffer$24 || !_program$47 || !_active$5) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$45);
+			gl.useProgram(_program$47);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$24);
-			let posLoc = _program$45.attribute.aPosition;
+			let posLoc = _program$47.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
-			posLoc = _program$45.attribute.aTextureCoord;
+			posLoc = _program$47.attribute.aTextureCoord;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 8);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$45.uniform.uTexture, 0);
+			gl.uniform1i(_program$47.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			PostProcess.afterRenderPass(gl);
 		}
@@ -86555,13 +86555,13 @@ var init_VerticalFlip = __esmMin((() => {
 		* @returns {WebGLProgram} Shader program
 		*/
 		static program() {
-			return _program$45;
+			return _program$47;
 		}
 		/** Resets effect state */
 		static clean(gl) {
 			_active$5 = false;
 			if (_buffer$24) gl.deleteBuffer(_buffer$24);
-			_program$45 = _buffer$24 = null;
+			_program$47 = _buffer$24 = null;
 		}
 		/** @returns {boolean} Whether the effect is active */
 		static isActive() {
@@ -88728,6 +88728,9 @@ var init_MountTable = __esmMin((() => {
 	MountTable[JobConst_default.MECHANIC_H] = JobConst_default.MECHANIC2_H;
 	MountTable[JobConst_default.MECHANIC_B] = JobConst_default.MECHANIC2_B;
 	MountTable[JobConst_default.MECHANIC_2ND] = JobConst_default.MECHANIC2_2ND;
+	MountTable[JobConst_default.STAR] = JobConst_default.STAR2;
+	MountTable[JobConst_default.STAR_B] = JobConst_default.STAR2_B;
+	MountTable[JobConst_default.SKY_EMPEROR] = JobConst_default.SKY_EMPEROR2;
 	MountTable[JobConst_default.WINDHAWK] = JobConst_default.WINDHAWK2;
 	MountTable[JobConst_default.MEISTER] = JobConst_default.MEISTER2;
 	MountTable[JobConst_default.DRAGON_KNIGHT] = JobConst_default.DRAGON_KNIGHT2;
@@ -149714,6 +149717,10 @@ var init_StatusEffectTable = __esmMin((() => {
 			restart: [604],
 			stop: [604]
 		},
+		[StatusConst_default.DUPLELIGHT]: {
+			restart: ["ef_ab_duplelight_orbs"],
+			stop: ["ef_ab_duplelight_orbs"]
+		},
 		[StatusConst_default.KO_JYUMONJIKIRI]: { loop: ["ef_ko_red_cross"] },
 		[StatusConst_default.INTENSIVE_AIM_COUNT]: { stages: [
 			["ef_nw_intensive_aim_00"],
@@ -149834,6 +149841,10 @@ var init_StatusEffectTable = __esmMin((() => {
 			stop: ["ef_su_bitescar"]
 		},
 		[StatusConst_default.SV_ROOTTWIST]: { loop: ["ef_su_roottwist"] },
+		[StatusConst_default.TUNAPARTY]: {
+			restart: [1097],
+			stop: [1097]
+		},
 		[StatusConst_default.ASSUMPTIO]: { loop: [375] },
 		[StatusConst_default.FLASHKICK]: {
 			restart: ["ef_sj_flashkick"],
@@ -151299,7 +151310,7 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_DEATHWAVE] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_WATERATTACK] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_EVILLAND] = EffectConst_default.EF_BOTTOM_EVILLAND;
-	SkillUnit[SkillUnitConst_default.UNT_EPICLESIS] = 1654;
+	SkillUnit[SkillUnitConst_default.UNT_EPICLESIS] = [1654, 1655];
 	SkillUnit[SkillUnitConst_default.UNT_EARTHSTRAIN] = EffectConst_default.EF_EARTHWALL;
 	SkillUnit[SkillUnitConst_default.UNT_MANHOLE] = EffectConst_default.EF_BOTTOM_MANHOLE;
 	SkillUnit[SkillUnitConst_default.UNT_DIMENSIONDOOR] = EffectConst_default.EF_FORESTLIGHT6;
@@ -215235,8 +215246,8 @@ function init$14(gl) {
 			ctx.fillStyle = "rgb( 50, 240, 160)";
 			ctx.globalCompositeOperation = "source-atop";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			_texture$10 = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, _texture$10);
+			_texture$11 = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, _texture$11);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -215244,7 +215255,7 @@ function init$14(gl) {
 		});
 	});
 	_buffer$23 = gl.createBuffer();
-	_program$44 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
+	_program$46 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$23);
 	gl.bufferData(gl.ARRAY_BUFFER, _buffer_data.byteLength, gl.DYNAMIC_DRAW);
 }
@@ -215259,11 +215270,11 @@ function init$14(gl) {
 * @param {number} y
 */
 function render$15(gl, modelView, projection, fog, x, y) {
-	if (!_texture$10) return;
-	const uniform = _program$44.uniform;
-	const attribute = _program$44.attribute;
+	if (!_texture$11) return;
+	const uniform = _program$46.uniform;
+	const attribute = _program$46.attribute;
 	let z;
-	gl.useProgram(_program$44);
+	gl.useProgram(_program$46);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -215290,7 +215301,7 @@ function render$15(gl, modelView, projection, fog, x, y) {
 		_buffer_data[16] = z[3];
 		gl.bufferSubData(gl.ARRAY_BUFFER, 0, _buffer_data);
 	}
-	gl.bindTexture(gl.TEXTURE_2D, _texture$10);
+	gl.bindTexture(gl.TEXTURE_2D, _texture$11);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aTextCoord);
@@ -215305,16 +215316,16 @@ function free$8(gl) {
 		gl.deleteBuffer(_buffer$23);
 		_buffer$23 = null;
 	}
-	if (_texture$10) {
-		gl.deleteTexture(_texture$10);
-		_texture$10 = null;
+	if (_texture$11) {
+		gl.deleteTexture(_texture$11);
+		_texture$11 = null;
 	}
-	if (_program$44) {
-		gl.deleteProgram(_program$44);
-		_program$44 = null;
+	if (_program$46) {
+		gl.deleteProgram(_program$46);
+		_program$46 = null;
 	}
 }
-var _program$44, _buffer$23, _texture$10, _xy, _buffer_data, GridSelector_default;
+var _program$46, _buffer$23, _texture$11, _xy, _buffer_data, GridSelector_default;
 var init_GridSelector = __esmMin((() => {
 	init_Altitude();
 	init_Client();
@@ -215323,9 +215334,9 @@ var init_GridSelector = __esmMin((() => {
 	init_Configs();
 	init_GridSelector$2();
 	init_GridSelector$1();
-	_program$44 = null;
+	_program$46 = null;
 	_buffer$23 = null;
-	_texture$10 = null;
+	_texture$11 = null;
 	_xy = null;
 	_buffer_data = new Float32Array([
 		0,
@@ -215441,9 +215452,9 @@ var init_Ground$1 = __esmMin((() => {
 * @param {object} light structure
 */
 function render$14(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$43.uniform;
-	const attribute = _program$43.attribute;
-	gl.useProgram(_program$43);
+	const uniform = _program$45.uniform;
+	const attribute = _program$45.attribute;
+	gl.useProgram(_program$45);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -215615,7 +215626,7 @@ function init$13(gl, data) {
 	_shadowMap = data.shadowMap;
 	_cellHeights = data.cellHeights || null;
 	if (!_buffer$22) _buffer$22 = gl.createBuffer();
-	if (!_program$43) _program$43 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
+	if (!_program$45) _program$45 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$22);
 	gl.bufferData(gl.ARRAY_BUFFER, data.mesh, gl.STATIC_DRAW);
 	initLightmap(gl, data.lightmap, data.lightmapSize);
@@ -215705,7 +215716,7 @@ function textures() {
 		lightmap: _lightmap
 	};
 }
-var procCanvas$2, procCtx$2, _program$43, _buffer$22, _lightmap, _tileColor, _textureAtlas, _shadowMap, _cellHeights, _vertCount$1, _width, _height, RAISED_SHADED, RAISED_UNSHADED, Ground_default;
+var procCanvas$2, procCtx$2, _program$45, _buffer$22, _lightmap, _tileColor, _textureAtlas, _shadowMap, _cellHeights, _vertCount$1, _width, _height, RAISED_SHADED, RAISED_UNSHADED, Ground_default;
 var init_Ground = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -215716,7 +215727,7 @@ var init_Ground = __esmMin((() => {
 	init_Ground$1();
 	procCanvas$2 = document.createElement("canvas");
 	procCtx$2 = procCanvas$2.getContext("2d", { willReadFrequently: true });
-	_program$43 = null;
+	_program$45 = null;
 	_buffer$22 = null;
 	_lightmap = null;
 	_tileColor = null;
@@ -215871,7 +215882,7 @@ var init_MapHooks = __esmMin((() => {
 * Pack every frame of a sprite file, tallest first, and upload it.
 */
 function pack(spr) {
-	spr._atlasGeneration = _generation$4;
+	spr._atlasGeneration = _generation$6;
 	const placed = [];
 	const owned = [];
 	for (const atlas of [_index$1, _rgba]) {
@@ -215912,16 +215923,16 @@ function pack(spr) {
 		});
 		placed.push(...spots);
 	}
-	const generation = _generation$4;
+	const generation = _generation$6;
 	spr._atlasRelease = () => {
 		spr._atlasRelease = null;
 		spr._atlasGeneration = 0;
-		if (generation !== _generation$4) return;
+		if (generation !== _generation$6) return;
 		for (const { atlas, layers } of owned) atlas.release(layers);
 		for (const spot of placed) spot.frame._atlas = null;
 	};
 }
-var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$5, _generation$4, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
+var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$5, _generation$6, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
 var init_SpriteAtlas = __esmMin((() => {
 	init_Graphics();
 	PALETTE_ROWS = 512;
@@ -216098,7 +216109,7 @@ var init_SpriteAtlas = __esmMin((() => {
 		}
 	};
 	_gl$5 = null;
-	_generation$4 = 0;
+	_generation$6 = 0;
 	_index$1 = null;
 	_rgba = null;
 	_palettes = null;
@@ -216128,7 +216139,7 @@ var init_SpriteAtlas = __esmMin((() => {
 			}
 			if (_palettes) _gl$5.deleteTexture(_palettes);
 			_gl$5 = gl;
-			_generation$4++;
+			_generation$6++;
 			_index$1 = new ArrayAtlas(gl, false, 2048, 2, 16);
 			_rgba = new ArrayAtlas(gl, true, 1024, 1, 16);
 			_palettes = gl.createTexture();
@@ -216174,7 +216185,7 @@ var init_SpriteAtlas = __esmMin((() => {
 		* @returns {object|null} { rgba, layer, u0, v0, u1, v1 }, or null if it has no room
 		*/
 		static frame(spr, frame) {
-			if (spr._atlasGeneration !== _generation$4) pack(spr);
+			if (spr._atlasGeneration !== _generation$6) pack(spr);
 			return frame._atlas || null;
 		}
 		/**
@@ -216229,7 +216240,7 @@ var init_SpriteBatch$1 = __esmMin((() => {
 */
 function init$12(gl) {
 	_gl$4 = gl;
-	_program$42 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
+	_program$44 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
 	_quad = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -216252,7 +216263,7 @@ function init$12(gl) {
 	]), gl.STATIC_DRAW);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
-	const attribute = _program$42.attribute;
+	const attribute = _program$44.attribute;
 	gl.bindVertexArray(_vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.enableVertexAttribArray(attribute.aPosition);
@@ -216282,7 +216293,7 @@ function init$12(gl) {
 */
 function pointInstances(first) {
 	const gl = _gl$4;
-	const attribute = _program$42.attribute;
+	const attribute = _program$44.attribute;
 	const base = first * STRIDE$1;
 	gl.vertexAttribPointer(attribute.aPositionZIndex, 4, gl.FLOAT, false, STRIDE$1, base);
 	gl.vertexAttribPointer(attribute.aOffsetSize, 4, gl.FLOAT, false, STRIDE$1, base + 16);
@@ -216291,7 +216302,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE$1, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE$1, base + 80);
 }
-var mat4$22, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$4, _program$42, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$3, _fogBlack$1, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$4, _program$44, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$3, _fogBlack$1, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -216344,7 +216355,7 @@ var init_SpriteBatch = __esmMin((() => {
 		}
 	};
 	_gl$4 = null;
-	_program$42 = null;
+	_program$44 = null;
 	_vao = null;
 	_quad = null;
 	_instanceBuffer = null;
@@ -216414,7 +216425,7 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$4 || typeof gl.drawArraysInstanced !== "function") return false;
-			if (!_program$42 || _gl$4 !== gl) init$12(gl);
+			if (!_program$44 || _gl$4 !== gl) init$12(gl);
 			SpriteAtlas.init(gl);
 			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
@@ -216468,7 +216479,7 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static contextRestored() {
 			_gl$4 = null;
-			_program$42 = null;
+			_program$44 = null;
 			_vao = null;
 			_quad = null;
 			_instanceBuffer = null;
@@ -216531,13 +216542,13 @@ var init_SpriteBatch = __esmMin((() => {
 			const total = shadow.count + main.count;
 			if (!_active$4 || !total) return 0;
 			const gl = _gl$4;
-			const uniform = _program$42.uniform;
+			const uniform = _program$44.uniform;
 			if (_upload.length < total * FLOATS$1) _upload = new Float32Array(total * FLOATS$1 * 2);
 			_upload.set(shadow.data.subarray(0, shadow.count * FLOATS$1), 0);
 			_upload.set(main.data.subarray(0, main.count * FLOATS$1), shadow.count * FLOATS$1);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, _upload, gl.STREAM_DRAW, 0, total * FLOATS$1);
-			gl.useProgram(_program$42);
+			gl.useProgram(_program$44);
 			gl.bindVertexArray(_vao);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, _projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView$2);
@@ -216633,7 +216644,7 @@ function RenderCanvas3D(isBlendModeOne) {
 		RecordCanvas3D.call(this, isBlendModeOne);
 		return;
 	}
-	const uniform = _program$41.uniform;
+	const uniform = _program$43.uniform;
 	const gl = _gl$3;
 	const use_pal = this.image.palette !== null;
 	if (isBlendModeOne) {
@@ -216677,9 +216688,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform2fv(uniform.uSpriteRendererSize, _size$7);
 	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
 	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
-	if (_groupId !== _lastGroupId || _texture$9 !== this.image.texture) {
+	if (_groupId !== _lastGroupId || _texture$10 !== this.image.texture) {
 		_lastGroupId = _groupId;
-		gl.bindTexture(gl.TEXTURE_2D, _texture$9 = this.image.texture);
+		gl.bindTexture(gl.TEXTURE_2D, _texture$10 = this.image.texture);
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
@@ -216835,13 +216846,13 @@ function setDepth(depthTest, depthMask) {
 * fog colour the last recorded sprite chose, and forget the bound texture.
 */
 function syncAfterBatch() {
-	_gl$3.useProgram(_program$41);
-	_gl$3.uniform3fv(_program$41.uniform.uFogColor, _fogToBlack ? _fogBlack : _fogColor$2);
+	_gl$3.useProgram(_program$43);
+	_gl$3.uniform3fv(_program$43.uniform.uFogColor, _fogToBlack ? _fogBlack : _fogColor$2);
 	_gl$3.activeTexture(_gl$3.TEXTURE0);
-	_texture$9 = null;
+	_texture$10 = null;
 	_groupId++;
 }
-var mat4$21, RenderCanvas2D, _program$41, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor$2, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$21, RenderCanvas2D, _program$43, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$10, _usepal, _fogColor$2, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -216916,7 +216927,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			_ctx$4.restore();
 		};
 	})();
-	_program$41 = null;
+	_program$43 = null;
 	_buffer$21 = null;
 	_ctx$4 = null;
 	_gl$3 = null;
@@ -216930,7 +216941,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_fullPlaneDepth = true;
 	_depthTest = true;
 	_blendOne = null;
-	_texture$9 = null;
+	_texture$10 = null;
 	_usepal = null;
 	_fogColor$2 = /* @__PURE__ */ new Float32Array(3);
 	_fogBlack = /* @__PURE__ */ new Float32Array(3);
@@ -217038,7 +217049,7 @@ var init_SpriteRenderer = __esmMin((() => {
 					1
 				]), gl.STATIC_DRAW);
 			}
-			if (!_program$41) _program$41 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
+			if (!_program$43) _program$43 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
 			SpriteBatch.enabled = Configs.get("spriteBatching", true) !== false;
 		}
 		/**
@@ -217050,14 +217061,14 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} fog structure
 		*/
 		static bind3DContext(gl, modelView, projection, fog) {
-			const attribute = _program$41.attribute;
-			const uniform = _program$41.uniform;
+			const attribute = _program$43.attribute;
+			const uniform = _program$43.uniform;
 			if (SpriteBatch.active) {
 				this.flushBatch();
 				SpriteBatch.invalidate();
 			}
 			SpriteBatch.setFrame(modelView, projection, fog, Camera.zoom);
-			gl.useProgram(_program$41);
+			gl.useProgram(_program$43);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$21.invert(_matrix$6, modelView));
@@ -217098,7 +217109,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		static fogToBlack(on) {
 			if (!_gl$3 || _fogToBlack === on) return;
 			_fogToBlack = on;
-			if (!SpriteBatch.active) _gl$3.uniform3fv(_program$41.uniform.uFogColor, on ? _fogBlack : _fogColor$2);
+			if (!SpriteBatch.active) _gl$3.uniform3fv(_program$43.uniform.uFogColor, on ? _fogBlack : _fogColor$2);
 		}
 		/**
 		* Unbind 3D Context
@@ -217106,7 +217117,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static unbind(gl) {
-			const attribute = _program$41.attribute;
+			const attribute = _program$43.attribute;
 			gl.disableVertexAttribArray(attribute.aPosition);
 			gl.disableVertexAttribArray(attribute.aTextureCoord);
 		}
@@ -217221,12 +217232,12 @@ function init$11(gl, water) {
 	_wavePitch = water.wavePitch;
 	_waterOpacity = water.type !== 4 && water.type !== 6 ? .8 : 1;
 	if (!_vertCount) return;
-	if (!_program$40) _program$40 = WebGL_default.createShaderProgram(gl, Water_default$2, Water_default$1);
+	if (!_program$42) _program$42 = WebGL_default.createShaderProgram(gl, Water_default$2, Water_default$1);
 	_buffer$20 = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
-		_textures$23[index] = texture;
+		_textures$25[index] = texture;
 	}
 	for (let i = 0; i < 32; ++i) WebGL_default.texture(gl, water.images[i], onTextureLoaded, i);
 }
@@ -217242,10 +217253,10 @@ function init$11(gl, water) {
 */
 function render$13(gl, modelView, projection, fog, light, tick) {
 	if (!_vertCount) return;
-	const uniform = _program$40.uniform;
-	const attribute = _program$40.attribute;
+	const uniform = _program$42.uniform;
+	const attribute = _program$42.attribute;
 	const frame = tick / (1e3 / 60);
-	gl.useProgram(_program$40);
+	gl.useProgram(_program$42);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -217263,7 +217274,7 @@ function render$13(gl, modelView, projection, fog, light, tick) {
 	gl.uniform1f(uniform.uOpacity, _waterOpacity);
 	gl.uniform1f(uniform.uWavePitch, _wavePitch);
 	gl.uniform1f(uniform.uWaterOffset, frame * _waveSpeed % 360 - 180);
-	gl.bindTexture(gl.TEXTURE_2D, _textures$23[frame / _animSpeed % 32 | 0]);
+	gl.bindTexture(gl.TEXTURE_2D, _textures$25[frame / _animSpeed % 32 | 0]);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	SpriteRenderer.runWithDepth(true, false, false, function() {
 		gl.drawArrays(gl.TRIANGLES, 0, _vertCount);
@@ -217282,13 +217293,13 @@ function free$6(gl) {
 		gl.deleteBuffer(_buffer$20);
 		_buffer$20 = null;
 	}
-	if (_program$40) {
-		gl.deleteProgram(_program$40);
-		_program$40 = null;
+	if (_program$42) {
+		gl.deleteProgram(_program$42);
+		_program$42 = null;
 	}
-	for (i = 0; i < 32; ++i) if (_textures$23[i]) {
-		gl.deleteTexture(_textures$23[i]);
-		_textures$23[i] = null;
+	for (i = 0; i < 32; ++i) if (_textures$25[i]) {
+		gl.deleteTexture(_textures$25[i]);
+		_textures$25[i] = null;
 	}
 	_vertCount = 0;
 }
@@ -217325,7 +217336,7 @@ function state() {
 	return {
 		buffer: _buffer$20,
 		vertCount: _vertCount,
-		textures: _textures$23,
+		textures: _textures$25,
 		level: _waterLevel,
 		waveHeight: _waveHeight,
 		waveSpeed: _waveSpeed,
@@ -217334,17 +217345,17 @@ function state() {
 		opacity: _waterOpacity
 	};
 }
-var _program$40, _buffer$20, _vertCount, _textures$23, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
+var _program$42, _buffer$20, _vertCount, _textures$25, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
 	init_Altitude();
 	init_Water$2();
 	init_Water$1();
-	_program$40 = null;
+	_program$42 = null;
 	_buffer$20 = null;
 	_vertCount = 0;
-	_textures$23 = new Array(32);
+	_textures$25 = new Array(32);
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
@@ -217627,7 +217638,7 @@ function init$10(gl, data) {
 	_batchesReady = false;
 	_pendingTextures = count;
 	if (!_buffer$19) _buffer$19 = gl.createBuffer();
-	if (!_program$39) _program$39 = WebGL_default.createShaderProgram(gl, Models_default$2, OccluderFade.injectShader(Models_default$1));
+	if (!_program$41) _program$41 = WebGL_default.createShaderProgram(gl, Models_default$2, OccluderFade.injectShader(Models_default$1));
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
 	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
@@ -217675,9 +217686,9 @@ function drawMeshes(gl) {
 * @param {object} light structure
 */
 function bind$1(gl, modelView, projection, fog, light) {
-	const uniform = _program$39.uniform;
-	const attribute = _program$39.attribute;
-	gl.useProgram(_program$39);
+	const uniform = _program$41.uniform;
+	const attribute = _program$41.attribute;
+	gl.useProgram(_program$41);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -217708,7 +217719,7 @@ function bind$1(gl, modelView, projection, fog, light) {
 * @param {object} gl context
 */
 function unbind(gl) {
-	const attribute = _program$39.attribute;
+	const attribute = _program$41.attribute;
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aVertexNormal);
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
@@ -217744,8 +217755,8 @@ function renderDepth(gl, program) {
 }
 function render$12(gl, modelView, projection, normalMat, fog, light) {
 	bind$1(gl, modelView, projection, fog, light);
-	OccluderFade.renderOpaque(gl, _program$39.uniform, () => drawMeshes(gl));
-	OccluderFade.renderQuery(gl, _program$39.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
+	OccluderFade.renderOpaque(gl, _program$41.uniform, () => drawMeshes(gl));
+	OccluderFade.renderQuery(gl, _program$41.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
 	unbind(gl);
 }
 /**
@@ -217762,7 +217773,7 @@ function render$12(gl, modelView, projection, normalMat, fog, light) {
 function renderFaded$1(gl, modelView, projection, normalMat, fog, light) {
 	if (!OccluderFade.needsBlendPass()) return;
 	bind$1(gl, modelView, projection, fog, light);
-	OccluderFade.renderBlend(gl, _program$39.uniform, () => drawMeshes(gl));
+	OccluderFade.renderBlend(gl, _program$41.uniform, () => drawMeshes(gl));
 	unbind(gl);
 }
 /**
@@ -217776,23 +217787,23 @@ function free$5(gl) {
 		gl.deleteBuffer(_buffer$19);
 		_buffer$19 = null;
 	}
-	if (_program$39) {
-		gl.deleteProgram(_program$39);
-		_program$39 = null;
+	if (_program$41) {
+		gl.deleteProgram(_program$41);
+		_program$41 = null;
 	}
 	for (i = 0, count = _objects.length; i < count; ++i) gl.deleteTexture(_objects[i].texture);
 	_objects.length = 0;
 	_batches.length = 0;
 	_batchesReady = false;
 }
-var _program$39, _buffer$19, _objects, _batches, _batchesReady, _pendingTextures, Models_default;
+var _program$41, _buffer$19, _objects, _batches, _batchesReady, _pendingTextures, Models_default;
 var init_Models = __esmMin((() => {
 	init_Models$2();
 	init_Models$1();
 	init_WebGL();
 	init_Map();
 	init_OccluderFade();
-	_program$39 = null;
+	_program$41 = null;
 	_buffer$19 = null;
 	_objects = [];
 	_batches = [];
@@ -217821,35 +217832,35 @@ var init_AnimatedModels$1 = __esmMin((() => {
 * Initialize shader program
 */
 function init$9(gl) {
-	_program$38 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, OccluderFade.injectShader(AnimatedModels_default$1));
-	_program$38.uniform = {
-		uModelViewMat: gl.getUniformLocation(_program$38, "uModelViewMat"),
-		uProjectionMat: gl.getUniformLocation(_program$38, "uProjectionMat"),
-		uNormalMat: gl.getUniformLocation(_program$38, "uNormalMat"),
-		uLightDirection: gl.getUniformLocation(_program$38, "uLightDirection"),
-		uLightOpacity: gl.getUniformLocation(_program$38, "uLightOpacity"),
-		uLightAmbient: gl.getUniformLocation(_program$38, "uLightAmbient"),
-		uLightDiffuse: gl.getUniformLocation(_program$38, "uLightDiffuse"),
-		uLightEnv: gl.getUniformLocation(_program$38, "uLightEnv"),
-		uFogUse: gl.getUniformLocation(_program$38, "uFogUse"),
-		uFogNear: gl.getUniformLocation(_program$38, "uFogNear"),
-		uFogFar: gl.getUniformLocation(_program$38, "uFogFar"),
-		uFogColor: gl.getUniformLocation(_program$38, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$38, "uDiffuse"),
-		uMatrixTexture: gl.getUniformLocation(_program$38, "uMatrixTexture"),
-		uOccluderFadeMode: gl.getUniformLocation(_program$38, "uOccluderFadeMode"),
-		uOccluderFadeEye: gl.getUniformLocation(_program$38, "uOccluderFadeEye"),
-		uOccluderFadeFocus: gl.getUniformLocation(_program$38, "uOccluderFadeFocus"),
-		uOccluderFadeRadius: gl.getUniformLocation(_program$38, "uOccluderFadeRadius"),
-		uOccluderFadeOpacity: gl.getUniformLocation(_program$38, "uOccluderFadeOpacity"),
-		uOccluderFadeStrength: gl.getUniformLocation(_program$38, "uOccluderFadeStrength")
+	_program$40 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, OccluderFade.injectShader(AnimatedModels_default$1));
+	_program$40.uniform = {
+		uModelViewMat: gl.getUniformLocation(_program$40, "uModelViewMat"),
+		uProjectionMat: gl.getUniformLocation(_program$40, "uProjectionMat"),
+		uNormalMat: gl.getUniformLocation(_program$40, "uNormalMat"),
+		uLightDirection: gl.getUniformLocation(_program$40, "uLightDirection"),
+		uLightOpacity: gl.getUniformLocation(_program$40, "uLightOpacity"),
+		uLightAmbient: gl.getUniformLocation(_program$40, "uLightAmbient"),
+		uLightDiffuse: gl.getUniformLocation(_program$40, "uLightDiffuse"),
+		uLightEnv: gl.getUniformLocation(_program$40, "uLightEnv"),
+		uFogUse: gl.getUniformLocation(_program$40, "uFogUse"),
+		uFogNear: gl.getUniformLocation(_program$40, "uFogNear"),
+		uFogFar: gl.getUniformLocation(_program$40, "uFogFar"),
+		uFogColor: gl.getUniformLocation(_program$40, "uFogColor"),
+		uDiffuse: gl.getUniformLocation(_program$40, "uDiffuse"),
+		uMatrixTexture: gl.getUniformLocation(_program$40, "uMatrixTexture"),
+		uOccluderFadeMode: gl.getUniformLocation(_program$40, "uOccluderFadeMode"),
+		uOccluderFadeEye: gl.getUniformLocation(_program$40, "uOccluderFadeEye"),
+		uOccluderFadeFocus: gl.getUniformLocation(_program$40, "uOccluderFadeFocus"),
+		uOccluderFadeRadius: gl.getUniformLocation(_program$40, "uOccluderFadeRadius"),
+		uOccluderFadeOpacity: gl.getUniformLocation(_program$40, "uOccluderFadeOpacity"),
+		uOccluderFadeStrength: gl.getUniformLocation(_program$40, "uOccluderFadeStrength")
 	};
-	_program$38.attribute = {
-		aPosition: gl.getAttribLocation(_program$38, "aPosition"),
-		aNormal: gl.getAttribLocation(_program$38, "aNormal"),
-		aTextureCoord: gl.getAttribLocation(_program$38, "aTextureCoord"),
-		aAlpha: gl.getAttribLocation(_program$38, "aAlpha"),
-		aMatrixIndex: gl.getAttribLocation(_program$38, "aMatrixIndex")
+	_program$40.attribute = {
+		aPosition: gl.getAttribLocation(_program$40, "aPosition"),
+		aNormal: gl.getAttribLocation(_program$40, "aNormal"),
+		aTextureCoord: gl.getAttribLocation(_program$40, "aTextureCoord"),
+		aAlpha: gl.getAttribLocation(_program$40, "aAlpha"),
+		aMatrixIndex: gl.getAttribLocation(_program$40, "aMatrixIndex")
 	};
 }
 /**
@@ -217953,7 +217964,7 @@ function isNodeStatic(node) {
 */
 function add$3(gl, modelData) {
 	if (!modelData || !modelData.nodes || modelData.nodes.length === 0) return;
-	if (!_program$38) init$9(gl);
+	if (!_program$40) init$9(gl);
 	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
 		const instArray = modelData.instances[i];
@@ -218150,7 +218161,7 @@ function add$3(gl, modelData) {
 	animModel.vao = gl.createVertexArray();
 	gl.bindVertexArray(animModel.vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
-	const attribute = _program$38.attribute;
+	const attribute = _program$40.attribute;
 	const stride = 40;
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
@@ -218331,8 +218342,8 @@ function updateModelBuffer(gl, model, frame, force) {
 * Bind program and per-frame uniforms shared by both model passes
 */
 function bind(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$38.uniform;
-	gl.useProgram(_program$38);
+	const uniform = _program$40.uniform;
+	gl.useProgram(_program$40);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniformMatrix3fv(uniform.uNormalMat, false, normalMat);
@@ -218376,14 +218387,14 @@ function drawModels(gl) {
 */
 function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 	if (_animatedModels.length === 0) return;
-	if (!_program$38) init$9(gl);
+	if (!_program$40) init$9(gl);
 	bind(gl, modelView, projection, normalMat, fog, light);
 	for (let m = 0; m < _animatedModels.length; m++) {
 		const model = _animatedModels[m];
 		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
 	}
-	OccluderFade.renderOpaque(gl, _program$38.uniform, () => drawModels(gl));
-	OccluderFade.renderQuery(gl, _program$38.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
+	OccluderFade.renderOpaque(gl, _program$40.uniform, () => drawModels(gl));
+	OccluderFade.renderQuery(gl, _program$40.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
 	gl.bindVertexArray(null);
 }
 /**
@@ -218391,9 +218402,9 @@ function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 * Reuses the vertex data uploaded by render() this frame.
 */
 function renderFaded(gl, modelView, projection, normalMat, fog, light) {
-	if (_animatedModels.length === 0 || !_program$38 || !OccluderFade.needsBlendPass()) return;
+	if (_animatedModels.length === 0 || !_program$40 || !OccluderFade.needsBlendPass()) return;
 	bind(gl, modelView, projection, normalMat, fog, light);
-	OccluderFade.renderBlend(gl, _program$38.uniform, () => drawModels(gl));
+	OccluderFade.renderBlend(gl, _program$40.uniform, () => drawModels(gl));
 	gl.bindVertexArray(null);
 }
 /**
@@ -218402,7 +218413,7 @@ function renderFaded(gl, modelView, projection, normalMat, fog, light) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$4, mat4$19, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$38, _animatedModels, AnimatedModels_default;
+var mat3$4, mat4$19, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$40, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -218420,7 +218431,7 @@ var init_AnimatedModels = __esmMin((() => {
 	_tempQuat = quat$1.create();
 	_tempMat4 = mat4$19.create();
 	_tempMat4Node = mat4$19.create();
-	_program$38 = null;
+	_program$40 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
 		init: init$9,
@@ -222108,31 +222119,31 @@ function grayBroadcast(src, out) {
 * Initialize the shader program.
 */
 function init$8(gl) {
-	_program$37 = WebGL_default.createShaderProgram(gl, GR2Model_default$1, GR2Model_default);
-	_program$37.uniform = {
-		uModelViewMat: gl.getUniformLocation(_program$37, "uModelViewMat"),
-		uProjectionMat: gl.getUniformLocation(_program$37, "uProjectionMat"),
-		uNormalMat: gl.getUniformLocation(_program$37, "uNormalMat"),
-		uBones: gl.getUniformLocation(_program$37, "uBones[0]"),
-		uLightDirection: gl.getUniformLocation(_program$37, "uLightDirection"),
-		uLightOpacity: gl.getUniformLocation(_program$37, "uLightOpacity"),
-		uLightAmbient: gl.getUniformLocation(_program$37, "uLightAmbient"),
-		uLightDiffuse: gl.getUniformLocation(_program$37, "uLightDiffuse"),
-		uLightEnv: gl.getUniformLocation(_program$37, "uLightEnv"),
-		uAlphaRef: gl.getUniformLocation(_program$37, "uAlphaRef"),
-		uAlpha: gl.getUniformLocation(_program$37, "uAlpha"),
-		uFogUse: gl.getUniformLocation(_program$37, "uFogUse"),
-		uFogNear: gl.getUniformLocation(_program$37, "uFogNear"),
-		uFogFar: gl.getUniformLocation(_program$37, "uFogFar"),
-		uFogColor: gl.getUniformLocation(_program$37, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$37, "uDiffuse")
+	_program$39 = WebGL_default.createShaderProgram(gl, GR2Model_default$1, GR2Model_default);
+	_program$39.uniform = {
+		uModelViewMat: gl.getUniformLocation(_program$39, "uModelViewMat"),
+		uProjectionMat: gl.getUniformLocation(_program$39, "uProjectionMat"),
+		uNormalMat: gl.getUniformLocation(_program$39, "uNormalMat"),
+		uBones: gl.getUniformLocation(_program$39, "uBones[0]"),
+		uLightDirection: gl.getUniformLocation(_program$39, "uLightDirection"),
+		uLightOpacity: gl.getUniformLocation(_program$39, "uLightOpacity"),
+		uLightAmbient: gl.getUniformLocation(_program$39, "uLightAmbient"),
+		uLightDiffuse: gl.getUniformLocation(_program$39, "uLightDiffuse"),
+		uLightEnv: gl.getUniformLocation(_program$39, "uLightEnv"),
+		uAlphaRef: gl.getUniformLocation(_program$39, "uAlphaRef"),
+		uAlpha: gl.getUniformLocation(_program$39, "uAlpha"),
+		uFogUse: gl.getUniformLocation(_program$39, "uFogUse"),
+		uFogNear: gl.getUniformLocation(_program$39, "uFogNear"),
+		uFogFar: gl.getUniformLocation(_program$39, "uFogFar"),
+		uFogColor: gl.getUniformLocation(_program$39, "uFogColor"),
+		uDiffuse: gl.getUniformLocation(_program$39, "uDiffuse")
 	};
-	_program$37.attribute = {
-		aPosition: gl.getAttribLocation(_program$37, "aPosition"),
-		aNormal: gl.getAttribLocation(_program$37, "aNormal"),
-		aTextureCoord: gl.getAttribLocation(_program$37, "aTextureCoord"),
-		aBoneIndex: gl.getAttribLocation(_program$37, "aBoneIndex"),
-		aBoneWeight: gl.getAttribLocation(_program$37, "aBoneWeight")
+	_program$39.attribute = {
+		aPosition: gl.getAttribLocation(_program$39, "aPosition"),
+		aNormal: gl.getAttribLocation(_program$39, "aNormal"),
+		aTextureCoord: gl.getAttribLocation(_program$39, "aTextureCoord"),
+		aBoneIndex: gl.getAttribLocation(_program$39, "aBoneIndex"),
+		aBoneWeight: gl.getAttribLocation(_program$39, "aBoneWeight")
 	};
 }
 /**
@@ -222290,7 +222301,7 @@ function acquire(path) {
 */
 function buildTypeGL(gl, type) {
 	type.textures = makeTypeTextures(gl, type.parsed);
-	const attr = _program$37.attribute;
+	const attr = _program$39.attribute;
 	type.submeshes = type.meshes.map(function(mesh) {
 		const vao = gl.createVertexArray();
 		gl.bindVertexArray(vao);
@@ -222410,13 +222421,13 @@ function normalize3(v) {
 function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 	_gl$2 = gl;
 	if (_instances.length === 0 || !light) return;
-	if (!_program$37) init$8(gl);
+	if (!_program$39) init$8(gl);
 	for (const path in _types) {
 		const type = _types[path];
 		if (type.cpuReady && !type.glReady) buildTypeGL(gl, type);
 	}
-	const uniform = _program$37.uniform;
-	gl.useProgram(_program$37);
+	const uniform = _program$39.uniform;
+	gl.useProgram(_program$39);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1f(uniform.uLightOpacity, light.opacity != null ? light.opacity : 1);
 	gl.uniform3fv(uniform.uLightEnv, light.env || _phaseEnv);
@@ -222765,7 +222776,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach$1(insts[i]);
 	_poseCache = {};
 }
-var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$37, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE$1, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$39, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE$1, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -222824,7 +222835,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 		sguardian90_9: "emp",
 		treasurebox_2: "emp"
 	};
-	_program$37 = null;
+	_program$39 = null;
 	_gl$2 = null;
 	_types = {};
 	_missing = {};
@@ -223561,6 +223572,8 @@ var init_SkillEffect = __esmMin((() => {
 		261
 	] };
 	SkillEffect[SkillConst_default.MO_EXTREMITYFIST] = {
+		hideCastAura: true,
+		beginCastEffectId: (caster) => caster && caster._job >= 4016 ? 510 : 328,
 		damageEffectIdOnCaster: "quake",
 		damageEffectIdOnTarget: 266,
 		hitEffectId: 0
@@ -223574,7 +223587,8 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnCaster: [
 			"quake",
 			"monk_raging_thrust_sound",
-			263
+			263,
+			330
 		],
 		hitEffectId: [0, 1]
 	};
@@ -224304,7 +224318,8 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectId: [
 			"quake",
 			"ef_rk_stormblast_sound",
-			263
+			263,
+			330
 		]
 	};
 	SkillEffect[SkillConst_default.RK_FIGHTINGSPIRIT] = {
@@ -224921,7 +224936,10 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnTarget: "ef_ko_ground_explosion"
 	};
 	SkillEffect[SkillConst_default.KO_HAPPOKUNAI] = { successEffectIdOnCaster: "ef_ko_happokunai" };
-	SkillEffect[SkillConst_default.KO_MUCHANAGE] = { groundEffectIdOnCaster: "ef_ko_bakuretsu_sound" };
+	SkillEffect[SkillConst_default.KO_MUCHANAGE] = {
+		groundEffectIdOnCaster: "ef_ko_bakuretsu_sound",
+		arrivalEffectIdOnTarget: 330
+	};
 	SkillEffect[SkillConst_default.KO_HUUMARANKA] = { groundEffectIdByLevel: ["ef_ko_huumaranka"] };
 	SkillEffect[SkillConst_default.KO_MAKIBISHI] = {};
 	SkillEffect[SkillConst_default.KO_MEIKYOUSISUI] = {};
@@ -250208,7 +250226,7 @@ function isTab(el, win) {
 	if (!el.matches(CONTROL) || el.querySelector(INNER)) return false;
 	if (el.matches(TAB)) return true;
 	const parent = el.parentElement;
-	return !!parent && (parent.matches(STRIP) || parent.matches(".tab"));
+	return !!parent && (parent.matches(STRIP$1) || parent.matches(".tab"));
 }
 /**
 * The strip a tab belongs to: the nearest strip around it, else what holds it.
@@ -250216,7 +250234,7 @@ function isTab(el, win) {
 function stripOf(el) {
 	const parent = el.parentElement;
 	if (!parent) return null;
-	return parent.closest(STRIP) || (parent.matches(".tab") ? parent.parentElement : parent);
+	return parent.closest(STRIP$1) || (parent.matches(".tab") ? parent.parentElement : parent);
 }
 /**
 * The tabs that can be switched to now: shown, in page order, from the
@@ -250318,10 +250336,10 @@ function activeTab(win) {
 function remember(win, index) {
 	if (win && win.host) _last$1.set(win.host, index);
 }
-var STRIP, TAB, CONTROL, INNER, OPEN, REFUSED, _last$1, JoystickFocusTabs_default;
+var STRIP$1, TAB, CONTROL, INNER, OPEN, REFUSED, _last$1, JoystickFocusTabs_default;
 var init_JoystickFocusTabs = __esmMin((() => {
 	init_JoystickFocusScan();
-	STRIP = [
+	STRIP$1 = [
 		".tabs",
 		".tabs-mini",
 		".tab-manager",
@@ -260052,14 +260070,14 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var D3DBLEND, _program$36, _buffer$18, _spriteOffset, _users, _cornerX, _cornerY, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var D3DBLEND, _program$38, _buffer$18, _spriteOffset, _users, _cornerX, _cornerY, _modelView$1, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
 	init_WebGL();
 	init_Client();
 	D3DBLEND = {};
-	_program$36 = null;
+	_program$38 = null;
 	_buffer$18 = null;
 	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
 	_users = /* @__PURE__ */ new Set();
@@ -260255,7 +260273,7 @@ var init_StrEffect = __esmMin((() => {
 		* @param {StrAnimation} animation object
 		*/
 		renderAnimation(gl, material, animat) {
-			const uniform = _program$36.uniform;
+			const uniform = _program$38.uniform;
 			let sizeScale = 1;
 			if (this.ownerEntity) sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 			const cornerScale = sizeScale * (this.scale || 1);
@@ -260308,7 +260326,7 @@ var init_StrEffect = __esmMin((() => {
 					1
 				]), gl.STATIC_DRAW);
 			}
-			if (!_program$36) _program$36 = WebGL_default.createShaderProgram(gl, StrEffect_default$1, StrEffect_default);
+			if (!_program$38) _program$38 = WebGL_default.createShaderProgram(gl, StrEffect_default$1, StrEffect_default);
 			D3DBLEND[1] = gl.ZERO;
 			D3DBLEND[2] = gl.ONE;
 			D3DBLEND[3] = gl.SRC_COLOR;
@@ -260334,9 +260352,9 @@ var init_StrEffect = __esmMin((() => {
 			this.ready = false;
 			_users.delete(this);
 			if (_users.size) return;
-			if (_program$36) {
-				gl.deleteProgram(_program$36);
-				_program$36 = null;
+			if (_program$38) {
+				gl.deleteProgram(_program$38);
+				_program$38 = null;
 			}
 			if (_buffer$18) {
 				gl.deleteBuffer(_buffer$18);
@@ -260353,11 +260371,11 @@ var init_StrEffect = __esmMin((() => {
 		* @param {number} tick
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$36.uniform;
-			const attribute = _program$36.attribute;
+			const uniform = _program$38.uniform;
+			const attribute = _program$38.attribute;
 			_modelView$1 = modelView;
 			gl.depthMask(false);
-			gl.useProgram(_program$36);
+			gl.useProgram(_program$38);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 0, 0);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -260376,7 +260394,7 @@ var init_StrEffect = __esmMin((() => {
 		*/
 		static afterRender(gl) {
 			gl.depthMask(true);
-			gl.disableVertexAttribArray(_program$36.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$38.attribute.aPosition);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -275741,7 +275759,7 @@ function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 	}
 	return new Float32Array(mesh);
 }
-var _program$35, blendMode$3, mat4$17, _matrix$5, Cylinder;
+var _program$37, blendMode$3, mat4$17, _matrix$5, Cylinder;
 var init_Cylinder = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -275846,8 +275864,8 @@ var init_Cylinder = __esmMin((() => {
 			if (tick < this.startTick) return;
 			const renderCount = tick - this.startTick;
 			const duration = this.endTick - this.startTick;
-			const uniform = _program$35.uniform;
-			const attribute = _program$35.attribute;
+			const uniform = _program$37.uniform;
+			const attribute = _program$37.attribute;
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
 			if (this.repeatTextureX > 1) gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 			gl.enableVertexAttribArray(attribute.aPosition);
@@ -275967,7 +275985,7 @@ var init_Cylinder = __esmMin((() => {
 			blendMode$3[13] = gl.CONSTANT_ALPHA;
 			blendMode$3[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
 			blendMode$3[15] = gl.SRC_ALPHA_SATURATE;
-			_program$35 = WebGL_default.createShaderProgram(gl, Cylinder_default$1, Cylinder_default);
+			_program$37 = WebGL_default.createShaderProgram(gl, Cylinder_default$1, Cylinder_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
@@ -275977,9 +275995,9 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static free(gl) {
-			if (_program$35) {
-				gl.deleteProgram(_program$35);
-				_program$35 = null;
+			if (_program$37) {
+				gl.deleteProgram(_program$37);
+				_program$37 = null;
 			}
 			if (this.buffer) gl.deleteBuffer(this.buffer);
 			this.ready = false;
@@ -275990,8 +276008,8 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$35.uniform;
-			gl.useProgram(_program$35);
+			const uniform = _program$37.uniform;
+			gl.useProgram(_program$37);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -276007,8 +276025,8 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$35.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$35.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$37.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$37.attribute.aTextureCoord);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -276718,7 +276736,7 @@ function advancePrim(state, frame) {
 * Write one vertex in roBrowser's GL space
 * (x, y on the map, z up; GL keeps the map plane in x/z and points y down)
 */
-function vertex$11(out, i, center, x, y, up, u, v) {
+function vertex$12(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -276809,12 +276827,12 @@ function buildCone$1(out, effect, state, center) {
 		const base1 = point(b, 0, a1, u1, 1);
 		const top0 = point(t, h, a0, u0, 0);
 		const top1 = point(t, h, a1, u1, 0);
-		o = vertex$11(out, o, center, ...base0);
-		o = vertex$11(out, o, center, ...base1);
-		o = vertex$11(out, o, center, ...top0);
-		o = vertex$11(out, o, center, ...top1);
-		o = vertex$11(out, o, center, ...top0);
-		o = vertex$11(out, o, center, ...base1);
+		o = vertex$12(out, o, center, ...base0);
+		o = vertex$12(out, o, center, ...base1);
+		o = vertex$12(out, o, center, ...top0);
+		o = vertex$12(out, o, center, ...top1);
+		o = vertex$12(out, o, center, ...top0);
+		o = vertex$12(out, o, center, ...base1);
 		u = u1 >= 1 ? 0 : u1;
 	}
 }
@@ -276844,12 +276862,12 @@ function buildRing$2(out, effect, state, center) {
 		const c1 = Math.cos(a1), s1 = Math.sin(a1);
 		const u0 = u;
 		const u1 = u + uStep;
-		o = vertex$11(out, o, center, c0 * outer, s0 * outer, 0, u0, 0);
-		o = vertex$11(out, o, center, c1 * outer, s1 * outer, 0, u1, 0);
-		o = vertex$11(out, o, center, c0 * inner, s0 * inner, 0, u0, 1);
-		o = vertex$11(out, o, center, c1 * outer, s1 * outer, 0, u1, 0);
-		o = vertex$11(out, o, center, c1 * inner, s1 * inner, 0, u1, 1);
-		o = vertex$11(out, o, center, c0 * inner, s0 * inner, 0, u0, 1);
+		o = vertex$12(out, o, center, c0 * outer, s0 * outer, 0, u0, 0);
+		o = vertex$12(out, o, center, c1 * outer, s1 * outer, 0, u1, 0);
+		o = vertex$12(out, o, center, c0 * inner, s0 * inner, 0, u0, 1);
+		o = vertex$12(out, o, center, c1 * outer, s1 * outer, 0, u1, 0);
+		o = vertex$12(out, o, center, c1 * inner, s1 * inner, 0, u1, 1);
+		o = vertex$12(out, o, center, c0 * inner, s0 * inner, 0, u0, 1);
 		u = u1 >= 1 ? 0 : u1;
 	}
 }
@@ -276885,12 +276903,12 @@ function buildSphere(out, effect, state, center) {
 		const p10 = point(i + 1, j);
 		const p01 = point(i, j + 1);
 		const p11 = point(i + 1, j + 1);
-		o = vertex$11(out, o, center, ...p00);
-		o = vertex$11(out, o, center, ...p10);
-		o = vertex$11(out, o, center, ...p01);
-		o = vertex$11(out, o, center, ...p10);
-		o = vertex$11(out, o, center, ...p11);
-		o = vertex$11(out, o, center, ...p01);
+		o = vertex$12(out, o, center, ...p00);
+		o = vertex$12(out, o, center, ...p10);
+		o = vertex$12(out, o, center, ...p01);
+		o = vertex$12(out, o, center, ...p10);
+		o = vertex$12(out, o, center, ...p11);
+		o = vertex$12(out, o, center, ...p01);
 	}
 }
 /**
@@ -276910,7 +276928,7 @@ function buildQuad(out, effect, state, center) {
 	const c = Math.cos(yaw);
 	const n = Math.sin(yaw);
 	let o = 0;
-	const corner = (x, y, u, v) => o = vertex$11(out, o, center, x * c - y * n + state.trackX, x * n + y * c + state.trackY, up, u, v);
+	const corner = (x, y, u, v) => o = vertex$12(out, o, center, x * c - y * n + state.trackX, x * n + y * c + state.trackY, up, u, v);
 	corner(s, s, 0, 0);
 	corner(s, -s, 1, 0);
 	corner(-s, s, 0, 1);
@@ -276962,7 +276980,7 @@ function releaseSharedTexture$1(gl, name) {
 	if (entry && entry.texture) gl.deleteTexture(entry.texture);
 	_sharedTextures$1.delete(name);
 }
-var _program$34, _fogColor$1, BLACK$1, _sharedTextures$1, _sharedUsers$1, EffectPrim;
+var _program$36, _fogColor$1, BLACK$3, _sharedTextures$1, _sharedUsers$1, EffectPrim;
 var init_EffectPrim = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -276970,9 +276988,9 @@ var init_EffectPrim = __esmMin((() => {
 	init_EffectPrimSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$34 = null;
+	_program$36 = null;
 	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
-	BLACK$1 = /* @__PURE__ */ new Float32Array(3);
+	BLACK$3 = /* @__PURE__ */ new Float32Array(3);
 	_sharedTextures$1 = /* @__PURE__ */ new Map();
 	_sharedUsers$1 = /* @__PURE__ */ new Map();
 	EffectPrim = class {
@@ -277046,7 +277064,7 @@ var init_EffectPrim = __esmMin((() => {
 				return;
 			}
 			const frame = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
-			const attribute = _program$34.attribute;
+			const attribute = _program$36.attribute;
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 			const changed = advancePrim(this.state, frame);
 			const tracked = typeof this.effect.track === "function";
@@ -277058,27 +277076,27 @@ var init_EffectPrim = __esmMin((() => {
 			}
 			this.color[3] = this.state.alpha / 255;
 			if (this.color[3] <= 0) return;
-			gl.uniform4fv(_program$34.uniform.uColor, this.color);
+			gl.uniform4fv(_program$36.uniform.uColor, this.color);
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 			if (this.effect.additive) {
 				gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-				gl.uniform3fv(_program$34.uniform.uFogColor, BLACK$1);
+				gl.uniform3fv(_program$36.uniform.uFogColor, BLACK$3);
 			}
 			SpriteRenderer.runWithDepth(true, false, true, () => {
 				gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
 			});
 			if (this.effect.additive) {
 				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-				gl.uniform3fv(_program$34.uniform.uFogColor, _fogColor$1);
+				gl.uniform3fv(_program$36.uniform.uFogColor, _fogColor$1);
 			}
 		}
 		/**
 		* @param {object} gl context
 		*/
 		static init(gl) {
-			_program$34 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$36 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
@@ -277088,9 +277106,9 @@ var init_EffectPrim = __esmMin((() => {
 		static free(gl) {
 			freeSharedTextures(_sharedTextures$1, gl);
 			_sharedUsers$1.clear();
-			if (_program$34) {
-				gl.deleteProgram(_program$34);
-				_program$34 = null;
+			if (_program$36) {
+				gl.deleteProgram(_program$36);
+				_program$36 = null;
 			}
 			this.ready = false;
 		}
@@ -277101,9 +277119,9 @@ var init_EffectPrim = __esmMin((() => {
 		* @param {object} fog
 		*/
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$34.uniform;
-			const attribute = _program$34.attribute;
-			gl.useProgram(_program$34);
+			const uniform = _program$36.uniform;
+			const attribute = _program$36.attribute;
+			gl.useProgram(_program$36);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -277121,8 +277139,8 @@ var init_EffectPrim = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$34.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$34.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$36.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$36.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -278972,7 +278990,7 @@ function updateNodeMatrices(self, frame) {
 		getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, model.animLen, obj.modelMat, obj.normalMat);
 	}
 }
-var _program$33, _normalMat, mat4$15, mat3$1, quat, vec3$3, _light, RsmEffect;
+var _program$35, _normalMat, mat4$15, mat3$1, quat, vec3$3, _light, RsmEffect;
 var init_RsmEffect = __esmMin((() => {
 	init_RsmEffect$2();
 	init_RsmEffect$1();
@@ -278980,7 +278998,7 @@ var init_RsmEffect = __esmMin((() => {
 	init_gl_matrix();
 	init_Client();
 	init_Model();
-	_program$33 = null;
+	_program$35 = null;
 	_normalMat = /* @__PURE__ */ new Float32Array(9);
 	mat4$15 = gl_matrix_default.mat4;
 	mat3$1 = gl_matrix_default.mat3;
@@ -279031,7 +279049,7 @@ var init_RsmEffect = __esmMin((() => {
 			this._scratch = createScratch();
 		}
 		static init(gl) {
-			_program$33 = WebGL_default.createShaderProgram(gl, RsmEffect_default$1, RsmEffect_default);
+			_program$35 = WebGL_default.createShaderProgram(gl, RsmEffect_default$1, RsmEffect_default);
 			this.ready = true;
 		}
 		init(gl, tick) {
@@ -279161,18 +279179,18 @@ var init_RsmEffect = __esmMin((() => {
 			this.ready = false;
 		}
 		static free(gl) {
-			if (_program$33) {
-				gl.deleteProgram(_program$33);
-				_program$33 = null;
+			if (_program$35) {
+				gl.deleteProgram(_program$35);
+				_program$35 = null;
 			}
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			mat4$15.toInverseMat3(modelView, _normalMat);
 			mat3$1.transpose(_normalMat, _normalMat);
-			const uniform = _program$33.uniform;
-			const attribute = _program$33.attribute;
-			gl.useProgram(_program$33);
+			const uniform = _program$35.uniform;
+			const attribute = _program$35.attribute;
+			gl.useProgram(_program$35);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _normalMat);
@@ -279192,7 +279210,7 @@ var init_RsmEffect = __esmMin((() => {
 			gl.uniform1i(uniform.uDiffuse, 0);
 		}
 		render(gl, tick) {
-			const uniform = _program$33.uniform;
+			const uniform = _program$35.uniform;
 			if (this.isAnimated && this.model && this.animLen > 0) {
 				const elapsed = tick - this.startTick;
 				const frame = Math.floor(elapsed * this.fps / 1e3 % this.animLen);
@@ -279204,7 +279222,7 @@ var init_RsmEffect = __esmMin((() => {
 			gl.uniform3fv(uniform.uPosition, this.position);
 			gl.uniform1f(uniform.uSize, this.size);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			const attribute = _program$33.attribute;
+			const attribute = _program$35.attribute;
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 36, 0);
 			gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 36, 12);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 36, 24);
@@ -279221,7 +279239,7 @@ var init_RsmEffect = __esmMin((() => {
 			}
 		}
 		static afterRender(gl) {
-			const attribute = _program$33.attribute;
+			const attribute = _program$35.attribute;
 			gl.disableVertexAttribArray(attribute.aPosition);
 			gl.disableVertexAttribArray(attribute.aVertexNormal);
 			gl.disableVertexAttribArray(attribute.aTextureCoord);
@@ -280550,7 +280568,7 @@ var init_QuadHorn$1 = __esmMin((() => {
 	QuadHorn_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nuniform vec4 uColor;\r\nuniform sampler2D uDiffuse;\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\nout vec4 fragColor;\r\n\r\nvoid main(void) {\r\n    \r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    \r\n    if (textureSample.a == 0.0 ) { discard; }\r\n    if (textureSample.r < 0.01 && textureSample.g < 0.01 && textureSample.b < 0.01) {\r\n        discard;\r\n        }\r\n    \r\n    fragColor = textureSample * uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/QuadHorn.js
-var _program$32, mat4$13, blendMode, vertices, texCoords, rand$1, QuadHorn;
+var _program$34, mat4$13, blendMode, vertices, texCoords, rand$1, QuadHorn;
 var init_QuadHorn = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -280686,8 +280704,8 @@ var init_QuadHorn = __esmMin((() => {
 			this.ready = false;
 		}
 		render(gl, tick) {
-			const uniform = _program$32.uniform;
-			const attribute = _program$32.attribute;
+			const uniform = _program$34.uniform;
+			const attribute = _program$34.attribute;
 			const deltaStart = (tick - this.startTick) / 1e3;
 			const deltaEnd = (tick - this.endTick) / 1e3;
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -280774,7 +280792,7 @@ var init_QuadHorn = __esmMin((() => {
 			gl.flush();
 		}
 		static init(gl) {
-			_program$32 = WebGL_default.createShaderProgram(gl, QuadHorn_default$1, QuadHorn_default);
+			_program$34 = WebGL_default.createShaderProgram(gl, QuadHorn_default$1, QuadHorn_default);
 			blendMode[1] = gl.ZERO;
 			blendMode[2] = gl.ONE;
 			blendMode[3] = gl.SRC_COLOR;
@@ -280794,16 +280812,16 @@ var init_QuadHorn = __esmMin((() => {
 			this.renderBeforeEntities = true;
 		}
 		static free(gl) {
-			if (_program$32) {
-				gl.deleteProgram(_program$32);
-				_program$32 = null;
+			if (_program$34) {
+				gl.deleteProgram(_program$34);
+				_program$34 = null;
 			}
 			if (this.buffer) gl.deleteBuffer(this.buffer);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$32.uniform;
-			gl.useProgram(_program$32);
+			const uniform = _program$34.uniform;
+			gl.useProgram(_program$34);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -280814,9 +280832,9 @@ var init_QuadHorn = __esmMin((() => {
 			gl.uniform1i(uniform.uDiffuse, 0);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$32.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$32.attribute.aTextureCoord);
-			gl.disableVertexAttribArray(_program$32.attribute.aColor);
+			gl.disableVertexAttribArray(_program$34.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$34.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$34.attribute.aColor);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -281025,7 +281043,7 @@ function setVertex(index, x, y, z, u, v) {
 	_vertices[offset + 3] = u;
 	_vertices[offset + 4] = v;
 }
-var mat4$12, _matrix$3, UNIT, LAYER_COUNT, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, PARTICLE_TEXTURE, PARTICLE_CYCLE_MS, PARTICLE_SIZE, PARTICLE_COLOR, PARTICLE_FLOATS, PARTICLE_CORNERS, _program$31, _particleProgram, _textureCache, _vertices, WaterfallEffect;
+var mat4$12, _matrix$3, UNIT, LAYER_COUNT, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, PARTICLE_TEXTURE, PARTICLE_CYCLE_MS, PARTICLE_SIZE, PARTICLE_COLOR, PARTICLE_FLOATS, PARTICLE_CORNERS, _program$33, _particleProgram, _textureCache, _vertices, WaterfallEffect;
 var init_WaterfallEffect = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -281098,8 +281116,8 @@ var init_WaterfallEffect = __esmMin((() => {
 			this.textureCache = loadTextures(gl, this.textureSet, this);
 		}
 		render(gl, tick) {
-			const uniform = _program$31.uniform;
-			const attribute = _program$31.attribute;
+			const uniform = _program$33.uniform;
+			const attribute = _program$33.attribute;
 			mat4$12.identity(_matrix$3);
 			mat4$12.translate(_matrix$3, _matrix$3, [
 				this.position[0] + .5,
@@ -281170,9 +281188,9 @@ var init_WaterfallEffect = __esmMin((() => {
 			gl.disableVertexAttribArray(attribute.aCorner);
 			gl.disableVertexAttribArray(attribute.aSeed);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.useProgram(_program$31);
-			gl.enableVertexAttribArray(_program$31.attribute.aPosition);
-			gl.enableVertexAttribArray(_program$31.attribute.aTextureCoord);
+			gl.useProgram(_program$33);
+			gl.enableVertexAttribArray(_program$33.attribute.aPosition);
+			gl.enableVertexAttribArray(_program$33.attribute.aTextureCoord);
 		}
 		/**
 		* Free WebGL resources
@@ -281217,9 +281235,9 @@ var init_WaterfallEffect = __esmMin((() => {
 			gl.uniform1f(_particleProgram.uniform.uFogFar, fog.far);
 			gl.uniform1i(_particleProgram.uniform.uTexture, 0);
 			gl.uniform3fv(_particleProgram.uniform.uColor, PARTICLE_COLOR);
-			const uniform = _program$31.uniform;
-			const attribute = _program$31.attribute;
-			gl.useProgram(_program$31);
+			const uniform = _program$33.uniform;
+			const attribute = _program$33.attribute;
+			gl.useProgram(_program$33);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fogUse);
@@ -281242,8 +281260,8 @@ var init_WaterfallEffect = __esmMin((() => {
 		*/
 		static afterRender(gl) {
 			gl.depthMask(true);
-			gl.disableVertexAttribArray(_program$31.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$31.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$33.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$33.attribute.aTextureCoord);
 		}
 		/**
 		* Initialize the effect type
@@ -281251,7 +281269,7 @@ var init_WaterfallEffect = __esmMin((() => {
 		* @param {WebGLRenderingContext} gl
 		*/
 		static init(gl) {
-			_program$31 = WebGL_default.createShaderProgram(gl, WaterfallEffect_default$1, WaterfallEffect_default);
+			_program$33 = WebGL_default.createShaderProgram(gl, WaterfallEffect_default$1, WaterfallEffect_default);
 			_particleProgram = WebGL_default.createShaderProgram(gl, WaterfallParticle_default$1, WaterfallParticle_default);
 			this.ready = true;
 		}
@@ -281269,9 +281287,9 @@ var init_WaterfallEffect = __esmMin((() => {
 				cache.waiters.clear();
 			});
 			_textureCache.clear();
-			if (_program$31) gl.deleteProgram(_program$31);
+			if (_program$33) gl.deleteProgram(_program$33);
 			if (_particleProgram) gl.deleteProgram(_particleProgram);
-			_program$31 = null;
+			_program$33 = null;
 			_particleProgram = null;
 			this.ready = false;
 			this.needInit = true;
@@ -282528,9 +282546,8 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} srcAID caster aid
 		* @param {function} [random] returns a number in [0, 1)
 		* @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
-		* @param {number} [arrivalTick] when the packet's damage is due (attackMT on), for the arrival effects
 		*/
-		static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1, arrivalTick = tick) {
+		static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
 			const skill = SkillEffect[skillId];
 			if (!skill) return;
 			const play = (field, ownerAID, otherAID, startTick = tick) => {
@@ -282549,9 +282566,9 @@ var init_EffectManager = __esmMin((() => {
 			play("damageEffectIdOnCaster", srcAID, destAID);
 			play("damageEffectIdOnTarget", destAID, srcAID);
 			if (destAID !== srcAID) play("damageEffectIdOnOtherTarget", destAID, srcAID);
-			play("arrivalEffectIdOnCaster", srcAID, destAID, arrivalTick);
-			play("arrivalEffectIdOnTarget", destAID, srcAID, arrivalTick);
-			if (destAID !== srcAID) play("arrivalEffectIdOnOtherTarget", destAID, srcAID, arrivalTick);
+			play("arrivalEffectIdOnCaster", srcAID, destAID);
+			play("arrivalEffectIdOnTarget", destAID, srcAID);
+			if (destAID !== srcAID) play("arrivalEffectIdOnOtherTarget", destAID, srcAID);
 			const byFacing = skill.damageEffectIdOnCasterByFacing;
 			const caster = byFacing && srcAID ? EntityManager.get(srcAID) : null;
 			if (caster) {
@@ -282570,7 +282587,7 @@ var init_EffectManager = __esmMin((() => {
 				if (effectId) EffectManager.spam({
 					effectId,
 					ownerAID: srcAID,
-					startTick: arrivalTick,
+					startTick: tick,
 					otherAID: destAID
 				});
 			}
@@ -282769,7 +282786,9 @@ var init_EffectManager = __esmMin((() => {
 			const startTick = tick || Renderer.tick;
 			const castEndTick = castTime > 0 ? startTick + castTime : 0;
 			if (SkillEffect[skillId].beginCastEffectId) {
-				effects = Array.isArray(SkillEffect[skillId].beginCastEffectId) ? SkillEffect[skillId].beginCastEffectId : [SkillEffect[skillId].beginCastEffectId];
+				let beginCast = SkillEffect[skillId].beginCastEffectId;
+				if (typeof beginCast === "function") beginCast = beginCast(EntityManager.get(destAID) || null);
+				effects = Array.isArray(beginCast) ? beginCast : [beginCast];
 				effects.forEach((effectId) => {
 					EF_Init_Par = {
 						effectId,
@@ -283482,7 +283501,7 @@ var init_Blind$1 = __esmMin((() => {
 	Blind_default = "#version 300 es\r\nprecision mediump float;\r\n\r\nuniform sampler2D uTexture;\r\nuniform float uFocusRadius;\r\nuniform float uFocusFalloff;\r\nuniform vec2 uAspectRatio;\r\n\r\nin vec2 vUv;\r\nout vec4 fragColor;\r\n\r\nvoid main() {\r\n	vec2 uv = (vUv - 0.5) * uAspectRatio;  \r\n	float dist = length(uv); \r\n	vec3 original = texture(uTexture, vUv).rgb;\r\n	float effectMask = smoothstep(uFocusRadius, uFocusRadius + uFocusFalloff, dist);\r\n\r\n	if (effectMask <= 0.01) {\r\n		fragColor = texture(uTexture, vUv);\r\n		return;\r\n	}\r\n	vec3 finalColor = mix(original, vec3(0.0), effectMask);  \r\n	fragColor = vec4(finalColor, 1.0);\r\n}";
 }));
 // src/Renderer/Effects/Shaders/Blind.js
-var _program$30, _buffer$17, _active, Blind;
+var _program$32, _buffer$17, _active, Blind;
 var init_Blind = __esmMin((() => {
 	init_WebGL();
 	init_Camera();
@@ -283498,31 +283517,31 @@ var init_Blind = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFbo - Target buffer
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$17 || !_program$30 || !Blind.isActive()) return;
+			if (!_buffer$17 || !_program$32 || !Blind.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$30);
+			gl.useProgram(_program$32);
 			const baseRadius = .2;
 			const baseFalloff = .5;
 			const zoom = Camera.zoomFinal;
 			const focusRadius = baseRadius + (63 - zoom) / 1e3;
 			const focusFalloff = baseFalloff + (63 - zoom) / 1e3;
-			gl.uniform1f(_program$30.uniform.uFocusRadius, focusRadius);
-			gl.uniform1f(_program$30.uniform.uFocusFalloff, focusFalloff);
-			gl.uniform2f(_program$30.uniform.uAspectRatio, gl.canvas.width / gl.canvas.height, 1);
+			gl.uniform1f(_program$32.uniform.uFocusRadius, focusRadius);
+			gl.uniform1f(_program$32.uniform.uFocusFalloff, focusFalloff);
+			gl.uniform2f(_program$32.uniform.uAspectRatio, gl.canvas.width / gl.canvas.height, 1);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$17);
-			const posLoc = _program$30.attribute.aPosition;
+			const posLoc = _program$32.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$30.uniform.uTexture, 0);
+			gl.uniform1i(_program$32.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$30 = WebGL_default.createShaderProgram(gl, Common_default, Blind_default);
+				_program$32 = WebGL_default.createShaderProgram(gl, Common_default, Blind_default);
 			} catch (e) {
 				console.error("Error compiling Blind shader.", e);
 				return;
@@ -283552,11 +283571,11 @@ var init_Blind = __esmMin((() => {
 			_active = bool;
 		}
 		static program() {
-			return _program$30;
+			return _program$32;
 		}
 		static clean(gl) {
 			if (_buffer$17) gl.deleteBuffer(_buffer$17);
-			_program$30 = _buffer$17 = null;
+			_program$32 = _buffer$17 = null;
 		}
 	};
 }));
@@ -283763,8 +283782,8 @@ function init$7(gl, mapname) {
 	if (_color$3) _display = true;
 	else _display = false;
 	gl.clearColor(color[0], color[1], color[2], color[3]);
-	if (!_textures$22.length && _display) {
-		_textures$22.length = 8;
+	if (!_textures$24.length && _display) {
+		_textures$24.length = 8;
 		for (i = 0; i < 7; i++) loadCloudTexture(gl, i);
 	}
 }
@@ -283777,7 +283796,7 @@ function init$7(gl, mapname) {
 function loadCloudTexture(gl, i) {
 	Client.loadFile("data/texture/effect/cloud" + (i + 1) + ".tga", function(buffer) {
 		WebGL_default.texture(gl, buffer, function(texture) {
-			_textures$22[i] = texture;
+			_textures$24[i] = texture;
 		});
 	});
 }
@@ -283794,7 +283813,7 @@ function setUpCloudData() {
 			death_tick: 0
 		};
 		cloudInit(_clouds[i]);
-		_clouds[i].sprite = Math.random() * (_textures$22.length - 1) | 0;
+		_clouds[i].sprite = Math.random() * (_textures$24.length - 1) | 0;
 		_clouds[i].death_tick = _clouds[i].born_tick + Math.random() * 8e3;
 		_clouds[i].born_tick -= 2e3;
 	}
@@ -283849,7 +283868,7 @@ function render$6(gl, modelView, projection, fog, tick) {
 		else opacity = 1;
 		SpriteRenderer.zIndex = 0;
 		SpriteRenderer.color[3] = opacity;
-		SpriteRenderer.image.texture = _textures$22[cloud.sprite];
+		SpriteRenderer.image.texture = _textures$24[cloud.sprite];
 		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
 		cloud._lastTick = tick;
 		vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
@@ -283860,7 +283879,7 @@ function render$6(gl, modelView, projection, fog, tick) {
 	}
 	SpriteRenderer.unbind(gl);
 }
-var MAX_CLOUDS, _clouds, _textures$22, _color$3, _display, Sky_default;
+var MAX_CLOUDS, _clouds, _textures$24, _color$3, _display, Sky_default;
 var init_Sky = __esmMin((() => {
 	init_WebGL();
 	init_WeatherEffect();
@@ -283870,7 +283889,7 @@ var init_Sky = __esmMin((() => {
 	init_gl_matrix();
 	MAX_CLOUDS = 150;
 	_clouds = new Array(MAX_CLOUDS);
-	_textures$22 = [];
+	_textures$24 = [];
 	_color$3 = null;
 	_display = true;
 	Sky_default = {
@@ -285021,7 +285040,7 @@ var init_GaussianBlur$1 = __esmMin((() => {
 	GaussianBlur_default = "#version 300 es\r\nprecision mediump float;\r\n\r\nuniform sampler2D uTexture;\r\nuniform float uFocusRadius;\r\nuniform float uFocusFalloff;\r\nuniform vec2 uTexelSize;\r\n\r\nin vec2 vUv;\r\nout vec4 fragColor;\r\n\r\nvec3 spdReduce4(vec3 c0, vec3 c1, vec3 c2, vec3 c3) {\r\n	return (c0 + c1 + c2 + c3) * 0.25;\r\n}\r\n\r\nvec3 load_and_reduce(sampler2D tex, vec2 uv, vec2 texelSize, float intensity) {  \r\n	vec2 offset = texelSize * (intensity * 0.5); \r\n	  \r\n	vec3 c0 = texture(tex, uv + vec2(-offset.x, -offset.y)).rgb;  \r\n	vec3 c1 = texture(tex, uv + vec2(offset.x, -offset.y)).rgb;  \r\n	vec3 c2 = texture(tex, uv + vec2(-offset.x, offset.y)).rgb;  \r\n	vec3 c3 = texture(tex, uv + vec2(offset.x, offset.y)).rgb;  \r\n	  \r\n	return spdReduce4(c0, c1, c2, c3);\r\n}  \r\n\r\nvoid main() {\r\n	float dist = distance(vUv, vec2(0.5));\r\n	vec3 original = texture(uTexture, vUv).rgb;\r\n	float effectMask = smoothstep(uFocusRadius, uFocusRadius + uFocusFalloff, dist);\r\n\r\n	if (effectMask <= 0.01) {\r\n		fragColor = texture(uTexture, vUv);\r\n		return;\r\n	}\r\n\r\n	vec3 blurred = load_and_reduce(uTexture, vUv, uTexelSize, effectMask);\r\n	fragColor = vec4(mix(original, blurred, effectMask), 1.0);\r\n}";
 }));
 // src/Renderer/Effects/Shaders/GaussianBlur.js
-var _program$29, _buffer$15, GaussianBlur;
+var _program$31, _buffer$15, GaussianBlur;
 var init_GaussianBlur = __esmMin((() => {
 	init_Graphics();
 	init_WebGL();
@@ -285036,29 +285055,29 @@ var init_GaussianBlur = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFbo - Target buffer
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$15 || !_program$29 || !GaussianBlur.isActive()) return;
+			if (!_buffer$15 || !_program$31 || !GaussianBlur.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$29);
+			gl.useProgram(_program$31);
 			const focusRadius = GraphicsSettings.blurArea / 100;
 			const focusFalloff = .5;
-			gl.uniform1f(_program$29.uniform.uFocusRadius, focusRadius);
-			gl.uniform1f(_program$29.uniform.uFocusFalloff, focusFalloff);
+			gl.uniform1f(_program$31.uniform.uFocusRadius, focusRadius);
+			gl.uniform1f(_program$31.uniform.uFocusFalloff, focusFalloff);
 			const boxsampleFactor = GraphicsSettings.blurIntensity;
-			gl.uniform2f(_program$29.uniform.uTexelSize, 1 / gl.canvas.width * boxsampleFactor, 1 / gl.canvas.height * boxsampleFactor);
+			gl.uniform2f(_program$31.uniform.uTexelSize, 1 / gl.canvas.width * boxsampleFactor, 1 / gl.canvas.height * boxsampleFactor);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
-			const posLoc = _program$29.attribute.aPosition;
+			const posLoc = _program$31.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$29.uniform.uTexture, 0);
+			gl.uniform1i(_program$31.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$29 = WebGL_default.createShaderProgram(gl, Common_default, GaussianBlur_default);
+				_program$31 = WebGL_default.createShaderProgram(gl, Common_default, GaussianBlur_default);
 			} catch (e) {
 				console.error("Error compiling Lens Blur shader.", e);
 				return;
@@ -285085,11 +285104,11 @@ var init_GaussianBlur = __esmMin((() => {
 			return GraphicsSettings.blur;
 		}
 		static program() {
-			return _program$29;
+			return _program$31;
 		}
 		static clean(gl) {
 			if (_buffer$15) gl.deleteBuffer(_buffer$15);
-			_program$29 = _buffer$15 = null;
+			_program$31 = _buffer$15 = null;
 		}
 	};
 }));
@@ -285099,7 +285118,7 @@ var init_CAS$1 = __esmMin((() => {
 	CAS_default = "#version 300 es \r\nprecision mediump float;  \r\n\r\nuniform sampler2D uTexture;  \r\nuniform float uContrast;  \r\nuniform float uSharpening;  \r\nuniform vec2 uTexelSize;  \r\n\r\nin vec2 vUv;  \r\nout vec4 fragColor;  \r\n\r\nvoid main() {  \r\n    // Sampling 3x3  \r\n    //  a b c  \r\n    //  d(e)f  \r\n    //  g h i  \r\n      \r\n    vec3 a = texture(uTexture, vUv + vec2(-uTexelSize.x, -uTexelSize.y)).rgb;  \r\n    vec3 b = texture(uTexture, vUv + vec2(0.0, -uTexelSize.y)).rgb;  \r\n    vec3 c = texture(uTexture, vUv + vec2(uTexelSize.x, -uTexelSize.y)).rgb;  \r\n    vec3 d = texture(uTexture, vUv + vec2(-uTexelSize.x, 0.0)).rgb;  \r\n    vec3 e = texture(uTexture, vUv).rgb;  \r\n    vec3 f = texture(uTexture, vUv + vec2(uTexelSize.x, 0.0)).rgb;  \r\n    vec3 g = texture(uTexture, vUv + vec2(-uTexelSize.x, uTexelSize.y)).rgb;  \r\n    vec3 h = texture(uTexture, vUv + vec2(0.0, uTexelSize.y)).rgb;  \r\n    vec3 i = texture(uTexture, vUv + vec2(uTexelSize.x, uTexelSize.y)).rgb;  \r\n\r\n    // Soft min e max \r\n    vec3 mnRGB = min(min(min(d, e), min(f, b)), h);  \r\n    vec3 mnRGB2 = min(mnRGB, min(min(a, c), min(g, i)));  \r\n    mnRGB += mnRGB2;  \r\n\r\n    vec3 mxRGB = max(max(max(d, e), max(f, b)), h);  \r\n    vec3 mxRGB2 = max(mxRGB, max(max(a, c), max(g, i)));  \r\n    mxRGB += mxRGB2;  \r\n\r\n    vec3 rcpMRGB = 1.0 / mxRGB;  \r\n    vec3 ampRGB = clamp(min(mnRGB, 2.0 - mxRGB) * rcpMRGB, 0.0, 1.0);  \r\n\r\n    ampRGB = inversesqrt(ampRGB);  \r\n\r\n    float peak = -3.0 * uContrast + 8.0;  \r\n    vec3 wRGB = -1.0 / (ampRGB * peak);  \r\n    vec3 rcpWeightRGB = 1.0 / (4.0 * wRGB + 1.0);  \r\n\r\n    // Cross Filter \r\n    //  0 w 0  \r\n    //  w 1 w  \r\n    //  0 w 0  \r\n    vec3 window = (b + d) + (f + h);  \r\n    vec3 outColor = clamp((window * wRGB + e) * rcpWeightRGB, 0.0, 1.0);  \r\n\r\n    // Blend \r\n    fragColor = vec4(mix(e, outColor, uSharpening), 1.0);  \r\n}";
 }));
 // src/Renderer/Effects/Shaders/CAS.js
-var _program$28, _buffer$14, CAS;
+var _program$30, _buffer$14, CAS;
 var init_CAS = __esmMin((() => {
 	init_Graphics();
 	init_WebGL();
@@ -285108,26 +285127,26 @@ var init_CAS = __esmMin((() => {
 	init_CAS$1();
 	CAS = class CAS {
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$14 || !_program$28 || !CAS.isActive()) return;
+			if (!_buffer$14 || !_program$30 || !CAS.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$28);
-			gl.uniform1f(_program$28.uniform.uContrast, GraphicsSettings.casContrast || 0);
-			gl.uniform1f(_program$28.uniform.uSharpening, GraphicsSettings.casSharpening || 1);
-			gl.uniform2f(_program$28.uniform.uTexelSize, 1 / gl.canvas.width, 1 / gl.canvas.height);
+			gl.useProgram(_program$30);
+			gl.uniform1f(_program$30.uniform.uContrast, GraphicsSettings.casContrast || 0);
+			gl.uniform1f(_program$30.uniform.uSharpening, GraphicsSettings.casSharpening || 1);
+			gl.uniform2f(_program$30.uniform.uTexelSize, 1 / gl.canvas.width, 1 / gl.canvas.height);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$14);
-			const posLoc = _program$28.attribute.aPosition;
+			const posLoc = _program$30.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$28.uniform.uTexture, 0);
+			gl.uniform1i(_program$30.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$28 = WebGL_default.createShaderProgram(gl, Common_default, CAS_default);
+				_program$30 = WebGL_default.createShaderProgram(gl, Common_default, CAS_default);
 			} catch (e) {
 				console.error("Error compiling CAS shader.", e);
 				return;
@@ -285154,11 +285173,11 @@ var init_CAS = __esmMin((() => {
 			return GraphicsSettings.casEnabled;
 		}
 		static program() {
-			return _program$28;
+			return _program$30;
 		}
 		static clean(gl) {
 			if (_buffer$14) gl.deleteBuffer(_buffer$14);
-			_program$28 = _buffer$14 = null;
+			_program$30 = _buffer$14 = null;
 		}
 	};
 }));
@@ -285168,7 +285187,7 @@ var init_FXAA$1 = __esmMin((() => {
 	FXAA_default = "#version 300 es\r\nprecision mediump float;  \r\n\r\nuniform sampler2D uTexture;  \r\nuniform float uSubpix;  \r\nuniform float uEdgeThreshold;  \r\nuniform float uEdgeThresholdMin;  \r\nuniform vec2 uTexelSize;  \r\n\r\nin vec2 vUv;  \r\nout vec4 fragColor;  \r\n\r\nfloat luminance(vec3 rgb) {  \r\n    return dot(rgb, vec3(0.299, 0.587, 0.114));  \r\n}  \r\n\r\nvoid main() {  \r\n    vec3 rgbM = texture(uTexture, vUv).rgb;  \r\n      \r\n    vec3 rgbNW = texture(uTexture, vUv + vec2(-uTexelSize.x, -uTexelSize.y)).rgb;  \r\n    vec3 rgbNE = texture(uTexture, vUv + vec2(uTexelSize.x, -uTexelSize.y)).rgb;  \r\n    vec3 rgbSW = texture(uTexture, vUv + vec2(-uTexelSize.x, uTexelSize.y)).rgb;  \r\n    vec3 rgbSE = texture(uTexture, vUv + vec2(uTexelSize.x, uTexelSize.y)).rgb;  \r\n\r\n    float lumaM = luminance(rgbM);  \r\n    float lumaNW = luminance(rgbNW);  \r\n    float lumaNE = luminance(rgbNE);  \r\n    float lumaSW = luminance(rgbSW);  \r\n    float lumaSE = luminance(rgbSE);  \r\n\r\n    float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));  \r\n    float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));  \r\n\r\n    float lumaRange = lumaMax - lumaMin;  \r\n    if(lumaRange < max(uEdgeThresholdMin, lumaMax * uEdgeThreshold)) {  \r\n        fragColor = vec4(rgbM, 1.0);  \r\n        return;  \r\n    }  \r\n\r\n    vec2 dir;  \r\n    dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));  \r\n    dir.y = ((lumaNW + lumaSW) - (lumaNE + lumaSE));  \r\n\r\n    float dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * 0.03125, 0.0078125);  \r\n    float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);  \r\n    dir = min(vec2(8.0), max(vec2(-8.0), dir * rcpDirMin)) * uTexelSize;  \r\n\r\n    vec3 rgbA = 0.5 * (  \r\n        texture(uTexture, vUv + dir * (1.0/3.0 - 0.5)).rgb +  \r\n        texture(uTexture, vUv + dir * (2.0/3.0 - 0.5)).rgb);  \r\n    vec3 rgbB = rgbA * 0.5 + 0.25 * (  \r\n        texture(uTexture, vUv + dir * -0.5).rgb +  \r\n        texture(uTexture, vUv + dir * 0.5).rgb);  \r\n\r\n    float lumaB = luminance(rgbB);  \r\n    if((lumaB < lumaMin) || (lumaB > lumaMax)) {  \r\n        fragColor = vec4(rgbA, 1.0);  \r\n    } else {  \r\n        fragColor = vec4(rgbB, 1.0);  \r\n    }  \r\n}";
 }));
 // src/Renderer/Effects/Shaders/FXAA.js
-var _program$27, _buffer$13, FXAA;
+var _program$29, _buffer$13, FXAA;
 var init_FXAA = __esmMin((() => {
 	init_Graphics();
 	init_WebGL();
@@ -285177,27 +285196,27 @@ var init_FXAA = __esmMin((() => {
 	init_FXAA$1();
 	FXAA = class FXAA {
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$13 || !_program$27 || !FXAA.isActive()) return;
+			if (!_buffer$13 || !_program$29 || !FXAA.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$27);
-			gl.uniform1f(_program$27.uniform.uSubpix, GraphicsSettings.fxaaSubpix || .25);
-			gl.uniform1f(_program$27.uniform.uEdgeThreshold, GraphicsSettings.fxaaEdgeThreshold || .125);
-			gl.uniform1f(_program$27.uniform.uEdgeThresholdMin, 0);
-			gl.uniform2f(_program$27.uniform.uTexelSize, 1 / gl.canvas.width, 1 / gl.canvas.height);
+			gl.useProgram(_program$29);
+			gl.uniform1f(_program$29.uniform.uSubpix, GraphicsSettings.fxaaSubpix || .25);
+			gl.uniform1f(_program$29.uniform.uEdgeThreshold, GraphicsSettings.fxaaEdgeThreshold || .125);
+			gl.uniform1f(_program$29.uniform.uEdgeThresholdMin, 0);
+			gl.uniform2f(_program$29.uniform.uTexelSize, 1 / gl.canvas.width, 1 / gl.canvas.height);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$13);
-			const posLoc = _program$27.attribute.aPosition;
+			const posLoc = _program$29.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$27.uniform.uTexture, 0);
+			gl.uniform1i(_program$29.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$27 = WebGL_default.createShaderProgram(gl, Common_default, FXAA_default);
+				_program$29 = WebGL_default.createShaderProgram(gl, Common_default, FXAA_default);
 			} catch (e) {
 				console.error("Error compiling FXAA shader.", e);
 				return;
@@ -285224,11 +285243,11 @@ var init_FXAA = __esmMin((() => {
 			return GraphicsSettings.fxaaEnabled;
 		}
 		static program() {
-			return _program$27;
+			return _program$29;
 		}
 		static clean(gl) {
 			if (_buffer$13) gl.deleteBuffer(_buffer$13);
-			_program$27 = _buffer$13 = null;
+			_program$29 = _buffer$13 = null;
 		}
 	};
 }));
@@ -285238,7 +285257,7 @@ var init_Vibrance$1 = __esmMin((() => {
 	Vibrance_default = "#version 300 es\r\nprecision mediump float;  \r\n\r\nuniform sampler2D uTexture;  \r\nuniform float uVibrance;  \r\nuniform vec3 uVibranceRGBBalance;  \r\n\r\nin vec2 vUv;  \r\nout vec4 fragColor;  \r\n\r\nvoid main() {  \r\n    vec3 color = texture(uTexture, vUv).rgb;  \r\n      \r\n    // (Rec. 709)  \r\n    vec3 coefLuma = vec3(0.212656, 0.715158, 0.072186);  \r\n    float luma = dot(coefLuma, color);  \r\n\r\n    float max_color = max(color.r, max(color.g, color.b));  \r\n    float min_color = min(color.r, min(color.g, color.b));  \r\n    float color_saturation = max_color - min_color;  \r\n\r\n    vec3 coeffVibrance = uVibranceRGBBalance * uVibrance;  \r\n\r\n    float strength = 1.0 + (coeffVibrance.r * (1.0 - (sign(coeffVibrance.r) * color_saturation)));  \r\n    color.r = mix(luma, color.r, strength);  \r\n      \r\n    strength = 1.0 + (coeffVibrance.g * (1.0 - (sign(coeffVibrance.g) * color_saturation)));  \r\n    color.g = mix(luma, color.g, strength);  \r\n      \r\n    strength = 1.0 + (coeffVibrance.b * (1.0 - (sign(coeffVibrance.b) * color_saturation)));  \r\n    color.b = mix(luma, color.b, strength);  \r\n\r\n    fragColor = vec4(color, 1.0);  \r\n} ";
 }));
 // src/Renderer/Effects/Shaders/Vibrance.js
-var _program$26, _buffer$12, Vibrance;
+var _program$28, _buffer$12, Vibrance;
 var init_Vibrance = __esmMin((() => {
 	init_Graphics();
 	init_WebGL();
@@ -285247,25 +285266,25 @@ var init_Vibrance = __esmMin((() => {
 	init_Vibrance$1();
 	Vibrance = class Vibrance {
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$12 || !_program$26 || !Vibrance.isActive()) return;
+			if (!_buffer$12 || !_program$28 || !Vibrance.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$26);
-			gl.uniform1f(_program$26.uniform.uVibrance, GraphicsSettings.vibrance || .15);
-			gl.uniform3f(_program$26.uniform.uVibranceRGBBalance, 1, 1, 1);
+			gl.useProgram(_program$28);
+			gl.uniform1f(_program$28.uniform.uVibrance, GraphicsSettings.vibrance || .15);
+			gl.uniform3f(_program$28.uniform.uVibranceRGBBalance, 1, 1, 1);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$12);
-			const posLoc = _program$26.attribute.aPosition;
+			const posLoc = _program$28.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$26.uniform.uTexture, 0);
+			gl.uniform1i(_program$28.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$26 = WebGL_default.createShaderProgram(gl, Common_default, Vibrance_default);
+				_program$28 = WebGL_default.createShaderProgram(gl, Common_default, Vibrance_default);
 			} catch (e) {
 				console.error("Error compiling Vibrance shader.", e);
 				return;
@@ -285292,11 +285311,11 @@ var init_Vibrance = __esmMin((() => {
 			return GraphicsSettings.vibranceEnabled;
 		}
 		static program() {
-			return _program$26;
+			return _program$28;
 		}
 		static clean(gl) {
 			if (_buffer$12) gl.deleteBuffer(_buffer$12);
-			_program$26 = _buffer$12 = null;
+			_program$28 = _buffer$12 = null;
 		}
 	};
 }));
@@ -285306,7 +285325,7 @@ var init_Cartoon$1 = __esmMin((() => {
 	Cartoon_default = "#version 300 es\r\nprecision mediump float;  \r\n\r\nuniform sampler2D uTexture;  \r\nuniform float uPower;  \r\nuniform float uEdgeSlope;  \r\nuniform vec2 uTexelSize;  \r\n\r\nin vec2 vUv;  \r\nout vec4 fragColor;  \r\n\r\nvoid main() {  \r\n    vec3 color = texture(uTexture, vUv).rgb;  \r\n\r\n    const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);  \r\n\r\n    float diff1 = dot(coefLuma, texture(uTexture, vUv + uTexelSize).rgb);  \r\n    diff1 = dot(vec4(coefLuma, -1.0), vec4(texture(uTexture, vUv - uTexelSize).rgb, diff1));  \r\n      \r\n    float diff2 = dot(coefLuma, texture(uTexture, vUv + uTexelSize * vec2(1, -1)).rgb);  \r\n    diff2 = dot(vec4(coefLuma, -1.0), vec4(texture(uTexture, vUv + uTexelSize * vec2(-1, 1)).rgb, diff2));  \r\n\r\n    float edge = dot(vec2(diff1, diff2), vec2(diff1, diff2));  \r\n\r\n    vec3 result = clamp(pow(abs(edge), uEdgeSlope) * -uPower + color, 0.0, 1.0);  \r\n    fragColor = vec4(result, 1.0);  \r\n}";
 }));
 // src/Renderer/Effects/Shaders/Cartoon.js
-var _program$25, _buffer$11, Cartoon;
+var _program$27, _buffer$11, Cartoon;
 var init_Cartoon = __esmMin((() => {
 	init_Graphics();
 	init_WebGL();
@@ -285315,26 +285334,26 @@ var init_Cartoon = __esmMin((() => {
 	init_Cartoon$1();
 	Cartoon = class Cartoon {
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$11 || !_program$25 || !Cartoon.isActive()) return;
+			if (!_buffer$11 || !_program$27 || !Cartoon.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$25);
-			gl.uniform1f(_program$25.uniform.uPower, GraphicsSettings.cartoonPower || 1.5);
-			gl.uniform1f(_program$25.uniform.uEdgeSlope, GraphicsSettings.cartoonEdgeSlope || 1.5);
-			gl.uniform2f(_program$25.uniform.uTexelSize, 1 / gl.canvas.width, 1 / gl.canvas.height);
+			gl.useProgram(_program$27);
+			gl.uniform1f(_program$27.uniform.uPower, GraphicsSettings.cartoonPower || 1.5);
+			gl.uniform1f(_program$27.uniform.uEdgeSlope, GraphicsSettings.cartoonEdgeSlope || 1.5);
+			gl.uniform2f(_program$27.uniform.uTexelSize, 1 / gl.canvas.width, 1 / gl.canvas.height);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$11);
-			const posLoc = _program$25.attribute.aPosition;
+			const posLoc = _program$27.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$25.uniform.uTexture, 0);
+			gl.uniform1i(_program$27.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$25 = WebGL_default.createShaderProgram(gl, Common_default, Cartoon_default);
+				_program$27 = WebGL_default.createShaderProgram(gl, Common_default, Cartoon_default);
 			} catch (e) {
 				console.error("Error compiling Cartoon shader.", e);
 				return;
@@ -285361,11 +285380,11 @@ var init_Cartoon = __esmMin((() => {
 			return GraphicsSettings.cartoonEnabled;
 		}
 		static program() {
-			return _program$25;
+			return _program$27;
 		}
 		static clean(gl) {
 			if (_buffer$11) gl.deleteBuffer(_buffer$11);
-			_program$25 = _buffer$11 = null;
+			_program$27 = _buffer$11 = null;
 		}
 	};
 }));
@@ -285375,7 +285394,7 @@ var init_CommonUpsampling = __esmMin((() => {
 	CommonUpsampling_default = "#version 300 es\r\nprecision mediump float;\r\nuniform sampler2D uSceneTexture;\r\n\r\nin vec2 vUv;\r\nout vec4 fragColor;\r\n\r\nvoid main() {\r\n	vec3 original = texture(uSceneTexture, vUv).rgb; \r\n	fragColor = vec4(original, 1.0);\r\n}";
 }));
 // src/Renderer/Effects/Shaders/Upsampling.js
-var _program$24, _buffer$10, Upsampling;
+var _program$26, _buffer$10, Upsampling;
 var init_Upsampling = __esmMin((() => {
 	init_Graphics();
 	init_WebGL();
@@ -285390,18 +285409,18 @@ var init_Upsampling = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$10 || !_program$24 || !Upsampling.isActive()) return;
+			if (!_buffer$10 || !_program$26 || !Upsampling.isActive()) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$24);
+			gl.useProgram(_program$26);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$10);
-			const posLoc = _program$24.attribute.aPosition;
+			const posLoc = _program$26.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.uniform1i(_program$24.uniform.uSceneTexture, 0);
+			gl.uniform1i(_program$26.uniform.uSceneTexture, 0);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			PostProcess.afterRenderPass(gl);
 		}
@@ -285411,7 +285430,7 @@ var init_Upsampling = __esmMin((() => {
 		static init(gl) {
 			if (!gl) return;
 			try {
-				_program$24 = WebGL_default.createShaderProgram(gl, Common_default, CommonUpsampling_default);
+				_program$26 = WebGL_default.createShaderProgram(gl, Common_default, CommonUpsampling_default);
 			} catch (e) {
 				console.error("Error compiling Upsampling shader.", e);
 				return;
@@ -285440,11 +285459,11 @@ var init_Upsampling = __esmMin((() => {
 		}
 		/** @returns {WebGLProgram} The loaded shader program (returning one for validation check) */
 		static program() {
-			return _program$24;
+			return _program$26;
 		}
 		/** Clears memory references */
 		static clean(gl) {
-			_program$24 = null;
+			_program$26 = null;
 			if (_buffer$10) gl.deleteBuffer(_buffer$10);
 			_buffer$10 = null;
 		}
@@ -287541,7 +287560,7 @@ var init_SwirlingAura$1 = __esmMin((() => {
 	SwirlingAura_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform vec4 uColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	vec4 texColor = texture(uDiffuse, vTextureCoord);\r\n\r\n	if (texColor.a < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	// Discard near-black pixels\r\n	if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {\r\n		discard;\r\n	}\r\n\r\n	fragColor = texColor * uColor;\r\n\r\n	if (uFogUse) {\r\n		float depth = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, depth);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);\r\n	}\r\n}";
 }));
 // src/Renderer/Effects/SwirlingAura.js
-var mat4$7, _program$23, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$11, _textures$21, BAND_INDICES, SwirlingAura;
+var mat4$7, _program$25, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$2, VERTICES_PER_BAND, _batch$12, _textures$23, BAND_INDICES, SwirlingAura;
 var init_SwirlingAura = __esmMin((() => {
 	init_SwirlingAura$2();
 	init_SwirlingAura$1();
@@ -287557,12 +287576,12 @@ var init_SwirlingAura = __esmMin((() => {
 	FULL_DISPLAY_ANGLE = 315;
 	DEG_TO_RAD$2 = Math.PI / 180;
 	VERTICES_PER_BAND = 42;
-	_batch$11 = new AuraBatch({
+	_batch$12 = new AuraBatch({
 		fog: true,
 		discardClear: true,
 		discardBlack: true
 	});
-	_textures$21 = /* @__PURE__ */ new Map();
+	_textures$23 = /* @__PURE__ */ new Map();
 	BAND_INDICES = (function() {
 		const indices = [];
 		for (let k = 0; k < 20; k++) {
@@ -287674,7 +287693,7 @@ var init_SwirlingAura = __esmMin((() => {
 		* Initialize instance
 		*/
 		init(gl) {
-			sharedTexture(_textures$21, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$23, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -287713,10 +287732,10 @@ var init_SwirlingAura = __esmMin((() => {
 		* Render all three bands
 		*/
 		render(gl, tick) {
-			const uniform = _program$23.uniform;
-			const attribute = _program$23.attribute;
+			const uniform = _program$25.uniform;
+			const attribute = _program$25.attribute;
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-			if (_batch$11.active) {
+			if (_batch$12.active) {
 				this.record(tick, groundZ);
 				return;
 			}
@@ -287769,14 +287788,14 @@ var init_SwirlingAura = __esmMin((() => {
 				band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
 				this.updateHeightProfile(band, process);
 				this.fillBandMesh(band);
-				_batch$11.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
+				_batch$12.mesh(this.texture, blend, this.vertices, VERTICES_PER_BAND, BAND_INDICES, x, y, z, color[0], color[1], color[2], color[3], .01 + ec * .001);
 			}
 		}
 		/**
 		* Initialize static resources
 		*/
 		static init(gl) {
-			_program$23 = WebGL_default.createShaderProgram(gl, SwirlingAura_default$1, SwirlingAura_default);
+			_program$25 = WebGL_default.createShaderProgram(gl, SwirlingAura_default$1, SwirlingAura_default);
 			this.ready = true;
 			this.renderBeforeEntities = true;
 		}
@@ -287784,21 +287803,21 @@ var init_SwirlingAura = __esmMin((() => {
 		* Free static resources
 		*/
 		static free(gl) {
-			if (_program$23) {
-				gl.deleteProgram(_program$23);
-				_program$23 = null;
+			if (_program$25) {
+				gl.deleteProgram(_program$25);
+				_program$25 = null;
 			}
-			_batch$11.free(gl);
-			freeSharedTextures(_textures$21, gl);
+			_batch$12.free(gl);
+			freeSharedTextures(_textures$23, gl);
 			this.ready = false;
 		}
 		/**
 		* Before render setup
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$23.uniform;
+			const uniform = _program$25.uniform;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.useProgram(_program$23);
+			gl.useProgram(_program$25);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -287807,16 +287826,16 @@ var init_SwirlingAura = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
-			_batch$11.begin(gl, modelView, projection, fog);
+			_batch$12.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$11.flush(gl);
+			_batch$12.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$23.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$23.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$25.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$25.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -287888,7 +287907,7 @@ function calculateSize(self, aura, auraAngle, i) {
 	const endY = sin * (aura[i].distance * .8 + riseFactor);
 	return [Math.abs(endX - startX), Math.abs(endY - startY)];
 }
-var _program$22, _buffer$9, _batch$10, _textures$20, GROUND_ORDER, GROUND_CORNERS, GroundAura;
+var _program$24, _buffer$9, _batch$11, _textures$22, GROUND_ORDER, GROUND_CORNERS, GroundAura;
 var init_GroundAura = __esmMin((() => {
 	init_GroundAura$2();
 	init_GroundAura$1();
@@ -287897,11 +287916,11 @@ var init_GroundAura = __esmMin((() => {
 	init_SpriteRenderer();
 	init_AuraBlend();
 	init_AuraBatch();
-	_batch$10 = new AuraBatch({
+	_batch$11 = new AuraBatch({
 		discardClear: true,
 		darken: true
 	});
-	_textures$20 = /* @__PURE__ */ new Map();
+	_textures$22 = /* @__PURE__ */ new Map();
 	GROUND_ORDER = [
 		0,
 		1,
@@ -288008,7 +288027,7 @@ var init_GroundAura = __esmMin((() => {
 				this.shape = "brightness";
 				this.init(gl);
 			};
-			sharedTexture(_textures$20, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$22, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, onerror);
@@ -288020,7 +288039,7 @@ var init_GroundAura = __esmMin((() => {
 			this.ready = false;
 		}
 		render(gl, tick) {
-			const uniform = _program$22.uniform;
+			const uniform = _program$24.uniform;
 			const RAG_TICK_MS = 25;
 			const dt = Math.min(tick - (this._lastTick || tick), 250);
 			this._lastTick = tick;
@@ -288050,7 +288069,7 @@ var init_GroundAura = __esmMin((() => {
 			worldPos[0] = this.position[0];
 			worldPos[1] = this.position[1];
 			worldPos[2] = groundZ + .05;
-			if (_batch$10.active) {
+			if (_batch$11.active) {
 				this.record(worldPos);
 				return;
 			}
@@ -288092,14 +288111,14 @@ var init_GroundAura = __esmMin((() => {
 					this.points[k][1] = -worldPos[2];
 					this.points[k][2] = worldPos[1] + .5 + (x * sin + z * cos);
 				}
-				_batch$10.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
+				_batch$11.quad(this.texture, blend, this.points, GROUND_ORDER, color[0], color[1], color[2], color[3], (1 + i) * .01);
 			}
 		}
 		/**
 		* Initialize static resources
 		*/
 		static init(gl) {
-			_program$22 = WebGL_default.createShaderProgram(gl, GroundAura_default$1, GroundAura_default);
+			_program$24 = WebGL_default.createShaderProgram(gl, GroundAura_default$1, GroundAura_default);
 			const vertices = generateGroundQuad();
 			_buffer$9 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$9);
@@ -288111,26 +288130,26 @@ var init_GroundAura = __esmMin((() => {
 		* Free static resources
 		*/
 		static free(gl) {
-			if (_program$22) {
-				gl.deleteProgram(_program$22);
-				_program$22 = null;
+			if (_program$24) {
+				gl.deleteProgram(_program$24);
+				_program$24 = null;
 			}
 			if (_buffer$9) {
 				gl.deleteBuffer(_buffer$9);
 				_buffer$9 = null;
 			}
-			_batch$10.free(gl);
-			freeSharedTextures(_textures$20, gl);
+			_batch$11.free(gl);
+			freeSharedTextures(_textures$22, gl);
 			this.ready = false;
 		}
 		/**
 		* Before render setup
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$22.uniform;
-			const attribute = _program$22.attribute;
+			const uniform = _program$24.uniform;
+			const attribute = _program$24.attribute;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.useProgram(_program$22);
+			gl.useProgram(_program$24);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -288144,16 +288163,16 @@ var init_GroundAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$10.begin(gl, modelView, projection, fog);
+			_batch$11.begin(gl, modelView, projection, fog);
 		}
 		/**
 		* After render cleanup
 		*/
 		static afterRender(gl) {
-			_batch$10.flush(gl);
+			_batch$11.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$22.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$22.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$24.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$24.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -288218,7 +288237,7 @@ function createAnchor(isGhost, seedMaxUnits) {
 		z: 0
 	};
 }
-var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$21, _buffer$8, _batch$9, _textures$19, BILLBOARD_CORNERS, Level99Bubble;
+var DEG_TO_RAD$1, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT$1, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$23, _buffer$8, _batch$10, _textures$21, BILLBOARD_CORNERS, Level99Bubble;
 var init_Level99Bubble = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -288289,8 +288308,8 @@ var init_Level99Bubble = __esmMin((() => {
 		alphaGain: REF_ALPHA_GAIN,
 		floorLimit: Math.abs(REF_RESET_Y)
 	};
-	_batch$9 = new AuraBatch({ fog: true });
-	_textures$19 = /* @__PURE__ */ new Map();
+	_batch$10 = new AuraBatch({ fog: true });
+	_textures$21 = /* @__PURE__ */ new Map();
 	BILLBOARD_CORNERS = [
 		{
 			x: -1,
@@ -288380,7 +288399,7 @@ var init_Level99Bubble = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$19, gl, this.textureName, (texture) => {
+			sharedTexture(_textures$21, gl, this.textureName, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -288468,7 +288487,7 @@ var init_Level99Bubble = __esmMin((() => {
 		}
 		render(gl, tick) {
 			if (!this.ready || !this.texture) return;
-			const uniform = _program$21.uniform;
+			const uniform = _program$23.uniform;
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 			const basePos = this.basePos;
 			basePos[0] = this.position[0] + .5;
@@ -288482,7 +288501,7 @@ var init_Level99Bubble = __esmMin((() => {
 			const cosBeta = Math.cos(beta);
 			const sinAlpha = Math.sin(alpha);
 			const cosAlpha = Math.cos(alpha);
-			const batched = _batch$9.active;
+			const batched = _batch$10.active;
 			const blend = auraBlend(this.color, "alpha");
 			const rgb = auraUniform(this.color, 1, "alpha", this.rgba);
 			if (!batched) gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -288521,7 +288540,7 @@ var init_Level99Bubble = __esmMin((() => {
 					const alphaValue = this.computeAlpha(anchor.y);
 					if (alphaValue <= 0) continue;
 					if (batched) {
-						for (let pass = 0; pass < this.passCount; pass++) _batch$9.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
+						for (let pass = 0; pass < this.passCount; pass++) _batch$10.quad(this.texture, blend, this.tmpPoints, QUAD_FAN, rgb[0], rgb[1], rgb[2], alphaValue, .01 + ec * .002 + ai * 1e-4 + pass * 5e-5);
 						continue;
 					}
 					this.fillQuad(this.tmpPoints, this.quadData);
@@ -288540,7 +288559,7 @@ var init_Level99Bubble = __esmMin((() => {
 			}
 		}
 		renderBackground(gl, basePos) {
-			const uniform = _program$21.uniform;
+			const uniform = _program$23.uniform;
 			const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
 			const height = this.seedMax * GAME_TO_WORLD;
 			function drawQuad(v0, v1, v2, v3) {
@@ -288670,7 +288689,7 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.uniform1i(uniform.uSolidBg, 0);
 		}
 		static init(gl) {
-			_program$21 = WebGL_default.createShaderProgram(gl, Level99Bubble_default$1, Level99Bubble_default);
+			_program$23 = WebGL_default.createShaderProgram(gl, Level99Bubble_default$1, Level99Bubble_default);
 			_buffer$8 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$8);
 			gl.bufferData(gl.ARRAY_BUFFER, 120, gl.DYNAMIC_DRAW);
@@ -288678,23 +288697,23 @@ var init_Level99Bubble = __esmMin((() => {
 			this.renderBeforeEntities = true;
 		}
 		static free(gl) {
-			if (_program$21) {
-				gl.deleteProgram(_program$21);
-				_program$21 = null;
+			if (_program$23) {
+				gl.deleteProgram(_program$23);
+				_program$23 = null;
 			}
 			if (_buffer$8) {
 				gl.deleteBuffer(_buffer$8);
 				_buffer$8 = null;
 			}
-			_batch$9.free(gl);
-			freeSharedTextures(_textures$19, gl);
+			_batch$10.free(gl);
+			freeSharedTextures(_textures$21, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$21.uniform;
-			const attribute = _program$21.attribute;
+			const uniform = _program$23.uniform;
+			const attribute = _program$23.attribute;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.useProgram(_program$21);
+			gl.useProgram(_program$23);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -288709,30 +288728,30 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$9.begin(gl, modelView, projection, fog);
+			_batch$10.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$9.flush(gl);
+			_batch$10.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$21.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$21.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$23.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$23.attribute.aTextureCoord);
 		}
 	};
 }));
 // src/Renderer/Effects/MaxLevelAura.js
 function loadTexture$13(gl, name) {
-	if (_textures$18.has(name)) return;
-	_textures$18.set(name, null);
+	if (_textures$20.has(name)) return;
+	_textures$20.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			_textures$18.set(name, texture);
+			_textures$20.set(name, texture);
 		});
 	});
 }
 function bubbleName$1(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS$1, GROUND_RINGS, CORNERS$1, _program$20, _buffer$7, _textures$18, _batch$8, MaxLevelAura;
+var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS$1, GROUND_RINGS, CORNERS$2, _program$22, _buffer$7, _textures$20, _batch$9, MaxLevelAura;
 var init_MaxLevelAura = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -288775,7 +288794,7 @@ var init_MaxLevelAura = __esmMin((() => {
 		size: 5,
 		spin: -55
 	}];
-	CORNERS$1 = [
+	CORNERS$2 = [
 		{
 			x: -1,
 			y: -1
@@ -288793,8 +288812,8 @@ var init_MaxLevelAura = __esmMin((() => {
 			y: 1
 		}
 	];
-	_textures$18 = /* @__PURE__ */ new Map();
-	_batch$8 = new AuraBatch({
+	_textures$20 = /* @__PURE__ */ new Map();
+	_batch$9 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
@@ -288878,13 +288897,13 @@ var init_MaxLevelAura = __esmMin((() => {
 		}
 		draw(gl, texture, alpha, zIndex) {
 			if (!texture) return;
-			if (_batch$8.active) {
+			if (_batch$9.active) {
 				const rgba = auraUniform(this.color, alpha, "alpha", this.rgba);
-				_batch$8.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
+				_batch$9.quad(texture, auraBlend(this.color, "alpha"), this.points, QUAD_FAN, rgba[0], rgba[1], rgba[2], rgba[3], zIndex);
 				return;
 			}
 			this.fillQuad(this.points);
-			const uniform = _program$20.uniform;
+			const uniform = _program$22.uniform;
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
 			gl.uniform4f(uniform.uColor, ...auraUniform(this.color, alpha, "alpha"));
@@ -288900,7 +288919,7 @@ var init_MaxLevelAura = __esmMin((() => {
 				-groundZ - BASE_LIFT,
 				this.position[1] + .5
 			];
-			if (_batch$8.active) {
+			if (_batch$9.active) {
 				if (this.part === "rings") this.renderRings(gl, base, elapsed);
 				else this.renderBubbles(gl, base, elapsed);
 				return;
@@ -288921,13 +288940,13 @@ var init_MaxLevelAura = __esmMin((() => {
 				const cos = Math.cos(angle) * half;
 				const sin = Math.sin(angle) * half;
 				for (let k = 0; k < 4; k++) {
-					const x = CORNERS$1[k].x;
-					const z = CORNERS$1[k].y;
+					const x = CORNERS$2[k].x;
+					const z = CORNERS$2[k].y;
 					this.points[k][0] = base[0] + x * cos - z * sin;
 					this.points[k][1] = base[1] - .01 * (i + 1);
 					this.points[k][2] = base[2] + x * sin + z * cos;
 				}
-				this.draw(gl, _textures$18.get(ring.texture), 1, .002 * (i + 1));
+				this.draw(gl, _textures$20.get(ring.texture), 1, .002 * (i + 1));
 			}
 		}
 		renderBubbles(gl, base, elapsed) {
@@ -288956,13 +288975,13 @@ var init_MaxLevelAura = __esmMin((() => {
 					this.points[3][0] = x0;
 					this.points[3][1] = base[1];
 					this.points[3][2] = z0;
-					const texture = _textures$18.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
+					const texture = _textures$20.get(bubbleName$1((frame + b * 3 + r * 9) % BUBBLE_FRAMES$1));
 					this.draw(gl, texture, .55, .01 + r * .002 + b * 1e-4);
 				}
 			}
 		}
 		static init(gl) {
-			_program$20 = WebGL_default.createShaderProgram(gl, Level99Bubble_default$1, Level99Bubble_default);
+			_program$22 = WebGL_default.createShaderProgram(gl, Level99Bubble_default$1, Level99Bubble_default);
 			_buffer$7 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$7);
 			gl.bufferData(gl.ARRAY_BUFFER, 120, gl.DYNAMIC_DRAW);
@@ -288970,24 +288989,24 @@ var init_MaxLevelAura = __esmMin((() => {
 			this.renderBeforeEntities = true;
 		}
 		static free(gl) {
-			if (_program$20) {
-				gl.deleteProgram(_program$20);
-				_program$20 = null;
+			if (_program$22) {
+				gl.deleteProgram(_program$22);
+				_program$22 = null;
 			}
 			if (_buffer$7) {
 				gl.deleteBuffer(_buffer$7);
 				_buffer$7 = null;
 			}
-			_batch$8.free(gl);
-			for (const texture of _textures$18.values()) if (texture) gl.deleteTexture(texture);
-			_textures$18.clear();
+			_batch$9.free(gl);
+			for (const texture of _textures$20.values()) if (texture) gl.deleteTexture(texture);
+			_textures$20.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$20.uniform;
-			const attribute = _program$20.attribute;
+			const uniform = _program$22.uniform;
+			const attribute = _program$22.attribute;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.useProgram(_program$20);
+			gl.useProgram(_program$22);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -289002,13 +289021,13 @@ var init_MaxLevelAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			_batch$8.begin(gl, modelView, projection, fog);
+			_batch$9.begin(gl, modelView, projection, fog);
 		}
 		static afterRender(gl) {
-			_batch$8.flush(gl);
+			_batch$9.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$22.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$22.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -289508,7 +289527,7 @@ function pressScale(n, random = Math.random) {
 */
 function spinAngle$1(n) {
 	if (n < 0 || n >= 37) return 0;
-	const angle = 180 - Math.cos(5 * n * DEG$15) * 180;
+	const angle = 180 - Math.cos(5 * n * DEG$19) * 180;
 	return angle >= 360 ? angle - 360 : angle;
 }
 /**
@@ -289519,7 +289538,7 @@ function spinAngle$1(n) {
 */
 function kickLift(n) {
 	if (n < 0) return 0;
-	if (n < 19) return .3 * Math.sin(5 * n * DEG$15);
+	if (n < 19) return .3 * Math.sin(5 * n * DEG$19);
 	if (n < 21) return .3;
 	if (n < 24) return (23 - n) * .1;
 	return 0;
@@ -289702,10 +289721,10 @@ function marksOf(entity) {
 function bodyLiftCells(entity) {
 	return liftOf(marksOf(entity)) / 5;
 }
-var DEG$15, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
+var DEG$19, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
 var init_BodyMotionSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$15 = Math.PI / 180;
+	DEG$19 = Math.PI / 180;
 	READY_COLOR = [
 		5,
 		5,
@@ -289923,12 +289942,12 @@ function stepBand(band) {
 */
 function pointHeight$3(band, j) {
 	const h = FIELD_BAND.height;
-	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$14) * Math.sin(band.age % 360 * DEG$14);
+	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$18) * Math.sin(band.age % 360 * DEG$18);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$10(out, i, center, x, y, up, u, v) {
+function vertex$11(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -289945,12 +289964,12 @@ function vertex$10(out, i, center, x, y, up, u, v) {
 * @return {number} vertices written
 */
 function buildBand$2(out, band, center) {
-	const lean = Math.cos(band.lean * DEG$14);
-	const rise = Math.sin(band.lean * DEG$14);
+	const lean = Math.cos(band.lean * DEG$18);
+	const rise = Math.sin(band.lean * DEG$18);
 	let prev = null;
 	let o = 0;
 	for (let j = 0; j <= 10; j++) {
-		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$14;
+		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$18;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$3(band, j);
@@ -289964,21 +289983,21 @@ function buildBand$2(out, band, center) {
 		if (prev) {
 			const u0 = (j - 1) / 21;
 			const u1 = j / 21;
-			o = vertex$10(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex$10(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex$10(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$10(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex$10(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$10(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$11(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$11(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$11(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$11(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$11(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$11(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 		}
 		prev = point;
 	}
 	return o / 5;
 }
-var DEG$14, f32$1, FIELD_BAND;
+var DEG$18, f32$1, FIELD_BAND;
 var init_FieldBandSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$14 = Math.PI / 180;
+	DEG$18 = Math.PI / 180;
 	f32$1 = Math.fround;
 	FIELD_BAND = {
 		height: 15,
@@ -289998,19 +290017,19 @@ var init_FieldBandSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/FieldBand.js
 function loadTexture$12(gl, name) {
-	if (_textures$17.has(name)) return;
-	_textures$17.set(name, null);
+	if (_textures$19.has(name)) return;
+	_textures$19.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$17.has(name)) {
+			if (!_textures$19.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$17.set(name, texture);
+			_textures$19.set(name, texture);
 		});
 	});
 }
-var _program$19, _textures$17, FieldBand;
+var _program$21, _textures$19, FieldBand;
 var init_FieldBand = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -290018,8 +290037,8 @@ var init_FieldBand = __esmMin((() => {
 	init_FieldBandSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$19 = null;
-	_textures$17 = /* @__PURE__ */ new Map();
+	_program$21 = null;
+	_textures$19 = /* @__PURE__ */ new Map();
 	FieldBand = class {
 		/**
 		* @param {Array} position cell position (x, y, height)
@@ -290062,11 +290081,11 @@ var init_FieldBand = __esmMin((() => {
 			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
 			if (t - this.band.age > 600) this.band.age = t - 600;
 			while (this.band.age < t) stepBand(this.band);
-			const texture = _textures$17.get(this.texture);
+			const texture = _textures$19.get(this.texture);
 			const alpha = Math.min(255, this.band.alpha);
 			if (!texture || alpha <= 0) return;
 			const count = buildBand$2(this.vertices, this.band, this.position);
-			const attribute = _program$19.attribute;
+			const attribute = _program$21.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -290075,28 +290094,28 @@ var init_FieldBand = __esmMin((() => {
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 				gl.bindTexture(gl.TEXTURE_2D, texture);
 				self.color[3] = alpha / 255;
-				gl.uniform4fv(_program$19.uniform.uColor, self.color);
+				gl.uniform4fv(_program$21.uniform.uColor, self.color);
 				gl.drawArrays(gl.TRIANGLES, 0, count);
 			});
 		}
 		static init(gl) {
-			_program$19 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$21 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$19) {
-				gl.deleteProgram(_program$19);
-				_program$19 = null;
+			if (_program$21) {
+				gl.deleteProgram(_program$21);
+				_program$21 = null;
 			}
-			for (const texture of _textures$17.values()) if (texture) gl.deleteTexture(texture);
-			_textures$17.clear();
+			for (const texture of _textures$19.values()) if (texture) gl.deleteTexture(texture);
+			_textures$19.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$19.uniform;
-			const attribute = _program$19.attribute;
-			gl.useProgram(_program$19);
+			const uniform = _program$21.uniform;
+			const attribute = _program$21.attribute;
+			gl.useProgram(_program$21);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -290110,8 +290129,8 @@ var init_FieldBand = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$19.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$19.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$21.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$21.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -290417,7 +290436,7 @@ function planSnow(random = Math.random) {
 	for (let tick = 0; tick <= SNOW.last; tick += SNOW.every) for (let k = 0; k < SNOW.perBurst; k++) {
 		const size = 1.5 + r$17(random, 6) * .1;
 		const reach = r$17(random, SNOW.reach);
-		const direction = r$17(random, 360) * DEG$13;
+		const direction = r$17(random, 360) * DEG$17;
 		const height = SNOW.height + r$17(random, SNOW.heightRange);
 		const rise = r$17(random, 20) * .01 + .1;
 		flakes.push({
@@ -290457,7 +290476,7 @@ function flakeAt(flake, age) {
 		alpha
 	};
 }
-var GLOW, SNOW, r$17, DEG$13, GLOW_LIFE;
+var GLOW, SNOW, r$17, DEG$17, GLOW_LIFE;
 var init_FrostMistySim = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ReadySparkSim();
@@ -290497,7 +290516,7 @@ var init_FrostMistySim = __esmMin((() => {
 		]
 	};
 	r$17 = (random, k) => Math.floor(random() * k);
-	DEG$13 = Math.PI / 180;
+	DEG$17 = Math.PI / 180;
 	GLOW_LIFE = (() => {
 		let n = 1;
 		while (ringAlpha$1(GLOW.rings, n) > 0 || n <= GLOW.fadeInEnd) n++;
@@ -290825,7 +290844,7 @@ function planLines(random = Math.random) {
 	for (let i = 0; i < LINES$1.count; i++) {
 		const start = r$16(random, LINES$1.startRange);
 		const reach = r$16(random, LINES$1.reach);
-		const direction = r$16(random, 360) * DEG$12;
+		const direction = r$16(random, 360) * DEG$16;
 		const radius = r$16(random, 11) * .015 + .15;
 		lines.push({
 			start,
@@ -290846,7 +290865,7 @@ function lineState(age) {
 	if (age < LINES$1.show) return null;
 	let height = LINES$1.height;
 	let alpha = LINES$1.alpha;
-	if (age < LINES$1.show + LINES$1.rise + 1) height = LINES$1.height * Math.sin(6 * (age - LINES$1.show) * DEG$12);
+	if (age < LINES$1.show + LINES$1.rise + 1) height = LINES$1.height * Math.sin(6 * (age - LINES$1.show) * DEG$16);
 	else if (age > LINES$1.hold) {
 		const n = age - LINES$1.hold;
 		height = Math.max(0, LINES$1.height - LINES$1.shrink * n);
@@ -290879,7 +290898,7 @@ function lineAt(line, tick) {
 		alpha: state.alpha
 	};
 }
-var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$12, r$16, LINES_END;
+var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$16, r$16, LINES_END;
 var init_TetraFireSim = __esmMin((() => {
 	init_EffectPrimSim();
 	PX_PER_UNIT$3 = 7;
@@ -290910,7 +290929,7 @@ var init_TetraFireSim = __esmMin((() => {
 		fade: 15,
 		band: 1.5
 	};
-	DEG$12 = Math.PI / 180;
+	DEG$16 = Math.PI / 180;
 	r$16 = (random, k) => Math.floor(random() * k);
 	LINES_END = LINES$1.hold + LINES$1.alpha / LINES$1.fade;
 }));
@@ -291505,12 +291524,12 @@ function sphereAlive(sphere) {
 * @return {Array<Array<number>>}
 */
 function rayCorners(ray) {
-	const reach = ray.size * Math.sin(rad$6(ray.q)) + ray.size;
-	const flat = reach * Math.cos(rad$6(ray.t));
+	const reach = ray.size * Math.sin(rad$7(ray.q)) + ray.size;
+	const flat = reach * Math.cos(rad$7(ray.t));
 	const tip = [
-		flat * Math.cos(rad$6(ray.s)),
-		reach * Math.sin(rad$6(ray.t)) - SPHERE.height,
-		flat * Math.sin(rad$6(ray.s))
+		flat * Math.cos(rad$7(ray.s)),
+		reach * Math.sin(rad$7(ray.t)) - SPHERE.height,
+		flat * Math.sin(rad$7(ray.s))
 	];
 	const w = SPHERE.rayHalfWidth;
 	const h = -SPHERE.height;
@@ -291551,11 +291570,11 @@ function centerAt(age) {
 	const alpha = n <= fadeOut ? Math.min(1 + n, 255) : Math.max(Math.min(1 + fadeOut, 255) - (n - fadeOut), 0);
 	const phase = SPHERE.centerSpin * n % 360;
 	return {
-		half: SPHERE.centerHalf * Math.sin(rad$6(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
+		half: SPHERE.centerHalf * Math.sin(rad$7(phase)) * SPHERE.centerPulse + SPHERE.centerHalf,
 		alpha
 	};
 }
-var SPHERE, SPHERE_COLORS, r$15, rad$6, CENTER_LIFE;
+var SPHERE, SPHERE_COLORS, r$15, rad$7, CENTER_LIFE;
 var init_LightSphereSim = __esmMin((() => {
 	SPHERE = {
 		centers: 4,
@@ -291623,23 +291642,23 @@ var init_LightSphereSim = __esmMin((() => {
 		}
 	};
 	r$15 = (random, k) => Math.floor(random() * k);
-	rad$6 = (deg) => deg * Math.PI / 180;
+	rad$7 = (deg) => deg * Math.PI / 180;
 	CENTER_LIFE = SPHERE.centerFadeOut + 255;
 }));
 // src/Renderer/Effects/LightSphere.js
-var _batch$7, _textures$16, RAY_TEXTURE$1, CORNER_ORDER, LightSphere;
+var _batch$8, _textures$18, RAY_TEXTURE$1, CORNER_ORDER$1, LightSphere;
 var init_LightSphere = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
 	init_EffectPrimSim();
 	init_LightSphereSim();
-	_batch$7 = new AuraBatch({
+	_batch$8 = new AuraBatch({
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$16 = /* @__PURE__ */ new Map();
+	_textures$18 = /* @__PURE__ */ new Map();
 	RAY_TEXTURE$1 = "white02.bmp";
-	CORNER_ORDER = [
+	CORNER_ORDER$1 = [
 		0,
 		1,
 		3,
@@ -291684,7 +291703,7 @@ var init_LightSphere = __esmMin((() => {
 			];
 		}
 		init(gl) {
-			sharedTexture(_textures$16, gl, RAY_TEXTURE$1, (texture) => {
+			sharedTexture(_textures$18, gl, RAY_TEXTURE$1, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, () => {
@@ -291702,7 +291721,7 @@ var init_LightSphere = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_batch$7.active || !this.texture) return;
+			if (!_batch$8.active || !this.texture) return;
 			const pos = this.owner ? this.owner.position : this.position;
 			const ox = pos[0] + .5;
 			const oy = -pos[2];
@@ -291712,12 +291731,12 @@ var init_LightSphere = __esmMin((() => {
 				if (ray.alpha < 1) continue;
 				const corners = rayCorners(ray);
 				for (let k = 0; k < 4; k++) {
-					const c = corners[CORNER_ORDER[k]];
+					const c = corners[CORNER_ORDER$1[k]];
 					points[k][0] = ox + c[0] / 5;
 					points[k][1] = oy + c[1] / 5;
 					points[k][2] = oz + c[2] / 5;
 				}
-				_batch$7.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
+				_batch$8.quad(this.texture, 0, points, QUAD_FAN, ray.color[0] / 255, ray.color[1] / 255, ray.color[2] / 255, ray.alpha / 255, 0);
 			}
 		}
 		static init() {
@@ -291725,24 +291744,24 @@ var init_LightSphere = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_batch$7.free(gl);
-			freeSharedTextures(_textures$16, gl);
+			_batch$8.free(gl);
+			freeSharedTextures(_textures$18, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			_batch$7.begin(gl, modelView, projection, fog);
-			if (!_batch$7.active && typeof gl.createVertexArray === "function") {
-				_batch$7.active = true;
-				_batch$7.modelView.set(modelView);
-				_batch$7.projection.set(projection);
-				_batch$7.fog.use = !!(fog.use && fog.exist);
-				_batch$7.fog.near = fog.near;
-				_batch$7.fog.far = fog.far;
-				_batch$7.fog.color.set(fog.color);
+			_batch$8.begin(gl, modelView, projection, fog);
+			if (!_batch$8.active && typeof gl.createVertexArray === "function") {
+				_batch$8.active = true;
+				_batch$8.modelView.set(modelView);
+				_batch$8.projection.set(projection);
+				_batch$8.fog.use = !!(fog.use && fog.exist);
+				_batch$8.fog.near = fog.near;
+				_batch$8.fog.far = fog.far;
+				_batch$8.fog.color.set(fog.color);
 			}
 		}
 		static afterRender(gl) {
-			_batch$7.flush(gl);
+			_batch$8.flush(gl);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -292718,6 +292737,256 @@ var init_RemoveTrapEffect = __esmMin((() => {
 		attachedEntity: false
 	}];
 }));
+// src/Renderer/Effects/BurstPartsSim.js
+/**
+* @param {number} variant
+* @return {boolean} whether the variant starts its counter at 0
+*/
+function startsAtZero(variant) {
+	return variant === 2 || variant === 3 || variant === 6;
+}
+/**
+* The blades of `sets` calls to 0xbd91c0, set i passed as the second argument.
+*
+* @param {number} variant
+* @param {number} sets
+* @param {function} [random] 0 <= random() < 1
+* @return {object} burst state
+*/
+function createBurst(variant, sets, random = Math.random) {
+	const blades = [];
+	const step = variant === 3 ? 7 : 22;
+	for (let i = 0; i < sets; i++) for (let j = 0; j < 4; j++) blades.push({
+		angle: i * step + j * 90,
+		turn: Math.floor(random() * 360),
+		counter: startsAtZero(variant) ? 0 : -24,
+		alpha: 0,
+		length: 2
+	});
+	return {
+		variant,
+		blades,
+		ticks: 0
+	};
+}
+/**
+* One client tick (60 a second).
+*
+* @param {object} burst
+*/
+function stepBurst(burst) {
+	const v = burst.variant;
+	for (const b of burst.blades) {
+		b.counter++;
+		if (b.counter <= 0) continue;
+		if (v === 2 || v === 6) {
+			if (b.counter < 11) b.alpha += 10;
+			else if (b.counter > 11) b.alpha = Math.max(b.alpha - 3, 0);
+			b.length += 3;
+		} else if (v === 3) {
+			if (b.counter < 11) b.alpha += 6;
+			else if (b.counter > 11) b.alpha = Math.max(b.alpha - 1, 0);
+			b.length += 3;
+		} else {
+			if (b.counter < 11) b.alpha += 20;
+			else if (b.counter > 12) b.alpha = Math.max(b.alpha - 15, 0);
+			b.length *= 1.15;
+		}
+	}
+	burst.ticks++;
+}
+/**
+* @param {object} burst
+* @return {boolean} whether a blade can still show
+*/
+function burstAlive(burst) {
+	return burst.blades.some((b) => b.counter <= 0 || b.alpha > 0);
+}
+/**
+* The four corners of one quad of a blade, in client units around the burst's
+* point: [tip -, tip +, centre, centre].
+*
+* @param {object} blade
+* @param {number} half the quad's half width, in degrees
+* @return {Array<Array<number>>}
+*/
+function bladeCorners(blade, half) {
+	const tip = (deg) => {
+		const reach = blade.length * Math.cos(rad$6(deg));
+		return [
+			Math.cos(rad$6(blade.turn)) * reach,
+			Math.sin(rad$6(blade.turn)) * reach + -12,
+			blade.length * Math.sin(rad$6(deg))
+		];
+	};
+	const centre = [
+		0,
+		-12,
+		0
+	];
+	return [
+		tip(blade.angle - half),
+		tip(blade.angle + half),
+		centre,
+		centre
+	];
+}
+/**
+* Half widths of the two quads, in degrees: [narrow, wide].
+*
+* @param {number} variant
+* @return {Array<number>}
+*/
+function bladeWidths(variant) {
+	return variant === 2 ? [1, 2] : [2, 5];
+}
+var BURST_LOOKS, rad$6;
+var init_BurstPartsSim = __esmMin((() => {
+	BURST_LOOKS = { 3: [{
+		color: [
+			250,
+			250,
+			250
+		],
+		blend: "add"
+	}, {
+		color: [
+			250,
+			250,
+			250
+		],
+		blend: "alpha"
+	}] };
+	rad$6 = (deg) => deg * Math.PI / 180;
+}));
+// src/Renderer/Effects/BurstParts.js
+var _batch$7, _textures$17, CORNER_ORDER, BurstParts;
+var init_BurstParts = __esmMin((() => {
+	init_AuraBatch();
+	init_AuraBlend();
+	init_EffectPrimSim();
+	init_BurstPartsSim();
+	_batch$7 = new AuraBatch({
+		fog: true,
+		mergeAdditive: true
+	});
+	_textures$17 = /* @__PURE__ */ new Map();
+	CORNER_ORDER = [
+		3,
+		2,
+		1,
+		0
+	];
+	BurstParts = class {
+		/**
+		* @param {number} variant the helper's third argument
+		* @param {number} sets how many times the effect calls the helper
+		* @param {string} texture under data/texture/effect/
+		* @param {Entity} owner the actor, followed
+		* @param {number} startTick
+		*/
+		constructor(variant, sets, texture, owner, startTick) {
+			this.owner = owner;
+			this.position = owner ? owner.position : [
+				0,
+				0,
+				0
+			];
+			this.startTick = startTick || 0;
+			this.textureName = texture;
+			this.burst = createBurst(variant, sets);
+			this.looks = BURST_LOOKS[variant] || BURST_LOOKS[3];
+			this.widths = bladeWidths(variant);
+			this.points = [
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					0,
+					0
+				]
+			];
+		}
+		init(gl) {
+			sharedTexture(_textures$17, gl, this.textureName, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, () => {
+				this.ready = true;
+			});
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const ticks = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			while (this.burst.ticks < ticks) stepBurst(this.burst);
+			if (!burstAlive(this.burst)) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_batch$7.active || !this.texture) return;
+			const pos = this.owner ? this.owner.position : this.position;
+			const ox = pos[0] + .5;
+			const oy = -pos[2];
+			const oz = pos[1] + .5;
+			const points = this.points;
+			for (const blade of this.burst.blades) {
+				if (blade.counter <= 0 || blade.alpha < 1) continue;
+				for (let q = 0; q < 2; q++) {
+					const look = this.looks[q];
+					const corners = bladeCorners(blade, this.widths[q]);
+					for (let k = 0; k < 4; k++) {
+						const c = corners[CORNER_ORDER[k]];
+						points[k][0] = ox + c[0] / 5;
+						points[k][1] = oy + c[1] / 5;
+						points[k][2] = oz + c[2] / 5;
+					}
+					_batch$7.quad(this.texture, look.blend === "alpha" ? 1 : 0, points, QUAD_FAN, look.color[0] / 255, look.color[1] / 255, look.color[2] / 255, (blade.alpha & 255) / 255, 0);
+				}
+			}
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_batch$7.free(gl);
+			freeSharedTextures(_textures$17, gl);
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			_batch$7.begin(gl, modelView, projection, fog);
+			if (!_batch$7.active && typeof gl.createVertexArray === "function") {
+				_batch$7.active = true;
+				_batch$7.modelView.set(modelView);
+				_batch$7.projection.set(projection);
+				_batch$7.fog.use = !!(fog.use && fog.exist);
+				_batch$7.fog.near = fog.near;
+				_batch$7.fog.far = fog.far;
+				_batch$7.fog.color.set(fog.color);
+			}
+		}
+		static afterRender(gl) {
+			_batch$7.flush(gl);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
+}));
 // src/Renderer/Effects/LockOnTarget.vs?raw
 var LockOnTarget_default$1;
 var init_LockOnTarget$2 = __esmMin((() => {
@@ -292729,7 +292998,7 @@ var init_LockOnTarget$1 = __esmMin((() => {
 	LockOnTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uColor;\r\nout vec4 fragColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    fragColor     = textureSample;\r\n    fragColor.gb *= uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/LockOnTarget.js
-var _texture$8, _program$18, _buffer$6, mat4$6, _matrix$2, LockOnTarget;
+var _texture$9, _program$20, _buffer$6, mat4$6, _matrix$2, LockOnTarget;
 var init_LockOnTarget = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -292774,9 +293043,9 @@ var init_LockOnTarget = __esmMin((() => {
 			time /= 50;
 			time = Math.max(time, 1);
 			time = Math.min(time, 5);
-			gl.uniform3fv(_program$18.uniform.uPosition, this.target.position);
-			gl.uniform1f(_program$18.uniform.uSize, (6 - time) * 3);
-			gl.uniform1f(_program$18.uniform.uColor, color);
+			gl.uniform3fv(_program$20.uniform.uPosition, this.target.position);
+			gl.uniform1f(_program$20.uniform.uSize, (6 - time) * 3);
+			gl.uniform1f(_program$20.uniform.uColor, color);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			this.needCleanUp = this.endTick < tick;
 		}
@@ -292786,7 +293055,7 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static init(gl) {
-			_program$18 = WebGL_default.createShaderProgram(gl, LockOnTarget_default$1, LockOnTarget_default);
+			_program$20 = WebGL_default.createShaderProgram(gl, LockOnTarget_default$1, LockOnTarget_default);
 			_buffer$6 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$6);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -292825,8 +293094,8 @@ var init_LockOnTarget = __esmMin((() => {
 					ctx.translate(-this.width / 2, -this.height / 2);
 					ctx.drawImage(this, 0, 0);
 					ctx.restore();
-					_texture$8 = gl.createTexture();
-					gl.bindTexture(gl.TEXTURE_2D, _texture$8);
+					_texture$9 = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, _texture$9);
 					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -292841,13 +293110,13 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static free(gl) {
-			if (_texture$8) {
-				gl.deleteTexture(_texture$8);
-				_texture$8 = null;
+			if (_texture$9) {
+				gl.deleteTexture(_texture$9);
+				_texture$9 = null;
 			}
-			if (_program$18) {
-				gl.deleteProgram(_program$18);
-				_program$18 = null;
+			if (_program$20) {
+				gl.deleteProgram(_program$20);
+				_program$20 = null;
 			}
 			if (_buffer$6) gl.deleteBuffer(_buffer$6);
 			this.ready = false;
@@ -292858,11 +293127,11 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$18.uniform;
-			const attribute = _program$18.attribute;
+			const uniform = _program$20.uniform;
+			const attribute = _program$20.attribute;
 			mat4$6.identity(_matrix$2);
 			mat4$6.rotateY(_matrix$2, _matrix$2, tick / 4 / 180 * Math.PI);
-			gl.useProgram(_program$18);
+			gl.useProgram(_program$20);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$2);
@@ -292871,7 +293140,7 @@ var init_LockOnTarget = __esmMin((() => {
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, _texture$8);
+			gl.bindTexture(gl.TEXTURE_2D, _texture$9);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -292885,8 +293154,8 @@ var init_LockOnTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$18.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$18.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
 		}
 	};
 	/**
@@ -293048,7 +293317,7 @@ function tubeVertices(streak, dir, radius, out = new Float32Array(TUBE_VERTICES$
 	}
 	return out;
 }
-var _batch$6, _textures$15, TEXTURE$9, R, G, B, SIDES$2, TUBE_VERTICES$1, TUBE_INDICES$1, ArrowVulcan;
+var _batch$6, _textures$16, TEXTURE$9, R, G, B, SIDES$2, TUBE_VERTICES$1, TUBE_INDICES$1, ArrowVulcan;
 var init_ArrowVulcan = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
@@ -293058,7 +293327,7 @@ var init_ArrowVulcan = __esmMin((() => {
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$15 = /* @__PURE__ */ new Map();
+	_textures$16 = /* @__PURE__ */ new Map();
 	TEXTURE$9 = "alpha_center.tga";
 	R = STREAK$2.color[0] / 255;
 	G = STREAK$2.color[1] / 255;
@@ -293109,7 +293378,7 @@ var init_ArrowVulcan = __esmMin((() => {
 			const done = () => {
 				this.ready = true;
 			};
-			sharedTexture(_textures$15, gl, TEXTURE$9, (texture) => {
+			sharedTexture(_textures$16, gl, TEXTURE$9, (texture) => {
 				this.texture = texture;
 				done();
 			}, done);
@@ -293145,7 +293414,7 @@ var init_ArrowVulcan = __esmMin((() => {
 		}
 		static free(gl) {
 			_batch$6.free(gl);
-			freeSharedTextures(_textures$15, gl);
+			freeSharedTextures(_textures$16, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -293380,7 +293649,7 @@ var init_MagicTarget$1 = __esmMin((() => {
 	MagicTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uAlpha;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n        discard;\r\n    }\r\n\r\n    fragColor = vec4(textureSample.rgb, textureSample.a * uAlpha);\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/MagicTarget.js
-var _texture$7, _program$17, mat4$5, MagicTarget;
+var _texture$8, _program$19, mat4$5, MagicTarget;
 var init_MagicTarget = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -293435,14 +293704,14 @@ var init_MagicTarget = __esmMin((() => {
 		render(gl, tick) {
 			this.needCleanUp = this.endTick < tick;
 			if (!this.vertCount) return;
-			const attribute = _program$17.attribute;
+			const attribute = _program$19.attribute;
 			const angle = spinAngle(Math.max(0, Math.floor((tick - this.startTick) / PRIM_TICK_MS)), this.size);
 			mat4$5.identity(this.matrix);
 			mat4$5.rotateZ(this.matrix, this.matrix, angle);
-			gl.uniformMatrix4fv(_program$17.uniform.uRotationMat, false, this.matrix);
-			gl.uniform1f(_program$17.uniform.uAlpha, targetAlpha(angle) / 255);
+			gl.uniformMatrix4fv(_program$19.uniform.uRotationMat, false, this.matrix);
+			gl.uniform1f(_program$19.uniform.uAlpha, targetAlpha(angle) / 255);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			gl.uniform1f(_program$17.uniform.uCameraLatitude, Camera.getLatitude());
+			gl.uniform1f(_program$19.uniform.uCameraLatitude, Camera.getLatitude());
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
@@ -293453,10 +293722,10 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static init(gl) {
-			_program$17 = WebGL_default.createShaderProgram(gl, MagicTarget_default$1, MagicTarget_default);
+			_program$19 = WebGL_default.createShaderProgram(gl, MagicTarget_default$1, MagicTarget_default);
 			Client.loadFile("data/texture/effect/magic_target.tga", (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
-					_texture$7 = texture;
+					_texture$8 = texture;
 					this.ready = true;
 				});
 			});
@@ -293467,13 +293736,13 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static free(gl) {
-			if (_texture$7) {
-				gl.deleteTexture(_texture$7);
-				_texture$7 = null;
+			if (_texture$8) {
+				gl.deleteTexture(_texture$8);
+				_texture$8 = null;
 			}
-			if (_program$17) {
-				gl.deleteProgram(_program$17);
-				_program$17 = null;
+			if (_program$19) {
+				gl.deleteProgram(_program$19);
+				_program$19 = null;
 			}
 			this.ready = false;
 		}
@@ -293483,9 +293752,9 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$17.uniform;
-			const attribute = _program$17.attribute;
-			gl.useProgram(_program$17);
+			const uniform = _program$19.uniform;
+			const attribute = _program$19.attribute;
+			gl.useProgram(_program$19);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -293493,7 +293762,7 @@ var init_MagicTarget = __esmMin((() => {
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, _texture$7);
+			gl.bindTexture(gl.TEXTURE_2D, _texture$8);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -293504,8 +293773,8 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$17.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$17.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$19.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$19.attribute.aTextureCoord);
 		}
 	};
 	/**
@@ -293680,7 +293949,7 @@ var init_ColdHitSim = __esmMin((() => {
 	rad$5 = Math.PI / 180;
 }));
 // src/Renderer/Effects/ColdHit.js
-var _batch$5, _textures$14, SHARD_TEXTURE, PUFF_TEXTURE, PIXEL$1, _right$3, _up$1, CORNERS, ColdHit;
+var _batch$5, _textures$15, SHARD_TEXTURE, PUFF_TEXTURE, PIXEL$1, _right$3, _up$1, CORNERS$1, ColdHit;
 var init_ColdHit = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
@@ -293690,7 +293959,7 @@ var init_ColdHit = __esmMin((() => {
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$14 = /* @__PURE__ */ new Map();
+	_textures$15 = /* @__PURE__ */ new Map();
 	SHARD_TEXTURE = "ice.tga";
 	PUFF_TEXTURE = "smoke.tga";
 	PIXEL$1 = 1 / 35;
@@ -293704,7 +293973,7 @@ var init_ColdHit = __esmMin((() => {
 		1,
 		0
 	];
-	CORNERS = [
+	CORNERS$1 = [
 		[-1, -1],
 		[1, -1],
 		[1, 1],
@@ -293753,11 +294022,11 @@ var init_ColdHit = __esmMin((() => {
 			const done = () => {
 				if (++this.loaded === 2) this.ready = true;
 			};
-			sharedTexture(_textures$14, gl, SHARD_TEXTURE, (texture) => {
+			sharedTexture(_textures$15, gl, SHARD_TEXTURE, (texture) => {
 				this.shardTexture = texture;
 				done();
 			}, done);
-			sharedTexture(_textures$14, gl, PUFF_TEXTURE, (texture) => {
+			sharedTexture(_textures$15, gl, PUFF_TEXTURE, (texture) => {
 				this.puffTexture = texture;
 				done();
 			}, done);
@@ -293791,7 +294060,7 @@ var init_ColdHit = __esmMin((() => {
 				const age = t - 1 - puff.born;
 				if (age < 0 || age >= PUFF.life) continue;
 				const at = puffAt(puff, age + 1);
-				for (let k = 0; k < 4; k++) ColdHit.place(this.points[k], ox, oy, oz, at.x + CORNERS[k][0] * at.size, at.y + CORNERS[k][1] * at.size);
+				for (let k = 0; k < 4; k++) ColdHit.place(this.points[k], ox, oy, oz, at.x + CORNERS$1[k][0] * at.size, at.y + CORNERS$1[k][1] * at.size);
 				_batch$5.quad(this.puffTexture, 0, this.points, QUAD_FAN, 1, 1, 1, PUFF_ALPHAS[age] / 255, 0);
 			}
 			if (this.shardTexture && t - 1 < SHARD.life) {
@@ -293816,7 +294085,7 @@ var init_ColdHit = __esmMin((() => {
 		}
 		static free(gl) {
 			_batch$5.free(gl);
-			freeSharedTextures(_textures$14, gl);
+			freeSharedTextures(_textures$15, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -293889,7 +294158,7 @@ function planHitLines(random = Math.random, kind = HITLINE, aim = 0) {
 		if (kind.aimed) heading = ((aim + r$13(random, kind.aimRange) - kind.aimOffset) % 360 + 360) % 360;
 		else heading = r$13(random, 360);
 		const radius = kind.radius + r$13(random, kind.radiusRange);
-		const stretch = kind.stretch + .1 * r$13(random, kind.stretchRange);
+		const stretch = kind.stretchRange ? kind.stretch + .1 * r$13(random, kind.stretchRange) : kind.stretch;
 		out.push({
 			spawn,
 			wait,
@@ -293977,7 +294246,76 @@ function coreColor(i) {
 		c
 	];
 }
-var HITLINE, HITLINE_KINDS, HITLINE_LAST_TICK, r$13;
+/**
+* 330's head after m swept ticks: whole hops made, and the angle into this hop.
+*
+* @param {number} m swept ticks (0 or less: not started)
+* @param {number} [step] degrees a tick
+* @return {{hops: number, angle: number}}
+*/
+function spiralState(m, step = HITLINE_SPIRAL.step) {
+	if (m <= 0) return {
+		hops: 0,
+		angle: 0
+	};
+	const total = step * m;
+	const hops = Math.floor((total - 1) / 180);
+	return {
+		hops,
+		angle: total - 180 * hops
+	};
+}
+/**
+* 330's drawn trail: the head, then the last steps (the head twice, as the
+* client copies it into the trail).
+*
+* @param {number} c swept ticks
+* @param {number} [segments]
+* @return {Array<object>} segments + 1 states
+*/
+function spiralTrail(c, segments = HITLINE_SPIRAL.segments) {
+	const out = [spiralState(c)];
+	for (let k = 1; k <= segments; k++) out.push(spiralState(c - k + 1));
+	return out;
+}
+/**
+* Where 330's line stands at a state, relative to the target: hop n is 2 R 0.7^n
+* long and 1.5 R 0.7^n high.
+*
+* @param {object} line
+* @param {{hops: number, angle: number}} state
+* @return {Array<number>} [x, y, z], client axes (y down)
+*/
+function spiralPoint(line, state) {
+	const rad = Math.PI / 180;
+	const k = HITLINE_SPIRAL;
+	let out = 0;
+	let scale = 1;
+	for (let j = 0; j < state.hops; j++) {
+		out += 2 * line.radius * scale;
+		scale *= k.decay;
+	}
+	if (state.angle > 0) out += line.radius * scale * (state.angle / 90);
+	return [
+		Math.cos(line.heading * rad) * out,
+		-line.radius * Math.sin(Math.trunc(state.angle) * rad) * k.rise * scale,
+		Math.sin(line.heading * rad) * out
+	];
+}
+/**
+* 330's colour of segment k (mode 0).
+*
+* @param {number} k
+* @return {Array<number>} [r, g, b] 0..255
+*/
+function spiralColor(k) {
+	return [
+		255,
+		200,
+		10 + 7 * k & 255
+	];
+}
+var HITLINE, HITLINE_KINDS, HITLINE_SPIRAL, HITLINE_LAST_TICK, r$13;
 var init_HitLineSim = __esmMin((() => {
 	HITLINE = {
 		spawnTicks: [
@@ -294040,6 +294378,29 @@ var init_HitLineSim = __esmMin((() => {
 			core: .07
 		}
 	};
+	HITLINE_SPIRAL = {
+		...HITLINE,
+		spawnTicks: [
+			0,
+			1,
+			2,
+			3
+		],
+		waitRange: 26,
+		alphaRange: 51,
+		radiusRange: 8,
+		stretchRange: 0,
+		segments: 20,
+		segmentFade: 5,
+		core: .1,
+		glow: 0,
+		up: 0,
+		spiral: true,
+		step: 8,
+		decay: .7,
+		rise: 1.5
+	};
+	HITLINE_KINDS[330] = HITLINE_SPIRAL;
 	HITLINE_LAST_TICK = hitLineLastTick(HITLINE);
 	r$13 = (random, k) => Math.floor(random() * k);
 }));
@@ -294056,7 +294417,7 @@ var init_HitLineSim = __esmMin((() => {
 * @param {Float32Array} [out]
 * @return {Float32Array} x, y, z, u, v each
 */
-function segmentVertices(a, b, heading, radius, out = new Float32Array(TUBE_VERTICES * 5)) {
+function segmentVertices(a, b, heading, radius, out = new Float32Array(TUBE_VERTICES * 5), up = HITLINE.up) {
 	const rad = Math.PI / 180;
 	const px = -Math.sin(heading * rad);
 	const pz = Math.cos(heading * rad);
@@ -294066,7 +294427,7 @@ function segmentVertices(a, b, heading, radius, out = new Float32Array(TUBE_VERT
 		const side = radius * Math.cos(t);
 		ring.push([
 			px * side,
-			radius * Math.sin(t) - HITLINE.up,
+			radius * Math.sin(t) - up,
 			pz * side
 		]);
 	}
@@ -294086,7 +294447,7 @@ function segmentVertices(a, b, heading, radius, out = new Float32Array(TUBE_VERT
 	}
 	return out;
 }
-var _batch$4, _textures$13, TEXTURE$8, SIDES$1, TUBE_VERTICES, TUBE_INDICES, BLUE, HitLine;
+var _batch$4, _textures$14, TEXTURE$8, SIDES$1, TUBE_VERTICES, TUBE_INDICES, BLUE, HitLine;
 var init_HitLine = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
@@ -294096,7 +294457,7 @@ var init_HitLine = __esmMin((() => {
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$13 = /* @__PURE__ */ new Map();
+	_textures$14 = /* @__PURE__ */ new Map();
 	TEXTURE$8 = "white02.bmp";
 	SIDES$1 = HITLINE.sides;
 	TUBE_VERTICES = SIDES$1 * 4;
@@ -294148,7 +294509,7 @@ var init_HitLine = __esmMin((() => {
 			const done = () => {
 				this.ready = true;
 			};
-			sharedTexture(_textures$13, gl, TEXTURE$8, (texture) => {
+			sharedTexture(_textures$14, gl, TEXTURE$8, (texture) => {
 				this.texture = texture;
 				done();
 			}, done);
@@ -294164,7 +294525,7 @@ var init_HitLine = __esmMin((() => {
 				return;
 			}
 			if (!_batch$4.active || !this.texture) return;
-			const at = this.owner && this.owner.position;
+			const at = !this.kind.spiral && this.owner && this.owner.position;
 			if (at) {
 				this.position[0] = at[0];
 				this.position[1] = at[1];
@@ -294179,18 +294540,20 @@ var init_HitLine = __esmMin((() => {
 				const alpha = lineAlpha(line, c);
 				if (alpha <= 0) continue;
 				const kind = this.kind;
-				const angles = trailAngles(c, kind.segments);
+				const states = kind.spiral ? spiralTrail(c, kind.segments) : null;
+				const angles = kind.spiral ? null : trailAngles(c, kind.segments);
 				for (let i = 0; i < kind.segments; i++) {
-					const a = alpha - HITLINE.segmentFade * i;
-					if (a <= 0 || angles[i] === angles[i + 1]) continue;
-					const from = arcPoint(line, angles[i]);
-					const to = arcPoint(line, angles[i + 1]);
-					const [cr, cg, cb] = coreColor(i);
-					segmentVertices(from, to, line.heading, kind.core, this.core);
+					const a = alpha - kind.segmentFade * i;
+					const same = kind.spiral ? states[i].hops === states[i + 1].hops && states[i].angle === states[i + 1].angle : angles[i] === angles[i + 1];
+					if (a <= 0 || same) continue;
+					const from = kind.spiral ? spiralPoint(line, states[i]) : arcPoint(line, angles[i]);
+					const to = kind.spiral ? spiralPoint(line, states[i + 1]) : arcPoint(line, angles[i + 1]);
+					const [cr, cg, cb] = kind.spiral ? spiralColor(i) : coreColor(i);
+					segmentVertices(from, to, line.heading, kind.core, this.core, kind.up);
 					_batch$4.mesh(this.texture, 0, this.core, TUBE_VERTICES, TUBE_INDICES, x, y, z, cr / 255, cg / 255, cb / 255, a / 255, 0);
-					const glow = Math.trunc(a * .5);
+					const glow = kind.glow ? Math.trunc(a * .5) : 0;
 					if (glow > 0) {
-						segmentVertices(from, to, line.heading, kind.core * kind.glow, this.glow);
+						segmentVertices(from, to, line.heading, kind.core * kind.glow, this.glow, kind.up);
 						_batch$4.mesh(this.texture, 0, this.glow, TUBE_VERTICES, TUBE_INDICES, x, y, z, BLUE[0], BLUE[1], BLUE[2], glow / 255, 0);
 					}
 				}
@@ -294202,7 +294565,7 @@ var init_HitLine = __esmMin((() => {
 		}
 		static free(gl) {
 			_batch$4.free(gl);
-			freeSharedTextures(_textures$13, gl);
+			freeSharedTextures(_textures$14, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -294224,7 +294587,7 @@ var init_HitLine = __esmMin((() => {
 	};
 }));
 // src/DB/Effects/HitLineEffect.js
-var hitLine4Effect, hitLine5Effect, hitLine6Effect;
+var hitLine4Effect, hitLine5Effect, hitLine6Effect, hitLineEffect;
 var init_HitLineEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_HitLine();
@@ -294252,6 +294615,14 @@ var init_HitLineEffect = __esmMin((() => {
 		duration: Math.ceil((hitLineLastTick(HITLINE_KINDS[431]) + 1) * PRIM_TICK_MS),
 		func: function(Params) {
 			this.add(new HitLine(Params.Init.ownerEntity, Params.Inst.startTick, Math.random, HITLINE_KINDS[431]), Params);
+		}
+	}];
+	hitLineEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		duration: Math.ceil((hitLineLastTick(HITLINE_KINDS[330]) + 1) * PRIM_TICK_MS),
+		func: function(Params) {
+			this.add(new HitLine(Params.Init.ownerEntity, Params.Inst.startTick, Math.random, HITLINE_KINDS[330]), Params);
 		}
 	}];
 }));
@@ -294688,7 +295059,7 @@ var init_SpiritSphere$1 = __esmMin((() => {
 	SpiritSphere_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;    \r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform vec4 uColor;\r\nuniform sampler2D uDiffuse;\r\nfloat tmp;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    \r\n    textureSample *= uColor;\r\n    \r\n    /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {\r\n        discard;\r\n    }*/\r\n    \r\n    fragColor = textureSample;\r\n\r\n}";
 }));
 // src/Renderer/Effects/SpiritSphere.js
-var _texture$6, _program$16, _buffer$5, mat4$4, _rotationMatrices$1, SpiritSphere;
+var _texture$7, _program$18, _buffer$5, mat4$4, _rotationMatrices$1, SpiritSphere;
 var init_SpiritSphere = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -294723,7 +295094,7 @@ var init_SpiritSphere = __esmMin((() => {
 			this.ready = false;
 		}
 		static init(gl) {
-			_program$16 = WebGL_default.createShaderProgram(gl, SpiritSphere_default$1, SpiritSphere_default);
+			_program$18 = WebGL_default.createShaderProgram(gl, SpiritSphere_default$1, SpiritSphere_default);
 			_buffer$5 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$5);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -294761,8 +295132,8 @@ var init_SpiritSphere = __esmMin((() => {
 					ctx.translate(-this.width / 2, -this.height / 2);
 					ctx.drawImage(this, 0, 0);
 					ctx.restore();
-					_texture$6 = gl.createTexture();
-					gl.bindTexture(gl.TEXTURE_2D, _texture$6);
+					_texture$7 = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, _texture$7);
 					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -294772,21 +295143,21 @@ var init_SpiritSphere = __esmMin((() => {
 			});
 		}
 		static free(gl) {
-			if (_texture$6) {
-				gl.deleteTexture(_texture$6);
-				_texture$6 = null;
+			if (_texture$7) {
+				gl.deleteTexture(_texture$7);
+				_texture$7 = null;
 			}
-			if (_program$16) {
-				gl.deleteProgram(_program$16);
-				_program$16 = null;
+			if (_program$18) {
+				gl.deleteProgram(_program$18);
+				_program$18 = null;
 			}
 			if (_buffer$5) gl.deleteBuffer(_buffer$5);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$16.uniform;
-			const attribute = _program$16.attribute;
-			gl.useProgram(_program$16);
+			const uniform = _program$18.uniform;
+			const attribute = _program$18.attribute;
+			gl.useProgram(_program$18);
 			let _matrix, offset;
 			for (let i = 0, _len = _rotationMatrices$1.length; i < _len; i++) {
 				const vcRad = (Camera.angle[0] - 90) * Math.PI / 180;
@@ -294803,7 +295174,7 @@ var init_SpiritSphere = __esmMin((() => {
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, _texture$6);
+			gl.bindTexture(gl.TEXTURE_2D, _texture$7);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -294812,7 +295183,7 @@ var init_SpiritSphere = __esmMin((() => {
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
 		}
 		render(gl, tick) {
-			const uniform = _program$16.uniform;
+			const uniform = _program$18.uniform;
 			gl.uniform3fv(uniform.uPosition, this.position);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$5);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -294909,8 +295280,8 @@ var init_SpiritSphere = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$16.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$16.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$18.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$18.attribute.aTextureCoord);
 		}
 	};
 	SpiritSphere.renderBeforeEntities = false;
@@ -295066,7 +295437,7 @@ function bandVertices(points, out = new Float32Array(QUADS$1 * 4 * 5)) {
 	}
 	return out;
 }
-var _batch$3, _textures$12, TEXTURE$7, QUADS$1, INDICES$1, SmaSwirl;
+var _batch$3, _textures$13, TEXTURE$7, QUADS$1, INDICES$1, SmaSwirl;
 var init_SmaSwirl = __esmMin((() => {
 	init_AuraBatch();
 	init_AuraBlend();
@@ -295076,7 +295447,7 @@ var init_SmaSwirl = __esmMin((() => {
 		fog: true,
 		mergeAdditive: true
 	});
-	_textures$12 = /* @__PURE__ */ new Map();
+	_textures$13 = /* @__PURE__ */ new Map();
 	TEXTURE$7 = "ring_blue.tga";
 	QUADS$1 = SWIRL.points - 1;
 	INDICES$1 = new Uint16Array(QUADS$1 * 6);
@@ -295112,7 +295483,7 @@ var init_SmaSwirl = __esmMin((() => {
 			this.vertices = new Float32Array(QUADS$1 * 4 * 5);
 		}
 		init(gl) {
-			sharedTexture(_textures$12, gl, TEXTURE$7, (texture) => {
+			sharedTexture(_textures$13, gl, TEXTURE$7, (texture) => {
 				this.texture = texture;
 				this.ready = true;
 			}, () => {
@@ -295148,7 +295519,7 @@ var init_SmaSwirl = __esmMin((() => {
 		}
 		static free(gl) {
 			_batch$3.free(gl);
-			freeSharedTextures(_textures$12, gl);
+			freeSharedTextures(_textures$13, gl);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
@@ -295462,21 +295833,21 @@ function drainTrailLook(scale, i) {
 * @return {Array} [r, g, b]
 */
 function drainTint(frame) {
-	if (frame < TINT.first) return [
+	if (frame < TINT$2.first) return [
 		1,
 		1,
 		1
 	];
-	const c = 2 * (125 - Math.min(frame, TINT.last)) / 255;
-	const blue = TINT.blue / 255;
-	const back = Math.max(frame - TINT.last, 0) * TINT.recoverStep / 255;
+	const c = 2 * (125 - Math.min(frame, TINT$2.last)) / 255;
+	const blue = TINT$2.blue / 255;
+	const back = Math.max(frame - TINT$2.last, 0) * TINT$2.recoverStep / 255;
 	return [
 		Math.min(1, c + back),
 		Math.min(1, c + back),
 		Math.min(1, blue + back)
 	];
 }
-var DRAIN, SHADES$1, TINT;
+var DRAIN, SHADES$1, TINT$2;
 var init_EnergyDrainSim = __esmMin((() => {
 	DRAIN = {
 		ticks: 5,
@@ -295505,7 +295876,7 @@ var init_EnergyDrainSim = __esmMin((() => {
 			range: 100
 		}
 	};
-	TINT = {
+	TINT$2 = {
 		first: 50,
 		last: 80,
 		blue: 250,
@@ -295558,14 +295929,14 @@ function startDrainTint(entity) {
 	if (!entity || !entity.animations || !entity._flashColor) return;
 	entity.animations.add((tick) => {
 		const frame = Math.floor(tick / PRIM_TICK_MS);
-		if (frame < TINT.first) return false;
+		if (frame < TINT$2.first) return false;
 		const [r, g, b] = drainTint(frame);
 		entity._flashColor[0] = r;
 		entity._flashColor[1] = g;
 		entity._flashColor[2] = b;
 		entity._flashColor[3] = 1;
 		entity.recalculateBlendingColor();
-		return frame > TINT.last && r >= 1 && g >= 1 && b >= 1;
+		return frame > TINT$2.last && r >= 1 && g >= 1 && b >= 1;
 	});
 }
 /**
@@ -295804,7 +296175,7 @@ var init_WarlockSphere$1 = __esmMin((() => {
 	WarlockSphere_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform vec4 uColor;\r\nuniform sampler2D uDiffuse;\r\nfloat tmp;\r\nout vec4 fragColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    \r\n    textureSample *= uColor;\r\n    \r\n    /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {\r\n        discard;\r\n    }*/\r\n    \r\n    fragColor = textureSample;\r\n\r\n}";
 }));
 // src/Renderer/Effects/WarlockSphere.js
-var _texture$5, _program$15, _buffer$4, mat4$3, _rotationMatrices, WLS, SphereFiles, WarlockSphere;
+var _texture$6, _program$17, _buffer$4, mat4$3, _rotationMatrices, WLS, SphereFiles, WarlockSphere;
 var init_WarlockSphere = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -295849,7 +296220,7 @@ var init_WarlockSphere = __esmMin((() => {
 			this.ready = false;
 		}
 		static init(gl) {
-			_program$15 = WebGL_default.createShaderProgram(gl, WarlockSphere_default$1, WarlockSphere_default);
+			_program$17 = WebGL_default.createShaderProgram(gl, WarlockSphere_default$1, WarlockSphere_default);
 			_buffer$4 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$4);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -295887,8 +296258,8 @@ var init_WarlockSphere = __esmMin((() => {
 					ctx.translate(-this.width / 2, -this.height / 2);
 					ctx.drawImage(this, 0, 0);
 					ctx.restore();
-					_texture$5 = gl.createTexture();
-					gl.bindTexture(gl.TEXTURE_2D, _texture$5);
+					_texture$6 = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, _texture$6);
 					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -295898,21 +296269,21 @@ var init_WarlockSphere = __esmMin((() => {
 			});
 		}
 		static free(gl) {
-			if (_texture$5) {
-				gl.deleteTexture(_texture$5);
-				_texture$5 = null;
+			if (_texture$6) {
+				gl.deleteTexture(_texture$6);
+				_texture$6 = null;
 			}
-			if (_program$15) {
-				gl.deleteProgram(_program$15);
-				_program$15 = null;
+			if (_program$17) {
+				gl.deleteProgram(_program$17);
+				_program$17 = null;
 			}
 			if (_buffer$4) gl.deleteBuffer(_buffer$4);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$15.uniform;
-			const attribute = _program$15.attribute;
-			gl.useProgram(_program$15);
+			const uniform = _program$17.uniform;
+			const attribute = _program$17.attribute;
+			gl.useProgram(_program$17);
 			let _matrix, offset;
 			for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
 				const vcRad = (Camera.angle[0] - 90) * Math.PI / 180;
@@ -295929,7 +296300,7 @@ var init_WarlockSphere = __esmMin((() => {
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, _texture$5);
+			gl.bindTexture(gl.TEXTURE_2D, _texture$6);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -295938,7 +296309,7 @@ var init_WarlockSphere = __esmMin((() => {
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
 		}
 		render(gl, tick) {
-			const uniform = _program$15.uniform;
+			const uniform = _program$17.uniform;
 			gl.uniform3fv(uniform.uPosition, this.position);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$4);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -296035,8 +296406,8 @@ var init_WarlockSphere = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$15.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$15.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$17.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$17.attribute.aTextureCoord);
 		}
 	};
 	WarlockSphere.renderBeforeEntities = false;
@@ -296129,7 +296500,7 @@ function bubbleFrame(t) {
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$9(out, i, center, x, y, up, u, v) {
+function vertex$10(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -296156,7 +296527,7 @@ function buildCone(out, t, center) {
 		const turn = (band.turn + 3 * t) % 360;
 		return {
 			turn,
-			foot: FOOT$1 + Math.sin(turn * DEG$11),
+			foot: FOOT$1 + Math.sin(turn * DEG$15),
 			tilt: band.tilt,
 			length: LENGTH
 		};
@@ -296188,15 +296559,15 @@ function buildBands(out, t, center, bands) {
 	let o = 0;
 	for (let b = 0; b < bands.length; b++) {
 		const { turn, foot, tilt, length: base } = bands[b];
-		const lean = Math.cos(tilt * DEG$11);
-		const rise = Math.sin(tilt * DEG$11);
-		const swell = Math.sin(swellPhase(b, t) * DEG$11);
+		const lean = Math.cos(tilt * DEG$15);
+		const rise = Math.sin(tilt * DEG$15);
+		const swell = Math.sin(swellPhase(b, t) * DEG$15);
 		let prev = null;
 		for (let j = 0; j <= 20; j++) {
-			const angle = (turn + 18 * j) * DEG$11;
+			const angle = (turn + 18 * j) * DEG$15;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
-			const length = base * (1 + .3 * Math.sin(9 * j * DEG$11) * swell);
+			const length = base * (1 + .3 * Math.sin(9 * j * DEG$15) * swell);
 			const point = {
 				fx: foot * cos,
 				fy: foot * sin,
@@ -296206,12 +296577,12 @@ function buildBands(out, t, center, bands) {
 				u: j / 21
 			};
 			if (prev) {
-				o = vertex$9(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
-				o = vertex$9(out, o, center, point.fx, point.fy, 0, point.u, 1);
-				o = vertex$9(out, o, center, point.tx, point.ty, point.up, point.u, 0);
-				o = vertex$9(out, o, center, point.tx, point.ty, point.up, point.u, 0);
-				o = vertex$9(out, o, center, prev.tx, prev.ty, prev.up, prev.u, 0);
-				o = vertex$9(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
+				o = vertex$10(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
+				o = vertex$10(out, o, center, point.fx, point.fy, 0, point.u, 1);
+				o = vertex$10(out, o, center, point.tx, point.ty, point.up, point.u, 0);
+				o = vertex$10(out, o, center, point.tx, point.ty, point.up, point.u, 0);
+				o = vertex$10(out, o, center, prev.tx, prev.ty, prev.up, prev.u, 0);
+				o = vertex$10(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
 			}
 			prev = point;
 		}
@@ -296234,14 +296605,14 @@ function buildGround(out, t, center) {
 	let o = 0;
 	for (const layer of GROUND.layers) {
 		const pulse = (layer.pulse + 3 * t) % 360;
-		const reach = GROUND.size * (.8 + .1 * (1 + Math.sin(pulse * DEG$11)));
+		const reach = GROUND.size * (.8 + .1 * (1 + Math.sin(pulse * DEG$15)));
 		const corners = [
 			0,
 			1,
 			2,
 			3
 		].map((k) => {
-			const a = (layer.angle + 90 * k) * DEG$11;
+			const a = (layer.angle + 90 * k) * DEG$15;
 			return [Math.cos(a) * reach, Math.sin(a) * reach];
 		});
 		for (const k of [
@@ -296251,13 +296622,13 @@ function buildGround(out, t, center) {
 			2,
 			3,
 			0
-		]) o = vertex$9(out, o, center, corners[k][0], corners[k][1], 1, uv[k][0], uv[k][1]);
+		]) o = vertex$10(out, o, center, corners[k][0], corners[k][1], 1, uv[k][0], uv[k][1]);
 	}
 }
-var DEG$11, BANDS$2, LENGTH, FOOT$1, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE$1, GROUND, CONE_VERTICES, GROUND_VERTICES;
+var DEG$15, BANDS$2, LENGTH, FOOT$1, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE$1, GROUND, CONE_VERTICES, GROUND_VERTICES;
 var init_CastConeSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$11 = Math.PI / 180;
+	DEG$15 = Math.PI / 180;
 	BANDS$2 = [
 		{
 			tilt: 75,
@@ -296419,22 +296790,22 @@ var init_CastConeSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastCone.js
 function loadTexture$10(gl, name) {
-	if (_textures$11.has(name)) return;
-	_textures$11.set(name, null);
+	if (_textures$12.has(name)) return;
+	_textures$12.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$11.has(name)) {
+			if (!_textures$12.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$11.set(name, texture);
+			_textures$12.set(name, texture);
 		});
 	});
 }
 function bubbleName(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var BAND_VERTICES, _program$14, _textures$11, CastCone;
+var BAND_VERTICES, _program$16, _textures$12, CastCone;
 var init_CastCone = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -296443,8 +296814,8 @@ var init_CastCone = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	BAND_VERTICES = 120;
-	_program$14 = null;
-	_textures$11 = /* @__PURE__ */ new Map();
+	_program$16 = null;
+	_textures$12 = /* @__PURE__ */ new Map();
 	CastCone = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -296478,7 +296849,7 @@ var init_CastCone = __esmMin((() => {
 			}
 		}
 		upload(gl, data) {
-			const attribute = _program$14.attribute;
+			const attribute = _program$16.attribute;
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 			gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
@@ -296493,7 +296864,7 @@ var init_CastCone = __esmMin((() => {
 			this.color[1] = rgb[1] / 255;
 			this.color[2] = rgb[2] / 255;
 			this.color[3] = Math.min(255, alpha) / 255;
-			gl.uniform4fv(_program$14.uniform.uColor, this.color);
+			gl.uniform4fv(_program$16.uniform.uColor, this.color);
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			if (!additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.drawArrays(gl.TRIANGLES, first, count);
@@ -296513,7 +296884,7 @@ var init_CastCone = __esmMin((() => {
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
-				const texture = _textures$11.get(bubbleName(bubbleFrame(t)));
+				const texture = _textures$12.get(bubbleName(bubbleFrame(t)));
 				if (self.pulse) {
 					for (const crown of PULSE_CROWNS) {
 						const states = pulseBands(t, self.frames, crown.alpha);
@@ -296525,7 +296896,7 @@ var init_CastCone = __esmMin((() => {
 				}
 				if (self.ground) {
 					buildGround(self.squares, t, self.position);
-					self.pass(gl, self.squares, GROUND_VERTICES, _textures$11.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
+					self.pass(gl, self.squares, GROUND_VERTICES, _textures$12.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
 				}
 				const alpha = bandAlpha$1(t, self.frames);
 				buildCone(self.cone, t, self.position);
@@ -296538,23 +296909,23 @@ var init_CastCone = __esmMin((() => {
 			});
 		}
 		static init(gl) {
-			_program$14 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$16 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$14) {
-				gl.deleteProgram(_program$14);
-				_program$14 = null;
+			if (_program$16) {
+				gl.deleteProgram(_program$16);
+				_program$16 = null;
 			}
-			for (const texture of _textures$11.values()) if (texture) gl.deleteTexture(texture);
-			_textures$11.clear();
+			for (const texture of _textures$12.values()) if (texture) gl.deleteTexture(texture);
+			_textures$12.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$14.uniform;
-			const attribute = _program$14.attribute;
-			gl.useProgram(_program$14);
+			const uniform = _program$16.uniform;
+			const attribute = _program$16.attribute;
+			gl.useProgram(_program$16);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -296569,8 +296940,8 @@ var init_CastCone = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$14.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$14.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$16.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$16.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -296616,15 +296987,15 @@ function bandAlpha(b, t, frames, tinted = false) {
 */
 function pointHeight$2(b, j, t, tinted = false) {
 	const band = BANDS$1[b];
-	const full = band.height * Math.sin(9 * j * DEG$10);
-	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$10));
+	const full = band.height * Math.sin(9 * j * DEG$14);
+	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$14));
 	if (!band.pulse || tinted || t === 91) return Math.max(0, full);
-	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$10);
+	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$14);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$8(out, i, center, x, y, up, u, v) {
+function vertex$9(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -296648,12 +297019,12 @@ function buildBand$1(out, o, b, t, center, tinted) {
 	const band = BANDS$1[b];
 	const step = Math.floor(band.arc / 20);
 	const turn = (band.turn + band.spin * t) % 360;
-	const lean = Math.cos(band.tilt * DEG$10);
-	const rise = Math.sin(band.tilt * DEG$10);
+	const lean = Math.cos(band.tilt * DEG$14);
+	const rise = Math.sin(band.tilt * DEG$14);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$10;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$14;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$2(b, j, t, tinted);
@@ -296667,12 +297038,12 @@ function buildBand$1(out, o, b, t, center, tinted) {
 		if (prev) {
 			const u0 = (j - 1) / 21;
 			const u1 = j / 21;
-			o = vertex$8(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex$8(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex$8(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$8(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex$8(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$8(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$9(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$9(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$9(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$9(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$9(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$9(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 		}
 		prev = point;
 	}
@@ -296697,10 +297068,10 @@ function buildCircle(out, t, center, tinted = false) {
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$10, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
+var DEG$14, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
 var init_CastCircleSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$10 = Math.PI / 180;
+	DEG$14 = Math.PI / 180;
 	FADE = 40;
 	BANDS$1 = [
 		{
@@ -296771,19 +297142,19 @@ var init_CastCircleSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/CastCircle.js
 function loadTexture$9(gl, name) {
-	if (_textures$10.has(name)) return;
-	_textures$10.set(name, null);
+	if (_textures$11.has(name)) return;
+	_textures$11.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$10.has(name)) {
+			if (!_textures$11.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$10.set(name, texture);
+			_textures$11.set(name, texture);
 		});
 	});
 }
-var _program$13, _textures$10, CastCircle;
+var _program$15, _textures$11, CastCircle;
 var init_CastCircle = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -296791,8 +297162,8 @@ var init_CastCircle = __esmMin((() => {
 	init_CastCircleSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$13 = null;
-	_textures$10 = /* @__PURE__ */ new Map();
+	_program$15 = null;
+	_textures$11 = /* @__PURE__ */ new Map();
 	CastCircle = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -296836,11 +297207,11 @@ var init_CastCircle = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			const texture = _textures$10.get(this.texture);
+			const texture = _textures$11.get(this.texture);
 			if (!texture) return;
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const starts = buildCircle(this.vertices, t, this.position, this.tinted);
-			const attribute = _program$13.attribute;
+			const attribute = _program$15.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -296853,30 +297224,30 @@ var init_CastCircle = __esmMin((() => {
 					const alpha = bandAlpha(b, t, self.frames, self.tinted);
 					if (alpha <= 0) continue;
 					self.color[3] = alpha / 255;
-					gl.uniform4fv(_program$13.uniform.uColor, self.color);
+					gl.uniform4fv(_program$15.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, starts[b], starts[b + 1] - starts[b]);
 				}
 				if (self.additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			});
 		}
 		static init(gl) {
-			_program$13 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$15 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$13) {
-				gl.deleteProgram(_program$13);
-				_program$13 = null;
+			if (_program$15) {
+				gl.deleteProgram(_program$15);
+				_program$15 = null;
 			}
-			for (const texture of _textures$10.values()) if (texture) gl.deleteTexture(texture);
-			_textures$10.clear();
+			for (const texture of _textures$11.values()) if (texture) gl.deleteTexture(texture);
+			_textures$11.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$13.uniform;
-			const attribute = _program$13.attribute;
-			gl.useProgram(_program$13);
+			const uniform = _program$15.uniform;
+			const attribute = _program$15.attribute;
+			gl.useProgram(_program$15);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -296890,8 +297261,8 @@ var init_CastCircle = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$13.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$13.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$15.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$15.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -297094,12 +297465,12 @@ function ringHeight(b, j, t) {
 	const band = RING_BANDS[b];
 	const age = Math.min(t, GROW);
 	const amplitude = band.height * Math.pow(band.grow, age);
-	return Math.max(0, amplitude * Math.sin(9 * j * DEG$9) * Math.sin(age * DEG$9));
+	return Math.max(0, amplitude * Math.sin(9 * j * DEG$13) * Math.sin(age * DEG$13));
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$7(out, i, center, x, y, up, u, v) {
+function vertex$8(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -297110,12 +297481,12 @@ function vertex$7(out, i, center, x, y, up, u, v) {
 function buildBand(out, o, b, t, turn, center) {
 	const band = RING_BANDS[b];
 	const step = Math.floor(band.arc / 20);
-	const lean = Math.cos(band.tilt * DEG$9);
-	const rise = Math.sin(band.tilt * DEG$9);
+	const lean = Math.cos(band.tilt * DEG$13);
+	const rise = Math.sin(band.tilt * DEG$13);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$9;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$13;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = ringHeight(b, j, t);
@@ -297129,12 +297500,12 @@ function buildBand(out, o, b, t, turn, center) {
 		if (prev) {
 			const u0 = (j - 1) / 21;
 			const u1 = j / 21;
-			o = vertex$7(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex$7(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex$7(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$7(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex$7(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$7(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$8(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$8(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$8(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$8(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$8(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$8(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 		}
 		prev = point;
 	}
@@ -297160,10 +297531,10 @@ function buildRings(out, t, turns, center) {
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$9, GROW, RING_COLOR, RING_BANDS, RING_VERTICES$3;
+var DEG$13, GROW, RING_COLOR, RING_BANDS, RING_VERTICES$3;
 var init_AcidDemonRingSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$9 = Math.PI / 180;
+	DEG$13 = Math.PI / 180;
 	GROW = 90;
 	RING_COLOR = [
 		255,
@@ -297211,7 +297582,7 @@ var init_AcidDemonRingSim = __esmMin((() => {
 	RING_VERTICES$3 = RING_BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 }));
 // src/Renderer/Effects/AcidDemonRing.js
-var TEXTURE$6, _program$12, _texture$4, _generation$3, AcidDemonRing;
+var TEXTURE$6, _program$14, _texture$5, _generation$5, AcidDemonRing;
 var init_AcidDemonRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -297220,9 +297591,9 @@ var init_AcidDemonRing = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	TEXTURE$6 = "data/texture/effect/ring_black.tga";
-	_program$12 = null;
-	_texture$4 = null;
-	_generation$3 = 0;
+	_program$14 = null;
+	_texture$5 = null;
+	_generation$5 = 0;
 	AcidDemonRing = class {
 		/**
 		* @param {vec3} position the target's cell (the effect copies it: the rings stay put)
@@ -297258,56 +297629,56 @@ var init_AcidDemonRing = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			if (!_texture$4) return;
+			if (!_texture$5) return;
 			const t = Math.min(44, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const alpha = ringAlpha(t);
 			if (alpha <= 0) return;
 			const starts = buildRings(this.vertices, t, this.turns, this.position);
-			const attribute = _program$12.attribute;
+			const attribute = _program$14.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
 				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
 				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-				gl.bindTexture(gl.TEXTURE_2D, _texture$4);
+				gl.bindTexture(gl.TEXTURE_2D, _texture$5);
 				self.color[3] = alpha / 255;
-				gl.uniform4fv(_program$12.uniform.uColor, self.color);
+				gl.uniform4fv(_program$14.uniform.uColor, self.color);
 				gl.drawArrays(gl.TRIANGLES, 0, starts[starts.length - 1]);
 			});
 		}
 		static init(gl) {
-			_program$12 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			const generation = ++_generation$3;
+			_program$14 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			const generation = ++_generation$5;
 			Client.loadFile(TEXTURE$6, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
-					if (generation !== _generation$3) {
+					if (generation !== _generation$5) {
 						gl.deleteTexture(texture);
 						return;
 					}
-					if (_texture$4) gl.deleteTexture(_texture$4);
-					_texture$4 = texture;
+					if (_texture$5) gl.deleteTexture(_texture$5);
+					_texture$5 = texture;
 				});
 			});
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_generation$3++;
-			if (_program$12) {
-				gl.deleteProgram(_program$12);
-				_program$12 = null;
+			_generation$5++;
+			if (_program$14) {
+				gl.deleteProgram(_program$14);
+				_program$14 = null;
 			}
-			if (_texture$4) {
-				gl.deleteTexture(_texture$4);
-				_texture$4 = null;
+			if (_texture$5) {
+				gl.deleteTexture(_texture$5);
+				_texture$5 = null;
 			}
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$12.uniform;
-			const attribute = _program$12.attribute;
-			gl.useProgram(_program$12);
+			const uniform = _program$14.uniform;
+			const attribute = _program$14.attribute;
+			gl.useProgram(_program$14);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -297321,8 +297692,8 @@ var init_AcidDemonRing = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$12.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$12.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$14.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$14.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -297698,7 +298069,7 @@ function tintColor(tint) {
 * @param {function} rand (n) => 0..n-1
 * @return {object}
 */
-function createVariantStreak(variant, rand = randomInt$2) {
+function createVariantStreak(variant, rand = randomInt$3) {
 	const side = variant % 10 === 0 ? -1 : 1;
 	const offset = (15 + rand(11)) * side;
 	const position = rand(200);
@@ -297738,7 +298109,7 @@ function createVariantStreak(variant, rand = randomInt$2) {
 * @param {function} rand
 * @return {Array<object>}
 */
-function createVariantSets(variants, rand = randomInt$2) {
+function createVariantSets(variants, rand = randomInt$3) {
 	const streaks = [];
 	for (const variant of variants) for (let i = 0; i < 4; i++) streaks.push(createVariantStreak(variant, rand));
 	return streaks;
@@ -297749,7 +298120,7 @@ function createVariantSets(variants, rand = randomInt$2) {
 * @param {number} n
 * @return {number}
 */
-function randomInt$2(n) {
+function randomInt$3(n) {
 	return Math.floor(Math.random() * n);
 }
 /**
@@ -297776,7 +298147,7 @@ function streakAngle(dx, dy) {
 * @param {function} rand (n) => 0..n-1
 * @return {object}
 */
-function createStreak$1(side, rand = randomInt$2) {
+function createStreak$1(side, rand = randomInt$3) {
 	return {
 		age: 0,
 		alpha: 0,
@@ -297794,7 +298165,7 @@ function createStreak$1(side, rand = randomInt$2) {
 * @param {function} rand (n) => 0..n-1
 * @return {Array<object>} streaks, each with its set's texture key
 */
-function createStreakSets(rand = randomInt$2) {
+function createStreakSets(rand = randomInt$3) {
 	const streaks = [];
 	for (let round = 0; round < 2; round++) for (const set of SET_ORDER) for (let i = 0; i < 4; i++) {
 		const streak = createStreak$1(set.side, rand);
@@ -297837,7 +298208,7 @@ function advanceStreaks(streaks, frame) {
 * Write one vertex in roBrowser's GL space
 * (x, y on the map, up above the ground; GL keeps the map plane in x/z and points y down)
 */
-function vertex$6(out, i, center, x, y, up, u, v) {
+function vertex$7(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -297872,12 +298243,12 @@ function buildStreak(out, o, streak, angle, center) {
 	const backOuter = p(back, outer);
 	const frontOuter = p(front, outer);
 	const h = 6;
-	o = vertex$6(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
-	o = vertex$6(out, o, center, backInner[0], backInner[1], h, 1, 1);
-	o = vertex$6(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
-	o = vertex$6(out, o, center, frontOuter[0], frontOuter[1], h, 0, 0);
-	o = vertex$6(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
-	o = vertex$6(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
+	o = vertex$7(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
+	o = vertex$7(out, o, center, backInner[0], backInner[1], h, 1, 1);
+	o = vertex$7(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
+	o = vertex$7(out, o, center, frontOuter[0], frontOuter[1], h, 0, 0);
+	o = vertex$7(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
+	o = vertex$7(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
 	return o;
 }
 var STREAK_TICK_MS, SET_ORDER, TINT_GREY, TINT_COLOR;
@@ -297956,19 +298327,19 @@ var init_StreakLinesSim = __esmMin((() => {
 }));
 // src/Renderer/Effects/StreakLines.js
 function loadTexture$8(gl, name) {
-	if (_textures$9.has(name)) return;
-	_textures$9.set(name, null);
+	if (_textures$10.has(name)) return;
+	_textures$10.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$9.has(name)) {
+			if (!_textures$10.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$9.set(name, texture);
+			_textures$10.set(name, texture);
 		});
 	});
 }
-var _program$11, _textures$9, StreakLines;
+var _program$13, _textures$10, StreakLines;
 var init_StreakLines = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -297976,8 +298347,8 @@ var init_StreakLines = __esmMin((() => {
 	init_StreakLinesSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$11 = null;
-	_textures$9 = /* @__PURE__ */ new Map();
+	_program$13 = null;
+	_textures$10 = /* @__PURE__ */ new Map();
 	StreakLines = class {
 		/**
 		* @param {vec3} position caster position (copied: the sets stay where they start)
@@ -298029,7 +298400,7 @@ var init_StreakLines = __esmMin((() => {
 			const streaks = this.streaks;
 			let o = 0;
 			for (const streak of streaks) o = buildStreak(this.vertices, o, streak, this.angle, this.position);
-			const attribute = _program$11.attribute;
+			const attribute = _program$13.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -298039,7 +298410,7 @@ var init_StreakLines = __esmMin((() => {
 				let bound = null;
 				for (let i = 0; i < streaks.length; i++) {
 					const streak = streaks[i];
-					const texture = _textures$9.get(self.textures[streak.texture]);
+					const texture = _textures$10.get(self.textures[streak.texture]);
 					if (streak.alpha <= 0 || !texture) continue;
 					if (texture !== bound) {
 						gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -298050,29 +298421,29 @@ var init_StreakLines = __esmMin((() => {
 					self.color[1] = g / 255;
 					self.color[2] = b / 255;
 					self.color[3] = streak.alpha / 255;
-					gl.uniform4fv(_program$11.uniform.uColor, self.color);
+					gl.uniform4fv(_program$13.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, i * 6, 6);
 				}
 			});
 		}
 		static init(gl) {
-			_program$11 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$13 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$11) {
-				gl.deleteProgram(_program$11);
-				_program$11 = null;
+			if (_program$13) {
+				gl.deleteProgram(_program$13);
+				_program$13 = null;
 			}
-			for (const texture of _textures$9.values()) if (texture) gl.deleteTexture(texture);
-			_textures$9.clear();
+			for (const texture of _textures$10.values()) if (texture) gl.deleteTexture(texture);
+			_textures$10.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$11.uniform;
-			const attribute = _program$11.attribute;
-			gl.useProgram(_program$11);
+			const uniform = _program$13.uniform;
+			const attribute = _program$13.attribute;
+			gl.useProgram(_program$13);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -298086,8 +298457,8 @@ var init_StreakLines = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$11.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$11.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$13.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$13.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -298296,13 +298667,13 @@ function simulateRing(i, variant, lowEffects = false) {
 */
 function pointHeight$1(variant, j, age) {
 	let h = WIDTH[variant] * taper(j);
-	if (age <= 15) h *= Math.sin(6 * age * DEG$8);
+	if (age <= 15) h *= Math.sin(6 * age * DEG$12);
 	return Math.max(0, h);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$5(out, o, center, x, y, up, u, v) {
+function vertex$6(out, o, center, x, y, up, u, v) {
 	out[o + 0] = center[0] + .5 + x / 5;
 	out[o + 1] = -center[2] - up / 5;
 	out[o + 2] = center[1] + .5 + y / 5;
@@ -298322,15 +298693,15 @@ function vertex$5(out, o, center, x, y, up, u, v) {
 * @return {number} float index after the ring
 */
 function buildRing$1(out, o, state, variant, heading, center) {
-	const lean = Math.cos(state.lean * DEG$8);
-	const rise = Math.sin(state.lean * DEG$8);
-	const dx = state.drift * Math.cos(heading * DEG$8);
-	const dy = state.drift * Math.sin(heading * DEG$8);
+	const lean = Math.cos(state.lean * DEG$12);
+	const rise = Math.sin(state.lean * DEG$12);
+	const dx = state.drift * Math.cos(heading * DEG$12);
+	const dy = state.drift * Math.sin(heading * DEG$12);
 	const start = heading + 195;
 	let prev = null;
 	for (let n = 0, a = 0; a <= ARC; n++, a += STEP$1) {
 		const j = Math.min(n, 20);
-		const angle = (start + a) * DEG$8;
+		const angle = (start + a) * DEG$12;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$1(variant, j, state.age);
@@ -298344,12 +298715,12 @@ function buildRing$1(out, o, state, variant, heading, center) {
 		if (prev) {
 			const u0 = (j - 1) / 21;
 			const u1 = j / 21;
-			o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex$5(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$5(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$6(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$6(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$6(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$6(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$6(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$6(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 		}
 		prev = point;
 	}
@@ -298364,12 +298735,12 @@ function buildRing$1(out, o, state, variant, heading, center) {
 * @return {number}
 */
 function headingTo$1(from, to) {
-	return (Math.atan2(to[1] - from[1], to[0] - from[0]) / DEG$8 + 360) % 360;
+	return (Math.atan2(to[1] - from[1], to[0] - from[0]) / DEG$12 + 360) % 360;
 }
-var DEG$8, STEP$1, ARC, SET_AGES, DRIFT, WAVE_TEXTURES, WIDTH, FOOT, TAPER, WAVE_FRAMES;
+var DEG$12, STEP$1, ARC, SET_AGES, DRIFT, WAVE_TEXTURES, WIDTH, FOOT, TAPER, WAVE_FRAMES;
 var init_SonicWaveSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$8 = Math.PI / 180;
+	DEG$12 = Math.PI / 180;
 	STEP$1 = 15;
 	ARC = 315;
 	SET_AGES = [
@@ -298398,7 +298769,7 @@ var init_SonicWaveSim = __esmMin((() => {
 	].map((i) => simulateRing(i, variant).length)));
 }));
 // src/Renderer/Effects/SonicWave.js
-var _program$10, _textures$8, _generation$2, RINGS, SonicWave;
+var _program$12, _textures$9, _generation$4, RINGS, SonicWave;
 var init_SonicWave = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -298407,9 +298778,9 @@ var init_SonicWave = __esmMin((() => {
 	init_SonicWaveSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$10 = null;
-	_textures$8 = [null, null];
-	_generation$2 = 0;
+	_program$12 = null;
+	_textures$9 = [null, null];
+	_generation$4 = 0;
 	RINGS = 4;
 	SonicWave = class {
 		/**
@@ -298473,9 +298844,9 @@ var init_SonicWave = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			const texture = _textures$8[this.variant];
+			const texture = _textures$9[this.variant];
 			if (!texture) return;
-			const attribute = _program$10.attribute;
+			const attribute = _program$12.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -298488,23 +298859,23 @@ var init_SonicWave = __esmMin((() => {
 					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 					self.color[3] = state.alpha / 255;
-					gl.uniform4fv(_program$10.uniform.uColor, self.color);
+					gl.uniform4fv(_program$12.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, 0, end / 5);
 				}
 			});
 		}
 		static init(gl) {
-			_program$10 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			const generation = ++_generation$2;
+			_program$12 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			const generation = ++_generation$4;
 			WAVE_TEXTURES.forEach((file, variant) => {
 				Client.loadFile(file, (buffer) => {
 					WebGL_default.texture(gl, buffer, (texture) => {
-						if (generation !== _generation$2) {
+						if (generation !== _generation$4) {
 							gl.deleteTexture(texture);
 							return;
 						}
-						if (_textures$8[variant]) gl.deleteTexture(_textures$8[variant]);
-						_textures$8[variant] = texture;
+						if (_textures$9[variant]) gl.deleteTexture(_textures$9[variant]);
+						_textures$9[variant] = texture;
 					});
 				});
 			});
@@ -298512,23 +298883,23 @@ var init_SonicWave = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_generation$2++;
-			if (_program$10) {
-				gl.deleteProgram(_program$10);
-				_program$10 = null;
+			_generation$4++;
+			if (_program$12) {
+				gl.deleteProgram(_program$12);
+				_program$12 = null;
 			}
-			_textures$8.forEach((texture, variant) => {
+			_textures$9.forEach((texture, variant) => {
 				if (texture) {
 					gl.deleteTexture(texture);
-					_textures$8[variant] = null;
+					_textures$9[variant] = null;
 				}
 			});
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$10.uniform;
-			const attribute = _program$10.attribute;
-			gl.useProgram(_program$10);
+			const uniform = _program$12.uniform;
+			const attribute = _program$12.attribute;
+			gl.useProgram(_program$12);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -298542,8 +298913,390 @@ var init_SonicWave = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$10.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$10.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$12.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$12.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/Renderer/Effects/DupleLightSim.js
+/**
+* @param {number} n
+* @return {number} 0..n-1
+*/
+function randomInt$2(n) {
+	return Math.floor(Math.random() * n);
+}
+/**
+* Build one orb.
+*
+* @param {number} phase degrees round the actor
+* @param {function} [rand]
+* @return {object}
+*/
+function createOrb(phase, rand = randomInt$2) {
+	const wander = [];
+	for (let i = 0; i < 6; i++) wander.push(rand(360));
+	const spin = rand(360);
+	const sparks = [];
+	for (let i = 0; i < 4; i++) sparks.push({
+		age: 0 - 20 * i,
+		turn: rand(360),
+		size: 3,
+		heading: rand(360),
+		alpha: 200,
+		shown: 0
+	});
+	return {
+		age: 0,
+		alpha: 0,
+		phase,
+		wander,
+		spin,
+		sparks,
+		center: [
+			0,
+			0,
+			0
+		]
+	};
+}
+/**
+* Build the status's orbs.
+*
+* @param {number} [count]
+* @param {function} [rand]
+* @return {Array<object>}
+*/
+function createOrbs$1(count = 2, rand = randomInt$2) {
+	const orbs = [];
+	const n = Math.min(5, count);
+	for (let i = 0; i < n; i++) orbs.push(createOrb(i * 360 / n, rand));
+	return orbs;
+}
+/**
+* One update tick of an orb, as the client's primitive update.
+*
+* @param {object} orb
+* @param {function} [rand]
+*/
+function stepOrb(orb, rand = randomInt$2) {
+	orb.age++;
+	if (orb.age < 201) orb.alpha++;
+	const w = orb.wander;
+	for (let k = 0; k < 6; k += 2) {
+		let cur = w[k];
+		const target = w[k + 1];
+		if (target <= cur) {
+			cur = Math.max(0, cur - 1);
+			w[k] = cur;
+			if (cur <= target) w[k + 1] = 359 - (Math.trunc(cur) === 0 ? 0 : rand(Math.trunc(cur)));
+		} else {
+			cur = Math.min(359, cur + 1);
+			w[k] = cur;
+			if (target < cur) w[k + 1] = Math.trunc(cur) === 0 ? 0 : rand(Math.trunc(cur));
+		}
+	}
+	if ((orb.age & 1) === 0) {
+		orb.phase += 1;
+		if (orb.phase >= 360) orb.phase -= 360;
+	}
+	orb.center[0] = sin(orb.phase) * 7 + sin(w[0]) * .5;
+	orb.center[1] = -15 + sin(w[4]) * .5;
+	orb.center[2] = cos(orb.phase) * 7 + sin(w[2]) * .5;
+	orb.spin += 5 + rand(5);
+	if (orb.spin >= 360) orb.spin -= 360;
+	orb.sparks.forEach((spark, i) => {
+		if (i !== 0) spark.age++;
+		else spark.age = orb.age;
+		if (spark.age <= 0) return;
+		spark.turn = spark.turn + 1 > 359 ? spark.turn - 359 : spark.turn + 1;
+		spark.size *= 1.02;
+		if (spark.size > 6) {
+			spark.alpha -= 3;
+			if (spark.alpha < 1) {
+				spark.size = 3;
+				spark.heading = rand(360);
+				spark.alpha = 200;
+			}
+		}
+		spark.shown = Math.max(0, spark.size * sin(spark.turn) * .1 + spark.size * .9);
+	});
+}
+/**
+* Size (units) of core square 0 or 1: the corners sit this far from the centre.
+*
+* @param {object} orb
+* @param {number} core 0 or 1
+* @return {number}
+*/
+function coreSize(orb, core) {
+	return sin(orb.spin) * .05 + (core === 0 ? 1 : .5);
+}
+/**
+* Corners of spark i: an upright square through the orb's centre, across the
+* spark's heading, `shown` units wide and tall.
+*
+* @param {object} orb
+* @param {object} spark
+* @return {Array<Array<number>>} four corners, client units relative to the actor
+*/
+function sparkCorners(orb, spark) {
+	const h = spark.shown * .5;
+	const c = orb.center;
+	const a = Math.trunc(spark.heading);
+	const ax = cos(a) * h;
+	const az = sin(a) * h;
+	const top = c[1] + h;
+	return [
+		[
+			c[0] + ax,
+			top,
+			c[2] + az
+		],
+		[
+			c[0] - ax,
+			top,
+			c[2] - az
+		],
+		[
+			c[0] - ax,
+			top - spark.shown,
+			c[2] - az
+		],
+		[
+			c[0] + ax,
+			top - spark.shown,
+			c[2] + az
+		]
+	];
+}
+var DEG$11, CORE_COLORS, SPARK_GREYS, sin, cos;
+var init_DupleLightSim = __esmMin((() => {
+	DEG$11 = Math.PI / 180;
+	CORE_COLORS = [[
+		68,
+		42,
+		255
+	], [
+		155,
+		155,
+		255
+	]];
+	SPARK_GREYS = [
+		105,
+		35,
+		75,
+		5
+	];
+	sin = (deg) => Math.sin(Math.trunc(deg) * DEG$11);
+	cos = (deg) => Math.cos(Math.trunc(deg) * DEG$11);
+}));
+// src/Renderer/Effects/DupleLight.js
+var DEG$10, _program$11, TEXTURE_FILES, _textures$8, _generation$3, BLACK$2, MAX_CATCH_UP, DupleLight;
+var init_DupleLight = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_Camera();
+	init_SpriteRenderer();
+	init_EffectPrimSim();
+	init_DupleLightSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	DEG$10 = Math.PI / 180;
+	_program$11 = null;
+	TEXTURE_FILES = ["data/texture/effect/thunder_center.bmp", "data/texture/effect/freeze_a.bmp"];
+	_textures$8 = [null, null];
+	_generation$3 = 0;
+	BLACK$2 = new Float32Array([
+		0,
+		0,
+		0
+	]);
+	MAX_CATCH_UP = 120;
+	DupleLight = class {
+		/**
+		* @param {object} owner the actor (the orbs follow it)
+		* @param {number} startTick
+		* @param {number} [count] orbs, as the status passes them (2)
+		*/
+		constructor(owner, startTick, count) {
+			this.owner = owner;
+			this.startTick = startTick || 0;
+			this.orbs = createOrbs$1(count);
+			this.ticks = 0;
+			this.vertices = /* @__PURE__ */ new Float32Array(30);
+			this.color = /* @__PURE__ */ new Float32Array(4);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		/**
+		* Write a quad's two triangles from four corners (client units about the actor).
+		*/
+		quad(corners, center) {
+			const out = this.vertices;
+			const uv = [
+				[0, 0],
+				[1, 0],
+				[1, 1],
+				[0, 1]
+			];
+			let o = 0;
+			for (const k of [
+				0,
+				1,
+				2,
+				2,
+				3,
+				0
+			]) {
+				const p = corners[k];
+				out[o++] = center[0] + p[0] / 5;
+				out[o++] = center[1] + p[1] / 5;
+				out[o++] = center[2] + p[2] / 5;
+				out[o++] = uv[k][0];
+				out[o++] = uv[k][1];
+			}
+		}
+		draw(gl, texture, rgb, alpha) {
+			if (!texture || alpha <= 0) return;
+			const attribute = _program$11.attribute;
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			this.color[0] = rgb[0] / 255;
+			this.color[1] = rgb[1] / 255;
+			this.color[2] = rgb[2] / 255;
+			this.color[3] = Math.min(255, alpha) / 255;
+			gl.uniform4fv(_program$11.uniform.uColor, this.color);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+			this.ticks = Math.max(this.ticks, t - MAX_CATCH_UP);
+			while (this.ticks < t) {
+				this.orbs.forEach((orb) => stepOrb(orb));
+				this.ticks++;
+			}
+			const at = this.owner && this.owner.position || [
+				0,
+				0,
+				0
+			];
+			const center = [
+				at[0] + .5,
+				-at[2],
+				at[1] + .5
+			];
+			const beta = (360 - Camera.angle[0] + 90) % 360 * DEG$10;
+			const alpha = (360 - Camera.angle[1]) % 360 * DEG$10;
+			const right = [
+				Math.cos(alpha),
+				0,
+				-Math.sin(alpha)
+			];
+			const up = [
+				Math.cos(beta) * Math.sin(alpha),
+				-Math.sin(beta),
+				Math.cos(beta) * Math.cos(alpha)
+			];
+			SpriteRenderer.runWithDepth(true, false, false, () => {
+				gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+				for (const orb of this.orbs) {
+					const c = orb.center;
+					for (let core = 0; core < 2; core++) {
+						const s = coreSize(orb, core);
+						const corners = [
+							0,
+							90,
+							180,
+							270
+						].map((a) => {
+							const x = Math.cos(a * DEG$10) * s;
+							const y = Math.sin(a * DEG$10) * s;
+							return [
+								c[0] + x * right[0] + y * up[0],
+								c[1] + x * right[1] + y * up[1],
+								c[2] + x * right[2] + y * up[2]
+							];
+						});
+						this.quad(corners, center);
+						this.draw(gl, _textures$8[0], CORE_COLORS[core], orb.alpha);
+					}
+					orb.sparks.forEach((spark, i) => {
+						if (spark.age <= 0 || !(spark.shown > 0)) return;
+						this.quad(sparkCorners(orb, spark), center);
+						this.draw(gl, _textures$8[1], [
+							SPARK_GREYS[i],
+							SPARK_GREYS[i],
+							255
+						], spark.alpha);
+					});
+				}
+			});
+		}
+		static init(gl) {
+			_program$11 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			const generation = ++_generation$3;
+			TEXTURE_FILES.forEach((file, i) => {
+				Client.loadFile(file, (buffer) => {
+					WebGL_default.texture(gl, buffer, (texture) => {
+						if (generation !== _generation$3) {
+							gl.deleteTexture(texture);
+							return;
+						}
+						if (_textures$8[i]) gl.deleteTexture(_textures$8[i]);
+						_textures$8[i] = texture;
+					});
+				});
+			});
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_generation$3++;
+			if (_program$11) {
+				gl.deleteProgram(_program$11);
+				_program$11 = null;
+			}
+			_textures$8.forEach((texture, i) => {
+				if (texture) {
+					gl.deleteTexture(texture);
+					_textures$8[i] = null;
+				}
+			});
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$11.uniform;
+			const attribute = _program$11.attribute;
+			gl.useProgram(_program$11);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, BLACK$2);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		}
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$11.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$11.attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
 }));
@@ -299524,7 +300277,7 @@ function stepRing(ring) {
 		band.counter++;
 		if (ring.cycle && band.counter >= 0 && band.counter % 25 === 0) ring.mode = CYCLE_MODES[band.counter / 25 % CYCLE_MODES.length];
 		if (band.counter <= 0) continue;
-		band.foot = f32(band.foot + FOOT_STEP);
+		band.foot = f32(band.foot + FOOT_STEP$1);
 		band.lean--;
 		if (band.lean < LEAN_MIN) {
 			band.lean = LEAN_MIN;
@@ -299541,14 +300294,14 @@ function stepRing(ring) {
 				}
 			}
 		}
-		const wave = Math.sin(phaseOf(b, band.counter) % 360 * DEG$7);
-		for (let j = 0; j < 21; j++) band.points[j] = band.length + band.length * WOBBLE$1 * Math.sin(9 * j * DEG$7) * wave;
+		const wave = Math.sin(phaseOf(b, band.counter) % 360 * DEG$9);
+		for (let j = 0; j < 21; j++) band.points[j] = band.length + band.length * WOBBLE$1 * Math.sin(9 * j * DEG$9) * wave;
 	}
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$4(out, i, center, x, y, up, u, v) {
+function vertex$5(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -299567,11 +300320,11 @@ function vertex$4(out, i, center, x, y, up, u, v) {
 function buildRing(out, ring, center) {
 	let o = 0;
 	for (const band of ring.bands) {
-		const reach = Math.cos(band.lean * DEG$7);
-		const up_ = Math.sin(band.lean * DEG$7);
+		const reach = Math.cos(band.lean * DEG$9);
+		const up_ = Math.sin(band.lean * DEG$9);
 		let prev = null;
 		for (let j = 0; j < 21; j++) {
-			const angle = (band.start + 18 * j) % 360 * DEG$7;
+			const angle = (band.start + 18 * j) % 360 * DEG$9;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
 			const p = band.points[j];
@@ -299580,26 +300333,26 @@ function buildRing(out, ring, center) {
 				fy: band.foot * sin,
 				tx: (band.foot + p * reach) * cos,
 				ty: (band.foot + p * reach) * sin,
-				up: p * up_
+				up: p * up_ + (band.lift || 0)
 			};
 			if (prev) {
 				const u0 = (j - 1) / 21;
 				const u1 = j / 21;
-				o = vertex$4(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-				o = vertex$4(out, o, center, point.fx, point.fy, 0, u1, 1);
-				o = vertex$4(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$4(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-				o = vertex$4(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$4(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex$5(out, o, center, point.fx, point.fy, 0, u1, 1);
+				o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex$5(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+				o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 			}
 			prev = point;
 		}
 	}
 }
-var DEG$7, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE$1, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
+var DEG$9, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP$1, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE$1, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
 var init_CastRingSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$7 = Math.PI / 180;
+	DEG$9 = Math.PI / 180;
 	f32 = Math.fround;
 	BAND_START = [
 		180,
@@ -299615,7 +300368,7 @@ var init_CastRingSim = __esmMin((() => {
 	];
 	FOOT_START = f32(4.1);
 	FOOT_RESTART = f32(3.37);
-	FOOT_STEP = f32(.07);
+	FOOT_STEP$1 = f32(.07);
 	FOOT_FULL = 4;
 	LEAN_START = 80;
 	LEAN_MIN = 10;
@@ -299829,6 +300582,80 @@ var init_CastRingSim = __esmMin((() => {
 		8
 	];
 }));
+// src/Renderer/Effects/EpiclesisRingSim.js
+/**
+* @return {object} a ring: { counter, bands }
+*/
+function createEpiclesisRing() {
+	return {
+		counter: 0,
+		bands: [
+			0,
+			1,
+			2
+		].map((b) => ({
+			active: true,
+			start: 25 * b,
+			lean: 2 + b,
+			age: 0 - 10 * b,
+			alpha: 0,
+			foot: 0,
+			lift: 2,
+			points: new Array(21).fill(0)
+		}))
+	};
+}
+/**
+* Run a ring one tick, as the client's primitive update.
+*
+* @param {object} ring
+*/
+function stepEpiclesisRing(ring) {
+	ring.bands.forEach((band, b) => {
+		if (!band.active) return;
+		band.age++;
+		if (b === 0) ring.counter++;
+		if (band.age <= 0) return;
+		band.foot += FOOT_STEP;
+		if (band.foot > FOOT_FADE) {
+			band.alpha -= ALPHA_OUT;
+			if (band.alpha < 0) {
+				band.alpha = 0;
+				if (ring.counter > 120) band.active = false;
+				else {
+					band.age = 0;
+					band.foot = 0;
+				}
+			}
+		}
+		if (band.age < 10) band.alpha = Math.min(ALPHA_MAX, band.alpha + ALPHA_IN);
+		const length = band.age <= 10 ? STRIP * Math.sin(9 * band.age * DEG$8) : STRIP;
+		band.points.fill(length);
+	});
+}
+/**
+* @param {object} ring
+* @return {boolean} whether any band still runs
+*/
+function ringRunning(ring) {
+	return ring.bands.some((band) => band.active);
+}
+var DEG$8, STRIP, TINT$1, ALPHA_IN, ALPHA_MAX, ALPHA_OUT, FOOT_STEP, FOOT_FADE;
+var init_EpiclesisRingSim = __esmMin((() => {
+	init_CastRingSim();
+	DEG$8 = Math.PI / 180;
+	STRIP = 6.001;
+	TINT$1 = [
+		177,
+		255,
+		58
+	];
+	ALPHA_IN = 24;
+	ALPHA_MAX = 120;
+	ALPHA_OUT = 8;
+	FOOT_STEP = .5;
+	FOOT_FADE = 7;
+}));
 // src/Renderer/Effects/CastRing.js
 function loadTexture$7(gl, name) {
 	if (_textures$7.has(name)) return;
@@ -299843,15 +300670,16 @@ function loadTexture$7(gl, name) {
 		});
 	});
 }
-var _program$9, _textures$7, SIZES, CastRing;
+var _program$10, _textures$7, SIZES, CastRing;
 var init_CastRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
 	init_SpriteRenderer();
 	init_CastRingSim();
+	init_EpiclesisRingSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$9 = null;
+	_program$10 = null;
 	_textures$7 = /* @__PURE__ */ new Map();
 	SIZES = [45, 25];
 	CastRing = class {
@@ -299864,12 +300692,23 @@ var init_CastRing = __esmMin((() => {
 		* @param {boolean|object} [cycle] build the colour-cycling twin (client primitive 139); or options:
 		*   { cycle, sizes: the rings' sizes (default 45 and 25), textures: one file per ring (default `texture`
 		*   for all), castTimeOnly: live castTime / 16 ticks,
-		*   without the 56-tick minimum (an effect that does not raise its own lifetime) }
+		*   without the 56-tick minimum (an effect that does not raise its own lifetime),
+		*   epiclesis: Epiclesis's rings, one every 100 ticks until the effect is removed (castTime and args unused) }
 		*/
 		constructor(position, startTick, castTime, texture, args, cycle = false) {
 			const options = typeof cycle === "object" && cycle ? cycle : { cycle };
 			this.position = position;
 			this.startTick = startTick || 0;
+			if (options.epiclesis) {
+				this.epiclesis = true;
+				this.texture = texture;
+				this.textures = null;
+				this.ticks = 0;
+				this.frames = Infinity;
+				this.endTick = Infinity;
+				this.rings = [];
+				return;
+			}
 			this.frames = options.castTimeOnly ? Math.max(1, Math.floor((castTime || 0) / 16)) : ringFrames(castTime);
 			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
 			this.texture = texture;
@@ -299901,23 +300740,29 @@ var init_CastRing = __esmMin((() => {
 				return;
 			}
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
+			if (this.epiclesis) this.ticks = Math.max(this.ticks, t - 300);
 			while (this.ticks < t) {
-				for (const ring of this.rings) stepRing(ring.sim);
+				if (this.epiclesis) this.stepEpiclesis(gl);
+				else for (const ring of this.rings) stepRing(ring.sim);
 				this.ticks++;
 			}
 			const textures = (this.textures || this.rings.map(() => this.texture)).map((name) => _textures$7.get(name));
 			if (textures.some((texture) => !texture)) return;
-			const attribute = _program$9.attribute;
+			const attribute = _program$10.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				self.rings.forEach((ring, i) => {
 					gl.bindTexture(gl.TEXTURE_2D, textures[i]);
 					buildRing(ring.vertices, ring.sim, self.position);
+					if (!ring.buffer) ring.buffer = gl.createBuffer();
 					gl.bindBuffer(gl.ARRAY_BUFFER, ring.buffer);
 					gl.bufferData(gl.ARRAY_BUFFER, ring.vertices, gl.DYNAMIC_DRAW);
 					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-					const tint = modeTint(ring.sim.mode);
+					const tint = self.epiclesis ? {
+						color: TINT$1,
+						additive: true
+					} : modeTint(ring.sim.mode);
 					ring.color[0] = tint.color[0] / 255;
 					ring.color[1] = tint.color[1] / 255;
 					ring.color[2] = tint.color[2] / 255;
@@ -299926,31 +300771,52 @@ var init_CastRing = __esmMin((() => {
 						const alpha = Math.min(255, band.alpha);
 						if (alpha <= 0) return;
 						ring.color[3] = alpha / 255;
-						gl.uniform4fv(_program$9.uniform.uColor, ring.color);
+						gl.uniform4fv(_program$10.uniform.uColor, ring.color);
 						gl.drawArrays(gl.TRIANGLES, b * 20 * 6, 120);
 					});
 				});
 				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			});
 		}
+		/**
+		* One tick of Epiclesis's rings: a new ring on effect ticks 0, 100, 200...
+		* (the client builds it before the update, so it moves on the same tick),
+		* then every ring runs; spent rings are dropped.
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		stepEpiclesis(gl) {
+			if (this.ticks % 100 === 0) this.rings.push({
+				sim: createEpiclesisRing(),
+				vertices: new Float32Array(RING_VERTICES$1 * 5),
+				color: /* @__PURE__ */ new Float32Array(4),
+				buffer: null
+			});
+			for (const ring of this.rings) stepEpiclesisRing(ring.sim);
+			this.rings = this.rings.filter((ring) => {
+				if (ringRunning(ring.sim)) return true;
+				if (ring.buffer) gl.deleteBuffer(ring.buffer);
+				return false;
+			});
+		}
 		static init(gl) {
-			_program$9 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$10 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$9) {
-				gl.deleteProgram(_program$9);
-				_program$9 = null;
+			if (_program$10) {
+				gl.deleteProgram(_program$10);
+				_program$10 = null;
 			}
 			for (const texture of _textures$7.values()) if (texture) gl.deleteTexture(texture);
 			_textures$7.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$9.uniform;
-			const attribute = _program$9.attribute;
-			gl.useProgram(_program$9);
+			const uniform = _program$10.uniform;
+			const attribute = _program$10.attribute;
+			gl.useProgram(_program$10);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -299964,8 +300830,249 @@ var init_CastRing = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$10.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$10.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/Renderer/Effects/ForestLightSim.js
+/**
+* @return {Array<object>} the four columns
+*/
+function createColumns() {
+	return RADIUS$3.map((radius, c) => ({
+		age: c === 3 ? 180 : 0,
+		alpha: ALPHA_START,
+		base: radius,
+		radius,
+		start: 25 * c,
+		top: [
+			-70 * (c + 1),
+			-300 * (c + 1),
+			-70 * (c + 1)
+		]
+	}));
+}
+/**
+* One update tick of every column, as the client's primitive update.
+*
+* @param {Array<object>} columns
+*/
+function stepColumns(columns) {
+	columns.forEach((column, c) => {
+		column.age++;
+		if (column.age <= 40) column.alpha++;
+		else if (column.age > 140) column.alpha--;
+		if (column.alpha < 0) column.alpha = 0;
+		if (c === 1 || c === 3) {
+			const half = Math.trunc(column.age % 720 / 2);
+			column.radius = column.base + .5 * Math.sin(half * DEG$7);
+		}
+	});
+}
+/**
+* Write one vertex in roBrowser's GL space from client units about `center`.
+*/
+function vertex$4(out, o, center, x, y, z, u, v) {
+	out[o + 0] = center[0] + .5 + x / 5;
+	out[o + 1] = -center[2] + y / 5;
+	out[o + 2] = center[1] + .5 + z / 5;
+	out[o + 3] = u;
+	out[o + 4] = v;
+	return o + 5;
+}
+/**
+* Fill `out` with one column's quads: corner i on the ground (the target's
+* feet) and the same corner at the top.
+*
+* @param {Float32Array} out COLUMN_VERTICES * 5 floats from `o`
+* @param {number} o
+* @param {object} column
+* @param {Array} center where the target stood, in cells
+* @return {number} float index after the column
+*/
+function buildColumn(out, o, column, center) {
+	let prev = null;
+	for (let i = 0; i < 6; i++) {
+		const angle = (column.start + 72 * i) % 360 * DEG$7;
+		const x = column.radius * Math.cos(angle);
+		const z = column.radius * Math.sin(angle);
+		const low = [
+			x,
+			0,
+			z
+		];
+		const high = [
+			column.top[0] + x,
+			column.top[1],
+			column.top[2] + z
+		];
+		if (prev) {
+			o = vertex$4(out, o, center, prev.low[0], prev.low[1], prev.low[2], 0, 0);
+			o = vertex$4(out, o, center, low[0], low[1], low[2], 1, 0);
+			o = vertex$4(out, o, center, high[0], high[1], high[2], 1, 1);
+			o = vertex$4(out, o, center, high[0], high[1], high[2], 1, 1);
+			o = vertex$4(out, o, center, prev.high[0], prev.high[1], prev.high[2], 0, 1);
+			o = vertex$4(out, o, center, prev.low[0], prev.low[1], prev.low[2], 0, 0);
+		}
+		prev = {
+			low,
+			high
+		};
+	}
+	return o;
+}
+/**
+* @param {Array<object>} columns
+* @return {boolean} whether every column has faded out for good
+*/
+function columnsDone(columns) {
+	return columns.every((column) => column.age > 140 && column.alpha <= 0);
+}
+var DEG$7, TINT, ALPHA_START, RADIUS$3;
+var init_ForestLightSim = __esmMin((() => {
+	init_EffectPrimSim();
+	DEG$7 = Math.PI / 180;
+	TINT = [
+		230,
+		255,
+		230
+	];
+	ALPHA_START = 30;
+	RADIUS$3 = [
+		1,
+		1.5,
+		2,
+		1
+	];
+}));
+// src/Renderer/Effects/ForestLight.js
+var _program$9, _texture$4, _generation$2, BLACK$1, ForestLight;
+var init_ForestLight = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_SpriteRenderer();
+	init_EffectPrimSim();
+	init_ForestLightSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	_program$9 = null;
+	_texture$4 = null;
+	_generation$2 = 0;
+	BLACK$1 = new Float32Array([
+		0,
+		0,
+		0
+	]);
+	ForestLight = class {
+		/**
+		* @param {Array} position where the target stands, in cells (copied: the columns stay)
+		* @param {number} startTick
+		*/
+		constructor(position, startTick) {
+			this.position = [
+				position[0],
+				position[1],
+				position[2]
+			];
+			this.startTick = startTick || 0;
+			this.columns = createColumns();
+			this.ticks = 0;
+			this.vertices = /* @__PURE__ */ new Float32Array(150);
+			this.color = new Float32Array([
+				TINT[0] / 255,
+				TINT[1] / 255,
+				TINT[2] / 255,
+				1
+			]);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			const t = Math.min(999, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
+			while (this.ticks < t) {
+				stepColumns(this.columns);
+				this.ticks++;
+			}
+			if (t >= 999 || columnsDone(this.columns)) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (!_texture$4) return;
+			const attribute = _program$9.attribute;
+			SpriteRenderer.runWithDepth(true, false, false, () => {
+				gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+				gl.bindTexture(gl.TEXTURE_2D, _texture$4);
+				for (const column of this.columns) {
+					if (column.alpha <= 0) continue;
+					const end = buildColumn(this.vertices, 0, column, this.position);
+					gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+					this.color[3] = Math.min(255, column.alpha) / 255;
+					gl.uniform4fv(_program$9.uniform.uColor, this.color);
+					gl.drawArrays(gl.TRIANGLES, 0, end / 5);
+				}
+			});
+		}
+		static init(gl) {
+			_program$9 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			const generation = ++_generation$2;
+			Client.loadFile("data/texture/effect/cloud11.tga", (buffer) => {
+				WebGL_default.texture(gl, buffer, (texture) => {
+					if (generation !== _generation$2) {
+						gl.deleteTexture(texture);
+						return;
+					}
+					if (_texture$4) gl.deleteTexture(_texture$4);
+					_texture$4 = texture;
+				});
+			});
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_generation$2++;
+			if (_program$9) {
+				gl.deleteProgram(_program$9);
+				_program$9 = null;
+			}
+			if (_texture$4) {
+				gl.deleteTexture(_texture$4);
+				_texture$4 = null;
+			}
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$9.uniform;
+			const attribute = _program$9.attribute;
+			gl.useProgram(_program$9);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, BLACK$1);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		}
+		static afterRender(gl) {
 			gl.disableVertexAttribArray(_program$9.attribute.aPosition);
 			gl.disableVertexAttribArray(_program$9.attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
 }));
@@ -304653,6 +305760,7 @@ var init_EffectTable = __esmMin((() => {
 	init_DBManager();
 	init_SessionStorage();
 	init_RemoveTrapEffect();
+	init_BurstParts();
 	init_CloudWeatherEffect();
 	init_FlatColorTile();
 	init_LockOnTarget();
@@ -304690,6 +305798,7 @@ var init_EffectTable = __esmMin((() => {
 	init_HundredSpearEffect();
 	init_HellInfernoEffect();
 	init_SonicWave();
+	init_DupleLight();
 	init_SonicWaveSim();
 	init_AcidDemonRingSim();
 	init_ThrowStoneEffect();
@@ -304699,6 +305808,8 @@ var init_EffectTable = __esmMin((() => {
 	init_MartyrsReckoningEffect();
 	init_ShieldBoomerangEffect();
 	init_CastRing();
+	init_ForestLight();
+	init_ForestLightSim();
 	init_StreakLines();
 	init_DetoxifyEffect();
 	init_WarmthEffect();
@@ -311184,6 +312295,7 @@ var init_EffectTable = __esmMin((() => {
 				delayWav: 500
 			}
 		],
+		330: hitLineEffect,
 		331: [{
 			type: "3D",
 			duplicate: 12,
@@ -311905,6 +313017,13 @@ var init_EffectTable = __esmMin((() => {
 		386: [{
 			wav: "effect/hunter_detecting",
 			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			duration: 25e4 / 60,
+			func: function(Params) {
+				this.add(new BurstParts(3, 12, "alpha_center.tga", Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
 		}],
 		387: [{
 			type: "FUNC",
@@ -315642,6 +316761,13 @@ var init_EffectTable = __esmMin((() => {
 		719: [{
 			wav: "effect/ab_renovatio",
 			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			duration: 999 * PRIM_TICK_MS,
+			func: function(Params) {
+				this.add(new ForestLight(Params.Init.ownerEntity.position, Params.Inst.startTick), Params);
+			}
 		}],
 		721: [{
 			type: "STR",
@@ -318171,7 +319297,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "activity_burn/activity_burn_cast_bottom/activity_burn_cast_bottom",
 			texturePath: "activity_burn/activity_burn_cast_bottom/",
 			min: "activity_burn/activity_burn_cast_bottom/min_activity_burn_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_increasing_activity: [{
 			type: "STR",
@@ -318190,7 +319317,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom",
 			texturePath: "increasing_activity/increasing_activity_cast_bottom/",
 			min: "increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_diamond_storm: [{
 			type: "STR",
@@ -318215,7 +319343,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "diamond_storm/diamond_storm_cast_bottom/diamond_storm_cast_bottom",
 			texturePath: "diamond_storm/diamond_storm_cast_bottom/",
 			min: "diamond_storm/diamond_storm_cast_bottom/min_diamond_storm_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_diamond_storm_hit: [{
 			type: "STR",
@@ -318246,7 +319375,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "lightning_land/lightning_land_cast_bottom/lightning_land_cast_bottom",
 			texturePath: "lightning_land/lightning_land_cast_bottom/",
 			min: "lightning_land/lightning_land_cast_bottom/min_lightning_land_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_lightning_land_hit: [{
 			type: "STR",
@@ -318272,7 +319402,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "venom_swamp/venom_swamp_cast_bottom/venom_swamp_cast_bottom",
 			texturePath: "venom_swamp/venom_swamp_cast_bottom/",
 			min: "venom_swamp/venom_swamp_cast_bottom/min_venom_swamp_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_venom_swamp_hit: [{
 			type: "STR",
@@ -318302,7 +319433,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "conflagration/conflagration_cast_bottom/conflagration_cast_bottom",
 			texturePath: "conflagration/conflagration_cast_bottom/",
 			min: "conflagration/conflagration_cast_bottom/min_conflagration_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_conflagration_hit: [{
 			type: "STR",
@@ -318333,7 +319465,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "terradrive/terradrive_cast_bottom/terradrive_cast_bottom",
 			texturePath: "terradrive/terradrive_cast_bottom/",
 			min: "terradrive/terradrive_cast_bottom/min_terradrive_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_terra_drive_hit: [{
 			type: "STR",
@@ -318345,7 +319478,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "ardor/ardor/ardor",
 			texturePath: "ardor/ardor/",
-			min: "ardor/ardor/min_ardor"
+			min: "ardor/ardor/min_ardor",
+			wav: "effect/em_summon_elemental_ardor_2"
 		}, {
 			type: "STR",
 			file: "ardor/ardor_bottom/ardor_bottom",
@@ -318363,7 +319497,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "ardor/ardor_cast_bottom/ardor_cast_bottom",
 			texturePath: "ardor/ardor_cast_bottom/",
 			min: "ardor/ardor_cast_bottom/min_ardor_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_summon_elemental_ardor_hit: [{
 			type: "STR",
@@ -318381,7 +319516,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "diluvio/diluvio_cast_bottom/diluvio_cast_bottom",
 			texturePath: "diluvio/diluvio_cast_bottom/",
 			min: "diluvio/diluvio_cast_bottom/min_diluvio_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_summon_elemental_diluvio_hit: [{
 			type: "STR",
@@ -318393,7 +319529,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "procella/procella/procella",
 			texturePath: "procella/procella/",
-			min: "procella/procella/min_procella"
+			min: "procella/procella/min_procella",
+			wav: "effect/em_summon_elemental_procella_2"
 		}, {
 			type: "STR",
 			file: "procella/procella_bottom/procella_bottom",
@@ -318411,7 +319548,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "procella/procella_cast_bottom/procella_cast_bottom",
 			texturePath: "procella/procella_cast_bottom/",
 			min: "procella/procella_cast_bottom/min_procella_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_summon_elemental_procella_hit: [{
 			type: "STR",
@@ -318435,7 +319573,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "terremotus/terremotus_cast_bottom/terremotus_cast_bottom",
 			texturePath: "terremotus/terremotus_cast_bottom/",
 			min: "terremotus/terremotus_cast_bottom/min_terremotus_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_summon_elemental_terremotus_hit: [{
 			type: "STR",
@@ -318448,7 +319587,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "serpens/serpens_bottom/serpens_bottom",
 			texturePath: "serpens/serpens_bottom/",
 			min: "serpens/serpens_bottom/min_serpens_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/em_summon_elemental_serpens_2"
 		}],
 		ef_em_summon_elemental_serpens_cast: [{
 			type: "STR",
@@ -318460,7 +319600,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "serpens/serpens_cast_bottom/serpens_cast_bottom",
 			texturePath: "serpens/serpens_cast_bottom/",
 			min: "serpens/serpens_cast_bottom/min_serpens_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_summon_elemental_serpens_hit: [{
 			type: "STR",
@@ -318472,13 +319613,15 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "elemental_buster/elemental_buster_cast/elemental_buster_cast",
 			texturePath: "elemental_buster/elemental_buster_cast/",
-			min: "elemental_buster/elemental_buster_cast/min_elemental_buster_cast"
+			min: "elemental_buster/elemental_buster_cast/min_elemental_buster_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_em_elemental_buster_fire: [{
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_fire/elemental_buster_fire",
 			texturePath: "elemental_buster/elemental_buster/elemental_buster_fire/",
-			min: "elemental_buster/elemental_buster/elemental_buster_fire/min_elemental_buster_fire"
+			min: "elemental_buster/elemental_buster/elemental_buster_fire/min_elemental_buster_fire",
+			wav: "effect/em_elemetal_buster_fire"
 		}, {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_fire_bottom/elemental_buster_fire_bottom",
@@ -318496,7 +319639,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_water/elemental_buster_water",
 			texturePath: "elemental_buster/elemental_buster/elemental_buster_water/",
-			min: "elemental_buster/elemental_buster/elemental_buster_water/min_elemental_buster_water"
+			min: "elemental_buster/elemental_buster/elemental_buster_water/min_elemental_buster_water",
+			wav: "effect/em_elemetal_buster_water"
 		}, {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_water_bottom/elemental_buster_water_bottom",
@@ -318514,7 +319658,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_wind/elemental_buster_wind",
 			texturePath: "elemental_buster/elemental_buster/elemental_buster_wind/",
-			min: "elemental_buster/elemental_buster/elemental_buster_wind/min_elemental_buster_wind"
+			min: "elemental_buster/elemental_buster/elemental_buster_wind/min_elemental_buster_wind",
+			wav: "effect/em_elemetal_buster_wind"
 		}, {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_wind_bottom/elemental_buster_wind_bottom",
@@ -318532,7 +319677,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_land/elemental_buster_land",
 			texturePath: "elemental_buster/elemental_buster/elemental_buster_land/",
-			min: "elemental_buster/elemental_buster/elemental_buster_land/min_elemental_buster_land"
+			min: "elemental_buster/elemental_buster/elemental_buster_land/min_elemental_buster_land",
+			wav: "effect/em_elemetal_buster_ground"
 		}, {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_land_bottom/elemental_buster_land_bottom",
@@ -318550,7 +319696,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_poison/elemental_buster_poison",
 			texturePath: "elemental_buster/elemental_buster/elemental_buster_poison/",
-			min: "elemental_buster/elemental_buster/elemental_buster_poison/min_elemental_buster_poison"
+			min: "elemental_buster/elemental_buster/elemental_buster_poison/min_elemental_buster_poison",
+			wav: "effect/em_elemetal_buster_poison"
 		}, {
 			type: "STR",
 			file: "elemental_buster/elemental_buster/elemental_buster_poison_bottom/elemental_buster_poison_bottom",
@@ -318601,7 +319748,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "ardor/ardor_flametechnic/ardor_flametechnic",
 			texturePath: "ardor/ardor_flametechnic/",
-			min: "ardor/ardor_flametechnic/min_ardor_flametechnic"
+			min: "ardor/ardor_flametechnic/min_ardor_flametechnic",
+			wav: "effect/ef_firearrow1"
 		}],
 		ef_em_el_flamearmor: [{
 			type: "STR",
@@ -318613,25 +319761,29 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "diluvio/diluvio_cold_force/diluvio_cold_force",
 			texturePath: "diluvio/diluvio_cold_force/",
-			min: "diluvio/diluvio_cold_force/min_diluvio_cold_force"
+			min: "diluvio/diluvio_cold_force/min_diluvio_cold_force",
+			wav: "effect/ef_icearrow1"
 		}],
 		ef_em_el_grace_breeze: [{
 			type: "STR",
 			file: "procella/procella_grace_breeze/procella_grace_breeze",
 			texturePath: "procella/procella_grace_breeze/",
-			min: "procella/procella_grace_breeze/min_procella_grace_breeze"
+			min: "procella/procella_grace_breeze/min_procella_grace_breeze",
+			wav: "effect/ef_lightbolt3"
 		}],
 		ef_em_el_earth_care: [{
 			type: "STR",
 			file: "terremotus/terremotus_earth_care/terremotus_earth_care",
 			texturePath: "terremotus/terremotus_earth_care/",
-			min: "terremotus/terremotus_earth_care/min_terremotus_earth_care"
+			min: "terremotus/terremotus_earth_care/min_terremotus_earth_care",
+			wav: "effect/wizard_earthspike"
 		}],
 		ef_em_el_deep_poisoning: [{
 			type: "STR",
 			file: "serpens/serpens_deep_poisoning/serpens_deep_poisoning",
 			texturePath: "serpens/serpens_deep_poisoning/",
-			min: "serpens/serpens_deep_poisoning/min_serpens_deep_poisoning"
+			min: "serpens/serpens_deep_poisoning/min_serpens_deep_poisoning",
+			wav: "effect/ef_detoxication"
 		}],
 		ef_em_el_deadly_poison: [{
 			type: "STR",
@@ -318690,13 +319842,15 @@ var init_EffectTable = __esmMin((() => {
 			file: "new_rush_quake/new_rush_quake/new_rush_quake",
 			texturePath: "new_rush_quake/new_rush_quake/",
 			min: "new_rush_quake/new_rush_quake/min_new_rush_quake",
-			wav: "effect/mt_rush_quake"
+			wav: "effect/wizard_fire_pillar_b",
+			delayWav: 250
 		}],
 		ef_mt_rush_quake_hit: [{
 			type: "STR",
 			file: "new_rush_quake/new_rush_quake_hit/new_rush_quake_hit",
 			texturePath: "new_rush_quake/new_rush_quake_hit/",
-			min: "new_rush_quake/new_rush_quake_hit/min_new_rush_quake_hit"
+			min: "new_rush_quake/new_rush_quake_hit/min_new_rush_quake_hit",
+			wav: "effect/mt_rush_quake"
 		}],
 		ef_mt_a_machine: [{
 			type: "STR",
@@ -319539,7 +320693,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "wooden_warrior/wooden_warrior_cast_bottom/wooden_warrior_cast_bottom",
 			texturePath: "wooden_warrior/wooden_warrior_cast_bottom/",
 			min: "wooden_warrior/wooden_warrior_cast_bottom/min_wooden_warrior_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_bo_woodenwarrior_hit: [
 			{
@@ -319571,7 +320726,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "wooden_fairy/wooden_cast_bottom/wooden_cast_bottom",
 			texturePath: "wooden_fairy/wooden_cast_bottom/",
 			min: "wooden_fairy/wooden_cast_bottom/min_wooden_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_bo_researchreport: [{
 			type: "STR",
@@ -319584,7 +320740,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "research_report/researchreport_cast/researchreport_cast",
 			texturePath: "research_report/researchreport_cast/",
-			min: "research_report/researchreport_cast/min_researchreport_cast"
+			min: "research_report/researchreport_cast/min_researchreport_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "research_report/researchreport_cast_bottom/researchreport_cast_bottom",
@@ -319602,7 +320759,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "helltree/helltree_cast_bottom/helltree_cast_bottom",
 			texturePath: "helltree/helltree_cast_bottom/",
 			min: "helltree/helltree_cast_bottom/min_helltree_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_bo_wooden_attack_hit: [{
 			type: "STR",
@@ -320261,13 +321419,15 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "powerfulfaith/powerfulfaith/powerfulfaith",
 			texturePath: "powerfulfaith/powerfulfaith/",
-			min: "powerfulfaith/powerfulfaith/min_powerfulfaith"
+			min: "powerfulfaith/powerfulfaith/min_powerfulfaith",
+			wav: "effect/iq_faith"
 		}],
 		ef_iq_firm_faith: [{
 			type: "STR",
 			file: "firmfaith/firmfaith/firmfaith",
 			texturePath: "firmfaith/firmfaith/",
-			min: "firmfaith/firmfaith/min_firmfaith"
+			min: "firmfaith/firmfaith/min_firmfaith",
+			wav: "effect/iq_faith"
 		}],
 		ef_iq_oleum_sanctum: [{
 			type: "STR",
@@ -320292,7 +321452,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "sincerefaith/sincerefaith/sincerefaith",
 			texturePath: "sincerefaith/sincerefaith/",
-			min: "sincerefaith/sincerefaith/min_sincerefaith"
+			min: "sincerefaith/sincerefaith/min_sincerefaith",
+			wav: "effect/iq_faith"
 		}, {
 			type: "STR",
 			file: "sincerefaith/sincerefaith_bottom/sincerefaith_bottom",
@@ -320362,7 +321523,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "4ig_firstfaithpower/firstfaithpower_cast/firstfaithpower_cast",
 			texturePath: "4ig_firstfaithpower/firstfaithpower_cast/",
-			min: "4ig_firstfaithpower/firstfaithpower_cast/min_firstfaithpower_cast"
+			min: "4ig_firstfaithpower/firstfaithpower_cast/min_firstfaithpower_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_iq_judge: [{
 			type: "STR",
@@ -320375,7 +321537,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "4ig_judge/judge_cast/judge_cast",
 			texturePath: "4ig_judge/judge_cast/",
-			min: "4ig_judge/judge_cast/min_judge_cast"
+			min: "4ig_judge/judge_cast/min_judge_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_iq_second_flame: [{
 			type: "STR",
@@ -320451,7 +321614,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "4ig_thirdexorflame/thirdexorflame_cast/thirdexorflame_cast",
 			texturePath: "4ig_thirdexorflame/thirdexorflame_cast/",
-			min: "4ig_thirdexorflame/thirdexorflame_cast/min_thirdexorflame_cast"
+			min: "4ig_thirdexorflame/thirdexorflame_cast/min_thirdexorflame_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_iq_blazing_flame_blast: [{
 			type: "STR",
@@ -320536,20 +321700,21 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "deadly_projection/deadly_projection_cast/deadly_projection_cast",
 			texturePath: "deadly_projection/deadly_projection_cast/",
-			min: "deadly_projection/deadly_projection_cast/min_deadly_projection_cast",
-			wav: "effect/ag_deadly_projection"
+			min: "deadly_projection/deadly_projection_cast/min_deadly_projection_cast"
 		}, {
 			type: "STR",
 			file: "deadly_projection/deadly_projection_cast_bottom/deadly_projection_cast_bottom",
 			texturePath: "deadly_projection/deadly_projection_cast_bottom/",
 			min: "deadly_projection/deadly_projection_cast_bottom/min_deadly_projection_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_deadly_projection_hit: [{
 			type: "STR",
 			file: "deadly_projection/deadly_projection_hit/deadly_projection_hit",
 			texturePath: "deadly_projection/deadly_projection_hit/",
-			min: "deadly_projection/deadly_projection_hit/min_deadly_projection_hit"
+			min: "deadly_projection/deadly_projection_hit/min_deadly_projection_hit",
+			wav: "effect/ag_deadly_projection"
 		}],
 		ef_ag_destructive_hurricane: [{
 			type: "STR",
@@ -320574,7 +321739,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "destructive_hurricane/destructive_hurricane_cast_bottom/destructive_hurricane_cast_bottom",
 			texturePath: "destructive_hurricane/destructive_hurricane_cast_bottom/",
 			min: "destructive_hurricane/destructive_hurricane_cast_bottom/min_destructive_hurricane_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_destructive_hurricane_hit: [{
 			type: "STR",
@@ -320659,7 +321825,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "violentquake/violentquake_cast_bottom/violentquake_cast_bottom",
 			texturePath: "violentquake/violentquake_cast_bottom/",
 			min: "violentquake/violentquake_cast_bottom/min_violentquake_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_violent_quake_hit: [{
 			type: "STR",
@@ -320683,7 +321850,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "soul_vc_strike/soul_vc_strike_cast_bottom/soul_vc_strike_cast_bottom",
 			texturePath: "soul_vc_strike/soul_vc_strike_cast_bottom/",
 			min: "soul_vc_strike/soul_vc_strike_cast_bottom/min_soul_vc_strike_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_soul_vc_strike_hit: [{
 			type: "STR",
@@ -320738,7 +321906,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "allbloom/allbloom_cast_bottom/allbloom_cast_bottom",
 			texturePath: "allbloom/allbloom_cast_bottom/",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_all_bloom_hit: [{
 			type: "STR",
@@ -320784,7 +321953,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "crystal_impact/crystal_impact_cast/crystal_impact_cast",
 			texturePath: "crystal_impact/crystal_impact_cast/",
-			min: "crystal_impact/crystal_impact_cast/min_crystal_impact_cast"
+			min: "crystal_impact/crystal_impact_cast/min_crystal_impact_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "crystal_impact/crystal_impact_cast_bottom/crystal_impact_cast_bottom",
@@ -320852,7 +322022,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "astralstrike/astralstrike_cast_bottom/astralstrike_cast_bottom",
 			texturePath: "astralstrike/astralstrike_cast_bottom/",
 			min: "astralstrike/astralstrike_cast_bottom/min_astralstrike_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_climax: [{
 			type: "STR",
@@ -320871,7 +322042,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "climax/climax_cast/climax_cast",
 			texturePath: "climax/climax_cast/",
-			min: "climax/climax_cast/min_climax_cast"
+			min: "climax/climax_cast/min_climax_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_rock_down: [{
 			type: "STR",
@@ -320896,7 +322068,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "rockdown/rockdown_cast_bottom/rockdown_cast_bottom",
 			texturePath: "rockdown/rockdown_cast_bottom/",
 			min: "rockdown/rockdown_cast_bottom/min_rockdown_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_rock_down_hit: [{
 			type: "STR",
@@ -320940,7 +322113,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "crimsonarrow/crimsonarrow_cast_bottom/crimsonarrow_cast_bottom",
 			texturePath: "crimsonarrow/crimsonarrow_cast_bottom/",
 			min: "crimsonarrow/crimsonarrow_cast_bottom/min_crimsonarrow_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_crimson_arrow_hit: [{
 			type: "STR",
@@ -320971,7 +322145,8 @@ var init_EffectTable = __esmMin((() => {
 			file: "frozen_slash/frozen_slash_casting_bottom/frozen_slash_cast_bottom",
 			texturePath: "frozen_slash/frozen_slash_casting_bottom/",
 			min: "frozen_slash/frozen_slash_casting_bottom/min_frozen_slash_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_ag_frozen_slash_hit: [{
 			type: "STR",
@@ -321017,6 +322192,13 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ab_duplelight",
 			attachedEntity: true
 		}],
+		ef_ab_duplelight_orbs: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new DupleLight(Params.Init.ownerEntity, Params.Inst.startTick, 2), Params);
+			}
+		}],
 		ef_cd_reparatio: [{
 			type: "STR",
 			file: "new_reparatio/new_reparatio/new_reparatio",
@@ -321052,7 +322234,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "medialevotum/medialevotum_cast/medialevotum_cast",
 			texturePath: "medialevotum/medialevotum_cast/",
-			min: "medialevotum/medialevotum_cast/min_medialevotum_cast"
+			min: "medialevotum/medialevotum_cast/min_medialevotum_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_cd_argutus_vita: [{
 			type: "STR",
@@ -321065,19 +322248,22 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "argutusvita/argutusvita_cast/argutusvita_cast",
 			texturePath: "argutusvita/argutusvita_cast/",
-			min: "argutusvita/argutusvita_cast/min_argutusvita_cast"
+			min: "argutusvita/argutusvita_cast/min_argutusvita_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_cd_argutus_telum: [{
 			type: "STR",
 			file: "argutustelum/argutustelum/argutustelum",
 			texturePath: "argutustelum/argutustelum/",
-			min: "argutustelum/argutustelum/min_argutustelum"
+			min: "argutustelum/argutustelum/min_argutustelum",
+			wav: "effect/cd_argutus_vita"
 		}],
 		ef_cd_argutus_telum_cast: [{
 			type: "STR",
 			file: "argutustelum/argutustelum_cast/argutustelum_cast",
 			texturePath: "argutustelum/argutustelum_cast/",
-			min: "argutustelum/argutustelum_cast/min_argutustelum_cast"
+			min: "argutustelum/argutustelum_cast/min_argutustelum_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_cd_arbitrium: [{
 			type: "STR",
@@ -321096,7 +322282,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "arbitrium/arbitrium_cast/arbitrium_cast",
 			texturePath: "arbitrium/arbitrium_cast/",
-			min: "arbitrium/arbitrium_cast/min_arbitrium_cast"
+			min: "arbitrium/arbitrium_cast/min_arbitrium_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "arbitrium/arbitrium_cast_bottom/arbitrium_cast_bottom",
@@ -321127,7 +322314,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "presensacies/presensacies_cast/presensacies_cast",
 			texturePath: "presensacies/presensacies_cast/",
-			min: "presensacies/presensacies_cast/min_presensacies_cast"
+			min: "presensacies/presensacies_cast/min_presensacies_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_cd_effligo: [{
 			type: "STR",
@@ -321188,7 +322376,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_dilectioheal/new_dilectioheal_cast/new_dilectioheal_cast",
 			texturePath: "new_dilectioheal/new_dilectioheal_cast/",
-			min: "new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast"
+			min: "new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "new_dilectioheal/new_dilectioheal_cast_bottom/new_dilectioheal_cast_bottom",
@@ -321207,7 +322396,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "religio/religio_cast/religio_cast",
 			texturePath: "religio/religio_cast/",
-			min: "religio/religio_cast/min_religio_cast"
+			min: "religio/religio_cast/min_religio_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_cd_benedictum: [{
 			type: "STR",
@@ -321220,7 +322410,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "benedictum/benedictum_cast/benedictum_cast",
 			texturePath: "benedictum/benedictum_cast/",
-			min: "benedictum/benedictum_cast/min_benedictum_cast"
+			min: "benedictum/benedictum_cast/min_benedictum_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "benedictum/benedictum_cast_bottom/benedictum_cast_bottom",
@@ -321562,8 +322753,7 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "eternal_slash/eternal_slash/eternal_slash",
 			texturePath: "eternal_slash/eternal_slash/",
-			min: "eternal_slash/eternal_slash/min_eternal_slash",
-			wav: "effect/shc_eternal_slash"
+			min: "eternal_slash/eternal_slash/min_eternal_slash"
 		}, {
 			type: "STR",
 			file: "eternal_slash/eternal_slash_bottom/eternal_slash_bottom",
@@ -321575,7 +322765,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "eternal_slash/eternal_slash_hit/eternal_slash_hit",
 			texturePath: "eternal_slash/eternal_slash_hit/",
-			min: "eternal_slash/eternal_slash_hit/min_eternal_slash_hit"
+			min: "eternal_slash/eternal_slash_hit/min_eternal_slash_hit",
+			wav: "effect/shc_eternal_slash"
 		}],
 		ef_shc_potent_venom: [{
 			type: "STR",
@@ -321800,13 +322991,15 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "soundblend/soundblend/soundblend",
 			texturePath: "soundblend/soundblend/",
-			min: "soundblend/soundblend/min_soundblend"
+			min: "soundblend/soundblend/min_soundblend",
+			wav: "effect/tr_soundblend_shot"
 		}],
 		ef_tr_soundblend_cast: [{
 			type: "STR",
 			file: "soundblend/soundblend_cast/soundblend_cast",
 			texturePath: "soundblend/soundblend_cast/",
-			min: "soundblend/soundblend_cast/min_soundblend_cast"
+			min: "soundblend/soundblend_cast/min_soundblend_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "soundblend/soundblend_cast_bottom/soundblend_cast_bottom",
@@ -321887,7 +323080,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "musical_interlude/musical_interlude_cast/musical_interlude_cast",
 			texturePath: "musical_interlude/musical_interlude_cast/",
-			min: "musical_interlude/musical_interlude_cast/min_musical_interlude_cast"
+			min: "musical_interlude/musical_interlude_cast/min_musical_interlude_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_tr_jawaii_serenade: [{
 			type: "STR",
@@ -321924,7 +323118,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "nipelheim/nipelheim_cast/nipelheim_cast",
 			texturePath: "nipelheim/nipelheim_cast/",
-			min: "nipelheim/nipelheim_cast/min_nipelheim_cast"
+			min: "nipelheim/nipelheim_cast/min_nipelheim_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_tr_pron_march: [{
 			type: "STR",
@@ -322046,7 +323241,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "unlucky_rush/unlucky_rush_cast/unlucky_rush_cast",
 			texturePath: "unlucky_rush/unlucky_rush_cast/",
-			min: "unlucky_rush/unlucky_rush_cast/min_unlucky_rush_cast"
+			min: "unlucky_rush/unlucky_rush_cast/min_unlucky_rush_cast",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_abc_unlucky_rush_hit: [{
 			type: "STR",
@@ -322065,7 +323261,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "chain_reaction_shot/chain_reaction_shot_cast/chain_reaction_shot_cast",
 			texturePath: "chain_reaction_shot/chain_reaction_shot_cast/",
-			min: "chain_reaction_shot/chain_reaction_shot_cast/min_chain_reaction_shot_cast"
+			min: "chain_reaction_shot/chain_reaction_shot_cast/min_chain_reaction_shot_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "chain_reaction_shot/chain_reaction_shot_cast_bottom/chain_reaction_shot_cast_bottom",
@@ -322096,7 +323293,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "4abc_abyss_slayer/abyss_slayer_cast/abyss_slayer_cast",
 			texturePath: "4abc_abyss_slayer/abyss_slayer_cast/",
-			min: "4abc_abyss_slayer/abyss_slayer_cast/min_abyss_slayer_cast"
+			min: "4abc_abyss_slayer/abyss_slayer_cast/min_abyss_slayer_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "4abc_abyss_slayer/abyss_slayer_cast_bottom/abyss_slayer_cast_bottom",
@@ -322121,7 +323319,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "abyss_strike/abyss_strike_cast/abyss_strike_cast",
 			texturePath: "abyss_strike/abyss_strike_cast/",
-			min: "abyss_strike/abyss_strike_cast/min_abyss_strike_cast"
+			min: "abyss_strike/abyss_strike_cast/min_abyss_strike_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "abyss_strike/abyss_strike_cast_bottom/abyss_strike_cast_bottom",
@@ -322139,7 +323338,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "deft_stab/deft_stab/deft_stab",
 			texturePath: "deft_stab/deft_stab/",
-			min: "deft_stab/deft_stab/min_deft_stab"
+			min: "deft_stab/deft_stab/min_deft_stab",
+			wav: "effect/abc_deft_stab1"
 		}],
 		ef_abc_abyss_square: [{
 			type: "STR",
@@ -322299,7 +323499,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "deepblindtrap/deepblindtrap/deepblindtrap",
 			texturePath: "deepblindtrap/deepblindtrap/",
-			min: "deepblindtrap/deepblindtrap/min_deepblindtrap"
+			min: "deepblindtrap/deepblindtrap/min_deepblindtrap",
+			wav: "effect/wh_trap"
 		}, {
 			type: "STR",
 			file: "deepblindtrap/deepblindtrap_bottom/deepblindtrap_bottom",
@@ -322317,13 +323518,15 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "deepblindtrap/deepblindtrap_hit/deepblindtrap_hit",
 			texturePath: "deepblindtrap/deepblindtrap_hit/",
-			min: "deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit"
+			min: "deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit",
+			wav: "effect/wh_deep_blind_trap_hit"
 		}],
 		ef_wh_solidtrap: [{
 			type: "STR",
 			file: "solidtrap/solidtrap/solidtrap",
 			texturePath: "solidtrap/solidtrap/",
-			min: "solidtrap/solidtrap/min_solidtrap"
+			min: "solidtrap/solidtrap/min_solidtrap",
+			wav: "effect/wh_trap"
 		}, {
 			type: "STR",
 			file: "solidtrap/solidtrap_bottom/solidtrap_bottom",
@@ -322335,7 +323538,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "solidtrap/solidtrap_cast/solidtrap_cast",
 			texturePath: "solidtrap/solidtrap_cast/",
-			min: "solidtrap/solidtrap_cast/min_solidtrap_cast"
+			min: "solidtrap/solidtrap_cast/min_solidtrap_cast",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "solidtrap/solidtrap_cast_bottom/solidtrap_cast_bottom",
@@ -322347,13 +323551,15 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "solidtrap/solidtrap_hit/solidtrap_hit",
 			texturePath: "solidtrap/solidtrap_hit/",
-			min: "solidtrap/solidtrap_hit/min_solidtrap_hit"
+			min: "solidtrap/solidtrap_hit/min_solidtrap_hit",
+			wav: "effect/wh_solid_trap_hit"
 		}],
 		ef_wh_swifttrap: [{
 			type: "STR",
 			file: "swifttrap/swifttrap/swifttrap",
 			texturePath: "swifttrap/swifttrap/",
-			min: "swifttrap/swifttrap/min_swifttrap"
+			min: "swifttrap/swifttrap/min_swifttrap",
+			wav: "effect/wh_trap"
 		}, {
 			type: "STR",
 			file: "swifttrap/swifttrap_bottom/swifttrap_bottom",
@@ -322371,7 +323577,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "swifttrap/swifttrap_hit/swifttrap_hit",
 			texturePath: "swifttrap/swifttrap_hit/",
-			min: "swifttrap/swifttrap_hit/min_swifttrap_hit"
+			min: "swifttrap/swifttrap_hit/min_swifttrap_hit",
+			wav: "effect/wh_swift_trap_hit"
 		}],
 		ef_wh_crescive_bolt: [{
 			type: "STR",
@@ -322398,7 +323605,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "flametrap/flametrap/flametrap",
 			texturePath: "flametrap/flametrap/",
-			min: "flametrap/flametrap/min_flametrap"
+			min: "flametrap/flametrap/min_flametrap",
+			wav: "effect/wh_trap"
 		}, {
 			type: "STR",
 			file: "flametrap/flametrap_bottom/flametrap_bottom",
@@ -322416,7 +323624,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "flametrap/flametrap_hit/flametrap_hit",
 			texturePath: "flametrap/flametrap_hit/",
-			min: "flametrap/flametrap_hit/min_flametrap_hit"
+			min: "flametrap/flametrap_hit/min_flametrap_hit",
+			wav: "effect/wh_flametrap_hit"
 		}],
 		ef_wh_wild_walk: [{
 			type: "STR",
@@ -323295,12 +324504,14 @@ var init_EffectTable = __esmMin((() => {
 			file: "increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom",
 			texturePath: "increasing_activity/increasing_activity_cast_bottom/",
 			min: "increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_gc_crossimpact: [{
 			type: "STR",
 			file: "new_crossimpact/new_crossimpact/new_crossimpact",
-			texturePath: "new_crossimpact/new_crossimpact/"
+			texturePath: "new_crossimpact/new_crossimpact/",
+			wav: "effect/ef_stonecurse"
 		}],
 		ef_gc_poisoningweapon: [{
 			type: "STR",
@@ -323385,18 +324596,28 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_axetornado/new_axetornado_bottom/new_axetornado_bottom",
 			texturePath: "new_axetornado/new_axetornado_bottom/",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "ice_titan_attack",
+			delayWav: 83
 		}],
-		ef_sc_fatalmenace: [{
-			type: "STR",
-			file: "new_fatal_menace/new_fatal_menace/new_fatal_menace",
-			texturePath: "new_fatal_menace/new_fatal_menace/"
-		}, {
-			type: "STR",
-			file: "new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom",
-			texturePath: "new_fatal_menace/new_fatal_menace_bottom/",
-			renderBeforeEntities: true
-		}],
+		ef_sc_fatalmenace: [
+			{
+				type: "STR",
+				file: "new_fatal_menace/new_fatal_menace/new_fatal_menace",
+				texturePath: "new_fatal_menace/new_fatal_menace/"
+			},
+			{
+				type: "STR",
+				file: "new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom",
+				texturePath: "new_fatal_menace/new_fatal_menace_bottom/",
+				renderBeforeEntities: true,
+				wav: "effect/ef_bash"
+			},
+			{
+				wav: "effect/_og_intimidate",
+				delayWav: 583
+			}
+		],
 		ef_sc_fatalmenace_cast: [{
 			type: "STR",
 			file: "new_fatal_menace/new_fatal_menace_cast/new_fatal_menace_cast",
@@ -323433,13 +324654,16 @@ var init_EffectTable = __esmMin((() => {
 			file: "new_cannon_spear/new_cannon_spear_bottom/new_cannon_spear_bottom",
 			texturePath: "new_cannon_spear/new_cannon_spear_bottom/",
 			renderBeforeEntities: true,
-			wav: "effect/lg_cannonspear"
+			wav: "effect/ef_hit2",
+			delayWav: 167
+		}, {
+			wav: "effect/ef_hit4",
+			delayWav: 333
 		}],
 		ef_lg_banishingpoint_cast: [{
 			type: "STR",
 			file: "new_banishingpoint/new_banishingpoint_cast/new_banishingpoint_cast",
-			texturePath: "new_banishingpoint/new_banishingpoint_cast/",
-			wav: "effect/lg_banishingpoint"
+			texturePath: "new_banishingpoint/new_banishingpoint_cast/"
 		}, {
 			type: "STR",
 			file: "new_banishingpoint/new_banishingpoint_cast_bottom/new_banishingpoint_cast_bottom",
@@ -323449,8 +324673,7 @@ var init_EffectTable = __esmMin((() => {
 		ef_lg_overbrand_cast: [{
 			type: "STR",
 			file: "new_overbrand/new_overbrand_cast/new_overbrand_cast",
-			texturePath: "new_overbrand/new_overbrand_cast/",
-			wav: "effect/lg_overbrand"
+			texturePath: "new_overbrand/new_overbrand_cast/"
 		}, {
 			type: "STR",
 			file: "new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom",
@@ -323466,7 +324689,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_rayofgenesis/new_rayofgenesis/new_rayofgenesis",
 			texturePath: "new_rayofgenesis/new_rayofgenesis/",
-			wav: "effect/lg_rayofgenesis"
+			wav: "effect/mon_¸Í·æ°ú°­",
+			delayWav: 83
 		}],
 		ef_lg_rayofgenesis_cast: [{
 			type: "STR",
@@ -323476,7 +324700,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_rayofgenesis/new_rayofgenesis_cast_bottom/new_rayofgenesis_cast_bottom",
 			texturePath: "new_rayofgenesis/new_rayofgenesis_cast_bottom/",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_lg_rayofgenesis_hit: [{
 			type: "STR",
@@ -323488,7 +324713,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_earthdrive/new_earthdrive/new_earthdrive",
 			texturePath: "new_earthdrive/new_earthdrive/",
-			wav: "effect/lg_earthdrive"
+			wav: "effect/wizard_earthspike",
+			delayWav: 333
 		}, {
 			type: "STR",
 			file: "new_earthdrive/new_earthdrive_bottom/new_earthdrive_bottom",
@@ -323528,8 +324754,7 @@ var init_EffectTable = __esmMin((() => {
 		ef_sr_fallenempire: [{
 			type: "STR",
 			file: "new_fallenempire/new_fallenempire/new_fallenempire",
-			texturePath: "new_fallenempire/new_fallenempire/",
-			wav: "effect/sr_fallenempire"
+			texturePath: "new_fallenempire/new_fallenempire/"
 		}, {
 			type: "STR",
 			file: "new_fallenempire/new_fallenempire_bottom/new_fallenempire_bottom",
@@ -323544,14 +324769,12 @@ var init_EffectTable = __esmMin((() => {
 		ef_sr_tigercannon: [{
 			type: "STR",
 			file: "new_tigercannon/new_tigercannon",
-			texturePath: "new_tigercannon/",
-			wav: "effect/sr_tigercannon"
+			texturePath: "new_tigercannon/"
 		}],
 		ef_sr_rampageblaster: [{
 			type: "STR",
 			file: "new_rampageblaster/new_rampageblaster/new_rampageblaster",
-			texturePath: "new_rampageblaster/new_rampageblaster/",
-			wav: "effect/sr_rampageblaster"
+			texturePath: "new_rampageblaster/new_rampageblaster/"
 		}, {
 			type: "STR",
 			file: "new_rampageblaster/new_rampageblaster_bottom/new_rampageblaster_bottom",
@@ -323568,13 +324791,12 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_gateofhell/new_gateofhell_cast/new_gateofhell_cast",
 			texturePath: "new_gateofhell/new_gateofhell_cast/",
-			wav: "effect/sr_gateofhell"
+			wav: "effect/ef_beginspell"
 		}],
 		ef_sr_howlingoflion: [{
 			type: "STR",
 			file: "new_howlingoflion/new_howlingoflion/new_howlingoflion",
-			texturePath: "new_howlingoflion/new_howlingoflion/",
-			wav: "effect/sr_howlingoflion"
+			texturePath: "new_howlingoflion/new_howlingoflion/"
 		}, {
 			type: "STR",
 			file: "new_howlingoflion/new_howlingoflion_bottom/new_howlingoflion_bottom",
@@ -323584,7 +324806,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_sr_howlingoflion_cast: [{
 			type: "STR",
 			file: "new_howlingoflion/new_howlingoflion_cast/new_howlingoflion_cast",
-			texturePath: "new_howlingoflion/new_howlingoflion_cast/"
+			texturePath: "new_howlingoflion/new_howlingoflion_cast/",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "new_howlingoflion/new_howlingoflion_cast_bottom/new_howlingoflion_cast_bottom",
@@ -323599,7 +324822,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_wm_metalicsound: [{
 			type: "STR",
 			file: "new_metalicsound/new_metalicsound/new_metalicsound",
-			texturePath: "new_metalicsound/new_metalicsound/"
+			texturePath: "new_metalicsound/new_metalicsound/",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "new_metalicsound/new_metalicsound_bottom/new_metalicsound_bottom",
@@ -323629,7 +324853,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_wm_sound_of_destruction_cast: [{
 			type: "STR",
 			file: "new_soundofdestruction/new_soundofdestruction_cast/new_soundofdestruction_cast",
-			texturePath: "new_soundofdestruction/new_soundofdestruction_cast/"
+			texturePath: "new_soundofdestruction/new_soundofdestruction_cast/",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "new_soundofdestruction/new_soundofdestruction_cast_bottom/new_soundofdestruction_cast_bottom",
@@ -323734,7 +324959,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_cart_cannon/new_cart_cannon_cast_bottom/new_cart_cannon_cast_bottom",
 			texturePath: "new_cart_cannon/new_cart_cannon_cast_bottom/",
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			wav: "effect/ef_beginspell"
 		}],
 		ef_gn_cartboost: [{
 			type: "STR",
@@ -323749,7 +324975,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_gn_wallofthorn_cast: [{
 			type: "STR",
 			file: "new_wallofthorn/new_wallofthorn_cast/new_wallofthorn_cast",
-			texturePath: "new_wallofthorn/new_wallofthorn_cast/"
+			texturePath: "new_wallofthorn/new_wallofthorn_cast/",
+			wav: "effect/ef_beginspell"
 		}, {
 			type: "STR",
 			file: "new_wallofthorn/new_wallofthorn_cast_bottom/new_wallofthorn_cast_bottom",
@@ -323769,7 +324996,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_gn_mandragora_cast: [{
 			type: "STR",
 			file: "new_mandragora/new_mandragora_cast/new_mandragora_cast",
-			texturePath: "new_mandragora/new_mandragora_cast/"
+			texturePath: "new_mandragora/new_mandragora_cast/",
+			wav: "effect/ef_beginspell"
 		}],
 		ef_gn_changematerial: [{
 			type: "STR",
@@ -323964,6 +325192,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "new_windcutter/new_windcutter/",
 			min: "mineffect/new_windcutter/new_windcutter/new_windcutter",
 			minTexturePath: "mineffect/new_windcutter/new_windcutter/",
+			wav: "effect/wl_siennaexecrate",
 			attachedEntity: true
 		}],
 		ef_rk_windcutter_bottom_01: [{
@@ -324419,7 +325648,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "tetravortex/tetra_04_water_sub_explosion/tetra_04_water_sub_expn",
 			texturePath: "tetravortex/tetra_04_water_sub_explosion/",
-			attachedEntity: false
+			attachedEntity: false,
+			wav: "effect/drop_effect_1"
 		}],
 		ef_wl_tetravortex_sub_wind: [{
 			type: "FUNC",
@@ -324445,7 +325675,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "tetravortex/tetra_03_earth_sub_explosion/tetra_03_earth_sub_expn",
 			texturePath: "tetravortex/tetra_03_earth_sub_explosion/",
-			attachedEntity: false
+			attachedEntity: false,
+			wav: "effect/drop_effect_2"
 		}],
 		1270: [{
 			type: "STR",
@@ -324541,6 +325772,8 @@ var init_EffectTable = __esmMin((() => {
 			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/",
 			renderBeforeEntities: true,
 			castLoop: true,
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
 			attachedEntity: true
 		}],
 		1651: [{
@@ -324598,6 +325831,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "new_fearbreeze/",
 			min: "mineffect/new_fearbreeze/new_fearbreeze",
 			minTexturePath: "mineffect/new_fearbreeze/",
+			wav: "effect/ef_bash",
 			attachedEntity: true
 		}],
 		ef_ra_electricshocker_sound: [{
@@ -324732,6 +325966,13 @@ var init_EffectTable = __esmMin((() => {
 			delayWav: 500,
 			repeat: false,
 			attachedEntity: true
+		}],
+		1655: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new CastRing(Params.Inst.position, Params.Inst.startTick, 0, "ring_white.tga", [], { epiclesis: true }), Params);
+			}
 		}],
 		725: [{
 			type: "PRIM",
@@ -325095,6 +326336,24 @@ var init_EffectTable = __esmMin((() => {
 			repeat: true,
 			delayFrame: 8e3 / 60,
 			yOffset: 21
+		}],
+		1097: [{
+			type: "3D",
+			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/su_tunaparty/su_tunaparty",
+			playSprite: true,
+			sprDelay: 8e3 / 60,
+			size: 100,
+			attachedEntity: true,
+			alphaMax: 1,
+			duration: 9999 * PRIM_TICK_MS,
+			track(age) {
+				const turn = .05 * (age + 1);
+				return {
+					x: Math.cos(turn) * 10 / 5,
+					y: Math.sin(turn) * 10 / 5,
+					z: 2
+				};
+			}
 		}],
 		ef_su_pickypeck: [{
 			type: "STR",
@@ -358222,6 +359481,19 @@ function recalculateBlendingColor() {
 	this.effectColor[2] = this._bodyStateColor[2] * this._healthStateColor[2] * this._effectStateColor[2] * this._virtueColor[2] * this._flashColor[2];
 	this.effectColor[3] = this._bodyStateColor[3] * this._healthStateColor[3] * this._effectStateColor[3] * this._virtueColor[3] * this._flashColor[3];
 }
+/**
+* Body a job takes for its mount, or Union's flying body, or 0 for none.
+* Star Gladiators change body only with the flying option (official 0xc43b10);
+* riding alone leaves them as they are.
+*
+* @param {number} job
+* @param {number} value effect state
+* @return {number} body id, or 0
+*/
+function mountCostume(job, value) {
+	if (FLYING_JOBS.has(job)) return value & StatusState_default.EffectState.FLYING ? MountTable[job] : 0;
+	return value & RIDING_OPTIONS && job in MountTable ? MountTable[job] : 0;
+}
 function toggleOpt3(state, enabled) {
 	if (state === 0) return;
 	const value = _stateToVirtue[state];
@@ -358447,9 +359719,8 @@ function updateEffectState(value) {
 	this._effectStateColor[1] = 1;
 	this._effectStateColor[2] = 1;
 	this._effectStateColor[3] = 1;
-	if (value & (StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR)) {
-		if (this._job in MountTable) costume = MountTable[this._job];
-	}
+	const mount = mountCostume(this._job, value);
+	if (mount) costume = mount;
 	if (value & StatusState_default.EffectState.WEDDING) costume = 22;
 	if (value & StatusState_default.EffectState.XMAS) costume = 26;
 	if (value & StatusState_default.EffectState.SUMMER) costume = 27;
@@ -358587,14 +359858,21 @@ function Init$1() {
 	this.getOpt3 = getOpt3;
 	this.recalculateBlendingColor = recalculateBlendingColor;
 }
-var _stateToVirtue;
+var FLYING_JOBS, RIDING_OPTIONS, _stateToVirtue;
 var init_EntityState = __esmMin((() => {
 	init_SoundManager();
 	init_StatusState();
 	init_MountTable();
 	init_AllMountTable();
+	init_JobConst();
 	init_SessionStorage();
 	init_Emotions();
+	FLYING_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.STAR,
+		JobConst_default.STAR_B,
+		JobConst_default.SKY_EMPEROR
+	]);
+	RIDING_OPTIONS = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
 	_stateToVirtue = {};
 	_stateToVirtue[StatusState_default.Status.TWOHANDQUICKEN] = StatusState_default.OPT3.QUICKEN;
 	_stateToVirtue[StatusState_default.Status.SPEARQUICKEN] = StatusState_default.OPT3.QUICKEN;
@@ -376946,8 +378224,7 @@ function onEntityUseSkillToAttack(pkt) {
 			if (pushedEntity) pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 		}
 	}
-	const arrivalDelay = pkt.attackMT + (SkillEffect[pkt.SKID] && SkillEffect[pkt.SKID].hitDelay || 0);
-	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, void 0, pkt.count, Renderer.tick + arrivalDelay);
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, void 0, pkt.count);
 	EffectManager.spamSkillSplashMark(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, pkt.level);
 	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
 	if (srcEntity && dstEntity && packetLaunchesSkill(pkt.SKID, pkt.action)) {
@@ -381817,6 +383094,70 @@ function onMillenniumShield(pkt) {
 		}
 	}
 }
+/**
+* Star Gladiator Feeling / Hatred and Taekwon Mission notices (ZC_STARSKILL).
+* The official client (kRO 2025-07-16, handler 0xcd9650) switches on `result`:
+* - 0 / 1: Feeling place, msg 837 + star / 840 + star with (player name, map name);
+* - 10 / 11: Hatred target, msg 843 + star / 846 + star with (player name, target name);
+* - 20: Taekwon Mission;
+* - 30: Feeling and Hatred reset, msg 1033 and effect 432 on the player.
+* Results 1 and 11 also play effect 543 on the player with effect/T_피링.wav.
+*
+* @param {object} pkt - PACKET.ZC.STARSKILL
+*/
+function onStarSkill(pkt) {
+	if (pkt.result === 20) {
+		onTaekwonMission(pkt);
+		return;
+	}
+	const star = pkt.star;
+	const playerName = SessionStorage_default.Entity ? SessionStorage_default.Entity.display.name : "";
+	let message;
+	let effectId = 0;
+	switch (pkt.result) {
+		case 0:
+		case 1:
+			message = DB.getMessage((pkt.result === 0 ? 837 : 840) + star);
+			message = message.replace("%s", playerName).replace("%s", pkt.monsterName);
+			effectId = pkt.result === 1 ? 543 : 0;
+			break;
+		case 10:
+		case 11: {
+			const mobName = DB.getMonsterName(pkt.monsterID);
+			const targetName = mobName !== "Unknown" ? mobName : pkt.monsterName;
+			message = DB.getMessage((pkt.result === 10 ? 843 : 846) + star);
+			message = message.replace("%s", playerName).replace("%s", targetName);
+			effectId = pkt.result === 11 ? 543 : 0;
+			break;
+		}
+		case 30:
+			message = DB.getMessage(1033);
+			effectId = 432;
+			break;
+		default: return;
+	}
+	ChatBox_default.addText(message, ChatBox_default.TYPE.ANNOUNCE, ChatBox_default.FILTER.PUBLIC_LOG, "#F8F8FF");
+	if (effectId && SessionStorage_default.Entity) EffectManager.spam({
+		effectId,
+		ownerAID: SessionStorage_default.Entity.GID
+	});
+	if (effectId === 543) SoundManager.play("effect/T_ÇÇ¸µ.wav");
+}
+/**
+* Star Gladiator Feeling: the server asks before saving the map (ZC_STARPLACE).
+* The official client opens UIStarPlaceAcceptWnd with msg 1028 and answers
+* CZ_AGREE_STARPLACE with the star on OK; cancel only closes the window.
+*
+* @param {object} pkt - PACKET.ZC.STARPLACE
+*/
+function onStarPlace(pkt) {
+	const which = pkt.which;
+	UIManager.showPromptBox(DB.getMessage(1028), "ok", "cancel", () => {
+		const reply = new PACKET.CZ.AGREE_STARPLACE();
+		reply.which = which;
+		Network.sendPacket(reply);
+	});
+}
 function onTaekwonMission(pkt) {
 	const total = 100;
 	let message = DB.getMessage(927);
@@ -381885,7 +383226,8 @@ function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.SOULENERGY, onSoulEnergy);
 	Network.hookPacket(PACKET.ZC.MILLENNIUMSHIELD, onMillenniumShield);
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
-	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);
+	Network.hookPacket(PACKET.ZC.STARSKILL, onStarSkill);
+	Network.hookPacket(PACKET.ZC.STARPLACE, onStarPlace);
 	Network.hookPacket(PACKET.ZC.MSG_SKILL, onMessageSkill);
 	Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 	Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
@@ -381905,6 +383247,7 @@ var init_Skill = __esmMin((() => {
 	init_PacketStructure();
 	init_EntityManager();
 	init_EffectManager();
+	init_SoundManager();
 	init_EnergyOrbSim();
 	init_SoulCollectSim();
 	init_Altitude();
