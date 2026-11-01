@@ -149882,7 +149882,8 @@ var init_StatusEffectTable = __esmMin((() => {
 			restart: [601],
 			stop: [601]
 		},
-		[StatusConst_default.SOULUNITY]: { loop: [1222] }
+		[StatusConst_default.SOULUNITY]: { loop: [1222] },
+		[StatusConst_default.TELEKINESIS_INTENSE]: { restartLoop: [1048] }
 	};
 }));
 // src/DB/Skills/SkillUnitConst.js
@@ -224420,7 +224421,10 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectIdOnCaster: "ef_rk_bluecasting",
 		damageEffectIdOnTarget: 183
 	};
-	SkillEffect[SkillConst_default.RK_HUNDREDSPEAR] = { castAuraEffectId: 12 };
+	SkillEffect[SkillConst_default.RK_HUNDREDSPEAR] = {
+		arrivalEffectIdOnCaster: [723, 835],
+		castAuraEffectId: 12
+	};
 	SkillEffect[SkillConst_default.RK_WINDCUTTER] = {
 		successEffectIdOnCaster: "ef_rk_windcutter",
 		successEffectIdOnCasterByFacing: [
@@ -224499,7 +224503,7 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectId: [538, "ef_rk_bluecasting"],
 		castAuraEffectId: 12
 	};
-	SkillEffect[SkillConst_default.WL_WHITEIMPRISON] = { effectId: 802 };
+	SkillEffect[SkillConst_default.WL_WHITEIMPRISON] = {};
 	SkillEffect[SkillConst_default.WL_SOULEXPANSION] = {
 		hideCastAura: true,
 		beginCastEffectId: [1587, 1588],
@@ -225756,7 +225760,7 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_cd_divinus_flos_cast",
 		hitEffectId: "ef_cd_divinus_flos_hit"
 	};
-	SkillEffect[SkillConst_default.WL_TELEKINESIS_INTENSE] = { effectId: 1048 };
+	SkillEffect[SkillConst_default.WL_TELEKINESIS_INTENSE] = { successEffectIdOnCaster: "ef_wl_telekinesis_intense_sound" };
 	SkillEffect[SkillConst_default.AG_DEADLY_PROJECTION] = {
 		effectIdOnCaster: "ef_ag_deadly_projection_cast",
 		hitEffectId: "ef_ag_deadly_projection_hit"
@@ -291270,6 +291274,19 @@ var init_CasterMarks = __esmMin((() => {
 				color: on ? even ? BLUE$1 : WHITE : null
 			};
 		},
+		835: (age) => {
+			const on = age >= 20 && age <= 100;
+			return {
+				add: false,
+				glow: on,
+				split: false,
+				color: on ? [
+					255,
+					255,
+					150
+				] : null
+			};
+		},
 		538: (age) => {
 			const on = age <= 30;
 			const even = age % 2 === 0;
@@ -296471,6 +296488,89 @@ var init_AcidDemonRing = __esmMin((() => {
 		}
 	};
 }));
+// src/DB/Effects/HundredSpearEffect.js
+/**
+* The client's whole-degree heading of a vector (dx, dz): the first angle c
+* from 0 with cos(c) at or below dx / length, mirrored to 360 - c when dz < 0.
+*
+* @param {number} dx
+* @param {number} dz
+* @return {number} 0 to 359 (180 when both are 0)
+*/
+function clientHeading(dx, dz) {
+	const length = Math.hypot(dx, dz);
+	const nx = length ? dx / length : -1;
+	let c = 0;
+	while (c < 180 && nx < Math.cos(c * Math.PI / 180) - 1e-9) c++;
+	return dz < 0 && c ? 360 - c : c;
+}
+/**
+* The sprite's action: the heading from the target to the caster (map y as
+* the client's z) plus the camera's turn, split in four.
+*
+* @param {Array} caster position
+* @param {Array} target position
+* @param {number} [cameraTurn] degrees, Camera.angle[1] by default
+* @return {number} 0 to 3
+*/
+function hundredSpearAction(caster, target, cameraTurn = Camera.angle[1]) {
+	const angle = ((clientHeading(caster[0] - target[0], caster[1] - target[1]) + Math.trunc(cameraTurn)) % 360 + 360) % 360;
+	if (angle >= 180 && angle < 270) return 0;
+	if (angle >= 90 && angle < 180) return 1;
+	if (angle < 90) return 2;
+	return 3;
+}
+var SPRITE, hundredSpearEffect, hundredSpearDashEffect;
+var init_HundredSpearEffect = __esmMin((() => {
+	init_Camera();
+	init_Renderer();
+	init_CasterMarks();
+	init_EffectPrimSim();
+	SPRITE = "Çåµå·¹µå½ºÇÇ¾î";
+	hundredSpearEffect = [{
+		wav: "hundred",
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const caster = Params.Init.ownerEntity;
+			const target = Params.Init.otherEntity;
+			if (!caster || !target) return;
+			const position = [
+				target.position[0],
+				target.position[1],
+				target.position[2]
+			];
+			this.spamEffect({
+				effect: {
+					type: "SPR",
+					file: SPRITE,
+					frame: hundredSpearAction(caster.position, target.position),
+					delayStart: Math.max(0, Params.Inst.startTick - (Renderer.tick || 0))
+				},
+				Inst: {
+					effectID: 723,
+					startTick: Params.Inst.startTick
+				},
+				Init: {
+					...Params.Init,
+					ownerEntity: null,
+					ownerAID: -1,
+					position
+				}
+			});
+		}
+	}];
+	hundredSpearDashEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			Camera.setQuake(Params.Inst.startTick + 44 * PRIM_TICK_MS);
+			this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 101, 835), Params);
+		}
+	}];
+}));
 // src/DB/Effects/HellInfernoEffect.js
 /**
 * Offsets of the four side flames, in cells.
@@ -298578,7 +298678,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, r$7, EDP_BUBBLES;
+var DETOX, DETOX_LOW, r$7, EDP_BUBBLES;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -298588,6 +298688,7 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		fadeStart: 32,
 		spin: 3
 	};
+	DETOX_LOW = { every: 15 };
 	r$7 = (random, k) => Math.floor(random() * k);
 	EDP_BUBBLES = {
 		every: 3,
@@ -298603,9 +298704,12 @@ var init_DetoxBubbleSim = __esmMin((() => {
 *
 * @param {object} bubble from planBubbles
 * @param {string} [spriteName] the sprite under data/sprite/이팩트
+* @param {number} [lowEvery] under /mineffect only bubbles spawned on a multiple of this many ticks are drawn,
+*   decided when the bubble starts, as the client asks the option on each spawn tick
 * @return {object}
 */
-function detoxBubbleEffect(bubble, spriteName = "particle2") {
+function detoxBubbleEffect(bubble, spriteName = "particle2", lowEvery = 0) {
+	let hidden = null;
 	return {
 		type: "3D",
 		spriteName,
@@ -298614,6 +298718,8 @@ function detoxBubbleEffect(bubble, spriteName = "particle2") {
 		duration: DETOX.life * PRIM_TICK_MS,
 		zIndex: 1,
 		track(age) {
+			if (hidden === null) hidden = !!(lowEvery && Map_default.mineffect && bubble.spawn % lowEvery !== 0);
+			if (hidden) return null;
 			const p = bubbleAt(bubble, age);
 			if (!p) return null;
 			return {
@@ -298629,6 +298735,7 @@ function detoxBubbleEffect(bubble, spriteName = "particle2") {
 }
 var detoxifyEffect;
 var init_DetoxifyEffect = __esmMin((() => {
+	init_Map();
 	init_EffectPrimSim();
 	init_DetoxBubbleSim();
 	detoxifyEffect = [{
@@ -298637,7 +298744,7 @@ var init_DetoxifyEffect = __esmMin((() => {
 		func: function(Params) {
 			planBubbles().forEach((bubble, i) => {
 				this.spamEffect({
-					effect: detoxBubbleEffect(bubble),
+					effect: detoxBubbleEffect(bubble, "particle2", DETOX_LOW.every),
 					Inst: {
 						effectID: 21,
 						duplicateID: i,
@@ -302877,6 +302984,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCircle();
 	init_SlimPotionEffect();
 	init_AcidDemonRing();
+	init_HundredSpearEffect();
 	init_HellInfernoEffect();
 	init_SonicWave();
 	init_SonicWaveSim();
@@ -313953,6 +314061,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/wl_jackfrost",
 			attachedEntity: true
 		}],
+		723: hundredSpearEffect,
 		726: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
 		727: [{
 			type: "STR",
@@ -315106,7 +315215,7 @@ var init_EffectTable = __esmMin((() => {
 				alphaMax: 65 / 255,
 				blendMode: 2,
 				rotateWithCamera: true,
-				duration: 2e4,
+				duration: 49983,
 				attachedEntity: true
 			},
 			{
@@ -315121,7 +315230,7 @@ var init_EffectTable = __esmMin((() => {
 				blendMode: 2,
 				rotateWithCamera: true,
 				angleY: 10,
-				duration: 2e4,
+				duration: 49983,
 				attachedEntity: true
 			},
 			{
@@ -315135,7 +315244,7 @@ var init_EffectTable = __esmMin((() => {
 				alphaMax: 15 / 255,
 				blendMode: 2,
 				rotateWithCamera: true,
-				duration: 2e4,
+				duration: 49983,
 				attachedEntity: true
 			},
 			{
@@ -315150,7 +315259,7 @@ var init_EffectTable = __esmMin((() => {
 				blendMode: 2,
 				rotateWithCamera: true,
 				angleY: 53.2,
-				duration: 2e4,
+				duration: 49983,
 				attachedEntity: true
 			},
 			{ wav: "effect/wl_whiteimprison" }
@@ -315273,6 +315382,7 @@ var init_EffectTable = __esmMin((() => {
 				this.add(Spheres, Params);
 			}
 		}],
+		835: hundredSpearDashEffect,
 		840: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -316902,6 +317012,9 @@ var init_EffectTable = __esmMin((() => {
 		1048: [{
 			type: "STR",
 			file: "wl_telekinesis_intense",
+			attachedEntity: true
+		}],
+		ef_wl_telekinesis_intense_sound: [{
 			wav: "effect/wl_telekinesis_intense",
 			attachedEntity: true
 		}],
@@ -371701,6 +371814,20 @@ var init_NPC = __esmMin((() => {
 function hasElementCastAura(skillId) {
 	return !NO_ELEMENT_AURA_RANGES.some(([first, last]) => skillId >= first && skillId <= last);
 }
+/**
+* The aura shown for one of a skill's own cast auras. The official client's
+* picker (kRO 2025-07-16, 0xd85467) turns an aura of 12 into the element
+* aura when the cast's element is 1-6 (water to holy), whichever case set it;
+* other elements keep 12. Other auras are shown as they are.
+*
+* @param {number} effectId the skill's own aura
+* @param {number} element the cast packet's element
+* @param {number} elementAura the element's aura
+* @return {number}
+*/
+function fixedCastAura(effectId, element, elementAura) {
+	return effectId === 12 && element >= 1 && element <= 6 ? elementAura : effectId;
+}
 var NO_ELEMENT_AURA_RANGES;
 var init_CastAuraRule = __esmMin((() => {
 	NO_ELEMENT_AURA_RANGES = [
@@ -372818,6 +372945,10 @@ function updateStatusEffects(AID, status, state, values) {
 			EffectManager.remove(null, AID, effectId);
 			play(effectId);
 		});
+		(row.restartLoop || []).forEach((effectId) => {
+			EffectManager.remove(null, AID, effectId);
+			play(effectId, true);
+		});
 		loops.forEach((effectId) => {
 			if (!EffectManager.has(AID, effectId)) play(effectId, true);
 		});
@@ -372831,6 +372962,7 @@ function updateStatusEffects(AID, status, state, values) {
 		}
 	} else if (state == 0) {
 		loops.forEach((effectId) => EffectManager.remove(null, AID, effectId));
+		(row.restartLoop || []).forEach((effectId) => EffectManager.remove(null, AID, effectId));
 		counted.forEach((effectId) => EffectManager.remove(null, AID, effectId));
 		(row.stop || []).forEach((effectId) => EffectManager.remove(null, AID, effectId));
 		(row.end || []).forEach((effectId) => play(effectId));
@@ -372930,6 +373062,7 @@ function requestEntityGuildEmblem(entity) {
 */
 function onEntitySpam(pkt) {
 	let entity = EntityManager.get(pkt.GID);
+	const oldBodyState = entity ? entity._bodyState : 0;
 	if (entity) entity.set(pkt);
 	else {
 		entity = new Entity();
@@ -372963,6 +373096,7 @@ function onEntitySpam(pkt) {
 			}
 		}
 	}
+	updateImprisonEffect(entity.GID, oldBodyState, entity._bodyState);
 	if (pkt.effectState & StatusState_default.EffectState.FALCON && DB.isHunter(pkt.job)) {
 		if (!entity.falcon) entity.falcon = new Entity();
 		entity.falcon.set({
@@ -374078,6 +374212,7 @@ function onEntityCastSkill(pkt) {
 			case 9: EF_Init_Par.effectId = EffectConst_default.EF_DARKCASTING;
 		}
 		if (castSkill && castSkill.castAuraEffectId) [castSkill.castAuraEffectId].flat().forEach((effectId) => {
+			effectId = fixedCastAura(effectId, pkt.property, EF_Init_Par.effectId);
 			EffectManager.spam({
 				...EF_Init_Par,
 				effectId
@@ -374483,6 +374618,7 @@ function onEntityOptionChange(pkt) {
 	if (!entity) return;
 	addStateEffect(pkt.AID, entity._effectState, pkt.effectState, StatusState_default.EffectState.SIGHT, EffectConst_default.EF_SIGHT);
 	addStateEffect(pkt.AID, entity._effectState, pkt.effectState, StatusState_default.EffectState.RUWACH, EffectConst_default.EF_RUWACH);
+	updateImprisonEffect(pkt.AID, entity._bodyState, pkt.bodyState);
 	entity.bodyState = pkt.bodyState;
 	entity.healthState = pkt.healthState;
 	entity.effectState = pkt.effectState;
@@ -374720,6 +374856,23 @@ function haveSiegfriedItem() {
 	if (SessionStorage_default.IsPKZone || SessionStorage_default.IsSiegeMode || SessionStorage_default.IsEventPVPMode) return false;
 	else if (itemInfo && itemInfo.count > 0) return true;
 	else return false;
+}
+/**
+* White Imprison's look (802): launched when the body state turns IMPRISON,
+* removed when it leaves it, as the official client's Actor_UpdateOption does.
+*
+* @param {number} AID
+* @param {number} oldBodyState
+* @param {number} newBodyState
+*/
+function updateImprisonEffect(AID, oldBodyState, newBodyState) {
+	const IMPRISON = StatusState_default.BodyState.IMPRISON;
+	if (oldBodyState === newBodyState) return;
+	if (oldBodyState === IMPRISON) EffectManager.remove(null, AID, EffectConst_default.EF_BOTTOM_BASILICA2);
+	if (newBodyState === IMPRISON) EffectManager.spam({
+		effectId: EffectConst_default.EF_BOTTOM_BASILICA2,
+		ownerAID: AID
+	});
 }
 /**
 * Add/remove effect when state changes
