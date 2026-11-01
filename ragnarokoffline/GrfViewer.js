@@ -284211,7 +284211,53 @@ function customMapBgm(config, worldResource) {
 }
 var init_CustomMaps = __esmMin((() => {}));
 // src/Renderer/Effects/Damage.js
-var EndureSound, dpr$1, procCanvas$1, procCtx$1, _skin, _damageSkins, _loadedSkinsData, _enableSuffix, _msgNames, _list$1, _rgbaFrame, prevCombo, Damage;
+/**
+* @param {object} numbersData a skin's number frames
+* @return {number}
+*/
+function framesId(numbersData) {
+	let id = _framesIds.get(numbersData);
+	if (id === void 0) {
+		id = ++_nextFramesId;
+		_framesIds.set(numbersData, id);
+	}
+	return id;
+}
+/**
+* A damage stops showing its number texture
+*
+* @param {object} gl
+* @param {Damage} damage
+*/
+function releaseNumberTexture(gl, damage) {
+	const entry = damage.textureEntry;
+	damage.textureEntry = null;
+	if (!entry || _numberTextures.get(entry.key) !== entry || --entry.users > 0) return;
+	_idleTextures.add(entry.key);
+	if (_idleTextures.size > IDLE_TEXTURES) {
+		const oldest = _idleTextures.values().next().value;
+		_idleTextures.delete(oldest);
+		gl.deleteTexture(_numberTextures.get(oldest).texture);
+		_numberTextures.delete(oldest);
+	}
+}
+/**
+* Delete every number texture
+*
+* @param {object} gl
+*/
+function freeNumberTextures(gl) {
+	_numberTextures.forEach((entry) => gl.deleteTexture(entry.texture));
+	_numberTextures.clear();
+	_idleTextures.clear();
+}
+/**
+* Draw the bound sprite (one function for every damage, not one a frame each)
+*/
+function renderSprite() {
+	SpriteRenderer.render();
+}
+var EndureSound, dpr$1, procCanvas$1, procCtx$1, _numberTextures, IDLE_TEXTURES, _idleTextures, _textureGeneration, _framesIds, _nextFramesId, _skin, _damageSkins, _loadedSkinsData, _enableSuffix, _msgNames, _list$1, _rgbaFrame, prevCombo, Damage;
 var init_Damage = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -284232,6 +284278,12 @@ var init_Damage = __esmMin((() => {
 	dpr$1 = window.devicePixelRatio || 1;
 	procCanvas$1 = document.createElement("canvas");
 	procCtx$1 = procCanvas$1.getContext("2d", { willReadFrequently: true });
+	_numberTextures = /* @__PURE__ */ new Map();
+	IDLE_TEXTURES = 64;
+	_idleTextures = /* @__PURE__ */ new Set();
+	_textureGeneration = 0;
+	_framesIds = /* @__PURE__ */ new WeakMap();
+	_nextFramesId = 0;
 	_skin = 0;
 	_damageSkins = {
 		0: {
@@ -284410,6 +284462,13 @@ var init_Damage = __esmMin((() => {
 			let width = 0;
 			let height = 0;
 			const gl = Renderer.gl;
+			const textureKey = `${framesId(numbersData)}:${numbers.join(",")}`;
+			const generation = Renderer.contextGeneration || 0;
+			if (generation !== _textureGeneration) {
+				_textureGeneration = generation;
+				_numberTextures.clear();
+				_idleTextures.clear();
+			}
 			const obj = new Damage();
 			obj.type = type || (damage ? Damage.TYPE.DAMAGE : Damage.TYPE.MISS);
 			if (entity.objecttype === entity.constructor.TYPE_PC) obj.type |= Damage.TYPE.ENEMY;
@@ -284458,7 +284517,6 @@ var init_Damage = __esmMin((() => {
 				bgObj.width = msgData.critbg.canvas.width * .6;
 				bgObj.height = msgData.critbg.canvas.height * .6;
 				bgObj.offset = [0, -6];
-				bgObj.isDisposable = false;
 				_list$1.push(bgObj);
 				const EF_Init_Par = {
 					effectId: 1,
@@ -284486,7 +284544,6 @@ var init_Damage = __esmMin((() => {
 				bgObj.width = msgBlueData.critbg.canvas.width * .6;
 				bgObj.height = msgBlueData.critbg.canvas.height * .6;
 				bgObj.offset = [0, -6];
-				bgObj.isDisposable = false;
 				_list$1.push(bgObj);
 			} else {
 				obj.color[0] = 1;
@@ -284498,41 +284555,53 @@ var init_Damage = __esmMin((() => {
 					obj.texture = msgData.miss.texture;
 					obj.width = msgData.miss.canvas.width;
 					obj.height = msgData.miss.canvas.height;
-					obj.isDisposable = false;
 					_list$1.push(obj);
 				}
 				return;
 			}
-			for (i = 0, count = numbers.length; i < count; ++i) {
-				frame = numbersData[numbers[i]];
-				width += frame.width + PADDING;
-				height = Math.max(height, frame.height);
+			let entry = _numberTextures.get(textureKey);
+			if (!entry) {
+				for (i = 0, count = numbers.length; i < count; ++i) {
+					frame = numbersData[numbers[i]];
+					width += frame.width + PADDING;
+					height = Math.max(height, frame.height);
+				}
+				const finalWidth = WebGL_default.toPowerOfTwo(width) * dpr$1;
+				const finalHeight = WebGL_default.toPowerOfTwo(height) * dpr$1;
+				if (procCanvas$1.width !== finalWidth || procCanvas$1.height !== finalHeight) {
+					procCanvas$1.width = finalWidth;
+					procCanvas$1.height = finalHeight;
+				} else procCtx$1.clearRect(0, 0, finalWidth, finalHeight);
+				const start_x = finalWidth - width >> 1;
+				const start_y = finalHeight - height >> 1;
+				width = 0;
+				for (i = 0, count = numbers.length; i < count; ++i) {
+					frame = numbersData[numbers[i]];
+					procCtx$1.drawImage(frame, start_x + width, start_y + (height - frame.height >> 1));
+					width += frame.width + PADDING;
+				}
+				const texture = gl.createTexture();
+				const enableMipmap = Configs.get("enableMipmap");
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas$1);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				if (enableMipmap) gl.generateMipmap(gl.TEXTURE_2D);
+				entry = {
+					key: textureKey,
+					texture,
+					width: finalWidth,
+					height: finalHeight,
+					users: 0
+				};
+				_numberTextures.set(textureKey, entry);
 			}
-			const finalWidth = WebGL_default.toPowerOfTwo(width) * dpr$1;
-			const finalHeight = WebGL_default.toPowerOfTwo(height) * dpr$1;
-			if (procCanvas$1.width !== finalWidth || procCanvas$1.height !== finalHeight) {
-				procCanvas$1.width = finalWidth;
-				procCanvas$1.height = finalHeight;
-			} else procCtx$1.clearRect(0, 0, finalWidth, finalHeight);
-			const start_x = finalWidth - width >> 1;
-			const start_y = finalHeight - height >> 1;
-			width = 0;
-			for (i = 0, count = numbers.length; i < count; ++i) {
-				frame = numbersData[numbers[i]];
-				procCtx$1.drawImage(frame, start_x + width, start_y + (height - frame.height >> 1));
-				width += frame.width + PADDING;
-			}
-			const texture = gl.createTexture();
-			const enableMipmap = Configs.get("enableMipmap");
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas$1);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			if (enableMipmap) gl.generateMipmap(gl.TEXTURE_2D);
-			obj.texture = texture;
-			obj.width = finalWidth;
-			obj.height = finalHeight;
-			obj.isDisposable = true;
+			entry.users++;
+			_idleTextures.delete(textureKey);
+			obj.texture = entry.texture;
+			obj.width = entry.width;
+			obj.height = entry.height;
+			obj.textureEntry = entry;
 			let hitSound;
 			if (entity.objecttype === Entity.TYPE_PC) hitSound = DB.getJobHitSound(entity._job);
 			else if (weapon || weapon === 0) hitSound = DB.getWeaponHitSound(weapon);
@@ -284545,10 +284614,8 @@ var init_Damage = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static free(gl) {
-			_list$1.forEach((item) => {
-				if (item.isDisposable) gl.deleteTexture(item.texture);
-			});
 			_list$1.length = 0;
+			freeNumberTextures(gl);
 		}
 		/**
 		* Rendering damages on maps
@@ -284574,7 +284641,7 @@ var init_Damage = __esmMin((() => {
 				damage = _list$1[i];
 				if (damage.startTick > tick) continue;
 				if (damage.startTick + damage.delay < tick) {
-					if (damage.isDisposable) gl.deleteTexture(damage.texture);
+					if (damage.textureEntry) releaseNumberTexture(gl, damage);
 					_list$1.splice(i, 1);
 					count--;
 					i--;
@@ -284651,9 +284718,7 @@ var init_Damage = __esmMin((() => {
 				SpriteRenderer.depth = i;
 				SpriteRenderer.color.set(damage.color);
 				SpriteRenderer.image.texture = damage.texture;
-				SpriteRenderer.runWithDepth(false, false, true, () => {
-					SpriteRenderer.render();
-				});
+				SpriteRenderer.runWithDepth(false, false, true, renderSprite);
 			}
 			SpriteRenderer.unbind(gl);
 		}
