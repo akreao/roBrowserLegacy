@@ -54,6 +54,100 @@ export const ROUNDS = 2;
 export const TINT_GREY = { 125: 255, 126: 215, 127: 185 };
 
 /**
+ * Vertex colour (0..255) of the kRO 2025-07-16 builder's tints (0xbdf6e0, prim 56
+ * render 0xb6b340): 0-2 blue, 10-12 yellow, 20-22 green, each a little deeper
+ * than the one before.
+ */
+export const TINT_COLOR = {
+	0: [225, 225, 255],
+	1: [205, 205, 255],
+	2: [185, 185, 255],
+	10: [255, 255, 225],
+	11: [255, 255, 205],
+	12: [255, 255, 185],
+	20: [225, 255, 225],
+	21: [205, 255, 205],
+	22: [185, 255, 185]
+};
+
+/**
+ * A tint's vertex colour (0..255).
+ *
+ * @param {number} tint
+ * @return {number[]}
+ */
+export function tintColor(tint) {
+	if (tint in TINT_COLOR) {
+		return TINT_COLOR[tint];
+	}
+	const grey = TINT_GREY[tint] !== undefined ? TINT_GREY[tint] : 255;
+	return [grey, grey, grey];
+}
+
+/**
+ * One streak of the kRO 2025-07-16 streak builder (0xbdf6e0) by its variant:
+ * side -1 for variants ending in 0, +1 for those ending in 1 (offset 15 + r(11));
+ * variants 0-9 (line3.tga): half width 0.3 + 0.1 r(4), length 20 + r(31), tint
+ * r(3), speed 1.5 + 0.1 r(21); 10-19 (line3y.tga): as Quill Spear's, tint
+ * 10 + r(3); 20 and up (line3y.tga): half width 0.4 + 0.1 r(4), length
+ * 30 + r(31), tint 20 + r(3), speed 1.5 + 0.1 r(21).
+ *
+ * @param {number} variant
+ * @param {function} rand (n) => 0..n-1
+ * @return {object}
+ */
+export function createVariantStreak(variant, rand = randomInt) {
+	const side = variant % 10 === 0 ? -1 : 1;
+	const offset = (15 + rand(11)) * side;
+	const position = rand(200);
+	let halfWidth, length, tint, speed;
+	if (variant < 10) {
+		halfWidth = 0.3 + 0.1 * rand(4);
+		length = 20 + rand(31);
+		tint = rand(3);
+		speed = 1.5 + 0.1 * rand(21);
+	} else if (variant < 20) {
+		halfWidth = 0.5 + 0.1 * rand(6);
+		length = 40 + rand(31);
+		tint = 10 + rand(3);
+		speed = 1 + 0.1 * rand(11);
+	} else {
+		halfWidth = 0.4 + 0.1 * rand(4);
+		length = 30 + rand(31);
+		tint = 20 + rand(3);
+		speed = 1.5 + 0.1 * rand(21);
+	}
+	return {
+		age: 0,
+		alpha: 0,
+		halfWidth,
+		tint,
+		offset,
+		position,
+		length,
+		speed,
+		texture: variant < 10 ? 'line3' : 'line3y'
+	};
+}
+
+/**
+ * The streaks of a list of builder calls (4 streaks a call).
+ *
+ * @param {number[]} variants
+ * @param {function} rand
+ * @return {Array<object>}
+ */
+export function createVariantSets(variants, rand = randomInt) {
+	const streaks = [];
+	for (const variant of variants) {
+		for (let i = 0; i < STREAKS_PER_SET; i++) {
+			streaks.push(createVariantStreak(variant, rand));
+		}
+	}
+	return streaks;
+}
+
+/**
  * Random whole number from 0 to n - 1, like the client's rand() % n
  *
  * @param {number} n
@@ -135,12 +229,17 @@ export function createStreakSets(rand = randomInt) {
 export function stepStreak(streak) {
 	streak.age++;
 
+	// Tints below 10 are the slow kind: +12 a tick, no speed-up, fading 4 a tick
+	const slow = streak.tint < 10;
+
 	// Fades in 20 a tick up to tick 10 (200)
 	if (streak.age < 11) {
-		streak.alpha += 20;
+		streak.alpha += slow ? 12 : 20;
 	}
 
-	streak.speed += 0.05;
+	if (!slow) {
+		streak.speed += 0.05;
+	}
 	streak.position += streak.speed;
 	if (streak.position >= TRACK_LENGTH) {
 		streak.position -= TRACK_LENGTH;
@@ -148,7 +247,7 @@ export function stepStreak(streak) {
 
 	// Then fades out 2 a tick from tick 21 (0 on tick 120)
 	if (streak.age > 20) {
-		streak.alpha = Math.max(0, streak.alpha - 2);
+		streak.alpha = Math.max(0, streak.alpha - (slow ? 4 : 2));
 	}
 }
 

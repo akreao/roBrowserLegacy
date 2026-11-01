@@ -69,17 +69,22 @@ class CastRing {
 	 * @param {number} castTime cast time, ms
 	 * @param {string} texture file under data/texture/effect/
 	 * @param {number[]} args the size-45 ring's argument, then the size-25 ring's
-	 * @param {boolean} [cycle] build the colour-cycling twin (client primitive 139)
+	 * @param {boolean|object} [cycle] build the colour-cycling twin (client primitive 139); or options:
+	 *   { cycle, sizes: the rings' sizes (default 45 and 25), textures: one file per ring (default `texture`
+	 *   for all), castTimeOnly: live castTime / 16 ticks,
+	 *   without the 56-tick minimum (an effect that does not raise its own lifetime) }
 	 */
 	constructor(position, startTick, castTime, texture, args, cycle = false) {
+		const options = typeof cycle === 'object' && cycle ? cycle : { cycle };
 		this.position = position;
 		this.startTick = startTick || 0;
-		this.frames = ringFrames(castTime);
+		this.frames = options.castTimeOnly ? Math.max(1, Math.floor((castTime || 0) / 16)) : ringFrames(castTime);
 		this.endTick = this.startTick + this.frames * RING_TICK_MS;
 		this.texture = texture;
+		this.textures = options.textures || null;
 		this.ticks = 0;
-		this.rings = SIZES.map((size, i) => ({
-			sim: createRing(size, args[i], this.frames, cycle),
+		this.rings = (options.sizes || SIZES).map((size, i) => ({
+			sim: createRing(size, args[i], this.frames, !!options.cycle),
 			vertices: new Float32Array(RING_VERTICES * 5),
 			color: new Float32Array(4),
 			buffer: null
@@ -90,7 +95,7 @@ class CastRing {
 		for (const ring of this.rings) {
 			ring.buffer = gl.createBuffer();
 		}
-		loadTexture(gl, this.texture);
+		(this.textures || [this.texture]).forEach(name => loadTexture(gl, name));
 		this.ready = true;
 	}
 
@@ -122,8 +127,8 @@ class CastRing {
 			this.ticks++;
 		}
 
-		const texture = _textures.get(this.texture);
-		if (!texture) {
+		const textures = (this.textures || this.rings.map(() => this.texture)).map(name => _textures.get(name));
+		if (textures.some(texture => !texture)) {
 			return;
 		}
 
@@ -131,8 +136,8 @@ class CastRing {
 		const self = this;
 
 		SpriteRenderer.runWithDepth(true, false, false, function () {
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			for (const ring of self.rings) {
+			self.rings.forEach((ring, i) => {
+				gl.bindTexture(gl.TEXTURE_2D, textures[i]);
 				buildRing(ring.vertices, ring.sim, self.position);
 				gl.bindBuffer(gl.ARRAY_BUFFER, ring.buffer);
 				gl.bufferData(gl.ARRAY_BUFFER, ring.vertices, gl.DYNAMIC_DRAW);
@@ -153,7 +158,7 @@ class CastRing {
 					gl.uniform4fv(_program.uniform.uColor, ring.color);
 					gl.drawArrays(gl.TRIANGLES, b * STRIPS * 6, STRIPS * 6);
 				});
-			}
+			});
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		});
 	}
