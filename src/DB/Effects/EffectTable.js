@@ -23,6 +23,7 @@ import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
 import FrostMistyEffect from 'DB/Effects/FrostMistyEffect.js';
 import StasisEffect from 'DB/Effects/StasisEffect.js';
+import { tetraFireLook } from 'DB/Effects/TetraFireEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
 import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
@@ -15858,8 +15859,8 @@ export default {
 
 	// EF_TETRA (Tetra Vortex Fire, on the caster as the damage arrives). kRO 2025-07-16, case 0xbbb218 with
 	// 0xc08f50: wizard_meteo.wav and hunter_blastmine.wav at once, wl_tetravortex.wav on ticks 10, 20, 50 and
-	// 80, a screen quake on ticks 0, 40 and 80. Its tv-1..8.bmp pillar (prim 140) and ring_red rings (prim
-	// 137) are not drawn yet. See effect-port/warlock-skills.md.
+	// 80, a screen quake on ticks 0, 40 and 80; over the target the tv-1..8.bmp pillar (prim 140) and red lines
+	// (prim 137): TetraFireEffect.js. See effect-port/warlock-skills.md.
 	804: [
 		{
 			wav: 'effect/wizard_meteo',
@@ -15880,7 +15881,8 @@ export default {
 			func: function (Params) {
 				[0, 40, 80].forEach(tick => Camera.setQuake(Params.Inst.startTick + (tick * 1000) / 60));
 			}
-		}
+		},
+		tetraFireLook
 	],
 
 	805: [
