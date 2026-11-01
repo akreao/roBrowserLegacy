@@ -40,7 +40,7 @@ import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import ColdHit from 'Renderer/Effects/ColdHit.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
-import { hitLine4Effect } from 'DB/Effects/HitLineEffect.js';
+import { hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
 import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
@@ -9891,10 +9891,10 @@ export default {
 
 	//427: [{}],	//EF_ASURABODY_MONSTER	   (Nothing)
 	//428: [{}],	//EF_HITLINE3	   (Nothing)
-	// EF_HITLINE4, the kick hit lines of Prominence Kick and Estun (HitLineEffect.js)
+	// EF_HITLINE4 / 5 / 6, the kick hit lines (HitLineEffect.js, effect-port/hit-lines.md)
 	429: hitLine4Effect,
-	//430: [{}],	//EF_HITLINE5	   Taekwon Kick Hit 2
-	//431: [{}],	//EF_HITLINE6	   Taekwon Kick Hit 3
+	430: hitLine5Effect,
+	431: hitLine6Effect,
 	//432: [{}],	//EF_ELECTRIC	   Solar, Lunar and Stellar Perception (Visual Effect)
 	//433: [{}],	//EF_ELECTRIC2	   Solar, Lunar and Stellar Opposition (Visual Effect)
 	//434: [{}],	//EF_HITLINE7	   Taekwon Kick Hit 4

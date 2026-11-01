@@ -12,7 +12,7 @@ const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'),
 describe('Roundhouse effects', () => {
 	it('spins the target at packet arrival and hits 300 ms late with the hit flash on every hit', () => {
 		expect(source).toMatch(
-			/SkillEffect\[SK\.TK_TURNKICK\] = \{ damageEffectIdOnTarget: 466, hitEffectId: \[0\], hitDelay: 300 \};/
+			/SkillEffect\[SK\.TK_TURNKICK\] = \{ damageEffectIdOnTarget: \[466, 429\], hitEffectId: \[0\], hitDelay: 300 \};/
 		);
 	});
 });
