@@ -15868,6 +15868,7 @@ export default {
 		{
 			//EF_TETRACASTING	   Tetra Vortex cast animation (blinking colors)
 			type: 'FUNC',
+			wav: 'effect/ef_beginspell',
 			attachedEntity: true,
 			func: function EffectBodyColor(Params) {
 				const entity = Params.Init.ownerEntity;
@@ -26672,6 +26673,8 @@ export default {
 			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
 			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast/',
 			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -26714,6 +26717,7 @@ export default {
 			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
 			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/',
 			renderBeforeEntities: true,
+			wav: 'effect/\xb8\xc5\xc1\xf7 \xc5\xa9\xb7\xa1\xbd\xac', // effect/매직 크래쉬
 			attachedEntity: true
 		}
 	],
@@ -26768,6 +26772,8 @@ export default {
 			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -26781,6 +26787,7 @@ export default {
 			texturePath: 'new_hellinferno/new_hellinferno/',
 			min: 'mineffect/new_hellinferno/new_hellinferno/new_hellinferno',
 			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno/',
+			wav: 'hell_in',
 			attachedEntity: true
 		}
 	],
@@ -26905,6 +26912,7 @@ export default {
 			type: 'STR',
 			file: 'new_comet/new_comet/new_comet',
 			texturePath: 'new_comet/new_comet/',
+			wav: 'effect/g\xc5\xa9\xb7\xb9\xc0\xcc\xc1\xf6\xc0\xa7\xb5\xe5', // effect/g크레이지위드
 			attachedEntity: true
 		}
 	],
@@ -26931,6 +26939,8 @@ export default {
 			min: 'mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
 			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast/',
 			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -26959,6 +26969,7 @@ export default {
 			texturePath: 'new_chainlightning/new_chainlightning_target/',
 			min: 'mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target',
 			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_target/',
+			wav: 'chainlight',
 			attachedEntity: true
 		}
 	],
