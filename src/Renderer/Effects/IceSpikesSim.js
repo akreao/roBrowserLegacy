@@ -188,24 +188,51 @@ function vertex(out, i, center, x, y, up, u, v) {
  * @param {Array} center effect position, in cells
  * @return {number} next float to write
  */
+// Base corner signs (p, q) in order round the spike
+const CORNER_P = [-1, 1, 1, -1];
+const CORNER_Q = [-1, -1, 1, 1];
+
 export function buildSpike(out, offset, spike, rise, center) {
-	const [axis, a, b] = spikeAxes(spike);
-	const base = [spike.x + axis[0] * rise, spike.y + axis[1] * rise, -SPIKE.depth + axis[2] * rise];
+	// The axes only depend on the spike: work them out once.
+	const [axis, a, b] = spike.axes || (spike.axes = spikeAxes(spike));
+	const baseX = spike.x + axis[0] * rise;
+	const baseY = spike.y + axis[1] * rise;
+	const baseZ = -SPIKE.depth + axis[2] * rise;
 	const S = spike.size;
-	const point = (p, q, h) => [
-		base[0] + a[0] * p + b[0] * q + axis[0] * h,
-		base[1] + a[1] * p + b[1] * q + axis[1] * h,
-		base[2] + a[2] * p + b[2] * q + axis[2] * h
-	];
-	const corners = [point(-S, -S, 0), point(S, -S, 0), point(S, S, 0), point(-S, S, 0)];
-	const tip = point(0, 0, spike.height);
+	const H = spike.height;
+	const tipX = baseX + axis[0] * H;
+	const tipY = baseY + axis[1] * H;
+	const tipZ = baseZ + axis[2] * H;
 	let o = offset;
 	let u = 0;
 
 	for (let i = 0; i < 4; ++i) {
-		o = vertex(out, o, center, ...corners[i], u, 1);
-		o = vertex(out, o, center, ...tip, u, 0);
-		o = vertex(out, o, center, ...corners[(i + 1) % 4], u + SPIKE.uStep, 1);
+		const j = (i + 1) % 4;
+		const p0 = CORNER_P[i] * S;
+		const q0 = CORNER_Q[i] * S;
+		const p1 = CORNER_P[j] * S;
+		const q1 = CORNER_Q[j] * S;
+		o = vertex(
+			out,
+			o,
+			center,
+			baseX + a[0] * p0 + b[0] * q0,
+			baseY + a[1] * p0 + b[1] * q0,
+			baseZ + a[2] * p0 + b[2] * q0,
+			u,
+			1
+		);
+		o = vertex(out, o, center, tipX, tipY, tipZ, u, 0);
+		o = vertex(
+			out,
+			o,
+			center,
+			baseX + a[0] * p1 + b[0] * q1,
+			baseY + a[1] * p1 + b[1] * q1,
+			baseZ + a[2] * p1 + b[2] * q1,
+			u + SPIKE.uStep,
+			1
+		);
 		u += SPIKE.uStep;
 	}
 

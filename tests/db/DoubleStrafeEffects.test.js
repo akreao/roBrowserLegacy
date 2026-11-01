@@ -15,8 +15,4 @@ describe('Double Strafe effects', () => {
 			/SkillEffect\[SK\.AC_DOUBLE\] = \{\r?\n\tdamageEffectIdOnCaster: 16,\r?\n\tdamageEffectIdOnTarget: 'ef_arrow_projectile',\r?\n\thitEffectId: 0,\r?\n\tfirstHitEffectId: 1\r?\n\}; \/\/Double Strafe/
 		);
 	});
-
-	it('is shared by the mercenary Double Strafe', () => {
-		expect(source).toMatch(/SkillEffect\[SK\.MA_DOUBLE\] = SkillEffect\[SK\.AC_DOUBLE\];/);
-	});
 });

@@ -28,8 +28,8 @@ const CAST_AURAS = {
 	12: 'EF_BEGINSPELL (Neutral)',
 	54: 'EF_BEGINSPELL2 (Water)',
 	55: 'EF_BEGINSPELL3 (Fire)',
-	56: 'EF_BEGINSPELL4 (Wind)',
-	57: 'EF_BEGINSPELL5 (Earth)',
+	56: 'EF_BEGINSPELL4 (Earth)',
+	57: 'EF_BEGINSPELL5 (Wind)',
 	58: 'EF_BEGINSPELL6 (Holy, Ghost)',
 	59: 'EF_BEGINSPELL7 (Poison)',
 	454: 'EF_DARKCASTING (Shadow, Undead)'
@@ -58,5 +58,12 @@ describe('cast auras', () => {
 		expect(fixedCastAura(441, 1, 54)).toBe(441);
 		const entity = readFileSync(join(process.cwd(), 'src/Engine/MapEngine/Entity.js'), 'utf8');
 		expect(entity).toContain('effectId = fixedCastAura(effectId, pkt.property, EF_Init_Par.effectId);');
+	});
+
+	// The official client (kRO 2025-07-16) swap table 0xd85ee0: water 54, earth 56, fire 55, wind 57, poison 59, holy 58.
+	it('gives earth casts 56 and wind casts 57, as the official client', () => {
+		const entity = readFileSync(join(process.cwd(), 'src/Engine/MapEngine/Entity.js'), 'utf8').replace(/\r\n/g, '\n');
+		expect(entity).toMatch(/case 2:\n\t+EF_Init_Par\.effectId = EffectConst\.EF_BEGINSPELL4;/);
+		expect(entity).toMatch(/case 4:\n\t+EF_Init_Par\.effectId = EffectConst\.EF_BEGINSPELL5;/);
 	});
 });

@@ -3,12 +3,14 @@
  *
  * Effect 10 (EF_COIN, Mammonite) as the official client draws it: Maemor.str
  * and, on tick 20, 5 coins thrown up from the target that bounce on the
- * ground with a coin sound. The client plays no sound when the effect starts.
+ * ground with a coin sound (no coins in the low-effects mode, /mineffect, which
+ * draws memor_min.str). The client plays no sound when the effect starts.
  * Motion in Renderer/Effects/MammoniteCoinSim.js. Spec: effect-port/merchant-skills.md.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import Preferences from 'Preferences/Map.js';
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import { COIN, planCoins, coinAt, coinTrailAt } from 'Renderer/Effects/MammoniteCoinSim.js';
 
@@ -61,6 +63,10 @@ export const mammoniteEffect = [
 		type: 'FUNC',
 		attachedEntity: true,
 		func: function (Params) {
+			// The client's low-effects mode (/mineffect) throws no coins
+			if (Preferences.mineffect) {
+				return;
+			}
 			const startTick = Params.Inst.startTick + COIN.startTick * PRIM_TICK_MS;
 			planCoins().forEach((coin, i) => {
 				[false, true].forEach((trail, j) => {

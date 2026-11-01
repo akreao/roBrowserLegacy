@@ -955,7 +955,7 @@ SkillEffect[SK.SA_ELEMENTFIRE] = { successEffectId: 255 }; //Elemental Change Fi
 SkillEffect[SK.SA_ELEMENTWIND] = { successEffectId: 257 }; //Elemental Change Wind
 // RK Rune Knight
 SkillEffect[SK.RK_ENCHANTBLADE] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Enchant Blade: 756 + 닌자_던지기.wav on success
-SkillEffect[SK.RK_SONICWAVE] = { arrivalEffectIdOnCaster: 832, castAuraEffectId: 12 }; //Sonic Wave: 기공포.wav (832) on the caster as the damage arrives; 1678 follow-up
+SkillEffect[SK.RK_SONICWAVE] = { arrivalEffectIdOnCaster: [832, 1678], castAuraEffectId: 12 }; //Sonic Wave: 기공포.wav (832) and the rings (1678) on the caster as the damage arrives
 SkillEffect[SK.RK_DEATHBOUND] = { successEffectIdOnCaster: 'ef_rk_bluecasting', damageEffectIdOnTarget: 183 }; //Death Bound: 441 on success; 183 on the knight from the reflect packet
 SkillEffect[SK.RK_HUNDREDSPEAR] = { castAuraEffectId: 12 }; //Hundred Spear: 723 + 835 on the caster as the damage arrives (follow-up)
 SkillEffect[SK.RK_WINDCUTTER] = {
@@ -980,52 +980,45 @@ SkillEffect[SK.RK_DRAGONBREATH] = {
 SkillEffect[SK.RK_DRAGONHOWLING] = { successEffectIdOnCaster: [731, 'quake'] }; //Dragon Howling: quake + 731 (with dragon_h.wav) on success
 SkillEffect[SK.RK_MILLENNIUMSHIELD] = { successEffectIdOnCaster: ['ef_rk_bluecasting', 749, 'ef_rk_millenniumshield_sound'], castAuraEffectId: 12 }; //Millennium Shield: 441 + 749 + ef_soulstrike.wav on success
 SkillEffect[SK.RK_CRUSHSTRIKE] = { arrivalEffectIdOnTarget: ['quake', 589, 'ef_rk_crushstrike_sound'], castAuraEffectId: 12 }; //Crush Strike: quake + 589 + _enemy_hit_wind2.wav as its damage arrives
-SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: 'ef_rk_refresh_sound', castAuraEffectId: 58 }; //Refresh: _heal_effect.wav on success (538 follow-up); white cast aura
+SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: [538, 'ef_rk_refresh_sound'], castAuraEffectId: 58 }; //Refresh: 538 + _heal_effect.wav on success; white cast aura
 SkillEffect[SK.RK_GIANTGROWTH] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Giant Growth: 756 + 닌자_던지기.wav on success
 SkillEffect[SK.RK_STONEHARDSKIN] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Stone Hard Skin: 756 + 441 on success
 SkillEffect[SK.RK_VITALITYACTIVATION] = { successEffectIdOnCaster: 309 }; //Vitality Activation: 309 on success
 SkillEffect[SK.RK_STORMBLAST] = { successEffectIdOnCaster: 17, successEffectId: ['quake', 'ef_rk_stormblast_sound', 263] }; //Storm Blast: 17 on the caster; quake + mon_맹룡과강.wav + 263 on the target, on success (330 follow-up)
 SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Fighting Spirit: 756 + 441 on success
-SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: 'ef_rk_abundance_sound', castAuraEffectId: 12 }; //Abundance: 흡기.wav on success (538 follow-up)
-SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: 'ef_rk_bluecasting', successEffectId: 'ef_rk_bluecasting', castAuraEffectId: 12 }; //Phantom Thrust: 441 on caster and target on success (538 follow-up)
+SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: [538, 'ef_rk_abundance_sound'], castAuraEffectId: 12 }; //Abundance: 538 + 흡기.wav on success
+SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: [538, 'ef_rk_bluecasting'], successEffectId: [538, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Phantom Thrust: 538 + 441 on caster and target on success
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
-SkillEffect[SK.WL_SOULEXPANSION] = {
-	effectIdOnCaster: 'ef_wl_soulexpansion_cast',
-	hitEffectId: 'ef_wl_soulexpansion_hit'
-}; //Soul Expansion
-SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
-SkillEffect[SK.WL_JACKFROST] = { successEffectIdOnCaster: 'ef_jackfrost', hitEffectId: 28 }; //Jack Frost
-SkillEffect[SK.WL_MARSHOFABYSS] = { effectId: 729 }; //Marsh of Abyss
-SkillEffect[SK.WL_RECOGNIZEDSPELL] = { effectId: 803 }; //Recognized Spell
+SkillEffect[SK.WL_SOULEXPANSION] = { hideCastAura: true, beginCastEffectId: [1587, 1588], hitEffectId: 1591, firstHitEffectId: 1592 }; //Soul Expansion: no aura, 1587 + 1588 while casting; 1591 every hit, 1592 with the first
+SkillEffect[SK.WL_FROSTMISTY] = { groundEffectIdByLevel: [726], firstHitEffectId: 51 }; //Frost Misty: 726 at the cell from the ground packet; 51 with the first hit
+SkillEffect[SK.WL_JACKFROST] = { castAuraEffectId: 1449, beginCastEffectId: 1446, successEffectIdOnCaster: 'ef_jackfrost', firstHitEffectId: 51 }; //Jack Frost: ice cast circle + new_jackfrost_cast; jack_frost.wav on success; 51 with the first hit
+SkillEffect[SK.WL_MARSHOFABYSS] = { successEffectId: 729 }; //Marsh of Abyss: 729 on the target on success (466 follow-up)
+SkillEffect[SK.WL_RECOGNIZEDSPELL] = { successEffectIdOnCaster: 'ef_wl_recognizedspell_sound', castAuraEffectId: 58 }; //Recognized Spell: wl_recognizedspell.wav on success; white cast aura (803 while casting: follow-up)
 SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna Execrate
-SkillEffect[SK.WL_STASIS] = { effectId: 799 }; //Stasis
-SkillEffect[SK.WL_DRAINLIFE] = {}; //Drain Life
-SkillEffect[SK.WL_CRIMSONROCK] = { effectId: 727 }; //Crimson Rock
-SkillEffect[SK.WL_HELLINFERNO] = {
-	groundEffectId: 728,
-	effectId: 'ef_wl_hellinferno',
-	effectIdOnCaster: 'ef_wl_hellinferno_cast'
-}; //Hell Inferno
-SkillEffect[SK.WL_COMET] = { effectId: 'ef_wl_comet', effectIdOnCaster: 'ef_wl_comet_cast' }; //Comet
-SkillEffect[SK.WL_CHAINLIGHTNING] = { effectIdOnCaster: 'ef_wl_chainlightning_cast' }; //Chain Lightning
-SkillEffect[SK.WL_CHAINLIGHTNING_ATK] = { effectId: 734 }; //Chain Lightning Attack
+SkillEffect[SK.WL_STASIS] = { successEffectIdOnCaster: 799, castAuraEffectId: 441 }; //Stasis: 799 on the caster on success; blue cast aura
+SkillEffect[SK.WL_DRAINLIFE] = { hitEffectIdOnCaster: 216, hitEffectOnce: true }; //Drain Life: 216 with the first hit, owned by the caster so the blood flows from the target to it
+SkillEffect[SK.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275] }; //Crimson Rock: crimson_r.wav, 1274 + 1275 on the target as the damage arrives
+SkillEffect[SK.WL_HELLINFERNO] = { hideCastAura: true, beginCastEffectId: 1552, arrivalEffectIdOnTarget: [1550, 1551, 'ef_wl_hellinferno_sub'], groundEffectId: 728 }; //Hell Inferno: no aura, 1552 while casting; 1550 + 1551 on the target and the four side flames as the damage arrives
+SkillEffect[SK.WL_COMET] = { hideCastAura: true, beginCastEffectId: [1415, 1421], damageEffectIdOnTarget: [1413, 1414] }; //Comet: 1415 + 1421 while casting (aura 1418 follow-up); 1413 + 1414 on each target as the damage packet arrives
+SkillEffect[SK.WL_CHAINLIGHTNING] = { hideCastAura: true, beginCastEffectId: [1635, 1636], arrivalEffectIdOnTarget: 1638 }; //Chain Lightning: no aura, 1635 + 1636 while casting; 1638 on the target as the damage arrives
+SkillEffect[SK.WL_CHAINLIGHTNING_ATK] = { arrivalEffectIdOnTarget: 1638 }; //Chain Lightning Attack: 1638 on the target as the damage arrives
 SkillEffect[SK.WL_EARTHSTRAIN] = { groundEffectId: 732 }; //Earth Strain
-SkillEffect[SK.WL_TETRAVORTEX] = { effectId: 804, beginCastEffectId: 805 }; //Tetra Vortex
-SkillEffect[SK.WL_TETRAVORTEX_FIRE] = { effectId: 'ef_wl_tetravortex_fire' }; //Tetra Vortex Fire
-SkillEffect[SK.WL_TETRAVORTEX_WATER] = { effectId: 'ef_wl_tetravortex_water' }; //Tetra Vortex Water
-SkillEffect[SK.WL_TETRAVORTEX_WIND] = { effectId: 'ef_wl_tetravortex_wind' }; //Tetra Vortex Wind
-SkillEffect[SK.WL_TETRAVORTEX_GROUND] = {}; //Tetra Vortex Earth
-SkillEffect[SK.WL_SUMMONFB] = {}; //Summon Fire Ball
-SkillEffect[SK.WL_SUMMONBL] = {}; //Summon Lightning Ball
-SkillEffect[SK.WL_SUMMONWB] = {}; //Summon Water Ball
-SkillEffect[SK.WL_SUMMON_ATK_FIRE] = { effectId: 'ef_wl_summon_atk_fire' }; //Summon Attack Fire
-SkillEffect[SK.WL_SUMMON_ATK_WIND] = {}; //Summon Attack Wind
-SkillEffect[SK.WL_SUMMON_ATK_WATER] = {}; //Summon Attack Water
-SkillEffect[SK.WL_SUMMON_ATK_GROUND] = {}; //Summon Attack Earth
-SkillEffect[SK.WL_SUMMONSTONE] = {}; //Summon Stone
+SkillEffect[SK.WL_TETRAVORTEX] = { castAuraEffectId: 805, beginCastEffectId: [1277, 1261] }; //Tetra Vortex: aura 805 + 1277 + 1261 while casting
+SkillEffect[SK.WL_TETRAVORTEX_FIRE] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1270, 1266] }; //Tetra Vortex Fire: sounds on the caster, 1270 + 1266 on the target on success
+SkillEffect[SK.WL_TETRAVORTEX_WATER] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1271, 1267], hitDelay: 500 }; //Tetra Vortex Water: sounds on the caster, 1271 + 1267 on the target on success; hit at attackMT + 500 ms
+SkillEffect[SK.WL_TETRAVORTEX_WIND] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1272, 1268], hitDelay: 1000 }; //Tetra Vortex Wind: sounds on the caster, 1272 + 1268 on the target on success; hit at attackMT + 1000 ms
+SkillEffect[SK.WL_TETRAVORTEX_GROUND] = { successEffectIdOnCaster: 'ef_wl_tetravortex_sound', successEffectId: [1273, 1269], hitDelay: 1500 }; //Tetra Vortex Earth: sounds on the caster, 1273 + 1269 on the target on success; hit at attackMT + 1500 ms
+SkillEffect[SK.WL_SUMMONFB] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Fire Ball: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
+SkillEffect[SK.WL_SUMMONBL] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Lightning Ball: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
+SkillEffect[SK.WL_SUMMONWB] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Water Ball: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
+SkillEffect[SK.WL_SUMMON_ATK_FIRE] = { arrivalEffectIdOnTarget: 49 }; //Summon Attack Fire: 49 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMON_ATK_WIND] = { arrivalEffectIdOnTarget: 52 }; //Summon Attack Wind: 52 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMON_ATK_WATER] = { arrivalEffectIdOnTarget: 51 }; //Summon Attack Water: 51 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMON_ATK_GROUND] = { arrivalEffectIdOnTarget: 147 }; //Summon Attack Earth: 147 on the target as the damage arrives
+SkillEffect[SK.WL_SUMMONSTONE] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Stone: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
 SkillEffect[SK.WL_RELEASE] = { effectId: 751 }; //Release //CHECK Should it be left to do multi hit or single hit?
-SkillEffect[SK.WL_READING_SB] = {}; //Reading Spellbook
+SkillEffect[SK.WL_READING_SB] = { castAuraEffectId: 58 }; //Reading Spellbook: white cast aura
 // GC Guillotine Cross
 SkillEffect[SK.GC_VENOMIMPRESS] = { effectId: 788 }; //Venom Impress
 SkillEffect[SK.GC_CROSSIMPACT] = { effectId: 'ef_gc_crossimpact' }; //Cross Impact
@@ -2155,30 +2148,34 @@ SkillEffect[SK.MH_LAVA_SLIDE] = { effectId: 964 }; //Lava Slide
 SkillEffect[SK.MH_PYROCLASTIC] = {}; //Pyroclastic
 SkillEffect[SK.MH_VOLCANIC_ASH] = { effectId: 975 }; //Volcanic Ash
 // Mercenary Skill Place holders
-SkillEffect[SK.MS_BASH] = SkillEffect[SK.SM_BASH]; //Bash
-SkillEffect[SK.MS_MAGNUM] = SkillEffect[SK.SM_MAGNUM]; //Magnum_Break
-SkillEffect[SK.MS_BOWLINGBASH] = SkillEffect[SK.KN_BOWLINGBASH]; //Bowling_Bash
-SkillEffect[SK.MS_PARRYING] = SkillEffect[SK.LK_PARRYING]; //Parry
-SkillEffect[SK.MS_REFLECTSHIELD] = SkillEffect[SK.CR_REFLECTSHIELD]; //Shield_Reflect
-SkillEffect[SK.MS_BERSERK] = SkillEffect[SK.LK_BERSERK]; //Frenzy
-SkillEffect[SK.MA_DOUBLE] = SkillEffect[SK.AC_DOUBLE]; //Double_Strafe
-SkillEffect[SK.MA_SHOWER] = SkillEffect[SK.AC_SHOWER]; //Arrow_Shower
-SkillEffect[SK.MA_SKIDTRAP] = SkillEffect[SK.HT_SKIDTRAP]; //Skid_Trap
-SkillEffect[SK.MA_LANDMINE] = SkillEffect[SK.HT_LANDMINE]; //Land_Mine
-SkillEffect[SK.MA_SANDMAN] = SkillEffect[SK.HT_SANDMAN]; //Sandman
-SkillEffect[SK.MA_FREEZINGTRAP] = SkillEffect[SK.HT_FREEZINGTRAP]; //Freezing_Trap
-SkillEffect[SK.MA_REMOVETRAP] = SkillEffect[SK.HT_REMOVETRAP]; //Remove_Trap
-SkillEffect[SK.MA_CHARGEARROW] = SkillEffect[SK.AC_CHARGEARROW]; //Arrow_Repel
-SkillEffect[SK.MA_SHARPSHOOTING] = SkillEffect[SK.SN_SHARPSHOOTING]; //Focused_Arrow_Strike
-SkillEffect[SK.ML_PIERCE] = SkillEffect[SK.KN_PIERCE]; //Pierce
-SkillEffect[SK.ML_BRANDISH] = SkillEffect[SK.KN_BRANDISHSPEAR]; //Brandish_Spear
-SkillEffect[SK.ML_SPIRALPIERCE] = SkillEffect[SK.LK_SPIRALPIERCE]; //Spiral_Pierce
-SkillEffect[SK.ML_DEFENDER] = SkillEffect[SK.CR_DEFENDER]; //Defending_Aura
-SkillEffect[SK.ML_AUTOGUARD] = SkillEffect[SK.CR_AUTOGUARD]; //Guard
-SkillEffect[SK.ML_DEVOTION] = SkillEffect[SK.CR_DEVOTION]; //Sacrifice
-SkillEffect[SK.MER_MAGNIFICAT] = SkillEffect[SK.PR_MAGNIFICAT]; //Magnificat
-SkillEffect[SK.MER_QUICKEN] = SkillEffect[SK.KN_TWOHANDQUICKEN]; //Two-Hand_Quicken
-SkillEffect[SK.MER_SIGHT] = SkillEffect[SK.MG_SIGHT]; //Sight
+// Mercenary skills (kRO 2025-07-16, effect-port/mercenary-audit.md): their ids are in neither start-up
+// effect map and have no damage-arrival or ground cases, so no hit-map, caster-map or arrival effects, and no
+// hit flash except Magnum Break's 49. The use packet (result set) plays only what is listed here. The caster
+// motion effect is generic (SkillMotionEffect.js). Cast bar / aura options as the player skill (not traced).
+SkillEffect[SK.MS_BASH] = {}; //Bash
+SkillEffect[SK.MS_MAGNUM] = { successEffectIdOnCaster: 17, hitEffectId: 49 }; //Magnum_Break
+SkillEffect[SK.MS_BOWLINGBASH] = { hideCastBar: true, hideCastAura: true }; //Bowling_Bash
+SkillEffect[SK.MS_PARRYING] = SkillEffect[SK.LK_PARRYING]; //Parry: the client's Parry case
+SkillEffect[SK.MS_REFLECTSHIELD] = {}; //Shield_Reflect
+SkillEffect[SK.MS_BERSERK] = SkillEffect[SK.LK_BERSERK]; //Frenzy: the client's Frenzy case
+SkillEffect[SK.MA_DOUBLE] = { damageEffectIdOnTarget: 'ef_arrow_projectile' }; //Double_Strafe: the bow arrow only
+SkillEffect[SK.MA_SHOWER] = { releaseEffectId: 'ef_arrow_projectile' }; //Arrow_Shower: the bow arrow, no arrow rain
+SkillEffect[SK.MA_SKIDTRAP] = {}; //Skid_Trap: nothing at the cell
+SkillEffect[SK.MA_LANDMINE] = {}; //Land_Mine
+SkillEffect[SK.MA_SANDMAN] = {}; //Sandman
+SkillEffect[SK.MA_FREEZINGTRAP] = {}; //Freezing_Trap
+SkillEffect[SK.MA_REMOVETRAP] = {}; //Remove_Trap
+SkillEffect[SK.MA_CHARGEARROW] = { hideCastAura: true }; //Arrow_Repel
+SkillEffect[SK.MA_SHARPSHOOTING] = { castAuraEffectId: 58, releaseEffectId: 'ef_arrow_projectile' }; //Focused_Arrow_Strike: the bow arrow only
+SkillEffect[SK.ML_PIERCE] = {}; //Pierce
+SkillEffect[SK.ML_BRANDISH] = { hideCastBar: true, hideCastAura: true }; //Brandish_Spear
+SkillEffect[SK.ML_SPIRALPIERCE] = { castAuraEffectId: 502 }; //Spiral_Pierce
+SkillEffect[SK.ML_DEFENDER] = SkillEffect[SK.CR_DEFENDER]; //Defending_Aura: 222 on the caster, the client's Defender case
+SkillEffect[SK.ML_AUTOGUARD] = SkillEffect[SK.CR_AUTOGUARD]; //Guard: the client's Guard case
+SkillEffect[SK.ML_DEVOTION] = {}; //Sacrifice
+SkillEffect[SK.MER_MAGNIFICAT] = SkillEffect[SK.PR_MAGNIFICAT]; //Magnificat: 76 on the caster
+SkillEffect[SK.MER_QUICKEN] = {}; //Two-Hand_Quicken
+SkillEffect[SK.MER_SIGHT] = {}; //Sight
 SkillEffect[SK.MER_CRASH] = {}; //Crash
 SkillEffect[SK.MER_REGAIN] = {}; //Regain
 SkillEffect[SK.MER_TENDER] = {}; //Tender
@@ -2186,15 +2183,15 @@ SkillEffect[SK.MER_BENEDICTION] = {}; //Benediction
 SkillEffect[SK.MER_RECUPERATE] = {}; //Recuperate
 SkillEffect[SK.MER_MENTALCURE] = {}; //Mental_Cure
 SkillEffect[SK.MER_COMPRESS] = {}; //Compress
-SkillEffect[SK.MER_PROVOKE] = SkillEffect[SK.SM_PROVOKE]; //Provoke
-SkillEffect[SK.MER_AUTOBERSERK] = SkillEffect[SK.SM_AUTOBERSERK]; //Berserk
-SkillEffect[SK.MER_DECAGI] = SkillEffect[SK.AL_DECAGI]; //Decrease_AGI
+SkillEffect[SK.MER_PROVOKE] = {}; //Provoke
+SkillEffect[SK.MER_AUTOBERSERK] = {}; //Berserk
+SkillEffect[SK.MER_DECAGI] = {}; //Decrease_AGI
 SkillEffect[SK.MER_SCAPEGOAT] = {}; //Scapegoat
-SkillEffect[SK.MER_LEXDIVINA] = SkillEffect[SK.PR_LEXDIVINA]; //Lex_Divina
-SkillEffect[SK.MER_ESTIMATION] = SkillEffect[SK.WZ_ESTIMATION]; //Sense
-SkillEffect[SK.MER_KYRIE] = SkillEffect[SK.PR_KYRIE]; //Kyrie Eleison
-SkillEffect[SK.MER_BLESSING] = SkillEffect[SK.AL_BLESSING]; //Blessing
-SkillEffect[SK.MER_INCAGI] = SkillEffect[SK.AL_INCAGI]; //Increase Agility
+SkillEffect[SK.MER_LEXDIVINA] = {}; //Lex_Divina
+SkillEffect[SK.MER_ESTIMATION] = {}; //Sense
+SkillEffect[SK.MER_KYRIE] = SkillEffect[SK.PR_KYRIE]; //Kyrie Eleison: 112 on the caster
+SkillEffect[SK.MER_BLESSING] = { successEffectId: 42 }; //Blessing: 42 on the target
+SkillEffect[SK.MER_INCAGI] = { successEffectId: 37 }; //Increase Agility: 37 on the target
 // Elemental Spirits Skills
 SkillEffect[SK.EL_CIRCLE_OF_FIRE] = {}; //Circle of Fire
 SkillEffect[SK.EL_FIRE_CLOAK] = {}; //Fire Cloak
@@ -2282,6 +2279,7 @@ SkillEffect[SK.SJ_NOVAEXPLOSING] = { castAuraEffectId: 58 }; //Nova Explosion
 SkillEffect[SK.SJ_GRAVITYCONTROL] = { castAuraEffectId: 58 }; //Gravity Control
 SkillEffect[SK.SJ_BOOKOFCREATINGSTAR] = { castAuraEffectId: 58 }; //Book of Creating Star
 SkillEffect[SK.SP_SWHOO] = { castAuraEffectId: 454 }; //Eswhoo
+SkillEffect[SK.WL_READING_SB_READING] = { castAuraEffectId: 58 }; //Reading Spellbook (reading): white cast aura
 SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 // Druid / Karnos / Alitea: kRO's own effects (data/texture/effect/druid/)

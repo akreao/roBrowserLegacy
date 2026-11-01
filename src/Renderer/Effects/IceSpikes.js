@@ -34,6 +34,12 @@ let _program = null;
 let _texture = null;
 let _loading = false;
 
+/**
+ * Bumped when the class is freed (map change, context reset): a load started
+ * before that belongs to the old context and is dropped when it finishes.
+ */
+let _generation = 0;
+
 class IceSpikes {
 	/**
 	 * @param {vec3} position effect position (kept by reference: a spike follows it)
@@ -54,8 +60,13 @@ class IceSpikes {
 		this.buffer = gl.createBuffer();
 		if (!_texture && !_loading) {
 			_loading = true;
+			const generation = _generation;
 			Client.loadFile(`data/texture/effect/${TEXTURE}`, buffer => {
 				WebGL.texture(gl, buffer, texture => {
+					if (generation !== _generation) {
+						gl.deleteTexture(texture);
+						return;
+					}
 					_texture = texture;
 				});
 			});
@@ -123,6 +134,7 @@ class IceSpikes {
 			_texture = null;
 		}
 		_loading = false;
+		_generation++;
 		this.ready = false;
 	}
 
