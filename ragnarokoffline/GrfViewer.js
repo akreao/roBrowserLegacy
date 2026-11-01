@@ -224563,7 +224563,8 @@ var init_SkillEffect = __esmMin((() => {
 			1270,
 			1266,
 			"ef_wl_tetravortex_sub_fire"
-		]
+		],
+		arrivalEffectIdOnCaster: 804
 	};
 	SkillEffect[SkillConst_default.WL_TETRAVORTEX_WATER] = {
 		successEffectIdOnCaster: "ef_wl_tetravortex_sound",
@@ -316324,7 +316325,37 @@ var init_EffectTable = __esmMin((() => {
 			{ wav: "effect/wl_whiteimprison" }
 		],
 		803: [{ wav: "effect/wl_recognizedspell" }],
-		804: [{ wav: "effect/wl_tetravortex" }],
+		804: [
+			{
+				wav: "effect/wizard_meteo",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/hunter_blastmine",
+				attachedEntity: true
+			},
+			...[
+				10,
+				20,
+				50,
+				80
+			].map((tick) => ({
+				wav: "effect/wl_tetravortex",
+				delayWav: Math.round(tick * 1e3 / 60),
+				attachedEntity: true
+			})),
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					[
+						0,
+						40,
+						80
+					].forEach((tick) => Camera.setQuake(Params.Inst.startTick + tick * 1e3 / 60));
+				}
+			}
+		],
 		805: [{
 			type: "FUNC",
 			wav: "effect/ef_beginspell",
