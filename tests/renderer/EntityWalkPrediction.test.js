@@ -6,6 +6,18 @@ const session = vi.hoisted(() => ({ serverTick: 0, serverTickSynced: true, ping:
 const pathFinding = vi.hoisted(() => ({
 	MAX_WALKPATH: 64,
 	search(x0, y0, x1, y1, range, out) {
+		// A wall on x = 11, from y = 9 to 11: the way from x = 10 to x = 12 goes round it.
+		if (pathFinding.wall && x0 <= 10 && x1 >= 12) {
+			const cells = [[x0, y0]];
+			for (let y = y0 + 1; y <= 12; y++) cells.push([x0, y]);
+			cells.push([11, 12]);
+			for (let y = 12; y >= y1; y--) cells.push([x1, y]);
+			cells.forEach(([cx, cy], i) => {
+				out[i * 2] = cx;
+				out[i * 2 + 1] = cy;
+			});
+			return cells.length;
+		}
 		let x = x0;
 		let y = y0;
 		let n = 0;
@@ -24,7 +36,8 @@ const pathFinding = vi.hoisted(() => ({
 	searchLong(x0, y0, x1, y1, range, out) {
 		return { success: pathFinding.straight, pathLength: pathFinding.search(x0, y0, x1, y1, range, out) - 1 };
 	},
-	straight: true
+	straight: true,
+	wall: false
 }));
 
 vi.mock('Engine/SessionStorage.js', () => ({ default: session }));
@@ -79,6 +92,50 @@ beforeEach(() => {
 	session.serverTickSynced = true;
 	session.ping.value = 0;
 	configs.movePrediction = true;
+	pathFinding.wall = false;
+});
+
+// The walk from (10, 10) to (12, 10) round the wall: (10, 11), (10, 12),
+// (11, 12), (12, 12), (12, 11), (12, 10). Six straight steps, where a straight
+// line would take two.
+const AROUND_THE_WALL = 6 * SPEED;
+
+function walkTime(entity) {
+	const segments = entity.walk.total / 2 - 1;
+	return entity.walk.segmentDurations.slice(0, segments).reduce((a, b) => a + b, 0);
+}
+
+describe.each([
+	['on', true],
+	['off', undefined]
+])('round an obstacle, with movePrediction %s', (_, setting) => {
+	beforeEach(() => {
+		if (setting) configs.movePrediction = setting;
+		else delete configs.movePrediction;
+		pathFinding.wall = true;
+	});
+
+	it('walks a monster at its own speed, not to the straight line\'s time', () => {
+		const mob = makeEntity(10, 10);
+		mob.walkTo(10, 10, 12, 10, 0, session.serverTick);
+		expect(walkTime(mob)).toBeCloseTo(AROUND_THE_WALL);
+	});
+
+	it('walks a player at its own speed', () => {
+		const me = makeEntity(10, 10);
+		me.objecttype = me.constructor.TYPE_PC;
+		me.walkTo(10, 10, 12, 10, 0, session.serverTick);
+		expect(walkTime(me)).toBeCloseTo(AROUND_THE_WALL);
+	});
+
+	it('times a walk the server starts from another cell by the server\'s path', () => {
+		const mob = makeEntity(10, 11);
+		// Drawn a cell along; the server starts it from (10, 10).
+		mob.walkTo(10, 10, 12, 10, 0, session.serverTick);
+		// Five steps drawn, six for the server: each drawn step takes a little longer, never less.
+		expect(walkTime(mob)).toBeGreaterThanOrEqual(5 * SPEED - 1);
+		expect(walkTime(mob)).toBeLessThanOrEqual(AROUND_THE_WALL + 1);
+	});
 });
 
 describe('gridPathDuration', () => {
