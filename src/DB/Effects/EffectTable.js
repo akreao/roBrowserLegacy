@@ -63,6 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { spamTetraSubExplosions } from 'DB/Effects/TetraVortexEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
@@ -26983,6 +26984,89 @@ export default {
 			texturePath: 'tetravortex/tetra_ball_00_core/',
 			castLoop: true,
 			attachedEntity: true
+		}
+	],
+
+	// Tetra Vortex Fire / Water / Wind / Earth sub explosions: four free-standing copies of 1278 / 1279 / 1280 / 1281,
+	// one in each quarter round the target, 10-34 units out along each axis and 5 up (TetraVortexEffect.js).
+	// See effect-port/warlock-skills.md.
+	ef_wl_tetravortex_sub_fire: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				spamTetraSubExplosions(this, Params, 1278);
+			}
+		}
+	],
+
+	1278: [
+		{
+			//(1278): CEZ2STREffect, tetravortex\\tetra_01_fire_sub_explosion\\tetra_01_fire_sub_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_01_fire_sub_explosion/tetra_01_fire_sub_expn',
+			texturePath: 'tetravortex/tetra_01_fire_sub_explosion/',
+			attachedEntity: false
+		}
+	],
+
+	ef_wl_tetravortex_sub_water: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				spamTetraSubExplosions(this, Params, 1279);
+			}
+		}
+	],
+
+	1279: [
+		{
+			//(1279): CEZ2STREffect, tetravortex\\tetra_04_water_sub_explosion\\tetra_04_water_sub_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_04_water_sub_explosion/tetra_04_water_sub_expn',
+			texturePath: 'tetravortex/tetra_04_water_sub_explosion/',
+			attachedEntity: false
+		}
+	],
+
+	ef_wl_tetravortex_sub_wind: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				spamTetraSubExplosions(this, Params, 1280);
+			}
+		}
+	],
+
+	1280: [
+		{
+			//(1280): CEZ2STREffect, tetravortex\\tetra_02_wind_sub_explosion\\tetra_02_wind_sub_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_02_wind_sub_explosion/tetra_02_wind_sub_expn',
+			texturePath: 'tetravortex/tetra_02_wind_sub_explosion/',
+			attachedEntity: false
+		}
+	],
+
+	ef_wl_tetravortex_sub_earth: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				spamTetraSubExplosions(this, Params, 1281);
+			}
+		}
+	],
+
+	1281: [
+		{
+			//(1281): CEZ2STREffect, tetravortex\\tetra_03_earth_sub_explosion\\tetra_03_earth_sub_expn.str
+			type: 'STR',
+			file: 'tetravortex/tetra_03_earth_sub_explosion/tetra_03_earth_sub_expn',
+			texturePath: 'tetravortex/tetra_03_earth_sub_explosion/',
+			attachedEntity: false
 		}
 	],
 
