@@ -425,6 +425,17 @@ export function createMiniMap({
 	};
 
 	if (coordinates) {
+		// Each coordinate's element and the number last written into it.
+		const _coordX = { element: null, shown: null };
+		const _coordY = { element: null, shown: null };
+
+		const showCoordinate = (coord, value) => {
+			if (coord.element && coord.shown !== value) {
+				coord.element.textContent = value;
+				coord.shown = value;
+			}
+		};
+
 		/**
 		 * Update Coords Values
 		 *
@@ -432,15 +443,18 @@ export function createMiniMap({
 		 * @param {number} y increment
 		 */
 		MiniMap.updateCoordinates = function updateCoordinates(x, y) {
+			// Runs every frame: write a number only when it changes.
 			const root = this.getRoot();
-			const coordX = root.querySelector('.coordinates .coord.x');
-			const coordY = root.querySelector('.coordinates .coord.y');
-			if (coordX) {
-				coordX.textContent = Math.floor(x);
+			if (!_coordX.element || !root.contains(_coordX.element)) {
+				_coordX.element = root.querySelector('.coordinates .coord.x');
+				_coordX.shown = null;
 			}
-			if (coordY) {
-				coordY.textContent = Math.floor(y);
+			if (!_coordY.element || !root.contains(_coordY.element)) {
+				_coordY.element = root.querySelector('.coordinates .coord.y');
+				_coordY.shown = null;
 			}
+			showCoordinate(_coordX, Math.floor(x));
+			showCoordinate(_coordY, Math.floor(y));
 		};
 	}
 
