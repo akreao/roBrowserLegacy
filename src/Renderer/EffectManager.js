@@ -1653,6 +1653,23 @@ class EffectManager {
 			});
 		}
 
+		// The hits after the first: the official client's multi-hit loop gives some skills
+		// their own hit effects there (extraHitEffectId), on every extraHitEffectEvery-th
+		// extra hit counting from the 2nd hit (default every one).
+		if (!noTargetEffects && hitIndex > 0 && SkillEffect[skillId].extraHitEffectId != null) {
+			const every = SkillEffect[skillId].extraHitEffectEvery || 1;
+			if ((hitIndex - 1) % every === 0) {
+				[SkillEffect[skillId].extraHitEffectId].flat().forEach(effectId => {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
+					});
+				});
+			}
+		}
+
 		if (SkillEffect[skillId].hitEffectIdOnCaster) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectIdOnCaster)
 				? SkillEffect[skillId].hitEffectIdOnCaster
