@@ -1060,8 +1060,8 @@ SkillEffect[SK.AB_HIGHNESSHEAL] = { successEffectId: healEffectByAmount }; //Hig
 SkillEffect[SK.AB_CLEARANCE] = { castAuraEffectId: 1560, beginCastEffectId: 1559, successEffectId: [1557, 1558] }; //Clearance: cast aura 1560 (white rings) + 1559 while casting; 1557 + 1558 on each target on success
 SkillEffect[SK.AB_EXPIATIO] = { successEffectIdOnCaster: 'ef_ab_expiatio_sound' }; //Expiatio: 바실리카.wav on the caster on success
 SkillEffect[SK.AB_DUPLELIGHT] = { successEffectId: 'ef_duplelight' }; //Duple Light: AB_duplelight.wav on the target on success (833 not ported)
-SkillEffect[SK.AB_DUPLELIGHT_MELEE] = {}; //Duple Light Melee
-SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = {}; //Duple Light Magic
+SkillEffect[SK.AB_DUPLELIGHT_MELEE] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Melee: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
+SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Magic: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
 SkillEffect[SK.AB_SILENTIUM] = {}; //Silentium //CHECk Marked magic attack as well. Hmmmm....
 SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
 // RA Ranger
