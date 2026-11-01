@@ -22,6 +22,7 @@ import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
 import FrostMistyEffect from 'DB/Effects/FrostMistyEffect.js';
+import StasisEffect from 'DB/Effects/StasisEffect.js';
 import RecognizedSpellEffect from 'DB/Effects/RecognizedSpellEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
@@ -15776,12 +15777,7 @@ export default {
 		}
 	],
 	//798: [{}],	//EF_INTIMIDATE2	   Red triangles (like Intimidate)
-	799: [
-		{
-			//EF_STASIS	   Stasis (expanding blue mist) [S]
-			wav: 'effect/wl_stasis'
-		}
-	],
+	// 799 EF_STASIS (Stasis): StasisEffect.js.
 	//800: [{}],	//EF_REDLINE	   Hell Inferno (red lights)
 	//801: [{}],	//EF_FROSTDIVER3	   Jack Frost unit (ice spikes)
 
@@ -29818,6 +29814,9 @@ export default {
 
 	// Frost Misty's glow and snow (726): FrostMistyEffect.js.
 	...FrostMistyEffect,
+
+	// Stasis's blue flash and squares (799): StasisEffect.js.
+	...StasisEffect,
 
 	// Recognized Spell's cast icons (803): RecognizedSpellEffect.js.
 	...RecognizedSpellEffect,
