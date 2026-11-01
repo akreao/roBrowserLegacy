@@ -63,6 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
@@ -25405,15 +25406,6 @@ export default {
 		}
 	],
 
-	// Fear Breeze (RA_FEARBREEZE), from the client's own effect folders.
-	ef_ra_fearbreeze: [
-		{
-			type: 'STR',
-			file: 'new_fearbreeze/new_fearbreeze',
-			texturePath: 'new_fearbreeze/'
-		}
-	],
-
 	// Vulcan Arm (NC_VULCANARM), from the client's own effect folders.
 	ef_nc_vulcanarm: [
 		{
@@ -26745,6 +26737,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
 			texturePath: 'new_soulexpansion/new_soulexpansion_cast/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast/',
 			castLoop: true,
 			attachedEntity: true
 		}
@@ -26757,6 +26751,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
 			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26770,6 +26766,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
 			texturePath: 'new_soulexpansion/new_soulexpansion_hit/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit/',
 			attachedEntity: true
 		}
 	],
@@ -26781,6 +26779,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
 			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26832,6 +26832,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26845,6 +26847,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
 			texturePath: 'new_hellinferno/new_hellinferno/',
+			min: 'mineffect/new_hellinferno/new_hellinferno/new_hellinferno',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno/',
 			attachedEntity: true
 		}
 	],
@@ -26856,8 +26860,59 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) side flames: 1553 + 1554 (floor) at four points 15 units from the target,
+	// at 45 + 90 i degrees, as the damage arrives; they stay where they start. See effect-port/warlock-skills.md.
+	ef_wl_hellinferno_sub: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				const position = Params.Inst.position;
+				if (!position) {
+					return;
+				}
+				hellInfernoSubOffsets().forEach(([dx, dy]) => {
+					[1553, 1554].forEach(effectId => {
+						this.spam({
+							effectId,
+							position: [position[0] + dx, position[1] + dy, position[2]],
+							startTick: Params.Inst.startTick
+						});
+					});
+				});
+			}
+		}
+	],
+
+	1553: [
+		{
+			//(1553): CEZ2STREffect, new_hellInferno\\new_hellInferno_sub\\new_hellInferno_sub.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_sub/new_hellinferno_sub',
+			texturePath: 'new_hellinferno/new_hellinferno_sub/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_sub/new_hellinferno_sub',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub/',
+			attachedEntity: false
+		}
+	],
+
+	1554: [
+		{
+			//(1554): CEZ2STREffect, new_hellInferno\\new_hellInferno_sub_bottom\\new_hellInferno_sub_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_sub_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: false
 		}
 	],
 
@@ -26916,6 +26971,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
 			texturePath: 'new_chainlightning/new_chainlightning_cast/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast/',
 			castLoop: true,
 			attachedEntity: true
 		}
@@ -26928,6 +26985,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
 			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26941,6 +27000,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_target/new_chainlightning_target',
 			texturePath: 'new_chainlightning/new_chainlightning_target/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_target/',
 			attachedEntity: true
 		}
 	],
@@ -27095,6 +27156,198 @@ export default {
 	ef_wl_summon_cast_sound: [
 		{
 			wav: 'effect/ef_beginspell',
+			attachedEntity: true
+		}
+	],
+
+	// Arrow Storm (RA_ARROWSTORM): arrowstorm.wav, with 1293 as the damage arrives. See effect-port/ranger-skills.md.
+	ef_ra_arrowstorm_sound: [
+		{
+			wav: 'arrowstorm',
+			attachedEntity: true
+		}
+	],
+
+	// Arrow Storm (RA_ARROWSTORM) rain, on each target as the damage arrives. See effect-port/ranger-skills.md.
+	1293: [
+		{
+			//(1293): CEZ2STREffect, new_arrowstorm\\new_arrowstorm_00\\new_arrowstorm_00.str
+			type: 'STR',
+			file: 'new_arrowstorm/new_arrowstorm_00/new_arrowstorm_00',
+			texturePath: 'new_arrowstorm/new_arrowstorm_00/',
+			min: 'mineffect/new_arrowstorm/new_arrowstorm_00/new_arrowstorm_00',
+			minTexturePath: 'mineffect/new_arrowstorm/new_arrowstorm_00/',
+			attachedEntity: true
+		}
+	],
+
+	// Arrow Storm (RA_ARROWSTORM) second rain: the client launches it three times with start delays 600, 800 and 1000 ms. See effect-port/ranger-skills.md.
+	1294: [
+		{
+			//(1294): CEZ2STREffect, new_arrowstorm\\new_arrowstorm_01\\new_arrowstorm_01.str
+			type: 'STR',
+			file: 'new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01',
+			texturePath: 'new_arrowstorm/new_arrowstorm_01/',
+			min: 'mineffect/new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01',
+			minTexturePath: 'mineffect/new_arrowstorm/new_arrowstorm_01/',
+			duplicate: 3,
+			timeBetweenDupli: 200,
+			delayStart: 600,
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) cast floor: the client plays it on the caster for the cast time (no cast aura). See effect-port/ranger-skills.md.
+	1649: [
+		{
+			//(1649): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_cast_bottom\\new_aimedbolt_cast_bottom.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_cast_bottom/new_aimedbolt_cast_bottom',
+			texturePath: 'new_aimedbolt/new_aimedbolt_cast_bottom/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/new_aimedbolt_cast_bottom',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) target mark: on the target for the cast time. See effect-port/ranger-skills.md.
+	1651: [
+		{
+			//(1651): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_target_loop\\new_aimedbolt_target_loop.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_target_loop/new_aimedbolt_target_loop',
+			texturePath: 'new_aimedbolt/new_aimedbolt_target_loop/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_target_loop/new_aimedbolt_target_loop',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_target_loop/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) on the target as the damage arrives. See effect-port/ranger-skills.md.
+	1650: [
+		{
+			//(1650): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_target_end\\new_aimedbolt_end.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_target_end/new_aimedbolt_end',
+			texturePath: 'new_aimedbolt/new_aimedbolt_target_end/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_target_end/new_aimedbolt_end',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_target_end/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 1 (ScreenDirection.facingQuarter). See effect-port/ranger-skills.md.
+	1645: [
+		{
+			//(1645): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_01clock\\new_aimedbolt_attack_01clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_01clock/new_aimedbolt_attack_01clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_01clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_01clock/new_aimedbolt_attack_01clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_01clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 0. See effect-port/ranger-skills.md.
+	1646: [
+		{
+			//(1646): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_05clock\\new_aimedbolt_attack_05clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_05clock/new_aimedbolt_attack_05clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_05clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_05clock/new_aimedbolt_attack_05clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_05clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 3. See effect-port/ranger-skills.md.
+	1647: [
+		{
+			//(1647): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_07clock\\new_aimedbolt_attack_07clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_07clock/new_aimedbolt_attack_07clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_07clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_07clock/new_aimedbolt_attack_07clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_07clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 2. See effect-port/ranger-skills.md.
+	1648: [
+		{
+			//(1648): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_11clock\\new_aimedbolt_attack_11clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_11clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Fear Breeze (RA_FEARBREEZE): on the caster when the use packet succeeds. See effect-port/ranger-skills.md.
+	1549: [
+		{
+			//(1549): CEZ2STREffect, new_fearbreeze\\new_fearbreeze.str
+			type: 'STR',
+			file: 'new_fearbreeze/new_fearbreeze',
+			texturePath: 'new_fearbreeze/',
+			min: 'mineffect/new_fearbreeze/new_fearbreeze',
+			minTexturePath: 'mineffect/new_fearbreeze/',
+			attachedEntity: true
+		}
+	],
+
+	// Electric Shocker (RA_ELECTRICSHOCKER): hunter_shockwavetrap.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_electricshocker_sound: [
+		{
+			wav: 'effect/hunter_shockwavetrap',
+			attachedEntity: true
+		}
+	],
+
+	// Cluster Bomb (RA_CLUSTERBOMB): hunter_landmine.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_clusterbomb_sound: [
+		{
+			wav: 'effect/hunter_landmine',
+			attachedEntity: true
+		}
+	],
+
+	// Firing Trap (RA_FIRINGTRAP): 폭염룡.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_firingtrap_sound: [
+		{
+			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡.wav
+			attachedEntity: true
+		}
+	],
+
+	// Icebound Trap (RA_ICEBOUNDTRAP): ef_frostdiver.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_iceboundtrap_sound: [
+		{
+			wav: 'effect/ef_frostdiver',
+			attachedEntity: true
+		}
+	],
+
+	// Warg Mastery (RA_WUGMASTERY): wolf_attack.wav when the use packet succeeds. See effect-port/ranger-skills.md.
+	ef_ra_wugmastery_sound: [
+		{
+			wav: 'wolf_attack',
+			attachedEntity: true
+		}
+	],
+
+	// Sensitive Keen (RA_SENSITIVEKEEN): were_wolf_attack.wav as each damage packet's damage arrives. See effect-port/ranger-skills.md.
+	ef_ra_sensitivekeen_sound: [
+		{
+			wav: 'were_wolf_attack',
 			attachedEntity: true
 		}
 	],
@@ -27528,19 +27781,26 @@ export default {
 		}
 	],
 
-	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
+	// Unlimit (RA_UNLIMIT): the client's EZ2 rows unlimit and unlimit_bottom (PosY 12, the bottom one a floor
+	// effect, ra_unlimit.wav on the top one), on the caster when the use packet succeeds. See effect-port/ranger-skills.md.
 	ef_ra_unlimit: [
 		{
 			type: 'STR',
-			file: 'new_unlimit/new_unlimit/new_unlimit',
-			texturePath: 'new_unlimit/new_unlimit/',
-			wav: 'ra_unlimit'
+			file: 'ranger/unlimit/unlimit/unlimit',
+			texturePath: 'ranger/unlimit/unlimit/',
+			min: 'ranger/unlimit/unlimit/min_unlimit',
+			wav: 'effect/ra_unlimit',
+			yOffset: 12,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
-			file: 'new_unlimit/new_unlimit_bottom/new_unlimit_bottom',
-			texturePath: 'new_unlimit/new_unlimit_bottom/',
-			renderBeforeEntities: true
+			file: 'ranger/unlimit/unlimit_bottom/unlimit_bottom',
+			texturePath: 'ranger/unlimit/unlimit_bottom/',
+			min: 'ranger/unlimit/unlimit_bottom/min_unlimit_bottom',
+			yOffset: 12,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
