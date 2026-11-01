@@ -93,6 +93,7 @@ import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
+import DupleLight from 'Renderer/Effects/DupleLight.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 
 /** Textures of the 2025 streak builder's variants (0xbdf6e0). */
@@ -22025,6 +22026,19 @@ export default {
 		{
 			wav: 'effect/ab_duplelight',
 			attachedEntity: true
+		}
+	],
+
+	// Duple Light's orbs while the status is on (StatusEffectTable): the official client's 833 with count 2
+	// (0xc07700(3), primitive 145): two blue orbs circling the actor with freeze_a.bmp sparks.
+	// See effect-port/duple-light.md.
+	ef_ab_duplelight_orbs: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new DupleLight(Params.Init.ownerEntity, Params.Inst.startTick, 2), Params);
+			}
 		}
 	],
 
