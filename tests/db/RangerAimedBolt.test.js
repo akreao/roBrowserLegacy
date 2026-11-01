@@ -35,7 +35,7 @@ function loadEffectManager(entities) {
 	const spammed = [];
 	context.EffectManager.spam = params => spammed.push(params);
 	context.EffectManager.has = () => false;
-	return { EffectManager: context.EffectManager, spammed };
+	return { EffectManager: context.EffectManager, spammed, context };
 }
 
 // Aimed Bolt (RA_AIMEDBOLT 2236): no cast aura; 1649 on the caster and 1651 on the target for the cast time; as each
@@ -51,7 +51,7 @@ describe('Aimed Bolt cast, target mark and shot as the official client plays the
 		for (const [id, clock] of [[1645, '01'], [1646, '05'], [1647, '07'], [1648, '11']]) {
 			expect(EffectTable[id][0].file).toBe(`new_aimedbolt/new_aimedbolt_attack_${clock}clock/new_aimedbolt_attack_${clock}clock`);
 		}
-		
+
 		// direction 0 faces 0 degrees (quarter 3), direction 7 faces 45 (quarter 0), 6 faces 90 (quarter 1), 4 faces 180 (quarter 2)
 		for (const [direction, shot] of [[0, 1647], [7, 1646], [6, 1645], [4, 1648]]) {
 			const { EffectManager, spammed } = loadEffectManager({ 1: { direction, position: [0, 0, 0] }, 2: { position: [3, 0, 0] } });
@@ -62,12 +62,22 @@ describe('Aimed Bolt cast, target mark and shot as the official client plays the
 				[shot, 1, 500]
 			]);
 		}
-		
-		const { EffectManager, spammed } = loadEffectManager({ 1: { position: [0, 0, 0] }, 2: { position: [3, 0, 0] } });
+
+		const { EffectManager, spammed, context } = loadEffectManager({ 1: { position: [0, 0, 0] }, 2: { position: [3, 0, 0] } });
 		EffectManager.spamSkillCast(SK.RA_AIMEDBOLT, 1, 1000, 2, 1500);
-		expect(spammed.map(p => [p.effectId, p.ownerAID, p.castEndTick])).toEqual([
-			[1649, 1, 2500],
-			[1651, 2, 2500]
+		expect(spammed.map(p => [p.effectId, p.ownerAID, p.castEndTick, p.castTargetOf])).toEqual([
+			[1649, 1, 2500, undefined],
+			[1651, 2, 2500, 1]
+		]);
+
+		// Cancelling the cast removes the caster's cast loops and the mark on its target, not other casts' loops
+		const row = (ownerAID, Init = {}) => ({ _Params: { effect: { castLoop: true }, Init: { ownerAID, ...Init } } });
+		const list = vm.runInContext('_list', context);
+		list.cast = [row(1), row(2, { castTargetOf: 1 }), row(2), row(3, { castTargetOf: 2 })];
+		EffectManager.removeCastLoops(1);
+		expect(list.cast.map(r => [r._Params.Init.ownerAID, r._Params.Init.castTargetOf])).toEqual([
+			[2, undefined],
+			[3, 2]
 		]);
 	});
 });
