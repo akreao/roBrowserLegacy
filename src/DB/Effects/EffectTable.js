@@ -21,6 +21,7 @@ import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
+import RecognizedSpellEffect from 'DB/Effects/RecognizedSpellEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
 import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
@@ -15850,12 +15851,7 @@ export default {
 		}
 	],
 
-	803: [
-		{
-			//EF_RECOGNIZED	   Recognized Spell
-			wav: 'effect/wl_recognizedspell'
-		}
-	],
+	// 803 EF_RECOGNIZED (Recognized Spell cast): RecognizedSpellEffect.js.
 
 	804: [
 		{
@@ -29743,6 +29739,9 @@ export default {
 
 	// Soul Linker / Star Gladiator body looks (Kaite 419, Soul Link 424, Comfort 488, 542, 543): SoulBodyEffects.js.
 	...SoulBodyEffects,
+
+	// Recognized Spell's cast icons (803): RecognizedSpellEffect.js.
+	...RecognizedSpellEffect,
 
 	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
 	...StarEmperorStatusEffects,
