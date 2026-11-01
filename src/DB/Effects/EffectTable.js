@@ -22,6 +22,7 @@ import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
 import FrostMistyEffect from 'DB/Effects/FrostMistyEffect.js';
+import StasisEffect from 'DB/Effects/StasisEffect.js';
 import { tetraFireLook } from 'DB/Effects/TetraFireEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
@@ -15776,12 +15777,7 @@ export default {
 		}
 	],
 	//798: [{}],	//EF_INTIMIDATE2	   Red triangles (like Intimidate)
-	799: [
-		{
-			//EF_STASIS	   Stasis (expanding blue mist) [S]
-			wav: 'effect/wl_stasis'
-		}
-	],
+	// 799 EF_STASIS (Stasis): StasisEffect.js.
 	//800: [{}],	//EF_REDLINE	   Hell Inferno (red lights)
 	//801: [{}],	//EF_FROSTDIVER3	   Jack Frost unit (ice spikes)
 
@@ -29824,6 +29820,9 @@ export default {
 
 	// Frost Misty's glow and snow (726): FrostMistyEffect.js.
 	...FrostMistyEffect,
+
+	// Stasis's blue flash and squares (799): StasisEffect.js.
+	...StasisEffect,
 
 	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
 	...StarEmperorStatusEffects,

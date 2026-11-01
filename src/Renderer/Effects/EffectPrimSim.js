@@ -61,8 +61,9 @@
  *  - yaw {number}           turn of the square around the vertical, degrees from the map's +x toward +y
  *  - track {function}       track(frame) for quads that follow a path worked out elsewhere: returns
  *                           null to draw nothing on that tick, or any of { x, y } (units from the
- *                           position along the map's x and y), alpha (0..254) and yaw, each replacing
- *                           the state's value (applyTrack)
+ *                           position along the map's x and y), alpha (0..254), yaw and size, each
+ *                           replacing the state's value (applyTrack)
+ *  - additive {boolean}     draw adding light instead of normal alpha blending
  */
 
 /**
@@ -227,6 +228,7 @@ export function applyTrack(state, effect, frame) {
 	state.trackY = num(sample.y, state.trackY);
 	state.alpha = num(sample.alpha, state.alpha);
 	state.yaw = num(sample.yaw, state.yaw);
+	state.size = num(sample.size, state.size);
 	return true;
 }
 
