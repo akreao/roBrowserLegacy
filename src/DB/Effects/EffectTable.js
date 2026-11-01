@@ -65,7 +65,7 @@ import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import { spamTetraSubExplosions } from 'DB/Effects/TetraVortexEffect.js';
 import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
-import { hundredSpearEffect, hundredSpearDashEffect } from 'DB/Effects/HundredSpearEffect.js';
+import { hundredSpearEffect, hundredSpearDashEffect, aimedSprite } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
@@ -6261,7 +6261,10 @@ export default {
 		{
 			//EF_CHIMTO	   Occult Impaction
 			wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
-		}
+		},
+		// Official client (kRO 2025-07-16, builder 0xbdfcc0 variant 0, life 16 ticks): the 침투경_ sprite at the
+		// target, turned towards the caster, scale 2.5, alpha 200, a frame every 2 ticks (HundredSpearEffect.js)
+		aimedSprite(267, '\xc4\xa7\xc5\xf5\xb0\xe6_', { frameTicks: 2, lifeTicks: 16, scale: 2.5, alpha: 200, loop: true })
 	],
 
 	268: [

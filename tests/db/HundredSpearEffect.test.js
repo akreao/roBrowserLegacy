@@ -49,6 +49,23 @@ describe('Hundred Spear', () => {
 		expect(spammed[0].effect).toMatchObject({ type: 'SPR', file: '\xc7\xe5\xb5\xe5\xb7\xb9\xb5\xe5\xbd\xba\xc7\xc7\xbe\xee' });
 		expect(spammed[0].Init.position).toEqual([0, 0, 1]);
 		expect(spammed[0].Init.ownerEntity).toBeNull();
+		// a frame every 6 ticks, cut at the effect's 100 ticks, played once
+		expect(spammed[0].effect.delayFrame).toBeCloseTo(100);
+		expect(spammed[0].effect.duration).toBeCloseTo(100 * (1000 / 60));
+		expect(spammed[0].effect.repeat).toBe(false);
+	});
+
+	it("draws Occult Impaction's 침투경_ sprite at the target the same way (267)", () => {
+		expect(EffectTable[267][0].wav).toBe('effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6');
+		const spammed = [];
+		EffectTable[267][1].func.call(
+			{ spamEffect: p => spammed.push(p) },
+			{ Init: { ownerEntity: { position: [0, 5, 0] }, otherEntity: { position: [0, 0, 0] } }, Inst: { startTick: 0 } }
+		);
+		expect(spammed[0].effect).toMatchObject({ type: 'SPR', file: '\xc4\xa7\xc5\xf5\xb0\xe6_', frame: 1, scale: 2.5, repeat: true });
+		expect(spammed[0].effect.opacity).toBeCloseTo(200 / 255);
+		expect(spammed[0].effect.delayFrame).toBeCloseTo(2 * (1000 / 60));
+		expect(spammed[0].effect.duration).toBeCloseTo(16 * (1000 / 60));
 	});
 
 	it('gives the caster a pale yellow glow from tick 20 to 100', () => {
