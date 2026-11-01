@@ -117,6 +117,7 @@ import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
 const getBragiSpellNote = SongEffects.getBragiSpellNote;
@@ -21180,6 +21181,49 @@ export default {
 			wav: 'effect/IQ_BLAZING_FLAME_BLAST_hit',
 			soundLoop: false,
 			yOffset: 8
+		}
+	],
+
+	// Jack Frost (WL_JACKFROST) ice shards: three of 1443-1445 round the target of each damage packet
+	// (JackFrostEffect.js). See effect-port/warlock-skills.md.
+	ef_wl_jackfrost_shards: jackFrostShardsEffect,
+
+	1443: [
+		{
+			//(1443): CEZ2STREffect, new_jackfrost\\new_jackfrost\\new_jackfrost_00.str
+			type: 'STR',
+			file: 'new_jackfrost/new_jackfrost/new_jackfrost_00',
+			texturePath: 'new_jackfrost/new_jackfrost/',
+			// 1540, under /mineffect
+			min: 'mineffect/new_jackfrost/new_jackfrost_ice/new_jackfrost_00',
+			minTexturePath: 'mineffect/new_jackfrost/new_jackfrost_ice/',
+			attachedEntity: false
+		}
+	],
+
+	1444: [
+		{
+			//(1444): CEZ2STREffect, new_jackfrost\\new_jackfrost\\new_jackfrost_01.str
+			type: 'STR',
+			file: 'new_jackfrost/new_jackfrost/new_jackfrost_01',
+			texturePath: 'new_jackfrost/new_jackfrost/',
+			// 1541, under /mineffect
+			min: 'mineffect/new_jackfrost/new_jackfrost_ice/new_jackfrost_01',
+			minTexturePath: 'mineffect/new_jackfrost/new_jackfrost_ice/',
+			attachedEntity: false
+		}
+	],
+
+	1445: [
+		{
+			//(1445): CEZ2STREffect, new_jackfrost\\new_jackfrost\\new_jackfrost_02.str
+			type: 'STR',
+			file: 'new_jackfrost/new_jackfrost/new_jackfrost_02',
+			texturePath: 'new_jackfrost/new_jackfrost/',
+			// 1542, under /mineffect
+			min: 'mineffect/new_jackfrost/new_jackfrost_ice/new_jackfrost_02',
+			minTexturePath: 'mineffect/new_jackfrost/new_jackfrost_ice/',
+			attachedEntity: false
 		}
 	],
 
