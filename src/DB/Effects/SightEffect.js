@@ -140,6 +140,10 @@ export class SightEmitter {
 	 * @param {number} tick
 	 */
 	emit(tick) {
+		// Pairs whose 20 ticks are already over (the emitter was off screen) are skipped
+		while (this.next < SPAN && this.startTick + (this.next + LIFE) * PRIM_TICK_MS <= tick) {
+			this.next += 2;
+		}
 		while (this.next < SPAN && this.startTick + this.next * PRIM_TICK_MS <= tick) {
 			const point = orbitPoint(this.next % CYCLE);
 			const startTick = this.startTick + this.next * PRIM_TICK_MS;

@@ -23,7 +23,7 @@ describe('Sight', () => {
 		expect(spawned[spawned.length - 2].effect.track(0).y).toBeCloseTo(-3);
 		expect(emitter.needCleanUp).toBeUndefined();
 		emitter.render(null, SPAN * (1000 / 60));
-		expect(spawned).toHaveLength(SPAN);
+		expect(spawned.length).toBeLessThan(SPAN);
 		expect(emitter.needCleanUp).toBe(true);
 		expect(spawned.every(p => p.Inst.effectID === 22)).toBe(true);
 		expect(EffectTable[22][1].wav).toBe('effect/ef_sight');
@@ -46,5 +46,20 @@ describe('Sight', () => {
 		expect(sightAt(20)).toBeNull();
 		expect(shadowAt(10).alpha).toBe(110);
 		expect(shadowAt(10).scale).toBeCloseTo(0.9);
+	});
+
+	it('skips the pairs already over when it comes back on screen', () => {
+		let emitter;
+		const spawned = [];
+		EffectTable[22][0].func.call(
+			{ add: e => (emitter = e), spamEffect: p => spawned.push(p) },
+			{ Init: {}, Inst: { startTick: 0 } }
+		);
+		emitter.render(null, 300 * (1000 / 60));
+		// only the pairs of ticks 282-300 are still alive: 10 pairs
+		expect(spawned).toHaveLength(20);
+		emitter.render(null, 2 * SPAN * (1000 / 60));
+		expect(spawned).toHaveLength(20);
+		expect(emitter.needCleanUp).toBe(true);
 	});
 });
