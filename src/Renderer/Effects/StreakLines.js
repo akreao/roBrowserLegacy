@@ -22,7 +22,8 @@ import {
 	STREAK_TICK_MS,
 	STREAK_FRAMES,
 	STREAK_VERTICES,
-	TINT_GREY,
+	tintColor,
+	createVariantSets,
 	streakAngle,
 	createStreakSets,
 	advanceStreaks,
@@ -62,23 +63,25 @@ class StreakLines {
 	 * @param {vec3} position caster position (copied: the sets stay where they start)
 	 * @param {vec3} target target position, sets the direction once
 	 * @param {number} startTick
-	 * @param {object} textures { black, color } files under data/texture/effect/
+	 * @param {object} textures texture files under data/texture/effect/ by key ({ black, color } for
+	 *   Quill Spear, { line3, line3y } for the builder's variants)
+	 * @param {number[]} [variants] the 2025 builder's variants (0xbdf6e0), one set of 4 streaks each;
+	 *   Quill Spear's 8 sets without
 	 */
-	constructor(position, target, startTick, textures) {
+	constructor(position, target, startTick, textures, variants) {
 		this.position = [position[0], position[1], position[2]];
 		this.angle = streakAngle(target[0] - position[0], target[1] - position[1]);
 		this.startTick = startTick || 0;
 		this.endTick = this.startTick + STREAK_FRAMES * STREAK_TICK_MS;
 		this.textures = textures;
-		this.streaks = createStreakSets();
+		this.streaks = variants ? createVariantSets(variants) : createStreakSets();
 		this.vertices = new Float32Array(this.streaks.length * STREAK_VERTICES * 5);
 		this.color = new Float32Array([1, 1, 1, 1]);
 	}
 
 	init(gl) {
 		this.buffer = gl.createBuffer();
-		loadTexture(gl, this.textures.black);
-		loadTexture(gl, this.textures.color);
+		Object.values(this.textures).forEach(name => loadTexture(gl, name));
 		this.ready = true;
 	}
 
@@ -128,10 +131,10 @@ class StreakLines {
 					gl.bindTexture(gl.TEXTURE_2D, texture);
 					bound = texture;
 				}
-				const grey = TINT_GREY[streak.tint] / 255;
-				self.color[0] = grey;
-				self.color[1] = grey;
-				self.color[2] = grey;
+				const [r, g, b] = tintColor(streak.tint);
+				self.color[0] = r / 255;
+				self.color[1] = g / 255;
+				self.color[2] = b / 255;
 				self.color[3] = streak.alpha / 255;
 				gl.uniform4fv(_program.uniform.uColor, self.color);
 				gl.drawArrays(gl.TRIANGLES, i * STREAK_VERTICES, STREAK_VERTICES);
