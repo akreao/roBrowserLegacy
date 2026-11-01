@@ -1062,7 +1062,7 @@ SkillEffect[SK.AB_EXPIATIO] = { successEffectIdOnCaster: 'ef_ab_expiatio_sound' 
 SkillEffect[SK.AB_DUPLELIGHT] = { successEffectId: 'ef_duplelight' }; //Duple Light: AB_duplelight.wav on the target on success (833 not ported)
 SkillEffect[SK.AB_DUPLELIGHT_MELEE] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Melee: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
 SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Magic: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
-SkillEffect[SK.AB_SILENTIUM] = {}; //Silentium //CHECk Marked magic attack as well. Hmmmm....
+SkillEffect[SK.AB_SILENTIUM] = { successEffectId: 87 }; //Silentium: 87 (Lex Divina) on each target on success
 SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
 // RA Ranger
 SkillEffect[SK.RA_ARROWSTORM] = { arrivalEffectIdOnOtherTarget: ['ef_ra_arrowstorm_sound', 1293, 1294] }; //Arrow Storm: arrowstorm.wav + 1293, then 1294 three times (600 / 800 / 1000 ms), on each target but the caster as the damage arrives
