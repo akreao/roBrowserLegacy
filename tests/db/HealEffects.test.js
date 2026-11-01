@@ -17,7 +17,13 @@ function effectEntry(id) {
 	const start = source.indexOf(`\n\t${id}: [`);
 	const end = source.indexOf('\n\t],', start);
 	const body = source.slice(start, end + 3).trim().replace(/^\d+:/, '').replace(/,$/, '');
-	return vm.runInNewContext(`(${body})`);
+	// 312 / 320 name their renderers (HealCylinders.js, ReadySparkEffect.js): stand-ins are enough here
+	return vm.runInNewContext(`(${body})`, {
+		HEAL_LIFE: 100,
+		PRIM_TICK_MS: 1000 / 60,
+		HealCylinders: function () {},
+		readySparksRow: () => ({ type: 'FUNC' })
+	});
 }
 
 const pick = vm.runInNewContext(`(${skills.match(/const healEffectByAmount = (.*);\n/)[1]})`);
