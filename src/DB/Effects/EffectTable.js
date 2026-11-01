@@ -94,6 +94,8 @@ import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
+import ForestLight from 'Renderer/Effects/ForestLight.js';
+import { FOREST_LIGHT_LIFE } from 'Renderer/Effects/ForestLightSim.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 
 /** Textures of the 2025 streak builder's variants (0xbdf6e0). */
@@ -14455,6 +14457,16 @@ export default {
 			//EF_FORESTLIGHT5	   Renovatio (light beam)
 			wav: 'effect/ab_renovatio',
 			attachedEntity: true
+		},
+		{
+			// The client's columns of light (0xbe9490(cloud11.tga, 12), primitive 66): four pale green cloud11.tga
+			// columns from the target up into the sky. See effect-port/forest-light.md.
+			type: 'FUNC',
+			attachedEntity: true,
+			duration: FOREST_LIGHT_LIFE * PRIM_TICK_MS,
+			func: function (Params) {
+				this.add(new ForestLight(Params.Init.ownerEntity.position, Params.Inst.startTick), Params);
+			}
 		}
 	],
 	//720: [{}],	//EF_SOULBREAKER3	   Yellow version of Soul Breaker
