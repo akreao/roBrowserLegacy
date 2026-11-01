@@ -59,6 +59,50 @@ let _gl;
 const _list = {};
 
 /**
+ * Effect classes set up for drawing (their static init ran), freed only when
+ * the map goes. Freeing a class when its last effect ended made it build its
+ * shaders again on the next one: StrEffect recompiled at the start of every
+ * burst of skills, at up to 100 ms a time.
+ *
+ * @type {Set<Function>}
+ */
+const _classes = new Set();
+
+/**
+ * Renderer.contextGeneration the classes in _classes were set up on
+ *
+ * @type {number}
+ */
+let _contextGeneration = 0;
+
+/**
+ * After a lost WebGL context comes back, set every class up again on the
+ * next effect: its shaders and buffers went with the old context. Freeing
+ * them first lets init make new ones (deleting a lost object does nothing).
+ *
+ * @param {WebGLRenderingContext} gl
+ */
+function resetClassesAfterContextLoss(gl) {
+	const generation = Renderer.contextGeneration || 0;
+	if (generation === _contextGeneration) {
+		return;
+	}
+	_contextGeneration = generation;
+	_classes.forEach(constructor => {
+		// A class with no static init has nothing on the GPU, and stays ready
+		if (!constructor.init) {
+			return;
+		}
+		if (constructor.free) {
+			constructor.free(gl);
+		}
+		constructor.ready = false;
+		constructor.needInit = true;
+		_classes.delete(constructor);
+	});
+}
+
+/**
  * @type {number} used to differenciate constructors
  */
 let _uniqueId = 1;
@@ -503,7 +547,9 @@ class EffectManager {
 
 		keys.forEach(key => {
 			const list = _list[key];
-			const constructor = list[0].constructor;
+			if (list.length) {
+				_classes.add(list[0].constructor);
+			}
 
 			list.forEach(item => {
 				if (item.free) {
@@ -511,12 +557,15 @@ class EffectManager {
 				}
 			});
 
+			delete _list[key];
+		});
+
+		_classes.forEach(constructor => {
 			if (constructor.free) {
 				constructor.free(gl);
 			}
-
-			delete _list[key];
 		});
+		_classes.clear();
 
 		EffectManager.generation++;
 	}
@@ -545,6 +594,8 @@ class EffectManager {
 			center = Session.Entity.position;
 		}
 		const area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
+
+		resetClassesAfterContextLoss(gl);
 		const cullDistanceSq = area_size * area_size;
 
 		for (i = 0; i < count; ++i) {
@@ -562,6 +613,7 @@ class EffectManager {
 				constructor.init(gl);
 				constructor.needInit = false;
 			}
+			_classes.add(constructor);
 
 			if (constructor.ready) {
 				constructor.beforeRender(gl, modelView, projection, fog, tick, null);
@@ -640,10 +692,8 @@ class EffectManager {
 
 				constructor.afterRender(gl);
 
+				// The class stays set up for the next one (_classes)
 				if (size === 0) {
-					if (constructor.free) {
-						constructor.free(gl);
-					}
 					delete _list[keys[i]];
 				}
 			}
