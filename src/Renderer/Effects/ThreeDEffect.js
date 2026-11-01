@@ -759,6 +759,12 @@ class ThreeDEffect {
 			}
 			if (sample.z !== undefined) {
 				SpriteRenderer.position[2] = this.position[2] + sample.z;
+			} else if (this.shadowTexture && (sample.x !== undefined || sample.y !== undefined)) {
+				// A shadow moved off its owner sits on the ground where it is drawn
+				SpriteRenderer.position[2] = Altitude.getCellHeight(
+					SpriteRenderer.position[0],
+					SpriteRenderer.position[1]
+				);
 			}
 			if (sample.size !== undefined) {
 				sizeX = sample.size;
