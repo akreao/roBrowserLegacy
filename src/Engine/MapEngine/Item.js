@@ -11,6 +11,7 @@
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import ItemType from 'DB/Items/ItemType.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
@@ -148,22 +149,22 @@ function onEquipementTakeOff(pkt) {
 		if (pkt.wearLocation & EquipLocation.GARMENT) {
 			Session.Entity.robe = Equipment.checkEquipLoc(EquipLocation.COSTUME_ROBE);
 		}
-		if (pkt.wearLocation & EquipLocation.WEAPON) {
+		if (pkt.wearLocation & (EquipLocation.WEAPON | EquipLocation.SHIELD)) {
+			// Read what is still held from the equipment, not from the entity: a
+			// dual wielder's entity.weapon holds both hands packed into one value.
+			const heldAt = location =>
+				typeof Equipment.getEquippedItemByLocation === 'function'
+					? Equipment.getEquippedItemByLocation(location)
+					: null;
+			const right = heldAt(EquipLocation.WEAPON);
+			const left = heldAt(EquipLocation.SHIELD);
+			let shieldVal = 0;
+			if (left) {
+				shieldVal = left.type === ItemType.WEAPON ? left.ITID : Session.Entity.shield;
+			}
 			const resolved = resolveEntityWeapons(
-				0,
-				Session.Entity.shield,
-				Session.Entity,
-				Session.Entity,
-				Inventory,
-				Equipment
-			);
-			Session.Entity.weapon = resolved.weapon;
-			Session.Entity.shield = resolved.shield;
-		}
-		if (pkt.wearLocation & EquipLocation.SHIELD) {
-			const resolved = resolveEntityWeapons(
-				Session.Entity.weapon,
-				0,
+				right ? right.ITID : 0,
+				shieldVal,
 				Session.Entity,
 				Session.Entity,
 				Inventory,

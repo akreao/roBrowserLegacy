@@ -81,7 +81,7 @@ describe('isOwnOffhandWeapon', () => {
 
 	it('ignores right-hand weapons', () => {
 		const inv = makeInv([{ index: 1, type: ItemType.WEAPON, WearState: EquipLocation.WEAPON }]);
-		expect(isOwnOffhandWeapon(me, me, inv)).toBe(false);
+		expect(isOwnOffhandWeapon(me, me, inv)).toBeUndefined();
 	});
 
 	it('falls back to location when WearState is missing', () => {
@@ -97,8 +97,8 @@ describe('isOwnOffhandWeapon', () => {
 	it('is safe with missing inventory / session / unknown index', () => {
 		expect(isOwnOffhandWeapon(me, null, makeInv([]))).toBeUndefined();
 		expect(isOwnOffhandWeapon(null, me, makeInv([]))).toBeUndefined();
-		expect(isOwnOffhandWeapon(me, me, null)).toBe(false);
-		expect(isOwnOffhandWeapon(me, me, { equippedItems: [7], getItemByIndex: () => undefined })).toBe(false);
+		expect(isOwnOffhandWeapon(me, me, null)).toBeUndefined();
+		expect(isOwnOffhandWeapon(me, me, { equippedItems: [7], getItemByIndex: () => undefined })).toBeUndefined();
 	});
 
 	it('resolves offhand weapon when item is moved from inventory to equipment', () => {

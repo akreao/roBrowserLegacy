@@ -14,7 +14,7 @@ import DB from 'DB/DBManager.js';
  * @param {object} sessionEntity - Local player entity (Session.Entity)
  * @param {object} [inventory] - Inventory component
  * @param {object} [equipment] - Equipment component
- * @returns {boolean|undefined} true if own offhand is weapon, false if own offhand is not weapon, undefined if unknown/other entity
+ * @returns {boolean|undefined} true if own offhand is weapon, false if own offhand is not weapon, undefined if unknown (other entity, or no left-hand record)
  */
 export function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) {
 	if (!entity || !sessionEntity || entity.GID !== sessionEntity.GID) {
@@ -51,7 +51,9 @@ export function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) 
 		}
 	}
 
-	return false;
+	// No record of the left hand yet (the look can arrive before the
+	// equipment list): unknown, so the item id decides.
+	return undefined;
 }
 
 /**

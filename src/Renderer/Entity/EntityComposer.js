@@ -179,6 +179,14 @@ class EntityComposer {
 
 		if (gl && entry && sameKey(entry.key, key)) {
 			entry.lastUsed = now;
+			// The pixel-perfect setting can change while the look stays the same.
+			const filter = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : gl.LINEAR;
+			if (entry.filter !== filter) {
+				gl.bindTexture(gl.TEXTURE_2D, entry.texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+				entry.filter = filter;
+			}
 			cache.delete(work.entity);
 			cache.set(work.entity, entry);
 			useEntry(entry);
@@ -230,6 +238,7 @@ class EntityComposer {
 			const filter = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : gl.LINEAR;
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+			entry.filter = filter;
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);

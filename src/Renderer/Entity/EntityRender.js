@@ -523,6 +523,7 @@ const renderEntity = (function renderEntityClosure() {
 						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
 					EntityComposer.end();
+					flushReadyGlows();
 				});
 				break;
 			case Entity.TYPE_WUG:
@@ -711,6 +712,48 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 		color[2] = b;
 		color[3] = a;
 	}
+}
+
+/**
+ * Glows of a composed player's layers, kept until the composite is drawn so
+ * they land on top of it as they did on top of each layer.
+ */
+const _deferredGlows = [];
+let _deferredGlowCount = 0;
+
+function deferReadyGlow(entity, layers, spr, pal, files, _position, glowColor, alpha) {
+	let item = _deferredGlows[_deferredGlowCount];
+	if (!item) {
+		item = _deferredGlows[_deferredGlowCount] = { position: new Int32Array(2) };
+	}
+	_deferredGlowCount++;
+	item.entity = entity;
+	item.layers = layers;
+	item.spr = spr;
+	item.pal = pal;
+	item.files = files;
+	item.position[0] = _position[0];
+	item.position[1] = _position[1];
+	item.color = glowColor;
+	item.alpha = alpha;
+}
+
+function flushReadyGlows() {
+	for (let i = 0; i < _deferredGlowCount; i++) {
+		const item = _deferredGlows[i];
+		renderReadyGlow(
+			item.entity,
+			item.layers,
+			item.spr,
+			item.pal,
+			item.files,
+			item.position,
+			item.color,
+			item.alpha
+		);
+		item.entity = item.layers = item.spr = item.pal = item.files = null;
+	}
+	_deferredGlowCount = 0;
 }
 
 /**
@@ -1158,9 +1201,12 @@ const renderElement = (function renderElementClosure() {
 			const glows = glowLayers(marks);
 			for (let g = 0; g < glows.length; g++) {
 				const glow = glows[g];
-				outsideComposite(() =>
-					renderReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha)
-				);
+				if (EntityComposer.active) {
+					// Drawn over the composed player once it is drawn, not under it
+					deferReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha);
+				} else {
+					renderReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha);
+				}
 			}
 		}
 

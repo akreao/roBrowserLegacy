@@ -487,11 +487,17 @@ function renderList(modelView, projection, renderEffects, tick) {
 				releaseGr2(_list[i]);
 				// The batch is still recording here: the composite texture is
 				// released after the flush, not now.
-				EntityComposer.remove(_list[i]);
-				_list[i].clean();
-				_list.splice(i, 1);
-				i--;
-				count--;
+				const entity = _list[i];
+				EntityComposer.remove(entity);
+				// clean() can take an attached cart out of _list too, before
+				// or after this entity, so find it again and recount.
+				entity.clean();
+				const at = _list.indexOf(entity);
+				if (at > -1) {
+					_list.splice(at, 1);
+				}
+				i = (at > -1 ? at : i) - 1;
+				count = _list.length;
 				_pickSortDirty = true;
 				continue;
 			}
