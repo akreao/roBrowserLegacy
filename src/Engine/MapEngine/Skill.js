@@ -22,6 +22,7 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import EffectManager from 'Renderer/EffectManager.js';
+import Sound from 'Audio/SoundManager.js';
 import { CHARM_ORB_EFFECTS, ALL_CHARM_ORB_EFFECTS } from 'Renderer/Effects/EnergyOrbSim.js';
 import { SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS } from 'Renderer/Effects/SoulCollectSim.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -998,6 +999,83 @@ function onMillenniumShield(pkt) {
 	}
 }
 
+/**
+ * Star Gladiator Feeling / Hatred and Taekwon Mission notices (ZC_STARSKILL).
+ * The official client (kRO 2025-07-16, handler 0xcd9650) switches on `result`:
+ * - 0 / 1: Feeling place, msg 837 + star / 840 + star with (player name, map name);
+ * - 10 / 11: Hatred target, msg 843 + star / 846 + star with (player name, target name);
+ * - 20: Taekwon Mission;
+ * - 30: Feeling and Hatred reset, msg 1033 and effect 432 on the player.
+ * Results 1 and 11 also play effect 543 on the player with effect/T_피링.wav.
+ *
+ * @param {object} pkt - PACKET.ZC.STARSKILL
+ */
+function onStarSkill(pkt) {
+	if (pkt.result === 20) {
+		onTaekwonMission(pkt);
+		return;
+	}
+
+	const star = pkt.star;
+	const playerName = Session.Entity ? Session.Entity.display.name : '';
+	let message;
+	let effectId = 0;
+
+	switch (pkt.result) {
+		case 0:
+		case 1:
+			message = DB.getMessage((pkt.result === 0 ? 837 : 840) + star);
+			message = message.replace('%s', playerName).replace('%s', pkt.monsterName);
+			effectId = pkt.result === 1 ? 543 : 0;
+			break;
+
+		case 10:
+		case 11: {
+			// The client names the target from its own tables by class id.
+			const mobName = DB.getMonsterName(pkt.monsterID);
+			const targetName = mobName !== 'Unknown' ? mobName : pkt.monsterName;
+			message = DB.getMessage((pkt.result === 10 ? 843 : 846) + star);
+			message = message.replace('%s', playerName).replace('%s', targetName);
+			effectId = pkt.result === 11 ? 543 : 0;
+			break;
+		}
+
+		case 30:
+			message = DB.getMessage(1033);
+			effectId = 432;
+			break;
+
+		default:
+			return;
+	}
+
+	ChatBox.addText(message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, '#F8F8FF');
+
+	if (effectId && Session.Entity) {
+		EffectManager.spam({ effectId: effectId, ownerAID: Session.Entity.GID });
+	}
+
+	if (effectId === 543) {
+		Sound.play('effect/T_\xc7\xc7\xb8\xb5.wav');
+	}
+}
+
+/**
+ * Star Gladiator Feeling: the server asks before saving the map (ZC_STARPLACE).
+ * The official client opens UIStarPlaceAcceptWnd with msg 1028 and answers
+ * CZ_AGREE_STARPLACE with the star on OK; cancel only closes the window.
+ *
+ * @param {object} pkt - PACKET.ZC.STARPLACE
+ */
+function onStarPlace(pkt) {
+	const which = pkt.which;
+	UIManager.showPromptBox(DB.getMessage(1028), 'ok', 'cancel', () => {
+		const reply = new PACKET.CZ.AGREE_STARPLACE();
+		reply.which = which;
+		Network.sendPacket(reply);
+	});
+}
+
 function onTaekwonMission(pkt) {
 	const total = 100;
 	let message = DB.getMessage(927);
@@ -1075,7 +1153,8 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.SOULENERGY, onSoulEnergy);
 	Network.hookPacket(PACKET.ZC.MILLENNIUMSHIELD, onMillenniumShield);
 	Network.hookPacket(PACKET.ZC.SKILL_POSTDELAY, onSetSkillDelay);
-	Network.hookPacket(PACKET.ZC.STARSKILL, onTaekwonMission);
+	Network.hookPacket(PACKET.ZC.STARSKILL, onStarSkill);
+	Network.hookPacket(PACKET.ZC.STARPLACE, onStarPlace);
 	Network.hookPacket(PACKET.ZC.MSG_SKILL, onMessageSkill);
 	Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 	Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
