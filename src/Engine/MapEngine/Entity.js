@@ -152,6 +152,7 @@ function requestEntityGuildEmblem(entity) {
  */
 function onEntitySpam(pkt) {
 	let entity = EntityManager.get(pkt.GID);
+	const oldBodyState = entity ? entity._bodyState : 0;
 
 	if (entity) {
 		entity.set(pkt);
@@ -190,6 +191,9 @@ function onEntitySpam(pkt) {
 			}
 		}
 	}
+
+	// White Imprison's look for an actor that comes into view (or is updated) imprisoned
+	updateImprisonEffect(entity.GID, oldBodyState, entity._bodyState);
 
 	if (pkt.effectState & StatusState.EffectState.FALCON && DB.isHunter(pkt.job)) {
 		if (!entity.falcon) {
@@ -2586,6 +2590,9 @@ function onEntityOptionChange(pkt) {
 		EffectConst.EF_RUWACH
 	);
 
+	// White Imprison: the official client shows 802 while the body state is IMPRISON (Actor_UpdateOption)
+	updateImprisonEffect(pkt.AID, entity._bodyState, pkt.bodyState);
+
 	entity.bodyState = pkt.bodyState;
 	entity.healthState = pkt.healthState;
 	entity.effectState = pkt.effectState;
@@ -2904,6 +2911,27 @@ function haveSiegfriedItem() {
 		return true;
 	} else {
 		return false;
+	}
+}
+
+/**
+ * White Imprison's look (802): launched when the body state turns IMPRISON,
+ * removed when it leaves it, as the official client's Actor_UpdateOption does.
+ *
+ * @param {number} AID
+ * @param {number} oldBodyState
+ * @param {number} newBodyState
+ */
+function updateImprisonEffect(AID, oldBodyState, newBodyState) {
+	const IMPRISON = StatusState.BodyState.IMPRISON;
+	if (oldBodyState === newBodyState) {
+		return;
+	}
+	if (oldBodyState === IMPRISON) {
+		EffectManager.remove(null, AID, EffectConst.EF_BOTTOM_BASILICA2);
+	}
+	if (newBodyState === IMPRISON) {
+		EffectManager.spam({ effectId: EffectConst.EF_BOTTOM_BASILICA2, ownerAID: AID });
 	}
 }
 

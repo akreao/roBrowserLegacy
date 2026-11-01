@@ -996,7 +996,7 @@ SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_blue
 SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: [538, 'ef_rk_abundance_sound'], castAuraEffectId: 12 }; //Abundance: 538 + 흡기.wav on success
 SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: [538, 'ef_rk_bluecasting'], successEffectId: [538, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Phantom Thrust: 538 + 441 on caster and target on success
 // WL Warlock
-SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
+SkillEffect[SK.WL_WHITEIMPRISON] = {}; //White Imprison: 802 comes from the target's body state (IMPRISON), not the use packet
 SkillEffect[SK.WL_SOULEXPANSION] = { hideCastAura: true, beginCastEffectId: [1587, 1588], hitEffectId: 1591, firstHitEffectId: 1592 }; //Soul Expansion: no aura, 1587 + 1588 while casting; 1591 every hit, 1592 with the first
 SkillEffect[SK.WL_FROSTMISTY] = { groundEffectIdByLevel: [726], firstHitEffectId: 51 }; //Frost Misty: 726 at the cell from the ground packet; 51 with the first hit
 SkillEffect[SK.WL_JACKFROST] = { castAuraEffectId: 1449, beginCastEffectId: 1446, successEffectIdOnCaster: 'ef_jackfrost', firstHitEffectId: 51 }; //Jack Frost: ice cast circle + new_jackfrost_cast; jack_frost.wav on success; 51 with the first hit
