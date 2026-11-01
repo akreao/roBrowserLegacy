@@ -1856,7 +1856,7 @@ SkillEffect[6515 /* ABC_ABYSS_FLAME */] = {
 	effectIdOnCaster: 'ef_abc_abyss_flame_cast',
 	hitEffectId: 'ef_abc_abyss_flame_hit'
 }; //Abyss Flame
-SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
+SkillEffect[SK.AB_OFFERTORIUM] = { successEffectIdOnCaster: 1047 }; //Offertorium: 1047 on the caster on success
 SkillEffect[SK.CD_REPARATIO] = { effectId: 'ef_cd_reparatio', effectIdOnCaster: 'ef_cd_reparatio_cast' }; //Reparatio
 SkillEffect[SK.CD_MEDIALE_VOTUM] = { effectId: 'ef_cd_mediale_votum', effectIdOnCaster: 'ef_cd_mediale_votum_cast' }; //Mediale Votum
 SkillEffect[SK.CD_ARGUTUS_VITA] = { effectId: 'ef_cd_argutus_vita', effectIdOnCaster: 'ef_cd_argutus_vita_cast' }; //Argutus Vita
