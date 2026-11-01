@@ -27657,6 +27657,29 @@ export default {
 		}
 	],
 
+	// Oratio (AB_ORATIO): 725 on the caster when the use packet succeeds. The client draws it with Detect's burst helper
+	// (variant 2): priest_benedictio.wav on tick 0 and the same white fashasha.tga square as Detect (119), same timing,
+	// no tint. See effect-port/arch-bishop-skills.md.
+	725: [
+		{
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
+			wav: 'effect/priest_benedictio',
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 17,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 40
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
