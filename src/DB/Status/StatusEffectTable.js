@@ -438,5 +438,12 @@ export default {
 	[StatusConst.GRAVITYCONTROL]: { loop: [1201] },
 	// The client removes and relaunches 601 when the status comes on, and removes it when it ends
 	[StatusConst.WZ_SIGHTBLASTER]: { restart: [601], stop: [601] },
-	[StatusConst.SOULUNITY]: { loop: [1222] }
+	[StatusConst.SOULUNITY]: { loop: [1222] },
+
+	// Telekinesis Intense (WL_TELEKINESIS_INTENSE): 1048 while it is on; the client removes every copy and
+	// relaunches it on each start (EFST switch 0xc51ae3). See effect-port/warlock-skills.md.
+	[StatusConst.TELEKINESIS_INTENSE]: {
+		restart: [1048],
+		stop: [1048]
+	}
 };
