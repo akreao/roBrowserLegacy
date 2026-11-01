@@ -200,36 +200,47 @@ function vertex(out, i, center, x, y, up, u, v) {
  * @return {number} next float to write
  */
 export function buildBolt(out, offset, bolt, point, kind, center) {
-	const len = Math.hypot(bolt.step.x, bolt.step.y, bolt.step.up);
-	const d = [bolt.step.x / len, bolt.step.y / len, bolt.step.up / len];
-	// Level side axis, then the upright one (both across the line)
-	const flat = Math.hypot(d[0], d[1]) || 1;
-	const side = [-d[1] / flat, d[0] / flat, 0];
-	const normal = [side[1] * d[2] - side[2] * d[1], side[2] * d[0] - side[0] * d[2], side[0] * d[1] - side[1] * d[0]];
+	// The line and the two axes across it only depend on the bolt: work them out once.
+	// 9 numbers: the line, the level side axis, then the upright one.
+	let axes = bolt.axes;
+	if (!axes) {
+		const len = Math.hypot(bolt.step.x, bolt.step.y, bolt.step.up);
+		const dx = bolt.step.x / len;
+		const dy = bolt.step.y / len;
+		const dz = bolt.step.up / len;
+		const flat = Math.hypot(dx, dy) || 1;
+		const sx = -dy / flat;
+		const sy = dx / flat;
+		axes = bolt.axes = [dx, dy, dz, sx, sy, 0, sy * dz, -sx * dz, sx * dy - sy * dx];
+	}
 	const L = kind.length;
 	const W = kind.width;
 	let o = offset;
 
-	[side, normal].forEach(across => {
-		const corner = (along, wide) => [
-			point.x + d[0] * along + across[0] * wide,
-			point.y + d[1] * along + across[1] * wide,
-			point.up + d[2] * along + across[2] * wide
-		];
+	for (let quad = 0; quad < 2; ++quad) {
+		const ax = axes[3 + quad * 3];
+		const ay = axes[4 + quad * 3];
+		const az = axes[5 + quad * 3];
+		// Tail and head points on the line; corners are those +-W across.
+		const tx = point.x - axes[0] * L;
+		const ty = point.y - axes[1] * L;
+		const tz = point.up - axes[2] * L;
+		const hx = point.x + axes[0] * L;
+		const hy = point.y + axes[1] * L;
+		const hz = point.up + axes[2] * L;
+		const wx = ax * W;
+		const wy = ay * W;
+		const wz = az * W;
+
 		// U 0 at the tail, 1 at the head; V 1 on the -W side, 0 on the +W side
-		const tailMinus = corner(-L, -W);
-		const tailPlus = corner(-L, W);
-		const headMinus = corner(L, -W);
-		const headPlus = corner(L, W);
+		o = vertex(out, o, center, tx - wx, ty - wy, tz - wz, 0, 1);
+		o = vertex(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
+		o = vertex(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
 
-		o = vertex(out, o, center, ...tailMinus, 0, 1);
-		o = vertex(out, o, center, ...headMinus, 1, 1);
-		o = vertex(out, o, center, ...tailPlus, 0, 0);
-
-		o = vertex(out, o, center, ...headMinus, 1, 1);
-		o = vertex(out, o, center, ...headPlus, 1, 0);
-		o = vertex(out, o, center, ...tailPlus, 0, 0);
-	});
+		o = vertex(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
+		o = vertex(out, o, center, hx + wx, hy + wy, hz + wz, 1, 0);
+		o = vertex(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
+	}
 
 	return o;
 }
