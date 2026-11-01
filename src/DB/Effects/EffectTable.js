@@ -21,6 +21,7 @@ import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
+import FrostMistyEffect from 'DB/Effects/FrostMistyEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
 import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
@@ -14455,12 +14456,7 @@ export default {
 	723: hundredSpearEffect,
 	//724: [{}],	//EF_WINDCUTTER	   Green version of Detecting
 	//725: [{}],	//EF_DETECT2	   Oratorio (like Detecting)
-	726: [
-		{
-			//EF_FROSTMYSTY	   Frost Misty (blue vapor and bubbles)
-			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
-		}
-	],
+	// 726 EF_FROSTMYSTY (Frost Misty): FrostMistyEffect.js.
 
 	727: [
 		{
@@ -29743,6 +29739,9 @@ export default {
 
 	// Soul Linker / Star Gladiator body looks (Kaite 419, Soul Link 424, Comfort 488, 542, 543): SoulBodyEffects.js.
 	...SoulBodyEffects,
+
+	// Frost Misty's glow and snow (726): FrostMistyEffect.js.
+	...FrostMistyEffect,
 
 	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
 	...StarEmperorStatusEffects,
