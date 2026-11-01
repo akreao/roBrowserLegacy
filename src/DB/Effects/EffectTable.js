@@ -27234,6 +27234,38 @@ export default {
 		}
 	],
 
+	// Electric Shocker (RA_ELECTRICSHOCKER): hunter_shockwavetrap.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_electricshocker_sound: [
+		{
+			wav: 'effect/hunter_shockwavetrap',
+			attachedEntity: true
+		}
+	],
+
+	// Cluster Bomb (RA_CLUSTERBOMB): hunter_landmine.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_clusterbomb_sound: [
+		{
+			wav: 'effect/hunter_landmine',
+			attachedEntity: true
+		}
+	],
+
+	// Firing Trap (RA_FIRINGTRAP): 폭염룡.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_firingtrap_sound: [
+		{
+			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6', // 폭염룡.wav
+			attachedEntity: true
+		}
+	],
+
+	// Icebound Trap (RA_ICEBOUNDTRAP): ef_frostdiver.wav, on the target as each damage packet arrives. See effect-port/ranger-skills.md.
+	ef_ra_iceboundtrap_sound: [
+		{
+			wav: 'effect/ef_frostdiver',
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
