@@ -40,6 +40,9 @@ let _texture = null;
  */
 let _generation = 0;
 
+/** Fog colour for these added columns: fogged, they fade to nothing instead of adding the fog's colour. */
+const BLACK = new Float32Array([0, 0, 0]);
+
 class ForestLight {
 	/**
 	 * @param {Array} position where the target stands, in cells (copied: the columns stay)
@@ -86,20 +89,19 @@ class ForestLight {
 		}
 
 		const attribute = _program.attribute;
-		const self = this;
-		SpriteRenderer.runWithDepth(true, false, false, function () {
-			gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
+		SpriteRenderer.runWithDepth(true, false, false, () => {
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 			gl.bindTexture(gl.TEXTURE_2D, _texture);
-			for (const column of self.columns) {
+			for (const column of this.columns) {
 				if (column.alpha <= 0) {
 					continue;
 				}
-				const end = buildColumn(self.vertices, 0, column, self.position);
-				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
+				const end = buildColumn(this.vertices, 0, column, this.position);
+				gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
 				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
-				self.color[3] = Math.min(255, column.alpha) / 255;
-				gl.uniform4fv(_program.uniform.uColor, self.color);
+				this.color[3] = Math.min(255, column.alpha) / 255;
+				gl.uniform4fv(_program.uniform.uColor, this.color);
 				gl.drawArrays(gl.TRIANGLES, 0, end / 5);
 			}
 		});
@@ -148,7 +150,7 @@ class ForestLight {
 		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 		gl.uniform1f(uniform.uFogNear, fog.near);
 		gl.uniform1f(uniform.uFogFar, fog.far);
-		gl.uniform3fv(uniform.uFogColor, fog.color);
+		gl.uniform3fv(uniform.uFogColor, BLACK);
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
