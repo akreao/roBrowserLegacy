@@ -224538,7 +224538,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_HELLINFERNO] = {
 		hideCastAura: true,
 		beginCastEffectId: 1552,
-		arrivalEffectIdOnTarget: [1550, 1551],
+		arrivalEffectIdOnTarget: [
+			1550,
+			1551,
+			"ef_wl_hellinferno_sub"
+		],
 		groundEffectId: 728
 	};
 	SkillEffect[SkillConst_default.WL_COMET] = {
@@ -296437,6 +296441,23 @@ var init_AcidDemonRing = __esmMin((() => {
 		}
 	};
 }));
+// src/DB/Effects/HellInfernoEffect.js
+/**
+* Offsets of the four side flames, in cells.
+*
+* @return {Array<Array<number>>} [dx, dy] each
+*/
+function hellInfernoSubOffsets() {
+	const offsets = [];
+	for (let i = 0; i < 4; i++) {
+		const angle = (45 + 90 * i) * Math.PI / 180;
+		offsets.push([15 * Math.cos(angle) / 5, -15 * Math.sin(angle) / 5]);
+	}
+	return offsets;
+}
+var init_HellInfernoEffect = __esmMin((() => {
+	init_EffectPrimSim();
+}));
 // src/Renderer/Effects/SonicWaveSim.js
 /**
 * Height share of point j (0 to 20).
@@ -302813,6 +302834,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCircle();
 	init_SlimPotionEffect();
 	init_AcidDemonRing();
+	init_HellInfernoEffect();
 	init_SonicWave();
 	init_SonicWaveSim();
 	init_AcidDemonRingSim();
@@ -322332,6 +322354,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
 			texturePath: "new_soulexpansion/new_soulexpansion_cast/",
+			min: "mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
+			minTexturePath: "mineffect/new_soulexpansion/new_soulexpansion_cast/",
 			castLoop: true,
 			attachedEntity: true
 		}],
@@ -322339,6 +322363,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom",
 			texturePath: "new_soulexpansion/new_soulexpansion_cast_bottom/",
+			min: "mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom",
+			minTexturePath: "mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/",
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -322347,12 +322373,16 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit",
 			texturePath: "new_soulexpansion/new_soulexpansion_hit/",
+			min: "mineffect/new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit",
+			minTexturePath: "mineffect/new_soulexpansion/new_soulexpansion_hit/",
 			attachedEntity: true
 		}],
 		1592: [{
 			type: "STR",
 			file: "new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom",
 			texturePath: "new_soulexpansion/new_soulexpansion_hit_bottom/",
+			min: "mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom",
+			minTexturePath: "mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/",
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -322381,6 +322411,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom",
 			texturePath: "new_hellinferno/new_hellinferno_cast_bottom/",
+			min: "mineffect/new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom",
+			minTexturePath: "mineffect/new_hellinferno/new_hellinferno_cast_bottom/",
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -322389,14 +322421,56 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_hellinferno/new_hellinferno/new_hellinferno",
 			texturePath: "new_hellinferno/new_hellinferno/",
+			min: "mineffect/new_hellinferno/new_hellinferno/new_hellinferno",
+			minTexturePath: "mineffect/new_hellinferno/new_hellinferno/",
 			attachedEntity: true
 		}],
 		1551: [{
 			type: "STR",
 			file: "new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom",
 			texturePath: "new_hellinferno/new_hellinferno_bottom/",
+			min: "mineffect/new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom",
+			minTexturePath: "mineffect/new_hellinferno/new_hellinferno_bottom/",
 			renderBeforeEntities: true,
 			attachedEntity: true
+		}],
+		ef_wl_hellinferno_sub: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const position = Params.Inst.position;
+				if (!position) return;
+				hellInfernoSubOffsets().forEach(([dx, dy]) => {
+					[1553, 1554].forEach((effectId) => {
+						this.spam({
+							effectId,
+							position: [
+								position[0] + dx,
+								position[1] + dy,
+								position[2]
+							],
+							startTick: Params.Inst.startTick
+						});
+					});
+				});
+			}
+		}],
+		1553: [{
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno_sub/new_hellinferno_sub",
+			texturePath: "new_hellinferno/new_hellinferno_sub/",
+			min: "mineffect/new_hellinferno/new_hellinferno_sub/new_hellinferno_sub",
+			minTexturePath: "mineffect/new_hellinferno/new_hellinferno_sub/",
+			attachedEntity: false
+		}],
+		1554: [{
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom",
+			texturePath: "new_hellinferno/new_hellinferno_sub_bottom/",
+			min: "mineffect/new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom",
+			minTexturePath: "mineffect/new_hellinferno/new_hellinferno_sub_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: false
 		}],
 		1415: [{
 			type: "STR",
@@ -322430,6 +322504,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_chainlightning/new_chainlightning_cast/new_chainlightning_cast",
 			texturePath: "new_chainlightning/new_chainlightning_cast/",
+			min: "mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast",
+			minTexturePath: "mineffect/new_chainlightning/new_chainlightning_cast/",
 			castLoop: true,
 			attachedEntity: true
 		}],
@@ -322437,6 +322513,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom",
 			texturePath: "new_chainlightning/new_chainlightning_cast_bottom/",
+			min: "mineffect/new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom",
+			minTexturePath: "mineffect/new_chainlightning/new_chainlightning_cast_bottom/",
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -322445,6 +322523,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_chainlightning/new_chainlightning_target/new_chainlightning_target",
 			texturePath: "new_chainlightning/new_chainlightning_target/",
+			min: "mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target",
+			minTexturePath: "mineffect/new_chainlightning/new_chainlightning_target/",
 			attachedEntity: true
 		}],
 		ef_wl_tetravortex_sound: [
