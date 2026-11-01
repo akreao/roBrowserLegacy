@@ -40,14 +40,14 @@ describe('Arrow Storm plays the new arrow rain on each target as the damage arri
 		expect(EffectTable[1294][0]).toMatchObject({ file: 'new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01', duplicate: 3, timeBetweenDupli: 200, delayStart: 600 });
 	});
 
-	it('rains on each target but the caster, when the damage is due', () => {
+	it('rains on each target but the caster, as the damage packet arrives', () => {
 		const { EffectManager, spammed } = loadEffectManager({ 1: { position: [0, 0, 0] }, 2: { position: [3, 0, 0] } });
-		EffectManager.spamSkillDamage(SK.RA_ARROWSTORM, 2, 100, 1, Math.random, 1, 400);
-		EffectManager.spamSkillDamage(SK.RA_ARROWSTORM, 1, 100, 1, Math.random, 1, 400);
+		EffectManager.spamSkillDamage(SK.RA_ARROWSTORM, 2, 100, 1);
+		EffectManager.spamSkillDamage(SK.RA_ARROWSTORM, 1, 100, 1);
 		expect(spammed.map(p => [p.effectId, p.ownerAID, p.startTick])).toEqual([
-			['ef_ra_arrowstorm_sound', 2, 400],
-			[1293, 2, 400],
-			[1294, 2, 400]
+			['ef_ra_arrowstorm_sound', 2, 100],
+			[1293, 2, 100],
+			[1294, 2, 100]
 		]);
 	});
 });

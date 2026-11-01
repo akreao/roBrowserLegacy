@@ -49,9 +49,9 @@
  *	- damageEffectIdOnTarget:	Triggers on the target as soon as each damage packet of the skill arrives (splash
  *								and misses included). An entry that is a list plays one of its effects, picked at random.
  *
- *	- arrivalEffectIdOnCaster:	Triggers on the caster once per damage packet of the skill, when its damage is due
- *								(attackMT, plus hitDelay), misses and splash hits included: the official client's
- *								damage-arrival effects.
+ *	- arrivalEffectIdOnCaster:	Triggers on the caster once per damage packet of the skill, as the packet arrives,
+ *								misses and splash hits included: the official client's damage-arrival effects. It
+ *								plays them attackMT before the damage shows, so a falling effect lands with it.
  *
  *	- arrivalEffectIdOnTarget:	The same on the target.
  *
@@ -59,7 +59,7 @@
  *								Like arrivalEffectIdOnTarget, only when the packet's target is not the caster.
  *
  *	- arrivalEffectIdOnCasterByFacing:
- *								4 effects; plays one on the caster once per damage packet when its damage is due,
+ *								4 effects; plays one on the caster once per damage packet as it arrives,
  *								picked by the caster's facing on screen (ScreenDirection.facingQuarter). Aimed Bolt's shot.
  *
  *	- splashEffectIdOnTarget:	Triggers on the target as a damage packet of the skill arrives with skill level -1,
@@ -1005,7 +1005,7 @@ SkillEffect[SK.WL_RECOGNIZEDSPELL] = { successEffectIdOnCaster: 'ef_wl_recognize
 SkillEffect[SK.WL_SIENNAEXECRATE] = { successEffectId: 797 }; //Sienna Execrate: 797 (sound + Stapo sprite) on the target on success
 SkillEffect[SK.WL_STASIS] = { successEffectIdOnCaster: 799, castAuraEffectId: 441 }; //Stasis: 799 on the caster on success; blue cast aura
 SkillEffect[SK.WL_DRAINLIFE] = { hitEffectIdOnCaster: 216, hitEffectOnce: true }; //Drain Life: 216 with the first hit, owned by the caster so the blood flows from the target to it
-SkillEffect[SK.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275], extraHitEffectId: 1298 }; //Crimson Rock: crimson_r.wav, 1274 + 1275 on the target as the damage arrives; 1298 with each later hit
+SkillEffect[SK.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275], extraHitEffectId: 1298 }; //Crimson Rock: crimson_r.wav, 1274 + 1275 (the meteor) on the target as the damage packet arrives, so it lands with the damage; 1298 with each later hit
 SkillEffect[SK.WL_HELLINFERNO] = { hideCastAura: true, beginCastEffectId: 1552, arrivalEffectIdOnTarget: [1550, 1551, 'ef_wl_hellinferno_sub'], groundEffectId: 728 }; //Hell Inferno: no aura, 1552 while casting; 1550 + 1551 on the target and the four side flames as the damage arrives
 SkillEffect[SK.WL_COMET] = { castAuraEffectId: 1418, beginCastEffectId: [1415, 1421], damageEffectIdOnTarget: [1413, 1414], extraHitEffectId: [1416, 1417], extraHitEffectEvery: 2 }; //Comet: aura 1418 (rainbow cast ring), 1415 + 1421 while casting; 1413 + 1414 on each target as the damage packet arrives; 1416 + 1417 with the 2nd, 4th, 6th ... hit
 SkillEffect[SK.WL_CHAINLIGHTNING] = { hideCastAura: true, beginCastEffectId: [1635, 1636], arrivalEffectIdOnTarget: 1638 }; //Chain Lightning: no aura, 1635 + 1636 while casting; 1638 on the target as the damage arrives
