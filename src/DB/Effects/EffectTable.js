@@ -17910,7 +17910,9 @@ export default {
 			file: 'activity_burn/activity_burn_cast_bottom/activity_burn_cast_bottom',
 			texturePath: 'activity_burn/activity_burn_cast_bottom/',
 			min: 'activity_burn/activity_burn_cast_bottom/min_activity_burn_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -17938,7 +17940,9 @@ export default {
 			file: 'increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom',
 			texturePath: 'increasing_activity/increasing_activity_cast_bottom/',
 			min: 'increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -17973,7 +17977,9 @@ export default {
 			file: 'diamond_storm/diamond_storm_cast_bottom/diamond_storm_cast_bottom',
 			texturePath: 'diamond_storm/diamond_storm_cast_bottom/',
 			min: 'diamond_storm/diamond_storm_cast_bottom/min_diamond_storm_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18018,7 +18024,9 @@ export default {
 			file: 'lightning_land/lightning_land_cast_bottom/lightning_land_cast_bottom',
 			texturePath: 'lightning_land/lightning_land_cast_bottom/',
 			min: 'lightning_land/lightning_land_cast_bottom/min_lightning_land_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18057,7 +18065,9 @@ export default {
 			file: 'venom_swamp/venom_swamp_cast_bottom/venom_swamp_cast_bottom',
 			texturePath: 'venom_swamp/venom_swamp_cast_bottom/',
 			min: 'venom_swamp/venom_swamp_cast_bottom/min_venom_swamp_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18101,7 +18111,9 @@ export default {
 			file: 'conflagration/conflagration_cast_bottom/conflagration_cast_bottom',
 			texturePath: 'conflagration/conflagration_cast_bottom/',
 			min: 'conflagration/conflagration_cast_bottom/min_conflagration_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18146,7 +18158,9 @@ export default {
 			file: 'terradrive/terradrive_cast_bottom/terradrive_cast_bottom',
 			texturePath: 'terradrive/terradrive_cast_bottom/',
 			min: 'terradrive/terradrive_cast_bottom/min_terradrive_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18166,7 +18180,9 @@ export default {
 			type: 'STR',
 			file: 'ardor/ardor/ardor',
 			texturePath: 'ardor/ardor/',
-			min: 'ardor/ardor/min_ardor'
+			min: 'ardor/ardor/min_ardor',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_summon_elemental_ardor_2'
 		},
 		{
 			type: 'STR',
@@ -18190,7 +18206,9 @@ export default {
 			file: 'ardor/ardor_cast_bottom/ardor_cast_bottom',
 			texturePath: 'ardor/ardor_cast_bottom/',
 			min: 'ardor/ardor_cast_bottom/min_ardor_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18217,7 +18235,9 @@ export default {
 			file: 'diluvio/diluvio_cast_bottom/diluvio_cast_bottom',
 			texturePath: 'diluvio/diluvio_cast_bottom/',
 			min: 'diluvio/diluvio_cast_bottom/min_diluvio_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18237,7 +18257,9 @@ export default {
 			type: 'STR',
 			file: 'procella/procella/procella',
 			texturePath: 'procella/procella/',
-			min: 'procella/procella/min_procella'
+			min: 'procella/procella/min_procella',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_summon_elemental_procella_2'
 		},
 		{
 			type: 'STR',
@@ -18261,7 +18283,9 @@ export default {
 			file: 'procella/procella_cast_bottom/procella_cast_bottom',
 			texturePath: 'procella/procella_cast_bottom/',
 			min: 'procella/procella_cast_bottom/min_procella_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18298,7 +18322,9 @@ export default {
 			file: 'terremotus/terremotus_cast_bottom/terremotus_cast_bottom',
 			texturePath: 'terremotus/terremotus_cast_bottom/',
 			min: 'terremotus/terremotus_cast_bottom/min_terremotus_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18319,7 +18345,9 @@ export default {
 			file: 'serpens/serpens_bottom/serpens_bottom',
 			texturePath: 'serpens/serpens_bottom/',
 			min: 'serpens/serpens_bottom/min_serpens_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_summon_elemental_serpens_2'
 		}
 	],
 
@@ -18336,7 +18364,9 @@ export default {
 			file: 'serpens/serpens_cast_bottom/serpens_cast_bottom',
 			texturePath: 'serpens/serpens_cast_bottom/',
 			min: 'serpens/serpens_cast_bottom/min_serpens_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18356,7 +18386,9 @@ export default {
 			type: 'STR',
 			file: 'elemental_buster/elemental_buster_cast/elemental_buster_cast',
 			texturePath: 'elemental_buster/elemental_buster_cast/',
-			min: 'elemental_buster/elemental_buster_cast/min_elemental_buster_cast'
+			min: 'elemental_buster/elemental_buster_cast/min_elemental_buster_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -18366,7 +18398,9 @@ export default {
 			type: 'STR',
 			file: 'elemental_buster/elemental_buster/elemental_buster_fire/elemental_buster_fire',
 			texturePath: 'elemental_buster/elemental_buster/elemental_buster_fire/',
-			min: 'elemental_buster/elemental_buster/elemental_buster_fire/min_elemental_buster_fire'
+			min: 'elemental_buster/elemental_buster/elemental_buster_fire/min_elemental_buster_fire',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_elemetal_buster_fire'
 		},
 		{
 			type: 'STR',
@@ -18393,7 +18427,9 @@ export default {
 			type: 'STR',
 			file: 'elemental_buster/elemental_buster/elemental_buster_water/elemental_buster_water',
 			texturePath: 'elemental_buster/elemental_buster/elemental_buster_water/',
-			min: 'elemental_buster/elemental_buster/elemental_buster_water/min_elemental_buster_water'
+			min: 'elemental_buster/elemental_buster/elemental_buster_water/min_elemental_buster_water',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_elemetal_buster_water'
 		},
 		{
 			type: 'STR',
@@ -18420,7 +18456,9 @@ export default {
 			type: 'STR',
 			file: 'elemental_buster/elemental_buster/elemental_buster_wind/elemental_buster_wind',
 			texturePath: 'elemental_buster/elemental_buster/elemental_buster_wind/',
-			min: 'elemental_buster/elemental_buster/elemental_buster_wind/min_elemental_buster_wind'
+			min: 'elemental_buster/elemental_buster/elemental_buster_wind/min_elemental_buster_wind',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_elemetal_buster_wind'
 		},
 		{
 			type: 'STR',
@@ -18447,7 +18485,9 @@ export default {
 			type: 'STR',
 			file: 'elemental_buster/elemental_buster/elemental_buster_land/elemental_buster_land',
 			texturePath: 'elemental_buster/elemental_buster/elemental_buster_land/',
-			min: 'elemental_buster/elemental_buster/elemental_buster_land/min_elemental_buster_land'
+			min: 'elemental_buster/elemental_buster/elemental_buster_land/min_elemental_buster_land',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_elemetal_buster_ground'
 		},
 		{
 			type: 'STR',
@@ -18474,7 +18514,9 @@ export default {
 			type: 'STR',
 			file: 'elemental_buster/elemental_buster/elemental_buster_poison/elemental_buster_poison',
 			texturePath: 'elemental_buster/elemental_buster/elemental_buster_poison/',
-			min: 'elemental_buster/elemental_buster/elemental_buster_poison/min_elemental_buster_poison'
+			min: 'elemental_buster/elemental_buster/elemental_buster_poison/min_elemental_buster_poison',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/em_elemetal_buster_poison'
 		},
 		{
 			type: 'STR',
@@ -18547,7 +18589,9 @@ export default {
 			type: 'STR',
 			file: 'ardor/ardor_flametechnic/ardor_flametechnic',
 			texturePath: 'ardor/ardor_flametechnic/',
-			min: 'ardor/ardor_flametechnic/min_ardor_flametechnic'
+			min: 'ardor/ardor_flametechnic/min_ardor_flametechnic',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_firearrow1'
 		}
 	],
 
@@ -18567,7 +18611,9 @@ export default {
 			type: 'STR',
 			file: 'diluvio/diluvio_cold_force/diluvio_cold_force',
 			texturePath: 'diluvio/diluvio_cold_force/',
-			min: 'diluvio/diluvio_cold_force/min_diluvio_cold_force'
+			min: 'diluvio/diluvio_cold_force/min_diluvio_cold_force',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_icearrow1'
 		}
 	],
 
@@ -18577,7 +18623,9 @@ export default {
 			type: 'STR',
 			file: 'procella/procella_grace_breeze/procella_grace_breeze',
 			texturePath: 'procella/procella_grace_breeze/',
-			min: 'procella/procella_grace_breeze/min_procella_grace_breeze'
+			min: 'procella/procella_grace_breeze/min_procella_grace_breeze',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_lightbolt3'
 		}
 	],
 
@@ -18587,7 +18635,9 @@ export default {
 			type: 'STR',
 			file: 'terremotus/terremotus_earth_care/terremotus_earth_care',
 			texturePath: 'terremotus/terremotus_earth_care/',
-			min: 'terremotus/terremotus_earth_care/min_terremotus_earth_care'
+			min: 'terremotus/terremotus_earth_care/min_terremotus_earth_care',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wizard_earthspike'
 		}
 	],
 
@@ -18597,7 +18647,9 @@ export default {
 			type: 'STR',
 			file: 'serpens/serpens_deep_poisoning/serpens_deep_poisoning',
 			texturePath: 'serpens/serpens_deep_poisoning/',
-			min: 'serpens/serpens_deep_poisoning/min_serpens_deep_poisoning'
+			min: 'serpens/serpens_deep_poisoning/min_serpens_deep_poisoning',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_detoxication'
 		}
 	],
 
@@ -18694,7 +18746,9 @@ export default {
 			file: 'new_rush_quake/new_rush_quake/new_rush_quake',
 			texturePath: 'new_rush_quake/new_rush_quake/',
 			min: 'new_rush_quake/new_rush_quake/min_new_rush_quake',
-			wav: 'effect/mt_rush_quake'
+			// kRO 2025-07-16: this STR's own sound, 15 ticks in; the skill's sound is the hit STR's (ef_mt_rush_quake_hit)
+			wav: 'effect/wizard_fire_pillar_b',
+			delayWav: 250
 		}
 	],
 
@@ -18704,7 +18758,9 @@ export default {
 			type: 'STR',
 			file: 'new_rush_quake/new_rush_quake_hit/new_rush_quake_hit',
 			texturePath: 'new_rush_quake/new_rush_quake_hit/',
-			min: 'new_rush_quake/new_rush_quake_hit/min_new_rush_quake_hit'
+			min: 'new_rush_quake/new_rush_quake_hit/min_new_rush_quake_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/mt_rush_quake'
 		}
 	],
 
@@ -19926,7 +19982,9 @@ export default {
 			file: 'wooden_warrior/wooden_warrior_cast_bottom/wooden_warrior_cast_bottom',
 			texturePath: 'wooden_warrior/wooden_warrior_cast_bottom/',
 			min: 'wooden_warrior/wooden_warrior_cast_bottom/min_wooden_warrior_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -19965,7 +20023,9 @@ export default {
 			file: 'wooden_fairy/wooden_cast_bottom/wooden_cast_bottom',
 			texturePath: 'wooden_fairy/wooden_cast_bottom/',
 			min: 'wooden_fairy/wooden_cast_bottom/min_wooden_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -19986,7 +20046,9 @@ export default {
 			type: 'STR',
 			file: 'research_report/researchreport_cast/researchreport_cast',
 			texturePath: 'research_report/researchreport_cast/',
-			min: 'research_report/researchreport_cast/min_researchreport_cast'
+			min: 'research_report/researchreport_cast/min_researchreport_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -20010,7 +20072,9 @@ export default {
 			file: 'helltree/helltree_cast_bottom/helltree_cast_bottom',
 			texturePath: 'helltree/helltree_cast_bottom/',
 			min: 'helltree/helltree_cast_bottom/min_helltree_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -20922,7 +20986,9 @@ export default {
 			type: 'STR',
 			file: 'powerfulfaith/powerfulfaith/powerfulfaith',
 			texturePath: 'powerfulfaith/powerfulfaith/',
-			min: 'powerfulfaith/powerfulfaith/min_powerfulfaith'
+			min: 'powerfulfaith/powerfulfaith/min_powerfulfaith',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/iq_faith'
 		}
 	],
 
@@ -20932,7 +20998,9 @@ export default {
 			type: 'STR',
 			file: 'firmfaith/firmfaith/firmfaith',
 			texturePath: 'firmfaith/firmfaith/',
-			min: 'firmfaith/firmfaith/min_firmfaith'
+			min: 'firmfaith/firmfaith/min_firmfaith',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/iq_faith'
 		}
 	],
 
@@ -20970,7 +21038,9 @@ export default {
 			type: 'STR',
 			file: 'sincerefaith/sincerefaith/sincerefaith',
 			texturePath: 'sincerefaith/sincerefaith/',
-			min: 'sincerefaith/sincerefaith/min_sincerefaith'
+			min: 'sincerefaith/sincerefaith/min_sincerefaith',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/iq_faith'
 		},
 		{
 			type: 'STR',
@@ -21075,7 +21145,9 @@ export default {
 			type: 'STR',
 			file: '4ig_firstfaithpower/firstfaithpower_cast/firstfaithpower_cast',
 			texturePath: '4ig_firstfaithpower/firstfaithpower_cast/',
-			min: '4ig_firstfaithpower/firstfaithpower_cast/min_firstfaithpower_cast'
+			min: '4ig_firstfaithpower/firstfaithpower_cast/min_firstfaithpower_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21096,7 +21168,9 @@ export default {
 			type: 'STR',
 			file: '4ig_judge/judge_cast/judge_cast',
 			texturePath: '4ig_judge/judge_cast/',
-			min: '4ig_judge/judge_cast/min_judge_cast'
+			min: '4ig_judge/judge_cast/min_judge_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21208,7 +21282,9 @@ export default {
 			type: 'STR',
 			file: '4ig_thirdexorflame/thirdexorflame_cast/thirdexorflame_cast',
 			texturePath: '4ig_thirdexorflame/thirdexorflame_cast/',
-			min: '4ig_thirdexorflame/thirdexorflame_cast/min_thirdexorflame_cast'
+			min: '4ig_thirdexorflame/thirdexorflame_cast/min_thirdexorflame_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21333,15 +21409,17 @@ export default {
 			type: 'STR',
 			file: 'deadly_projection/deadly_projection_cast/deadly_projection_cast',
 			texturePath: 'deadly_projection/deadly_projection_cast/',
-			min: 'deadly_projection/deadly_projection_cast/min_deadly_projection_cast',
-			wav: 'effect/ag_deadly_projection'
+			min: 'deadly_projection/deadly_projection_cast/min_deadly_projection_cast'
 		},
 		{
 			type: 'STR',
 			file: 'deadly_projection/deadly_projection_cast_bottom/deadly_projection_cast_bottom',
 			texturePath: 'deadly_projection/deadly_projection_cast_bottom/',
 			min: 'deadly_projection/deadly_projection_cast_bottom/min_deadly_projection_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0); the skill's sound is the
+			// hit STR's (ef_ag_deadly_projection_hit)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21351,7 +21429,9 @@ export default {
 			type: 'STR',
 			file: 'deadly_projection/deadly_projection_hit/deadly_projection_hit',
 			texturePath: 'deadly_projection/deadly_projection_hit/',
-			min: 'deadly_projection/deadly_projection_hit/min_deadly_projection_hit'
+			min: 'deadly_projection/deadly_projection_hit/min_deadly_projection_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ag_deadly_projection'
 		}
 	],
 
@@ -21386,7 +21466,9 @@ export default {
 			file: 'destructive_hurricane/destructive_hurricane_cast_bottom/destructive_hurricane_cast_bottom',
 			texturePath: 'destructive_hurricane/destructive_hurricane_cast_bottom/',
 			min: 'destructive_hurricane/destructive_hurricane_cast_bottom/min_destructive_hurricane_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21509,7 +21591,9 @@ export default {
 			file: 'violentquake/violentquake_cast_bottom/violentquake_cast_bottom',
 			texturePath: 'violentquake/violentquake_cast_bottom/',
 			min: 'violentquake/violentquake_cast_bottom/min_violentquake_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21546,7 +21630,9 @@ export default {
 			file: 'soul_vc_strike/soul_vc_strike_cast_bottom/soul_vc_strike_cast_bottom',
 			texturePath: 'soul_vc_strike/soul_vc_strike_cast_bottom/',
 			min: 'soul_vc_strike/soul_vc_strike_cast_bottom/min_soul_vc_strike_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21629,7 +21715,9 @@ export default {
 			type: 'STR',
 			file: 'allbloom/allbloom_cast_bottom/allbloom_cast_bottom',
 			texturePath: 'allbloom/allbloom_cast_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21693,7 +21781,9 @@ export default {
 			type: 'STR',
 			file: 'crystal_impact/crystal_impact_cast/crystal_impact_cast',
 			texturePath: 'crystal_impact/crystal_impact_cast/',
-			min: 'crystal_impact/crystal_impact_cast/min_crystal_impact_cast'
+			min: 'crystal_impact/crystal_impact_cast/min_crystal_impact_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -21794,7 +21884,9 @@ export default {
 			file: 'astralstrike/astralstrike_cast_bottom/astralstrike_cast_bottom',
 			texturePath: 'astralstrike/astralstrike_cast_bottom/',
 			min: 'astralstrike/astralstrike_cast_bottom/min_astralstrike_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21822,7 +21914,9 @@ export default {
 			type: 'STR',
 			file: 'climax/climax_cast/climax_cast',
 			texturePath: 'climax/climax_cast/',
-			min: 'climax/climax_cast/min_climax_cast'
+			min: 'climax/climax_cast/min_climax_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21857,7 +21951,9 @@ export default {
 			file: 'rockdown/rockdown_cast_bottom/rockdown_cast_bottom',
 			texturePath: 'rockdown/rockdown_cast_bottom/',
 			min: 'rockdown/rockdown_cast_bottom/min_rockdown_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21923,7 +22019,9 @@ export default {
 			file: 'crimsonarrow/crimsonarrow_cast_bottom/crimsonarrow_cast_bottom',
 			texturePath: 'crimsonarrow/crimsonarrow_cast_bottom/',
 			min: 'crimsonarrow/crimsonarrow_cast_bottom/min_crimsonarrow_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -21971,7 +22069,9 @@ export default {
 			file: 'frozen_slash/frozen_slash_casting_bottom/frozen_slash_cast_bottom',
 			texturePath: 'frozen_slash/frozen_slash_casting_bottom/',
 			min: 'frozen_slash/frozen_slash_casting_bottom/min_frozen_slash_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -22093,7 +22193,9 @@ export default {
 			type: 'STR',
 			file: 'medialevotum/medialevotum_cast/medialevotum_cast',
 			texturePath: 'medialevotum/medialevotum_cast/',
-			min: 'medialevotum/medialevotum_cast/min_medialevotum_cast'
+			min: 'medialevotum/medialevotum_cast/min_medialevotum_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -22114,7 +22216,9 @@ export default {
 			type: 'STR',
 			file: 'argutusvita/argutusvita_cast/argutusvita_cast',
 			texturePath: 'argutusvita/argutusvita_cast/',
-			min: 'argutusvita/argutusvita_cast/min_argutusvita_cast'
+			min: 'argutusvita/argutusvita_cast/min_argutusvita_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -22124,7 +22228,9 @@ export default {
 			type: 'STR',
 			file: 'argutustelum/argutustelum/argutustelum',
 			texturePath: 'argutustelum/argutustelum/',
-			min: 'argutustelum/argutustelum/min_argutustelum'
+			min: 'argutustelum/argutustelum/min_argutustelum',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/cd_argutus_vita'
 		}
 	],
 
@@ -22134,7 +22240,9 @@ export default {
 			type: 'STR',
 			file: 'argutustelum/argutustelum_cast/argutustelum_cast',
 			texturePath: 'argutustelum/argutustelum_cast/',
-			min: 'argutustelum/argutustelum_cast/min_argutustelum_cast'
+			min: 'argutustelum/argutustelum_cast/min_argutustelum_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -22162,7 +22270,9 @@ export default {
 			type: 'STR',
 			file: 'arbitrium/arbitrium_cast/arbitrium_cast',
 			texturePath: 'arbitrium/arbitrium_cast/',
-			min: 'arbitrium/arbitrium_cast/min_arbitrium_cast'
+			min: 'arbitrium/arbitrium_cast/min_arbitrium_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -22210,7 +22320,9 @@ export default {
 			type: 'STR',
 			file: 'presensacies/presensacies_cast/presensacies_cast',
 			texturePath: 'presensacies/presensacies_cast/',
-			min: 'presensacies/presensacies_cast/min_presensacies_cast'
+			min: 'presensacies/presensacies_cast/min_presensacies_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -22305,7 +22417,9 @@ export default {
 			type: 'STR',
 			file: 'new_dilectioheal/new_dilectioheal_cast/new_dilectioheal_cast',
 			texturePath: 'new_dilectioheal/new_dilectioheal_cast/',
-			min: 'new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast'
+			min: 'new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -22333,7 +22447,9 @@ export default {
 			type: 'STR',
 			file: 'religio/religio_cast/religio_cast',
 			texturePath: 'religio/religio_cast/',
-			min: 'religio/religio_cast/min_religio_cast'
+			min: 'religio/religio_cast/min_religio_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -22354,7 +22470,9 @@ export default {
 			type: 'STR',
 			file: 'benedictum/benedictum_cast/benedictum_cast',
 			texturePath: 'benedictum/benedictum_cast/',
-			min: 'benedictum/benedictum_cast/min_benedictum_cast'
+			min: 'benedictum/benedictum_cast/min_benedictum_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -22850,8 +22968,8 @@ export default {
 			type: 'STR',
 			file: 'eternal_slash/eternal_slash/eternal_slash',
 			texturePath: 'eternal_slash/eternal_slash/',
-			min: 'eternal_slash/eternal_slash/min_eternal_slash',
-			wav: 'effect/shc_eternal_slash'
+			min: 'eternal_slash/eternal_slash/min_eternal_slash'
+			// kRO 2025-07-16: no sound of its own; SHC_ETERNAL_SLASH.wav is the hit STR's (ef_shc_eternal_slash_hit)
 		},
 		{
 			type: 'STR',
@@ -22868,7 +22986,9 @@ export default {
 			type: 'STR',
 			file: 'eternal_slash/eternal_slash_hit/eternal_slash_hit',
 			texturePath: 'eternal_slash/eternal_slash_hit/',
-			min: 'eternal_slash/eternal_slash_hit/min_eternal_slash_hit'
+			min: 'eternal_slash/eternal_slash_hit/min_eternal_slash_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/shc_eternal_slash'
 		}
 	],
 
@@ -23203,7 +23323,9 @@ export default {
 			type: 'STR',
 			file: 'soundblend/soundblend/soundblend',
 			texturePath: 'soundblend/soundblend/',
-			min: 'soundblend/soundblend/min_soundblend'
+			min: 'soundblend/soundblend/min_soundblend',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/tr_soundblend_shot'
 		}
 	],
 
@@ -23213,7 +23335,9 @@ export default {
 			type: 'STR',
 			file: 'soundblend/soundblend_cast/soundblend_cast',
 			texturePath: 'soundblend/soundblend_cast/',
-			min: 'soundblend/soundblend_cast/min_soundblend_cast'
+			min: 'soundblend/soundblend_cast/min_soundblend_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -23329,7 +23453,9 @@ export default {
 			type: 'STR',
 			file: 'musical_interlude/musical_interlude_cast/musical_interlude_cast',
 			texturePath: 'musical_interlude/musical_interlude_cast/',
-			min: 'musical_interlude/musical_interlude_cast/min_musical_interlude_cast'
+			min: 'musical_interlude/musical_interlude_cast/min_musical_interlude_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -23383,7 +23509,9 @@ export default {
 			type: 'STR',
 			file: 'nipelheim/nipelheim_cast/nipelheim_cast',
 			texturePath: 'nipelheim/nipelheim_cast/',
-			min: 'nipelheim/nipelheim_cast/min_nipelheim_cast'
+			min: 'nipelheim/nipelheim_cast/min_nipelheim_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -23558,7 +23686,9 @@ export default {
 			type: 'STR',
 			file: 'unlucky_rush/unlucky_rush_cast/unlucky_rush_cast',
 			texturePath: 'unlucky_rush/unlucky_rush_cast/',
-			min: 'unlucky_rush/unlucky_rush_cast/min_unlucky_rush_cast'
+			min: 'unlucky_rush/unlucky_rush_cast/min_unlucky_rush_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -23589,7 +23719,9 @@ export default {
 			type: 'STR',
 			file: 'chain_reaction_shot/chain_reaction_shot_cast/chain_reaction_shot_cast',
 			texturePath: 'chain_reaction_shot/chain_reaction_shot_cast/',
-			min: 'chain_reaction_shot/chain_reaction_shot_cast/min_chain_reaction_shot_cast'
+			min: 'chain_reaction_shot/chain_reaction_shot_cast/min_chain_reaction_shot_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -23637,7 +23769,9 @@ export default {
 			type: 'STR',
 			file: '4abc_abyss_slayer/abyss_slayer_cast/abyss_slayer_cast',
 			texturePath: '4abc_abyss_slayer/abyss_slayer_cast/',
-			min: '4abc_abyss_slayer/abyss_slayer_cast/min_abyss_slayer_cast'
+			min: '4abc_abyss_slayer/abyss_slayer_cast/min_abyss_slayer_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -23672,7 +23806,9 @@ export default {
 			type: 'STR',
 			file: 'abyss_strike/abyss_strike_cast/abyss_strike_cast',
 			texturePath: 'abyss_strike/abyss_strike_cast/',
-			min: 'abyss_strike/abyss_strike_cast/min_abyss_strike_cast'
+			min: 'abyss_strike/abyss_strike_cast/min_abyss_strike_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -23699,7 +23835,9 @@ export default {
 			type: 'STR',
 			file: 'deft_stab/deft_stab/deft_stab',
 			texturePath: 'deft_stab/deft_stab/',
-			min: 'deft_stab/deft_stab/min_deft_stab'
+			min: 'deft_stab/deft_stab/min_deft_stab',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/abc_deft_stab1'
 		}
 	],
 
@@ -23944,7 +24082,9 @@ export default {
 			type: 'STR',
 			file: 'deepblindtrap/deepblindtrap/deepblindtrap',
 			texturePath: 'deepblindtrap/deepblindtrap/',
-			min: 'deepblindtrap/deepblindtrap/min_deepblindtrap'
+			min: 'deepblindtrap/deepblindtrap/min_deepblindtrap',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_trap'
 		},
 		{
 			type: 'STR',
@@ -23971,7 +24111,9 @@ export default {
 			type: 'STR',
 			file: 'deepblindtrap/deepblindtrap_hit/deepblindtrap_hit',
 			texturePath: 'deepblindtrap/deepblindtrap_hit/',
-			min: 'deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit'
+			min: 'deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_deep_blind_trap_hit'
 		}
 	],
 
@@ -23981,7 +24123,9 @@ export default {
 			type: 'STR',
 			file: 'solidtrap/solidtrap/solidtrap',
 			texturePath: 'solidtrap/solidtrap/',
-			min: 'solidtrap/solidtrap/min_solidtrap'
+			min: 'solidtrap/solidtrap/min_solidtrap',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_trap'
 		},
 		{
 			type: 'STR',
@@ -23998,7 +24142,9 @@ export default {
 			type: 'STR',
 			file: 'solidtrap/solidtrap_cast/solidtrap_cast',
 			texturePath: 'solidtrap/solidtrap_cast/',
-			min: 'solidtrap/solidtrap_cast/min_solidtrap_cast'
+			min: 'solidtrap/solidtrap_cast/min_solidtrap_cast',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -24015,7 +24161,9 @@ export default {
 			type: 'STR',
 			file: 'solidtrap/solidtrap_hit/solidtrap_hit',
 			texturePath: 'solidtrap/solidtrap_hit/',
-			min: 'solidtrap/solidtrap_hit/min_solidtrap_hit'
+			min: 'solidtrap/solidtrap_hit/min_solidtrap_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_solid_trap_hit'
 		}
 	],
 
@@ -24025,7 +24173,9 @@ export default {
 			type: 'STR',
 			file: 'swifttrap/swifttrap/swifttrap',
 			texturePath: 'swifttrap/swifttrap/',
-			min: 'swifttrap/swifttrap/min_swifttrap'
+			min: 'swifttrap/swifttrap/min_swifttrap',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_trap'
 		},
 		{
 			type: 'STR',
@@ -24052,7 +24202,9 @@ export default {
 			type: 'STR',
 			file: 'swifttrap/swifttrap_hit/swifttrap_hit',
 			texturePath: 'swifttrap/swifttrap_hit/',
-			min: 'swifttrap/swifttrap_hit/min_swifttrap_hit'
+			min: 'swifttrap/swifttrap_hit/min_swifttrap_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_swift_trap_hit'
 		}
 	],
 
@@ -24095,7 +24247,9 @@ export default {
 			type: 'STR',
 			file: 'flametrap/flametrap/flametrap',
 			texturePath: 'flametrap/flametrap/',
-			min: 'flametrap/flametrap/min_flametrap'
+			min: 'flametrap/flametrap/min_flametrap',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_trap'
 		},
 		{
 			type: 'STR',
@@ -24122,7 +24276,9 @@ export default {
 			type: 'STR',
 			file: 'flametrap/flametrap_hit/flametrap_hit',
 			texturePath: 'flametrap/flametrap_hit/',
-			min: 'flametrap/flametrap_hit/min_flametrap_hit'
+			min: 'flametrap/flametrap_hit/min_flametrap_hit',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wh_flametrap_hit'
 		}
 	],
 
@@ -25331,7 +25487,9 @@ export default {
 			file: 'increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom',
 			texturePath: 'increasing_activity/increasing_activity_cast_bottom/',
 			min: 'increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -27182,7 +27340,9 @@ export default {
 			type: 'STR',
 			file: 'tetravortex/tetra_04_water_sub_explosion/tetra_04_water_sub_expn',
 			texturePath: 'tetravortex/tetra_04_water_sub_explosion/',
-			attachedEntity: false
+			attachedEntity: false,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/drop_effect_1'
 		}
 	],
 
@@ -27222,7 +27382,9 @@ export default {
 			type: 'STR',
 			file: 'tetravortex/tetra_03_earth_sub_explosion/tetra_03_earth_sub_expn',
 			texturePath: 'tetravortex/tetra_03_earth_sub_explosion/',
-			attachedEntity: false
+			attachedEntity: false,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/drop_effect_2'
 		}
 	],
 
