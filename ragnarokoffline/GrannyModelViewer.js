@@ -315959,6 +315959,7 @@ var init_EffectTable = __esmMin((() => {
 		804: [{ wav: "effect/wl_tetravortex" }],
 		805: [{
 			type: "FUNC",
+			wav: "effect/ef_beginspell",
 			attachedEntity: true,
 			func: function EffectBodyColor(Params) {
 				const entity = Params.Init.ownerEntity;
@@ -323196,6 +323197,8 @@ var init_EffectTable = __esmMin((() => {
 			min: "mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
 			minTexturePath: "mineffect/new_soulexpansion/new_soulexpansion_cast/",
 			castLoop: true,
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
 			attachedEntity: true
 		}],
 		1588: [{
@@ -323223,6 +323226,7 @@ var init_EffectTable = __esmMin((() => {
 			min: "mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom",
 			minTexturePath: "mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/",
 			renderBeforeEntities: true,
+			wav: "effect/¸ÅÁ÷ Å©·¡½¬",
 			attachedEntity: true
 		}],
 		ef_wl_recognizedspell_sound: [{
@@ -323254,6 +323258,8 @@ var init_EffectTable = __esmMin((() => {
 			minTexturePath: "mineffect/new_hellinferno/new_hellinferno_cast_bottom/",
 			renderBeforeEntities: true,
 			castLoop: true,
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
 			attachedEntity: true
 		}],
 		1550: [{
@@ -323262,6 +323268,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "new_hellinferno/new_hellinferno/",
 			min: "mineffect/new_hellinferno/new_hellinferno/new_hellinferno",
 			minTexturePath: "mineffect/new_hellinferno/new_hellinferno/",
+			wav: "hell_in",
 			attachedEntity: true
 		}],
 		1551: [{
@@ -323342,6 +323349,7 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_comet/new_comet/new_comet",
 			texturePath: "new_comet/new_comet/",
+			wav: "effect/gÅ©·¹ÀÌÁöÀ§µå",
 			attachedEntity: true
 		}],
 		1414: [{
@@ -323358,6 +323366,8 @@ var init_EffectTable = __esmMin((() => {
 			min: "mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast",
 			minTexturePath: "mineffect/new_chainlightning/new_chainlightning_cast/",
 			castLoop: true,
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
 			attachedEntity: true
 		}],
 		1636: [{
@@ -323376,6 +323386,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "new_chainlightning/new_chainlightning_target/",
 			min: "mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target",
 			minTexturePath: "mineffect/new_chainlightning/new_chainlightning_target/",
+			wav: "chainlight",
 			attachedEntity: true
 		}],
 		ef_wl_tetravortex_sound: [
