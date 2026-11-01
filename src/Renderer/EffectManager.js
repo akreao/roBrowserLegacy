@@ -1477,6 +1477,10 @@ class EffectManager {
 		// the official client's damage-arrival effects
 		play('arrivalEffectIdOnCaster', srcAID, destAID, arrivalTick);
 		play('arrivalEffectIdOnTarget', destAID, srcAID, arrivalTick);
+		// The same, only on a target that is not the caster (Arrow Storm's rain)
+		if (destAID !== srcAID) {
+			play('arrivalEffectIdOnOtherTarget', destAID, srcAID, arrivalTick);
+		}
 
 		// One of four effects on the caster by its facing on screen
 		// (ScreenDirection.facingQuarter), once: not again while the caster
