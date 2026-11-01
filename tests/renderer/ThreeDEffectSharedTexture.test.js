@@ -8,8 +8,14 @@ const loads = vi.hoisted(() => []);
 const pending = vi.hoisted(() => ({ held: null }));
 vi.mock('Core/Client.js', () => ({
 	default: {
-		loadFile(path, onload) {
+		loadFile(path, onload, onerror) {
 			loads.push(path);
+			if (path.includes('missing')) {
+				if (onerror) {
+					onerror();
+				}
+				return;
+			}
 			const done = () => onload(new ArrayBuffer(4));
 			if (pending.held) {
 				pending.held.push(done);
@@ -117,5 +123,26 @@ describe('ThreeDEffect shared textures', () => {
 		expect(deleted).toHaveLength(0);
 		b.free(gl);
 		expect(deleted).toHaveLength(2);
+	});
+
+	it('shares a texture outside effect/ by its whole path', () => {
+		ThreeDEffect.free(gl);
+		loads.length = 0;
+		const a = make({ file: 'ui/item/mg_coldbolt.bmp', sharedTexture: true });
+		const b = make({ file: 'ui/item/mg_coldbolt.bmp', sharedTexture: true });
+		a.init(gl);
+		b.init(gl);
+		expect(loads).toEqual(['data/texture/ui/item/mg_coldbolt.bmp']);
+		expect(a.ready && b.ready).toBe(true);
+	});
+
+	it('drops an instance whose shared texture is missing', () => {
+		const a = make({ file: 'ui/item/missing.bmp', sharedTexture: true });
+		a.init(gl);
+		expect(a.ready).toBeFalsy();
+		expect(a.needCleanUp).toBe(true);
+		const b = make({ fileList: ['effect/missing1.tga', 'effect/missing2.tga'], sharedTexture: true });
+		b.init(gl);
+		expect(b.needCleanUp).toBe(true);
 	});
 });

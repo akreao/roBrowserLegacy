@@ -11,14 +11,17 @@
 
 import DB from 'DB/DBManager.js';
 import SK from 'DB/Skills/SkillConst.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
 import { ICONS, ICON_LIFE, planIcons, copyAt } from 'Renderer/Effects/RecognizedSpellSim.js';
 
-/** Skill id to its constant name (the icon is named after it). */
+/** Skill id to its first constant name. */
 let _names = null;
 
 /**
- * The icon file of a skill, under data/texture/: 유저인터페이스/item/<name>.bmp.
+ * The icon file of a skill, under data/texture/: 유저인터페이스/item/<name>.bmp,
+ * named like the skill window does first: the skill's Name in SkillInfo, else
+ * its first skill constant.
  *
  * @param {number} skillId
  * @return {string|null}
@@ -27,10 +30,12 @@ export function iconFile(skillId) {
 	if (!_names) {
 		_names = {};
 		Object.keys(SK).forEach(name => {
-			_names[SK[name]] = name;
+			if (!(SK[name] in _names)) {
+				_names[SK[name]] = name;
+			}
 		});
 	}
-	const name = _names[skillId];
+	const name = (SkillInfo[skillId] && SkillInfo[skillId].Name) || _names[skillId];
 	return name ? `${DB.INTERFACE_PATH.slice('data/texture/'.length)}item/${name.toLowerCase()}.bmp` : null;
 }
 
