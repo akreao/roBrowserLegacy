@@ -224034,19 +224034,19 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.TK_READYDOWN] = {};
 	SkillEffect[SkillConst_default.TK_DOWNKICK] = {
-		damageEffectIdOnTarget: 413,
+		damageEffectIdOnTarget: [413, 431],
 		hitEffectId: [0],
 		hitDelay: 300
 	};
 	SkillEffect[SkillConst_default.TK_READYTURN] = {};
 	SkillEffect[SkillConst_default.TK_TURNKICK] = {
-		damageEffectIdOnTarget: 466,
+		damageEffectIdOnTarget: [466, 429],
 		hitEffectId: [0],
 		hitDelay: 300
 	};
 	SkillEffect[SkillConst_default.TK_READYCOUNTER] = {};
 	SkillEffect[SkillConst_default.TK_COUNTER] = {
-		damageEffectIdOnTarget: 415,
+		damageEffectIdOnTarget: [415, 430],
 		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.TK_DODGE] = {};
@@ -293092,19 +293092,51 @@ var init_ColdHit = __esmMin((() => {
 }));
 // src/Renderer/Effects/HitLineSim.js
 /**
-* The 16 lines of one effect, in the order the client makes them.
+* Ticks until a kind's last line is gone, from the effect's start.
+*
+* @param {object} [kind]
+* @return {number}
+*/
+function hitLineLastTick(kind = HITLINE) {
+	return kind.spawnTicks[kind.spawnTicks.length - 1] + kind.primLife;
+}
+/**
+* The client's heading helper (0xb46830): the first whole degree whose cosine
+* is at most dx / length, 360 less that when dz < 0.
+*
+* @param {number} dx
+* @param {number} dz
+* @return {number} degrees, 0 to 360
+*/
+function tableHeading(dx, dz) {
+	const length = Math.hypot(dx, dz);
+	if (!(length > 0)) return 180;
+	const c = dx / length;
+	let angle = 180;
+	for (let s = 0; s <= 180; s++) if (Math.cos(s * Math.PI / 180) <= c + 1e-9) {
+		angle = s;
+		break;
+	}
+	return dz / length < 0 ? 360 - angle : angle;
+}
+/**
+* The lines of one effect, in the order the client makes them.
 *
 * @param {function} [random] returns a number in [0, 1)
+* @param {object} [kind] from HITLINE_KINDS
+* @param {number} [aim] degrees, the heading from the caster to the target (aimed kinds)
 * @return {Array<object>} { spawn, wait, alpha, heading, radius, stretch }
 */
-function planHitLines(random = Math.random) {
+function planHitLines(random = Math.random, kind = HITLINE, aim = 0) {
 	const out = [];
-	for (const spawn of HITLINE.spawnTicks) for (let j = 0; j < HITLINE.perPrim; j++) {
-		const wait = r$12(random, HITLINE.waitRange);
-		const alpha = HITLINE.alpha + r$12(random, HITLINE.alphaRange);
-		const heading = r$12(random, 360);
-		const radius = HITLINE.radius + r$12(random, HITLINE.radiusRange);
-		const stretch = HITLINE.stretch + .1 * r$12(random, HITLINE.stretchRange);
+	for (const spawn of kind.spawnTicks) for (let j = 0; j < kind.perPrim; j++) {
+		const wait = kind.waitBase + r$12(random, kind.waitRange);
+		const alpha = kind.alpha + r$12(random, kind.alphaRange);
+		let heading;
+		if (kind.aimed) heading = ((aim + r$12(random, kind.aimRange) - kind.aimOffset) % 360 + 360) % 360;
+		else heading = r$12(random, 360);
+		const radius = kind.radius + r$12(random, kind.radiusRange);
+		const stretch = kind.stretch + .1 * r$12(random, kind.stretchRange);
 		out.push({
 			spawn,
 			wait,
@@ -293143,11 +293175,12 @@ function headAngle(c) {
 * new head into the trail, so the first segment is empty until the arc ends.
 *
 * @param {number} c swept ticks
-* @return {Array<number>} HITLINE.segments + 1 angles
+* @param {number} [segments] the kind's
+* @return {Array<number>} segments + 1 angles
 */
-function trailAngles(c) {
+function trailAngles(c, segments = HITLINE.segments) {
 	const out = [headAngle(c)];
-	for (let k = 1; k <= HITLINE.segments; k++) out.push(headAngle(c - k + 1));
+	for (let k = 1; k <= segments; k++) out.push(headAngle(c - k + 1));
 	return out;
 }
 /**
@@ -293191,7 +293224,7 @@ function coreColor(i) {
 		c
 	];
 }
-var HITLINE, HITLINE_LAST_TICK, r$12;
+var HITLINE, HITLINE_KINDS, HITLINE_LAST_TICK, r$12;
 var init_HitLineSim = __esmMin((() => {
 	HITLINE = {
 		spawnTicks: [
@@ -293213,13 +293246,48 @@ var init_HitLineSim = __esmMin((() => {
 		stretch: .8,
 		stretchRange: 7,
 		segments: 4,
+		waitBase: 0,
+		aimed: false,
 		segmentFade: 10,
 		up: 5,
 		core: .05,
 		glow: 4,
 		sides: 3
 	};
-	HITLINE_LAST_TICK = HITLINE.spawnTicks[HITLINE.spawnTicks.length - 1] + HITLINE.primLife;
+	HITLINE_KINDS = {
+		429: HITLINE,
+		430: {
+			...HITLINE,
+			spawnTicks: [
+				0,
+				1,
+				2
+			],
+			waitBase: 25,
+			waitRange: 21,
+			radiusRange: 7,
+			segments: 3,
+			core: .06,
+			aimed: true,
+			aimRange: 121,
+			aimOffset: 60
+		},
+		431: {
+			...HITLINE,
+			spawnTicks: [
+				0,
+				1,
+				2,
+				3,
+				4
+			],
+			waitBase: 30,
+			waitRange: 41,
+			stretch: .6,
+			core: .07
+		}
+	};
+	HITLINE_LAST_TICK = hitLineLastTick(HITLINE);
 	r$12 = (random, k) => Math.floor(random() * k);
 }));
 // src/Renderer/Effects/HitLine.js
@@ -293301,11 +293369,14 @@ var init_HitLine = __esmMin((() => {
 		* @param {object} owner the entity hit; the lines follow it
 		* @param {number} startTick
 		* @param {function} [random] returns a number in [0, 1)
+		* @param {object} [kind] from HITLINE_KINDS (429 by default)
+		* @param {Array} [source] the caster's position, for 430's aimed lines
 		*/
-		constructor(owner, startTick, random = Math.random) {
+		constructor(owner, startTick, random = Math.random, kind = HITLINE, source = null) {
 			this.owner = owner;
 			this.startTick = startTick || 0;
-			this.lines = planHitLines(random);
+			this.kind = kind;
+			this.lastTick = hitLineLastTick(kind);
 			this.position = owner && owner.position ? [
 				owner.position[0],
 				owner.position[1],
@@ -293315,6 +293386,8 @@ var init_HitLine = __esmMin((() => {
 				0,
 				0
 			];
+			const aim = source ? tableHeading(this.position[0] - source[0], this.position[1] - source[1]) : 0;
+			this.lines = planHitLines(random, kind, aim);
 			this.core = new Float32Array(TUBE_VERTICES * 5);
 			this.glow = new Float32Array(TUBE_VERTICES * 5);
 		}
@@ -293333,7 +293406,7 @@ var init_HitLine = __esmMin((() => {
 		render(gl, tick) {
 			if (tick < this.startTick) return;
 			const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
-			if (t > HITLINE_LAST_TICK) {
+			if (t > this.lastTick) {
 				this.needCleanUp = true;
 				return;
 			}
@@ -293352,18 +293425,19 @@ var init_HitLine = __esmMin((() => {
 				const c = sweptTicks(line, t);
 				const alpha = lineAlpha(line, c);
 				if (alpha <= 0) continue;
-				const angles = trailAngles(c);
-				for (let i = 0; i < HITLINE.segments; i++) {
+				const kind = this.kind;
+				const angles = trailAngles(c, kind.segments);
+				for (let i = 0; i < kind.segments; i++) {
 					const a = alpha - HITLINE.segmentFade * i;
 					if (a <= 0 || angles[i] === angles[i + 1]) continue;
 					const from = arcPoint(line, angles[i]);
 					const to = arcPoint(line, angles[i + 1]);
 					const [cr, cg, cb] = coreColor(i);
-					segmentVertices(from, to, line.heading, HITLINE.core, this.core);
+					segmentVertices(from, to, line.heading, kind.core, this.core);
 					_batch$4.mesh(this.texture, 0, this.core, TUBE_VERTICES, TUBE_INDICES, x, y, z, cr / 255, cg / 255, cb / 255, a / 255, 0);
 					const glow = Math.trunc(a * .5);
 					if (glow > 0) {
-						segmentVertices(from, to, line.heading, HITLINE.core * HITLINE.glow, this.glow);
+						segmentVertices(from, to, line.heading, kind.core * kind.glow, this.glow);
 						_batch$4.mesh(this.texture, 0, this.glow, TUBE_VERTICES, TUBE_INDICES, x, y, z, BLUE[0], BLUE[1], BLUE[2], glow / 255, 0);
 					}
 				}
@@ -293397,7 +293471,7 @@ var init_HitLine = __esmMin((() => {
 	};
 }));
 // src/DB/Effects/HitLineEffect.js
-var hitLine4Effect;
+var hitLine4Effect, hitLine5Effect, hitLine6Effect;
 var init_HitLineEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_HitLine();
@@ -293408,6 +293482,23 @@ var init_HitLineEffect = __esmMin((() => {
 		duration: Math.ceil((HITLINE_LAST_TICK + 1) * PRIM_TICK_MS),
 		func: function(Params) {
 			this.add(new HitLine(Params.Init.ownerEntity, Params.Inst.startTick), Params);
+		}
+	}];
+	hitLine5Effect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		duration: Math.ceil((hitLineLastTick(HITLINE_KINDS[430]) + 1) * PRIM_TICK_MS),
+		func: function(Params) {
+			const source = Params.Init.otherEntity ? Params.Init.otherEntity.position : Params.Inst.otherPosition;
+			this.add(new HitLine(Params.Init.ownerEntity, Params.Inst.startTick, Math.random, HITLINE_KINDS[430], source), Params);
+		}
+	}];
+	hitLine6Effect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		duration: Math.ceil((hitLineLastTick(HITLINE_KINDS[431]) + 1) * PRIM_TICK_MS),
+		func: function(Params) {
+			this.add(new HitLine(Params.Init.ownerEntity, Params.Inst.startTick, Math.random, HITLINE_KINDS[431]), Params);
 		}
 	}];
 }));
@@ -311398,6 +311489,8 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		429: hitLine4Effect,
+		430: hitLine5Effect,
+		431: hitLine6Effect,
 		435: [{
 			wav: "effect/t_È¸¿À¸®Â÷±â",
 			delayWav: 83,
