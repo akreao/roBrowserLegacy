@@ -28336,7 +28336,8 @@ export default {
 
 	// Tuna Party (status TUNAPARTY): effect 1097, CTunaPartyEffect in the official client
 	// (kRO 2025-07-16, 0x6d9700 / 0x6d97b0). One su_tunaparty.spr circles the actor 10 units
-	// out and 10 up, turning 0.05 radians a tick, its animation looping at 8 ticks a frame.
+	// out and 10 up, turning 0.05 radians a tick, its animation looping at 8 ticks a frame,
+	// drawn at the sprite's own size (size 100; ThreeDEffect scales sprite layers by size / 100).
 	// The effect lives 9999 ticks; the status row removes it when the status ends.
 	1097: [
 		{
@@ -28344,6 +28345,7 @@ export default {
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/su_tunaparty/su_tunaparty',
 			playSprite: true,
 			sprDelay: (8 * 1000) / 60,
+			size: 100,
 			attachedEntity: true,
 			alphaMax: 1,
 			duration: 9999 * PRIM_TICK_MS,

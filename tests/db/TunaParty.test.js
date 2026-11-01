@@ -16,6 +16,8 @@ describe('Tuna Party', () => {
 		expect(row.playSprite).toBe(true);
 		expect(row.sprDelay).toBeCloseTo((8 * 1000) / 60);
 		expect(row.attachedEntity).toBe(true);
+		// ThreeDEffect scales sprite layers by size / 100, so 100 is the sprite's own size
+		expect(row.size).toBe(100);
 	});
 
 	it('circles 2 cells out and 2 up, 0.05 radians a tick', () => {
