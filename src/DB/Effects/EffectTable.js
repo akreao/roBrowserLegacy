@@ -64,6 +64,7 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
+import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
@@ -26789,6 +26790,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
 			texturePath: 'new_soulexpansion/new_soulexpansion_cast/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast/',
 			castLoop: true,
 			attachedEntity: true
 		}
@@ -26801,6 +26804,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
 			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26814,6 +26819,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
 			texturePath: 'new_soulexpansion/new_soulexpansion_hit/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit/',
 			attachedEntity: true
 		}
 	],
@@ -26825,6 +26832,8 @@ export default {
 			type: 'STR',
 			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
 			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
+			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
+			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
@@ -26876,6 +26885,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26889,6 +26900,8 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
 			texturePath: 'new_hellinferno/new_hellinferno/',
+			min: 'mineffect/new_hellinferno/new_hellinferno/new_hellinferno',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno/',
 			attachedEntity: true
 		}
 	],
@@ -26900,8 +26913,59 @@ export default {
 			type: 'STR',
 			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
 			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) side flames: 1553 + 1554 (floor) at four points 15 units from the target,
+	// at 45 + 90 i degrees, as the damage arrives; they stay where they start. See effect-port/warlock-skills.md.
+	ef_wl_hellinferno_sub: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				const position = Params.Inst.position;
+				if (!position) {
+					return;
+				}
+				hellInfernoSubOffsets().forEach(([dx, dy]) => {
+					[1553, 1554].forEach(effectId => {
+						this.spam({
+							effectId,
+							position: [position[0] + dx, position[1] + dy, position[2]],
+							startTick: Params.Inst.startTick
+						});
+					});
+				});
+			}
+		}
+	],
+
+	1553: [
+		{
+			//(1553): CEZ2STREffect, new_hellInferno\\new_hellInferno_sub\\new_hellInferno_sub.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_sub/new_hellinferno_sub',
+			texturePath: 'new_hellinferno/new_hellinferno_sub/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_sub/new_hellinferno_sub',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub/',
+			attachedEntity: false
+		}
+	],
+
+	1554: [
+		{
+			//(1554): CEZ2STREffect, new_hellInferno\\new_hellInferno_sub_bottom\\new_hellInferno_sub_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_sub_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: false
 		}
 	],
 
@@ -26960,6 +27024,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
 			texturePath: 'new_chainlightning/new_chainlightning_cast/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast/',
 			castLoop: true,
 			attachedEntity: true
 		}
@@ -26972,6 +27038,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
 			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
 			attachedEntity: true
@@ -26985,6 +27053,8 @@ export default {
 			type: 'STR',
 			file: 'new_chainlightning/new_chainlightning_target/new_chainlightning_target',
 			texturePath: 'new_chainlightning/new_chainlightning_target/',
+			min: 'mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target',
+			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_target/',
 			attachedEntity: true
 		}
 	],

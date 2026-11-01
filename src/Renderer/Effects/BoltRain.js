@@ -48,14 +48,21 @@ let _program = null;
  */
 const _textures = new Map();
 
+/**
+ * Bumped when the class is freed (map change, context reset): a load started
+ * before that belongs to the old context and is dropped when it finishes.
+ */
+let _generation = 0;
+
 function loadTexture(gl, name) {
 	if (_textures.has(name)) {
 		return;
 	}
 	_textures.set(name, null);
+	const generation = _generation;
 	Client.loadFile(`data/texture/effect/${name}`, buffer => {
 		WebGL.texture(gl, buffer, texture => {
-			if (!_textures.has(name)) {
+			if (generation !== _generation || !_textures.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
@@ -147,7 +154,8 @@ class BoltRain {
 				const ringAge = frame - ringStart(bolt);
 				const ringTexture = _textures.get(self.kind.ring);
 				if (ringAge >= 0 && ringAge < BOLT_RING.frames && ringTexture) {
-					const state = createPrimState(BOLT_RING);
+					// One ring state per bolt, advanced as the frames go by
+					const state = bolt.ringState || (bolt.ringState = createPrimState(BOLT_RING));
 					advancePrim(state, ringAge);
 					if (state.alpha > 0) {
 						buildPrimGeometry(self.ringVertices, BOLT_RING, state, self.position);
@@ -165,6 +173,7 @@ class BoltRain {
 	}
 
 	static free(gl) {
+		_generation++;
 		if (_program) {
 			gl.deleteProgram(_program);
 			_program = null;
