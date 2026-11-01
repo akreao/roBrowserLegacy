@@ -98,6 +98,21 @@ describe('cast effects that loop for the cast time', () => {
 		assert.equal(list.StrEffect[0]._Params.Inst.repeatEnd, 0);
 	});
 
+	it('asks a function for the effect with the caster', () => {
+		const { context } = setup({ type: 'STR', file: 'cast' });
+		const { EffectManager, list } = context;
+		const seen = [];
+		context.SkillEffect[SKILL] = {
+			beginCastEffectId: caster => {
+				seen.push(caster && caster.GID);
+				return 'cast_fx';
+			}
+		};
+		EffectManager.spamSkillCast(SKILL, 7, null, 0, 0);
+		assert.deepEqual(seen, [7]);
+		assert.equal(list.StrEffect.length, 1);
+	});
+
 	it('removes the loop when the cast is cancelled', () => {
 		const { context } = setup(loopRow());
 		const { EffectManager, list } = context;
