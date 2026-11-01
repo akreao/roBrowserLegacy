@@ -1477,6 +1477,10 @@ class EffectManager {
 		// the official client's damage-arrival effects
 		play('arrivalEffectIdOnCaster', srcAID, destAID, arrivalTick);
 		play('arrivalEffectIdOnTarget', destAID, srcAID, arrivalTick);
+		// The same, only on a target that is not the caster (Arrow Storm's rain)
+		if (destAID !== srcAID) {
+			play('arrivalEffectIdOnOtherTarget', destAID, srcAID, arrivalTick);
+		}
 
 		// One of four effects on the caster by its facing on screen
 		// (ScreenDirection.facingQuarter), once: not again while the caster
@@ -1812,7 +1816,9 @@ class EffectManager {
 					ownerAID: srcAID,
 					startTick: tick,
 					otherAID: destAID,
-					castEndTick: castEndTick
+					castEndTick: castEndTick,
+					// removed with the caster's own cast loops if the cast is cancelled
+					castTargetOf: destAID
 				};
 
 				EffectManager.spam(EF_Init_Par);
@@ -1822,7 +1828,7 @@ class EffectManager {
 
 	/**
 	 * Remove the cast effects (rows marked castLoop) still playing on an entity,
-	 * when its cast is cancelled.
+	 * and those its cast put on its target, when its cast is cancelled.
 	 *
 	 * @param {number} aid
 	 */
@@ -1831,7 +1837,12 @@ class EffectManager {
 			const list = _list[name];
 			for (let i = list.length - 1; i >= 0; --i) {
 				const Params = list[i]._Params;
-				if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
+				if (
+					Params &&
+					Params.effect &&
+					Params.effect.castLoop &&
+					(Params.Init.ownerAID === AID || Params.Init.castTargetOf === AID)
+				) {
 					if (list[i].free) {
 						list[i].free(_gl);
 					}
