@@ -20,6 +20,14 @@ How to work:
 - To bring your branch up to date, merge or rebase onto `origin/ragnarokoffline`, never onto `master`.
 - **Never open PRs to upstream (MrAntares)** from this fork.
 
+## Where upstream comes from
+
+Upstream is **MrAntares/roBrowserLegacy `master`**, merged in directly. Flux159/roBrowserLegacy's `ragnarokoffline` is a second source: merge it too when it has moved, but it no longer carries MrAntares for us.
+
+- `git remote add mra https://github.com/MrAntares/roBrowserLegacy && git fetch mra master`, then merge `mra/master` into a branch off `origin/ragnarokoffline` and open the PR to `ragnarokoffline`.
+- Most of what comes back is our own work, squash-merged upstream. Where an effect or skill file conflicts, the fork's copy is usually newer: keep it, and take upstream's review fixes on top.
+- Players are drawn as one composed sprite (`Renderer/Entity/EntityComposer.js`), so the order of the `renderElement` calls in `EntityRender.js` is what layers them, not `zIndex`. Carts are entities of their own (`Entity.TYPE_CART`).
+
 ## What belongs here
 
 Fixes to the client, and **hook points** that let code outside the client draw or take part:
