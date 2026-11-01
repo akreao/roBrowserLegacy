@@ -59,6 +59,16 @@ let _gl;
 const _list = {};
 
 /**
+ * Effect classes set up for drawing (their static init ran), freed only when
+ * the map goes. Freeing a class when its last effect ended made it build its
+ * shaders again on the next one: StrEffect recompiled at the start of every
+ * burst of skills, at up to 100 ms a time.
+ *
+ * @type {Set<Function>}
+ */
+const _classes = new Set();
+
+/**
  * @type {number} used to differenciate constructors
  */
 let _uniqueId = 1;
@@ -495,7 +505,9 @@ class EffectManager {
 
 		keys.forEach(key => {
 			const list = _list[key];
-			const constructor = list[0].constructor;
+			if (list.length) {
+				_classes.add(list[0].constructor);
+			}
 
 			list.forEach(item => {
 				if (item.free) {
@@ -503,12 +515,15 @@ class EffectManager {
 				}
 			});
 
+			delete _list[key];
+		});
+
+		_classes.forEach(constructor => {
 			if (constructor.free) {
 				constructor.free(gl);
 			}
-
-			delete _list[key];
 		});
+		_classes.clear();
 
 		EffectManager.generation++;
 	}
@@ -554,6 +569,7 @@ class EffectManager {
 				constructor.init(gl);
 				constructor.needInit = false;
 			}
+			_classes.add(constructor);
 
 			if (constructor.ready) {
 				constructor.beforeRender(gl, modelView, projection, fog, tick, null);
@@ -632,10 +648,8 @@ class EffectManager {
 
 				constructor.afterRender(gl);
 
+				// The class stays set up for the next one (_classes)
 				if (size === 0) {
-					if (constructor.free) {
-						constructor.free(gl);
-					}
 					delete _list[keys[i]];
 				}
 			}
