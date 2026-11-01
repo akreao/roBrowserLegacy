@@ -45,6 +45,7 @@ import {
 	bodyLiftCells
 } from 'Renderer/Effects/BodyMotionSim.js';
 import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
+import { flyingLiftPx } from 'Renderer/Entity/FlyingLift.js';
 
 /**
  * Load dependencies
@@ -435,6 +436,8 @@ const renderEntity = (function renderEntityClosure() {
 		SpriteRenderer.position.set(self.position);
 		// Lifted off the ground (Gravity Control, BodyMotion.js); the shadow above stays down.
 		SpriteRenderer.position[2] += bodyLiftCells(this);
+		// Flying (Star Gladiator Union) floats the body, in sprite pixels (FlyingLift.js).
+		this._flyLiftPx = flyingLiftPx(this, Date.now());
 		// Render attachments that should appear behind the entity first
 		this.attachments.renderBefore(Date.now());
 		SpriteRenderer.zIndex = 1;
@@ -1549,9 +1552,10 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 		const h = (frame.originalHeight * layer.scale[1] * size) / 2;
 
 		this.boundingRect.x1 = Math.min(this.boundingRect.x1, layer.pos[0] + pos[0] - w);
-		this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h);
+		const lift = this._flyLiftPx || 0;
+		this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h + lift);
 		this.boundingRect.x2 = Math.max(this.boundingRect.x2, layer.pos[0] + pos[0] + w);
-		this.boundingRect.y2 = Math.min(this.boundingRect.y2, -(layer.pos[1] + pos[1]) - h);
+		this.boundingRect.y2 = Math.min(this.boundingRect.y2, -(layer.pos[1] + pos[1]) - h + lift);
 		this.bodyHeight = height;
 	}
 
@@ -1589,6 +1593,11 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.offset[0] = layer.pos[0] + pos[0];
 	SpriteRenderer.offset[1] = layer.pos[1] + pos[1];
 	SpriteRenderer.xSize = this.xSize;
+
+	// Flying body floats; its shadow stays down.
+	if (this._flyLiftPx && type !== 'shadow' && type !== 'cartshadow') {
+		SpriteRenderer.offset[1] -= this._flyLiftPx;
+	}
 	SpriteRenderer.ySize = this.ySize;
 
 	// Taekwon body effects (BodyMotion.js): press, spin, kick, quake
