@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import {
 	HITLINE,
 	HITLINE_KINDS,
+	HITLINE_SPIRAL,
+	spiralState,
+	spiralTrail,
+	spiralPoint,
+	spiralColor,
 	hitLineLastTick,
 	tableHeading,
 	planHitLines,
@@ -13,7 +18,7 @@ import {
 	coreColor
 } from 'Renderer/Effects/HitLineSim.js';
 import { segmentVertices } from 'Renderer/Effects/HitLine.js';
-import { hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
+import { hitLineEffect, hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
@@ -184,5 +189,69 @@ describe('Kick hit lines (430, 431)', () => {
 		);
 		expect(added[0].lines).toHaveLength(20);
 		expect(hitLine6Effect[0].duration).toBeGreaterThan(204 * (1000 / 60));
+	});
+});
+
+// EF_HITLINE (330), kRO 2025-07-16: life 200 (lifetime row 0xb9380b); 0xbf0900(0) on ticks 0-3 makes primitive 70
+// (update 0xb47b4d, draw 0xb73f20). effect-port/hit-lines.md.
+describe('Hit lines (330)', () => {
+	it('is played by Raging Thrust, Storm Blast and Rapid Throw', () => {
+		expect(EffectTable[330]).toBe(hitLineEffect);
+		expect(HITLINE_KINDS[330]).toBe(HITLINE_SPIRAL);
+		expect(SkillEffect[SK.MO_COMBOFINISH].damageEffectIdOnCaster).toContain(330);
+		expect(SkillEffect[SK.RK_STORMBLAST].successEffectId).toContain(330);
+		expect(SkillEffect[SK.KO_MUCHANAGE].arrivalEffectIdOnTarget).toBe(330);
+	});
+
+	it('makes 16 lines on ticks 0 to 3 with the client numbers', () => {
+		const low = planHitLines(fixed(0), HITLINE_SPIRAL);
+		expect(low).toHaveLength(16);
+		expect(low[15].spawn).toBe(3);
+		expect(low[0]).toEqual({ spawn: 0, wait: 0, alpha: 125, heading: 0, radius: 6, stretch: 0.8 });
+		const high = planHitLines(fixed(0.999), HITLINE_SPIRAL)[0];
+		expect(high).toMatchObject({ wait: 25, alpha: 175, heading: 359, radius: 13 });
+		expect(hitLineLastTick(HITLINE_SPIRAL)).toBe(203);
+	});
+
+	it('turns 8 degrees a tick, starting a new hop past 180', () => {
+		expect(spiralState(0)).toEqual({ hops: 0, angle: 0 });
+		expect(spiralState(22)).toEqual({ hops: 0, angle: 176 });
+		expect(spiralState(23)).toEqual({ hops: 1, angle: 4 });
+		expect(spiralState(45)).toEqual({ hops: 1, angle: 180 });
+		expect(spiralState(46)).toEqual({ hops: 2, angle: 8 });
+		const trail = spiralTrail(3, 20);
+		expect(trail).toHaveLength(21);
+		expect(trail.slice(0, 4).map(s => s.angle)).toEqual([24, 24, 16, 8]);
+	});
+
+	it('bounces away: each hop 0.7 times the last, 1.5 R high', () => {
+		const line = { heading: 0, radius: 10 };
+		const top = spiralPoint(line, { hops: 0, angle: 90 });
+		expect(top[0]).toBeCloseTo(10);
+		expect(top[1]).toBeCloseTo(-15);
+		const land = spiralPoint(line, { hops: 1, angle: 0 });
+		expect(land[0]).toBeCloseTo(20);
+		expect(land[1]).toBeCloseTo(0);
+		const second = spiralPoint(line, { hops: 1, angle: 90 });
+		expect(second[0]).toBeCloseTo(27);
+		expect(second[1]).toBeCloseTo(-10.5);
+	});
+
+	it('is orange, whiter down the trail', () => {
+		expect(spiralColor(0)).toEqual([255, 200, 10]);
+		expect(spiralColor(19)).toEqual([255, 200, 143]);
+	});
+
+	it('adds one renderer that stays where it started', () => {
+		const added = [];
+		const owner = { position: [3, 4, 0] };
+		hitLineEffect[0].func.call({ add: e => added.push(e) }, { Inst: { startTick: 0 }, Init: { ownerEntity: owner } });
+		const lines = added[0];
+		lines.init({});
+		owner.position = [9, 9, 0];
+		lines.render({}, 1000);
+		expect(lines.position).toEqual([3, 4, 0]);
+		lines.render({}, 210 * (1000 / 60));
+		expect(lines.needCleanUp).toBe(true);
 	});
 });

@@ -45,7 +45,7 @@ import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import ColdHit from 'Renderer/Effects/ColdHit.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
-import { hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
+import { hitLineEffect, hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
 import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
@@ -8418,7 +8418,8 @@ export default {
 		}
 	],
 
-	//330: [{}],	//EF_HITLINE	   Combo Finish
+	// EF_HITLINE: Raging Thrust, Storm Blast and Rapid Throw's hit lines (HitLineEffect.js, effect-port/hit-lines.md)
+	330: hitLineEffect,
 
 	331: [
 		{

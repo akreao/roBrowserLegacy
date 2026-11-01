@@ -481,7 +481,7 @@ SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { successEffectIdOnCaster: ['quake', 'monk
 // target; the hit flash 0. No aura (328 / 510) and no cast-start effect. See effect-port/monk-skills.md.
 SkillEffect[SK.MO_EXTREMITYFIST] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 266, hitEffectId: 0 }; //Asura Strike
 SkillEffect[SK.MO_CHAINCOMBO] = { damageEffectIdOnTarget: [262, 273], damageEffectIdOnCaster: 263, hitEffectId: [0, 122] }; //Raging Quadruple Blow
-SkillEffect[SK.MO_COMBOFINISH] = { damageEffectIdOnCaster: ['quake', 'monk_raging_thrust_sound', 263], hitEffectId: [0, 1] }; //Raging Thrust
+SkillEffect[SK.MO_COMBOFINISH] = { damageEffectIdOnCaster: ['quake', 'monk_raging_thrust_sound', 263, 330], hitEffectId: [0, 1] }; //Raging Thrust: quake, sound, 263 and the 330 hit lines on the caster
 // Sage
 SkillEffect[SK.SA_CASTCANCEL] = {}; //Cast Cancel
 SkillEffect[SK.SA_MAGICROD] = { successEffectId: 244 }; //Magic Rod
@@ -991,7 +991,7 @@ SkillEffect[SK.RK_REFRESH] = { successEffectIdOnCaster: [538, 'ef_rk_refresh_sou
 SkillEffect[SK.RK_GIANTGROWTH] = { successEffectIdOnCaster: [756, 'ef_rk_ninja_throw_sound'], castAuraEffectId: 12 }; //Giant Growth: 756 + 닌자_던지기.wav on success
 SkillEffect[SK.RK_STONEHARDSKIN] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Stone Hard Skin: 756 + 441 on success
 SkillEffect[SK.RK_VITALITYACTIVATION] = { successEffectIdOnCaster: 309 }; //Vitality Activation: 309 on success
-SkillEffect[SK.RK_STORMBLAST] = { successEffectIdOnCaster: 17, successEffectId: ['quake', 'ef_rk_stormblast_sound', 263] }; //Storm Blast: 17 on the caster; quake + mon_맹룡과강.wav + 263 on the target, on success (330 follow-up)
+SkillEffect[SK.RK_STORMBLAST] = { successEffectIdOnCaster: 17, successEffectId: ['quake', 'ef_rk_stormblast_sound', 263, 330] }; //Storm Blast: 17 on the caster; quake + mon_맹룡과강.wav + 263 + the 330 hit lines on the target, on success
 SkillEffect[SK.RK_FIGHTINGSPIRIT] = { successEffectIdOnCaster: [756, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Fighting Spirit: 756 + 441 on success
 SkillEffect[SK.RK_ABUNDANCE] = { successEffectIdOnCaster: [538, 'ef_rk_abundance_sound'], castAuraEffectId: 12 }; //Abundance: 538 + 흡기.wav on success
 SkillEffect[SK.RK_PHANTOMTHRUST] = { successEffectIdOnCaster: [538, 'ef_rk_bluecasting'], successEffectId: [538, 'ef_rk_bluecasting'], castAuraEffectId: 12 }; //Phantom Thrust: 538 + 441 on caster and target on success
@@ -1382,7 +1382,7 @@ SkillEffect[SK.KO_BAKURETSU] = {
 	damageEffectIdOnTarget: 'ef_ko_ground_explosion'
 }; //Kunai Explosion: the thrown kunai (983) is not ported
 SkillEffect[SK.KO_HAPPOKUNAI] = { successEffectIdOnCaster: 'ef_ko_happokunai' }; //Kunai Splash: the eight kunai (981) are not ported
-SkillEffect[SK.KO_MUCHANAGE] = { groundEffectIdOnCaster: 'ef_ko_bakuretsu_sound' }; //Rapid Throw: the hit line on each target (330) is not ported
+SkillEffect[SK.KO_MUCHANAGE] = { groundEffectIdOnCaster: 'ef_ko_bakuretsu_sound', arrivalEffectIdOnTarget: 330 }; //Rapid Throw: the 330 hit lines on each target as the damage arrives
 SkillEffect[SK.KO_HUUMARANKA] = { groundEffectIdByLevel: ['ef_ko_huumaranka'] }; //Swirling Petal: at the ground packet's cell, every level; the huuma (984) and the scatter (1002) are not ported
 SkillEffect[SK.KO_MAKIBISHI] = {}; //Makibishi
 SkillEffect[SK.KO_MEIKYOUSISUI] = {}; //Pure Soul

@@ -10,7 +10,10 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Rapid Throw', () => {
 	it('plays the throw sound on the caster from the ground packet', () => {
-		expect(SkillEffect[SK.KO_MUCHANAGE]).toEqual({ groundEffectIdOnCaster: 'ef_ko_bakuretsu_sound' });
+		expect(SkillEffect[SK.KO_MUCHANAGE]).toEqual({
+			groundEffectIdOnCaster: 'ef_ko_bakuretsu_sound',
+			arrivalEffectIdOnTarget: 330
+		});
 		expect(EffectTable.ef_ko_bakuretsu_sound).toEqual([
 			{ wav: 'effect/\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2', attachedEntity: true }
 		]);
