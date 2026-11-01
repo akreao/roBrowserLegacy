@@ -56,5 +56,9 @@ describe('Tetra Vortex Fire pillar and red lines (804)', () => {
 		expect(spammed).toHaveLength(32);
 		expect(spammed[0].Init.position).toEqual([10, 20, 0]);
 		expect(spammed[3].Inst.startTick).toBeCloseTo(75 * (1000 / 60));
+		expect(spammed[4].effect.sharedTexture).toBe(true);
+		const none = [];
+		tetraFireLook.func.call({ spamEffect: p => none.push(p) }, { Init: {}, Inst: { startTick: 0, otherPosition: [1, 1, 0] } });
+		expect(none).toHaveLength(0);
 	});
 });

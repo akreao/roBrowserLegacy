@@ -69,6 +69,7 @@ export function lineEffect(line) {
 	return {
 		type: '3D',
 		file: LINE_TEXTURE,
+		sharedTexture: true,
 		alphaMax: 1,
 		blendMode: 8,
 		attachedEntity: false,
@@ -92,17 +93,17 @@ export function lineEffect(line) {
 }
 
 /**
- * The FUNC row: the pillars and lines over the target (the effect's other
- * position), each part from its own tick.
+ * The FUNC row: the pillars and lines over the target, each part from its
+ * own tick. Nothing shows without a known target.
  */
 export const tetraFireLook = {
 	type: 'FUNC',
 	attachedEntity: false,
 	func: function (Params) {
-		const at = Params.Init.otherEntity ? Params.Init.otherEntity.position : Params.Inst.otherPosition;
-		if (!at) {
+		if (!Params.Init.otherEntity) {
 			return;
 		}
+		const at = Params.Init.otherEntity.position;
 		const Init = { ...Params.Init, position: [at[0], at[1], at[2]] };
 		const parts = PILLAR.ticks.map(tick => ({ effect: pillarEffect(), spawn: tick }));
 		planLines().forEach(line => parts.push({ effect: lineEffect(line), spawn: 0 }));
