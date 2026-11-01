@@ -8,6 +8,7 @@ import vm from 'node:vm';
 // 4226 -> 4238, 4302 -> 4316.
 const { default: MountTable } = await import('DB/Jobs/MountTable.js');
 const { default: JobId } = await import('DB/Jobs/JobConst.js');
+const { default: StatusConst } = await import('DB/Status/StatusState.js');
 
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
@@ -20,16 +21,12 @@ describe('Star Gladiator Union body', () => {
 
 	it('draws the flying body with the flying option only, and other mounts as before', () => {
 		const state = read('Renderer/Entity/EntityState.js');
-		const start = state.indexOf('function mountCostume(');
-		const fn = state.slice(start, state.indexOf('\n}\n', start) + 2);
-		const { RIDING, FLYING, DRAGON1 } = { RIDING: 0x20, FLYING: 0x8000, DRAGON1: 0x80000 };
-		const context = vm.createContext({
-			MountTable,
-			StatusConst: { EffectState: { FLYING } },
-			FLYING_JOBS: new Set([JobId.STAR, JobId.STAR_B, JobId.SKY_EMPEROR]),
-			RIDING_OPTIONS: RIDING | DRAGON1
-		});
-		vm.runInContext(fn, context);
+		// FLYING_JOBS, RIDING_OPTIONS and mountCostume() as written, with the real tables
+		const start = state.indexOf('const FLYING_JOBS = ');
+		const end = state.indexOf('\n}\n', state.indexOf('function mountCostume(')) + 2;
+		const { RIDING, FLYING, DRAGON1, MADOGEAR, WUGRIDER } = StatusConst.EffectState;
+		const context = vm.createContext({ MountTable, StatusConst, JobId });
+		vm.runInContext(state.slice(start, end), context);
 		const { mountCostume } = context;
 
 		for (const job of [JobId.STAR, JobId.STAR_B, JobId.SKY_EMPEROR]) {
@@ -43,6 +40,8 @@ describe('Star Gladiator Union body', () => {
 		expect(mountCostume(JobId.KNIGHT, RIDING)).toBe(MountTable[JobId.KNIGHT]);
 		expect(mountCostume(JobId.KNIGHT, FLYING)).toBe(0);
 		expect(mountCostume(JobId.RUNE_KNIGHT, DRAGON1)).toBe(MountTable[JobId.RUNE_KNIGHT]);
+		expect(mountCostume(JobId.MECHANIC, MADOGEAR)).toBe(MountTable[JobId.MECHANIC]);
+		expect(mountCostume(JobId.RANGER, WUGRIDER)).toBe(MountTable[JobId.RANGER]);
 		expect(mountCostume(JobId.NOVICE, RIDING)).toBe(0);
 	});
 });
