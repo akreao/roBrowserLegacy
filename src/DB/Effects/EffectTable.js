@@ -27274,6 +27274,14 @@ export default {
 		}
 	],
 
+	// Sensitive Keen (RA_SENSITIVEKEEN): were_wolf_attack.wav as each damage packet's damage arrives. See effect-port/ranger-skills.md.
+	ef_ra_sensitivekeen_sound: [
+		{
+			wav: 'were_wolf_attack',
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
