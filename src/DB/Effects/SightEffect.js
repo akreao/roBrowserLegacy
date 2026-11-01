@@ -111,26 +111,66 @@ function shadowSprite(point) {
 	};
 }
 
+/**
+ * Spawns the pairs as their ticks come, so a Sight never holds more than its
+ * live sprites (10 pairs) in the effect list. Removing effect 22 from the
+ * actor (the state ending) removes this emitter with them.
+ */
+export class SightEmitter {
+	static ready = true;
+	static renderBeforeEntities = true;
+	static beforeRender() {}
+	static afterRender() {}
+
+	/**
+	 * @param {object} manager EffectManager
+	 * @param {object} Params the effect's params
+	 */
+	constructor(manager, Params) {
+		this.manager = manager;
+		this.Params = Params;
+		this.startTick = Params.Inst.startTick;
+		this.next = 0;
+		this.ready = true;
+	}
+
+	/**
+	 * Spawn every pair due by `tick`.
+	 *
+	 * @param {number} tick
+	 */
+	emit(tick) {
+		while (this.next < SPAN && this.startTick + this.next * PRIM_TICK_MS <= tick) {
+			const point = orbitPoint(this.next % CYCLE);
+			const startTick = this.startTick + this.next * PRIM_TICK_MS;
+			[sightSprite(point), shadowSprite(point)].forEach((effect, i) => {
+				this.manager.spamEffect({
+					effect,
+					Inst: { effectID: 22, duplicateID: this.next + i, startTick },
+					Init: this.Params.Init
+				});
+			});
+			this.next += 2;
+		}
+		if (this.next >= SPAN) {
+			this.needCleanUp = true;
+		}
+	}
+
+	render(gl, tick) {
+		this.emit(tick);
+	}
+}
+
 /** EffectTable row for 22. */
 export const sightEffect = [
 	{
 		//EF_SIGHT	Sight
+		// Each 270-tick cycle starts the orbit over, as the client relaunches 22
 		type: 'FUNC',
 		attachedEntity: true,
 		func: function (Params) {
-			let n = 0;
-			// Each 270-tick cycle starts the orbit over, as the client relaunches 22
-			for (let tick = 0; tick < SPAN; tick += 2) {
-				const point = orbitPoint(tick % CYCLE);
-				const startTick = Params.Inst.startTick + tick * PRIM_TICK_MS;
-				[sightSprite(point), shadowSprite(point)].forEach(effect => {
-					this.spamEffect({
-						effect,
-						Inst: { effectID: 22, duplicateID: n++, startTick },
-						Init: Params.Init
-					});
-				});
-			}
+			this.add(new SightEmitter(this, Params), Params);
 		}
 	},
 	{
