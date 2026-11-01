@@ -12,7 +12,7 @@ const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'),
 describe('Heel Drop effects', () => {
 	it('presses the target at packet arrival and hits 300 ms late with the hit flash on every hit', () => {
 		expect(source).toMatch(
-			/SkillEffect\[SK\.TK_DOWNKICK\] = \{ damageEffectIdOnTarget: 413, hitEffectId: \[0\], hitDelay: 300 \};/
+			/SkillEffect\[SK\.TK_DOWNKICK\] = \{ damageEffectIdOnTarget: \[413, 431\], hitEffectId: \[0\], hitDelay: 300 \};/
 		);
 	});
 });

@@ -694,11 +694,11 @@ SkillEffect[SK.TK_RUN] = { effectId: 443, groundEffectId: 442 /*wallhit 458*/ };
 SkillEffect[SK.TK_READYSTORM] = {}; //Tornado Stance
 SkillEffect[SK.TK_STORMKICK] = { successEffectIdOnCaster: 435, hitEffectId: [0] }; //Tornado Kick
 SkillEffect[SK.TK_READYDOWN] = {}; //Heel Drop Stance
-SkillEffect[SK.TK_DOWNKICK] = { damageEffectIdOnTarget: 413, hitEffectId: [0], hitDelay: 300 }; //Heel Drop
+SkillEffect[SK.TK_DOWNKICK] = { damageEffectIdOnTarget: [413, 431], hitEffectId: [0], hitDelay: 300 }; //Heel Drop: 413 then the 431 hit lines on the target
 SkillEffect[SK.TK_READYTURN] = {}; //Roundhouse Stance
-SkillEffect[SK.TK_TURNKICK] = { damageEffectIdOnTarget: 466, hitEffectId: [0], hitDelay: 300 }; //Roundhouse Kick
+SkillEffect[SK.TK_TURNKICK] = { damageEffectIdOnTarget: [466, 429], hitEffectId: [0], hitDelay: 300 }; //Roundhouse Kick: 466 then the 429 hit lines on the target
 SkillEffect[SK.TK_READYCOUNTER] = {}; //Counter Kick Stance
-SkillEffect[SK.TK_COUNTER] = { damageEffectIdOnTarget: 415, hitEffectId: [0] }; //Counter Kick
+SkillEffect[SK.TK_COUNTER] = { damageEffectIdOnTarget: [415, 430], hitEffectId: [0] }; //Counter Kick: 415 then the 430 hit lines on the target, aimed from the caster
 SkillEffect[SK.TK_DODGE] = {}; //Tumbling
 SkillEffect[SK.TK_JUMPKICK] = { damageEffectIdOnCaster: 457, damageEffectIdOnTarget: 458, hitEffectId: [0] }; //Flying Kick
 SkillEffect[SK.TK_SEVENWIND] = {/* 467 - 473 is done by entity */}; //Mild Wind
@@ -754,7 +754,7 @@ SkillEffect[SK.SL_KAAHI] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl
 SkillEffect[SK.SL_KAUPE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaupe_sound', successEffectId: 542 }; //Kaupe
 SkillEffect[SK.SL_KAITE] = { castAuraEffectId: 441, successEffectIdOnCaster: 'sl_kaite_sound', successEffectId: 542 }; //Kaite (419 comes from the Kaite status, StatusEffectTable.js)
 // Estin, Estun, Esma: blue cast aura; as each damage packet arrives the client plays one effect on the
-// caster and the rest on the target (550, 425, 431 and 554 are not drawn yet).
+// caster and the rest on the target (550, 425 and 554 are not drawn yet).
 SkillEffect[SK.SL_STIN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 547, damageEffectIdOnTarget: 550 }; //Estin
 SkillEffect[SK.SL_STUN] = { castAuraEffectId: 441, damageEffectIdOnCaster: 555, damageEffectIdOnTarget: 429 }; //Estun
 SkillEffect[SK.SL_SMA] = { castAuraEffectId: 441, damageEffectIdOnCaster: 553, damageEffectIdOnTarget: [425, 431, 554] }; //Esma

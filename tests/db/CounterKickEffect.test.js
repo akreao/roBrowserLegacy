@@ -13,7 +13,7 @@ const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'),
 describe('Counter Kick effects', () => {
 	it('kicks the target up at packet arrival, with the hit flash on every hit', () => {
 		expect(skills).toMatch(
-			/SkillEffect\[SK\.TK_COUNTER\] = \{ damageEffectIdOnTarget: 415, hitEffectId: \[0\] \};/
+			/SkillEffect\[SK\.TK_COUNTER\] = \{ damageEffectIdOnTarget: \[415, 430\], hitEffectId: \[0\] \};/
 		);
 	});
 
