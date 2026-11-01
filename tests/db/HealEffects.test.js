@@ -40,8 +40,6 @@ describe('Heal effects', () => {
 	});
 
 	it('does not add a second heal sound from the use packet', () => {
-		expect(read('Engine/MapEngine/Entity.js')).toMatch(
-			/if \(pkt\.SKID !== SkillId\.AL_HEAL\) \{\n\t+Sound\.playPosition\('_heal_effect\.wav'/
-		);
+		expect(read('Engine/MapEngine/Entity.js')).not.toMatch(/Sound\.playPosition\('_heal_effect\.wav'/);
 	});
 });
