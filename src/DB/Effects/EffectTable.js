@@ -64,7 +64,12 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import { spamTetraSubExplosions } from 'DB/Effects/TetraVortexEffect.js';
-import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
+import {
+	increaseAgilityEffect,
+	decreaseAgilityEffect,
+	increasingAccuracyEffect,
+	spamChaosStreaks
+} from 'DB/Effects/AgilityEffect.js';
 import { hundredSpearEffect, hundredSpearDashEffect } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
@@ -16962,11 +16967,13 @@ export default {
 	864: [
 		{
 			//EF_ENERVATION7	   Purple flicker (Eternal Chaos, Loki's Veil)
-			// The actor flickers purple (added) and white on ticks 4-90 (CasterMarks.js).
+			// The actor flickers purple (added) and white on ticks 4-90 (CasterMarks.js), and every even tick
+			// one ac_center2 streak rises and one falls round it (AgilityEffect.spamChaosStreaks).
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 100, 864), Params);
+				spamChaosStreaks(this, Params);
 			}
 		}
 	],
