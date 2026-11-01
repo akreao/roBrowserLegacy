@@ -16,7 +16,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 import StatusState from 'DB/Status/StatusState.js';
 import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
-import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
+import { hasElementCastAura, fixedCastAura } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
 import { autoCounterBarMs } from 'DB/Skills/AutoCounterBar.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
@@ -152,6 +152,7 @@ function requestEntityGuildEmblem(entity) {
  */
 function onEntitySpam(pkt) {
 	let entity = EntityManager.get(pkt.GID);
+	const oldBodyState = entity ? entity._bodyState : 0;
 
 	if (entity) {
 		entity.set(pkt);
@@ -190,6 +191,9 @@ function onEntitySpam(pkt) {
 			}
 		}
 	}
+
+	// White Imprison's look for an actor that comes into view (or is updated) imprisoned
+	updateImprisonEffect(entity.GID, oldBodyState, entity._bodyState);
 
 	if (pkt.effectState & StatusState.EffectState.FALCON && DB.isHunter(pkt.job)) {
 		if (!entity.falcon) {
@@ -2031,8 +2035,10 @@ function onEntityCastSkill(pkt) {
 
 		// Some skills always use the same cast aura, whatever the packet's element.
 		// A list plays each of its effects for the cast time.
+		// A fixed aura 12 still shows the element aura (CastAuraRule.fixedCastAura).
 		if (castSkill && castSkill.castAuraEffectId) {
 			[castSkill.castAuraEffectId].flat().forEach(effectId => {
+				effectId = fixedCastAura(effectId, pkt.property, EF_Init_Par.effectId);
 				EffectManager.spam({ ...EF_Init_Par, effectId });
 			});
 		} else {
@@ -2584,6 +2590,9 @@ function onEntityOptionChange(pkt) {
 		EffectConst.EF_RUWACH
 	);
 
+	// White Imprison: the official client shows 802 while the body state is IMPRISON (Actor_UpdateOption)
+	updateImprisonEffect(pkt.AID, entity._bodyState, pkt.bodyState);
+
 	entity.bodyState = pkt.bodyState;
 	entity.healthState = pkt.healthState;
 	entity.effectState = pkt.effectState;
@@ -2902,6 +2911,27 @@ function haveSiegfriedItem() {
 		return true;
 	} else {
 		return false;
+	}
+}
+
+/**
+ * White Imprison's look (802): launched when the body state turns IMPRISON,
+ * removed when it leaves it, as the official client's Actor_UpdateOption does.
+ *
+ * @param {number} AID
+ * @param {number} oldBodyState
+ * @param {number} newBodyState
+ */
+function updateImprisonEffect(AID, oldBodyState, newBodyState) {
+	const IMPRISON = StatusState.BodyState.IMPRISON;
+	if (oldBodyState === newBodyState) {
+		return;
+	}
+	if (oldBodyState === IMPRISON) {
+		EffectManager.remove(null, AID, EffectConst.EF_BOTTOM_BASILICA2);
+	}
+	if (newBodyState === IMPRISON) {
+		EffectManager.spam({ effectId: EffectConst.EF_BOTTOM_BASILICA2, ownerAID: AID });
 	}
 }
 

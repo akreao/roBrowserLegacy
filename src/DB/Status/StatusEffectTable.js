@@ -6,6 +6,8 @@
  * start: played each time the status starts.
  * restart: like start, but the actor's earlier copy is removed first (the client
  *   removes it before launching the effect again).
+ * restartLoop: like restart, but the effect repeats until the status ends, when
+ *   it is removed (an effect the client keeps far longer than its art).
  * loop: started with the status, one copy per actor, removed when the status ends.
  * stages: one entry per status value (the status's first value), each a list of
  *   effects. Each time the status starts with value N, every stage effect on the
@@ -438,5 +440,11 @@ export default {
 	[StatusConst.GRAVITYCONTROL]: { loop: [1201] },
 	// The client removes and relaunches 601 when the status comes on, and removes it when it ends
 	[StatusConst.WZ_SIGHTBLASTER]: { restart: [601], stop: [601] },
-	[StatusConst.SOULUNITY]: { loop: [1222] }
+	[StatusConst.SOULUNITY]: { loop: [1222] },
+
+	// Telekinesis Intense (WL_TELEKINESIS_INTENSE): 1048 while it is on; the client removes every copy and
+	// relaunches it on each start (EFST switch 0xc51ae3), and 1048 lives 9999 ticks. See effect-port/warlock-skills.md.
+	[StatusConst.TELEKINESIS_INTENSE]: {
+		restartLoop: [1048]
+	}
 };
