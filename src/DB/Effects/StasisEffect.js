@@ -9,6 +9,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import Renderer from 'Renderer/Renderer.js';
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
 import {
 	SOUND_TICK,
@@ -20,16 +21,20 @@ import {
 } from 'Renderer/Effects/StasisSim.js';
 
 /**
- * Flash the caster through its flash colour until the colour is back.
+ * Flash the caster through its flash colour until the colour is back, timed
+ * from the effect's start.
  *
  * @param {Entity} entity
+ * @param {number} startTick the effect's start
  */
-export function startStasisFlash(entity) {
+export function startStasisFlash(entity, startTick) {
 	if (!entity || !entity.animations || !entity._flashColor) {
 		return;
 	}
+	// Animation ticks count from now; the effect may start later.
+	const late = (startTick || Renderer.tick) - Renderer.tick;
 	entity.animations.add(tick => {
-		const frame = Math.floor(tick / PRIM_TICK_MS);
+		const frame = Math.floor((tick - late) / PRIM_TICK_MS);
 		const color = stasisBodyColor(frame);
 		if (!color) {
 			return false;
@@ -81,7 +86,7 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				startStasisFlash(Params.Init.ownerEntity);
+				startStasisFlash(Params.Init.ownerEntity, Params.Inst.startTick);
 				planSquares().forEach((square, i) => {
 					this.spamEffect({
 						effect: squareEffect(square),

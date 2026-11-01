@@ -29,6 +29,10 @@ import _fragmentShader from './EffectPrim.fs?raw';
  */
 let _program = null;
 
+/** The map's fog colour, and black for additive primitives. */
+let _fogColor = new Float32Array(3);
+const BLACK = new Float32Array(3);
+
 // One texture per file for all primitives (Meteor Assault alone draws 32 slash quads), and the
 // number of primitives using each one; the last one deletes it.
 const _sharedTextures = new Map();
@@ -162,14 +166,17 @@ class EffectPrim {
 
 		// Normal alpha blending (or adding light, effect.additive), depth tested, no depth writes
 		// (as the official client draws them).
+		// Added light fades to black in fog, not to the fog colour.
 		if (this.effect.additive) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+			gl.uniform3fv(_program.uniform.uFogColor, BLACK);
 		}
 		SpriteRenderer.runWithDepth(true, false, true, () => {
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
 		});
 		if (this.effect.additive) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			gl.uniform3fv(_program.uniform.uFogColor, _fogColor);
 		}
 	}
 
@@ -214,6 +221,7 @@ class EffectPrim {
 		gl.uniform1f(uniform.uFogNear, fog.near);
 		gl.uniform1f(uniform.uFogFar, fog.far);
 		gl.uniform3fv(uniform.uFogColor, fog.color);
+		_fogColor = fog.color;
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
