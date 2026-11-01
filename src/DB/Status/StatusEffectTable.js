@@ -71,6 +71,13 @@ export default {
 		stop: [604]
 	},
 
+	// Duple Light (AB_DUPLELIGHT): the official client removes any orbs (833) and launches them again with
+	// count 2 when the status starts, and removes them when it ends (EFST 350, 0xc500d5).
+	[StatusConst.DUPLELIGHT]: {
+		restart: ['ef_ab_duplelight_orbs'],
+		stop: ['ef_ab_duplelight_orbs']
+	},
+
 	// Cross Slash mark (KO_JYUMONJIKIRI): the official client keeps 998 (red_cross.str) on the actor while
 	// the status is on. See effect-port/kagerou-oboro-skills.md.
 	[StatusConst.KO_JYUMONJIKIRI]: {

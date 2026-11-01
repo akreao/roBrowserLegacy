@@ -78,6 +78,7 @@ import {
 import { hundredSpearEffect, hundredSpearDashEffect, aimedSprite } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
+import DupleLight from 'Renderer/Effects/DupleLight.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
@@ -22151,6 +22152,19 @@ export default {
 		{
 			wav: 'effect/ab_duplelight',
 			attachedEntity: true
+		}
+	],
+
+	// Duple Light's orbs while the status is on (StatusEffectTable): the official client's 833 with count 2
+	// (0xc07700(3), primitive 145): two blue orbs circling the actor with freeze_a.bmp sparks.
+	// See effect-port/duple-light.md.
+	ef_ab_duplelight_orbs: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new DupleLight(Params.Init.ownerEntity, Params.Inst.startTick, 2), Params);
+			}
 		}
 	],
 
