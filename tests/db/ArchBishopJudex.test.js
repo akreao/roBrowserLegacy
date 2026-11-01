@@ -1,8 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 import { planJudexLights, JUDEX_LIGHTS } from 'DB/Effects/JudexEffect.js';
+import Events from 'Core/Events.js';
+import Renderer from 'Renderer/Renderer.js';
 
 // Judex (AB_JUDEX 2038): no cast aura; 1629 + 1630 for the cast time; as each damage packet's damage arrives: 1627 +
 // 1628 on the caster, AB_judex.wav, 1631 + 1632 on the target and twelve 1633 + 1634 lights round it. No hit effect.
@@ -48,5 +50,31 @@ describe('Judex plays the official cast, target and falling lights', () => {
 		for (const p of moved) {
 			expect(Math.hypot(p.position[0] - 50, p.position[1] - 60)).toBeLessThanOrEqual(14 / 5 + 1e-9);
 		}
+	});
+
+	it('waits for the damage to be due, follows the target, and drops nothing after a map change', () => {
+		const queued = [];
+		const spy = vi.spyOn(Events, 'setTimeout').mockImplementation((callback, delay) => queued.push({ callback, delay }));
+		const owner = { position: [1, 1, 0] };
+		const manager = { spam: vi.fn(), generation: 4 };
+		const params = { Inst: { position: [1, 1, 0], startTick: Renderer.tick + 300 }, Init: { ownerEntity: owner } };
+		EffectTable.ef_ab_judex_lights[0].func.call(manager, params);
+		expect(manager.spam).not.toHaveBeenCalled();
+		expect(queued).toHaveLength(1);
+		expect(queued[0].delay).toBe(300);
+		// the target walks off before the damage lands
+		owner.position = [40, 30, 0];
+		queued[0].callback();
+		expect(manager.spam).toHaveBeenCalledTimes(24);
+		for (const [p] of manager.spam.mock.calls) {
+			expect(Math.hypot(p.position[0] - 40, p.position[1] - 30)).toBeLessThanOrEqual(14 / 5 + 1e-9);
+		}
+		// a map change in between: nothing
+		manager.spam.mockClear();
+		EffectTable.ef_ab_judex_lights[0].func.call(manager, params);
+		manager.generation++;
+		queued[1].callback();
+		expect(manager.spam).not.toHaveBeenCalled();
+		spy.mockRestore();
 	});
 });
