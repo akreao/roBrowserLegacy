@@ -58,7 +58,8 @@ export const SPARK_WINDOWS = {
 /**
  * Each effect's spark numbers (SPARK's where not given): ticks between bursts,
  * scatter (r(scatter) - offset units), height, rise (riseBase + r(riseRange) / 100),
- * whether sparks flash pok3, tint and blending.
+ * whether sparks flash pok3, tint and blending; stay: the sparks stay where they
+ * were left when the actor moves (the client keeps each spark's place).
  */
 export const SPARK_SETS = {
 	543: {},
@@ -72,7 +73,8 @@ export const SPARK_SETS = {
 		riseRange: 40,
 		flash: false,
 		color: [255, 255, 255],
-		additive: false
+		additive: false,
+		stay: true
 	},
 	320: {
 		every: 6,
@@ -83,7 +85,8 @@ export const SPARK_SETS = {
 		riseRange: 40,
 		flash: true,
 		color: [255, 255, 255],
-		additive: false
+		additive: false,
+		stay: true
 	}
 };
 

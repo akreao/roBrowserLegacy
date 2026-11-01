@@ -24,7 +24,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-import { POINTS } from './CastRingSim.js';
+import { POINTS } from 'Renderer/Effects/CastRingSim.js';
 
 const DEG = Math.PI / 180;
 

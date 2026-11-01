@@ -11,8 +11,8 @@
 import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import { RING_TICK_MS, RING_VERTICES, STRIPS, buildRing } from './CastRingSim.js';
-import { HEAL_LIFE, createHeal, stepHeal } from './HealSim.js';
+import { RING_TICK_MS, RING_VERTICES, STRIPS, buildRing } from 'Renderer/Effects/CastRingSim.js';
+import { HEAL_LIFE, createHeal, stepHeal } from 'Renderer/Effects/HealSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 

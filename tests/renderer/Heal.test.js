@@ -69,6 +69,17 @@ describe('Heal cylinders (312, 320)', () => {
 		expect(row.track(0).color).toEqual([1, 1, 1]);
 	});
 
+	it('leaves each spark where it was left when the target moves', () => {
+		const owner = { position: [10, 10, 0] };
+		const spark = planSparks(312, () => 0)[0];
+		const row = sparkEffect(spark, sparkSet(312), owner);
+		const first = row.track(0);
+		owner.position = [11, 10, 0];
+		const later = row.track(1);
+		expect(later.x).toBeCloseTo(first.x - 1);
+		expect(later.y).toBeCloseTo(first.y);
+	});
+
 	it('keeps 543 and 546 as they were', () => {
 		const set = sparkSet(543);
 		expect(set).toMatchObject({ every: 4, scatter: 11, offset: 5, riseBase: 0.1, riseRange: 20, additive: true });

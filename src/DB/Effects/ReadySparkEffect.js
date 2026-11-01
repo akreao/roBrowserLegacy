@@ -20,10 +20,13 @@ export const SPARK_TEXTURES = ['effect/pok1.tga', 'effect/pok3.tga'];
  *
  * @param {object} spark from planSparks
  * @param {object} [set] the effect's spark numbers (sparkSet; 543's by default)
+ * @param {object} [owner] the actor, for sparks that stay where they were left (set.stay)
  * @return {object}
  */
-export function sparkEffect(spark, set = sparkSet(543)) {
+export function sparkEffect(spark, set = sparkSet(543), owner = null) {
 	const color = set.color.map(c => c / 255);
+	// Where the actor stood when the spark was left: the spark keeps that place
+	let anchor = null;
 	return {
 		type: '3D',
 		fileList: SPARK_TEXTURES,
@@ -39,10 +42,22 @@ export function sparkEffect(spark, set = sparkSet(543)) {
 			if (!p) {
 				return null;
 			}
+			let dx = 0;
+			let dy = 0;
+			let dz = 0;
+			const at = set.stay && owner && owner.position;
+			if (at) {
+				if (!anchor) {
+					anchor = [at[0], at[1], at[2]];
+				}
+				dx = anchor[0] - at[0];
+				dy = anchor[1] - at[1];
+				dz = anchor[2] - at[2];
+			}
 			return {
-				x: p.x,
-				y: p.y,
-				z: p.z,
+				x: p.x + dx,
+				y: p.y + dy,
+				z: p.z + dz,
 				size: p.size,
 				angle: p.angle,
 				texture: p.texture,
@@ -67,7 +82,7 @@ export function readySparksRow(effectId) {
 		func: function (Params) {
 			planSparks(effectId).forEach((spark, i) => {
 				this.spamEffect({
-					effect: sparkEffect(spark, set),
+					effect: sparkEffect(spark, set, Params.Init.ownerEntity),
 					Inst: {
 						effectID: effectId,
 						duplicateID: i,
