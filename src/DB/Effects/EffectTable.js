@@ -27762,6 +27762,14 @@ export default {
 		}
 	],
 
+	// Expiatio (AB_EXPIATIO): 바실리카.wav when the use packet succeeds. See effect-port/arch-bishop-skills.md.
+	ef_ab_expiatio_sound: [
+		{
+			wav: 'effect/\xb9\xd9\xbd\xc7\xb8\xae\xc4\xab', // effect/바실리카
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
