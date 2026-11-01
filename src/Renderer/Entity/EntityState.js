@@ -64,6 +64,35 @@ function recalculateBlendingColor() {
  */
 const FLYING_JOBS = new Set([JobId.STAR, JobId.STAR_B, JobId.SKY_EMPEROR]);
 
+/**
+ * Options that put a job on its mount body.
+ */
+const RIDING_OPTIONS =
+	StatusConst.EffectState.RIDING |
+	StatusConst.EffectState.DRAGON1 |
+	StatusConst.EffectState.DRAGON2 |
+	StatusConst.EffectState.DRAGON3 |
+	StatusConst.EffectState.DRAGON4 |
+	StatusConst.EffectState.DRAGON5 |
+	StatusConst.EffectState.WUGRIDER |
+	StatusConst.EffectState.MADOGEAR;
+
+/**
+ * Body a job takes for its mount, or Union's flying body, or 0 for none.
+ * Star Gladiators change body only with the flying option (official 0xc43b10);
+ * riding alone leaves them as they are.
+ *
+ * @param {number} job
+ * @param {number} value effect state
+ * @return {number} body id, or 0
+ */
+function mountCostume(job, value) {
+	if (FLYING_JOBS.has(job)) {
+		return value & StatusConst.EffectState.FLYING ? MountTable[job] : 0;
+	}
+	return value & RIDING_OPTIONS && job in MountTable ? MountTable[job] : 0;
+}
+
 const _stateToVirtue = {};
 _stateToVirtue[StatusConst.Status.TWOHANDQUICKEN] = StatusConst.OPT3.QUICKEN;
 _stateToVirtue[StatusConst.Status.SPEARQUICKEN] = StatusConst.OPT3.QUICKEN;
@@ -395,25 +424,9 @@ function updateEffectState(value) {
 	// Riding
 	// ------------------------
 
-	const RIDING =
-		StatusConst.EffectState.RIDING |
-		StatusConst.EffectState.DRAGON1 |
-		StatusConst.EffectState.DRAGON2 |
-		StatusConst.EffectState.DRAGON3 |
-		StatusConst.EffectState.DRAGON4 |
-		StatusConst.EffectState.DRAGON5 |
-		StatusConst.EffectState.WUGRIDER |
-		StatusConst.EffectState.MADOGEAR;
-
-	if (value & RIDING) {
-		if (this._job in MountTable) {
-			costume = MountTable[this._job];
-		}
-	}
-
-	// Star Gladiator Union: the flying option draws the flying body (official 0xc43b10)
-	if (value & StatusConst.EffectState.FLYING && FLYING_JOBS.has(this._job)) {
-		costume = MountTable[this._job];
+	const mount = mountCostume(this._job, value);
+	if (mount) {
+		costume = mount;
 	}
 
 	// ------------------------
