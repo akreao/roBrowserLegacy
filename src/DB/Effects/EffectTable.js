@@ -117,6 +117,7 @@ import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { sightEffect } from 'DB/Effects/SightEffect.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
@@ -1281,55 +1282,8 @@ export default {
 		...detoxifyEffect
 	],
 
-	22: [
-		{
-			//EF_SIGHT	Sight
-			type: '3D',
-			shadowTexture: true,
-			alphaMax: 0.5,
-			attachedEntity: true,
-			blendMode: 8,
-			duration: 12200,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			nbOfRotation: 10,
-			posx: -2,
-			posz: 4,
-			playSprite: true,
-			rotateLate: 0.9,
-			rotateLateDelta: -0.1,
-			rotatePosX: 3,
-			rotatePosY: 3,
-			rotationClockwise: true,
-			size: 30,
-			sizeDelta: 10
-		},
-		{
-			type: '3D',
-			spriteName: 'sight',
-			alphaMax: 123 / 255,
-			alphaMaxDelta: 3 / 255,
-			attachedEntity: true,
-			blendMode: 8,
-			duration: 12200,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			nbOfRotation: 10,
-			posx: -2,
-			posz: 4,
-			playSprite: true,
-			rotateLate: 0.9,
-			rotateLateDelta: -0.1,
-			rotatePosX: 3,
-			rotatePosY: 3,
-			rotationClockwise: true,
-			size: 60,
-			sizeDelta: 20
-		},
-		{
-			wav: 'effect/ef_sight'
-		}
-	],
+	// EF_SIGHT, Sight: the official client's orbiting sight sprite and shadow (SightEffect.js)
+	22: sightEffect,
 
 	23: [
 		{
