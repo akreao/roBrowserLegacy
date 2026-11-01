@@ -63,6 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
@@ -26872,6 +26873,55 @@ export default {
 			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO) side flames: 1553 + 1554 (floor) at four points 15 units from the target,
+	// at 45 + 90 i degrees, as the damage arrives; they stay where they start. See effect-port/warlock-skills.md.
+	ef_wl_hellinferno_sub: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				const position = Params.Inst.position;
+				if (!position) {
+					return;
+				}
+				hellInfernoSubOffsets().forEach(([dx, dy]) => {
+					[1553, 1554].forEach(effectId => {
+						this.spam({
+							effectId,
+							position: [position[0] + dx, position[1] + dy, position[2]],
+							startTick: Params.Inst.startTick
+						});
+					});
+				});
+			}
+		}
+	],
+
+	1553: [
+		{
+			//(1553): CEZ2STREffect, new_hellInferno\\new_hellInferno_sub\\new_hellInferno_sub.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_sub/new_hellinferno_sub',
+			texturePath: 'new_hellinferno/new_hellinferno_sub/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_sub/new_hellinferno_sub',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub/',
+			attachedEntity: false
+		}
+	],
+
+	1554: [
+		{
+			//(1554): CEZ2STREffect, new_hellInferno\\new_hellInferno_sub_bottom\\new_hellInferno_sub_bottom.str
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_sub_bottom/',
+			min: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/new_hellinferno_sub_bottom',
+			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: false
 		}
 	],
 
