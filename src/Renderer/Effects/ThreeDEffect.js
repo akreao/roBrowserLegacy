@@ -63,8 +63,8 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
-		// Many instances of one row (particles): load the effect/ texture once and share it.
-		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
+		// Many instances of one row (particles): load the texture once and share it.
+		this.sharedTexture = !!effect.sharedTexture && !!effect.file;
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 		// The same for every picture of a `fileList`, when all of them are effect/ files.
@@ -442,13 +442,22 @@ class ThreeDEffect {
 			this.sharedTextureNames = this.textureNameList.map(name => name.slice('effect/'.length));
 			this.sharedTextureNames.forEach((name, i) => {
 				_sharedUsers.set(name, (_sharedUsers.get(name) || 0) + 1);
-				sharedTexture(_sharedTextures, gl, name, texture => {
-					this.textureList[i] = texture;
-					this.loadedTextures++;
-					if (this.loadedTextures == textureCount) {
-						this.ready = true;
+				sharedTexture(
+					_sharedTextures,
+					gl,
+					name,
+					texture => {
+						this.textureList[i] = texture;
+						this.loadedTextures++;
+						if (this.loadedTextures == textureCount) {
+							this.ready = true;
+						}
+					},
+					// A missing file: drop the effect instead of waiting for it forever
+					() => {
+						this.needCleanUp = true;
 					}
-				});
+				);
 			});
 		} else if (this.textureNameList.length > 0) {
 			const textureCount = this.textureNameList.length;
@@ -466,12 +475,23 @@ class ThreeDEffect {
 				});
 			}
 		} else if (this.sharedTexture) {
-			this.sharedTextureName = this.textureName.slice('effect/'.length);
+			this.sharedTextureName = /^effect\//.test(this.textureName)
+				? this.textureName.slice('effect/'.length)
+				: `data/texture/${this.textureName}`;
 			_sharedUsers.set(this.sharedTextureName, (_sharedUsers.get(this.sharedTextureName) || 0) + 1);
-			sharedTexture(_sharedTextures, gl, this.sharedTextureName, texture => {
-				this.texture = texture;
-				this.ready = true;
-			});
+			sharedTexture(
+				_sharedTextures,
+				gl,
+				this.sharedTextureName,
+				texture => {
+					this.texture = texture;
+					this.ready = true;
+				},
+				// A missing file: drop the effect instead of waiting for it forever
+				() => {
+					this.needCleanUp = true;
+				}
+			);
 		} else if (this.textureName) {
 			Client.loadFile(`data/texture/${this.textureName}`, buffer => {
 				WebGL.texture(gl, buffer, texture => {

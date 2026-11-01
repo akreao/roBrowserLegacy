@@ -8,7 +8,11 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Recognized Spell sound on success, white cast aura', () => {
 	it('matches the official client', () => {
-		expect(SkillEffect[SK.WL_RECOGNIZEDSPELL]).toEqual({ successEffectIdOnCaster: 'ef_wl_recognizedspell_sound', castAuraEffectId: 58 });
+		expect(SkillEffect[SK.WL_RECOGNIZEDSPELL]).toEqual({
+			successEffectIdOnCaster: 'ef_wl_recognizedspell_sound',
+			castAuraEffectId: 58,
+			beginCastEffectId: 803
+		});
 		expect(EffectTable.ef_wl_recognizedspell_sound).toEqual([{ wav: 'effect/wl_recognizedspell', attachedEntity: true }]);
 	});
 });

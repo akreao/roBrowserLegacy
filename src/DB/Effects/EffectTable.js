@@ -24,6 +24,7 @@ import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
 import FrostMistyEffect from 'DB/Effects/FrostMistyEffect.js';
 import StasisEffect from 'DB/Effects/StasisEffect.js';
 import { tetraFireLook } from 'DB/Effects/TetraFireEffect.js';
+import RecognizedSpellEffect from 'DB/Effects/RecognizedSpellEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
 import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
@@ -15850,12 +15851,7 @@ export default {
 		}
 	],
 
-	803: [
-		{
-			//EF_RECOGNIZED	   Recognized Spell
-			wav: 'effect/wl_recognizedspell'
-		}
-	],
+	// 803 EF_RECOGNIZED (Recognized Spell cast): RecognizedSpellEffect.js.
 
 	// EF_TETRA (Tetra Vortex Fire, on the caster as the damage arrives). kRO 2025-07-16, case 0xbbb218 with
 	// 0xc08f50: wizard_meteo.wav and hunter_blastmine.wav at once, wl_tetravortex.wav on ticks 10, 20, 50 and
@@ -29823,6 +29819,9 @@ export default {
 
 	// Stasis's blue flash and squares (799): StasisEffect.js.
 	...StasisEffect,
+
+	// Recognized Spell's cast icons (803): RecognizedSpellEffect.js.
+	...RecognizedSpellEffect,
 
 	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
 	...StarEmperorStatusEffects,
