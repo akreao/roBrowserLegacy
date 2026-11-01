@@ -217,6 +217,9 @@ class Renderer {
 	static onContextRestored(event) {
 		console.info('[Renderer] WebGL Context Restored! Re-initializing...');
 		this.contextLost = false;
+		// What was made on the lost context is gone: code that keeps GL objects
+		// between frames checks this to make them again (EffectManager)
+		this.contextGeneration = (this.contextGeneration || 0) + 1;
 
 		if (this.errorOverlay) {
 			this.errorOverlay.style.display = 'none';

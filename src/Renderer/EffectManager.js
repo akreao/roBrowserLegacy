@@ -69,6 +69,36 @@ const _list = {};
 const _classes = new Set();
 
 /**
+ * Renderer.contextGeneration the classes in _classes were set up on
+ *
+ * @type {number}
+ */
+let _contextGeneration = 0;
+
+/**
+ * After a lost WebGL context comes back, set every class up again on the
+ * next effect: its shaders and buffers went with the old context. Freeing
+ * them first lets init make new ones (deleting a lost object does nothing).
+ *
+ * @param {WebGLRenderingContext} gl
+ */
+function resetClassesAfterContextLoss(gl) {
+	const generation = Renderer.contextGeneration || 0;
+	if (generation === _contextGeneration) {
+		return;
+	}
+	_contextGeneration = generation;
+	_classes.forEach(constructor => {
+		if (constructor.free) {
+			constructor.free(gl);
+		}
+		constructor.ready = false;
+		constructor.needInit = true;
+	});
+	_classes.clear();
+}
+
+/**
  * @type {number} used to differenciate constructors
  */
 let _uniqueId = 1;
@@ -552,6 +582,8 @@ class EffectManager {
 			center = Session.Entity.position;
 		}
 		const area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
+
+		resetClassesAfterContextLoss(gl);
 		const cullDistanceSq = area_size * area_size;
 
 		for (i = 0; i < count; ++i) {

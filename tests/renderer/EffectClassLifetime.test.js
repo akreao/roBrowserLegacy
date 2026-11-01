@@ -90,3 +90,26 @@ describe('effect class lifetime', () => {
 		assert.deepEqual({ ...counts }, { init: 1, free: 1 });
 	});
 });
+
+describe('effect classes after a lost WebGL context', () => {
+	it('sets an idle class up again once the context is restored', () => {
+		const context = manager();
+		const { EffectManager, Renderer } = context;
+		const { Burst, counts } = effectClass();
+
+		EffectManager.add(new Burst(), {});
+		EffectManager.render({}, null, null, {}, 0, false);
+		assert.deepEqual({ ...counts }, { init: 1, free: 0 });
+
+		// Lost and restored between bursts
+		Renderer.contextGeneration = 1;
+		EffectManager.add(new Burst(), {});
+		EffectManager.render({}, null, null, {}, 0, false);
+		assert.deepEqual({ ...counts }, { init: 2, free: 1 });
+
+		// and only once
+		EffectManager.add(new Burst(), {});
+		EffectManager.render({}, null, null, {}, 0, false);
+		assert.deepEqual({ ...counts }, { init: 2, free: 1 });
+	});
+});
