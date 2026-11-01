@@ -29,6 +29,13 @@ const TEXTURE = 'ice.tga';
 let _program = null;
 
 /**
+ * The map's fog colour, kept to put back after glowing spikes, which fade to black in fog
+ * (fog must not add light).
+ */
+let _fogColor = null;
+const BLACK = new Float32Array([0, 0, 0]);
+
+/**
  * @var {WebGLTexture} ice.tga, shared by every spike effect
  */
 let _texture = null;
@@ -122,6 +129,7 @@ class IceSpikes {
 			this.color[1] = g / 255;
 			this.color[2] = b / 255;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+			gl.uniform3fv(_program.uniform.uFogColor, BLACK);
 		}
 
 		SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -145,6 +153,9 @@ class IceSpikes {
 
 		if (this.glow) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			if (_fogColor) {
+				gl.uniform3fv(_program.uniform.uFogColor, _fogColor);
+			}
 		}
 	}
 
@@ -180,6 +191,7 @@ class IceSpikes {
 		gl.uniform1f(uniform.uFogNear, fog.near);
 		gl.uniform1f(uniform.uFogFar, fog.far);
 		gl.uniform3fv(uniform.uFogColor, fog.color);
+		_fogColor = fog.color;
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
