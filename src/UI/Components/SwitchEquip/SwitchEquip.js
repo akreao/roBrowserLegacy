@@ -265,6 +265,20 @@ function isShown() {
 }
 
 /**
+ * The gear the swap preview shows, and where each sits on each tab
+ */
+const GEAR = ['accessory', 'accessory2', 'accessory3', 'robe'];
+const GEAR_LOCATIONS = {
+	general: [EquipLocation.HEAD_BOTTOM, EquipLocation.HEAD_TOP, EquipLocation.HEAD_MID, EquipLocation.GARMENT],
+	costume: [
+		EquipLocation.COSTUME_HEAD_BOTTOM,
+		EquipLocation.COSTUME_HEAD_TOP,
+		EquipLocation.COSTUME_HEAD_MID,
+		EquipLocation.COSTUME_ROBE
+	]
+};
+
+/**
  * Rendering character
  */
 const swaprender = (function swaprenderClosure() {
@@ -280,11 +294,12 @@ const swaprender = (function swaprenderClosure() {
 		save: false
 	};
 
-	// One character, made again only when the player's look changes: a new
+	// One character, made again only when the look or the gear changes: a new
 	// Entity each frame (with its canvases) made a garbage-collection pause
 	// every few seconds.
 	let swap_character = null;
 	const _look = {};
+	const _gear = [];
 
 	return function _renderFrame() {
 		// Equipment hides the window by its style, without stopping the render
@@ -292,7 +307,20 @@ const swaprender = (function swaprenderClosure() {
 			return;
 		}
 
+		// The gear the set shows on the current tab
+		const locations = GEAR_LOCATIONS[Equipment.getCurrentTabId()];
 		const look = Session.Entity;
+		let gearChanged = false;
+		for (let i = 0; i < GEAR.length; i++) {
+			const id = locations ? SwitchEquip.checkEquipLoc(locations[i]) : undefined;
+			if (_gear[i] !== id) {
+				_gear[i] = id;
+				gearChanged = true;
+			}
+		}
+
+		// Made again when the look or the gear changes: a character keeps the
+		// sprites of gear it wore until the new ones load.
 		if (
 			!swap_character ||
 			_look.GID !== look.GID ||
@@ -300,7 +328,8 @@ const swaprender = (function swaprenderClosure() {
 			_look.sex !== look.sex ||
 			_look.head !== look.head ||
 			_look.headpalette !== look.headpalette ||
-			_look.bodypalette !== look.bodypalette
+			_look.bodypalette !== look.bodypalette ||
+			gearChanged
 		) {
 			_look.GID = look.GID;
 			_look.job = look.job;
@@ -320,20 +349,11 @@ const swaprender = (function swaprenderClosure() {
 				headpalette: look.headpalette,
 				bodypalette: look.bodypalette
 			});
-		}
-
-		const currentEquipTabId = Equipment.getCurrentTabId();
-
-		if (currentEquipTabId === 'general') {
-			swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
-			swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_TOP);
-			swap_character.accessory3 = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_MID);
-			swap_character.robe = SwitchEquip.checkEquipLoc(EquipLocation.GARMENT);
-		} else if (currentEquipTabId === 'costume') {
-			swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
-			swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
-			swap_character.accessory3 = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
-			swap_character.robe = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_ROBE);
+			if (locations) {
+				for (let i = 0; i < GEAR.length; i++) {
+					swap_character[GEAR[i]] = _gear[i];
+				}
+			}
 		}
 
 		_savedColor.set(swap_character.effectColor);

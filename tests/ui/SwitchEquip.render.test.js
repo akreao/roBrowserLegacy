@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
 	sendPacket: vi.fn(),
 	session: { Entity: { GID: 150001, job: 4252, sex: 1, head: 2, headpalette: 0, bodypalette: 0 } },
 	entities: [],
+	inventory: { equipswitchlist: [] },
 	rendered: 0
 }));
 
@@ -60,7 +61,7 @@ vi.mock('Renderer/Entity/Entity.js', () => ({
 }));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({ default: {} }));
 vi.mock('UI/Components/Equipment/Equipment.js', () => ({ default: { getCurrentTabId: () => 'general' } }));
-vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: { equipswitchlist: [] } }));
+vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: mocks.inventory }));
 
 HTMLCanvasElement.prototype.getContext = function () {
 	return { canvas: this, clearRect() {} };
@@ -82,6 +83,7 @@ beforeEach(() => {
 	mocks.entities.length = 0;
 	mocks.rendered = 0;
 	mocks.session.Entity.job = 4252;
+	mocks.inventory.equipswitchlist = [];
 });
 
 it('draws nothing while the window is hidden', () => {
@@ -104,4 +106,33 @@ it('keeps one character across frames until the look changes', () => {
 	mocks.session.Entity.job = 4253;
 	frame();
 	expect(mocks.entities.at(-1).job).toBe(4253);
+});
+
+it('draws nothing while a parent window hides it', () => {
+	SwitchEquip._host.checkVisibility = () => false;
+	frame();
+	expect(mocks.rendered).toBe(0);
+	delete SwitchEquip._host.checkVisibility;
+	frame();
+	expect(mocks.rendered).toBe(2);
+});
+
+it("starts a fresh character when the set's gear changes", () => {
+	frame();
+	const first = mocks.entities.at(-1);
+	frame();
+	expect(mocks.entities.at(-1)).toBe(first);
+
+	// A headgear (HEAD_TOP, 256) put in the set
+	mocks.inventory.equipswitchlist = [{ location: 256, wItemSpriteNumber: 17 }];
+	frame();
+	const second = mocks.entities.at(-1);
+	expect(second).not.toBe(first);
+	expect(second.accessory2).toBe(17);
+
+	// and taken out again: no sprite of it left on the character drawn
+	mocks.inventory.equipswitchlist = [];
+	frame();
+	expect(mocks.entities.at(-1)).not.toBe(second);
+	expect(mocks.entities.at(-1).accessory2).toBe(0);
 });
