@@ -13,6 +13,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+import Events from 'Core/Events.js';
 import Renderer from 'Renderer/Renderer.js';
 import { UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 
@@ -69,7 +70,13 @@ export const judexLightsEffect = [
 			};
 			const wait = Params.Inst.startTick - Renderer.tick;
 			if (wait > 0) {
-				setTimeout(place, wait);
+				// Nothing after a map change (EffectManager.free moves the generation on)
+				const generation = this.generation;
+				Events.setTimeout(() => {
+					if (this.generation === generation) {
+						place();
+					}
+				}, wait);
 			} else {
 				place();
 			}
