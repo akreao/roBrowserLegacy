@@ -27872,6 +27872,22 @@ export default {
 		}
 	],
 
+	// Epiclesis (AB_EPICLESIS): with 1654 on the unit, for its life. The client (CRagEffect 0xbc1953, 0xc0dd90(29),
+	// primitive 63) lays a new ring of three flat green ring_white.tga bands every 100 ticks round the tree.
+	// See effect-port/epiclesis-rings.md.
+	1655: [
+		{
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(
+					new CastRing(Params.Inst.position, Params.Inst.startTick, 0, 'ring_white.tga', [], { epiclesis: true }),
+					Params
+				);
+			}
+		}
+	],
+
 	// Oratio (AB_ORATIO): 725 on the caster when the use packet succeeds. The client draws it with Detect's burst helper
 	// (variant 2): priest_benedictio.wav on tick 0 and the same white fashasha.tga square as Detect (119), same timing,
 	// no tint. See effect-port/arch-bishop-skills.md.
