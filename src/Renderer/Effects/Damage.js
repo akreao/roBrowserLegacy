@@ -87,9 +87,10 @@ function framesId(numbersData) {
  * @param {Damage} damage
  */
 function releaseNumberTexture(gl, damage) {
-	const entry = _numberTextures.get(damage.textureKey);
-	damage.textureKey = null;
-	if (!entry || --entry.users > 0) {
+	const entry = damage.textureEntry;
+	damage.textureEntry = null;
+	// An entry from before a lost context is no longer counted
+	if (!entry || _numberTextures.get(entry.key) !== entry || --entry.users > 0) {
 		return;
 	}
 	_idleTextures.add(entry.key);
@@ -577,7 +578,7 @@ class Damage {
 		obj.texture = entry.texture;
 		obj.width = entry.width;
 		obj.height = entry.height;
-		obj.textureKey = textureKey;
+		obj.textureEntry = entry;
 
 		let hitSound;
 		if (entity.objecttype === Entity.TYPE_PC) {
@@ -647,7 +648,7 @@ class Damage {
 
 			// Remove it from list, time passed.
 			if (damage.startTick + damage.delay < tick) {
-				if (damage.textureKey) {
+				if (damage.textureEntry) {
 					releaseNumberTexture(gl, damage);
 				}
 				_list.splice(i, 1);

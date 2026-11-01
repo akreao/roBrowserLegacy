@@ -132,3 +132,25 @@ describe('damage number textures, kept apart', () => {
 		assert.equal(gl.created, 2);
 	});
 });
+
+describe('damage numbers from before a lost context', () => {
+	it('leave the new texture of the same number alone when they go', () => {
+		const { Damage, gl, Renderer } = load();
+		Damage.add(1234, monster(), 0);
+		Renderer.contextGeneration = 1;
+		Damage.add(1234, monster(), 1000); // the same number, a new texture
+		// Fill the unused list, then the old number goes
+		for (let i = 0; i < 64; i++) {
+			Damage.add(2000 + i, monster(), 0);
+		}
+		Damage.render(gl, null, null, {}, 2000);
+		const deletedBefore = gl.deleted;
+		Damage.add(9999, monster(), 0);
+		Damage.render(gl, null, null, {}, 2000);
+		// The new 1234 is still shown, so still cached: no new texture for it
+		const created = gl.created;
+		Damage.add(1234, monster(), 2000);
+		assert.equal(gl.created, created);
+		assert.ok(gl.deleted >= deletedBefore);
+	});
+});
