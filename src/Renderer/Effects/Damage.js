@@ -420,7 +420,7 @@ class Damage {
 		let width = 0;
 		let height = 0;
 		const gl = Renderer.gl;
-		const textureKey = framesId(numbersData) + ':' + numbers.join(',');
+		const textureKey = `${framesId(numbersData)}:${numbers.join(',')}`;
 
 		// Textures made before a lost context came back are gone with it
 		const generation = Renderer.contextGeneration || 0;
