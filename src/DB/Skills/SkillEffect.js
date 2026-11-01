@@ -1063,7 +1063,7 @@ SkillEffect[SK.AB_DUPLELIGHT] = { successEffectId: 'ef_duplelight' }; //Duple Li
 SkillEffect[SK.AB_DUPLELIGHT_MELEE] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Melee: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
 SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Magic: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
 SkillEffect[SK.AB_SILENTIUM] = { successEffectId: 87 }; //Silentium: 87 (Lex Divina) on each target on success
-SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
+SkillEffect[SK.AB_SECRAMENT] = { castAuraEffectId: 58, successEffectId: ['ef_ab_secrament_sound', 1287] }; //Sacrament: cast aura 58; priest_suffragium.wav + 1287 on each target on success
 // RA Ranger
 SkillEffect[SK.RA_ARROWSTORM] = { arrivalEffectIdOnOtherTarget: ['ef_ra_arrowstorm_sound', 1293, 1294] }; //Arrow Storm: arrowstorm.wav + 1293, then 1294 three times (600 / 800 / 1000 ms), on each target but the caster as the damage arrives
 SkillEffect[SK.RA_FEARBREEZE] = { successEffectIdOnCaster: 1549 }; //Fear Breeze: 1549 on the caster on success

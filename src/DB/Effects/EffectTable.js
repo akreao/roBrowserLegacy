@@ -25373,15 +25373,6 @@ export default {
 		}
 	],
 
-	// Secrament (AB_SECRAMENT), from the client's own effect folders.
-	ef_ab_secrament: [
-		{
-			type: 'STR',
-			file: 'new_secrament/new_secrament/new_secrament',
-			texturePath: 'new_secrament/new_secrament/'
-		}
-	],
-
 	// Vulcan Arm (NC_VULCANARM), from the client's own effect folders.
 	ef_nc_vulcanarm: [
 		{
@@ -27766,6 +27757,27 @@ export default {
 	ef_ab_expiatio_sound: [
 		{
 			wav: 'effect/\xb9\xd9\xbd\xc7\xb8\xae\xc4\xab', // effect/바실리카
+			attachedEntity: true
+		}
+	],
+
+	// Sacrament (AB_SECRAMENT): priest_suffragium.wav on the target when the use packet succeeds. See effect-port/arch-bishop-skills.md.
+	ef_ab_secrament_sound: [
+		{
+			wav: 'effect/priest_suffragium',
+			attachedEntity: true
+		}
+	],
+
+	// Sacrament (AB_SECRAMENT): on the target when the use packet succeeds; 1453 under /mineffect. See effect-port/arch-bishop-skills.md.
+	1287: [
+		{
+			//(1287): CEZ2STREffect, new_secrament\\new_secrament\\new_secrament.str
+			type: 'STR',
+			file: 'new_secrament/new_secrament/new_secrament',
+			texturePath: 'new_secrament/new_secrament/',
+			min: 'mineffect/new_secrament/new_secrament/new_secrament',
+			minTexturePath: 'mineffect/new_secrament/new_secrament/',
 			attachedEntity: true
 		}
 	],
