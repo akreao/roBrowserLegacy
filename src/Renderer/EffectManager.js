@@ -224,6 +224,8 @@ function spamSprite(Params) {
 	entity.attachments.add({
 		uid: uid,
 		file: Params.effect.file,
+		// A sprite outside data/sprite/이팩트 (path without the extension)
+		completeFile: Params.effect.completeFile,
 		head: !!Params.effect.head,
 		direction: !!Params.effect.direction,
 		repeat: Params.effect.repeat || Params.Inst.persistent,

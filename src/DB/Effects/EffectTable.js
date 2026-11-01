@@ -15754,7 +15754,21 @@ export default {
 	],
 
 	//796: [{}],	//EF_GTHUNDER	   Spinning blue triangles
-	//797: [{}],	//EF_STONERING	   Stapo
+	797: [
+		{
+			//EF_STONERING	   Sienna Execrate (Stapo), on the target
+			// Official client (kRO 2025-07-16, CRagEffect 0xbbb473, builder 0xbe4480 variant 60): wl_siennaexecrate.wav
+			// on tick 0 and the 몬스터\\stapo sprite 8 units up, action 0 or 1 at random, 4 ticks a frame, played once.
+			type: 'SPR',
+			completeFile: 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/stapo',
+			frame: [0, 1],
+			delayFrame: 4 * (1000 / 60),
+			yOffset: -8 * 7,
+			stackable: true,
+			attachedEntity: true,
+			wav: 'effect/wl_siennaexecrate'
+		}
+	],
 	//798: [{}],	//EF_INTIMIDATE2	   Red triangles (like Intimidate)
 	799: [
 		{
@@ -21263,13 +21277,6 @@ export default {
 					fadeOut: 170
 				}
 			]
-		}
-	],
-
-	ef_siennaexecrate: [
-		{
-			wav: 'effect/wl_siennaexecrate',
-			attachedEntity: true
 		}
 	],
 
