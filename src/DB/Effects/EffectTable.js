@@ -28334,6 +28334,26 @@ export default {
 		}
 	],
 
+	// Tuna Party (status TUNAPARTY): effect 1097, CTunaPartyEffect in the official client
+	// (kRO 2025-07-16, 0x6d9700 / 0x6d97b0). One su_tunaparty.spr circles the actor 10 units
+	// out and 10 up, turning 0.05 radians a tick, its animation looping at 8 ticks a frame.
+	// The effect lives 9999 ticks; the status row removes it when the status ends.
+	1097: [
+		{
+			type: '3D',
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/su_tunaparty/su_tunaparty',
+			playSprite: true,
+			sprDelay: (8 * 1000) / 60,
+			attachedEntity: true,
+			alphaMax: 1,
+			duration: 9999 * PRIM_TICK_MS,
+			track(age) {
+				const turn = 0.05 * (age + 1);
+				return { x: (Math.cos(turn) * 10) / 5, y: (Math.sin(turn) * 10) / 5, z: 10 / 5 };
+			}
+		}
+	],
+
 	// Picky Peck (SU_PICKYPECK), from the client's own effect folders.
 	ef_su_pickypeck: [
 		{
