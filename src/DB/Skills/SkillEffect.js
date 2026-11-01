@@ -1024,7 +1024,7 @@ SkillEffect[SK.WL_SUMMON_ATK_WIND] = { arrivalEffectIdOnTarget: 52 }; //Summon A
 SkillEffect[SK.WL_SUMMON_ATK_WATER] = { arrivalEffectIdOnTarget: 51 }; //Summon Attack Water: 51 on the target as the damage arrives
 SkillEffect[SK.WL_SUMMON_ATK_GROUND] = { arrivalEffectIdOnTarget: 147 }; //Summon Attack Earth: 147 on the target as the damage arrives
 SkillEffect[SK.WL_SUMMONSTONE] = { hideCastAura: true, beginCastEffectId: [1260, 'ef_wl_summon_cast_sound'] }; //Summon Stone: tetra_cast.str for the cast (the client aura 1260) and EF_BeginSpell.wav
-SkillEffect[SK.WL_RELEASE] = { effectId: 751 }; //Release //CHECK Should it be left to do multi hit or single hit?
+SkillEffect[SK.WL_RELEASE] = { successEffectIdOnCaster: 751 }; //Release: 751 on the caster, aimed at the target, on success
 SkillEffect[SK.WL_READING_SB] = { castAuraEffectId: 58 }; //Reading Spellbook: white cast aura
 // GC Guillotine Cross
 SkillEffect[SK.GC_VENOMIMPRESS] = { effectId: 788 }; //Venom Impress
