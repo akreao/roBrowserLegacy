@@ -77,6 +77,7 @@ import {
 import { hundredSpearEffect, hundredSpearDashEffect, aimedSprite } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
+import DupleLight from 'Renderer/Effects/DupleLight.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
 import { RING_FRAMES, RING_TICK_MS } from 'Renderer/Effects/AcidDemonRingSim.js';
 import {
@@ -93,7 +94,6 @@ import { carrotBeatEffects } from 'DB/Effects/CarrotBeatEffect.js';
 import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
-import DupleLight from 'Renderer/Effects/DupleLight.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
 
 /** Textures of the 2025 streak builder's variants (0xbdf6e0). */
