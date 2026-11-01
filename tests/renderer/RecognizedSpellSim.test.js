@@ -33,7 +33,7 @@ describe('Recognized Spell cast icons (803)', () => {
 
 	it('uses the skill icon, untinted, normal blending', () => {
 		expect(iconFile(SK.MG_COLDBOLT)).toBe('\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/mg_coldbolt.bmp');
-		expect(iconCopyEffect('x.bmp', 3)).toMatchObject({ file: 'x.bmp', blendMode: 8 });
+		expect(iconCopyEffect('x.bmp', 3)).toMatchObject({ file: 'x.bmp', sharedTexture: true, blendMode: 8 });
 		const spammed = [];
 		EffectTable[803][0].func.call({ spamEffect: p => spammed.push(p) }, { Init: {}, Inst: { startTick: 0 } });
 		expect(spammed).toHaveLength(100);

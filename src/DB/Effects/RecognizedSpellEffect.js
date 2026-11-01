@@ -45,6 +45,7 @@ export function iconCopyEffect(file, j) {
 	return {
 		type: '3D',
 		file,
+		sharedTexture: true,
 		alphaMax: 1,
 		blendMode: 8,
 		attachedEntity: true,

@@ -63,8 +63,8 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
-		// Many instances of one row (particles): load the effect/ texture once and share it.
-		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
+		// Many instances of one row (particles): load the texture once and share it.
+		this.sharedTexture = !!effect.sharedTexture && !!effect.file;
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 		// The same for every picture of a `fileList`, when all of them are effect/ files.
@@ -466,7 +466,9 @@ class ThreeDEffect {
 				});
 			}
 		} else if (this.sharedTexture) {
-			this.sharedTextureName = this.textureName.slice('effect/'.length);
+			this.sharedTextureName = /^effect\//.test(this.textureName)
+				? this.textureName.slice('effect/'.length)
+				: `data/texture/${this.textureName}`;
 			_sharedUsers.set(this.sharedTextureName, (_sharedUsers.get(this.sharedTextureName) || 0) + 1);
 			sharedTexture(_sharedTextures, gl, this.sharedTextureName, texture => {
 				this.texture = texture;

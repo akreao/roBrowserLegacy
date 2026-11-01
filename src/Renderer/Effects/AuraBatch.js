@@ -476,7 +476,8 @@ export function sharedTexture(cache, gl, name, onload, onerror) {
 		entry = { texture: null, failed: false, waiting: [] };
 		cache.set(name, entry);
 		Client.loadFile(
-			`data/texture/effect/${name}`,
+			// A name starting with data/ is a whole path; anything else is under data/texture/effect/
+			name.startsWith('data/') ? name : `data/texture/effect/${name}`,
 			buffer => {
 				WebGL.texture(gl, buffer, texture => {
 					if (cache.get(name) !== entry) {
