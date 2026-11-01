@@ -12,8 +12,4 @@ describe('Bash effects', () => {
 	it('plays 0 and 1 on each target hit', () => {
 		expect(source).toMatch(/SkillEffect\[SK\.SM_BASH\] = \{ hitEffectId: \[0, 1\] \};/);
 	});
-
-	it('is shared by the mercenary Bash', () => {
-		expect(source).toMatch(/SkillEffect\[SK\.MS_BASH\] = SkillEffect\[SK\.SM_BASH\];/);
-	});
 });

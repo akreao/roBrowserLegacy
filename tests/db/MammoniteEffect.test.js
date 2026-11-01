@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { COIN, planCoins, flyCoin, coinAt, coinTrailAt } from '../../src/Renderer/Effects/MammoniteCoinSim.js';
 import { mammoniteEffect, coinEffect } from '../../src/DB/Effects/MammoniteEffect.js';
+import MapPreferences from '../../src/Preferences/Map.js';
 
 // Mammonite (MC_MAMMONITE, skill 42): when the hit lands, 0 (hit flash) on the target on every hit
 // and 10 with the first hit of the damage packet (kRO 2025-07-16).
@@ -91,5 +92,19 @@ describe('Mammonite coins', () => {
 		spawned
 			.filter(p => p.effect.wav)
 			.forEach(p => expect(p.Inst.startTick).toBeGreaterThan(1000 + 20 * TICK));
+	});
+
+	it('throws no coins under /mineffect', () => {
+		const spawned = [];
+		MapPreferences.mineffect = true;
+		try {
+			mammoniteEffect[1].func.call(
+				{ spamEffect: p => spawned.push(p) },
+				{ Init: { ownerEntity: { position: [1, 2, 0] } }, Inst: { startTick: 1000 } }
+			);
+		} finally {
+			MapPreferences.mineffect = false;
+		}
+		expect(spawned).toHaveLength(0);
 	});
 });
