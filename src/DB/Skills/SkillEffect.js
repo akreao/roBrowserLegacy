@@ -1506,7 +1506,7 @@ SkillEffect[SK.SHC_FATAL_SHADOW_CROW] = {
 }; //Fatal Shadow Crow
 SkillEffect[6511 /* SHC_CROSS_SLASH */] = { effectId: 'ef_shc_cross_slash' }; //Cross Slash
 SkillEffect[SK.GC_DARKCROW] = { effectId: 1040 }; //Dark Claw
-SkillEffect[SK.RA_UNLIMIT] = { effectId: 'ef_ra_unlimit' }; //Unlimited
+SkillEffect[SK.RA_UNLIMIT] = { successEffectIdOnCaster: 'ef_ra_unlimit' }; //Unlimit: EZ2 unlimit + unlimit_bottom (ra_unlimit.wav) on the caster on success
 SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
 SkillEffect[5307 /* BO_ACIDIFIED_ZONE_WATER_ATK */] = { effectId: 'ef_bo_acidified_zone_water_atk' }; //Actified Zone Water Attack
 SkillEffect[5308 /* BO_ACIDIFIED_ZONE_GROUND_ATK */] = { effectId: 'ef_bo_acidified_zone_ground_atk' }; //Actified Zone Ground Attack

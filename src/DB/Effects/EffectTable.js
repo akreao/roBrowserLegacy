@@ -27711,19 +27711,26 @@ export default {
 		}
 	],
 
-	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
+	// Unlimit (RA_UNLIMIT): the client's EZ2 rows unlimit and unlimit_bottom (PosY 12, the bottom one a floor
+	// effect, ra_unlimit.wav on the top one), on the caster when the use packet succeeds. See effect-port/ranger-skills.md.
 	ef_ra_unlimit: [
 		{
 			type: 'STR',
-			file: 'new_unlimit/new_unlimit/new_unlimit',
-			texturePath: 'new_unlimit/new_unlimit/',
-			wav: 'ra_unlimit'
+			file: 'ranger/unlimit/unlimit/unlimit',
+			texturePath: 'ranger/unlimit/unlimit/',
+			min: 'ranger/unlimit/unlimit/min_unlimit',
+			wav: 'effect/ra_unlimit',
+			yOffset: 12,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
-			file: 'new_unlimit/new_unlimit_bottom/new_unlimit_bottom',
-			texturePath: 'new_unlimit/new_unlimit_bottom/',
-			renderBeforeEntities: true
+			file: 'ranger/unlimit/unlimit_bottom/unlimit_bottom',
+			texturePath: 'ranger/unlimit/unlimit_bottom/',
+			min: 'ranger/unlimit/unlimit_bottom/min_unlimit_bottom',
+			yOffset: 12,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
