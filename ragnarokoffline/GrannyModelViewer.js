@@ -358227,13 +358227,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 			let serverDuration = 0;
 			if (!isFastMove && !isPrediction) {
 				if (moveEndTime && moveStartTime && moveEndTime > moveStartTime) serverDuration = moveEndTime - moveStartTime;
-				else if (usedFallback || curCellX === from_x && curCellY === from_y) serverDuration = gridPathDuration(path, total, this.walk.speed);
-				else {
-					const sDx = Math.abs(to_x - from_x);
-					const sDy = Math.abs(to_y - from_y);
-					const diag = Math.min(sDx, sDy);
-					serverDuration = (Math.max(sDx, sDy) - diag) * this.walk.speed + diag * this.walk.speed * DIAGONAL_FACTOR;
-				}
+				else serverDuration = serverPathDuration(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, total, usedFallback || curCellX === from_x && curCellY === from_y ? 0 : octileCost(curCellX - from_x, curCellY - from_y, 1), this.walk.speed);
 			}
 			const nowTick = Date.now();
 			this.walk.tick = this.walk.prevTick = nowTick;
@@ -358247,13 +358241,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 			let serverDuration = 0;
 			if (!isFastMove) {
 				if (moveEndTime && moveStartTime && moveEndTime > moveStartTime) serverDuration = moveEndTime - moveStartTime;
-				else {
-					const sDx = to_x - from_x;
-					const sDy = to_y - from_y;
-					const straight = Math.abs(Math.abs(sDx) - Math.abs(sDy));
-					const diag = Math.min(Math.abs(sDx), Math.abs(sDy));
-					serverDuration = straight * this.walk.speed + diag * this.walk.speed * DIAGONAL_FACTOR;
-				}
+				else serverDuration = serverPathDuration(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, total, usedFallback || curCellX === from_x && curCellY === from_y ? 0 : octileCost(curCellX - from_x, curCellY - from_y, 1), this.walk.speed);
 			}
 			const nowTick = Date.now();
 			const isPlayerLike = this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC;
@@ -358297,6 +358285,43 @@ function gridPathDuration(path, total, speed) {
 		duration += diagonal ? speed * DIAGONAL_FACTOR : speed;
 	}
 	return duration;
+}
+/**
+* Cost of the shortest walk between two cells on open ground.
+*
+* @param {number} dx
+* @param {number} dy
+* @param {number} speed ms per cell
+* @returns {number} ms
+*/
+function octileCost(dx, dy, speed) {
+	const ax = Math.abs(dx);
+	const ay = Math.abs(dy);
+	const diag = Math.min(ax, ay);
+	return (Math.max(ax, ay) - diag) * speed + diag * speed * DIAGONAL_FACTOR;
+}
+/**
+* How long the server takes to walk from its start cell to the destination.
+* Move packets carry no end time, so this is the cost of the server's path,
+* which goes around walls as the client's does. A straight line between the
+* two cells undercounts any detour, and fitting the longer path drawn into it
+* made a walk around an obstacle several times too fast.
+*
+* `path` is the path the client found. When it starts on the server's start
+* cell (`offset` 0) it is the server's path. From another cell, `offset` is
+* the open-ground distance between the two, in cells. A drawn path no longer
+* than the straight line plus that offset bends around nothing, and the
+* straight line stands in for the server's path; a longer one goes round
+* something, and the server's own path is searched for.
+*
+* @returns {number} ms
+*/
+function serverPathDuration(from_x, from_y, to_x, to_y, range, path, total, offset, speed) {
+	if (!offset) return gridPathDuration(path, total, speed);
+	const straight = octileCost(to_x - from_x, to_y - from_y, speed);
+	if (gridPathDuration(path, total, speed) <= straight + offset * speed + 1) return straight;
+	const serverTotal = PathFinding_default.search(from_x, from_y, to_x, to_y, range, _serverPath);
+	return serverTotal ? gridPathDuration(_serverPath, serverTotal, speed) : straight;
 }
 /**
 * Whether a move reply answers a request older than the newest one predicted.
