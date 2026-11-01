@@ -16,7 +16,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 import StatusState from 'DB/Status/StatusState.js';
 import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
-import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
+import { hasElementCastAura, fixedCastAura } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
 import { autoCounterBarMs } from 'DB/Skills/AutoCounterBar.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
@@ -2031,8 +2031,10 @@ function onEntityCastSkill(pkt) {
 
 		// Some skills always use the same cast aura, whatever the packet's element.
 		// A list plays each of its effects for the cast time.
+		// A fixed aura 12 still shows the element aura (CastAuraRule.fixedCastAura).
 		if (castSkill && castSkill.castAuraEffectId) {
 			[castSkill.castAuraEffectId].flat().forEach(effectId => {
+				effectId = fixedCastAura(effectId, pkt.property, EF_Init_Par.effectId);
 				EffectManager.spam({ ...EF_Init_Par, effectId });
 			});
 		} else {
