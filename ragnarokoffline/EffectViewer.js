@@ -218726,7 +218726,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$14)) return {
+	if (u(s, r$15)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -221152,7 +221152,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$14, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$15, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -221172,7 +221172,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$14 = [
+	r$15 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -290229,10 +290229,10 @@ function planSparks$2(effectId, random = Math.random) {
 	const window = SPARK_WINDOWS[effectId];
 	const sparks = [];
 	for (let tick = window.from; tick <= window.to; tick += SPARK$1.every) for (let k = 0; k < SPARK$1.perPrim; k++) {
-		const size = 2 + r$13(random, 10) * .1;
-		const x = r$13(random, SPARK$1.scatter) - 5;
-		const z = r$13(random, SPARK$1.scatter) - 5;
-		const rise = r$13(random, 20) * .01 + .1;
+		const size = 2 + r$14(random, 10) * .1;
+		const x = r$14(random, SPARK$1.scatter) - 5;
+		const z = r$14(random, SPARK$1.scatter) - 5;
+		const rise = r$14(random, 20) * .01 + .1;
 		sparks.push({
 			spawn: tick,
 			k,
@@ -290280,7 +290280,7 @@ function sparkAt$1(spark, age) {
 		alpha
 	};
 }
-var SPARK$1, SPARK_WINDOWS, r$13, SPARK_LIFE;
+var SPARK$1, SPARK_WINDOWS, r$14, SPARK_LIFE;
 var init_ReadySparkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	SPARK$1 = {
@@ -290308,7 +290308,7 @@ var init_ReadySparkSim = __esmMin((() => {
 			to: 120
 		}
 	};
-	r$13 = (random, k) => Math.floor(random() * k);
+	r$14 = (random, k) => Math.floor(random() * k);
 	SPARK_LIFE = (() => {
 		let n = 1;
 		while (sparkAlpha(n) >= 0) n++;
@@ -290660,10 +290660,10 @@ function createSphere(effectId, random = Math.random) {
 	const colors = SPHERE_COLORS[effectId] || SPHERE_COLORS[1199];
 	const rays = [];
 	for (let group = 0; group < SPHERE.groups; group++) for (let i = 0; i < SPHERE.raysPerGroup; i++) {
-		const t = r$12(random, 360);
-		const s = r$12(random, 360);
-		const q = r$12(random, 360);
-		const color = colors.rays[r$12(random, 2)];
+		const t = r$13(random, 360);
+		const s = r$13(random, 360);
+		const q = r$13(random, 360);
+		const color = colors.rays[r$13(random, 2)];
 		rays.push({
 			group,
 			t,
@@ -290700,7 +290700,7 @@ function stepSphere(sphere) {
 	for (const ray of sphere.rays) {
 		if (ray.size < SPHERE.rayMax) ray.size *= SPHERE.rayGrowth;
 		if (ray.age > SPHERE.rayFadeOut) ray.alpha = Math.max(ray.alpha - 1, 0);
-		ray.q = (ray.q + 1 + r$12(sphere.random, 2)) % 360;
+		ray.q = (ray.q + 1 + r$13(sphere.random, 2)) % 360;
 		ray.age++;
 	}
 	sphere.ticks++;
@@ -290772,7 +290772,7 @@ function centerAt(age) {
 		alpha
 	};
 }
-var SPHERE, SPHERE_COLORS, r$12, rad$6, CENTER_LIFE;
+var SPHERE, SPHERE_COLORS, r$13, rad$6, CENTER_LIFE;
 var init_LightSphereSim = __esmMin((() => {
 	SPHERE = {
 		centers: 4,
@@ -290839,7 +290839,7 @@ var init_LightSphereSim = __esmMin((() => {
 			]]
 		}
 	};
-	r$12 = (random, k) => Math.floor(random() * k);
+	r$13 = (random, k) => Math.floor(random() * k);
 	rad$6 = (deg) => deg * Math.PI / 180;
 	CENTER_LIFE = SPHERE.centerFadeOut + 255;
 }));
@@ -291825,8 +291825,8 @@ var init_Songs = __esmMin((() => {
 function planFountain(random = Math.random) {
 	const out = [];
 	for (const spawn of FOUNTAIN.bursts) for (let i = 0; i < FOUNTAIN.count; i++) {
-		const gravity = r$11(random, 10) / 1e3 + FOUNTAIN.gravity;
-		const heading = r$11(random, 360) * Math.PI / 180;
+		const gravity = r$12(random, 10) / 1e3 + FOUNTAIN.gravity;
+		const heading = r$12(random, 360) * Math.PI / 180;
 		out.push({
 			spawn,
 			heading,
@@ -291866,7 +291866,7 @@ function particleAt(p, age) {
 		alpha: fountainAlpha(n)
 	};
 }
-var FOUNTAIN, r$11;
+var FOUNTAIN, r$12;
 var init_RemoveTrapSim = __esmMin((() => {
 	FOUNTAIN = {
 		bursts: [0, 7],
@@ -291879,7 +291879,7 @@ var init_RemoveTrapSim = __esmMin((() => {
 		alpha: 254,
 		fadeTick: 35
 	};
-	r$11 = (random, k) => Math.floor(random() * k);
+	r$12 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/RemoveTrapEffect.js
 /**
@@ -292123,13 +292123,13 @@ var init_LockOnTarget = __esmMin((() => {
 */
 function createStreak$2(prim, dir, distance, random = Math.random) {
 	const r = (k) => Math.floor(random() * k);
-	const delay = STREAK$1.delay + r(STREAK$1.delayRange);
-	const sx = r(100) * .08 - STREAK$1.jitter;
-	const sz = r(100) * .08 - STREAK$1.jitter;
-	const back = r(STREAK$1.backRange) * STREAK$1.backStep;
-	const radius = r(11) * STREAK$1.radiusStep + STREAK$1.radius;
-	const height = r(100) * STREAK$1.heightStep + STREAK$1.height;
-	const length = r(100) * STREAK$1.extraStep + distance;
+	const delay = STREAK$2.delay + r(STREAK$2.delayRange);
+	const sx = r(100) * .08 - STREAK$2.jitter;
+	const sz = r(100) * .08 - STREAK$2.jitter;
+	const back = r(STREAK$2.backRange) * STREAK$2.backStep;
+	const radius = r(11) * STREAK$2.radiusStep + STREAK$2.radius;
+	const height = r(100) * STREAK$2.heightStep + STREAK$2.height;
+	const length = r(100) * STREAK$2.extraStep + distance;
 	const ax = sx - dir[0] * back;
 	const az = sz - dir[1] * back;
 	return {
@@ -292150,13 +292150,13 @@ function createStreak$2(prim, dir, distance, random = Math.random) {
 * @param {number} tick effect tick
 * @return {number}
 */
-function streakAlpha(streak, tick) {
+function streakAlpha$1(streak, tick) {
 	const age = tick - streak.prim;
 	if (age < 0 || age >= VULCAN.life) return 0;
 	const k = age - streak.delay;
 	if (k <= 0) return 0;
-	if (k <= STREAK$1.riseTicks) return k * STREAK$1.rise;
-	return Math.max(0, STREAK$1.riseTicks * STREAK$1.rise - (k - STREAK$1.riseTicks) * STREAK$1.fall);
+	if (k <= STREAK$2.riseTicks) return k * STREAK$2.rise;
+	return Math.max(0, STREAK$2.riseTicks * STREAK$2.rise - (k - STREAK$2.riseTicks) * STREAK$2.fall);
 }
 /**
 * The ring of a tube end: `sides + 1` points around the line, in units
@@ -292172,8 +292172,8 @@ function ring(dir, radius, height) {
 	const px = -dir[1];
 	const pz = dir[0];
 	const out = [];
-	for (let k = 0; k <= STREAK$1.sides; k++) {
-		const a = k * 360 / STREAK$1.sides * (Math.PI / 180);
+	for (let k = 0; k <= STREAK$2.sides; k++) {
+		const a = k * 360 / STREAK$2.sides * (Math.PI / 180);
 		const s = radius * Math.cos(a);
 		out.push([
 			s * px,
@@ -292204,14 +292204,14 @@ function aim(from, to, unitsPerCell) {
 		distance
 	};
 }
-var VULCAN, STREAK$1, LAST_TICK$1;
+var VULCAN, STREAK$2, LAST_TICK$1;
 var init_ArrowVulcanSim = __esmMin((() => {
 	VULCAN = {
 		prims: 9,
 		perPrim: 4,
 		life: 200
 	};
-	STREAK$1 = {
+	STREAK$2 = {
 		delay: 30,
 		delayRange: 110,
 		jitter: 4,
@@ -292277,10 +292277,10 @@ var init_ArrowVulcan = __esmMin((() => {
 	});
 	_textures$15 = /* @__PURE__ */ new Map();
 	TEXTURE$9 = "alpha_center.tga";
-	R = STREAK$1.color[0] / 255;
-	G = STREAK$1.color[1] / 255;
-	B = STREAK$1.color[2] / 255;
-	SIDES$2 = STREAK$1.sides;
+	R = STREAK$2.color[0] / 255;
+	G = STREAK$2.color[1] / 255;
+	B = STREAK$2.color[2] / 255;
+	SIDES$2 = STREAK$2.sides;
 	TUBE_VERTICES$1 = SIDES$2 * 4;
 	TUBE_INDICES$1 = new Uint16Array(SIDES$2 * 6);
 	for (let k = 0; k < SIDES$2; k++) {
@@ -292318,7 +292318,7 @@ var init_ArrowVulcan = __esmMin((() => {
 			for (let p = 0; p < VULCAN.prims; p++) for (let i = 0; i < VULCAN.perPrim; i++) {
 				const streak = createStreak$2(p, dir, distance, random);
 				streak.inner = tubeVertices(streak, dir, streak.radius);
-				streak.outer = tubeVertices(streak, dir, streak.radius + STREAK$1.glow);
+				streak.outer = tubeVertices(streak, dir, streak.radius + STREAK$2.glow);
 				this.streaks.push(streak);
 			}
 		}
@@ -292347,7 +292347,7 @@ var init_ArrowVulcan = __esmMin((() => {
 			const oy = -pos[2];
 			const oz = pos[1] + .5;
 			for (const streak of this.streaks) {
-				const alpha = streakAlpha(streak, t);
+				const alpha = streakAlpha$1(streak, t);
 				if (alpha <= 0) continue;
 				const x = ox + streak.ax / 5;
 				const z = oz + streak.az / 5;
@@ -293070,11 +293070,11 @@ var init_ColdHit = __esmMin((() => {
 function planHitLines(random = Math.random) {
 	const out = [];
 	for (const spawn of HITLINE.spawnTicks) for (let j = 0; j < HITLINE.perPrim; j++) {
-		const wait = r$10(random, HITLINE.waitRange);
-		const alpha = HITLINE.alpha + r$10(random, HITLINE.alphaRange);
-		const heading = r$10(random, 360);
-		const radius = HITLINE.radius + r$10(random, HITLINE.radiusRange);
-		const stretch = HITLINE.stretch + .1 * r$10(random, HITLINE.stretchRange);
+		const wait = r$11(random, HITLINE.waitRange);
+		const alpha = HITLINE.alpha + r$11(random, HITLINE.alphaRange);
+		const heading = r$11(random, 360);
+		const radius = HITLINE.radius + r$11(random, HITLINE.radiusRange);
+		const stretch = HITLINE.stretch + .1 * r$11(random, HITLINE.stretchRange);
 		out.push({
 			spawn,
 			wait,
@@ -293161,7 +293161,7 @@ function coreColor(i) {
 		c
 	];
 }
-var HITLINE, HITLINE_LAST_TICK, r$10;
+var HITLINE, HITLINE_LAST_TICK, r$11;
 var init_HitLineSim = __esmMin((() => {
 	HITLINE = {
 		spawnTicks: [
@@ -293190,7 +293190,7 @@ var init_HitLineSim = __esmMin((() => {
 		sides: 3
 	};
 	HITLINE_LAST_TICK = HITLINE.spawnTicks[HITLINE.spawnTicks.length - 1] + HITLINE.primLife;
-	r$10 = (random, k) => Math.floor(random() * k);
+	r$11 = (random, k) => Math.floor(random() * k);
 }));
 // src/Renderer/Effects/HitLine.js
 /**
@@ -293569,12 +293569,12 @@ var init_SoulStrikeEffect = __esmMin((() => {
 function planDarkSparks(yaw, random = Math.random) {
 	const out = [];
 	for (let i = 0; i < DARK_SPARK.perKind; i++) {
-		const sYaw = r$9(random, 80) + yaw - 40;
-		const pitch = r$9(random, 100) - 50;
-		const start = r$9(random, 4) + 4;
-		const life = r$9(random, 24) + 6;
-		const speed = (r$9(random, 90) + 60) / 100;
-		const scale = (r$9(random, 100) + 60) / 100;
+		const sYaw = r$10(random, 80) + yaw - 40;
+		const pitch = r$10(random, 100) - 50;
+		const start = r$10(random, 4) + 4;
+		const life = r$10(random, 24) + 6;
+		const speed = (r$10(random, 90) + 60) / 100;
+		const scale = (r$10(random, 100) + 60) / 100;
 		out.push({
 			kind: 5,
 			yaw: sYaw,
@@ -293587,12 +293587,12 @@ function planDarkSparks(yaw, random = Math.random) {
 		});
 	}
 	for (let i = 0; i < DARK_SPARK.perKind; i++) {
-		const sYaw = r$9(random, 80) + yaw + 140;
-		const start = r$9(random, 4) + 4;
-		const life = r$9(random, 24) + 6;
-		const speed = (r$9(random, 90) + 60) / 100;
-		const throwUp = (r$9(random, 90) + 30) / 100;
-		const scale = (r$9(random, 100) + 60) / 100;
+		const sYaw = r$10(random, 80) + yaw + 140;
+		const start = r$10(random, 4) + 4;
+		const life = r$10(random, 24) + 6;
+		const speed = (r$10(random, 90) + 60) / 100;
+		const throwUp = (r$10(random, 90) + 30) / 100;
+		const scale = (r$10(random, 100) + 60) / 100;
 		out.push({
 			kind: 6,
 			yaw: sYaw,
@@ -293652,7 +293652,7 @@ function darkTrailLook(s, alpha, i) {
 		scale: s.scale - s.scale / DARK_SPARK.trail * i * .5
 	};
 }
-var DARK_CONE, DARK_SPARK, r$9;
+var DARK_CONE, DARK_SPARK, r$10;
 var init_HitDarkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DARK_CONE = {
@@ -293675,7 +293675,7 @@ var init_HitDarkSim = __esmMin((() => {
 		alpha: 254,
 		trail: 3
 	};
-	r$9 = (random, k) => Math.floor(random() * k);
+	r$10 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/HitDarkEffect.js
 /**
@@ -294425,13 +294425,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$8(random, 9) - 4,
-		y: r$8(random, 9) - 4,
-		counter: r$8(random, 10) - 10,
-		heading: r$8(random, 360),
-		rise: r$8(random, 40) / 100 + .2,
-		drift: r$8(random, 10) / 100,
-		half: r$8(random, 16) * .03 + .1
+		x: r$9(random, 9) - 4,
+		y: r$9(random, 9) - 4,
+		counter: r$9(random, 10) - 10,
+		heading: r$9(random, 360),
+		rise: r$9(random, 40) / 100 + .2,
+		drift: r$9(random, 10) / 100,
+		half: r$9(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -294468,7 +294468,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$8;
+var SAND_COLOR, SAND_TEXTURE, r$9;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -294476,7 +294476,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$8 = (random, k) => Math.floor(random() * k);
+	r$9 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -296451,6 +296451,217 @@ var init_AcidDemonRing = __esmMin((() => {
 			gl.disableVertexAttribArray(_program$12.attribute.aTextureCoord);
 		}
 	};
+}));
+// src/DB/Effects/AgilityEffect.js
+/**
+* The 50 streaks of one effect.
+*
+* @param {boolean|string} kind true (37, rising), false (38, falling) or 'accuracy' (456, rising)
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>}
+*/
+function planStreaks$1(kind, random = Math.random) {
+	const accuracy = kind === "accuracy";
+	const rising = kind !== false;
+	const streaks = [];
+	for (let i = 0; i < STREAK$1.count; i++) {
+		const heading = r$8(random, 360) * Math.PI / 180;
+		const dist = 2 + r$8(random, 7);
+		const speed = rising ? (20 + r$8(random, 50)) / 100 : 0;
+		streaks.push({
+			spawn: i * STREAK$1.every,
+			x: Math.sin(heading) * dist,
+			y: Math.cos(heading) * dist,
+			rising,
+			speed,
+			halfLength: accuracy ? (20 + r$8(random, 100)) / 10 : (30 + r$8(random, 60)) / 10,
+			halfWidth: accuracy ? .1 + .1 * r$8(random, 4) : STREAK$1.halfWidth,
+			alphaMax: accuracy ? 60 : STREAK$1.alphaMax,
+			alphaStep: accuracy ? 3 : STREAK$1.alphaStep
+		});
+	}
+	return streaks;
+}
+/**
+* Alpha (0-255) of a streak on its tick `age` (updated before drawing, 1 on the first).
+*
+* @param {number} age
+* @param {object} [streak] its alphaMax and alphaStep, 37 / 38's by default
+* @return {number}
+*/
+function streakAlpha(age, streak = STREAK$1) {
+	if (age < STREAK$1.fadeStart) return Math.min(streak.alphaMax, streak.alphaStep * age);
+	return Math.max(0, streak.alphaMax * (STREAK$1.life - age) / (STREAK$1.life - STREAK$1.fadeStart));
+}
+/**
+* Height (units) of a streak's centre on its tick `age`.
+*
+* @param {object} streak
+* @param {number} age
+* @return {number}
+*/
+function streakHeight(streak, age) {
+	if (streak.rising) return streak.speed * age;
+	return 20 - .015 * age * (age + 1) / 2;
+}
+/**
+* The picture's offset up the screen (pixels) on tick `age`.
+*
+* @param {number} effectId 37 or 38
+* @param {number} age
+* @return {number}
+*/
+function billboardRise(effectId, age) {
+	const b = BILLBOARD[effectId];
+	let rise = b.start;
+	let speed = b.speed;
+	for (let t = 1; t <= age; t++) {
+		speed += b.accel;
+		rise += speed;
+	}
+	return rise;
+}
+/**
+* Alpha (0-255) of the picture on tick `age`.
+*
+* @param {number} age
+* @return {number}
+*/
+function billboardAlpha(age) {
+	if (age < 85) return Math.min(200, 200 / 15 * age);
+	return Math.max(0, 200 * (100 - age) / 15);
+}
+function streakEffect(streak) {
+	return {
+		type: "3D",
+		file: "effect/ac_center2.tga",
+		sharedTexture: true,
+		attachedEntity: true,
+		alphaMax: 1,
+		duration: STREAK$1.life * PRIM_TICK_MS,
+		zIndex: 0,
+		track(age) {
+			if (age >= STREAK$1.life) return null;
+			return {
+				x: streak.x / 5,
+				y: streak.y / 5,
+				z: streakHeight(streak, age) / 5,
+				sizeX: 2 * streak.halfWidth * PX,
+				sizeY: 2 * streak.halfLength * PX,
+				alpha: streakAlpha(age, streak) / 255
+			};
+		}
+	};
+}
+function billboardEffect(effectId) {
+	const b = BILLBOARD[effectId];
+	return {
+		type: "3D",
+		file: b.file,
+		sharedTexture: true,
+		attachedEntity: true,
+		alphaMax: 1,
+		duration: 100 * PRIM_TICK_MS,
+		overlay: true,
+		zIndex: 10,
+		track(age) {
+			if (age >= 100) return null;
+			return {
+				sizeX: b.width,
+				sizeY: b.height,
+				offsetY: -billboardRise(effectId, age),
+				alpha: billboardAlpha(age) / 255
+			};
+		}
+	};
+}
+function agilityRow(effectId, wav) {
+	return [{
+		wav,
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.spamEffect({
+				effect: billboardEffect(effectId),
+				Inst: {
+					effectID: effectId,
+					duplicateID: 0,
+					startTick: Params.Inst.startTick
+				},
+				Init: Params.Init
+			});
+			spamStreaks(this, Params, effectId === 37, effectId, 1);
+		}
+	}];
+}
+/**
+* Spawn the 50 streaks of an effect, one every second tick.
+*
+* @param {object} manager EffectManager
+* @param {object} Params the effect's params
+* @param {boolean|string} kind as planStreaks
+* @param {number|string} effectID
+* @param {number} [firstDuplicate]
+*/
+function spamStreaks(manager, Params, kind, effectID, firstDuplicate = 0) {
+	planStreaks$1(kind).forEach((streak, i) => {
+		manager.spamEffect({
+			effect: streakEffect(streak),
+			Inst: {
+				effectID,
+				duplicateID: firstDuplicate + i,
+				startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS
+			},
+			Init: Params.Init
+		});
+	});
+}
+var PX, STREAK$1, BILLBOARD, r$8, increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect;
+var init_AgilityEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	PX = 7;
+	STREAK$1 = {
+		count: 50,
+		every: 2,
+		life: 50,
+		alphaMax: 200,
+		alphaStep: 10,
+		fadeStart: 30,
+		halfWidth: .18
+	};
+	BILLBOARD = {
+		37: {
+			file: "effect/agi_up.bmp",
+			width: 80,
+			height: 40,
+			start: 0,
+			speed: 1.5,
+			accel: -.018
+		},
+		38: {
+			file: "effect/slow.bmp",
+			width: 80,
+			height: 20,
+			start: 80,
+			speed: -1,
+			accel: 1 / 100
+		}
+	};
+	r$8 = (random, k) => Math.floor(random() * k);
+	increaseAgilityEffect = agilityRow(37, "effect/ef_incagility");
+	decreaseAgilityEffect = agilityRow(38, "effect/ef_decagility");
+	increasingAccuracyEffect = [{
+		wav: "effect/ef_incagility",
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			spamStreaks(this, Params, "accuracy", "ef_gs_increasing_accuracy");
+		}
+	}];
 }));
 // src/DB/Effects/HundredSpearEffect.js
 /**
@@ -302948,6 +303159,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCircle();
 	init_SlimPotionEffect();
 	init_AcidDemonRing();
+	init_AgilityEffect();
 	init_HundredSpearEffect();
 	init_HellInfernoEffect();
 	init_SonicWave();
@@ -304024,120 +304236,8 @@ var init_EffectTable = __esmMin((() => {
 			type: "CYLINDER",
 			wav: "effect/ef_readyportal"
 		}],
-		37: [
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				delayLate: 500,
-				duplicate: 7,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: .75,
-				attachedEntity: true,
-				duration: 1e3,
-				delayOffset: 400,
-				duplicate: 3,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				duplicate: 10,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/agi_up.bmp",
-				poszEnd: 3,
-				poszStart: .4,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 100,
-				sizeY: 45,
-				type: "3D",
-				wav: "effect/ef_incagility",
-				overlay: true,
-				zIndex: 10
-			}
-		],
-		38: [{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1e3,
-			duplicate: 20,
-			fadeOut: true,
-			file: "effect/ac_center2.tga",
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 1,
-			poszStartRand: 1,
-			poszStartRandMiddle: 6,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: "3D",
-			zIndex: 0
-		}, {
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1e3,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/slow.bmp",
-			poszEnd: .4,
-			poszStart: 2.8,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: "3D",
-			wav: "effect/ef_decagility",
-			zIndex: 10
-		}],
+		37: increaseAgilityEffect,
+		38: decreaseAgilityEffect,
 		39: [{
 			type: "SPR",
 			file: "¼º¼ö¶ß±â",
@@ -308870,10 +308970,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ÇÃ¸³",
 			attachedEntity: true
 		}],
-		ef_gs_increasing_accuracy: [{
-			wav: "effect/ef_incagility",
-			attachedEntity: true
-		}],
+		ef_gs_increasing_accuracy: increasingAccuracyEffect,
 		ef_gs_cracker: [{
 			wav: "effect/Å©·¡Ä¿",
 			attachedEntity: true
