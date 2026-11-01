@@ -92,4 +92,14 @@ describe('Duple Light orbs', () => {
 			[3, -17, 2]
 		]);
 	});
+
+	it('replays at most 120 missed ticks after a long gap', () => {
+		const lights = new DupleLight({ position: [0, 0, 0] }, 0, 2);
+		lights.init({ createBuffer: () => ({}) });
+		lights.orbs.forEach(orb => {
+			orb.age = 0;
+		});
+		lights.render({ bindBuffer() {} }, 100000 * (1000 / 60));
+		expect(lights.orbs[0].age).toBe(120);
+	});
 });

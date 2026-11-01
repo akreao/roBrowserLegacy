@@ -42,6 +42,12 @@ const _textures = [null, null];
  */
 let _generation = 0;
 
+/** Fog colour for the added orbs: fogged, they fade to nothing instead of adding the fog's colour. */
+const BLACK = new Float32Array([0, 0, 0]);
+
+/** Most update ticks replayed in one frame (after a hidden tab, say); older ones are skipped. */
+const MAX_CATCH_UP = 120;
+
 class DupleLight {
 	/**
 	 * @param {object} owner the actor (the orbs follow it)
@@ -115,6 +121,8 @@ class DupleLight {
 		}
 		// The client updates before it draws, so the first frame is tick 1.
 		const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1;
+		// The orbs live as long as the status: after a long gap, replay only the last ticks
+		this.ticks = Math.max(this.ticks, t - MAX_CATCH_UP);
 		while (this.ticks < t) {
 			this.orbs.forEach(orb => stepOrb(orb));
 			this.ticks++;
@@ -130,10 +138,9 @@ class DupleLight {
 		const right = [Math.cos(alpha), 0, -Math.sin(alpha)];
 		const up = [Math.cos(beta) * Math.sin(alpha), -Math.sin(beta), Math.cos(beta) * Math.cos(alpha)];
 
-		const self = this;
-		SpriteRenderer.runWithDepth(true, false, false, function () {
-			gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-			for (const orb of self.orbs) {
+		SpriteRenderer.runWithDepth(true, false, false, () => {
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+			for (const orb of this.orbs) {
 				const c = orb.center;
 				for (let core = 0; core < 2; core++) {
 					const s = coreSize(orb, core);
@@ -146,15 +153,15 @@ class DupleLight {
 							c[2] + x * right[2] + y * up[2]
 						];
 					});
-					self.quad(corners, center);
-					self.draw(gl, _textures[0], CORE_COLORS[core], orb.alpha);
+					this.quad(corners, center);
+					this.draw(gl, _textures[0], CORE_COLORS[core], orb.alpha);
 				}
 				orb.sparks.forEach((spark, i) => {
 					if (spark.age <= 0 || !(spark.shown > 0)) {
 						return;
 					}
-					self.quad(sparkCorners(orb, spark), center);
-					self.draw(gl, _textures[1], [SPARK_GREYS[i], SPARK_GREYS[i], 255], spark.alpha);
+					this.quad(sparkCorners(orb, spark), center);
+					this.draw(gl, _textures[1], [SPARK_GREYS[i], SPARK_GREYS[i], 255], spark.alpha);
 				});
 			}
 		});
@@ -207,7 +214,7 @@ class DupleLight {
 		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 		gl.uniform1f(uniform.uFogNear, fog.near);
 		gl.uniform1f(uniform.uFogFar, fog.far);
-		gl.uniform3fv(uniform.uFogColor, fog.color);
+		gl.uniform3fv(uniform.uFogColor, BLACK);
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
