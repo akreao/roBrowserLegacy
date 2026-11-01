@@ -14434,10 +14434,13 @@ export default {
 		}
 	],
 
+	// Renovatio (AB_RENOVATIO): on the target when the use packet succeeds, which also plays AB_renovatio.wav. The client's
+	// 719 itself is a cloud11.tga cloud set (prim 66, not ported). See effect-port/arch-bishop-skills.md.
 	719: [
 		{
 			//EF_FORESTLIGHT5	   Renovatio (light beam)
-			wav: 'effect/ab_renovation'
+			wav: 'effect/ab_renovatio',
+			attachedEntity: true
 		}
 	],
 	//720: [{}],	//EF_SOULBREAKER3	   Yellow version of Soul Breaker
