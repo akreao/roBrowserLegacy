@@ -1858,6 +1858,7 @@ SkillEffect[6515 /* ABC_ABYSS_FLAME */] = {
 }; //Abyss Flame
 SkillEffect[SK.AB_OFFERTORIUM] = { successEffectIdOnCaster: 1047 }; //Offertorium: 1047 on the caster on success
 SkillEffect[SK.AB_VITUPERATUM] = { castAuraEffectId: 830, successEffectId: 85 }; //Vituperatum: cast aura 830; 85 (Lex Aeterna) on each target on success
+SkillEffect[SK.AB_CONVENIO] = { castAuraEffectId: 58 }; //Convenio: cast aura 58
 SkillEffect[SK.CD_REPARATIO] = { effectId: 'ef_cd_reparatio', effectIdOnCaster: 'ef_cd_reparatio_cast' }; //Reparatio
 SkillEffect[SK.CD_MEDIALE_VOTUM] = { effectId: 'ef_cd_mediale_votum', effectIdOnCaster: 'ef_cd_mediale_votum_cast' }; //Mediale Votum
 SkillEffect[SK.CD_ARGUTUS_VITA] = { effectId: 'ef_cd_argutus_vita', effectIdOnCaster: 'ef_cd_argutus_vita_cast' }; //Argutus Vita
