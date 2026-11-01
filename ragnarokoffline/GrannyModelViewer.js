@@ -224622,28 +224622,44 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MAGIC] = {};
 	SkillEffect[SkillConst_default.AB_SILENTIUM] = {};
 	SkillEffect[SkillConst_default.AB_SECRAMENT] = { effectId: "ef_ab_secrament" };
-	SkillEffect[SkillConst_default.RA_ARROWSTORM] = { effectId: 746 };
-	SkillEffect[SkillConst_default.RA_FEARBREEZE] = { effectId: "ef_ra_fearbreeze" };
+	SkillEffect[SkillConst_default.RA_ARROWSTORM] = { arrivalEffectIdOnOtherTarget: [
+		"ef_ra_arrowstorm_sound",
+		1293,
+		1294
+	] };
+	SkillEffect[SkillConst_default.RA_FEARBREEZE] = { successEffectIdOnCaster: 1549 };
 	SkillEffect[SkillConst_default.RA_AIMEDBOLT] = {
-		effectId: 745,
-		beforeHitEffectId: "ef_arrow_projectile"
+		hideCastAura: true,
+		beginCastEffectId: 1649,
+		beginCastTargetEffectId: 1651,
+		damageEffectIdOnTarget: "ef_arrow_projectile",
+		arrivalEffectIdOnTarget: 1650,
+		arrivalEffectIdOnCasterByFacing: [
+			1646,
+			1645,
+			1648,
+			1647
+		]
 	};
-	SkillEffect[SkillConst_default.RA_DETONATOR] = { effectId: 750 };
-	SkillEffect[SkillConst_default.RA_ELECTRICSHOCKER] = {};
-	SkillEffect[SkillConst_default.RA_CLUSTERBOMB] = {};
-	SkillEffect[SkillConst_default.RA_WUGMASTERY] = {};
-	SkillEffect[SkillConst_default.RA_WUGRIDER] = { effectId: "ef_wugrider" };
+	SkillEffect[SkillConst_default.RA_DETONATOR] = { arrivalEffectIdOnCaster: 750 };
+	SkillEffect[SkillConst_default.RA_ELECTRICSHOCKER] = { damageEffectIdOnTarget: [146, "ef_ra_electricshocker_sound"] };
+	SkillEffect[SkillConst_default.RA_CLUSTERBOMB] = { damageEffectIdOnTarget: [585, "ef_ra_clusterbomb_sound"] };
+	SkillEffect[SkillConst_default.RA_WUGMASTERY] = {
+		successEffectIdOnCaster: "ef_ra_wugmastery_sound",
+		castAuraEffectId: 441
+	};
+	SkillEffect[SkillConst_default.RA_WUGRIDER] = { successEffectIdOnCaster: "ef_wugrider" };
 	SkillEffect[SkillConst_default.RA_WUGDASH] = {};
-	SkillEffect[SkillConst_default.RA_WUGSTRIKE] = { effectId: "ef_wugstrike" };
-	SkillEffect[SkillConst_default.RA_WUGBITE] = { effectId: "ef_wugbite" };
-	SkillEffect[SkillConst_default.RA_SENSITIVEKEEN] = {};
+	SkillEffect[SkillConst_default.RA_WUGSTRIKE] = { arrivalEffectIdOnTarget: "ef_wugstrike" };
+	SkillEffect[SkillConst_default.RA_WUGBITE] = { arrivalEffectIdOnTarget: "ef_wugbite" };
+	SkillEffect[SkillConst_default.RA_SENSITIVEKEEN] = { arrivalEffectIdOnTarget: "ef_ra_sensitivekeen_sound" };
 	SkillEffect[SkillConst_default.RA_CAMOUFLAGE] = { effectId: 744 };
 	SkillEffect[SkillConst_default.RA_MAGENTATRAP] = { groundEffectId: 739 };
 	SkillEffect[SkillConst_default.RA_COBALTTRAP] = { groundEffectId: 740 };
 	SkillEffect[SkillConst_default.RA_MAIZETRAP] = { groundEffectId: 741 };
 	SkillEffect[SkillConst_default.RA_VERDURETRAP] = { groundEffectId: 742 };
-	SkillEffect[SkillConst_default.RA_FIRINGTRAP] = {};
-	SkillEffect[SkillConst_default.RA_ICEBOUNDTRAP] = {};
+	SkillEffect[SkillConst_default.RA_FIRINGTRAP] = { damageEffectIdOnTarget: [583, "ef_ra_firingtrap_sound"] };
+	SkillEffect[SkillConst_default.RA_ICEBOUNDTRAP] = { damageEffectIdOnTarget: [135, "ef_ra_iceboundtrap_sound"] };
 	SkillEffect[SkillConst_default.NC_BOOSTKNUCKLE] = {};
 	SkillEffect[SkillConst_default.NC_PILEBUNKER] = {};
 	SkillEffect[SkillConst_default.NC_VULCANARM] = { effectId: "ef_nc_vulcanarm" };
@@ -225233,7 +225249,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[6511] = { effectId: "ef_shc_cross_slash" };
 	SkillEffect[SkillConst_default.GC_DARKCROW] = { effectId: 1040 };
-	SkillEffect[SkillConst_default.RA_UNLIMIT] = { effectId: "ef_ra_unlimit" };
+	SkillEffect[SkillConst_default.RA_UNLIMIT] = { successEffectIdOnCaster: "ef_ra_unlimit" };
 	SkillEffect[SkillConst_default.GN_ILLUSIONDOPING] = { effectId: 1049 };
 	SkillEffect[5307] = { effectId: "ef_bo_acidified_zone_water_atk" };
 	SkillEffect[5308] = { effectId: "ef_bo_acidified_zone_ground_atk" };
@@ -282609,6 +282625,7 @@ var init_EffectManager = __esmMin((() => {
 			if (destAID !== srcAID) play("damageEffectIdOnOtherTarget", destAID, srcAID);
 			play("arrivalEffectIdOnCaster", srcAID, destAID, arrivalTick);
 			play("arrivalEffectIdOnTarget", destAID, srcAID, arrivalTick);
+			if (destAID !== srcAID) play("arrivalEffectIdOnOtherTarget", destAID, srcAID, arrivalTick);
 			const byFacing = skill.damageEffectIdOnCasterByFacing;
 			const caster = byFacing && srcAID ? EntityManager.get(srcAID) : null;
 			if (caster) {
@@ -282617,6 +282634,17 @@ var init_EffectManager = __esmMin((() => {
 					effectId,
 					ownerAID: srcAID,
 					startTick: tick,
+					otherAID: destAID
+				});
+			}
+			const arrivalByFacing = skill.arrivalEffectIdOnCasterByFacing;
+			const shooter = arrivalByFacing && srcAID ? EntityManager.get(srcAID) : null;
+			if (shooter) {
+				const effectId = arrivalByFacing[facingQuarter(facingAngle(shooter.direction))];
+				if (effectId) EffectManager.spam({
+					effectId,
+					ownerAID: srcAID,
+					startTick: arrivalTick,
 					otherAID: destAID
 				});
 			}
@@ -282833,7 +282861,9 @@ var init_EffectManager = __esmMin((() => {
 						effectId,
 						ownerAID: srcAID,
 						startTick: tick,
-						otherAID: destAID
+						otherAID: destAID,
+						castEndTick,
+						castTargetOf: destAID
 					};
 					EffectManager.spam(EF_Init_Par);
 				});
@@ -282841,7 +282871,7 @@ var init_EffectManager = __esmMin((() => {
 		}
 		/**
 		* Remove the cast effects (rows marked castLoop) still playing on an entity,
-		* when its cast is cancelled.
+		* and those its cast put on its target, when its cast is cancelled.
 		*
 		* @param {number} aid
 		*/
@@ -282850,7 +282880,7 @@ var init_EffectManager = __esmMin((() => {
 				const list = _list$3[name];
 				for (let i = list.length - 1; i >= 0; --i) {
 					const Params = list[i]._Params;
-					if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
+					if (Params && Params.effect && Params.effect.castLoop && (Params.Init.ownerAID === AID || Params.Init.castTargetOf === AID)) {
 						if (list[i].free) list[i].free(_gl);
 						list.splice(i, 1);
 					}
@@ -321518,11 +321548,6 @@ var init_EffectTable = __esmMin((() => {
 			file: "new_secrament/new_secrament/new_secrament",
 			texturePath: "new_secrament/new_secrament/"
 		}],
-		ef_ra_fearbreeze: [{
-			type: "STR",
-			file: "new_fearbreeze/new_fearbreeze",
-			texturePath: "new_fearbreeze/"
-		}],
 		ef_nc_vulcanarm: [{
 			type: "STR",
 			file: "new_vulcanarm/new_vulcanarm/new_vulcanarm",
@@ -322607,6 +322632,120 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ef_beginspell",
 			attachedEntity: true
 		}],
+		ef_ra_arrowstorm_sound: [{
+			wav: "arrowstorm",
+			attachedEntity: true
+		}],
+		1293: [{
+			type: "STR",
+			file: "new_arrowstorm/new_arrowstorm_00/new_arrowstorm_00",
+			texturePath: "new_arrowstorm/new_arrowstorm_00/",
+			min: "mineffect/new_arrowstorm/new_arrowstorm_00/new_arrowstorm_00",
+			minTexturePath: "mineffect/new_arrowstorm/new_arrowstorm_00/",
+			attachedEntity: true
+		}],
+		1294: [{
+			type: "STR",
+			file: "new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01",
+			texturePath: "new_arrowstorm/new_arrowstorm_01/",
+			min: "mineffect/new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01",
+			minTexturePath: "mineffect/new_arrowstorm/new_arrowstorm_01/",
+			duplicate: 3,
+			timeBetweenDupli: 200,
+			delayStart: 600,
+			attachedEntity: true
+		}],
+		1649: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_cast_bottom/new_aimedbolt_cast_bottom",
+			texturePath: "new_aimedbolt/new_aimedbolt_cast_bottom/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/new_aimedbolt_cast_bottom",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/",
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}],
+		1651: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_target_loop/new_aimedbolt_target_loop",
+			texturePath: "new_aimedbolt/new_aimedbolt_target_loop/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_target_loop/new_aimedbolt_target_loop",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_target_loop/",
+			castLoop: true,
+			attachedEntity: true
+		}],
+		1650: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_target_end/new_aimedbolt_end",
+			texturePath: "new_aimedbolt/new_aimedbolt_target_end/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_target_end/new_aimedbolt_end",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_target_end/",
+			attachedEntity: true
+		}],
+		1645: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_attack_01clock/new_aimedbolt_attack_01clock",
+			texturePath: "new_aimedbolt/new_aimedbolt_attack_01clock/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_attack_01clock/new_aimedbolt_attack_01clock",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_attack_01clock/",
+			attachedEntity: true
+		}],
+		1646: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_attack_05clock/new_aimedbolt_attack_05clock",
+			texturePath: "new_aimedbolt/new_aimedbolt_attack_05clock/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_attack_05clock/new_aimedbolt_attack_05clock",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_attack_05clock/",
+			attachedEntity: true
+		}],
+		1647: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_attack_07clock/new_aimedbolt_attack_07clock",
+			texturePath: "new_aimedbolt/new_aimedbolt_attack_07clock/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_attack_07clock/new_aimedbolt_attack_07clock",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_attack_07clock/",
+			attachedEntity: true
+		}],
+		1648: [{
+			type: "STR",
+			file: "new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock",
+			texturePath: "new_aimedbolt/new_aimedbolt_attack_11clock/",
+			min: "mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock",
+			minTexturePath: "mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/",
+			attachedEntity: true
+		}],
+		1549: [{
+			type: "STR",
+			file: "new_fearbreeze/new_fearbreeze",
+			texturePath: "new_fearbreeze/",
+			min: "mineffect/new_fearbreeze/new_fearbreeze",
+			minTexturePath: "mineffect/new_fearbreeze/",
+			attachedEntity: true
+		}],
+		ef_ra_electricshocker_sound: [{
+			wav: "effect/hunter_shockwavetrap",
+			attachedEntity: true
+		}],
+		ef_ra_clusterbomb_sound: [{
+			wav: "effect/hunter_landmine",
+			attachedEntity: true
+		}],
+		ef_ra_firingtrap_sound: [{
+			wav: "effect/Æø¿°·æ",
+			attachedEntity: true
+		}],
+		ef_ra_iceboundtrap_sound: [{
+			wav: "effect/ef_frostdiver",
+			attachedEntity: true
+		}],
+		ef_ra_wugmastery_sound: [{
+			wav: "wolf_attack",
+			attachedEntity: true
+		}],
+		ef_ra_sensitivekeen_sound: [{
+			wav: "were_wolf_attack",
+			attachedEntity: true
+		}],
 		ef_sj_solarburst: [{
 			type: "STR",
 			file: "solar_burst/solar_burst",
@@ -322820,14 +322959,20 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_ra_unlimit: [{
 			type: "STR",
-			file: "new_unlimit/new_unlimit/new_unlimit",
-			texturePath: "new_unlimit/new_unlimit/",
-			wav: "ra_unlimit"
+			file: "ranger/unlimit/unlimit/unlimit",
+			texturePath: "ranger/unlimit/unlimit/",
+			min: "ranger/unlimit/unlimit/min_unlimit",
+			wav: "effect/ra_unlimit",
+			yOffset: 12,
+			attachedEntity: true
 		}, {
 			type: "STR",
-			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
-			texturePath: "new_unlimit/new_unlimit_bottom/",
-			renderBeforeEntities: true
+			file: "ranger/unlimit/unlimit_bottom/unlimit_bottom",
+			texturePath: "ranger/unlimit/unlimit_bottom/",
+			min: "ranger/unlimit/unlimit_bottom/min_unlimit_bottom",
+			yOffset: 12,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}],
 		ef_su_bite: [{
 			type: "STR",
