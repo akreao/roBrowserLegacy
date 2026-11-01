@@ -2437,6 +2437,8 @@ function onEntityStatusChange(pkt) {
 			break;
 
 		case StatusConst.SUHIDE:
+			// Only the bush is drawn: headgear stays off while hidden (EntityRender)
+			entity.suHide = pkt.state == 1;
 			if (pkt.state == 1) {
 				entity.setAction({
 					action: entity.ACTION.SKILL,

@@ -566,8 +566,12 @@ const renderEntity = (function renderEntityClosure() {
 					// TB_Layer_Priority = {Default_Mid = 100, Default_Top = 200, Default_Bottom = 300, Default_Robe = 400 }
 					// Values*10 reference https://github.com/zhad3/zrenderer/blob/c10b337dfb9d44e33b146551191b3398630823b5/source/sprite.d#L84
 
+					// Summoner Hide shows only the bush: the head is empty on that frame,
+					// but headgear sprites have art there, so they are skipped.
+					const showHats = !self.suHide;
+
 					// Hat Middle
-					if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
+					if (showHats && self.accessory3 > 0 && self.accessory3 !== self.accessory) {
 						// accessory already rendered, avoid render same item again
 						SpriteRenderer.zIndex = bodyZOffset + 100;
 						renderElement(self, self.files.accessory3, 'head', _position, false);
@@ -575,6 +579,7 @@ const renderEntity = (function renderEntityClosure() {
 
 					// Hat Top
 					if (
+						showHats &&
 						self.accessory2 > 0 &&
 						self.accessory2 !== self.accessory &&
 						self.accessory2 !== self.accessory3
@@ -585,7 +590,7 @@ const renderEntity = (function renderEntityClosure() {
 					}
 
 					// Hat Bottom
-					if (self.accessory > 0) {
+					if (showHats && self.accessory > 0) {
 						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
