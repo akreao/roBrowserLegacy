@@ -25326,7 +25326,9 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_crossimpact/new_crossimpact/new_crossimpact',
-			texturePath: 'new_crossimpact/new_crossimpact/'
+			texturePath: 'new_crossimpact/new_crossimpact/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_stonecurse'
 		}
 	],
 
@@ -25461,7 +25463,10 @@ export default {
 			type: 'STR',
 			file: 'new_axetornado/new_axetornado_bottom/new_axetornado_bottom',
 			texturePath: 'new_axetornado/new_axetornado_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound, 5 ticks in (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'ice_titan_attack',
+			delayWav: 83
 		}
 	],
 
@@ -25476,7 +25481,14 @@ export default {
 			type: 'STR',
 			file: 'new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom',
 			texturePath: 'new_fatal_menace/new_fatal_menace_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_bash'
+		},
+		{
+			// ... and its second sound, 35 ticks in
+			wav: 'effect/_og_intimidate',
+			delayWav: 583
 		}
 	],
 
@@ -25533,7 +25545,14 @@ export default {
 			file: 'new_cannon_spear/new_cannon_spear_bottom/new_cannon_spear_bottom',
 			texturePath: 'new_cannon_spear/new_cannon_spear_bottom/',
 			renderBeforeEntities: true,
-			wav: 'effect/lg_cannonspear'
+			// kRO 2025-07-16: this STR's own sounds, EF_hit2 10 ticks in and EF_hit4 20 ticks in
+			// (lg_cannonspear plays from ef_cannonspear)
+			wav: 'effect/ef_hit2',
+			delayWav: 167
+		},
+		{
+			wav: 'effect/ef_hit4',
+			delayWav: 333
 		}
 	],
 
@@ -25584,7 +25603,9 @@ export default {
 			type: 'STR',
 			file: 'new_rayofgenesis/new_rayofgenesis/new_rayofgenesis',
 			texturePath: 'new_rayofgenesis/new_rayofgenesis/',
-			wav: 'effect/lg_rayofgenesis'
+			// kRO 2025-07-16: this STR's own sound, 5 ticks in (lg_rayofgenesis plays from ef_rayofgenesis)
+			wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad', // effect/mon_맹룡과강
+			delayWav: 83
 		}
 	],
 
@@ -25599,7 +25620,9 @@ export default {
 			type: 'STR',
 			file: 'new_rayofgenesis/new_rayofgenesis_cast_bottom/new_rayofgenesis_cast_bottom',
 			texturePath: 'new_rayofgenesis/new_rayofgenesis_cast_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -25744,7 +25767,8 @@ export default {
 			type: 'STR',
 			file: 'new_gateofhell/new_gateofhell_cast/new_gateofhell_cast',
 			texturePath: 'new_gateofhell/new_gateofhell_cast/',
-			wav: 'effect/sr_gateofhell'
+			// kRO 2025-07-16: this STR's own sound (sr_gateofhell plays from ef_gateofhell)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -25769,7 +25793,9 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_howlingoflion/new_howlingoflion_cast/new_howlingoflion_cast',
-			texturePath: 'new_howlingoflion/new_howlingoflion_cast/'
+			texturePath: 'new_howlingoflion/new_howlingoflion_cast/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -25793,7 +25819,9 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_metalicsound/new_metalicsound/new_metalicsound',
-			texturePath: 'new_metalicsound/new_metalicsound/'
+			texturePath: 'new_metalicsound/new_metalicsound/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -25844,7 +25872,9 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_soundofdestruction/new_soundofdestruction_cast/new_soundofdestruction_cast',
-			texturePath: 'new_soundofdestruction/new_soundofdestruction_cast/'
+			texturePath: 'new_soundofdestruction/new_soundofdestruction_cast/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -26012,7 +26042,9 @@ export default {
 			type: 'STR',
 			file: 'new_cart_cannon/new_cart_cannon_cast_bottom/new_cart_cannon_cast_bottom',
 			texturePath: 'new_cart_cannon/new_cart_cannon_cast_bottom/',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -26036,7 +26068,9 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_wallofthorn/new_wallofthorn_cast/new_wallofthorn_cast',
-			texturePath: 'new_wallofthorn/new_wallofthorn_cast/'
+			texturePath: 'new_wallofthorn/new_wallofthorn_cast/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		},
 		{
 			type: 'STR',
@@ -26066,7 +26100,9 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_mandragora/new_mandragora_cast/new_mandragora_cast',
-			texturePath: 'new_mandragora/new_mandragora_cast/'
+			texturePath: 'new_mandragora/new_mandragora_cast/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell'
 		}
 	],
 
@@ -26412,6 +26448,8 @@ export default {
 			texturePath: 'new_windcutter/new_windcutter/',
 			min: 'mineffect/new_windcutter/new_windcutter/new_windcutter',
 			minTexturePath: 'mineffect/new_windcutter/new_windcutter/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/wl_siennaexecrate',
 			attachedEntity: true
 		}
 	],
@@ -27333,6 +27371,9 @@ export default {
 			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -27425,6 +27466,8 @@ export default {
 			texturePath: 'new_fearbreeze/',
 			min: 'mineffect/new_fearbreeze/new_fearbreeze',
 			minTexturePath: 'mineffect/new_fearbreeze/',
+			// kRO 2025-07-16: this STR's own sound (CEZ2STREffect sound list 0xaed3d0)
+			wav: 'effect/ef_bash',
 			attachedEntity: true
 		}
 	],
