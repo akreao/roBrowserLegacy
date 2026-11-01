@@ -117,6 +117,7 @@ import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { releaseEffect } from 'DB/Effects/ReleaseEffect.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
@@ -14659,7 +14660,8 @@ export default {
 		}
 	],
 
-	//751: [{}],	//EF_FIREBALL2	   Releasing summoned warlock spheres
+	// EF_FIREBALL2, Release: Fire Ball's code with three tinted sets of four fireballs (ReleaseEffect.js)
+	751: releaseEffect,
 	//752: [{}],	//EF_BUNSINJYUTSU2	   Like Energy Coat, but not as dark
 	//753: [{}],	//EF_CLEARTIME	   Clearance
 
