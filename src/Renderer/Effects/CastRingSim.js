@@ -301,7 +301,8 @@ export function buildRing(out, ring, center) {
 				fy: band.foot * sin,
 				tx: (band.foot + p * reach) * cos,
 				ty: (band.foot + p * reach) * sin,
-				up: p * up_
+				// lift: extra tip height some rings add (Epiclesis, EpiclesisRingSim.js)
+				up: p * up_ + (band.lift || 0)
 			};
 			if (prev) {
 				const u0 = (j - 1) / 21;

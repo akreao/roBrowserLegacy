@@ -6,6 +6,9 @@
  * Effects 2367 (ring_yellow.tga, 0), 1556 (ring_blue.tga, 20 and 21), 1565
  * (ring_yellow.tga, 23) and 1938 (new_battle_w/abr_battle_warior.tga, 0);
  * 911 (ring_white.tga, 15); 2369 (ring_white.tga, 0, colour cycling).
+ * With the `epiclesis` option it draws Epiclesis's flat green rings instead
+ * (effect 1655, EpiclesisRingSim.js): a new ring every 100 ticks, for as long as
+ * the effect lives.
  * The motion and geometry are in CastRingSim.js; this file only draws them.
  *
  * Effect table entry:
@@ -30,6 +33,13 @@ import {
 	stepRing,
 	buildRing
 } from './CastRingSim.js';
+import {
+	RING_EVERY,
+	TINT as EPICLESIS_TINT,
+	createEpiclesisRing,
+	stepEpiclesisRing,
+	ringRunning
+} from './EpiclesisRingSim.js';
 import _vertexShader from './EffectPrim.vs?raw';
 import _fragmentShader from './EffectPrim.fs?raw';
 
@@ -72,12 +82,23 @@ class CastRing {
 	 * @param {boolean|object} [cycle] build the colour-cycling twin (client primitive 139); or options:
 	 *   { cycle, sizes: the rings' sizes (default 45 and 25), textures: one file per ring (default `texture`
 	 *   for all), castTimeOnly: live castTime / 16 ticks,
-	 *   without the 56-tick minimum (an effect that does not raise its own lifetime) }
+	 *   without the 56-tick minimum (an effect that does not raise its own lifetime),
+	 *   epiclesis: Epiclesis's rings, one every 100 ticks until the effect is removed (castTime and args unused) }
 	 */
 	constructor(position, startTick, castTime, texture, args, cycle = false) {
 		const options = typeof cycle === 'object' && cycle ? cycle : { cycle };
 		this.position = position;
 		this.startTick = startTick || 0;
+		if (options.epiclesis) {
+			this.epiclesis = true;
+			this.texture = texture;
+			this.textures = null;
+			this.ticks = 0;
+			this.frames = Infinity;
+			this.endTick = Infinity;
+			this.rings = [];
+			return;
+		}
 		this.frames = options.castTimeOnly ? Math.max(1, Math.floor((castTime || 0) / 16)) : ringFrames(castTime);
 		this.endTick = this.startTick + this.frames * RING_TICK_MS;
 		this.texture = texture;
@@ -121,8 +142,12 @@ class CastRing {
 		// The client runs a tick before drawing, so the first frame shows tick 1.
 		const t = Math.min(this.frames, Math.floor((tick - this.startTick) / RING_TICK_MS) + 1);
 		while (this.ticks < t) {
-			for (const ring of this.rings) {
-				stepRing(ring.sim);
+			if (this.epiclesis) {
+				this.stepEpiclesis(gl);
+			} else {
+				for (const ring of this.rings) {
+					stepRing(ring.sim);
+				}
 			}
 			this.ticks++;
 		}
@@ -143,7 +168,7 @@ class CastRing {
 				gl.bufferData(gl.ARRAY_BUFFER, ring.vertices, gl.DYNAMIC_DRAW);
 				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
-				const tint = modeTint(ring.sim.mode);
+				const tint = self.epiclesis ? { color: EPICLESIS_TINT, additive: true } : modeTint(ring.sim.mode);
 				ring.color[0] = tint.color[0] / 255;
 				ring.color[1] = tint.color[1] / 255;
 				ring.color[2] = tint.color[2] / 255;
@@ -160,6 +185,34 @@ class CastRing {
 				});
 			});
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		});
+	}
+
+	/**
+	 * One tick of Epiclesis's rings: a new ring on effect ticks 0, 100, 200...
+	 * (the client builds it before the update, so it moves on the same tick),
+	 * then every ring runs; spent rings are dropped.
+	 *
+	 * @param {WebGLRenderingContext} gl
+	 */
+	stepEpiclesis(gl) {
+		if (this.ticks % RING_EVERY === 0) {
+			this.rings.push({
+				sim: createEpiclesisRing(),
+				vertices: new Float32Array(RING_VERTICES * 5),
+				color: new Float32Array(4),
+				buffer: gl.createBuffer()
+			});
+		}
+		for (const ring of this.rings) {
+			stepEpiclesisRing(ring.sim);
+		}
+		this.rings = this.rings.filter(ring => {
+			if (ringRunning(ring.sim)) {
+				return true;
+			}
+			gl.deleteBuffer(ring.buffer);
+			return false;
 		});
 	}
 

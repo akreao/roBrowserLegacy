@@ -12,7 +12,7 @@ import SU from 'DB/Skills/SkillUnitConst.js';
 describe('Epiclesis shows the official tree once, from its skill unit', () => {
 	it('matches the official client', () => {
 		expect(SkillEffect[SK.AB_EPICLESIS]).toEqual({});
-		expect(SkillUnit[SU.UNT_EPICLESIS]).toBe(1654);
+		expect(SkillUnit[SU.UNT_EPICLESIS]).toEqual([1654, 1655]);
 		expect(EffectTable[1654][0]).toMatchObject({ type: 'STR', file: 'new_epiclesis/new_epiclesis_combine/new_epiclesis_combine', min: 'mineffect/new_epiclesis/new_epiclesis_combine', minTexturePath: 'mineffect/new_epiclesis/', wav: 'effect/ef_glasswall', delayWav: 500, repeat: false });
 	});
 });
