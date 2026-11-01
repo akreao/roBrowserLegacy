@@ -216039,7 +216039,7 @@ var init_MapHooks = __esmMin((() => {
 * Pack every frame of a sprite file, tallest first, and upload it.
 */
 function pack(spr) {
-	spr._atlasGeneration = _generation$2;
+	spr._atlasGeneration = _generation$4;
 	const placed = [];
 	const owned = [];
 	for (const atlas of [_index$2, _rgba]) {
@@ -216080,16 +216080,16 @@ function pack(spr) {
 		});
 		placed.push(...spots);
 	}
-	const generation = _generation$2;
+	const generation = _generation$4;
 	spr._atlasRelease = () => {
 		spr._atlasRelease = null;
 		spr._atlasGeneration = 0;
-		if (generation !== _generation$2) return;
+		if (generation !== _generation$4) return;
 		for (const { atlas, layers } of owned) atlas.release(layers);
 		for (const spot of placed) spot.frame._atlas = null;
 	};
 }
-var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$5, _generation$2, _index$2, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
+var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$5, _generation$4, _index$2, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
 var init_SpriteAtlas = __esmMin((() => {
 	init_Graphics();
 	PALETTE_ROWS = 512;
@@ -216266,7 +216266,7 @@ var init_SpriteAtlas = __esmMin((() => {
 		}
 	};
 	_gl$5 = null;
-	_generation$2 = 0;
+	_generation$4 = 0;
 	_index$2 = null;
 	_rgba = null;
 	_palettes = null;
@@ -216296,7 +216296,7 @@ var init_SpriteAtlas = __esmMin((() => {
 			}
 			if (_palettes) _gl$5.deleteTexture(_palettes);
 			_gl$5 = gl;
-			_generation$2++;
+			_generation$4++;
 			_index$2 = new ArrayAtlas(gl, false, 2048, 2, 16);
 			_rgba = new ArrayAtlas(gl, true, 1024, 1, 16);
 			_palettes = gl.createTexture();
@@ -216342,7 +216342,7 @@ var init_SpriteAtlas = __esmMin((() => {
 		* @returns {object|null} { rgba, layer, u0, v0, u1, v1 }, or null if it has no room
 		*/
 		static frame(spr, frame) {
-			if (spr._atlasGeneration !== _generation$2) pack(spr);
+			if (spr._atlasGeneration !== _generation$4) pack(spr);
 			return frame._atlas || null;
 		}
 		/**
@@ -296312,7 +296312,7 @@ var init_AcidDemonRingSim = __esmMin((() => {
 	RING_VERTICES$3 = RING_BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 }));
 // src/Renderer/Effects/AcidDemonRing.js
-var TEXTURE$6, _program$12, _texture$4, _generation$1, AcidDemonRing;
+var TEXTURE$6, _program$12, _texture$4, _generation$3, AcidDemonRing;
 var init_AcidDemonRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -296323,7 +296323,7 @@ var init_AcidDemonRing = __esmMin((() => {
 	TEXTURE$6 = "data/texture/effect/ring_black.tga";
 	_program$12 = null;
 	_texture$4 = null;
-	_generation$1 = 0;
+	_generation$3 = 0;
 	AcidDemonRing = class {
 		/**
 		* @param {vec3} position the target's cell (the effect copies it: the rings stay put)
@@ -296379,10 +296379,10 @@ var init_AcidDemonRing = __esmMin((() => {
 		}
 		static init(gl) {
 			_program$12 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			const generation = ++_generation$1;
+			const generation = ++_generation$3;
 			Client.loadFile(TEXTURE$6, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
-					if (generation !== _generation$1) {
+					if (generation !== _generation$3) {
 						gl.deleteTexture(texture);
 						return;
 					}
@@ -296394,7 +296394,7 @@ var init_AcidDemonRing = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_generation$1++;
+			_generation$3++;
 			if (_program$12) {
 				gl.deleteProgram(_program$12);
 				_program$12 = null;
@@ -296613,7 +296613,7 @@ var init_SonicWaveSim = __esmMin((() => {
 	].map((i) => simulateRing(i, variant).length)));
 }));
 // src/Renderer/Effects/SonicWave.js
-var _program$11, _textures$9, _generation, RINGS, SonicWave;
+var _program$11, _textures$9, _generation$2, RINGS, SonicWave;
 var init_SonicWave = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -296624,7 +296624,7 @@ var init_SonicWave = __esmMin((() => {
 	init_EffectPrim$1();
 	_program$11 = null;
 	_textures$9 = [null, null];
-	_generation = 0;
+	_generation$2 = 0;
 	RINGS = 4;
 	SonicWave = class {
 		/**
@@ -296710,11 +296710,11 @@ var init_SonicWave = __esmMin((() => {
 		}
 		static init(gl) {
 			_program$11 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			const generation = ++_generation;
+			const generation = ++_generation$2;
 			WAVE_TEXTURES.forEach((file, variant) => {
 				Client.loadFile(file, (buffer) => {
 					WebGL_default.texture(gl, buffer, (texture) => {
-						if (generation !== _generation) {
+						if (generation !== _generation$2) {
 							gl.deleteTexture(texture);
 							return;
 						}
@@ -296727,7 +296727,7 @@ var init_SonicWave = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			_generation++;
+			_generation$2++;
 			if (_program$11) {
 				gl.deleteProgram(_program$11);
 				_program$11 = null;
@@ -301797,43 +301797,50 @@ function vertex$2(out, i, center, x, y, up, u, v) {
 * @return {number} next float to write
 */
 function buildBolt(out, offset, bolt, point, kind, center) {
-	const len = Math.hypot(bolt.step.x, bolt.step.y, bolt.step.up);
-	const d = [
-		bolt.step.x / len,
-		bolt.step.y / len,
-		bolt.step.up / len
-	];
-	const flat = Math.hypot(d[0], d[1]) || 1;
-	const side = [
-		-d[1] / flat,
-		d[0] / flat,
-		0
-	];
-	const normal = [
-		side[1] * d[2] - side[2] * d[1],
-		side[2] * d[0] - side[0] * d[2],
-		side[0] * d[1] - side[1] * d[0]
-	];
+	let axes = bolt.axes;
+	if (!axes) {
+		const len = Math.hypot(bolt.step.x, bolt.step.y, bolt.step.up);
+		const dx = bolt.step.x / len;
+		const dy = bolt.step.y / len;
+		const dz = bolt.step.up / len;
+		const flat = Math.hypot(dx, dy) || 1;
+		const sx = -dy / flat;
+		const sy = dx / flat;
+		axes = bolt.axes = [
+			dx,
+			dy,
+			dz,
+			sx,
+			sy,
+			0,
+			sy * dz,
+			-sx * dz,
+			sx * dy - sy * dx
+		];
+	}
 	const L = kind.length;
 	const W = kind.width;
 	let o = offset;
-	[side, normal].forEach((across) => {
-		const corner = (along, wide) => [
-			point.x + d[0] * along + across[0] * wide,
-			point.y + d[1] * along + across[1] * wide,
-			point.up + d[2] * along + across[2] * wide
-		];
-		const tailMinus = corner(-L, -W);
-		const tailPlus = corner(-L, W);
-		const headMinus = corner(L, -W);
-		const headPlus = corner(L, W);
-		o = vertex$2(out, o, center, ...tailMinus, 0, 1);
-		o = vertex$2(out, o, center, ...headMinus, 1, 1);
-		o = vertex$2(out, o, center, ...tailPlus, 0, 0);
-		o = vertex$2(out, o, center, ...headMinus, 1, 1);
-		o = vertex$2(out, o, center, ...headPlus, 1, 0);
-		o = vertex$2(out, o, center, ...tailPlus, 0, 0);
-	});
+	for (let quad = 0; quad < 2; ++quad) {
+		const ax = axes[3 + quad * 3];
+		const ay = axes[4 + quad * 3];
+		const az = axes[5 + quad * 3];
+		const tx = point.x - axes[0] * L;
+		const ty = point.y - axes[1] * L;
+		const tz = point.up - axes[2] * L;
+		const hx = point.x + axes[0] * L;
+		const hy = point.y + axes[1] * L;
+		const hz = point.up + axes[2] * L;
+		const wx = ax * W;
+		const wy = ay * W;
+		const wz = az * W;
+		o = vertex$2(out, o, center, tx - wx, ty - wy, tz - wz, 0, 1);
+		o = vertex$2(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
+		o = vertex$2(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
+		o = vertex$2(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
+		o = vertex$2(out, o, center, hx + wx, hy + wy, hz + wz, 1, 0);
+		o = vertex$2(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
+	}
 	return o;
 }
 /**
@@ -301957,9 +301964,10 @@ var init_BoltRainSim = __esmMin((() => {
 function loadTexture$2(gl, name) {
 	if (_textures$1.has(name)) return;
 	_textures$1.set(name, null);
+	const generation = _generation$1;
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$1.has(name)) {
+			if (generation !== _generation$1 || !_textures$1.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
@@ -301967,7 +301975,7 @@ function loadTexture$2(gl, name) {
 		});
 	});
 }
-var _program$4, _textures$1, RING_VERTICES, BoltRain;
+var _program$4, _textures$1, _generation$1, RING_VERTICES, BoltRain;
 var init_BoltRain = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -301978,6 +301986,7 @@ var init_BoltRain = __esmMin((() => {
 	init_EffectPrim$1();
 	_program$4 = null;
 	_textures$1 = /* @__PURE__ */ new Map();
+	_generation$1 = 0;
 	RING_VERTICES = primVertexCount(BOLT_RING);
 	BoltRain = class {
 		/**
@@ -302054,7 +302063,7 @@ var init_BoltRain = __esmMin((() => {
 					const ringAge = frame - ringStart(bolt);
 					const ringTexture = _textures$1.get(self.kind.ring);
 					if (ringAge >= 0 && ringAge < BOLT_RING.frames && ringTexture) {
-						const state = createPrimState(BOLT_RING);
+						const state = bolt.ringState || (bolt.ringState = createPrimState(BOLT_RING));
 						advancePrim(state, ringAge);
 						if (state.alpha > 0) {
 							buildPrimGeometry(self.ringVertices, BOLT_RING, state, self.position);
@@ -302070,6 +302079,7 @@ var init_BoltRain = __esmMin((() => {
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
+			_generation$1++;
 			if (_program$4) {
 				gl.deleteProgram(_program$4);
 				_program$4 = null;
@@ -302209,48 +302219,32 @@ function vertex$1(out, i, center, x, y, up, u, v) {
 	out[i + 4] = v;
 	return i + 5;
 }
-/**
-* Build one spike: four faces, each from two base corners (V 1) to the tip (V 0),
-* a quarter of the texture across.
-*
-* @param {Float32Array} out
-* @param {number} offset first float to write
-* @param {object} spike
-* @param {number} rise from spikeAt
-* @param {Array} center effect position, in cells
-* @return {number} next float to write
-*/
 function buildSpike(out, offset, spike, rise, center) {
-	const [axis, a, b] = spikeAxes(spike);
-	const base = [
-		spike.x + axis[0] * rise,
-		spike.y + axis[1] * rise,
-		-SPIKE.depth + axis[2] * rise
-	];
+	const [axis, a, b] = spike.axes || (spike.axes = spikeAxes(spike));
+	const baseX = spike.x + axis[0] * rise;
+	const baseY = spike.y + axis[1] * rise;
+	const baseZ = -SPIKE.depth + axis[2] * rise;
 	const S = spike.size;
-	const point = (p, q, h) => [
-		base[0] + a[0] * p + b[0] * q + axis[0] * h,
-		base[1] + a[1] * p + b[1] * q + axis[1] * h,
-		base[2] + a[2] * p + b[2] * q + axis[2] * h
-	];
-	const corners = [
-		point(-S, -S, 0),
-		point(S, -S, 0),
-		point(S, S, 0),
-		point(-S, S, 0)
-	];
-	const tip = point(0, 0, spike.height);
+	const H = spike.height;
+	const tipX = baseX + axis[0] * H;
+	const tipY = baseY + axis[1] * H;
+	const tipZ = baseZ + axis[2] * H;
 	let o = offset;
 	let u = 0;
 	for (let i = 0; i < 4; ++i) {
-		o = vertex$1(out, o, center, ...corners[i], u, 1);
-		o = vertex$1(out, o, center, ...tip, u, 0);
-		o = vertex$1(out, o, center, ...corners[(i + 1) % 4], u + SPIKE.uStep, 1);
+		const j = (i + 1) % 4;
+		const p0 = CORNER_P[i] * S;
+		const q0 = CORNER_Q[i] * S;
+		const p1 = CORNER_P[j] * S;
+		const q1 = CORNER_Q[j] * S;
+		o = vertex$1(out, o, center, baseX + a[0] * p0 + b[0] * q0, baseY + a[1] * p0 + b[1] * q0, baseZ + a[2] * p0 + b[2] * q0, u, 1);
+		o = vertex$1(out, o, center, tipX, tipY, tipZ, u, 0);
+		o = vertex$1(out, o, center, baseX + a[0] * p1 + b[0] * q1, baseY + a[1] * p1 + b[1] * q1, baseZ + a[2] * p1 + b[2] * q1, u + SPIKE.uStep, 1);
 		u += SPIKE.uStep;
 	}
 	return o;
 }
-var DEG$1, SPIKE, PATH, SHARDS;
+var DEG$1, SPIKE, PATH, SHARDS, CORNER_P, CORNER_Q;
 var init_IceSpikesSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DEG$1 = Math.PI / 180;
@@ -302283,9 +302277,21 @@ var init_IceSpikesSim = __esmMin((() => {
 		height: [200, 100],
 		pitch: [80, 20]
 	};
+	CORNER_P = [
+		-1,
+		1,
+		1,
+		-1
+	];
+	CORNER_Q = [
+		-1,
+		-1,
+		1,
+		1
+	];
 }));
 // src/Renderer/Effects/IceSpikes.js
-var TEXTURE$1, _program$3, _texture$1, _loading$1, IceSpikes;
+var TEXTURE$1, _program$3, _texture$1, _loading$1, _generation, IceSpikes;
 var init_IceSpikes = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -302297,6 +302303,7 @@ var init_IceSpikes = __esmMin((() => {
 	_program$3 = null;
 	_texture$1 = null;
 	_loading$1 = false;
+	_generation = 0;
 	IceSpikes = class {
 		/**
 		* @param {vec3} position effect position (kept by reference: a spike follows it)
@@ -302321,8 +302328,13 @@ var init_IceSpikes = __esmMin((() => {
 			this.buffer = gl.createBuffer();
 			if (!_texture$1 && !_loading$1) {
 				_loading$1 = true;
+				const generation = _generation;
 				Client.loadFile(`data/texture/effect/${TEXTURE$1}`, (buffer) => {
 					WebGL_default.texture(gl, buffer, (texture) => {
+						if (generation !== _generation) {
+							gl.deleteTexture(texture);
+							return;
+						}
 						_texture$1 = texture;
 					});
 				});
@@ -302377,6 +302389,7 @@ var init_IceSpikes = __esmMin((() => {
 				_texture$1 = null;
 			}
 			_loading$1 = false;
+			_generation++;
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
