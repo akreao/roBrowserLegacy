@@ -27641,6 +27641,22 @@ export default {
 		}
 	],
 
+	// Epiclesis (AB_EPICLESIS) unit: the tree, once when the unit appears (EF_GlassWall.wav on frame 30). See effect-port/arch-bishop-skills.md.
+	1654: [
+		{
+			//(1654): CEZ2STREffect, new_epiclesis\\new_epiclesis_combine\\new_epiclesis_combine.str
+			type: 'STR',
+			file: 'new_epiclesis/new_epiclesis_combine/new_epiclesis_combine',
+			texturePath: 'new_epiclesis/new_epiclesis_combine/',
+			min: 'mineffect/new_epiclesis/new_epiclesis_combine',
+			minTexturePath: 'mineffect/new_epiclesis/',
+			wav: 'effect/ef_glasswall',
+			delayWav: 500,
+			repeat: false,
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
