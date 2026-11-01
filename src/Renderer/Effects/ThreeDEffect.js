@@ -1,11 +1,10 @@
-import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
 import Entity from 'Renderer/Entity/Entity.js';
-import { sharedTexture, freeSharedTextures } from 'Renderer/Effects/AuraBatch.js';
+import SharedEffectTextures from 'Renderer/Effects/SharedEffectTextures.js';
 
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
@@ -13,30 +12,8 @@ function randBetween(minimum, maximum) {
 
 const blendMode = {};
 
-// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance, and the
-// number of instances using each one.
-const _sharedTextures = new Map();
-const _sharedUsers = new Map();
-
-/**
- * One instance stops using a shared texture; the last one deletes it.
- *
- * @param {WebGL2RenderingContext} gl
- * @param {string} name
- */
-function releaseSharedTexture(gl, name) {
-	const users = (_sharedUsers.get(name) || 0) - 1;
-	if (users > 0) {
-		_sharedUsers.set(name, users);
-		return;
-	}
-	_sharedUsers.delete(name);
-	const entry = _sharedTextures.get(name);
-	if (entry && entry.texture) {
-		gl.deleteTexture(entry.texture);
-	}
-	_sharedTextures.delete(name);
-}
+// One texture per file for every instance.
+const _textures = new SharedEffectTextures();
 
 /**
  * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
@@ -63,15 +40,7 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
-		// Many instances of one row (particles): load the texture once and share it.
-		this.sharedTexture = !!effect.sharedTexture && !!effect.file;
-
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
-		// The same for every picture of a `fileList`, when all of them are effect/ files.
-		this.sharedFileList =
-			!!effect.sharedTexture &&
-			this.textureNameList.length > 0 &&
-			this.textureNameList.every(name => /^effect\//.test(name));
 		this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 
 		this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -437,68 +406,44 @@ class ThreeDEffect {
 	init(gl) {
 		this.loadedTextures = 0;
 		this.textureList = [];
-		if (this.sharedFileList) {
+		// Every instance shares one texture per file: loading one is slow.
+		this.textureHandles = [];
+		// A missing file: drop the effect instead of waiting for it forever
+		const missing = () => {
+			this.needCleanUp = true;
+		};
+
+		if (this.textureNameList.length > 0) {
 			const textureCount = this.textureNameList.length;
-			this.sharedTextureNames = this.textureNameList.map(name => name.slice('effect/'.length));
-			this.sharedTextureNames.forEach((name, i) => {
-				_sharedUsers.set(name, (_sharedUsers.get(name) || 0) + 1);
-				sharedTexture(
-					_sharedTextures,
-					gl,
-					name,
-					texture => {
-						this.textureList[i] = texture;
-						this.loadedTextures++;
-						if (this.loadedTextures == textureCount) {
-							this.ready = true;
-						}
-					},
-					// A missing file: drop the effect instead of waiting for it forever
-					() => {
-						this.needCleanUp = true;
-					}
+
+			this.textureNameList.forEach((name, i) => {
+				this.textureHandles.push(
+					_textures.acquire(
+						gl,
+						`data/texture/${name}`,
+						texture => {
+							this.textureList[i] = texture;
+							this.loadedTextures++;
+							if (this.loadedTextures == textureCount) {
+								this.ready = true;
+							}
+						},
+						missing
+					)
 				);
 			});
-		} else if (this.textureNameList.length > 0) {
-			const textureCount = this.textureNameList.length;
-
-			for (let i = 0; i < textureCount; i++) {
-				Client.loadFile(`data/texture/${this.textureNameList[i]}`, buffer => {
-					WebGL.texture(gl, buffer, texture => {
-						this.textureList[i] = texture;
-						this.loadedTextures++;
-
-						if (this.loadedTextures == textureCount) {
-							this.ready = true;
-						}
-					});
-				});
-			}
-		} else if (this.sharedTexture) {
-			this.sharedTextureName = /^effect\//.test(this.textureName)
-				? this.textureName.slice('effect/'.length)
-				: `data/texture/${this.textureName}`;
-			_sharedUsers.set(this.sharedTextureName, (_sharedUsers.get(this.sharedTextureName) || 0) + 1);
-			sharedTexture(
-				_sharedTextures,
-				gl,
-				this.sharedTextureName,
-				texture => {
-					this.texture = texture;
-					this.ready = true;
-				},
-				// A missing file: drop the effect instead of waiting for it forever
-				() => {
-					this.needCleanUp = true;
-				}
-			);
 		} else if (this.textureName) {
-			Client.loadFile(`data/texture/${this.textureName}`, buffer => {
-				WebGL.texture(gl, buffer, texture => {
-					this.texture = texture;
-					this.ready = true;
-				});
-			});
+			this.textureHandles.push(
+				_textures.acquire(
+					gl,
+					`data/texture/${this.textureName}`,
+					texture => {
+						this.texture = texture;
+						this.ready = true;
+					},
+					missing
+				)
+			);
 		} else {
 			this.ready = true;
 		}
@@ -507,13 +452,9 @@ class ThreeDEffect {
 	free(gl) {
 		this.ready = false;
 		// Also run when an owner's effects are removed (EffectManager.remove), not only on expiry.
-		if (this.sharedTextureName) {
-			releaseSharedTexture(gl, this.sharedTextureName);
-			this.sharedTextureName = null;
-		}
-		if (this.sharedTextureNames) {
-			this.sharedTextureNames.forEach(name => releaseSharedTexture(gl, name));
-			this.sharedTextureNames = null;
+		if (this.textureHandles) {
+			this.textureHandles.forEach(handle => _textures.release(gl, handle));
+			this.textureHandles = null;
 			this.textureList = [];
 		}
 	}
@@ -951,8 +892,7 @@ class ThreeDEffect {
 
 	static free(gl) {
 		this.ready = false;
-		freeSharedTextures(_sharedTextures, gl);
-		_sharedUsers.clear();
+		_textures.clear(gl);
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
