@@ -1495,6 +1495,23 @@ class EffectManager {
 			}
 		}
 
+		// One of four effects on the caster by its facing on screen
+		// (ScreenDirection.facingQuarter), when the packet's damage is due.
+		// Aimed Bolt's shot.
+		const arrivalByFacing = skill.arrivalEffectIdOnCasterByFacing;
+		const shooter = arrivalByFacing && srcAID ? EntityManager.get(srcAID) : null;
+		if (shooter) {
+			const effectId = arrivalByFacing[facingQuarter(facingAngle(shooter.direction))];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: arrivalTick,
+					otherAID: destAID
+				});
+			}
+		}
+
 		const srcEntity = srcAID ? EntityManager.get(srcAID) : null;
 		const destEntity = destAID ? EntityManager.get(destAID) : null;
 		if (!srcEntity || !destEntity) {
@@ -1781,8 +1798,9 @@ class EffectManager {
 			}
 		}
 
-		// Played on the skill's target (srcAID here) when the cast starts.
-		// Without a known target nothing plays, like the official client.
+		// Played on the skill's target (srcAID here) when the cast starts; rows
+		// marked castLoop last for the cast time. Without a known target nothing
+		// plays, like the official client.
 		if (SkillEffect[skillId].beginCastTargetEffectId && srcAID && EntityManager.get(srcAID)) {
 			effects = Array.isArray(SkillEffect[skillId].beginCastTargetEffectId)
 				? SkillEffect[skillId].beginCastTargetEffectId
@@ -1793,7 +1811,8 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: srcAID,
 					startTick: tick,
-					otherAID: destAID
+					otherAID: destAID,
+					castEndTick: castEndTick
 				};
 
 				EffectManager.spam(EF_Init_Par);

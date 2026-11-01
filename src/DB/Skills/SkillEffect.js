@@ -55,6 +55,10 @@
  *
  *	- arrivalEffectIdOnTarget:	The same on the target.
  *
+ *	- arrivalEffectIdOnCasterByFacing:
+ *								4 effects; plays one on the caster once per damage packet when its damage is due,
+ *								picked by the caster's facing on screen (ScreenDirection.facingQuarter). Aimed Bolt's shot.
+ *
  *	- splashEffectIdOnTarget:	Triggers on the target as a damage packet of the skill arrives with skill level -1,
  *								the server's mark on the targets a splash reaches (Venom Splasher's burst).
  *
@@ -1060,7 +1064,7 @@ SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
 // RA Ranger
 SkillEffect[SK.RA_ARROWSTORM] = { arrivalEffectIdOnTarget: ['ef_ra_arrowstorm_sound', 1293, 1294] }; //Arrow Storm: arrowstorm.wav + 1293, then 1294 three times (600 / 800 / 1000 ms), on each target as the damage arrives
 SkillEffect[SK.RA_FEARBREEZE] = { effectId: 'ef_ra_fearbreeze' }; //Fear Breeze
-SkillEffect[SK.RA_AIMEDBOLT] = { effectId: 745, beforeHitEffectId: 'ef_arrow_projectile' }; //Aimed Bolt
+SkillEffect[SK.RA_AIMEDBOLT] = { hideCastAura: true, beginCastEffectId: 1649, beginCastTargetEffectId: 1651, damageEffectIdOnTarget: 'ef_arrow_projectile', arrivalEffectIdOnTarget: 1650, arrivalEffectIdOnCasterByFacing: [1646, 1645, 1648, 1647] }; //Aimed Bolt: no aura, 1649 while casting, 1651 on the target while casting; bow arrow per damage packet; 1650 on the target and the shot by facing on the caster as the damage arrives
 SkillEffect[SK.RA_DETONATOR] = { effectId: 750 }; //Detonator
 SkillEffect[SK.RA_ELECTRICSHOCKER] = {}; //Electric Shocker
 SkillEffect[SK.RA_CLUSTERBOMB] = {}; //Cluster Bomb

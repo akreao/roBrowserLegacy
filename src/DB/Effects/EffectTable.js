@@ -27136,6 +27136,100 @@ export default {
 		}
 	],
 
+	// Aimed Bolt (RA_AIMEDBOLT) cast floor: the client plays it on the caster for the cast time (no cast aura). See effect-port/ranger-skills.md.
+	1649: [
+		{
+			//(1649): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_cast_bottom\\new_aimedbolt_cast_bottom.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_cast_bottom/new_aimedbolt_cast_bottom',
+			texturePath: 'new_aimedbolt/new_aimedbolt_cast_bottom/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/new_aimedbolt_cast_bottom',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_cast_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) target mark: on the target for the cast time. See effect-port/ranger-skills.md.
+	1651: [
+		{
+			//(1651): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_target_loop\\new_aimedbolt_target_loop.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_target_loop/new_aimedbolt_target_loop',
+			texturePath: 'new_aimedbolt/new_aimedbolt_target_loop/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_target_loop/new_aimedbolt_target_loop',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_target_loop/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) on the target as the damage arrives. See effect-port/ranger-skills.md.
+	1650: [
+		{
+			//(1650): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_target_end\\new_aimedbolt_end.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_target_end/new_aimedbolt_end',
+			texturePath: 'new_aimedbolt/new_aimedbolt_target_end/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_target_end/new_aimedbolt_end',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_target_end/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 1 (ScreenDirection.facingQuarter). See effect-port/ranger-skills.md.
+	1645: [
+		{
+			//(1645): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_01clock\\new_aimedbolt_attack_01clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_01clock/new_aimedbolt_attack_01clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_01clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_01clock/new_aimedbolt_attack_01clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_01clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 0. See effect-port/ranger-skills.md.
+	1646: [
+		{
+			//(1646): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_05clock\\new_aimedbolt_attack_05clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_05clock/new_aimedbolt_attack_05clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_05clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_05clock/new_aimedbolt_attack_05clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_05clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 3. See effect-port/ranger-skills.md.
+	1647: [
+		{
+			//(1647): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_07clock\\new_aimedbolt_attack_07clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_07clock/new_aimedbolt_attack_07clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_07clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_07clock/new_aimedbolt_attack_07clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_07clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Aimed Bolt (RA_AIMEDBOLT) shot on the caster, facing quarter 2. See effect-port/ranger-skills.md.
+	1648: [
+		{
+			//(1648): CEZ2STREffect, new_aimedbolt\\new_aimedbolt_attack_11clock\\new_aimedbolt_attack_11clock.str
+			type: 'STR',
+			file: 'new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock',
+			texturePath: 'new_aimedbolt/new_aimedbolt_attack_11clock/',
+			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock',
+			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/',
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
