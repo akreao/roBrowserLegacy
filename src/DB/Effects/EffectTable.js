@@ -3939,6 +3939,14 @@ export default {
 
 	130: [
 		{
+			// The official client removes a running 130 before it starts a new one (knight-audit.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.remove(null, Params.Init.ownerAID, 130);
+			}
+		},
+		{
 			//EF_TWOHANDQUICKEN	Two-Hand Quicken
 			type: 'STR',
 			file: 'twohand',
