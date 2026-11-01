@@ -33,10 +33,13 @@ vi.mock('UI/UIManager.js', () => ({ default: { addComponent: component => compon
 vi.mock('UI/Components/Navigation/MapPathFinder.js', () => ({ default: { findPathBetweenMaps: () => null } }));
 vi.mock('UI/Components/PrivateAirship/PrivateAirship.js', () => ({ default: { open: options => opened.push(options) } }));
 
-globalThis.Worker = class {
-	postMessage() {}
-	terminate() {}
-};
+vi.stubGlobal(
+	'Worker',
+	class {
+		postMessage() {}
+		terminate() {}
+	}
+);
 
 const PACKETVER = (await import('Network/PacketVerManager.js')).default;
 const Navigation = (await import('UI/Components/Navigation/Navigation.js')).default;

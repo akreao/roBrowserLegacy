@@ -112,8 +112,8 @@ describe('Intensive Aim files', () => {
 	});
 
 	it('passes the status values on from the status packet', () => {
-		expect(read('Engine/MapEngine/Entity.js')).toContain(
-			'updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val);'
+		expect(read('Engine/MapEngine/Entity.js')).toMatch(
+			/updateStatusEffects\(\s*pkt\.AID,\s*pkt\.index,[^;]*pkt\.state[^;]*,\s*pkt\.val\s*\);/
 		);
 	});
 

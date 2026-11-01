@@ -1482,6 +1482,9 @@ class DB {
 						return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
 					} else if (id.includes('_WUG')) {
 						return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+					} else if (id.startsWith('CART_')) {
+						const cartNum = parseInt(id.slice(5), 10) || 0;
+						return DB.getCartPath(cartNum);
 					}
 				}
 				break;
@@ -1726,22 +1729,71 @@ class DB {
 	}
 
 	/**
+	 * Is the item ID a shield item?
+	 * Only checks inventory item IDs, never view IDs.
+	 *
+	 * @param {integer} id item id
+	 * @return {boolean}
+	 */
+	static isShieldItem(id) {
+		const num = Number(id);
+		if (isNaN(num) || num <= 0) {
+			return false;
+		}
+		// Shield item ID ranges from official client (CSession_sub_D6EAC0):
+		// 2101 - 2199 (Classic shields)
+		// 28901 - 28998 (Shadow / specialized shields)
+		// 460000 - 469999 (Modern / renewal shields)
+		return (num >= 2100 && num <= 2199) || (num >= 28900 && num <= 28999) || (num >= 460000 && num <= 469999);
+	}
+
+	/**
 	 * is shield checking
 	 *
-	 * @param {integer} id
+	 * The left-hand slot can hold either an item ID or a view ID (ClassNum, <= 500).
+	 * Shield views and weapon views share the same numeric range (1-500).
+	 *
+	 * When reliable offhand information is known (isOffhandWeapon === true/false),
+	 * that flag distinguishes weapons from shields.
+	 * When explicitly marked (isOffhandWeapon is true/false), that classification is honored.
+	 * When unknown (isOffhandWeapon === undefined), ambiguous view IDs (<= 500) are preserved
+	 * as shields unless reliable weapon evidence is present (e.g. item ID > 500), rather than
+	 * assuming every assassin's shield view is a weapon.
+	 *
+	 * @param {integer} id item id or view id
+	 * @param {integer} [job] job id of the owner
+	 * @param {boolean} [isOffhandWeapon] explicitly marks whether the equipment is an offhand weapon
 	 * @return {boolean} is shield?
 	 *
 	 * @author MrUnzO
 	 */
-	static isShield(id) {
-		// shields has the following ranges:
-		// 2100 - 2199
-		// 28900 - 28999
-		// 460000 - 460099
-		if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
+	static isShield(id, job, isOffhandWeapon) {
+		const num = Number(id);
+		if (isNaN(num) || num <= 0) {
+			return false;
+		}
+
+		if (isOffhandWeapon === true) {
+			return false;
+		}
+
+		if (isOffhandWeapon === false) {
 			return true;
 		}
-		return false;
+
+		if (DB.isShieldItem(num)) {
+			return true;
+		}
+
+		// Any other item ID (> 500) is not a shield (reliable offhand weapon evidence)
+		if (num > 500) {
+			return false;
+		}
+
+		// View ID (1-500):
+		// Ambiguous offhand view IDs default to shields unless explicitly classified
+		// as an offhand weapon from a reliable source.
+		return true;
 	}
 
 	static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
@@ -2298,32 +2350,37 @@ class DB {
 	 * @param {boolean} sex
 	 */
 	static getShieldPath(id, job, sex) {
-		if (id === 0) {
+		if (!id || id <= 0) {
 			return null;
 		}
 
 		// Dual weapon (based on range id)
-		if (!DB.isShield(id)) {
+		if (!DB.isShield(id, job, false)) {
 			return DB.getWeaponPath(id, job, sex);
 		}
 
 		const baseClass = ShieldJobTable[job] || ShieldJobTable[0];
 
 		// ItemID to View Id
+		let viewId = id;
 		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-			id = ItemTable[id].ClassNum;
+			viewId = ItemTable[id].ClassNum;
 		}
 
-		return (
-			'data/sprite/\xb9\xe6\xc6\xd0/' +
-			baseClass +
-			'/' +
-			baseClass +
-			'_' +
-			SexTable[sex] +
-			'_' +
-			(ShieldTable[id] || ShieldTable[1])
-		);
+		if (!viewId || viewId <= 0) {
+			return null;
+		}
+
+		let suffix = '';
+		if (viewId in ShieldTable) {
+			suffix = ShieldTable[viewId];
+		} else if (viewId >= 5) {
+			suffix = viewId + '_\xb9\xe6\xc6\xd0';
+		} else {
+			return null;
+		}
+
+		return 'data/sprite/\xb9\xe6\xc6\xd0/' + baseClass + '/' + baseClass + '_' + SexTable[sex] + '_' + suffix;
 	}
 
 	/**
@@ -4990,8 +5047,12 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 			.flatMap(name => (name && typeof name === 'object' ? Object.values(name) : [name]))
 			.flat(Infinity);
 		for (const name of names) {
-			const effects = typeof name === 'string' ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some(effect => keyOf(effect.file) === wanted)) {
+			// Rows are named by string or by numeric effect id; only STR rows play a file
+			const effects = typeof name === 'string' || typeof name === 'number' ? EffectTable[name] : null;
+			if (
+				Array.isArray(effects) &&
+				effects.some(effect => effect && effect.type === 'STR' && keyOf(effect.file) === wanted)
+			) {
 				return true;
 			}
 		}
@@ -5115,15 +5176,23 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 	// for KR_THUNDERING_CALL). The bson files a sibling's variant under the base
 	// skill's folder (thundering_call_y_3x3 sits in KR_THUNDERING_CALL), so it
 	// would land on the base skill too.
-	const skidNames = Object.keys(SKID);
+	// Built once: skill id -> the ids of its siblings. Their rows are read when
+	// asked, so a row an earlier EZ2 record gave a sibling counts too.
+	const siblingIds = {};
+	const skidNames = Object.keys(SKID).sort();
+	for (let i = 0; i < skidNames.length; i++) {
+		const prefix = skidNames[i] + '_';
+		// Sorted, so every name starting with prefix follows this one
+		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
+			const other = SKID[skidNames[j]];
+			if (skidNames[j].startsWith(prefix) && other !== SKID[skidNames[i]]) {
+				(siblingIds[SKID[skidNames[i]]] || (siblingIds[SKID[skidNames[i]]] = [])).push(other);
+			}
+		}
+	}
 	function siblingPlaysFile(skillId, file) {
-		return skidNames.some(
-			name =>
-				SKID[name] === skillId &&
-				skidNames.some(
-					other => other.startsWith(name + '_') && skillPlaysFile(SkillEffect[SKID[other]], EffectTable, file)
-				)
-		);
+		const siblings = siblingIds[skillId];
+		return !!siblings && siblings.some(id => skillPlaysFile(SkillEffect[id], EffectTable, file));
 	}
 
 	// Phase 2: Inheritance and Assignments
@@ -5184,14 +5253,15 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		count++;
 
 		// Pass 6: SkillEffect Mapping with differentiated fields
-		// A skill that already plays this file, from a hand-written entry, or a
-		// status that plays it (StatusEffectTable.js) or a skill unit that does
-		// (SkillUnit.js), would draw it twice.
-		// Endless (IsInfinite) files are a status's or a unit's loop: played
-		// from a skill's cast, nothing would ever stop them.
-		// Only one variant of an effect: the official client picks one by
-		// stage, element or direction, and all of them at once is a pile.
-		// Nor a file a sibling skill already draws.
+		// Not added when:
+		// - the skill already plays this file from a hand-written entry, which
+		//   would draw it twice;
+		// - it is endless (IsInfinite): that is a status's or a unit's loop, and
+		//   played from a skill's cast nothing would ever stop it;
+		// - the skill already has another variant of it: the official client
+		//   picks one by stage, element or direction, and all at once is a pile;
+		// - a sibling skill already draws it;
+		// - a status (StatusEffectTable.js) or a skill unit (SkillUnit.js) draws it.
 		const file = EffectTable[effectName][0].file;
 		if (
 			skillId &&

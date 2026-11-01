@@ -135,6 +135,13 @@ function _untrackNoCursorStyle(style) {
 let _snapCache = [];
 
 /**
+ * Open windows that freeze the map. It thaws when the last one closes, not the
+ * first: the NPC store asks for a quantity in a second one, and message boxes
+ * are clones sharing one name.
+ */
+const _frozenBy = [];
+
+/**
  * Mouse interaction modes
  */
 const MouseMode = Object.freeze({
@@ -195,14 +202,6 @@ const CSS_NUMBER = {
 	widows: true,
 	zoom: true
 };
-
-/**
- * The FREEZE-mode components open now. The map gets its clicks back only when
- * the last one closes, so a window opened over another (an InputBox over a
- * shop) cannot unfreeze it.
- * @type {Set<GUIComponent>}
- */
-const _frozenBy = new Set();
 
 class GUIComponent {
 	/**
@@ -365,7 +364,9 @@ class GUIComponent {
 
 		// Freeze mode
 		if (this.mouseMode === MouseMode.FREEZE) {
-			_frozenBy.add(this);
+			if (!_frozenBy.includes(this)) {
+				_frozenBy.push(this);
+			}
 			Mouse.intersect = false;
 			Session.FreezeUI = true;
 			_EntityManager?.setOverEntity(null);
@@ -444,8 +445,11 @@ class GUIComponent {
 			// InputBox used to hand the map its clicks back while the shop was
 			// still open, so pressing Buy also walked to where it was pressed.
 			if (this.mouseMode === MouseMode.FREEZE) {
-				_frozenBy.delete(this);
-				if (_frozenBy.size === 0) {
+				const index = _frozenBy.indexOf(this);
+				if (index !== -1) {
+					_frozenBy.splice(index, 1);
+				}
+				if (!_frozenBy.length) {
 					Mouse.intersect = true;
 					Session.FreezeUI = false;
 				}
@@ -1007,6 +1011,14 @@ class GUIComponent {
 
 			_hovering = false;
 			_Cursor?.setType(_savedType);
+		});
+
+		// A window closed under the pointer never sees it leave its button.
+		container.addEventListener('x_remove', () => {
+			if (_hovering) {
+				_hovering = false;
+				_Cursor?.setType(_savedType);
+			}
 		});
 
 		container.addEventListener('mousedown', e => {

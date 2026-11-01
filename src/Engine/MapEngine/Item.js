@@ -11,6 +11,7 @@
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import ItemType from 'DB/Items/ItemType.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
@@ -26,6 +27,7 @@ import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip.js';
 import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
+import { resolveEntityWeapons } from 'Engine/MapEngine/OffhandWeapon.js';
 import Storage from 'UI/Components/Storage/Storage.js';
 import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection.js';
 import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
@@ -147,11 +149,29 @@ function onEquipementTakeOff(pkt) {
 		if (pkt.wearLocation & EquipLocation.GARMENT) {
 			Session.Entity.robe = Equipment.checkEquipLoc(EquipLocation.COSTUME_ROBE);
 		}
-		if (pkt.wearLocation & EquipLocation.WEAPON) {
-			Session.Entity.weapon = 0;
-		}
-		if (pkt.wearLocation & EquipLocation.SHIELD) {
-			Session.Entity.shield = 0;
+		if (pkt.wearLocation & (EquipLocation.WEAPON | EquipLocation.SHIELD)) {
+			// Read what is still held from the equipment, not from the entity: a
+			// dual wielder's entity.weapon holds both hands packed into one value.
+			const heldAt = location =>
+				typeof Equipment.getEquippedItemByLocation === 'function'
+					? Equipment.getEquippedItemByLocation(location)
+					: null;
+			const right = heldAt(EquipLocation.WEAPON);
+			const left = heldAt(EquipLocation.SHIELD);
+			let shieldVal = 0;
+			if (left) {
+				shieldVal = left.type === ItemType.WEAPON ? left.ITID : Session.Entity.shield;
+			}
+			const resolved = resolveEntityWeapons(
+				right ? right.ITID : 0,
+				shieldVal,
+				Session.Entity,
+				Session.Entity,
+				Inventory,
+				Equipment
+			);
+			Session.Entity.weapon = resolved.weapon;
+			Session.Entity.shield = resolved.shield;
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP) {
 			Session.Entity.accessory2 = Equipment.checkEquipLoc(EquipLocation.HEAD_TOP);
@@ -217,11 +237,19 @@ function onItemEquip(pkt) {
 			Session.Entity.robe = CostumeCheckRobe ? CostumeCheckRobe : pkt.viewid;
 		}
 
-		if (pkt.wearLocation & EquipLocation.WEAPON) {
-			Session.Entity.weapon = pkt.viewid;
-		}
-		if (pkt.wearLocation & EquipLocation.SHIELD) {
-			Session.Entity.shield = pkt.viewid;
+		if (pkt.wearLocation & EquipLocation.WEAPON || pkt.wearLocation & EquipLocation.SHIELD) {
+			const weaponVal = pkt.wearLocation & EquipLocation.WEAPON ? pkt.viewid : Session.Entity.weapon;
+			const shieldVal = pkt.wearLocation & EquipLocation.SHIELD ? pkt.viewid : Session.Entity.shield;
+			const resolved = resolveEntityWeapons(
+				weaponVal,
+				shieldVal,
+				Session.Entity,
+				Session.Entity,
+				Inventory,
+				Equipment
+			);
+			Session.Entity.weapon = resolved.weapon;
+			Session.Entity.shield = resolved.shield;
 		}
 
 		// costume override regular equips
@@ -429,6 +457,15 @@ function onCartSetInfo(pkt) {
 
 function onCartRemoveItem(pkt) {
 	CartItems.removeItem(pkt.index, pkt.count);
+}
+
+function onCartOff() {
+	Session.hasCart = false;
+	if (Session.Entity) {
+		Session.Entity._statusCart = false;
+		Session.Entity.setCart(false);
+	}
+	CartItems.remove();
 }
 
 CartItems.reqRemoveItem = function ReqRemoveItem(index, count) {
@@ -766,6 +803,7 @@ export default function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_WEAR_EQUIP_V5, onItemEquip);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_BODY, onIventoryRemoveItem);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_CART, onCartRemoveItem);
+	Network.hookPacket(PACKET.ZC.CARTOFF, onCartOff);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK2, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.EQUIP_ARROW, onArrowEquipped);

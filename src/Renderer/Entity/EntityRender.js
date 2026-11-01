@@ -27,8 +27,6 @@ import StatusConst from 'DB/Status/StatusState.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import Session from 'Engine/SessionStorage.js';
-import DB from 'DB/DBManager.js';
 import GarmentLayer from 'DB/Items/GarmentLayer.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
@@ -46,6 +44,7 @@ import {
 } from 'Renderer/Effects/BodyMotionSim.js';
 import { scaledLayer } from 'Renderer/Entity/ScaledLayer.js';
 import { flyingLiftPx } from 'Renderer/Entity/FlyingLift.js';
+import EntityComposer from './EntityComposer.js';
 
 /**
  * Load dependencies
@@ -460,114 +459,29 @@ const renderEntity = (function renderEntityClosure() {
 				// depthWrite = allow entity to occlude others
 				// depthCorrection ENABLED (required for isometric depth)
 				SpriteRenderer.runWithDepth(true, true, false, function () {
-					let cartidx;
-					// madogear don't appear costumes
-					const RIDING_STATUS =
-						self.effectState &
-							(StatusConst.EffectState.RIDING |
-								StatusConst.EffectState.DRAGON1 |
-								StatusConst.EffectState.DRAGON2 |
-								StatusConst.EffectState.DRAGON3 |
-								StatusConst.EffectState.DRAGON4 |
-								StatusConst.EffectState.DRAGON5 |
-								StatusConst.EffectState.WUGRIDER) || self.allRidingState;
+					// The layers are drawn as one sprite (EntityComposer), so only the order
+					// below decides what covers what.
+					SpriteRenderer.zIndex = 150;
+					EntityComposer.begin(self);
 
 					// Garment over or under the body: the client's own table when it was loaded, else the facing
 					const robeOnTop = self.robe > 0 && garmentOnTop(self, direction);
-					const robeFromTable = self.robe > 0 && GarmentLayer.isLoaded(self.sex);
-
-					function robeCorrection(lookingFront) {
-						if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-							const HEAD_SIZE = 64;
-							const COMPENSATION = 25;
-							if (
-								self.robeHeight +
-									(self.action === self.ACTION.SIT
-										? 0
-										: RIDING_STATUS && lookingFront
-											? COMPENSATION * 2
-											: COMPENSATION) >
-								self.bodyHeight + HEAD_SIZE
-							) {
-								if (
-									!robeFromTable &&
-									(self.action === self.ACTION.ATTACK ||
-										self.action === self.ACTION.ATTACK1 ||
-										self.action === self.ACTION.ATTACK2 ||
-										self.action === self.ACTION.ATTACK3) &&
-									!lookingFront
-								) {
-									return -450;
-								}
-								if (self.action === self.ACTION.SIT) {
-									return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
-								}
-								return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
-							}
-						}
-						if (self.action === self.ACTION.SIT) {
-							return lookingFront ? -100 : 550;
-						}
-						return lookingFront ? 1 : 400;
-					}
 
 					// Shield is behind on some position, seems to be hardcoded by the client
 					if (self.shield && behind) {
-						SpriteRenderer.runWithDepth(true, false, false, function () {
-							SpriteRenderer.zIndex = -1;
-							renderElement(self, self.files.shield, 'shield', _position, true);
-						});
-					}
-
-					if (!isLookingBack(direction)) {
-						// looking front
-						if (Session.Playing == true && self.hasCart == true) {
-							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-
-							// Draw Cart
-							SpriteRenderer.runWithDepth(true, false, false, function () {
-								SpriteRenderer.zIndex = -1;
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								SpriteRenderer.zIndex = 1;
-								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-							});
-						}
+						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
 
 					// Draw Robe, under the body
 					if (self.robe > 0 && !robeOnTop) {
-						SpriteRenderer.zIndex = robeCorrection(true);
 						renderElement(self, self.files.robe, 'robe', _position, true);
-					}
-
-					SpriteRenderer.zIndex = 150;
-					if (
-						RIDING_STATUS &&
-						!isLookingBack(direction) &&
-						(self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)
-					) {
-						SpriteRenderer.zIndex *= 2;
 					}
 
 					// Draw Body
 					renderElement(self, self.files.body, 'body', _position, true);
 
-					// Isometric Projection Body Offset
-					let bodyZOffset = 250;
-					if (RIDING_STATUS) {
-						bodyZOffset *= 2;
-						if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) {
-							bodyZOffset += 250;
-						}
-					}
-
-					SpriteRenderer.zIndex = bodyZOffset + 50;
-
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
-
-					// TB_Layer_Priority = {Default_Mid = 100, Default_Top = 200, Default_Bottom = 300, Default_Robe = 400 }
-					// Values*10 reference https://github.com/zhad3/zrenderer/blob/c10b337dfb9d44e33b146551191b3398630823b5/source/sprite.d#L84
 
 					// Summoner Hide shows only the bush: the head is empty on that frame,
 					// but headgear sprites have art there, so they are skipped.
@@ -575,8 +489,6 @@ const renderEntity = (function renderEntityClosure() {
 
 					// Hat Middle
 					if (showHats && self.accessory3 > 0 && self.accessory3 !== self.accessory) {
-						// accessory already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 100;
 						renderElement(self, self.files.accessory3, 'head', _position, false);
 					}
 
@@ -588,49 +500,33 @@ const renderEntity = (function renderEntityClosure() {
 						self.accessory2 !== self.accessory3
 					) {
 						// accessory and accessory3 already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 200;
 						renderElement(self, self.files.accessory2, 'head', _position, false);
 					}
 
 					// Hat Bottom
 					if (showHats && self.accessory > 0) {
-						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
 
 					// Draw Robe, over the body
 					if (self.robe > 0 && robeOnTop) {
-						SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
 						renderElement(self, self.files.robe, 'robe', _position, true);
-					}
-
-					if (isLookingBack(direction)) {
-						// looking back
-
-						// Draw Cart
-						if (Session.Playing == true && self.hasCart == true) {
-							SpriteRenderer.zIndex = bodyZOffset + 500;
-							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-							SpriteRenderer.runWithDepth(true, false, false, function () {
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-							});
-						}
 					}
 
 					// Draw Weapon
 					if (self.weapon > 0) {
-						SpriteRenderer.zIndex = bodyZOffset + 250;
 						renderElement(self, self.files.weapon, 'weapon', _position, true);
 						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 					}
 
 					if (self.shield > 0 && !behind) {
-						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
+					EntityComposer.end();
+					flushReadyGlows();
 				});
 				break;
+			case Entity.TYPE_WUG:
 			case Entity.TYPE_HOM:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
@@ -819,6 +715,48 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 }
 
 /**
+ * Glows of a composed player's layers, kept until the composite is drawn so
+ * they land on top of it as they did on top of each layer.
+ */
+const _deferredGlows = [];
+let _deferredGlowCount = 0;
+
+function deferReadyGlow(entity, layers, spr, pal, files, _position, glowColor, alpha) {
+	let item = _deferredGlows[_deferredGlowCount];
+	if (!item) {
+		item = _deferredGlows[_deferredGlowCount] = { position: new Int32Array(2) };
+	}
+	_deferredGlowCount++;
+	item.entity = entity;
+	item.layers = layers;
+	item.spr = spr;
+	item.pal = pal;
+	item.files = files;
+	item.position[0] = _position[0];
+	item.position[1] = _position[1];
+	item.color = glowColor;
+	item.alpha = alpha;
+}
+
+function flushReadyGlows() {
+	for (let i = 0; i < _deferredGlowCount; i++) {
+		const item = _deferredGlows[i];
+		renderReadyGlow(
+			item.entity,
+			item.layers,
+			item.spr,
+			item.pal,
+			item.files,
+			item.position,
+			item.color,
+			item.alpha
+		);
+		item.entity = item.layers = item.spr = item.pal = item.files = null;
+	}
+	_deferredGlowCount = 0;
+}
+
+/**
  * Body glow (BodyMotion.js: Taekwon ready glow, Gunslinger blue and red
  * glows): the layers drawn twice more, added, in one colour at one alpha.
  *
@@ -967,7 +905,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, enab
 		return;
 	}
 
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return;
 	}
 
@@ -1183,49 +1121,6 @@ const renderElement = (function renderElementClosure() {
 			_position[1] = position[1] - animation.pos[0].y;
 		}
 
-		if (type === 'cart' || type === 'cartshadow') {
-			const direction = (Camera.direction + entity.direction + 8) % 8;
-
-			switch (direction) {
-				case 0:
-					{
-						_position[0] = 0;
-						_position[1] = -30;
-					}
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4:
-					{
-						_position[0] = 0;
-						_position[1] = 20;
-					}
-					break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
-					break;
-			}
-		}
-
 		// Check if special body effect and enable the correct blend mode
 		const hasBerserkOrMarionette =
 			(type !== 'shadow' && entity.getOpt3(StatusConst.Status.BERSERK)) ||
@@ -1245,30 +1140,35 @@ const renderElement = (function renderElementClosure() {
 		const isEXPLOSIONSPIRITS = entity.getOpt3(StatusConst.Status.EXPLOSIONSPIRITS);
 		const isBERSERK = entity.getOpt3(StatusConst.Status.BERSERK);
 
-		renderSecondBody(
-			entity,
-			layers,
-			spr,
-			pal,
-			files,
-			type,
-			_position,
-			entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
-			isENERGYCOAT ||
-				isBUNSIN ||
-				isHALLUCINATIONWALK ||
-				isQUICKEN ||
-				isOVERTHRUST ||
-				isEXPLOSIONSPIRITS ||
-				isBERSERK ||
-				!!entity._fastMoveTrail ||
-				!!entity._enableTrail,
-			isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
+		// Halo, trails and the other copies are drawn on their own, not into the composed player
+		const outsideComposite = draw => (EntityComposer.active ? EntityComposer.suspend(draw) : draw());
+
+		outsideComposite(() =>
+			renderSecondBody(
+				entity,
+				layers,
+				spr,
+				pal,
+				files,
+				type,
+				_position,
+				entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
+				isENERGYCOAT ||
+					isBUNSIN ||
+					isHALLUCINATIONWALK ||
+					isQUICKEN ||
+					isOVERTHRUST ||
+					isEXPLOSIONSPIRITS ||
+					isBERSERK ||
+					!!entity._fastMoveTrail ||
+					!!entity._enableTrail,
+				isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
+			)
 		);
 
 		// Glow copy and split images some cast effects put on the caster (CasterMarks.js)
 		if (type !== 'shadow' && type !== 'cartshadow' && (entity._castGlow > 0 || entity._splitImageAge >= 0)) {
-			renderCasterMarks(entity, layers, spr, pal, files, _position);
+			outsideComposite(() => renderCasterMarks(entity, layers, spr, pal, files, _position));
 		}
 
 		// Link glow and Kaite's ripples (BodyMotion.js), drawn under the body
@@ -1280,11 +1180,11 @@ const renderElement = (function renderElementClosure() {
 		if (marks && marks.length) {
 			const link = linkAlpha(marks);
 			if (link > 0) {
-				renderLinkGlow(entity, layers, spr, pal, files, _position, link);
+				outsideComposite(() => renderLinkGlow(entity, layers, spr, pal, files, _position, link));
 			}
 			if (hasReflect(marks)) {
 				if (!isBlendModeOne) {
-					renderReflectRipples(entity, layers, spr, pal, files, _position);
+					outsideComposite(() => renderReflectRipples(entity, layers, spr, pal, files, _position));
 				}
 				entity.effectColor[3] = bodyAlpha * (REFLECT_BODY_ALPHA / 255);
 			}
@@ -1300,7 +1200,13 @@ const renderElement = (function renderElementClosure() {
 		if (marks && marks.length) {
 			const glows = glowLayers(marks);
 			for (let g = 0; g < glows.length; g++) {
-				renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
+				const glow = glows[g];
+				if (EntityComposer.active) {
+					// Drawn over the composed player once it is drawn, not under it
+					deferReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha);
+				} else {
+					renderReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha);
+				}
 			}
 		}
 
@@ -1363,7 +1269,7 @@ function getAnimationDelay(type, entity, act) {
  */
 function calcAnimation(entity, act, type, tick) {
 	// Fix for shadow
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return 0;
 	}
 
@@ -1385,10 +1291,6 @@ function calcAnimation(entity, act, type, tick) {
 	}
 	if (animation.speed) {
 		delay = animation.speed;
-	}
-
-	if (type === 'cart' && isIdle) {
-		return 0;
 	}
 
 	// Get rid of doridori
@@ -1616,6 +1518,9 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
+
+	// Collect player layers so the composed character is submitted once.
+	if (EntityComposer.capture(this, frame, pal.palette, SpriteRenderer.offset)) return;
 
 	// Draw Sprite
 	SpriteRenderer.render(isBlendModeOne);
