@@ -25,7 +25,10 @@ import {
 	trailAngles,
 	lineAlpha,
 	arcPoint,
-	coreColor
+	coreColor,
+	spiralTrail,
+	spiralPoint,
+	spiralColor
 } from 'Renderer/Effects/HitLineSim.js';
 
 const _batch = new AuraBatch({ fog: true, mergeAdditive: true });
@@ -55,7 +58,7 @@ const BLUE = [0, 0, 1];
  * @param {Float32Array} [out]
  * @return {Float32Array} x, y, z, u, v each
  */
-export function segmentVertices(a, b, heading, radius, out = new Float32Array(TUBE_VERTICES * 5)) {
+export function segmentVertices(a, b, heading, radius, out = new Float32Array(TUBE_VERTICES * 5), up = HITLINE.up) {
 	const rad = Math.PI / 180;
 	// Across the line, level: the heading turned 90 degrees.
 	const px = -Math.sin(heading * rad);
@@ -64,7 +67,7 @@ export function segmentVertices(a, b, heading, radius, out = new Float32Array(TU
 	for (let k = 0; k <= SIDES; k++) {
 		const t = (k * 360 * rad) / SIDES;
 		const side = radius * Math.cos(t);
-		ring.push([px * side, radius * Math.sin(t) - HITLINE.up, pz * side]);
+		ring.push([px * side, radius * Math.sin(t) - up, pz * side]);
 	}
 	let o = 0;
 	const put = (p, off, u, v) => {
@@ -137,7 +140,8 @@ class HitLine {
 			return;
 		}
 
-		const at = this.owner && this.owner.position;
+		// The kick lines follow the target; 330's stay where they started
+		const at = !this.kind.spiral && this.owner && this.owner.position;
 		if (at) {
 			this.position[0] = at[0];
 			this.position[1] = at[1];
@@ -155,16 +159,20 @@ class HitLine {
 				continue;
 			}
 			const kind = this.kind;
-			const angles = trailAngles(c, kind.segments);
+			const states = kind.spiral ? spiralTrail(c, kind.segments) : null;
+			const angles = kind.spiral ? null : trailAngles(c, kind.segments);
 			for (let i = 0; i < kind.segments; i++) {
-				const a = alpha - HITLINE.segmentFade * i;
-				if (a <= 0 || angles[i] === angles[i + 1]) {
+				const a = alpha - kind.segmentFade * i;
+				const same = kind.spiral
+					? states[i].hops === states[i + 1].hops && states[i].angle === states[i + 1].angle
+					: angles[i] === angles[i + 1];
+				if (a <= 0 || same) {
 					continue;
 				}
-				const from = arcPoint(line, angles[i]);
-				const to = arcPoint(line, angles[i + 1]);
-				const [cr, cg, cb] = coreColor(i);
-				segmentVertices(from, to, line.heading, kind.core, this.core);
+				const from = kind.spiral ? spiralPoint(line, states[i]) : arcPoint(line, angles[i]);
+				const to = kind.spiral ? spiralPoint(line, states[i + 1]) : arcPoint(line, angles[i + 1]);
+				const [cr, cg, cb] = kind.spiral ? spiralColor(i) : coreColor(i);
+				segmentVertices(from, to, line.heading, kind.core, this.core, kind.up);
 				_batch.mesh(
 					this.texture,
 					BLEND_ADD,
@@ -180,9 +188,9 @@ class HitLine {
 					a / 255,
 					0
 				);
-				const glow = Math.trunc(a * 0.5);
+				const glow = kind.glow ? Math.trunc(a * 0.5) : 0;
 				if (glow > 0) {
-					segmentVertices(from, to, line.heading, kind.core * kind.glow, this.glow);
+					segmentVertices(from, to, line.heading, kind.core * kind.glow, this.glow, kind.up);
 					_batch.mesh(
 						this.texture,
 						BLEND_ADD,

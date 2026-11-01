@@ -11,7 +11,7 @@ describe('Storm Blast', () => {
 	it('plays 17 on the caster and the quake, sound and 263 on the target on success', () => {
 		expect(SkillEffect[SK.RK_STORMBLAST]).toMatchObject({
 			successEffectIdOnCaster: 17,
-			successEffectId: ['quake', 'ef_rk_stormblast_sound', 263]
+			successEffectId: ['quake', 'ef_rk_stormblast_sound', 263, 330]
 		});
 		expect(EffectTable.ef_rk_stormblast_sound).toEqual([{ wav: 'effect/mon_\xb8\xcd\xb7\xe6\xb0\xfa\xb0\xad', attachedEntity: true }]);
 	});

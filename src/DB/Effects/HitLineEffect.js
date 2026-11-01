@@ -61,3 +61,19 @@ export const hitLine6Effect = [
 		}
 	}
 ];
+
+/** EffectTable rows for 330: 16 orange lines bouncing away from the target. */
+export const hitLineEffect = [
+	{
+		//EF_HITLINE	Storm Blast / Rapid Throw / Raging Thrust hit lines (kRO 2025 0xbf0900(0), primitive 70)
+		type: 'FUNC',
+		attachedEntity: true,
+		duration: Math.ceil((hitLineLastTick(HITLINE_KINDS[330]) + 1) * PRIM_TICK_MS),
+		func: function (Params) {
+			this.add(
+				new HitLine(Params.Init.ownerEntity, Params.Inst.startTick, Math.random, HITLINE_KINDS[330]),
+				Params
+			);
+		}
+	}
+];

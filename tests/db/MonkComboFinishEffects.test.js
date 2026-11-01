@@ -12,7 +12,7 @@ const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'),
 describe('Raging Thrust effects', () => {
 	it('plays the quake, the sound and 263 at packet arrival and 0 + 1 on the hit', () => {
 		expect(source).toMatch(
-			/SkillEffect\[SK\.MO_COMBOFINISH\] = \{ damageEffectIdOnCaster: \['quake', 'monk_raging_thrust_sound', 263\], hitEffectId: \[0, 1\] \};/
+			/SkillEffect\[SK\.MO_COMBOFINISH\] = \{ damageEffectIdOnCaster: \['quake', 'monk_raging_thrust_sound', 263, 330\], hitEffectId: \[0, 1\] \};/
 		);
 	});
 });

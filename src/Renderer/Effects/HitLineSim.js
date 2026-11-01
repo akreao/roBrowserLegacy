@@ -82,6 +82,34 @@ export const HITLINE_KINDS = {
 };
 
 /**
+ * EF_HITLINE (330: Storm Blast, Rapid Throw, Raging Thrust): 0xbf0900 with mode 0
+ * makes primitive 70 (update 0xb47b4d, draw 0xb73f20) on effect ticks 0-3, four
+ * lines each. A line's head turns 8 degrees a tick; each time it passes 180 it
+ * starts a new, smaller hop (x 0.7) further out, so the line bounces away from
+ * the target. Its last 20 steps are drawn, 5 less alpha each, orange
+ * (255, 200, 10 + 7 k) cores only, on the ground (no lift).
+ */
+export const HITLINE_SPIRAL = {
+	...HITLINE,
+	spawnTicks: [0, 1, 2, 3],
+	waitRange: 26,
+	alphaRange: 51,
+	radiusRange: 8,
+	stretchRange: 0,
+	segments: 20,
+	segmentFade: 5,
+	core: 0.1,
+	glow: 0,
+	up: 0,
+	spiral: true,
+	step: 8,
+	decay: 0.7,
+	rise: 1.5
+};
+
+HITLINE_KINDS[330] = HITLINE_SPIRAL;
+
+/**
  * Ticks until a kind's last line is gone, from the effect's start.
  *
  * @param {object} [kind]
@@ -141,7 +169,8 @@ export function planHitLines(random = Math.random, kind = HITLINE, aim = 0) {
 				heading = r(random, 360);
 			}
 			const radius = kind.radius + r(random, kind.radiusRange);
-			const stretch = kind.stretch + 0.1 * r(random, kind.stretchRange);
+			// 330's builder draws no stretch
+			const stretch = kind.stretchRange ? kind.stretch + 0.1 * r(random, kind.stretchRange) : kind.stretch;
 			out.push({ spawn, wait, alpha, heading, radius, stretch });
 		}
 	}
@@ -230,4 +259,73 @@ export function arcPoint(line, angle) {
 export function coreColor(i) {
 	const c = (105 + 30 * i) & 0xff;
 	return [c, c, c];
+}
+
+/**
+ * 330's head after m swept ticks: whole hops made, and the angle into this hop.
+ *
+ * @param {number} m swept ticks (0 or less: not started)
+ * @param {number} [step] degrees a tick
+ * @return {{hops: number, angle: number}}
+ */
+export function spiralState(m, step = HITLINE_SPIRAL.step) {
+	if (m <= 0) {
+		return { hops: 0, angle: 0 };
+	}
+	const total = step * m;
+	const hops = Math.floor((total - 1) / 180);
+	return { hops, angle: total - 180 * hops };
+}
+
+/**
+ * 330's drawn trail: the head, then the last steps (the head twice, as the
+ * client copies it into the trail).
+ *
+ * @param {number} c swept ticks
+ * @param {number} [segments]
+ * @return {Array<object>} segments + 1 states
+ */
+export function spiralTrail(c, segments = HITLINE_SPIRAL.segments) {
+	const out = [spiralState(c)];
+	for (let k = 1; k <= segments; k++) {
+		out.push(spiralState(c - k + 1));
+	}
+	return out;
+}
+
+/**
+ * Where 330's line stands at a state, relative to the target: hop n is 2 R 0.7^n
+ * long and 1.5 R 0.7^n high.
+ *
+ * @param {object} line
+ * @param {{hops: number, angle: number}} state
+ * @return {Array<number>} [x, y, z], client axes (y down)
+ */
+export function spiralPoint(line, state) {
+	const rad = Math.PI / 180;
+	const k = HITLINE_SPIRAL;
+	let out = 0;
+	let scale = 1;
+	for (let j = 0; j < state.hops; j++) {
+		out += 2 * line.radius * scale;
+		scale *= k.decay;
+	}
+	if (state.angle > 0) {
+		out += line.radius * scale * (state.angle / 90);
+	}
+	return [
+		Math.cos(line.heading * rad) * out,
+		-line.radius * Math.sin(Math.trunc(state.angle) * rad) * k.rise * scale,
+		Math.sin(line.heading * rad) * out
+	];
+}
+
+/**
+ * 330's colour of segment k (mode 0).
+ *
+ * @param {number} k
+ * @return {Array<number>} [r, g, b] 0..255
+ */
+export function spiralColor(k) {
+	return [255, 200, (10 + 7 * k) & 0xff];
 }
