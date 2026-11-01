@@ -19702,10 +19702,30 @@ export default {
 		}
 	],
 
+	// Ancilla (AB_ANCILLA): the official client plays AB_ancilla.wav and 441 (the blue cast aura, life 60 ticks) on the
+	// target when the use packet succeeds. See effect-port/arch-bishop-skills.md.
 	ef_ancilla: [
 		{
 			wav: 'effect/ab_ancilla',
 			attachedEntity: true
+		},
+		{
+			// 441 (EF_BLUECASTING) for its client lifetime, 60 ticks
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 1000,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER'
 		}
 	],
 

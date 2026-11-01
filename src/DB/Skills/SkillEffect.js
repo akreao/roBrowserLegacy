@@ -1045,7 +1045,7 @@ SkillEffect[SK.GC_ROLLINGCUTTER] = { effectId: 775 }; //Rolling Cutter
 SkillEffect[SK.GC_CROSSRIPPERSLASHER] = { effectId: 'ef_gc_crossripperslasher' }; //Cross Ripper Slasher
 // AB Arch Bishop
 SkillEffect[SK.AB_JUDEX] = { hideCastAura: true, beginCastEffectId: [1629, 1630], arrivalEffectIdOnCaster: [1627, 1628], arrivalEffectIdOnTarget: ['ef_ab_judex_sound', 1631, 1632, 'ef_ab_judex_lights'] }; //Judex: no aura, 1629 + 1630 while casting; as each damage arrives 1627 + 1628 on the caster, AB_judex.wav, 1631 + 1632 and twelve falling lights on the target
-SkillEffect[SK.AB_ANCILLA] = { effectId: 'ef_ancilla' }; //Ancilla
+SkillEffect[SK.AB_ANCILLA] = { castAuraEffectId: 441, successEffectId: 'ef_ancilla' }; //Ancilla: blue cast aura; AB_ancilla.wav + 441 on the target on success
 SkillEffect[SK.AB_ADORAMUS] = { effectId: 721 }; //Adoramus
 SkillEffect[SK.AB_CLEMENTIA] = {}; //Crementia
 SkillEffect[SK.AB_CANTO] = {}; //Canto Candidus
