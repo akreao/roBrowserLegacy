@@ -223154,7 +223154,7 @@ var init_Sounds = __esmMin((() => {
 * @return {number} ms
 */
 function waveDelay(ms) {
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$4;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$5;
 }
 /**
 * One EZ2 row of the skill, at PosY 10.
@@ -223215,9 +223215,9 @@ function isRepeatGroundPacket(skillId, srcAID, position, windowMs, now = Date.no
 	lastBlast.set(key, now);
 	return false;
 }
-var TICK_MS$4, FOLDER$1, SIZES$1, WAVE_DELAY_MS, lastBlast;
+var TICK_MS$5, FOLDER$1, SIZES$1, WAVE_DELAY_MS, lastBlast;
 var init_HastyFireInTheHoleEffect = __esmMin((() => {
-	TICK_MS$4 = 1e3 / 60;
+	TICK_MS$5 = 1e3 / 60;
 	FOLDER$1 = "night_watch/nw_hasty_fire_in_the_hole/";
 	SIZES$1 = [
 		"5x5",
@@ -224621,7 +224621,7 @@ var init_SkillEffect = __esmMin((() => {
 		hideCastAura: true,
 		beginCastEffectId: [1260, "ef_wl_summon_cast_sound"]
 	};
-	SkillEffect[SkillConst_default.WL_RELEASE] = { effectId: 751 };
+	SkillEffect[SkillConst_default.WL_RELEASE] = { successEffectIdOnCaster: 751 };
 	SkillEffect[SkillConst_default.WL_READING_SB] = { castAuraEffectId: 58 };
 	SkillEffect[SkillConst_default.GC_VENOMIMPRESS] = { effectId: 788 };
 	SkillEffect[SkillConst_default.GC_CROSSIMPACT] = { effectId: "ef_gc_crossimpact" };
@@ -277414,7 +277414,7 @@ var init_AreaSpawner = __esmMin((() => {
 * @return {number}
 */
 function pathLeft(elapsed) {
-	return 1 - STEP$2 * (elapsed / TICK_MS$3 + 1);
+	return 1 - STEP$2 * (elapsed / TICK_MS$4 + 1);
 }
 /**
 * A world point moved `cells` up the screen.
@@ -277524,9 +277524,9 @@ function fromWorld(point) {
 		-point[1]
 	];
 }
-var TICK_MS$3, STEP$2, TURN_NEAR, TURN_FAR;
+var TICK_MS$4, STEP$2, TURN_NEAR, TURN_FAR;
 var init_BezierArcThrowSim = __esmMin((() => {
-	TICK_MS$3 = 1e3 / 60;
+	TICK_MS$4 = 1e3 / 60;
 	STEP$2 = .07;
 	TURN_NEAR = 4 * Math.PI / 3;
 	TURN_FAR = 2 * Math.PI / 3;
@@ -281428,7 +281428,7 @@ function motionSpeed(entity) {
 */
 function startDelay(speed) {
 	const ms = Math.trunc(speed * 50 + 30);
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$2;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$3;
 }
 /**
 * delayStart of a stage layer, worked out from its caster.
@@ -281489,13 +281489,13 @@ function stormSlashEffects() {
 	for (let stage = 1; stage <= 5; ++stage) rows["ef_dk_stormslash_" + stage] = [stageLayer(stage), soundLayer(stage)];
 	return rows;
 }
-var TICK_MS$2, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
+var TICK_MS$3, SOUND_GAP_MS, DEFAULT_MOTION_SPEED;
 var init_StormSlashEffect = __esmMin((() => {
 	init_Client();
 	init_SoundManager();
 	init_Events();
-	TICK_MS$2 = 1e3 / 60;
-	SOUND_GAP_MS = 15 * TICK_MS$2;
+	TICK_MS$3 = 1e3 / 60;
+	SOUND_GAP_MS = 15 * TICK_MS$3;
 	DEFAULT_MOTION_SPEED = 4;
 	Array.from({ length: 5 }, (_, k) => "ef_dk_stormslash_" + (k + 1));
 }));
@@ -294874,7 +294874,7 @@ var init_ArrowFlight = __esmMin((() => {
 */
 function collectDelay(speed) {
 	const ms = Math.trunc(speed * 100 + 100);
-	return (Math.trunc(ms / 16) + 1) * TICK_MS$1;
+	return (Math.trunc(ms / 16) + 1) * TICK_MS$2;
 }
 /**
 * One EZ2 row of the skill, attached to its owner at PosY 8.
@@ -294913,10 +294913,10 @@ function servantDemolitionEffects() {
 		}]
 	};
 }
-var TICK_MS$1, FOLDER;
+var TICK_MS$2, FOLDER;
 var init_ServantDemolitionEffect = __esmMin((() => {
 	init_StormSlashEffect();
-	TICK_MS$1 = 1e3 / 60;
+	TICK_MS$2 = 1e3 / 60;
 	FOLDER = "dragon_knight/dk_servant_w_demol/";
 }));
 // src/Renderer/Effects/BlinkBody.js
@@ -296611,6 +296611,7 @@ function streakAlpha(age, streak = STREAK$1) {
 * @return {number}
 */
 function streakHeight(streak, age) {
+	if (streak.rising && streak.accel) return streak.start + streak.accel * age * (age + 1) / 2;
 	if (streak.rising) return streak.speed * age;
 	return 20 - .015 * age * (age + 1) / 2;
 }
@@ -296641,6 +296642,63 @@ function billboardAlpha(age) {
 	if (age < 85) return Math.min(200, 200 / 15 * age);
 	return Math.max(0, 200 * (100 - age) / 15);
 }
+/**
+* Eternal Chaos / Loki's Veil's streaks (864, kRO 2025-07-16 builders 0xc0be80(2)
+* and 0xc08bb0(6)): every even tick of 864's 100, one streak rising from 5 units
+* up, faster each tick (tinted (c, c, 255), c = r(256)), and one falling from 20
+* units up as 38's (each channel 255 one time in three, else 140); both 3 to 9
+* units from the actor, half length 3 to 8.9, life 50.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>}
+*/
+function planChaosStreaks(random = Math.random) {
+	const streaks = [];
+	const place = () => {
+		const heading = r$9(random, 360) * Math.PI / 180;
+		const dist = 3 + r$9(random, 7);
+		return {
+			x: Math.sin(heading) * dist,
+			y: Math.cos(heading) * dist
+		};
+	};
+	const shared = () => ({
+		halfLength: (30 + r$9(random, 60)) / 10,
+		halfWidth: STREAK$1.halfWidth,
+		alphaMax: 200,
+		alphaStep: 10
+	});
+	for (let i = 0; i < STREAK$1.count; i++) {
+		const c = r$9(random, 256);
+		streaks.push({
+			spawn: i * STREAK$1.every,
+			...place(),
+			...shared(),
+			rising: true,
+			start: 5,
+			accel: .015,
+			speed: 0,
+			color: [
+				c,
+				c,
+				255
+			]
+		});
+		const channel = () => r$9(random, 3) === 0 ? 255 : 140;
+		streaks.push({
+			spawn: i * STREAK$1.every,
+			...place(),
+			...shared(),
+			rising: false,
+			color: [
+				channel(),
+				channel(),
+				channel()
+			]
+		});
+	}
+	return streaks;
+}
 function streakEffect(streak) {
 	return {
 		type: "3D",
@@ -296658,10 +296716,30 @@ function streakEffect(streak) {
 				z: streakHeight(streak, age) / 5,
 				sizeX: 2 * streak.halfWidth * PX,
 				sizeY: 2 * streak.halfLength * PX,
-				alpha: streakAlpha(age, streak) / 255
+				alpha: streakAlpha(age, streak) / 255,
+				color: streak.color && streak.color.map((v) => v / 255)
 			};
 		}
 	};
+}
+/**
+* Spawn Eternal Chaos / Loki's Veil's streaks round the actor (864).
+*
+* @param {object} manager EffectManager
+* @param {object} Params the effect's params
+*/
+function spamChaosStreaks(manager, Params) {
+	planChaosStreaks().forEach((streak, i) => {
+		manager.spamEffect({
+			effect: streakEffect(streak),
+			Inst: {
+				effectID: 864,
+				duplicateID: i + 1,
+				startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS
+			},
+			Init: Params.Init
+		});
+	});
 }
 function billboardEffect(effectId) {
 	const b = BILLBOARD[effectId];
@@ -298362,7 +298440,7 @@ function carrotShower(carrotRow) {
 							position[2]
 						]
 					});
-				}, drop.delay * TICK_MS);
+				}, drop.delay * TICK_MS$1);
 			});
 		}
 	};
@@ -298377,21 +298455,21 @@ function carrot(opacity) {
 	const sprite = {
 		type: "SPR",
 		file: "su_lunaticcarrotbeat/su_lunaticcarrotbeat",
-		delayFrame: 4 * TICK_MS
+		delayFrame: 4 * TICK_MS$1
 	};
 	if (opacity !== void 0) sprite.opacity = opacity;
 	return [sprite, {
 		type: "FUNC",
 		func: function(Params) {
-			Camera.setQuake(Params.Inst.startTick + 48 * TICK_MS);
+			Camera.setQuake(Params.Inst.startTick + 48 * TICK_MS$1);
 		}
 	}];
 }
-var TICK_MS, UNITS_PER_CELL$1, carrotBeatEffects;
+var TICK_MS$1, UNITS_PER_CELL$1, carrotBeatEffects;
 var init_CarrotBeatEffect = __esmMin((() => {
 	init_Camera();
 	init_Events();
-	TICK_MS = 1e3 / 60;
+	TICK_MS$1 = 1e3 / 60;
 	UNITS_PER_CELL$1 = 5;
 	carrotBeatEffects = {
 		ef_su_lunaticcarrotbeat: [carrotShower("ef_su_lunaticcarrotbeat_carrot")],
@@ -303554,6 +303632,72 @@ var init_SightEffect = __esmMin((() => {
 		}
 	}, { wav: "effect/ef_sight" }];
 }));
+// src/DB/Effects/ReleaseEffect.js
+/**
+* The 12 fireballs: tick and alpha (0-255) and tint.
+*
+* @return {Array<object>}
+*/
+function releaseBalls() {
+	const balls = [];
+	for (const set of SETS) for (let i = 0; i < 4; i++) balls.push({
+		tick: set.start + i,
+		alpha: 40 * (5 - i),
+		color: set.color
+	});
+	return balls;
+}
+var TICK_MS, SETS, releaseEffect;
+var init_ReleaseEffect = __esmMin((() => {
+	TICK_MS = 1e3 / 60;
+	SETS = [
+		{
+			start: 0,
+			color: [
+				155,
+				155,
+				255
+			]
+		},
+		{
+			start: 6,
+			color: [
+				155,
+				255,
+				155
+			]
+		},
+		{
+			start: 12,
+			color: [
+				255,
+				155,
+				155
+			]
+		}
+	];
+	releaseEffect = [...releaseBalls().map((ball) => ({
+		type: "3D",
+		spriteName: "fireball",
+		playSprite: true,
+		attachedEntity: false,
+		fromSrc: true,
+		rotateToTarget: true,
+		rotateWithCamera: true,
+		zOffset: 3,
+		delayStart: ball.tick * TICK_MS,
+		duration: 20 * TICK_MS,
+		alphaMax: ball.alpha / 255,
+		red: ball.color[0] / 255,
+		green: ball.color[1] / 255,
+		blue: ball.color[2] / 255,
+		size: 100,
+		zIndex: 1
+	})), {
+		wav: "effect/ef_fireball",
+		delayWav: 5 * TICK_MS
+	}];
+}));
 // src/DB/Effects/JackFrostEffect.js
 /**
 * The three shards of one damage packet.
@@ -303702,6 +303846,7 @@ var init_EffectTable = __esmMin((() => {
 	init_Renderer();
 	init_ChatBox();
 	init_SightEffect();
+	init_ReleaseEffect();
 	init_JackFrostEffect();
 	STREAK_LINE3 = {
 		line3: "line3.tga",
@@ -314739,6 +314884,7 @@ var init_EffectTable = __esmMin((() => {
 			file: "concentration",
 			attachedEntity: true
 		}],
+		751: releaseEffect,
 		754: [
 			{
 				alphaMax: .4,
@@ -316610,6 +316756,7 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true,
 			func: function(Params) {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 100, 864), Params);
+				spamChaosStreaks(this, Params);
 			}
 		}],
 		865: [{
