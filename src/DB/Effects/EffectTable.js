@@ -3,67 +3,105 @@
  *
  * List effects
  *
- * The rows live in DB/Effects/Table/: one file per 100 effect IDs (Effects0800.js holds 800 to 899)
- * and one per job for the named ef_<job>_* rows (ef_dk.js holds ef_dk_*), so changes to different
- * effects land in different files and parallel changes stop conflicting. Put a new row in its part,
- * in ID order, and import what it uses there. A module holding one effect's rows is spread at the
- * end of its part; only modules whose rows span several parts are spread here, after the parts.
+ * The rows live in DB/Effects/Table/, so changes to different effects land in different files:
+ *   - Jobs/<first class>/<class>.js: the numbered rows only that class's skills use (by
+ *     DB/Skills/SkillEffect.js) and its named ef_<skill prefix>_* rows, e.g. Jobs/Thief/AbyssChaser.js;
+ *   - Common/EffectsNNNN.js: every other numbered row, 100 IDs a file (Effects0800.js holds 800 to 899),
+ *     and Common/Named.js: the named rows of no single class.
+ * Put a new row in its file and import what it uses there. A module holding one effect's rows is
+ * spread at the end of its file; only modules whose rows span several files are spread here.
  *
  * @author Vincent Thibault
  */
 
-import Effects0000 from 'DB/Effects/Table/Effects0000.js';
-import Effects0100 from 'DB/Effects/Table/Effects0100.js';
-import Effects0200 from 'DB/Effects/Table/Effects0200.js';
-import Effects0300 from 'DB/Effects/Table/Effects0300.js';
-import Effects0400 from 'DB/Effects/Table/Effects0400.js';
-import Effects0500 from 'DB/Effects/Table/Effects0500.js';
-import Effects0600 from 'DB/Effects/Table/Effects0600.js';
-import Effects0700 from 'DB/Effects/Table/Effects0700.js';
-import Effects0800 from 'DB/Effects/Table/Effects0800.js';
-import Effects0900 from 'DB/Effects/Table/Effects0900.js';
-import Effects1000 from 'DB/Effects/Table/Effects1000.js';
-import Effects1100 from 'DB/Effects/Table/Effects1100.js';
-import Effects1200 from 'DB/Effects/Table/Effects1200.js';
-import Effects1400 from 'DB/Effects/Table/Effects1400.js';
-import Effects1500 from 'DB/Effects/Table/Effects1500.js';
-import Effects1700 from 'DB/Effects/Table/Effects1700.js';
-import Effects1800 from 'DB/Effects/Table/Effects1800.js';
-import Effects1900 from 'DB/Effects/Table/Effects1900.js';
-import Effects2200 from 'DB/Effects/Table/Effects2200.js';
-import Effects2300 from 'DB/Effects/Table/Effects2300.js';
-import ef_abc from 'DB/Effects/Table/ef_abc.js';
-import ef_ag from 'DB/Effects/Table/ef_ag.js';
-import ef_bo from 'DB/Effects/Table/ef_bo.js';
-import ef_cd from 'DB/Effects/Table/ef_cd.js';
-import ef_dk from 'DB/Effects/Table/ef_dk.js';
-import ef_em from 'DB/Effects/Table/ef_em.js';
-import ef_gc from 'DB/Effects/Table/ef_gc.js';
-import ef_gn from 'DB/Effects/Table/ef_gn.js';
-import ef_hn from 'DB/Effects/Table/ef_hn.js';
-import ef_ig from 'DB/Effects/Table/ef_ig.js';
-import ef_iq from 'DB/Effects/Table/ef_iq.js';
-import ef_lg from 'DB/Effects/Table/ef_lg.js';
-import ef_mt from 'DB/Effects/Table/ef_mt.js';
-import ef_nc from 'DB/Effects/Table/ef_nc.js';
-import ef_nw from 'DB/Effects/Table/ef_nw.js';
-import ef_oldtrap from 'DB/Effects/Table/ef_oldtrap.js';
-import ef_rl from 'DB/Effects/Table/ef_rl.js';
-import ef_sh from 'DB/Effects/Table/ef_sh.js';
-import ef_shc from 'DB/Effects/Table/ef_shc.js';
-import ef_sj from 'DB/Effects/Table/ef_sj.js';
-import ef_ske from 'DB/Effects/Table/ef_ske.js';
-import ef_so from 'DB/Effects/Table/ef_so.js';
-import ef_soa from 'DB/Effects/Table/ef_soa.js';
-import ef_sr from 'DB/Effects/Table/ef_sr.js';
-import ef_ss from 'DB/Effects/Table/ef_ss.js';
-import ef_su from 'DB/Effects/Table/ef_su.js';
-import ef_tr from 'DB/Effects/Table/ef_tr.js';
-import ef_trap from 'DB/Effects/Table/ef_trap.js';
-import ef_wh from 'DB/Effects/Table/ef_wh.js';
-import ef_wl from 'DB/Effects/Table/ef_wl.js';
-import ef_wm from 'DB/Effects/Table/ef_wm.js';
-
+import Common0000 from 'DB/Effects/Table/Common/Effects0000.js';
+import Common0100 from 'DB/Effects/Table/Common/Effects0100.js';
+import Common0200 from 'DB/Effects/Table/Common/Effects0200.js';
+import Common0300 from 'DB/Effects/Table/Common/Effects0300.js';
+import Common0400 from 'DB/Effects/Table/Common/Effects0400.js';
+import Common0500 from 'DB/Effects/Table/Common/Effects0500.js';
+import Common0600 from 'DB/Effects/Table/Common/Effects0600.js';
+import Common0700 from 'DB/Effects/Table/Common/Effects0700.js';
+import Common0800 from 'DB/Effects/Table/Common/Effects0800.js';
+import Common0900 from 'DB/Effects/Table/Common/Effects0900.js';
+import Common1000 from 'DB/Effects/Table/Common/Effects1000.js';
+import Common1100 from 'DB/Effects/Table/Common/Effects1100.js';
+import Common1200 from 'DB/Effects/Table/Common/Effects1200.js';
+import Common1800 from 'DB/Effects/Table/Common/Effects1800.js';
+import Common2300 from 'DB/Effects/Table/Common/Effects2300.js';
+import CommonNamed from 'DB/Effects/Table/Common/Named.js';
+import Acolyte from 'DB/Effects/Table/Jobs/Acolyte/Acolyte.js';
+import ArchBishop from 'DB/Effects/Table/Jobs/Acolyte/ArchBishop.js';
+import Cardinal from 'DB/Effects/Table/Jobs/Acolyte/Cardinal.js';
+import Champion from 'DB/Effects/Table/Jobs/Acolyte/Champion.js';
+import HighPriest from 'DB/Effects/Table/Jobs/Acolyte/HighPriest.js';
+import Inquisitor from 'DB/Effects/Table/Jobs/Acolyte/Inquisitor.js';
+import Monk from 'DB/Effects/Table/Jobs/Acolyte/Monk.js';
+import Priest from 'DB/Effects/Table/Jobs/Acolyte/Priest.js';
+import Sura from 'DB/Effects/Table/Jobs/Acolyte/Sura.js';
+import Archer from 'DB/Effects/Table/Jobs/Archer/Archer.js';
+import Bard from 'DB/Effects/Table/Jobs/Archer/Bard.js';
+import BardDancer from 'DB/Effects/Table/Jobs/Archer/BardDancer.js';
+import ClownGypsy from 'DB/Effects/Table/Jobs/Archer/ClownGypsy.js';
+import Dancer from 'DB/Effects/Table/Jobs/Archer/Dancer.js';
+import Hunter from 'DB/Effects/Table/Jobs/Archer/Hunter.js';
+import MinstrelWanderer from 'DB/Effects/Table/Jobs/Archer/MinstrelWanderer.js';
+import Ranger from 'DB/Effects/Table/Jobs/Archer/Ranger.js';
+import Sniper from 'DB/Effects/Table/Jobs/Archer/Sniper.js';
+import TroubadourTrouvere from 'DB/Effects/Table/Jobs/Archer/TroubadourTrouvere.js';
+import Windhawk from 'DB/Effects/Table/Jobs/Archer/Windhawk.js';
+import Gunslinger from 'DB/Effects/Table/Jobs/Gunslinger/Gunslinger.js';
+import NightWatch from 'DB/Effects/Table/Jobs/Gunslinger/NightWatch.js';
+import Rebellion from 'DB/Effects/Table/Jobs/Gunslinger/Rebellion.js';
+import ArchMage from 'DB/Effects/Table/Jobs/Mage/ArchMage.js';
+import ElementalMaster from 'DB/Effects/Table/Jobs/Mage/ElementalMaster.js';
+import HighWizard from 'DB/Effects/Table/Jobs/Mage/HighWizard.js';
+import Mage from 'DB/Effects/Table/Jobs/Mage/Mage.js';
+import Professor from 'DB/Effects/Table/Jobs/Mage/Professor.js';
+import Sage from 'DB/Effects/Table/Jobs/Mage/Sage.js';
+import Sorcerer from 'DB/Effects/Table/Jobs/Mage/Sorcerer.js';
+import Warlock from 'DB/Effects/Table/Jobs/Mage/Warlock.js';
+import Wizard from 'DB/Effects/Table/Jobs/Mage/Wizard.js';
+import Alchemist from 'DB/Effects/Table/Jobs/Merchant/Alchemist.js';
+import Biolo from 'DB/Effects/Table/Jobs/Merchant/Biolo.js';
+import Blacksmith from 'DB/Effects/Table/Jobs/Merchant/Blacksmith.js';
+import Creator from 'DB/Effects/Table/Jobs/Merchant/Creator.js';
+import Genetic from 'DB/Effects/Table/Jobs/Merchant/Genetic.js';
+import Mechanic from 'DB/Effects/Table/Jobs/Merchant/Mechanic.js';
+import Meister from 'DB/Effects/Table/Jobs/Merchant/Meister.js';
+import Merchant from 'DB/Effects/Table/Jobs/Merchant/Merchant.js';
+import Whitesmith from 'DB/Effects/Table/Jobs/Merchant/Whitesmith.js';
+import KagerouOboro from 'DB/Effects/Table/Jobs/Ninja/KagerouOboro.js';
+import Ninja from 'DB/Effects/Table/Jobs/Ninja/Ninja.js';
+import ShinkiroShiranui from 'DB/Effects/Table/Jobs/Ninja/ShinkiroShiranui.js';
+import HyperNovice from 'DB/Effects/Table/Jobs/Novice/HyperNovice.js';
+import Novice from 'DB/Effects/Table/Jobs/Novice/Novice.js';
+import SpiritHandler from 'DB/Effects/Table/Jobs/Summoner/SpiritHandler.js';
+import Summoner from 'DB/Effects/Table/Jobs/Summoner/Summoner.js';
+import Crusader from 'DB/Effects/Table/Jobs/Swordman/Crusader.js';
+import DragonKnight from 'DB/Effects/Table/Jobs/Swordman/DragonKnight.js';
+import ImperialGuard from 'DB/Effects/Table/Jobs/Swordman/ImperialGuard.js';
+import Knight from 'DB/Effects/Table/Jobs/Swordman/Knight.js';
+import LordKnight from 'DB/Effects/Table/Jobs/Swordman/LordKnight.js';
+import Paladin from 'DB/Effects/Table/Jobs/Swordman/Paladin.js';
+import RoyalGuard from 'DB/Effects/Table/Jobs/Swordman/RoyalGuard.js';
+import RuneKnight from 'DB/Effects/Table/Jobs/Swordman/RuneKnight.js';
+import Swordman from 'DB/Effects/Table/Jobs/Swordman/Swordman.js';
+import SkyEmperor from 'DB/Effects/Table/Jobs/Taekwon/SkyEmperor.js';
+import SoulAscetic from 'DB/Effects/Table/Jobs/Taekwon/SoulAscetic.js';
+import SoulLinker from 'DB/Effects/Table/Jobs/Taekwon/SoulLinker.js';
+import SoulReaper from 'DB/Effects/Table/Jobs/Taekwon/SoulReaper.js';
+import StarEmperor from 'DB/Effects/Table/Jobs/Taekwon/StarEmperor.js';
+import Taekwon from 'DB/Effects/Table/Jobs/Taekwon/Taekwon.js';
+import AbyssChaser from 'DB/Effects/Table/Jobs/Thief/AbyssChaser.js';
+import Assassin from 'DB/Effects/Table/Jobs/Thief/Assassin.js';
+import AssassinCross from 'DB/Effects/Table/Jobs/Thief/AssassinCross.js';
+import GuillotineCross from 'DB/Effects/Table/Jobs/Thief/GuillotineCross.js';
+import Rogue from 'DB/Effects/Table/Jobs/Thief/Rogue.js';
+import ShadowChaser from 'DB/Effects/Table/Jobs/Thief/ShadowChaser.js';
+import ShadowCross from 'DB/Effects/Table/Jobs/Thief/ShadowCross.js';
+import Stalker from 'DB/Effects/Table/Jobs/Thief/Stalker.js';
+import Thief from 'DB/Effects/Table/Jobs/Thief/Thief.js';
 
 export default {
 	/// Common parameters
@@ -434,55 +472,92 @@ export default {
 	/// - repeat
 	///   if set to true the effect will play repeatedly until removed
 
-	...Effects0000,
-	...Effects0100,
-	...Effects0200,
-	...Effects0300,
-	...Effects0400,
-	...Effects0500,
-	...Effects0600,
-	...Effects0700,
-	...Effects0800,
-	...Effects0900,
-	...Effects1000,
-	...Effects1100,
-	...Effects1200,
-	...Effects1400,
-	...Effects1500,
-	...Effects1700,
-	...Effects1800,
-	...Effects1900,
-	...Effects2200,
-	...Effects2300,
-	...ef_abc,
-	...ef_ag,
-	...ef_bo,
-	...ef_cd,
-	...ef_dk,
-	...ef_em,
-	...ef_gc,
-	...ef_gn,
-	...ef_hn,
-	...ef_ig,
-	...ef_iq,
-	...ef_lg,
-	...ef_mt,
-	...ef_nc,
-	...ef_nw,
-	...ef_oldtrap,
-	...ef_rl,
-	...ef_sh,
-	...ef_shc,
-	...ef_sj,
-	...ef_ske,
-	...ef_so,
-	...ef_soa,
-	...ef_sr,
-	...ef_ss,
-	...ef_su,
-	...ef_tr,
-	...ef_trap,
-	...ef_wh,
-	...ef_wl,
-	...ef_wm
+	...Common0000,
+	...Common0100,
+	...Common0200,
+	...Common0300,
+	...Common0400,
+	...Common0500,
+	...Common0600,
+	...Common0700,
+	...Common0800,
+	...Common0900,
+	...Common1000,
+	...Common1100,
+	...Common1200,
+	...Common1800,
+	...Common2300,
+	...CommonNamed,
+	...Acolyte,
+	...ArchBishop,
+	...Cardinal,
+	...Champion,
+	...HighPriest,
+	...Inquisitor,
+	...Monk,
+	...Priest,
+	...Sura,
+	...Archer,
+	...Bard,
+	...BardDancer,
+	...ClownGypsy,
+	...Dancer,
+	...Hunter,
+	...MinstrelWanderer,
+	...Ranger,
+	...Sniper,
+	...TroubadourTrouvere,
+	...Windhawk,
+	...Gunslinger,
+	...NightWatch,
+	...Rebellion,
+	...ArchMage,
+	...ElementalMaster,
+	...HighWizard,
+	...Mage,
+	...Professor,
+	...Sage,
+	...Sorcerer,
+	...Warlock,
+	...Wizard,
+	...Alchemist,
+	...Biolo,
+	...Blacksmith,
+	...Creator,
+	...Genetic,
+	...Mechanic,
+	...Meister,
+	...Merchant,
+	...Whitesmith,
+	...KagerouOboro,
+	...Ninja,
+	...ShinkiroShiranui,
+	...HyperNovice,
+	...Novice,
+	...SpiritHandler,
+	...Summoner,
+	...Crusader,
+	...DragonKnight,
+	...ImperialGuard,
+	...Knight,
+	...LordKnight,
+	...Paladin,
+	...RoyalGuard,
+	...RuneKnight,
+	...Swordman,
+	...SkyEmperor,
+	...SoulAscetic,
+	...SoulLinker,
+	...SoulReaper,
+	...StarEmperor,
+	...Taekwon,
+	...AbyssChaser,
+	...Assassin,
+	...AssassinCross,
+	...GuillotineCross,
+	...Rogue,
+	...ShadowChaser,
+	...ShadowCross,
+	...Stalker,
+	...Thief
 };

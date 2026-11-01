@@ -11,7 +11,7 @@ const { PRIM_TICK_MS, createPrimState, advancePrim, buildPrimGeometry, primVerte
 function effectEntry(id) {
 	const source = effectTableSource();
 	const start = source.indexOf(`\n\t${id}: [`);
-	const end = source.indexOf(`\n\t${id + 1}: [`);
+	const end = source.indexOf('\n\t],', start) + 4; // the row's closing bracket
 	const body = source.slice(start, end).trim().replace(/^\d+:/, '').replace(/,\s*$/, '');
 	return vm.runInNewContext(`(${body})`);
 }

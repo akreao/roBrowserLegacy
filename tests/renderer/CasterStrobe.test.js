@@ -15,7 +15,7 @@ const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').repl
 function effectEntry(id) {
 	const source = effectTableSource().replace(/\r\n/g, '\n');
 	const start = source.indexOf(`\n\t${id}: [`);
-	const end = source.indexOf(`\n\t${id + 1}: [`);
+	const end = source.indexOf('\n\t],', start) + 4; // the row's closing bracket
 	const body = source.slice(start, end).trim().replace(/^\d+:/, '').replace(/,\s*$/, '');
 	return vm.runInNewContext(`(${body})`, { startCasterStrobe: () => {} });
 }
