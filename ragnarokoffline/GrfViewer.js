@@ -224510,7 +224510,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_MARSHOFABYSS] = { successEffectId: [729, 466] };
 	SkillEffect[SkillConst_default.WL_RECOGNIZEDSPELL] = {
 		successEffectIdOnCaster: "ef_wl_recognizedspell_sound",
-		castAuraEffectId: 58
+		castAuraEffectId: 58,
+		beginCastEffectId: 803
 	};
 	SkillEffect[SkillConst_default.WL_SIENNAEXECRATE] = { successEffectId: 797 };
 	SkillEffect[SkillConst_default.WL_STASIS] = {
@@ -276277,7 +276278,7 @@ function sharedTexture(cache, gl, name, onload, onerror) {
 			waiting: []
 		};
 		cache.set(name, entry);
-		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+		Client.loadFile(name.startsWith("data/") ? name : `data/texture/effect/${name}`, (buffer) => {
 			WebGL_default.texture(gl, buffer, (texture) => {
 				if (cache.get(name) !== entry) {
 					gl.deleteTexture(texture);
@@ -279883,7 +279884,7 @@ var init_ThreeDEffect = __esmMin((() => {
 			this.ownerEntity = EF_Init_Par.ownerEntity;
 			this.otherEntity = EF_Init_Par.otherEntity;
 			this.textureName = effect.file;
-			this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || "");
+			this.sharedTexture = !!effect.sharedTexture && !!effect.file;
 			this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 			this.sharedFileList = !!effect.sharedTexture && this.textureNameList.length > 0 && this.textureNameList.every((name) => /^effect\//.test(name));
 			this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
@@ -280154,6 +280155,8 @@ var init_ThreeDEffect = __esmMin((() => {
 						this.textureList[i] = texture;
 						this.loadedTextures++;
 						if (this.loadedTextures == textureCount) this.ready = true;
+					}, () => {
+						this.needCleanUp = true;
 					});
 				});
 			} else if (this.textureNameList.length > 0) {
@@ -280166,11 +280169,13 @@ var init_ThreeDEffect = __esmMin((() => {
 					});
 				});
 			} else if (this.sharedTexture) {
-				this.sharedTextureName = this.textureName.slice(7);
+				this.sharedTextureName = /^effect\//.test(this.textureName) ? this.textureName.slice(7) : `data/texture/${this.textureName}`;
 				_sharedUsers.set(this.sharedTextureName, (_sharedUsers.get(this.sharedTextureName) || 0) + 1);
 				sharedTexture(_sharedTextures, gl, this.sharedTextureName, (texture) => {
 					this.texture = texture;
 					this.ready = true;
+				}, () => {
+					this.needCleanUp = true;
 				});
 			} else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
@@ -290933,8 +290938,8 @@ function pillarAt(age) {
 	if (!state) return null;
 	return {
 		picture: state.picture,
-		width: PILLAR.radius * PX_PER_UNIT$2,
-		height: PILLAR.radius * Math.sqrt(3) * PX_PER_UNIT$2,
+		width: PILLAR.radius * PX_PER_UNIT$3,
+		height: PILLAR.radius * Math.sqrt(3) * PX_PER_UNIT$3,
 		z: PILLAR.height / 5,
 		alpha: state.alpha
 	};
@@ -291000,15 +291005,15 @@ function lineAt(line, tick) {
 		x: line.x / 5,
 		y: line.z / 5,
 		z: state.height / 2 / 5,
-		width: 2 * line.radius * LINES$1.band * PX_PER_UNIT$2,
-		height: state.height * PX_PER_UNIT$2,
+		width: 2 * line.radius * LINES$1.band * PX_PER_UNIT$3,
+		height: state.height * PX_PER_UNIT$3,
 		alpha: state.alpha
 	};
 }
-var PX_PER_UNIT$2, PILLAR, LINES$1, DEG$12, r$15, LINES_END;
+var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$12, r$15, LINES_END;
 var init_TetraFireSim = __esmMin((() => {
 	init_EffectPrimSim();
-	PX_PER_UNIT$2 = 7;
+	PX_PER_UNIT$3 = 7;
 	PILLAR = {
 		ticks: [
 			0,
@@ -291158,6 +291163,171 @@ var init_TetraFireEffect = __esmMin((() => {
 			});
 		}
 	};
+}));
+// src/Renderer/Effects/RecognizedSpellSim.js
+/**
+* The icons: start tick and skill id, in the order the client makes them.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<{start: number, skillId: number}>}
+*/
+function planIcons(random = Math.random) {
+	const icons = [];
+	for (let i = 0; i < ICONS.count; i++) {
+		const [lo, hi] = Math.floor(random() * 2) === 0 ? ICONS.mage : ICONS.wizard;
+		icons.push({
+			start: ICONS.first + ICONS.every * i,
+			skillId: lo + Math.floor(random() * (hi - lo + 1))
+		});
+	}
+	return icons;
+}
+/**
+* Copy j's alpha after `n` updates.
+*
+* @param {number} j 1-10
+* @param {number} n
+* @return {number}
+*/
+function copyAlpha(j, n) {
+	const peak = Math.min(ICONS.fadeIn * ICONS.fadeInEnd, 50 + 20 * j);
+	if (n < ICONS.fadeInEnd + 1) return Math.min(ICONS.fadeIn * Math.max(n, 0), peak);
+	const fadeFrom = j === ICONS.copies ? ICONS.lastCopyHold : ICONS.fadeInEnd;
+	return Math.max(0, peak - ICONS.fadeOut * Math.max(0, n - fadeFrom));
+}
+/**
+* The icon's middle copy size (middle to corner, units) after `n` updates.
+*
+* @param {number} n
+* @return {number}
+*/
+function iconSize(n) {
+	const peak = ICONS.fadeIn * ICONS.fadeInEnd;
+	const grows = Math.min(Math.max(n - ICONS.lastCopyHold, 0), Math.ceil(peak / ICONS.fadeOut) - 1);
+	return ICONS.size * Math.pow(ICONS.growth, grows);
+}
+/**
+* Copy j of an icon on tick `age` of its own (0 on its first draw), or null:
+* height in cells, side in sprite pixels, alpha (0-255).
+*
+* @param {number} j 1-10
+* @param {number} age ticks
+* @return {{z: number, size: number, alpha: number}|null}
+*/
+function copyAt(j, age) {
+	const n = Math.floor(age) + 1;
+	const alpha = copyAlpha(j, n);
+	if (alpha <= 0) return null;
+	const half = iconSize(n) + ICONS.spacing * (ICONS.copies - j);
+	return {
+		z: ICONS.height / 5,
+		size: half * Math.SQRT2 * PX_PER_UNIT$2,
+		alpha
+	};
+}
+var PX_PER_UNIT$2, ICONS, ICON_LIFE;
+var init_RecognizedSpellSim = __esmMin((() => {
+	init_EffectPrimSim();
+	PX_PER_UNIT$2 = 7;
+	ICONS = {
+		count: 10,
+		first: 1,
+		every: 30,
+		mage: [9, 20],
+		wizard: [80, 92],
+		copies: 10,
+		height: 40,
+		size: 5,
+		spacing: 1,
+		growth: 1.01,
+		fadeIn: 13,
+		fadeInEnd: 19,
+		fadeOut: 5,
+		lastCopyHold: 25
+	};
+	ICON_LIFE = (() => {
+		let n = 1;
+		while (copyAlpha(ICONS.copies, n) > 0 || n <= ICONS.fadeInEnd) n++;
+		return n;
+	})();
+}));
+// src/DB/Effects/RecognizedSpellEffect.js
+/**
+* The icon file of a skill, under data/texture/: 유저인터페이스/item/<name>.bmp,
+* named like the skill window does first: the skill's Name in SkillInfo, else
+* its first skill constant.
+*
+* @param {number} skillId
+* @return {string|null}
+*/
+function iconFile(skillId) {
+	if (!_names) {
+		_names = {};
+		Object.keys(SkillConst_default).forEach((name) => {
+			if (!(SkillConst_default[name] in _names)) _names[SkillConst_default[name]] = name;
+		});
+	}
+	const name = SkillInfo[skillId] && SkillInfo[skillId].Name || _names[skillId];
+	return name ? `${DB.INTERFACE_PATH.slice(13)}item/${name.toLowerCase()}.bmp` : null;
+}
+/**
+* The 3D effect drawing copy j of an icon.
+*
+* @param {string} file icon file
+* @param {number} j 1-10
+* @return {object}
+*/
+function iconCopyEffect(file, j) {
+	return {
+		type: "3D",
+		file,
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 8,
+		attachedEntity: true,
+		duration: ICON_LIFE * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const copy = copyAt(j, age);
+			return copy && {
+				x: 0,
+				y: 0,
+				z: copy.z,
+				size: copy.size,
+				angle: 0,
+				alpha: copy.alpha / 255
+			};
+		}
+	};
+}
+var _names, RecognizedSpellEffect_default;
+var init_RecognizedSpellEffect = __esmMin((() => {
+	init_DBManager();
+	init_SkillConst();
+	init_SkillInfo();
+	init_EffectPrimSim();
+	init_RecognizedSpellSim();
+	_names = null;
+	RecognizedSpellEffect_default = { 803: [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			let i = 0;
+			planIcons().forEach((icon) => {
+				const file = iconFile(icon.skillId);
+				if (!file) return;
+				for (let j = 1; j <= ICONS.copies; j++) this.spamEffect({
+					effect: iconCopyEffect(file, j),
+					Inst: {
+						effectID: 803,
+						duplicateID: i++,
+						startTick: Params.Inst.startTick + icon.start * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}] };
 }));
 // src/Renderer/Effects/SunStanceSim.js
 /**
@@ -304544,6 +304714,7 @@ var init_EffectTable = __esmMin((() => {
 	init_FrostMistyEffect();
 	init_StasisEffect();
 	init_TetraFireEffect();
+	init_RecognizedSpellEffect();
 	init_StarEmperorStatusEffects();
 	init_SightBlasterEffect();
 	init_LightSphereEffect();
@@ -316763,7 +316934,6 @@ var init_EffectTable = __esmMin((() => {
 			},
 			{ wav: "effect/wl_whiteimprison" }
 		],
-		803: [{ wav: "effect/wl_recognizedspell" }],
 		804: [
 			{
 				wav: "effect/wizard_meteo",
@@ -326118,6 +326288,7 @@ var init_EffectTable = __esmMin((() => {
 		...SoulBodyEffects_default,
 		...FrostMistyEffect_default,
 		...StasisEffect_default,
+		...RecognizedSpellEffect_default,
 		...StarEmperorStatusEffects_default,
 		...SightBlasterEffect_default,
 		...LightSphereEffect_default,
