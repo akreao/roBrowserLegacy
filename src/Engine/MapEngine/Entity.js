@@ -1831,17 +1831,8 @@ function onEntityUseSkillToAttack(pkt) {
 		}
 	}
 
-	// Effects the official client plays as each damage packet arrives, and as its damage is due
-	const arrivalDelay = pkt.attackMT + ((SkillEffect[pkt.SKID] && SkillEffect[pkt.SKID].hitDelay) || 0);
-	EffectManager.spamSkillDamage(
-		pkt.SKID,
-		pkt.targetID,
-		Renderer.tick,
-		pkt.AID,
-		undefined,
-		pkt.count,
-		Renderer.tick + arrivalDelay
-	);
+	// Effects the official client plays as each damage packet arrives, attackMT before its damage
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, undefined, pkt.count);
 	EffectManager.spamSkillSplashMark(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID, pkt.level);
 	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
 

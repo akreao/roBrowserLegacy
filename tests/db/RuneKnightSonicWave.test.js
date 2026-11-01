@@ -18,7 +18,7 @@ describe('Sonic Wave', () => {
 });
 
 describe('arrival effects', () => {
-	it('play once per damage packet at the arrival tick, on the caster or the target', () => {
+	it('play once per damage packet as it arrives, on the caster or the target', () => {
 		const source = readFileSync(join(process.cwd(), 'src', 'Renderer/EffectManager.js'), 'utf8')
 			.replace(/\r\n/g, '\n')
 			.replace(/^import .*;$/gm, '')
@@ -36,10 +36,10 @@ describe('arrival effects', () => {
 		vm.runInContext(source, context);
 		const spammed = [];
 		context.EffectManager.spam = params => spammed.push(params);
-		context.EffectManager.spamSkillDamage(1, 2, 100, 3, undefined, 1, 450);
+		context.EffectManager.spamSkillDamage(1, 2, 100, 3);
 		expect(spammed.map(p => [p.effectId, p.ownerAID, p.startTick])).toEqual([
-			['a', 3, 450],
-			['b', 2, 450]
+			['a', 3, 100],
+			['b', 2, 100]
 		]);
 	});
 });

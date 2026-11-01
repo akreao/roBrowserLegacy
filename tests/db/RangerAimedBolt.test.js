@@ -55,11 +55,11 @@ describe('Aimed Bolt cast, target mark and shot as the official client plays the
 		// direction 0 faces 0 degrees (quarter 3), direction 7 faces 45 (quarter 0), 6 faces 90 (quarter 1), 4 faces 180 (quarter 2)
 		for (const [direction, shot] of [[0, 1647], [7, 1646], [6, 1645], [4, 1648]]) {
 			const { EffectManager, spammed } = loadEffectManager({ 1: { direction, position: [0, 0, 0] }, 2: { position: [3, 0, 0] } });
-			EffectManager.spamSkillDamage(SK.RA_AIMEDBOLT, 2, 100, 1, Math.random, 1, 500);
+			EffectManager.spamSkillDamage(SK.RA_AIMEDBOLT, 2, 100, 1);
 			expect(spammed.map(p => [p.effectId, p.ownerAID, p.startTick])).toEqual([
 				['ef_arrow_projectile', 2, 100],
-				[1650, 2, 500],
-				[shot, 1, 500]
+				[1650, 2, 100],
+				[shot, 1, 100]
 			]);
 		}
 

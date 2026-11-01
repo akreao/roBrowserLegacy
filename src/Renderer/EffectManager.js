@@ -1444,9 +1444,8 @@ class EffectManager {
 	 * @param {number} srcAID caster aid
 	 * @param {function} [random] returns a number in [0, 1)
 	 * @param {number} [hitCount] the packet's hit count, handed to the effects as hitCount
-	 * @param {number} [arrivalTick] when the packet's damage is due (attackMT on), for the arrival effects
 	 */
-	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1, arrivalTick = tick) {
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random, hitCount = 1) {
 		const skill = SkillEffect[skillId];
 		if (!skill) {
 			return;
@@ -1475,13 +1474,14 @@ class EffectManager {
 		if (destAID !== srcAID) {
 			play('damageEffectIdOnOtherTarget', destAID, srcAID);
 		}
-		// Once per packet when its damage is due, misses and splash hits included:
-		// the official client's damage-arrival effects
-		play('arrivalEffectIdOnCaster', srcAID, destAID, arrivalTick);
-		play('arrivalEffectIdOnTarget', destAID, srcAID, arrivalTick);
+		// The official client's damage-arrival effects, once per packet, misses and splash hits
+		// included. It plays them as the packet arrives and shows the damage attackMT later,
+		// so a falling or flying effect lands with the damage (Crimson Rock's meteor).
+		play('arrivalEffectIdOnCaster', srcAID, destAID);
+		play('arrivalEffectIdOnTarget', destAID, srcAID);
 		// The same, only on a target that is not the caster (Arrow Storm's rain)
 		if (destAID !== srcAID) {
-			play('arrivalEffectIdOnOtherTarget', destAID, srcAID, arrivalTick);
+			play('arrivalEffectIdOnOtherTarget', destAID, srcAID);
 		}
 
 		// One of four effects on the caster by its facing on screen
@@ -1502,7 +1502,7 @@ class EffectManager {
 		}
 
 		// One of four effects on the caster by its facing on screen
-		// (ScreenDirection.facingQuarter), when the packet's damage is due.
+		// (ScreenDirection.facingQuarter), with the arrival effects.
 		// Aimed Bolt's shot.
 		const arrivalByFacing = skill.arrivalEffectIdOnCasterByFacing;
 		const shooter = arrivalByFacing && srcAID ? EntityManager.get(srcAID) : null;
@@ -1512,7 +1512,7 @@ class EffectManager {
 				EffectManager.spam({
 					effectId: effectId,
 					ownerAID: srcAID,
-					startTick: arrivalTick,
+					startTick: tick,
 					otherAID: destAID
 				});
 			}
