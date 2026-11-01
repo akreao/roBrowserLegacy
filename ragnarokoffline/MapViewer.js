@@ -359428,15 +359428,16 @@ var init_EntityRender = __esmMin((() => {
 						}
 						SpriteRenderer.zIndex = bodyZOffset + 50;
 						renderElement(self, self.files.head, "head", _position, false);
-						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
+						const showHats = !self.suHide;
+						if (showHats && self.accessory3 > 0 && self.accessory3 !== self.accessory) {
 							SpriteRenderer.zIndex = bodyZOffset + 100;
 							renderElement(self, self.files.accessory3, "head", _position, false);
 						}
-						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) {
+						if (showHats && self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) {
 							SpriteRenderer.zIndex = bodyZOffset + 200;
 							renderElement(self, self.files.accessory2, "head", _position, false);
 						}
-						if (self.accessory > 0) {
+						if (showHats && self.accessory > 0) {
 							SpriteRenderer.zIndex = bodyZOffset + 300;
 							renderElement(self, self.files.accessory, "head", _position, false);
 						}
@@ -378060,6 +378061,7 @@ function onEntityStatusChange(pkt) {
 			else entity.attachments.remove("status-stop");
 			break;
 		case StatusConst_default.SUHIDE:
+			entity.suHide = pkt.state == 1;
 			if (pkt.state == 1) entity.setAction({
 				action: entity.ACTION.SKILL,
 				frame: 4,
