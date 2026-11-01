@@ -36,8 +36,17 @@ describe('Judex plays the official cast, target and falling lights', () => {
 		expect(l.dy).toBeCloseTo(0);
 		expect(l.delay).toBe(0);
 		const spammed = [];
-		EffectTable.ef_ab_judex_lights[0].func.call({ spam: p => spammed.push(p) }, { Inst: { position: [1, 1, 0], startTick: 2 }, Init: {} });
+		EffectTable.ef_ab_judex_lights[0].func.call({ spam: p => spammed.push(p) }, { Inst: { position: [1, 1, 0], startTick: 0 }, Init: {} });
 		expect(spammed).toHaveLength(24);
 		expect(spammed.map(p => p.effectId).slice(0, 2)).toEqual([1633, 1634]);
+		// placed round the target where it stands when the damage is due
+		const moved = [];
+		EffectTable.ef_ab_judex_lights[0].func.call(
+			{ spam: p => moved.push(p) },
+			{ Inst: { position: [1, 1, 0], startTick: 0 }, Init: { ownerEntity: { position: [50, 60, 0] } } }
+		);
+		for (const p of moved) {
+			expect(Math.hypot(p.position[0] - 50, p.position[1] - 60)).toBeLessThanOrEqual(14 / 5 + 1e-9);
+		}
 	});
 });
