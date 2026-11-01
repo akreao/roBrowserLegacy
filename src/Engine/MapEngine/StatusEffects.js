@@ -48,6 +48,10 @@ export function updateStatusEffects(AID, status, state, values) {
 			EffectManager.remove(null, AID, effectId);
 			play(effectId);
 		});
+		(row.restartLoop || []).forEach(effectId => {
+			EffectManager.remove(null, AID, effectId);
+			play(effectId, true);
+		});
 		loops.forEach(effectId => {
 			if (!EffectManager.has(AID, effectId)) {
 				play(effectId, true);
@@ -66,6 +70,7 @@ export function updateStatusEffects(AID, status, state, values) {
 		}
 	} else if (state == 0) {
 		loops.forEach(effectId => EffectManager.remove(null, AID, effectId));
+		(row.restartLoop || []).forEach(effectId => EffectManager.remove(null, AID, effectId));
 		counted.forEach(effectId => EffectManager.remove(null, AID, effectId));
 		(row.stop || []).forEach(effectId => EffectManager.remove(null, AID, effectId));
 		(row.end || []).forEach(effectId => play(effectId));

@@ -69,7 +69,7 @@ describe('Druid cast aura rule', () => {
 
 	it('is applied before the element aura, unless the skill has its own cast aura', () => {
 		const entity = read('Engine/MapEngine/Entity.js');
-		expect(entity).toContain("import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';");
+		expect(entity).toContain("import { hasElementCastAura, fixedCastAura } from 'DB/Skills/CastAuraRule.js';");
 		expect(entity.replace(/\s+/g, ' ')).toContain(
 			'(!hasElementCastAura(pkt.SKID) && !(castSkill && castSkill.castAuraEffectId))'
 		);

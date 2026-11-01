@@ -139,6 +139,11 @@ export const SCHEDULES = {
 		const even = age % 2 === 0;
 		return { add: on && even, glow: on, split: false, color: on ? (even ? BLUE : WHITE) : null };
 	},
+	// EF_CHEMICAL2DASH2 (835, Hundred Spear): glow copy and a pale yellow on ages 20 to 100.
+	835: age => {
+		const on = age >= 20 && age <= 100;
+		return { add: false, glow: on, split: false, color: on ? [255, 255, 150] : null };
+	},
 	// EF_GREENBODY (538; Refresh, Abundance, Phantom Thrust): as 500, in green.
 	538: age => {
 		const on = age <= 30;
