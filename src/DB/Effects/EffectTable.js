@@ -85,6 +85,9 @@ import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
+
+/** Textures of the 2025 streak builder's variants (0xbdf6e0). */
+const STREAK_LINE3 = { line3: 'line3.tga', line3y: 'line3y.tga' };
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { warmthEffect } from 'DB/Effects/WarmthEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
@@ -13369,11 +13372,28 @@ export default {
 
 	623: [
 		{
-			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28; also 8 streak sets
-			// (prim 56, line3y.tga) along the shot, not ported. See effect-port/gunslinger-skills.md.
+			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28. See effect-port/gunslinger-skills.md.
 			wav: 'effect/\xc7\xc7\xbe\xee\xbd\xcc\xbc\xa6', // 피어싱샷
 			delayWav: 467, // tick 28
 			attachedEntity: true
+		},
+		{
+			// On tick 0, 8 green streak sets along the shot: the 2025 builder 0xbdf6e0 with variants 20 and 21,
+			// four times (StreakLinesSim.createVariantSets).
+			type: 'FUNC',
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!caster || !target || target === caster) {
+					return;
+				}
+				this.add(
+					new StreakLines(caster.position, target.position, Params.Inst.startTick, STREAK_LINE3, [
+						20, 21, 20, 21, 20, 21, 20, 21
+					]),
+					Params
+				);
+			}
 		}
 	],
 	624: [
