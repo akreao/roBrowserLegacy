@@ -83,7 +83,8 @@ class EffectPrim {
 	init(gl) {
 		this.buffer = gl.createBuffer();
 
-		this.textureName = `${this.effect.texture}.tga`;
+		// A name without an extension is a .tga
+		this.textureName = /\.\w+$/.test(this.effect.texture) ? this.effect.texture : `${this.effect.texture}.tga`;
 		_sharedUsers.set(this.textureName, (_sharedUsers.get(this.textureName) || 0) + 1);
 		sharedTexture(_sharedTextures, gl, this.textureName, texture => {
 			if (this.freed) {
@@ -159,10 +160,17 @@ class EffectPrim {
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
 
-		// Normal alpha blending, depth tested, no depth writes (as the official client draws them).
+		// Normal alpha blending (or adding light, effect.additive), depth tested, no depth writes
+		// (as the official client draws them).
+		if (this.effect.additive) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		}
 		SpriteRenderer.runWithDepth(true, false, true, () => {
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
 		});
+		if (this.effect.additive) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
 	}
 
 	/**

@@ -21,6 +21,7 @@ import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
+import StasisEffect from 'DB/Effects/StasisEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
 import LightSphereEffect from 'DB/Effects/LightSphereEffect.js';
@@ -15772,12 +15773,7 @@ export default {
 		}
 	],
 	//798: [{}],	//EF_INTIMIDATE2	   Red triangles (like Intimidate)
-	799: [
-		{
-			//EF_STASIS	   Stasis (expanding blue mist) [S]
-			wav: 'effect/wl_stasis'
-		}
-	],
+	// 799 EF_STASIS (Stasis): StasisEffect.js.
 	//800: [{}],	//EF_REDLINE	   Hell Inferno (red lights)
 	//801: [{}],	//EF_FROSTDIVER3	   Jack Frost unit (ice spikes)
 
@@ -29743,6 +29739,9 @@ export default {
 
 	// Soul Linker / Star Gladiator body looks (Kaite 419, Soul Link 424, Comfort 488, 542, 543): SoulBodyEffects.js.
 	...SoulBodyEffects,
+
+	// Stasis's blue flash and squares (799): StasisEffect.js.
+	...StasisEffect,
 
 	// Star Emperor / Soul Reaper status looks (stances 1214-1217, Gravity Control 1201, Soul Unity 1222): StarEmperorStatusEffects.js.
 	...StarEmperorStatusEffects,
