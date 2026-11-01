@@ -1,7 +1,6 @@
-import WebGL from 'Utils/WebGL.js';
-import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
+import SharedEffectTextures from 'Renderer/Effects/SharedEffectTextures.js';
 
 function getRandomIntInclusive(min, max) {
 	min = Math.ceil(min);
@@ -10,6 +9,9 @@ function getRandomIntInclusive(min, max) {
 }
 
 const blendMode = {};
+
+// One texture per file for every instance.
+const _textures = new SharedEffectTextures();
 
 /**
  * Alpha of a 2D effect at a time
@@ -460,16 +462,25 @@ class TwoDEffect {
 	}
 
 	init(gl) {
-		Client.loadFile(`data/texture/${this.textureName}`, buffer => {
-			WebGL.texture(gl, buffer, texture => {
+		// Every instance shares one texture per file: loading one is slow.
+		this.textureHandle = _textures.acquire(
+			gl,
+			`data/texture/${this.textureName}`,
+			texture => {
 				this.texture = texture;
 				this.ready = true;
-			});
-		});
+			},
+			// A missing file: drop the effect instead of waiting for it forever
+			() => {
+				this.needCleanUp = true;
+			}
+		);
 	}
 
 	free(gl) {
 		this.ready = false;
+		_textures.release(gl, this.textureHandle);
+		this.textureHandle = null;
 	}
 
 	render(gl, tick) {
@@ -730,6 +741,7 @@ class TwoDEffect {
 
 	static free(gl) {
 		this.ready = false;
+		_textures.clear(gl);
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
