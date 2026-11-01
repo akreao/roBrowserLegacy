@@ -104,6 +104,7 @@ import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import { GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
+import MapPreferences from 'Preferences/Map.js';
 import {
 	planPath as planIcePath,
 	planShards as planIceShards,
@@ -21190,36 +21191,23 @@ export default {
 			attachedEntity: true
 		},
 		{
-			//ice spikes traveling outward from the caster in all 8 directions
-			type: 'TRAIL',
-			attachedEntity: false,
-			duration: 1000,
-			speed: 24,
-			interval: 34,
-			startOffset: 1,
-			angles: [0, 45, 90, 135, 180, 225, 270, 315],
-			spread: [0.1, 0.4],
-			spawn: [
-				{
-					type: 'QuadHorn',
-					textureFile: 'effect/ice.tga',
-					attachedEntity: false,
-					duration: 670,
-					height: [0.2, 1.8],
-					offsetX: 0,
-					offsetY: 0,
-					offsetZ: 0,
-					bottomSize: [0.06, 0.22],
-					blendMode: 8,
-					rotateX: [-15, 15],
-					rotateY: [0, 360],
-					color: [1.0, 1.0, 1.0, 1.0],
-					animation: 4,
-					animationSpeed: 330,
-					riseDistance: 2.0,
-					fadeOut: 170
+			// Official client (kRO 2025-07-16, use case 0xd1282d): ten 801 EF_FROSTDIVER3 on the caster, each a Frost
+			// Diver path (builder 0xbadce0, variant 3: additive, deep blue flickering) to a point 80 units out, the
+			// i-th at i x 36 + r(36) degrees; nothing under /mineffect. Effect 801 lives 150 ticks.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				if (!caster || MapPreferences.mineffect) {
+					return;
 				}
-			]
+				const at = [caster.position[0], caster.position[1], caster.position[2]];
+				for (let i = 0; i < 10; i++) {
+					const angle = ((i * 36 + Math.floor(Math.random() * 36)) * Math.PI) / 180;
+					const spikes = planIcePath(80 * Math.cos(angle), 80 * Math.sin(angle));
+					this.add(new IceSpikes(at, Params.Inst.startTick, spikes, ICE_PATH.life, { glow: true }), Params);
+				}
+			}
 		}
 	],
 
