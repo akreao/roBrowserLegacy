@@ -2,9 +2,11 @@
  * Renderer/Effects/HitLineSim.js
  *
  * The official client's kick hit lines (effect 429, EF_HITLINE4: Prominence
- * Kick and Estun), without any WebGL (kRO 2025-07-16, case 0xbc6d3f calls
- * 0xbf0000 with mode 3; primitive 100: update 0xb46b50 case 100, draw
- * 0xb73800):
+ * Kick, Estun and Roundhouse), without any WebGL (kRO 2025-07-16, case
+ * 0xbc6d3f calls 0xbf0000 with mode 3; primitive 100: update 0xb46b50 case
+ * 100, draw 0xb73800). 430 (EF_HITLINE5, Counter Kick: 0xbf0400) and 431
+ * (EF_HITLINE6, Heel Drop and Esma: 0xbef9f0) are the same lines with other
+ * numbers (HITLINE_KINDS; effect-port/hit-lines.md):
  *
  *  - On ticks 6, 7, 8 and 9 the effect makes a primitive of four lines
  *    (16 lines). Each line waits 0 to 30 ticks, then sweeps a half arc out
@@ -41,6 +43,8 @@ export const HITLINE = {
 	stretch: 0.8, // + 0.1 r(7)
 	stretchRange: 7,
 	segments: 4,
+	waitBase: 0,
+	aimed: false,
 	segmentFade: 10,
 	up: 5,
 	core: 0.05,
@@ -48,26 +52,96 @@ export const HITLINE = {
 	sides: 3
 };
 
-/** Ticks until the last line is gone, from the effect's start. */
-export const HITLINE_LAST_TICK = HITLINE.spawnTicks[HITLINE.spawnTicks.length - 1] + HITLINE.primLife;
+/**
+ * The three kinds, by effect id. 430 waits 25 to 45 ticks and aims its lines
+ * at the target from the caster (that heading, -60 to 60 degrees); 431 waits
+ * 30 to 70 ticks.
+ */
+export const HITLINE_KINDS = {
+	429: HITLINE,
+	430: {
+		...HITLINE,
+		spawnTicks: [0, 1, 2],
+		waitBase: 25,
+		waitRange: 21,
+		radiusRange: 7,
+		segments: 3,
+		core: 0.06,
+		aimed: true,
+		aimRange: 121,
+		aimOffset: 60
+	},
+	431: {
+		...HITLINE,
+		spawnTicks: [0, 1, 2, 3, 4],
+		waitBase: 30,
+		waitRange: 41,
+		stretch: 0.6,
+		core: 0.07
+	}
+};
+
+/**
+ * Ticks until a kind's last line is gone, from the effect's start.
+ *
+ * @param {object} [kind]
+ * @return {number}
+ */
+export function hitLineLastTick(kind = HITLINE) {
+	return kind.spawnTicks[kind.spawnTicks.length - 1] + kind.primLife;
+}
+
+/** Ticks until the last line of 429 is gone, from the effect's start. */
+export const HITLINE_LAST_TICK = hitLineLastTick(HITLINE);
 
 const r = (random, k) => Math.floor(random() * k);
 
 /**
- * The 16 lines of one effect, in the order the client makes them.
+ * The client's heading helper (0xb46830): the first whole degree whose cosine
+ * is at most dx / length, 360 less that when dz < 0.
+ *
+ * @param {number} dx
+ * @param {number} dz
+ * @return {number} degrees, 0 to 360
+ */
+export function tableHeading(dx, dz) {
+	const length = Math.hypot(dx, dz);
+	if (!(length > 0)) {
+		return 180;
+	}
+	const c = dx / length;
+	let angle = 180;
+	for (let s = 0; s <= 180; s++) {
+		if (Math.cos((s * Math.PI) / 180) <= c + 1e-9) {
+			angle = s;
+			break;
+		}
+	}
+	return dz / length < 0 ? 360 - angle : angle;
+}
+
+/**
+ * The lines of one effect, in the order the client makes them.
  *
  * @param {function} [random] returns a number in [0, 1)
+ * @param {object} [kind] from HITLINE_KINDS
+ * @param {number} [aim] degrees, the heading from the caster to the target (aimed kinds)
  * @return {Array<object>} { spawn, wait, alpha, heading, radius, stretch }
  */
-export function planHitLines(random = Math.random) {
+export function planHitLines(random = Math.random, kind = HITLINE, aim = 0) {
 	const out = [];
-	for (const spawn of HITLINE.spawnTicks) {
-		for (let j = 0; j < HITLINE.perPrim; j++) {
-			const wait = r(random, HITLINE.waitRange);
-			const alpha = HITLINE.alpha + r(random, HITLINE.alphaRange);
-			const heading = r(random, 360);
-			const radius = HITLINE.radius + r(random, HITLINE.radiusRange);
-			const stretch = HITLINE.stretch + 0.1 * r(random, HITLINE.stretchRange);
+	for (const spawn of kind.spawnTicks) {
+		for (let j = 0; j < kind.perPrim; j++) {
+			const wait = kind.waitBase + r(random, kind.waitRange);
+			const alpha = kind.alpha + r(random, kind.alphaRange);
+			let heading;
+			if (kind.aimed) {
+				heading = (((aim + r(random, kind.aimRange) - kind.aimOffset) % 360) + 360) % 360;
+			} else {
+				heading = r(random, 360);
+			}
+			const radius = kind.radius + r(random, kind.radiusRange);
+			const stretch = kind.stretch + 0.1 * r(random, kind.stretchRange);
 			out.push({ spawn, wait, alpha, heading, radius, stretch });
 		}
 	}
@@ -105,11 +179,12 @@ export function headAngle(c) {
  * new head into the trail, so the first segment is empty until the arc ends.
  *
  * @param {number} c swept ticks
- * @return {Array<number>} HITLINE.segments + 1 angles
+ * @param {number} [segments] the kind's
+ * @return {Array<number>} segments + 1 angles
  */
-export function trailAngles(c) {
+export function trailAngles(c, segments = HITLINE.segments) {
 	const out = [headAngle(c)];
-	for (let k = 1; k <= HITLINE.segments; k++) {
+	for (let k = 1; k <= segments; k++) {
 		out.push(headAngle(c - k + 1));
 	}
 	return out;

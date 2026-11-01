@@ -9,7 +9,13 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Comet cast effects while casting, the comet on each target as its packet arrives', () => {
 	it('matches the official client', () => {
-		expect(SkillEffect[SK.WL_COMET]).toEqual({ castAuraEffectId: 1418, beginCastEffectId: [1415, 1421], damageEffectIdOnTarget: [1413, 1414] });
+		expect(SkillEffect[SK.WL_COMET]).toEqual({
+			castAuraEffectId: 1418,
+			beginCastEffectId: [1415, 1421],
+			damageEffectIdOnTarget: [1413, 1414],
+			extraHitEffectId: [1416, 1417],
+			extraHitEffectEvery: 2
+		});
 		expect(EffectTable[1421][0]).toMatchObject({ file: 'new_comet/new_comet_cast/new_comet_cast', castLoop: true });
 		expect(EffectTable[1413][0].file).toBe('new_comet/new_comet/new_comet');
 	});
