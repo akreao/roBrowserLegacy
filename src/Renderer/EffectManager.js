@@ -1789,9 +1789,12 @@ class EffectManager {
 		const castEndTick = castTime > 0 ? startTick + castTime : 0;
 
 		if (SkillEffect[skillId].beginCastEffectId) {
-			effects = Array.isArray(SkillEffect[skillId].beginCastEffectId)
-				? SkillEffect[skillId].beginCastEffectId
-				: [SkillEffect[skillId].beginCastEffectId];
+			let beginCast = SkillEffect[skillId].beginCastEffectId;
+			// Picked by the caster, such as Asura Strike's images by job
+			if (typeof beginCast === 'function') {
+				beginCast = beginCast(EntityManager.get(destAID) || null);
+			}
+			effects = Array.isArray(beginCast) ? beginCast : [beginCast];
 
 			effects.forEach(effectId => {
 				EF_Init_Par = {

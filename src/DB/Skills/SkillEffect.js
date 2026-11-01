@@ -66,7 +66,8 @@
  *								the server's mark on the targets a splash reaches (Venom Splasher's burst).
  *
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
- *								Can be used to create casting effects.
+ *								Can be used to create casting effects. A function is given the caster
+ *								entity (or null) and returns the effect.
  *
  *	- beginCastTargetEffectId: 	Triggers once when the cast starts, on the skill's target. Nothing plays without a known target.
  *	- beginCastEffectIdInRaptorForm: Triggers once when the cast starts, on the caster, only while it is in Wereraptor form.
@@ -478,8 +479,16 @@ SkillEffect[SK.MO_STEELBODY] = { successEffectIdOnCaster: ['quake', 'monk_raging
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { successEffectIdOnCaster: ['quake', 'monk_fury_sound', 203, 261] }; //Fury
 // Official client: as the damage packet arrives, the camera quake and 266 (with its sound) on the
-// target; the hit flash 0. No aura (328 / 510) and no cast-start effect. See effect-port/monk-skills.md.
-SkillEffect[SK.MO_EXTREMITYFIST] = { damageEffectIdOnCaster: 'quake', damageEffectIdOnTarget: 266, hitEffectId: 0 }; //Asura Strike
+// target; the hit flash 0. The cast packet (sent even with no cast time, as in a combo) plays the big
+// Asura images on the caster in place of the cast aura: 328, or 510 for a caster whose job id is
+// MONK_H (4016) or above (cast-effect picker, kRO 2025-07-16 0xd84890). See effect-port/monk-skills.md.
+SkillEffect[SK.MO_EXTREMITYFIST] = {
+	hideCastAura: true,
+	beginCastEffectId: caster => (caster && caster._job >= 4016 ? 510 : 328),
+	damageEffectIdOnCaster: 'quake',
+	damageEffectIdOnTarget: 266,
+	hitEffectId: 0
+}; //Asura Strike
 SkillEffect[SK.MO_CHAINCOMBO] = { damageEffectIdOnTarget: [262, 273], damageEffectIdOnCaster: 263, hitEffectId: [0, 122] }; //Raging Quadruple Blow
 SkillEffect[SK.MO_COMBOFINISH] = { damageEffectIdOnCaster: ['quake', 'monk_raging_thrust_sound', 263], hitEffectId: [0, 1] }; //Raging Thrust
 // Sage
