@@ -24,6 +24,7 @@ import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import { hitHasEffects } from 'DB/Skills/SplashHit.js';
 import { packetLaunchesSkill } from 'DB/Skills/SkillMotionEffect.js';
+import { resolveEntityWeapons } from 'Engine/MapEngine/OffhandWeapon.js';
 import AttackEffect from 'DB/Monsters/AttackEffectTable.js';
 import Configs from 'Core/Configs.js';
 import Events from 'Core/Events.js';
@@ -54,6 +55,7 @@ import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { startFootprints } from 'Renderer/Effects/Footprints.js';
 import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
@@ -209,7 +211,9 @@ function onEntitySpam(pkt) {
 			name: '',
 			hp: -1,
 			maxhp: -1,
-			hideShadow: true
+			hideShadow: true,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.falcon);
 	}
@@ -226,32 +230,35 @@ function onEntitySpam(pkt) {
 			speed: Math.max(entity.walk.speed - 50, 1),
 			name: '',
 			hp: -1,
-			maxhp: -1
+			maxhp: -1,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.wug);
 	}
 
-	if (entity.objecttype === Entity.TYPE_PC) {
-		// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
-		// so we have to swap it. maybe have a better solution.
-		if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield)) {
-			pkt.weapon = pkt.shield;
-			pkt.shield = 0;
-		}
+	let cartNum = 0;
+	if (pkt.effectState & StatusState.EffectState.CART1) {
+		cartNum = 1;
+	} else if (pkt.effectState & StatusState.EffectState.CART2) {
+		cartNum = 2;
+	} else if (pkt.effectState & StatusState.EffectState.CART3) {
+		cartNum = 3;
+	} else if (pkt.effectState & StatusState.EffectState.CART4) {
+		cartNum = 4;
+	} else if (pkt.effectState & StatusState.EffectState.CART5) {
+		cartNum = 5;
+	}
 
-		const weaponType = DB.getWeaponType(pkt.weapon, true);
-		const viewId = DB.getWeaponViewID(pkt.weapon);
-		if (DB.isAssassin(entity.job) && pkt.shield !== 0 && !DB.isShield(pkt.shield) && pkt.weapon !== 0) {
-			const secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
-			entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
-			entity.shield = 0;
-		} else if (DB.isKatar(weaponType)) {
-			entity.weapon = viewId;
-			entity.shield = viewId;
-		} else {
-			entity.weapon = viewId;
-			entity.shield = pkt.shield;
-		}
+	if (cartNum > 0 || entity.hasCart || (Session.Entity && entity.GID === Session.Entity.GID && Session.hasCart)) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : cartNum || entity.CartNum || Session.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	}
+
+	if (entity.objecttype === Entity.TYPE_PC) {
+		const resolved = resolveEntityWeapons(pkt.weapon, pkt.shield, entity, Session.Entity, Inventory, Equipment);
+		entity.weapon = resolved.weapon;
+		entity.shield = resolved.shield;
 		if (PACKETVER.value > 20150513) {
 			if (entity.body !== pkt.body) {
 				entity.body = pkt.body;
@@ -377,10 +384,12 @@ function onEntityVanish(pkt) {
 					EffectManager.spam(EF_Init_Par);
 				}
 				if (entity.falcon) {
+					EntityManager.removeGID(entity.falcon.GID);
 					entity.falcon.remove(pkt.type);
 					entity.falcon = null;
 				}
 				if (entity.wug) {
+					EntityManager.removeGID(entity.wug.GID);
 					entity.wug.remove(pkt.type);
 					entity.wug = null;
 				}
@@ -388,10 +397,12 @@ function onEntityVanish(pkt) {
 			case Entity.VT.OUTOFSIGHT:
 				EffectManager.remove(null, pkt.GID, null);
 				if (entity.falcon) {
+					EntityManager.removeGID(entity.falcon.GID);
 					entity.falcon.remove(pkt.type);
 					entity.falcon = null;
 				}
 				if (entity.wug) {
+					EntityManager.removeGID(entity.wug.GID);
 					entity.wug.remove(pkt.type);
 					entity.wug = null;
 				}
@@ -1424,30 +1435,21 @@ function onEntityViewChange(pkt) {
 			// stored in a long value (uint16 and uint16 in uint32)
 			// source: https://github.com/rathena/rathena/blob/master/src/map/clif.c#L3162
 			if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
-				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
-				// so we have to swap it. maybe have a better solution.
-				if (pkt.value === 0 && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-					pkt.value = pkt.value2;
-					pkt.value2 = 0;
-				}
-
-				const weaponType = DB.getWeaponType(pkt.value, true);
-				const viewId = DB.getWeaponViewID(pkt.value);
-
-				if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-					const secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
-					entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
-					entity.shield = 0;
-				} else if (DB.isKatar(weaponType)) {
-					entity.weapon = viewId;
-					entity.shield = viewId;
-				} else {
-					entity.weapon = viewId;
+				const resolved = resolveEntityWeapons(
+					pkt.value,
+					pkt.value2,
+					entity,
+					Session.Entity,
+					Inventory,
+					Equipment
+				);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
+			} else {
+				entity.weapon = DB.getWeaponViewID(pkt.value);
+				if (pkt.value2 !== undefined) {
 					entity.shield = pkt.value2;
 				}
-			} else {
-				entity.weapon = pkt.value;
-				entity.shield = pkt.value2;
 			}
 
 			// load self aura
@@ -2114,6 +2116,36 @@ function onEntityStatusChange(pkt) {
 			if (pkt.val && (pkt.state || !pkt.hasOwnProperty('state'))) {
 				entity.CartNum = pkt.val[0];
 			}
+			if (Session.Entity && entity.GID === Session.Entity.GID) {
+				Session.hasCart = entity.hasCart;
+				Session.CartNum = entity.CartNum;
+			}
+			entity._statusCart = !!entity.hasCart;
+			if (
+				entity._statusCart ||
+				!(
+					entity.effectState &
+					(StatusState.EffectState.CART1 |
+						StatusState.EffectState.CART2 |
+						StatusState.EffectState.CART3 |
+						StatusState.EffectState.CART4 |
+						StatusState.EffectState.CART5)
+				)
+			) {
+				entity.setCart(entity._statusCart, entity.CartNum);
+			} else {
+				// Option-derived cart still present; keep it
+				entity.hasCart = true;
+			}
+			// CARTOFF removes CartItems from the DOM; mount it again when a cart is re-acquired
+			if (
+				Session.Entity &&
+				entity.GID === Session.Entity.GID &&
+				entity.hasCart &&
+				!CartItems._host?.isConnected
+			) {
+				CartItems.append();
+			}
 			break;
 
 		case StatusConst.HIDING:
@@ -2139,7 +2171,9 @@ function onEntityStatusChange(pkt) {
 					name: '',
 					hp: -1,
 					maxhp: -1,
-					hideShadow: true
+					hideShadow: true,
+					_followTargetX: entity.position[0],
+					_followTargetY: entity.position[1]
 				});
 				EntityManager.add(entity.falcon);
 			}
@@ -2533,7 +2567,14 @@ function onEntityStatusChange(pkt) {
 			break;
 	}
 
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val);
+	// MSG_STATE_CHANGE3 and MSG_STATE_CHANGE5 (0x8ff, 0x984) carry no state: the
+	// server sends them for statuses already on when an actor comes into view.
+	updateStatusEffects(
+		pkt.AID,
+		pkt.index,
+		Object.prototype.hasOwnProperty.call(pkt, 'state') ? pkt.state : 1,
+		pkt.val
+	);
 	processBlockStatus(entity, pkt);
 
 	// Modify icon
@@ -2616,11 +2657,13 @@ function onEntityOptionChange(pkt) {
 			name: '',
 			hp: -1,
 			maxhp: -1,
-			hideShadow: true
+			hideShadow: true,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.falcon);
 	} else if (entity.falcon && !(entity.effectState & StatusState.EffectState.FALCON)) {
-		entity.falcon.remove();
+		EntityManager.remove(entity.falcon.GID);
 		entity.falcon = null;
 	}
 
@@ -2634,12 +2677,36 @@ function onEntityOptionChange(pkt) {
 			speed: Math.max(entity.walk.speed - 50, 1),
 			name: '',
 			hp: -1,
-			maxhp: -1
+			maxhp: -1,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.wug);
 	} else if (entity.wug && !(entity.effectState & StatusState.EffectState.WUG)) {
-		entity.wug.remove();
+		EntityManager.remove(entity.wug.GID);
 		entity.wug = null;
+	}
+
+	let statusCartNum = 0;
+	if (entity.effectState & StatusState.EffectState.CART1) {
+		statusCartNum = 1;
+	} else if (entity.effectState & StatusState.EffectState.CART2) {
+		statusCartNum = 2;
+	} else if (entity.effectState & StatusState.EffectState.CART3) {
+		statusCartNum = 3;
+	} else if (entity.effectState & StatusState.EffectState.CART4) {
+		statusCartNum = 4;
+	} else if (entity.effectState & StatusState.EffectState.CART5) {
+		statusCartNum = 5;
+	}
+
+	// Keep the cart while the ON_PUSH_CART status is active (tracked separately from option bits)
+	const keepViaFlag = !!entity._statusCart || (entity === Session.Entity && entity.hasCart);
+	if (statusCartNum > 0 || keepViaFlag) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	} else if (entity.cart) {
+		entity.setCart(false);
 	}
 }
 
@@ -3136,4 +3203,4 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.HAT_EFFECT, onHatEffects);
 }
 
-export { onEntityActionPosition, onEntityAction, clearQuestEffects };
+export { onEntityActionPosition, onEntityAction, clearQuestEffects, onEntitySpam, onEntityViewChange };

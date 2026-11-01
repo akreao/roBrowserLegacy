@@ -513,10 +513,7 @@ const renderEntity = (function renderEntityClosure() {
 
 					// Shield is behind on some position, seems to be hardcoded by the client
 					if (self.shield && behind) {
-						SpriteRenderer.runWithDepth(true, false, false, function () {
-							SpriteRenderer.zIndex = -1;
-							renderElement(self, self.files.shield, 'shield', _position, true);
-						});
+						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
 
 					if (!isLookingBack(direction)) {
@@ -552,17 +549,6 @@ const renderEntity = (function renderEntityClosure() {
 					// Draw Body
 					renderElement(self, self.files.body, 'body', _position, true);
 
-					// Isometric Projection Body Offset
-					let bodyZOffset = 250;
-					if (RIDING_STATUS) {
-						bodyZOffset *= 2;
-						if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) {
-							bodyZOffset += 250;
-						}
-					}
-
-					SpriteRenderer.zIndex = bodyZOffset + 50;
-
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
 
@@ -588,7 +574,6 @@ const renderEntity = (function renderEntityClosure() {
 						self.accessory2 !== self.accessory3
 					) {
 						// accessory and accessory3 already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 200;
 						renderElement(self, self.files.accessory2, 'head', _position, false);
 					}
 
@@ -620,17 +605,17 @@ const renderEntity = (function renderEntityClosure() {
 
 					// Draw Weapon
 					if (self.weapon > 0) {
-						SpriteRenderer.zIndex = bodyZOffset + 250;
 						renderElement(self, self.files.weapon, 'weapon', _position, true);
 						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 					}
 
 					if (self.shield > 0 && !behind) {
-						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
+					EntityComposer.end();
 				});
 				break;
+			case Entity.TYPE_WUG:
 			case Entity.TYPE_HOM:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
@@ -967,7 +952,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, enab
 		return;
 	}
 
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return;
 	}
 
@@ -1183,49 +1168,6 @@ const renderElement = (function renderElementClosure() {
 			_position[1] = position[1] - animation.pos[0].y;
 		}
 
-		if (type === 'cart' || type === 'cartshadow') {
-			const direction = (Camera.direction + entity.direction + 8) % 8;
-
-			switch (direction) {
-				case 0:
-					{
-						_position[0] = 0;
-						_position[1] = -30;
-					}
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4:
-					{
-						_position[0] = 0;
-						_position[1] = 20;
-					}
-					break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
-					break;
-			}
-		}
-
 		// Check if special body effect and enable the correct blend mode
 		const hasBerserkOrMarionette =
 			(type !== 'shadow' && entity.getOpt3(StatusConst.Status.BERSERK)) ||
@@ -1363,7 +1305,7 @@ function getAnimationDelay(type, entity, act) {
  */
 function calcAnimation(entity, act, type, tick) {
 	// Fix for shadow
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return 0;
 	}
 
@@ -1385,10 +1327,6 @@ function calcAnimation(entity, act, type, tick) {
 	}
 	if (animation.speed) {
 		delay = animation.speed;
-	}
-
-	if (type === 'cart' && isIdle) {
-		return 0;
 	}
 
 	// Get rid of doridori
@@ -1616,6 +1554,9 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
+
+	// Collect player layers so the composed character is submitted once.
+	if (EntityComposer.capture(this, frame, pal.palette, SpriteRenderer.offset)) return;
 
 	// Draw Sprite
 	SpriteRenderer.render(isBlendModeOne);

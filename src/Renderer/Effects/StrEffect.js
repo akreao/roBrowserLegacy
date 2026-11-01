@@ -490,17 +490,18 @@ class StrEffect {
 		}
 
 		if (this.aimAngle || this.flipX || this.flipY || this.tilt) {
-			// Turn the layout about the art's centre; STR y points down the screen.
+			// Turn the layout about the art's anchor ((320,240) for EZ2 art, (320,320)
+			// for classic art, as above); STR y points down the screen.
 			// As the client does: mirrored first, then turned, then tilted (its
 			// tilt is a turn about the screen's x axis, which shortens y).
 			const rad = ((this.aimAngle || 0) / 180) * Math.PI;
 			const cos = Math.cos(rad);
 			const sin = Math.sin(rad);
 			const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
-			const y = (AIM_PIVOT_Y - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+			const y = (pivotY - animat.pos[1]) * k * (this.flipY ? -1 : 1);
 			const squash = this.tilt ? Math.cos((this.tilt / 180) * Math.PI) : 1;
 			out[0] = x * cos - y * sin + shiftX;
-			out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) * squash - shiftY;
+			out[1] = -(x * sin + y * cos) * squash - shiftY;
 			return verticalBase;
 		}
 

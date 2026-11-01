@@ -117,26 +117,6 @@ function View() {
 	this.accessory3 = new ViewFiles();
 	this.robe = new ViewFiles();
 	this.shadow = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
-
-	this.cart = [];
-	//Super novice
-	this.cart[0] = new ViewFiles(DB.getCartPath(0) + '.spr', DB.getCartPath(0) + '.act');
-
-	this.cart[1] = new ViewFiles(DB.getCartPath(1) + '.spr', DB.getCartPath(1) + '.act');
-	this.cart[2] = new ViewFiles(DB.getCartPath(2) + '.spr', DB.getCartPath(2) + '.act');
-	this.cart[3] = new ViewFiles(DB.getCartPath(3) + '.spr', DB.getCartPath(3) + '.act');
-	this.cart[4] = new ViewFiles(DB.getCartPath(4) + '.spr', DB.getCartPath(4) + '.act');
-	this.cart[5] = new ViewFiles(DB.getCartPath(5) + '.spr', DB.getCartPath(5) + '.act');
-	this.cart[6] = new ViewFiles(DB.getCartPath(6) + '.spr', DB.getCartPath(6) + '.act');
-	this.cart[7] = new ViewFiles(DB.getCartPath(7) + '.spr', DB.getCartPath(7) + '.act');
-	this.cart[8] = new ViewFiles(DB.getCartPath(8) + '.spr', DB.getCartPath(8) + '.act');
-	this.cart[9] = new ViewFiles(DB.getCartPath(9) + '.spr', DB.getCartPath(9) + '.act');
-	this.cart[10] = new ViewFiles(DB.getCartPath(10) + '.spr', DB.getCartPath(10) + '.act');
-	this.cart[11] = new ViewFiles(DB.getCartPath(11) + '.spr', DB.getCartPath(11) + '.act');
-	this.cart[12] = new ViewFiles(DB.getCartPath(12) + '.spr', DB.getCartPath(12) + '.act');
-	this.cart[13] = new ViewFiles(DB.getCartPath(13) + '.spr', DB.getCartPath(13) + '.act');
-
-	this.cart_shadow = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
 }
 
 /**
@@ -785,10 +765,17 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		// Set when a weapon look is drawn from its base type's sprite
+		let keepLook = false;
 
 		// Nothing to load
-		if (val <= 0) {
+		if (!val || val <= 0) {
 			this['_' + type] = 0;
+			if (this.files[type]) {
+				this.files[type].spr = null;
+				this.files[type].act = null;
+				this.files[type].pal = null;
+			}
 			return;
 		}
 
@@ -824,7 +811,8 @@ function UpdateGeneric(type, func, fallback) {
 			Client.loadFile(
 				filepath + '.spr',
 				function () {
-					_this['_' + type] = _val;
+					// Keep the look itself, so a later job change can draw its sprite
+					_this['_' + type] = keepLook ? val : _val;
 
 					// Head accessories and equipment are not drawn on a transformed body
 					if (!shouldSuppressHead.call(_this)) {
@@ -863,6 +851,7 @@ function UpdateGeneric(type, func, fallback) {
 						if (type === 'weapon' && filepath === path) {
 							_val = DB.getWeaponType(val, true);
 							filepath = DB[func](_val, _this.job, _this._sex);
+							keepLook = true;
 						}
 						if (filepath) {
 							LoadView(filepath, true);
