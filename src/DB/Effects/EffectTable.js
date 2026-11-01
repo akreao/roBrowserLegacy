@@ -26797,6 +26797,31 @@ export default {
 		}
 	],
 
+	1418: [
+		{
+			// Comet's cast aura (kRO 2025-07-16, CRagEffect 0xbc0a31): on its first tick EF_BeginSpell.wav and one
+			// cast-aura ring (builder 0xbfa8b0, size 45, argument 20: tinted (10, 66, 114), additive) in
+			// new_comet\\new_comet_cast_ring\\ring_rainbow.tga, for the cast time (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_comet/new_comet_cast_ring/ring_rainbow.tga',
+						[20],
+						{ sizes: [45], castTimeOnly: true }
+					),
+					Params
+				);
+			}
+		}
+	],
+
 	// Comet (WL_COMET) cast floor, with 1421: on the caster for the cast time. See effect-port/warlock-skills.md.
 	1415: [
 		{
