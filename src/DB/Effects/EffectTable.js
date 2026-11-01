@@ -63,7 +63,6 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
-import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
 import { hundredSpearEffect, hundredSpearDashEffect } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
@@ -117,6 +116,7 @@ import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
 const getBragiSpellNote = SongEffects.getBragiSpellNote;
