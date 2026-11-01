@@ -8,7 +8,10 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 
 describe('Crimson Rock explosion when the damage arrives', () => {
 	it('matches the official client', () => {
-		expect(SkillEffect[SK.WL_CRIMSONROCK]).toEqual({ arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275] });
+		expect(SkillEffect[SK.WL_CRIMSONROCK]).toEqual({
+			arrivalEffectIdOnTarget: ['ef_wl_crimsonrock_sound', 1274, 1275],
+			extraHitEffectId: 1298
+		});
 		expect(EffectTable[1274][0].file).toBe('new_crimsonrock/new_crimsonrock/new_crimsonrock');
 		expect(EffectTable.ef_wl_crimsonrock_sound).toEqual([{ wav: 'crimson_r', attachedEntity: true }]);
 	});

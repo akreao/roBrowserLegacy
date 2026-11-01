@@ -26770,6 +26770,19 @@ export default {
 		}
 	],
 
+	// Crimson Rock (WL_CRIMSONROCK) sub explosion: on the target with each hit after the first (none under /mineffect).
+	// See effect-port/warlock-skills.md.
+	1298: [
+		{
+			//(1298): CEZ2STREffect, new_crimsonrock\\new_crimsonrock_sub_explosion\\new_crimsonrock_sub_explosion.str
+			type: 'STR',
+			file: 'new_crimsonrock/new_crimsonrock_sub_explosion/new_crimsonrock_sub_explosion',
+			texturePath: 'new_crimsonrock/new_crimsonrock_sub_explosion/',
+			minSkip: true,
+			attachedEntity: true
+		}
+	],
+
 	// Hell Inferno (WL_HELLINFERNO) cast floor: on the caster for the cast time. See effect-port/warlock-skills.md.
 	1552: [
 		{
@@ -26933,6 +26946,33 @@ export default {
 			type: 'STR',
 			file: 'new_comet/new_comet_bottom/new_comet_bottom',
 			texturePath: 'new_comet/new_comet_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) sub explosion, with 1417: on the target with the 2nd, 4th, 6th ... hit. See effect-port/warlock-skills.md.
+	1416: [
+		{
+			//(1416): CEZ2STREffect, new_comet\\new_comet_sub_explosion\\new_comet_sub_explosion.str
+			type: 'STR',
+			file: 'new_comet/new_comet_sub_explosion/new_comet_sub_explosion',
+			texturePath: 'new_comet/new_comet_sub_explosion/',
+			min: 'mineffect/new_comet/new_comet_sub_explosion/new_comet_sub_explosion',
+			minTexturePath: 'mineffect/new_comet/new_comet_sub_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) sub explosion floor, with 1416. See effect-port/warlock-skills.md.
+	1417: [
+		{
+			//(1417): CEZ2STREffect, new_comet\\new_comet_sub_explosion_bottom\\new_comet_sub_explosion_bottom.str
+			type: 'STR',
+			file: 'new_comet/new_comet_sub_explosion_bottom/new_comet_sub_explosion_bottom',
+			texturePath: 'new_comet/new_comet_sub_explosion_bottom/',
+			min: 'mineffect/new_comet/new_comet_sub_explosion_bottom/new_comet_sub_explosion_bottom',
+			minTexturePath: 'mineffect/new_comet/new_comet_sub_explosion_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}
