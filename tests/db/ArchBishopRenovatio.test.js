@@ -9,6 +9,7 @@ import EffectTable from 'DB/Effects/EffectTable.js';
 describe('Renovatio plays its sound on each target on success, with the white cast aura', () => {
 	it('matches the official client', () => {
 		expect(SkillEffect[SK.AB_RENOVATIO]).toEqual({ castAuraEffectId: 58, successEffectId: 719 });
-		expect(EffectTable[719]).toEqual([{ wav: 'effect/ab_renovatio', attachedEntity: true }]);
+		expect(EffectTable[719][0]).toEqual({ wav: 'effect/ab_renovatio', attachedEntity: true });
+		expect(EffectTable[719][1]).toMatchObject({ type: 'FUNC', attachedEntity: true });
 	});
 });
