@@ -151299,7 +151299,7 @@ var init_SkillUnit = __esmMin((() => {
 	SkillUnit[SkillUnitConst_default.UNT_DEATHWAVE] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_WATERATTACK] = EffectConst_default.EF_NONE;
 	SkillUnit[SkillUnitConst_default.UNT_EVILLAND] = EffectConst_default.EF_BOTTOM_EVILLAND;
-	SkillUnit[SkillUnitConst_default.UNT_EPICLESIS] = EffectConst_default.EF_GLASSWALL3;
+	SkillUnit[SkillUnitConst_default.UNT_EPICLESIS] = 1654;
 	SkillUnit[SkillUnitConst_default.UNT_EARTHSTRAIN] = EffectConst_default.EF_EARTHWALL;
 	SkillUnit[SkillUnitConst_default.UNT_MANHOLE] = EffectConst_default.EF_BOTTOM_MANHOLE;
 	SkillUnit[SkillUnitConst_default.UNT_DIMENSIONDOOR] = EffectConst_default.EF_FORESTLIGHT6;
@@ -218579,7 +218579,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$18)) return {
+	if (u(s, r$19)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -221005,7 +221005,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$18, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$19, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -221025,7 +221025,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$18 = [
+	r$19 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -224464,34 +224464,67 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GC_ROLLINGCUTTER] = { effectId: 775 };
 	SkillEffect[SkillConst_default.GC_CROSSRIPPERSLASHER] = { effectId: "ef_gc_crossripperslasher" };
 	SkillEffect[SkillConst_default.AB_JUDEX] = {
-		effectId: 718,
-		hitEffectId: 152
+		hideCastAura: true,
+		beginCastEffectId: [1629, 1630],
+		arrivalEffectIdOnCaster: [1627, 1628],
+		arrivalEffectIdOnTarget: [
+			"ef_ab_judex_sound",
+			1631,
+			1632,
+			"ef_ab_judex_lights"
+		]
 	};
-	SkillEffect[SkillConst_default.AB_ANCILLA] = { effectId: "ef_ancilla" };
-	SkillEffect[SkillConst_default.AB_ADORAMUS] = { effectId: 721 };
-	SkillEffect[SkillConst_default.AB_CLEMENTIA] = {};
-	SkillEffect[SkillConst_default.AB_CANTO] = {};
-	SkillEffect[SkillConst_default.AB_CHEAL] = { effectId: 313 };
-	SkillEffect[SkillConst_default.AB_EPICLESIS] = {
-		effectId: 883,
-		groundEffectId: 754
+	SkillEffect[SkillConst_default.AB_ANCILLA] = {
+		castAuraEffectId: 441,
+		successEffectId: "ef_ancilla"
 	};
-	SkillEffect[SkillConst_default.AB_PRAEFATIO] = {};
-	SkillEffect[SkillConst_default.AB_ORATIO] = { effectId: 755 };
-	SkillEffect[SkillConst_default.AB_LAUDAAGNUS] = {};
-	SkillEffect[SkillConst_default.AB_LAUDARAMUS] = {};
-	SkillEffect[SkillConst_default.AB_RENOVATIO] = {};
-	SkillEffect[SkillConst_default.AB_HIGHNESSHEAL] = {
-		effectId: 325,
-		hitEffectId: 320
+	SkillEffect[SkillConst_default.AB_ADORAMUS] = { arrivalEffectIdOnTarget: [
+		"ef_ab_adoramus_sound",
+		1258,
+		1259
+	] };
+	SkillEffect[SkillConst_default.AB_CLEMENTIA] = {
+		castAuraEffectId: 830,
+		successEffectId: 42
 	};
-	SkillEffect[SkillConst_default.AB_CLEARANCE] = { effectId: 753 };
-	SkillEffect[SkillConst_default.AB_EXPIATIO] = {};
-	SkillEffect[SkillConst_default.AB_DUPLELIGHT] = { effectId: "ef_duplelight" };
-	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MELEE] = {};
-	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MAGIC] = {};
-	SkillEffect[SkillConst_default.AB_SILENTIUM] = {};
-	SkillEffect[SkillConst_default.AB_SECRAMENT] = { effectId: "ef_ab_secrament" };
+	SkillEffect[SkillConst_default.AB_CANTO] = {
+		castAuraEffectId: 830,
+		successEffectId: 37
+	};
+	SkillEffect[SkillConst_default.AB_CHEAL] = { successEffectId: healEffectByAmount };
+	SkillEffect[SkillConst_default.AB_EPICLESIS] = {};
+	SkillEffect[SkillConst_default.AB_PRAEFATIO] = {
+		castAuraEffectId: 830,
+		successEffectId: 112
+	};
+	SkillEffect[SkillConst_default.AB_ORATIO] = { successEffectIdOnCaster: 725 };
+	SkillEffect[SkillConst_default.AB_LAUDAAGNUS] = {
+		castAuraEffectId: 830,
+		successEffectId: [66, "ef_ab_lauda_sound"]
+	};
+	SkillEffect[SkillConst_default.AB_LAUDARAMUS] = {
+		castAuraEffectId: 830,
+		successEffectId: [66, "ef_ab_lauda_sound"]
+	};
+	SkillEffect[SkillConst_default.AB_RENOVATIO] = {
+		castAuraEffectId: 58,
+		successEffectId: 719
+	};
+	SkillEffect[SkillConst_default.AB_HIGHNESSHEAL] = { successEffectId: healEffectByAmount };
+	SkillEffect[SkillConst_default.AB_CLEARANCE] = {
+		castAuraEffectId: 1560,
+		beginCastEffectId: 1559,
+		successEffectId: [1557, 1558]
+	};
+	SkillEffect[SkillConst_default.AB_EXPIATIO] = { successEffectIdOnCaster: "ef_ab_expiatio_sound" };
+	SkillEffect[SkillConst_default.AB_DUPLELIGHT] = { successEffectId: "ef_duplelight" };
+	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MELEE] = { arrivalEffectIdOnCaster: 265 };
+	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MAGIC] = { arrivalEffectIdOnCaster: 265 };
+	SkillEffect[SkillConst_default.AB_SILENTIUM] = { successEffectId: 87 };
+	SkillEffect[SkillConst_default.AB_SECRAMENT] = {
+		castAuraEffectId: 58,
+		successEffectId: ["ef_ab_secrament_sound", 1287]
+	};
 	SkillEffect[SkillConst_default.RA_ARROWSTORM] = { arrivalEffectIdOnOtherTarget: [
 		"ef_ra_arrowstorm_sound",
 		1293,
@@ -225543,7 +225576,12 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_abc_abyss_flame_cast",
 		hitEffectId: "ef_abc_abyss_flame_hit"
 	};
-	SkillEffect[SkillConst_default.AB_OFFERTORIUM] = { effectId: 1047 };
+	SkillEffect[SkillConst_default.AB_OFFERTORIUM] = { successEffectIdOnCaster: 1047 };
+	SkillEffect[SkillConst_default.AB_VITUPERATUM] = {
+		castAuraEffectId: 830,
+		successEffectId: 85
+	};
+	SkillEffect[SkillConst_default.AB_CONVENIO] = { castAuraEffectId: 58 };
 	SkillEffect[SkillConst_default.CD_REPARATIO] = {
 		effectId: "ef_cd_reparatio",
 		effectIdOnCaster: "ef_cd_reparatio_cast"
@@ -290135,10 +290173,10 @@ function planSparks$2(effectId, random = Math.random) {
 	const window = SPARK_WINDOWS[effectId];
 	const sparks = [];
 	for (let tick = window.from; tick <= window.to; tick += SPARK$1.every) for (let k = 0; k < SPARK$1.perPrim; k++) {
-		const size = 2 + r$17(random, 10) * .1;
-		const x = r$17(random, SPARK$1.scatter) - 5;
-		const z = r$17(random, SPARK$1.scatter) - 5;
-		const rise = r$17(random, 20) * .01 + .1;
+		const size = 2 + r$18(random, 10) * .1;
+		const x = r$18(random, SPARK$1.scatter) - 5;
+		const z = r$18(random, SPARK$1.scatter) - 5;
+		const rise = r$18(random, 20) * .01 + .1;
 		sparks.push({
 			spawn: tick,
 			k,
@@ -290186,7 +290224,7 @@ function sparkAt$1(spark, age) {
 		alpha
 	};
 }
-var SPARK$1, SPARK_WINDOWS, r$17, SPARK_LIFE;
+var SPARK$1, SPARK_WINDOWS, r$18, SPARK_LIFE;
 var init_ReadySparkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	SPARK$1 = {
@@ -290214,7 +290252,7 @@ var init_ReadySparkSim = __esmMin((() => {
 			to: 120
 		}
 	};
-	r$17 = (random, k) => Math.floor(random() * k);
+	r$18 = (random, k) => Math.floor(random() * k);
 	SPARK_LIFE = (() => {
 		let n = 1;
 		while (sparkAlpha(n) >= 0) n++;
@@ -290377,11 +290415,11 @@ function ringAt$1(j, age) {
 function planSnow(random = Math.random) {
 	const flakes = [];
 	for (let tick = 0; tick <= SNOW.last; tick += SNOW.every) for (let k = 0; k < SNOW.perBurst; k++) {
-		const size = 1.5 + r$16(random, 6) * .1;
-		const reach = r$16(random, SNOW.reach);
-		const direction = r$16(random, 360) * DEG$13;
-		const height = SNOW.height + r$16(random, SNOW.heightRange);
-		const rise = r$16(random, 20) * .01 + .1;
+		const size = 1.5 + r$17(random, 6) * .1;
+		const reach = r$17(random, SNOW.reach);
+		const direction = r$17(random, 360) * DEG$13;
+		const height = SNOW.height + r$17(random, SNOW.heightRange);
+		const rise = r$17(random, 20) * .01 + .1;
 		flakes.push({
 			spawn: tick,
 			k,
@@ -290419,7 +290457,7 @@ function flakeAt(flake, age) {
 		alpha
 	};
 }
-var GLOW, SNOW, r$16, DEG$13, GLOW_LIFE;
+var GLOW, SNOW, r$17, DEG$13, GLOW_LIFE;
 var init_FrostMistySim = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ReadySparkSim();
@@ -290458,7 +290496,7 @@ var init_FrostMistySim = __esmMin((() => {
 			250
 		]
 	};
-	r$16 = (random, k) => Math.floor(random() * k);
+	r$17 = (random, k) => Math.floor(random() * k);
 	DEG$13 = Math.PI / 180;
 	GLOW_LIFE = (() => {
 		let n = 1;
@@ -290785,10 +290823,10 @@ function pillarAt(age) {
 function planLines(random = Math.random) {
 	const lines = [];
 	for (let i = 0; i < LINES$1.count; i++) {
-		const start = r$15(random, LINES$1.startRange);
-		const reach = r$15(random, LINES$1.reach);
-		const direction = r$15(random, 360) * DEG$12;
-		const radius = r$15(random, 11) * .015 + .15;
+		const start = r$16(random, LINES$1.startRange);
+		const reach = r$16(random, LINES$1.reach);
+		const direction = r$16(random, 360) * DEG$12;
+		const radius = r$16(random, 11) * .015 + .15;
 		lines.push({
 			start,
 			x: reach * Math.cos(direction),
@@ -290841,7 +290879,7 @@ function lineAt(line, tick) {
 		alpha: state.alpha
 	};
 }
-var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$12, r$15, LINES_END;
+var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$12, r$16, LINES_END;
 var init_TetraFireSim = __esmMin((() => {
 	init_EffectPrimSim();
 	PX_PER_UNIT$3 = 7;
@@ -290873,7 +290911,7 @@ var init_TetraFireSim = __esmMin((() => {
 		band: 1.5
 	};
 	DEG$12 = Math.PI / 180;
-	r$15 = (random, k) => Math.floor(random() * k);
+	r$16 = (random, k) => Math.floor(random() * k);
 	LINES_END = LINES$1.hold + LINES$1.alpha / LINES$1.fade;
 }));
 // src/DB/Effects/TetraFireEffect.js
@@ -291405,10 +291443,10 @@ function createSphere(effectId, random = Math.random) {
 	const colors = SPHERE_COLORS[effectId] || SPHERE_COLORS[1199];
 	const rays = [];
 	for (let group = 0; group < SPHERE.groups; group++) for (let i = 0; i < SPHERE.raysPerGroup; i++) {
-		const t = r$14(random, 360);
-		const s = r$14(random, 360);
-		const q = r$14(random, 360);
-		const color = colors.rays[r$14(random, 2)];
+		const t = r$15(random, 360);
+		const s = r$15(random, 360);
+		const q = r$15(random, 360);
+		const color = colors.rays[r$15(random, 2)];
 		rays.push({
 			group,
 			t,
@@ -291445,7 +291483,7 @@ function stepSphere(sphere) {
 	for (const ray of sphere.rays) {
 		if (ray.size < SPHERE.rayMax) ray.size *= SPHERE.rayGrowth;
 		if (ray.age > SPHERE.rayFadeOut) ray.alpha = Math.max(ray.alpha - 1, 0);
-		ray.q = (ray.q + 1 + r$14(sphere.random, 2)) % 360;
+		ray.q = (ray.q + 1 + r$15(sphere.random, 2)) % 360;
 		ray.age++;
 	}
 	sphere.ticks++;
@@ -291517,7 +291555,7 @@ function centerAt(age) {
 		alpha
 	};
 }
-var SPHERE, SPHERE_COLORS, r$14, rad$6, CENTER_LIFE;
+var SPHERE, SPHERE_COLORS, r$15, rad$6, CENTER_LIFE;
 var init_LightSphereSim = __esmMin((() => {
 	SPHERE = {
 		centers: 4,
@@ -291584,7 +291622,7 @@ var init_LightSphereSim = __esmMin((() => {
 			]]
 		}
 	};
-	r$14 = (random, k) => Math.floor(random() * k);
+	r$15 = (random, k) => Math.floor(random() * k);
 	rad$6 = (deg) => deg * Math.PI / 180;
 	CENTER_LIFE = SPHERE.centerFadeOut + 255;
 }));
@@ -292570,8 +292608,8 @@ var init_Songs = __esmMin((() => {
 function planFountain(random = Math.random) {
 	const out = [];
 	for (const spawn of FOUNTAIN.bursts) for (let i = 0; i < FOUNTAIN.count; i++) {
-		const gravity = r$13(random, 10) / 1e3 + FOUNTAIN.gravity;
-		const heading = r$13(random, 360) * Math.PI / 180;
+		const gravity = r$14(random, 10) / 1e3 + FOUNTAIN.gravity;
+		const heading = r$14(random, 360) * Math.PI / 180;
 		out.push({
 			spawn,
 			heading,
@@ -292611,7 +292649,7 @@ function particleAt(p, age) {
 		alpha: fountainAlpha(n)
 	};
 }
-var FOUNTAIN, r$13;
+var FOUNTAIN, r$14;
 var init_RemoveTrapSim = __esmMin((() => {
 	FOUNTAIN = {
 		bursts: [0, 7],
@@ -292624,7 +292662,7 @@ var init_RemoveTrapSim = __esmMin((() => {
 		alpha: 254,
 		fadeTick: 35
 	};
-	r$13 = (random, k) => Math.floor(random() * k);
+	r$14 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/RemoveTrapEffect.js
 /**
@@ -293845,13 +293883,13 @@ function tableHeading(dx, dz) {
 function planHitLines(random = Math.random, kind = HITLINE, aim = 0) {
 	const out = [];
 	for (const spawn of kind.spawnTicks) for (let j = 0; j < kind.perPrim; j++) {
-		const wait = kind.waitBase + r$12(random, kind.waitRange);
-		const alpha = kind.alpha + r$12(random, kind.alphaRange);
+		const wait = kind.waitBase + r$13(random, kind.waitRange);
+		const alpha = kind.alpha + r$13(random, kind.alphaRange);
 		let heading;
-		if (kind.aimed) heading = ((aim + r$12(random, kind.aimRange) - kind.aimOffset) % 360 + 360) % 360;
-		else heading = r$12(random, 360);
-		const radius = kind.radius + r$12(random, kind.radiusRange);
-		const stretch = kind.stretch + .1 * r$12(random, kind.stretchRange);
+		if (kind.aimed) heading = ((aim + r$13(random, kind.aimRange) - kind.aimOffset) % 360 + 360) % 360;
+		else heading = r$13(random, 360);
+		const radius = kind.radius + r$13(random, kind.radiusRange);
+		const stretch = kind.stretch + .1 * r$13(random, kind.stretchRange);
 		out.push({
 			spawn,
 			wait,
@@ -293939,7 +293977,7 @@ function coreColor(i) {
 		c
 	];
 }
-var HITLINE, HITLINE_KINDS, HITLINE_LAST_TICK, r$12;
+var HITLINE, HITLINE_KINDS, HITLINE_LAST_TICK, r$13;
 var init_HitLineSim = __esmMin((() => {
 	HITLINE = {
 		spawnTicks: [
@@ -294003,7 +294041,7 @@ var init_HitLineSim = __esmMin((() => {
 		}
 	};
 	HITLINE_LAST_TICK = hitLineLastTick(HITLINE);
-	r$12 = (random, k) => Math.floor(random() * k);
+	r$13 = (random, k) => Math.floor(random() * k);
 }));
 // src/Renderer/Effects/HitLine.js
 /**
@@ -294405,12 +294443,12 @@ var init_SoulStrikeEffect = __esmMin((() => {
 function planDarkSparks(yaw, random = Math.random) {
 	const out = [];
 	for (let i = 0; i < DARK_SPARK.perKind; i++) {
-		const sYaw = r$11(random, 80) + yaw - 40;
-		const pitch = r$11(random, 100) - 50;
-		const start = r$11(random, 4) + 4;
-		const life = r$11(random, 24) + 6;
-		const speed = (r$11(random, 90) + 60) / 100;
-		const scale = (r$11(random, 100) + 60) / 100;
+		const sYaw = r$12(random, 80) + yaw - 40;
+		const pitch = r$12(random, 100) - 50;
+		const start = r$12(random, 4) + 4;
+		const life = r$12(random, 24) + 6;
+		const speed = (r$12(random, 90) + 60) / 100;
+		const scale = (r$12(random, 100) + 60) / 100;
 		out.push({
 			kind: 5,
 			yaw: sYaw,
@@ -294423,12 +294461,12 @@ function planDarkSparks(yaw, random = Math.random) {
 		});
 	}
 	for (let i = 0; i < DARK_SPARK.perKind; i++) {
-		const sYaw = r$11(random, 80) + yaw + 140;
-		const start = r$11(random, 4) + 4;
-		const life = r$11(random, 24) + 6;
-		const speed = (r$11(random, 90) + 60) / 100;
-		const throwUp = (r$11(random, 90) + 30) / 100;
-		const scale = (r$11(random, 100) + 60) / 100;
+		const sYaw = r$12(random, 80) + yaw + 140;
+		const start = r$12(random, 4) + 4;
+		const life = r$12(random, 24) + 6;
+		const speed = (r$12(random, 90) + 60) / 100;
+		const throwUp = (r$12(random, 90) + 30) / 100;
+		const scale = (r$12(random, 100) + 60) / 100;
 		out.push({
 			kind: 6,
 			yaw: sYaw,
@@ -294488,7 +294526,7 @@ function darkTrailLook(s, alpha, i) {
 		scale: s.scale - s.scale / DARK_SPARK.trail * i * .5
 	};
 }
-var DARK_CONE, DARK_SPARK, r$11;
+var DARK_CONE, DARK_SPARK, r$12;
 var init_HitDarkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DARK_CONE = {
@@ -294511,7 +294549,7 @@ var init_HitDarkSim = __esmMin((() => {
 		alpha: 254,
 		trail: 3
 	};
-	r$11 = (random, k) => Math.floor(random() * k);
+	r$12 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/HitDarkEffect.js
 /**
@@ -295261,13 +295299,13 @@ var init_SkySunEffect = __esmMin((() => {
 function planGrains(random = Math.random) {
 	const grains = [];
 	for (let i = 0; i < 80; i++) grains.push({
-		x: r$10(random, 9) - 4,
-		y: r$10(random, 9) - 4,
-		counter: r$10(random, 10) - 10,
-		heading: r$10(random, 360),
-		rise: r$10(random, 40) / 100 + .2,
-		drift: r$10(random, 10) / 100,
-		half: r$10(random, 16) * .03 + .1
+		x: r$11(random, 9) - 4,
+		y: r$11(random, 9) - 4,
+		counter: r$11(random, 10) - 10,
+		heading: r$11(random, 360),
+		rise: r$11(random, 40) / 100 + .2,
+		drift: r$11(random, 10) / 100,
+		half: r$11(random, 16) * .03 + .1
 	});
 	return grains;
 }
@@ -295304,7 +295342,7 @@ function grainAt(grain, age) {
 		half: grain.half
 	};
 }
-var SAND_COLOR, SAND_TEXTURE, r$10;
+var SAND_COLOR, SAND_TEXTURE, r$11;
 var init_SandGrainSim = __esmMin((() => {
 	SAND_COLOR = [
 		250 / 255,
@@ -295312,7 +295350,7 @@ var init_SandGrainSim = __esmMin((() => {
 		150 / 255
 	];
 	SAND_TEXTURE = "effect/thunder_center.bmp";
-	r$10 = (random, k) => Math.floor(random() * k);
+	r$11 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/SandAttackEffect.js
 /**
@@ -297356,17 +297394,17 @@ function planStreaks$1(kind, random = Math.random) {
 	const rising = kind !== false;
 	const streaks = [];
 	for (let i = 0; i < STREAK$1.count; i++) {
-		const heading = r$9(random, 360) * Math.PI / 180;
-		const dist = 2 + r$9(random, 7);
-		const speed = rising ? (20 + r$9(random, 50)) / 100 : 0;
+		const heading = r$10(random, 360) * Math.PI / 180;
+		const dist = 2 + r$10(random, 7);
+		const speed = rising ? (20 + r$10(random, 50)) / 100 : 0;
 		streaks.push({
 			spawn: i * STREAK$1.every,
 			x: Math.sin(heading) * dist,
 			y: Math.cos(heading) * dist,
 			rising,
 			speed,
-			halfLength: accuracy ? (20 + r$9(random, 100)) / 10 : (30 + r$9(random, 60)) / 10,
-			halfWidth: accuracy ? .1 + .1 * r$9(random, 4) : STREAK$1.halfWidth,
+			halfLength: accuracy ? (20 + r$10(random, 100)) / 10 : (30 + r$10(random, 60)) / 10,
+			halfWidth: accuracy ? .1 + .1 * r$10(random, 4) : STREAK$1.halfWidth,
 			alphaMax: accuracy ? 60 : STREAK$1.alphaMax,
 			alphaStep: accuracy ? 3 : STREAK$1.alphaStep
 		});
@@ -297436,21 +297474,21 @@ function billboardAlpha(age) {
 function planChaosStreaks(random = Math.random) {
 	const streaks = [];
 	const place = () => {
-		const heading = r$9(random, 360) * Math.PI / 180;
-		const dist = 3 + r$9(random, 7);
+		const heading = r$10(random, 360) * Math.PI / 180;
+		const dist = 3 + r$10(random, 7);
 		return {
 			x: Math.sin(heading) * dist,
 			y: Math.cos(heading) * dist
 		};
 	};
 	const shared = () => ({
-		halfLength: (30 + r$9(random, 60)) / 10,
+		halfLength: (30 + r$10(random, 60)) / 10,
 		halfWidth: STREAK$1.halfWidth,
 		alphaMax: 200,
 		alphaStep: 10
 	});
 	for (let i = 0; i < STREAK$1.count; i++) {
-		const c = r$9(random, 256);
+		const c = r$10(random, 256);
 		streaks.push({
 			spawn: i * STREAK$1.every,
 			...place(),
@@ -297465,7 +297503,7 @@ function planChaosStreaks(random = Math.random) {
 				255
 			]
 		});
-		const channel = () => r$9(random, 3) === 0 ? 255 : 140;
+		const channel = () => r$10(random, 3) === 0 ? 255 : 140;
 		streaks.push({
 			spawn: i * STREAK$1.every,
 			...place(),
@@ -297587,7 +297625,7 @@ function spamStreaks(manager, Params, kind, effectID, firstDuplicate = 0) {
 		});
 	});
 }
-var PX, STREAK$1, BILLBOARD, r$9, increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect;
+var PX, STREAK$1, BILLBOARD, r$10, increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect;
 var init_AgilityEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	PX = 7;
@@ -297618,7 +297656,7 @@ var init_AgilityEffect = __esmMin((() => {
 			accel: 1 / 100
 		}
 	};
-	r$9 = (random, k) => Math.floor(random() * k);
+	r$10 = (random, k) => Math.floor(random() * k);
 	increaseAgilityEffect = agilityRow(37, "effect/ef_incagility");
 	decreaseAgilityEffect = agilityRow(38, "effect/ef_decagility");
 	increasingAccuracyEffect = [{
@@ -299945,14 +299983,14 @@ function planBubbles(random = Math.random, count = DETOX.count, variant = {}) {
 	const scaleRand = variant.scaleRand || 50;
 	const bubbles = [];
 	for (let i = 0; i < count; i++) {
-		const heading = r$8(random, 360) * Math.PI / 180;
-		const dist = 2 + r$8(random, 6);
+		const heading = r$9(random, 360) * Math.PI / 180;
+		const dist = 2 + r$9(random, 6);
 		bubbles.push({
 			spawn: i * every,
 			x: Math.cos(heading) * dist,
 			y: Math.sin(heading) * dist,
-			rise: (30 + r$8(random, riseRand)) / 100,
-			scale: (scaleBase + r$8(random, scaleRand)) / 100
+			rise: (30 + r$9(random, riseRand)) / 100,
+			scale: (scaleBase + r$9(random, scaleRand)) / 100
 		});
 	}
 	return bubbles;
@@ -299987,7 +300025,7 @@ function bubbleAt(bubble, age) {
 		angle: DETOX.spin * k % 360
 	};
 }
-var DETOX, DETOX_LOW, r$8, EDP_BUBBLES;
+var DETOX, DETOX_LOW, r$9, EDP_BUBBLES;
 var init_DetoxBubbleSim = __esmMin((() => {
 	DETOX = {
 		count: 20,
@@ -299998,7 +300036,7 @@ var init_DetoxBubbleSim = __esmMin((() => {
 		spin: 3
 	};
 	DETOX_LOW = { every: 15 };
-	r$8 = (random, k) => Math.floor(random() * k);
+	r$9 = (random, k) => Math.floor(random() * k);
 	EDP_BUBBLES = {
 		every: 3,
 		riseRand: 50,
@@ -300078,9 +300116,9 @@ var init_DetoxifyEffect = __esmMin((() => {
 * @return {object}
 */
 function newSpark(random, index) {
-	const up = r$7(random, 10);
-	const texture = r$7(random, WARMTH.textures);
-	const angle = r$7(random, 360);
+	const up = r$8(random, 10);
+	const texture = r$8(random, WARMTH.textures);
+	const angle = r$8(random, 360);
 	return {
 		t: 0,
 		v: WARMTH.startV[index],
@@ -300104,13 +300142,13 @@ function stepSpark(spark, random) {
 		if (spark.v < WARMTH.fall) {
 			spark.t = 0;
 			spark.v = 0;
-			spark.angle = r$7(random, 360);
-			spark.texture = r$7(random, WARMTH.textures);
-			spark.up = 3 + r$7(random, 8);
+			spark.angle = r$8(random, 360);
+			spark.texture = r$8(random, WARMTH.textures);
+			spark.up = 3 + r$8(random, 8);
 		}
 	} else spark.v += WARMTH.rise;
 }
-var WARMTH, WARMTH_LAYERS, r$7, WarmthSparks;
+var WARMTH, WARMTH_LAYERS, r$8, WarmthSparks;
 var init_WarmthSparkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	WARMTH = {
@@ -300155,7 +300193,7 @@ var init_WarmthSparkSim = __esmMin((() => {
 			scale: 2
 		}
 	];
-	r$7 = (random, k) => Math.floor(random() * k);
+	r$8 = (random, k) => Math.floor(random() * k);
 	WarmthSparks = class {
 		/**
 		* @param {function} [random] returns a number in [0, 1)
@@ -300321,10 +300359,10 @@ function planStreaks(random = Math.random) {
 	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
 		const streak = {
 			spawn,
-			angle: r$6(random, 360),
-			dist: 100 + r$6(random, 40),
-			halfWidth: (60 + r$6(random, 100)) / 100,
-			halfLength: 30 + r$6(random, 20)
+			angle: r$7(random, 360),
+			dist: 100 + r$7(random, 40),
+			halfWidth: (60 + r$7(random, 100)) / 100,
+			halfLength: 30 + r$7(random, 20)
 		};
 		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
 	}
@@ -300360,7 +300398,7 @@ function streakAt(streak, age) {
 		angle: streak.angle
 	};
 }
-var ENDURE, r$6, rad$3;
+var ENDURE, r$7, rad$3;
 var init_EndureSim = __esmMin((() => {
 	ENDURE = {
 		life: 80,
@@ -300379,7 +300417,7 @@ var init_EndureSim = __esmMin((() => {
 			accel: .1
 		}
 	};
-	r$6 = (random, k) => Math.floor(random() * k);
+	r$7 = (random, k) => Math.floor(random() * k);
 	rad$3 = (deg) => deg * Math.PI / 180;
 }));
 // src/DB/Effects/EndureEffect.js
@@ -300608,8 +300646,8 @@ function slashPath(start, heading, up) {
 function planAimedSlash(heading, random = Math.random) {
 	const parts = [];
 	for (let i = 0; i < SLASH.parts; i++) {
-		const up = SLASH.height - r$5(random, SLASH.heightRand);
-		const turn = r$5(random, 2 * SLASH.jitter + 1) - SLASH.jitter;
+		const up = SLASH.height - r$6(random, SLASH.heightRand);
+		const turn = r$6(random, 2 * SLASH.jitter + 1) - SLASH.jitter;
 		parts.push(slashPath(SLASH.startAge + i, ((heading + turn) % 360 + 360) % 360, up));
 	}
 	return parts;
@@ -300622,10 +300660,10 @@ function planAimedSlash(heading, random = Math.random) {
 * @return {Array<object>} slashPath results
 */
 function planOutwardSlash(heading, random = Math.random) {
-	const delay = r$5(random, SLASH.delayRand);
+	const delay = r$6(random, SLASH.delayRand);
 	const parts = [];
 	for (let i = 0; i < SLASH.parts; i++) {
-		const up = SLASH.height - r$5(random, SLASH.heightRand);
+		const up = SLASH.height - r$6(random, SLASH.heightRand);
 		parts.push(slashPath(SLASH.startAge - delay + i, heading, up));
 	}
 	return parts;
@@ -300641,7 +300679,7 @@ function slashAt(part, frame) {
 	const f = Math.floor(frame);
 	return f >= 0 && f < part.frames.length ? part.frames[f] : null;
 }
-var SLASH, r$5;
+var SLASH, r$6;
 var init_PurpleSlashSim = __esmMin((() => {
 	SLASH = {
 		parts: 4,
@@ -300663,7 +300701,7 @@ var init_PurpleSlashSim = __esmMin((() => {
 			255
 		]
 	};
-	r$5 = (random, k) => Math.floor(random() * k);
+	r$6 = (random, k) => Math.floor(random() * k);
 }));
 // src/DB/Effects/PurpleSlashEffect.js
 /**
@@ -300756,8 +300794,8 @@ function sonicBlowHitBand(random = Math.random) {
 		frames: 12,
 		facing: true,
 		pitch: -90,
-		offsetX: Math.floor((r$4(random, 10) + 1) / 4),
-		height: 11 - Math.floor((r$4(random, 20) + 1) / 2),
+		offsetX: Math.floor((r$5(random, 10) + 1) / 4),
+		height: 11 - Math.floor((r$5(random, 20) + 1) / 2),
 		baseRadius: 4,
 		topRadius: 7,
 		coneHeight: 3.5,
@@ -300767,10 +300805,10 @@ function sonicBlowHitBand(random = Math.random) {
 		fadeOutFrame: 6
 	};
 }
-var r$4, sonicBlowHitEffect;
+var r$5, sonicBlowHitEffect;
 var init_SonicBlowEffect = __esmMin((() => {
 	init_EffectPrimSim();
-	r$4 = (random, k) => Math.floor(random() * k);
+	r$5 = (random, k) => Math.floor(random() * k);
 	sonicBlowHitEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
@@ -301356,8 +301394,8 @@ function blitzBeatBand(yaw, random = Math.random) {
 		frames: CONE.life,
 		yaw,
 		pitch: -90,
-		offsetX: Math.floor((r$3(random, 10) + 1) / 5),
-		height: 11 - Math.floor((r$3(random, 20) + 1) / 2),
+		offsetX: Math.floor((r$4(random, 10) + 1) / 5),
+		height: 11 - Math.floor((r$4(random, 20) + 1) / 2),
 		baseRadius: .5,
 		topRadius: 1.5,
 		coneHeight: 3.5,
@@ -301367,12 +301405,12 @@ function blitzBeatBand(yaw, random = Math.random) {
 		fadeOutFrame: CONE.life / 2
 	};
 }
-var r$3, blitzBeatEffect;
+var r$4, blitzBeatEffect;
 var init_BlitzBeatEffect = __esmMin((() => {
 	init_EffectPrimSim();
 	init_BlitzBeatSim();
 	init_BlitzStreaks();
-	r$3 = (random, k) => Math.floor(random() * k);
+	r$4 = (random, k) => Math.floor(random() * k);
 	blitzBeatEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
@@ -301451,9 +301489,9 @@ var init_CasterStrobe = __esmMin((() => {
 function planSparks$1(random = Math.random) {
 	const sparks = [];
 	for (let i = 0; i < STEAL.count; i++) {
-		const heading = r$2(random, 360);
-		const elevation = r$2(random, 100) - 50;
-		const dist = 4 + r$2(random, 4);
+		const heading = r$3(random, 360);
+		const elevation = r$3(random, 100) - 50;
+		const dist = 4 + r$3(random, 4);
 		sparks.push({
 			heading,
 			start: {
@@ -301461,9 +301499,9 @@ function planSparks$1(random = Math.random) {
 				y: Math.cos(rad$2(elevation)) * Math.sin(rad$2(heading)) * dist,
 				up: Math.sin(rad$2(elevation)) * dist + STEAL.lift
 			},
-			speed: (50 + r$2(random, 50)) / 100,
-			rise: (60 + r$2(random, 90)) / 100,
-			scale: (100 + r$2(random, 100)) / 100
+			speed: (50 + r$3(random, 50)) / 100,
+			rise: (60 + r$3(random, 90)) / 100,
+			scale: (100 + r$3(random, 100)) / 100
 		});
 	}
 	return sparks;
@@ -301504,7 +301542,7 @@ function sparkAt(spark, age) {
 		alpha: fadeAlpha(k, STEAL.life, STEAL.fadeStart)
 	};
 }
-var STEAL, r$2, rad$2;
+var STEAL, r$3, rad$2;
 var init_StealSparkSim = __esmMin((() => {
 	STEAL = {
 		count: 10,
@@ -301512,7 +301550,7 @@ var init_StealSparkSim = __esmMin((() => {
 		fadeStart: 34,
 		lift: 10
 	};
-	r$2 = (random, k) => Math.floor(random() * k);
+	r$3 = (random, k) => Math.floor(random() * k);
 	rad$2 = (d) => d * Math.PI / 180;
 }));
 // src/DB/Effects/StealEffect.js
@@ -301576,11 +301614,11 @@ var init_StealEffect = __esmMin((() => {
 function planCoins(random = Math.random) {
 	const coins = [];
 	for (let i = 0; i < COIN.count; i++) {
-		const life = 40 + r$1(random, 30);
-		const heading = r$1(random, 12) * 30;
-		const dist = 2 + r$1(random, 2);
-		const speed = (50 + r$1(random, 50)) / 100;
-		const rise = (50 + r$1(random, 100)) / 25;
+		const life = 40 + r$2(random, 30);
+		const heading = r$2(random, 12) * 30;
+		const dist = 2 + r$2(random, 2);
+		const speed = (50 + r$2(random, 50)) / 100;
+		const rise = (50 + r$2(random, 100)) / 25;
 		coins.push({
 			life,
 			heading,
@@ -301594,7 +301632,7 @@ function planCoins(random = Math.random) {
 		coin.path = flyCoin(coin);
 		coin.sounds = coin.path.bounces.map((tick) => ({
 			tick,
-			wav: `effect/ef_coin${1 + r$1(random, 3)}`
+			wav: `effect/ef_coin${1 + r$2(random, 3)}`
 		}));
 	});
 	return coins;
@@ -301670,7 +301708,7 @@ function coinTrailAt(coin, age) {
 		alpha: now.alpha / 2
 	};
 }
-var COIN, r$1, rad$1;
+var COIN, r$2, rad$1;
 var init_MammoniteCoinSim = __esmMin((() => {
 	init_StealSparkSim();
 	COIN = {
@@ -301680,7 +301718,7 @@ var init_MammoniteCoinSim = __esmMin((() => {
 		scale: 2,
 		trailScale: 1.5
 	};
-	r$1 = (random, k) => Math.floor(random() * k);
+	r$2 = (random, k) => Math.floor(random() * k);
 	rad$1 = (d) => d * Math.PI / 180;
 }));
 // src/DB/Effects/MammoniteEffect.js
@@ -304487,23 +304525,23 @@ var init_ReleaseEffect = __esmMin((() => {
 * @return {Array<object>} { effectId, dx, dy } (cells)
 */
 function planJackFrostShards(random = Math.random) {
-	const step = (8 + r(random, 5)) * 10;
+	const step = (8 + r$1(random, 5)) * 10;
 	const shards = [];
 	for (let i = 0; i < 3; i++) {
-		const distance = 5 + r(random, 10);
+		const distance = 5 + r$1(random, 10);
 		const angle = i * step * Math.PI / 180;
 		shards.push({
-			effectId: 1443 + r(random, 3),
+			effectId: 1443 + r$1(random, 3),
 			dx: distance * Math.cos(angle) / 5,
 			dy: -distance * Math.sin(angle) / 5
 		});
 	}
 	return shards;
 }
-var r, jackFrostShardsEffect;
+var r$1, jackFrostShardsEffect;
 var init_JackFrostEffect = __esmMin((() => {
 	init_EffectPrimSim();
-	r = (random, k) => Math.floor(random() * k);
+	r$1 = (random, k) => Math.floor(random() * k);
 	jackFrostShardsEffect = [{
 		type: "FUNC",
 		attachedEntity: false,
@@ -304521,6 +304559,66 @@ var init_JackFrostEffect = __esmMin((() => {
 					startTick: Params.Inst.startTick
 				});
 			});
+		}
+	}];
+}));
+// src/DB/Effects/JudexEffect.js
+/**
+* The lights of one damage packet.
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} { dx, dy } (cells), delay (ms)
+*/
+function planJudexLights(random = Math.random) {
+	const lights = [];
+	for (let i = 0; i < 12; i++) {
+		const distance = Math.max(r(random, 15), 2);
+		const angle = r(random, 36) * 10;
+		const delay = r(random, 10) * 50;
+		lights.push({
+			dx: distance * Math.cos(angle) / 5,
+			dy: -distance * Math.sin(angle) / 5,
+			delay
+		});
+	}
+	return lights;
+}
+var r, judexLightsEffect;
+var init_JudexEffect = __esmMin((() => {
+	init_Events();
+	init_Renderer();
+	init_EffectPrimSim();
+	r = (random, k) => Math.floor(random() * k);
+	judexLightsEffect = [{
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const owner = Params.Init.ownerEntity;
+			const place = () => {
+				const position = owner && owner.position ? owner.position : Params.Inst.position;
+				if (!position) return;
+				planJudexLights().forEach((light) => {
+					const at = [
+						position[0] + light.dx,
+						position[1] + light.dy,
+						position[2]
+					];
+					[1633, 1634].forEach((effectId) => {
+						this.spam({
+							effectId,
+							position: at.slice(),
+							startTick: Params.Inst.startTick + light.delay
+						});
+					});
+				});
+			};
+			const wait = Params.Inst.startTick - Renderer.tick;
+			if (wait > 0) {
+				const generation = this.generation;
+				Events.setTimeout(() => {
+					if (this.generation === generation) place();
+				}, wait);
+			} else place();
 		}
 	}];
 }));
@@ -304633,6 +304731,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SightEffect();
 	init_ReleaseEffect();
 	init_JackFrostEffect();
+	init_JudexEffect();
 	STREAK_LINE3 = {
 		line3: "line3.tga",
 		line3y: "line3y.tga"
@@ -315540,7 +315639,10 @@ var init_EffectTable = __esmMin((() => {
 				rotate: true
 			}
 		],
-		719: [{ wav: "effect/ab_renovation" }],
+		719: [{
+			wav: "effect/ab_renovatio",
+			attachedEntity: true
+		}],
 		721: [{
 			type: "STR",
 			file: "ado",
@@ -319302,6 +319404,22 @@ var init_EffectTable = __esmMin((() => {
 		ef_ancilla: [{
 			wav: "effect/ab_ancilla",
 			attachedEntity: true
+		}, {
+			alphaMax: .8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 1e3,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: "ring_blue",
+			topSize: 5,
+			type: "CYLINDER"
 		}],
 		ef_thorntrap: [{
 			wav: "effect/°¡½Ã³ª¹«µ£",
@@ -323210,11 +323328,6 @@ var init_EffectTable = __esmMin((() => {
 			file: "new_crossripperslasher/new_crossripperslasher/new_crossripperslasher",
 			texturePath: "new_crossripperslasher/new_crossripperslasher/"
 		}],
-		ef_ab_secrament: [{
-			type: "STR",
-			file: "new_secrament/new_secrament/new_secrament",
-			texturePath: "new_secrament/new_secrament/"
-		}],
 		ef_nc_vulcanarm: [{
 			type: "STR",
 			file: "new_vulcanarm/new_vulcanarm/new_vulcanarm",
@@ -324509,6 +324622,191 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		ef_ra_sensitivekeen_sound: [{
 			wav: "were_wolf_attack",
+			attachedEntity: true
+		}],
+		1629: [{
+			type: "STR",
+			file: "new_judex/new_judex_cast_loop/new_judex_cast_loop",
+			texturePath: "new_judex/new_judex_cast_loop/",
+			min: "mineffect/new_judex/new_judex_cast_loop/new_judex_cast_loop",
+			minTexturePath: "mineffect/new_judex/new_judex_cast_loop/",
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			soundLoop: false,
+			attachedEntity: true
+		}],
+		1630: [{
+			type: "STR",
+			file: "new_judex/new_judex_cast_loop_bottom/new_judex_cast_loop_bottom",
+			texturePath: "new_judex/new_judex_cast_loop_bottom/",
+			min: "mineffect/new_judex/new_judex_cast_loop_bottom/new_judex_cast_loop_bottom",
+			minTexturePath: "mineffect/new_judex/new_judex_cast_loop_bottom/",
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}],
+		1627: [{
+			type: "STR",
+			file: "new_judex/new_judex_cast/new_judex_cast",
+			texturePath: "new_judex/new_judex_cast/",
+			min: "mineffect/new_judex/new_judex_cast/new_judex_cast",
+			minTexturePath: "mineffect/new_judex/new_judex_cast/",
+			attachedEntity: true
+		}],
+		1628: [{
+			type: "STR",
+			file: "new_judex/new_judex_cast_bottom/new_judex_cast_bottom",
+			texturePath: "new_judex/new_judex_cast_bottom/",
+			min: "mineffect/new_judex/new_judex_cast_bottom/new_judex_cast_bottom",
+			minTexturePath: "mineffect/new_judex/new_judex_cast_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		1631: [{
+			type: "STR",
+			file: "new_judex/new_judex_target/new_judex_target",
+			texturePath: "new_judex/new_judex_target/",
+			min: "mineffect/new_judex/new_judex_target/new_judex_target",
+			minTexturePath: "mineffect/new_judex/new_judex_target/",
+			attachedEntity: true
+		}],
+		1632: [{
+			type: "STR",
+			file: "new_judex/new_judex_target_bottom/new_judex_target_bottom",
+			texturePath: "new_judex/new_judex_target_bottom/",
+			min: "mineffect/new_judex/new_judex_target_bottom/new_judex_target_bottom",
+			minTexturePath: "mineffect/new_judex/new_judex_target_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		1633: [{
+			type: "STR",
+			file: "new_judex/new_judex_light/new_judex_light",
+			texturePath: "new_judex/new_judex_light/",
+			min: "mineffect/new_judex/new_judex_light/new_judex_light",
+			minTexturePath: "mineffect/new_judex/new_judex_light/",
+			attachedEntity: false
+		}],
+		1634: [{
+			type: "STR",
+			file: "new_judex/new_judex_light_bottom/new_judex_light_bottom",
+			texturePath: "new_judex/new_judex_light_bottom/",
+			min: "mineffect/new_judex/new_judex_light_bottom/new_judex_light_bottom",
+			minTexturePath: "mineffect/new_judex/new_judex_light_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}],
+		ef_ab_judex_sound: [{
+			wav: "effect/ab_judex",
+			attachedEntity: true
+		}],
+		ef_ab_judex_lights: judexLightsEffect,
+		ef_ab_adoramus_sound: [{
+			wav: "effect/ab_adoramus",
+			attachedEntity: true
+		}],
+		1258: [{
+			type: "STR",
+			file: "new_adoramus/new_adoramus/new_adoramus",
+			texturePath: "new_adoramus/new_adoramus/",
+			min: "mineffect/new_adoramus/new_adoramus/new_adoramus",
+			minTexturePath: "mineffect/new_adoramus/new_adoramus/",
+			attachedEntity: true
+		}],
+		1259: [{
+			type: "STR",
+			file: "new_adoramus/new_adoramus_bottom/new_adoramus_bottom",
+			texturePath: "new_adoramus/new_adoramus_bottom/",
+			min: "mineffect/new_adoramus/new_adoramus_bottom/new_adoramus_bottom",
+			minTexturePath: "mineffect/new_adoramus/new_adoramus_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		1654: [{
+			type: "STR",
+			file: "new_epiclesis/new_epiclesis_combine/new_epiclesis_combine",
+			texturePath: "new_epiclesis/new_epiclesis_combine/",
+			min: "mineffect/new_epiclesis/new_epiclesis_combine",
+			minTexturePath: "mineffect/new_epiclesis/",
+			wav: "effect/ef_glasswall",
+			delayWav: 500,
+			repeat: false,
+			attachedEntity: true
+		}],
+		725: [{
+			type: "PRIM",
+			prim: "quad",
+			texture: "fashasha",
+			wav: "effect/priest_benedictio",
+			attachedEntity: false,
+			duration: 950,
+			frames: 57,
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 17,
+			sizeChangeSpeed: .1,
+			sizeChangeAccel: .1 / 30,
+			alpha: 254,
+			fadeOutFrame: 40
+		}],
+		ef_ab_lauda_sound: [{
+			wav: "lauagnus",
+			attachedEntity: true
+		}],
+		1560: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				if (!Params.Init.ownerEntity) return;
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Math.max(Params.Init.duration || 0, 56e3 / 60), "ring_white.tga", [22, 22]), Params);
+			}
+		}],
+		1559: [{
+			type: "STR",
+			file: "new_clearence/new_clearence_cast/new_clearence_cast",
+			texturePath: "new_clearence/new_clearence_cast/",
+			min: "mineffect/new_clearence/new_clearence_cast/new_clearence_cast",
+			minTexturePath: "mineffect/new_clearence/new_clearence_cast/",
+			castLoop: true,
+			attachedEntity: true
+		}],
+		1557: [{
+			type: "STR",
+			file: "new_clearence/new_clearence/new_clearence",
+			texturePath: "new_clearence/new_clearence/",
+			min: "mineffect/new_clearence/new_clearence/new_clearence",
+			minTexturePath: "mineffect/new_clearence/new_clearence/",
+			wav: "effect/»þÇÁ½´ÆÃ",
+			attachedEntity: true
+		}, {
+			wav: "effect/Èí±â",
+			attachedEntity: true
+		}],
+		1558: [{
+			type: "STR",
+			file: "new_clearence/new_clearence_bottom/new_clearence_bottom",
+			texturePath: "new_clearence/new_clearence_bottom/",
+			min: "mineffect/new_clearence/new_clearence_bottom/new_clearence_bottom",
+			minTexturePath: "mineffect/new_clearence/new_clearence_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		ef_ab_expiatio_sound: [{
+			wav: "effect/¹Ù½Ç¸®Ä«",
+			attachedEntity: true
+		}],
+		ef_ab_secrament_sound: [{
+			wav: "effect/priest_suffragium",
+			attachedEntity: true
+		}],
+		1287: [{
+			type: "STR",
+			file: "new_secrament/new_secrament/new_secrament",
+			texturePath: "new_secrament/new_secrament/",
+			min: "mineffect/new_secrament/new_secrament/new_secrament",
+			minTexturePath: "mineffect/new_secrament/new_secrament/",
 			attachedEntity: true
 		}],
 		ef_sj_solarburst: [{
@@ -376517,10 +376815,7 @@ function onEntityUseSkill(pkt) {
 	}
 	if (dstEntity) {
 		if (srcEntity && dstEntity !== srcEntity) srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
-		if (pkt.SKID === SkillConst_default.AL_HEAL || pkt.SKID === SkillConst_default.AB_HIGHNESSHEAL || pkt.SKID === SkillConst_default.AB_CHEAL) {
-			Damage.add(pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL);
-			if (pkt.SKID !== SkillConst_default.AL_HEAL) SoundManager.playPosition("_heal_effect.wav", dstEntity.position);
-		}
+		if (pkt.SKID === SkillConst_default.AL_HEAL || pkt.SKID === SkillConst_default.AB_HIGHNESSHEAL || pkt.SKID === SkillConst_default.AB_CHEAL) Damage.add(pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL);
 		if (pkt.SKID === SkillConst_default.RG_STEALCOIN) ChatBox_default.addText("You got " + pkt.level + " zeny.", ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
 		if (pkt.SKID === SkillConst_default.GC_ROLLINGCUTTER) {
 			if (dstEntity.RollCounter) {
@@ -376793,6 +377088,7 @@ function onEntityCastCancel(pkt) {
 		EffectManager.remove(null, entity.GID, [
 			12,
 			1709,
+			1560,
 			54,
 			55,
 			56,
@@ -377620,7 +377916,6 @@ var init_Entity = __esmMin((() => {
 	init_SplashHit();
 	init_SkillMotionEffect();
 	init_AttackEffectTable();
-	init_SoundManager();
 	init_Configs();
 	init_Events();
 	init_Guild();
