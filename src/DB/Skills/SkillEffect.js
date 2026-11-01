@@ -55,6 +55,13 @@
  *
  *	- arrivalEffectIdOnTarget:	The same on the target.
  *
+ *	- arrivalEffectIdOnOtherTarget:
+ *								Like arrivalEffectIdOnTarget, only when the packet's target is not the caster.
+ *
+ *	- arrivalEffectIdOnCasterByFacing:
+ *								4 effects; plays one on the caster once per damage packet when its damage is due,
+ *								picked by the caster's facing on screen (ScreenDirection.facingQuarter). Aimed Bolt's shot.
+ *
  *	- splashEffectIdOnTarget:	Triggers on the target as a damage packet of the skill arrives with skill level -1,
  *								the server's mark on the targets a splash reaches (Venom Splasher's burst).
  *
@@ -1058,25 +1065,25 @@ SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = {}; //Duple Light Magic
 SkillEffect[SK.AB_SILENTIUM] = {}; //Silentium //CHECk Marked magic attack as well. Hmmmm....
 SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
 // RA Ranger
-SkillEffect[SK.RA_ARROWSTORM] = { effectId: 746 }; //Arrow Storm
-SkillEffect[SK.RA_FEARBREEZE] = { effectId: 'ef_ra_fearbreeze' }; //Fear Breeze
-SkillEffect[SK.RA_AIMEDBOLT] = { effectId: 745, beforeHitEffectId: 'ef_arrow_projectile' }; //Aimed Bolt
-SkillEffect[SK.RA_DETONATOR] = { effectId: 750 }; //Detonator
-SkillEffect[SK.RA_ELECTRICSHOCKER] = {}; //Electric Shocker
-SkillEffect[SK.RA_CLUSTERBOMB] = {}; //Cluster Bomb
-SkillEffect[SK.RA_WUGMASTERY] = {}; //Warg Mastery
-SkillEffect[SK.RA_WUGRIDER] = { effectId: 'ef_wugrider' }; //Warg Rider
+SkillEffect[SK.RA_ARROWSTORM] = { arrivalEffectIdOnOtherTarget: ['ef_ra_arrowstorm_sound', 1293, 1294] }; //Arrow Storm: arrowstorm.wav + 1293, then 1294 three times (600 / 800 / 1000 ms), on each target but the caster as the damage arrives
+SkillEffect[SK.RA_FEARBREEZE] = { successEffectIdOnCaster: 1549 }; //Fear Breeze: 1549 on the caster on success
+SkillEffect[SK.RA_AIMEDBOLT] = { hideCastAura: true, beginCastEffectId: 1649, beginCastTargetEffectId: 1651, damageEffectIdOnTarget: 'ef_arrow_projectile', arrivalEffectIdOnTarget: 1650, arrivalEffectIdOnCasterByFacing: [1646, 1645, 1648, 1647] }; //Aimed Bolt: no aura, 1649 while casting, 1651 on the target while casting; bow arrow per damage packet; 1650 on the target and the shot by facing on the caster as the damage arrives
+SkillEffect[SK.RA_DETONATOR] = { arrivalEffectIdOnCaster: 750 }; //Detonator: 750 on the caster as a damage packet's damage arrives
+SkillEffect[SK.RA_ELECTRICSHOCKER] = { damageEffectIdOnTarget: [146, 'ef_ra_electricshocker_sound'] }; //Electric Shocker: 146 + hunter_shockwavetrap.wav on the target as each damage packet arrives
+SkillEffect[SK.RA_CLUSTERBOMB] = { damageEffectIdOnTarget: [585, 'ef_ra_clusterbomb_sound'] }; //Cluster Bomb: 585 + hunter_landmine.wav on the target as each damage packet arrives
+SkillEffect[SK.RA_WUGMASTERY] = { successEffectIdOnCaster: 'ef_ra_wugmastery_sound', castAuraEffectId: 441 }; //Warg Mastery: wolf_attack.wav on success; blue cast aura
+SkillEffect[SK.RA_WUGRIDER] = { successEffectIdOnCaster: 'ef_wugrider' }; //Warg Rider: wolf_stand.wav on success
 SkillEffect[SK.RA_WUGDASH] = {}; //Warg Dash
-SkillEffect[SK.RA_WUGSTRIKE] = { effectId: 'ef_wugstrike' }; //Warg Strike
-SkillEffect[SK.RA_WUGBITE] = { effectId: 'ef_wugbite' }; //Warg Bite
-SkillEffect[SK.RA_SENSITIVEKEEN] = {}; //Sensitive Keen
+SkillEffect[SK.RA_WUGSTRIKE] = { arrivalEffectIdOnTarget: 'ef_wugstrike' }; //Warg Strike: wug_strike.wav as each damage packet's damage arrives
+SkillEffect[SK.RA_WUGBITE] = { arrivalEffectIdOnTarget: 'ef_wugbite' }; //Warg Bite: wug_bite.wav as each damage packet's damage arrives
+SkillEffect[SK.RA_SENSITIVEKEEN] = { arrivalEffectIdOnTarget: 'ef_ra_sensitivekeen_sound' }; //Sensitive Keen: were_wolf_attack.wav as each damage packet's damage arrives
 SkillEffect[SK.RA_CAMOUFLAGE] = { effectId: 744 }; //Camouflage
 SkillEffect[SK.RA_MAGENTATRAP] = { groundEffectId: 739 }; //Magenta Trap
 SkillEffect[SK.RA_COBALTTRAP] = { groundEffectId: 740 }; //Cobalt Trap
 SkillEffect[SK.RA_MAIZETRAP] = { groundEffectId: 741 }; //Maize Trap
 SkillEffect[SK.RA_VERDURETRAP] = { groundEffectId: 742 }; //Verdure Trap
-SkillEffect[SK.RA_FIRINGTRAP] = {}; //Firing Trap
-SkillEffect[SK.RA_ICEBOUNDTRAP] = {}; //Icebound Trap
+SkillEffect[SK.RA_FIRINGTRAP] = { damageEffectIdOnTarget: [583, 'ef_ra_firingtrap_sound'] }; //Firing Trap: 583 + 폭염룡.wav on the target as each damage packet arrives
+SkillEffect[SK.RA_ICEBOUNDTRAP] = { damageEffectIdOnTarget: [135, 'ef_ra_iceboundtrap_sound'] }; //Icebound Trap: 135 + ef_frostdiver.wav on the target as each damage packet arrives
 // NC Mechanic
 SkillEffect[SK.NC_BOOSTKNUCKLE] = {}; //Boost Knuckle
 SkillEffect[SK.NC_PILEBUNKER] = {}; //Pile Bunker
@@ -1502,7 +1509,7 @@ SkillEffect[SK.SHC_FATAL_SHADOW_CROW] = {
 }; //Fatal Shadow Crow
 SkillEffect[6511 /* SHC_CROSS_SLASH */] = { effectId: 'ef_shc_cross_slash' }; //Cross Slash
 SkillEffect[SK.GC_DARKCROW] = { effectId: 1040 }; //Dark Claw
-SkillEffect[SK.RA_UNLIMIT] = { effectId: 'ef_ra_unlimit' }; //Unlimited
+SkillEffect[SK.RA_UNLIMIT] = { successEffectIdOnCaster: 'ef_ra_unlimit' }; //Unlimit: EZ2 unlimit + unlimit_bottom (ra_unlimit.wav) on the caster on success
 SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
 SkillEffect[5307 /* BO_ACIDIFIED_ZONE_WATER_ATK */] = { effectId: 'ef_bo_acidified_zone_water_atk' }; //Actified Zone Water Attack
 SkillEffect[5308 /* BO_ACIDIFIED_ZONE_GROUND_ATK */] = { effectId: 'ef_bo_acidified_zone_ground_atk' }; //Actified Zone Ground Attack
