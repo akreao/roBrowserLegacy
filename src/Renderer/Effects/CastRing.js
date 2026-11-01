@@ -69,17 +69,20 @@ class CastRing {
 	 * @param {number} castTime cast time, ms
 	 * @param {string} texture file under data/texture/effect/
 	 * @param {number[]} args the size-45 ring's argument, then the size-25 ring's
-	 * @param {boolean} [cycle] build the colour-cycling twin (client primitive 139)
+	 * @param {boolean|object} [cycle] build the colour-cycling twin (client primitive 139); or options:
+	 *   { cycle, sizes: the rings' sizes (default 45 and 25), castTimeOnly: live castTime / 16 ticks,
+	 *   without the 56-tick minimum (an effect that does not raise its own lifetime) }
 	 */
 	constructor(position, startTick, castTime, texture, args, cycle = false) {
+		const options = typeof cycle === 'object' && cycle ? cycle : { cycle };
 		this.position = position;
 		this.startTick = startTick || 0;
-		this.frames = ringFrames(castTime);
+		this.frames = options.castTimeOnly ? Math.max(1, Math.floor((castTime || 0) / 16)) : ringFrames(castTime);
 		this.endTick = this.startTick + this.frames * RING_TICK_MS;
 		this.texture = texture;
 		this.ticks = 0;
-		this.rings = SIZES.map((size, i) => ({
-			sim: createRing(size, args[i], this.frames, cycle),
+		this.rings = (options.sizes || SIZES).map((size, i) => ({
+			sim: createRing(size, args[i], this.frames, !!options.cycle),
 			vertices: new Float32Array(RING_VERTICES * 5),
 			color: new Float32Array(4),
 			buffer: null
