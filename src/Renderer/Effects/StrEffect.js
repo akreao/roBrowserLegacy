@@ -374,6 +374,11 @@ class StrEffect {
 
 		keyIndex = ((tick - this.startTick) / 1000) * strFile.fps;
 
+		// Started some frames in (a whole number of frames, as the client skips them)
+		if (this.lead) {
+			keyIndex += Math.floor(strFile.fps * this.lead);
+		}
+
 		// Loop persistent effects
 		if (this.persistent && strFile && strFile.maxKey) {
 			keyIndex = keyIndex % strFile.maxKey;

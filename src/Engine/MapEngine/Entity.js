@@ -37,6 +37,7 @@ import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EffectManager from 'Renderer/EffectManager.js';
+import { SPHERE_EFFECTS, sphereLayout } from 'DB/Effects/WarlockSphereEffect.js';
 import Damage from 'Renderer/Effects/Damage.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
@@ -357,9 +358,10 @@ function onEntityVanish(pkt) {
 			EffectConst.EF_CHOOKGI_FIRE,
 			EffectConst.EF_CHOOKGI_WIND,
 			EffectConst.EF_CHOOKGI_WATER,
-			EffectConst.EF_CHOOKGI_GROUND,
-			'temporary_warlock_sphere'
-		]); // Elemental spheres (Warlock)
+			EffectConst.EF_CHOOKGI_GROUND
+		]); // Elemental spheres (charms)
+		EffectManager.remove(null, pkt.GID, SPHERE_EFFECTS); // Summoned spheres (Warlock)
+		entity.shownSpheres = null;
 
 		switch (pkt.type) {
 			case Entity.VT.EXIT:
@@ -2540,22 +2542,35 @@ function onEntityStatusChange(pkt) {
 	}
 }
 
-//Warlock sphere summons update
+/**
+ * Show a Warlock's summoned spheres (EFST_SUMMON1..5) as the official client
+ * does: a looping ball a filled slot, spread round the circle
+ * (WarlockSphereEffect.js). Nothing happens when no slot changed and the
+ * balls still play.
+ *
+ * @param {Entity} entity
+ */
 function updateWarlockSpheres(entity) {
-	if (entity.Summon1 || entity.Summon2 || entity.Summon3 || entity.Summon4 || entity.Summon5) {
-		const EF_Init_Par = {
-			effectId: 'temporary_warlock_sphere',
-			ownerAID: entity.GID,
-			persistent: false
-		};
-
-		EffectManager.spam(EF_Init_Par);
-
-		entity.WarlockSpheres = true;
-	} else if (entity.WarlockSpheres) {
-		EffectManager.remove(null, entity.GID, 'temporary_warlock_sphere');
-		entity.WarlockSpheres = false;
+	const slots = [entity.Summon1, entity.Summon2, entity.Summon3, entity.Summon4, entity.Summon5].map(v => v || 0);
+	const shown = entity.shownSpheres || [0, 0, 0, 0, 0];
+	const balls = sphereLayout(slots);
+	// Unchanged, and still playing (a map change drops every effect)
+	if (
+		slots.every((value, slot) => value === shown[slot]) &&
+		balls.every(ball => EffectManager.has(entity.GID, ball.effectId))
+	) {
+		return;
 	}
+	entity.shownSpheres = slots;
+
+	EffectManager.remove(null, entity.GID, SPHERE_EFFECTS);
+	balls.forEach(ball => {
+		EffectManager.spam({
+			effectId: ball.effectId,
+			ownerAID: entity.GID,
+			strLead: ball.lead
+		});
+	});
 }
 
 /**
