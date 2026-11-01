@@ -27691,6 +27691,77 @@ export default {
 		}
 	],
 
+	// Clearance (AB_CLEARANCE) cast aura: EF_BeginSpell.wav and two cast-aura rings (builder 0xbfa8b0), size 45 and 25, both
+	// ring_white.tga, argument 22, for the cast time but at least 56 ticks. See effect-port/arch-bishop-skills.md.
+	1560: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				if (!Params.Init.ownerEntity) {
+					return;
+				}
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Math.max(Params.Init.duration || 0, (56 * 1000) / 60),
+						'ring_white.tga',
+						[22, 22]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Clearance (AB_CLEARANCE) cast: on the caster for the cast time. See effect-port/arch-bishop-skills.md.
+	1559: [
+		{
+			//(1559): CEZ2STREffect, new_clearence\\new_clearence_cast\\new_clearence_cast.str
+			type: 'STR',
+			file: 'new_clearence/new_clearence_cast/new_clearence_cast',
+			texturePath: 'new_clearence/new_clearence_cast/',
+			min: 'mineffect/new_clearence/new_clearence_cast/new_clearence_cast',
+			minTexturePath: 'mineffect/new_clearence/new_clearence_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Clearance (AB_CLEARANCE): on the target when the use packet succeeds, with 1558; its EZ2 sound list plays 샤프슈팅.wav and 흡기.wav on frame 0. See effect-port/arch-bishop-skills.md.
+	1557: [
+		{
+			//(1557): CEZ2STREffect, new_clearence\\new_clearence\\new_clearence.str
+			type: 'STR',
+			file: 'new_clearence/new_clearence/new_clearence',
+			texturePath: 'new_clearence/new_clearence/',
+			min: 'mineffect/new_clearence/new_clearence/new_clearence',
+			minTexturePath: 'mineffect/new_clearence/new_clearence/',
+			wav: 'effect/\xbb\xfe\xc7\xc1\xbd\xb4\xc6\xc3', // effect/샤프슈팅
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/\xc8\xed\xb1\xe2', // effect/흡기
+			attachedEntity: true
+		}
+	],
+
+	// Clearance (AB_CLEARANCE): floor of 1557. See effect-port/arch-bishop-skills.md.
+	1558: [
+		{
+			//(1558): CEZ2STREffect, new_clearence\\new_clearence_bottom\\new_clearence_bottom.str
+			type: 'STR',
+			file: 'new_clearence/new_clearence_bottom/new_clearence_bottom',
+			texturePath: 'new_clearence/new_clearence_bottom/',
+			min: 'mineffect/new_clearence/new_clearence_bottom/new_clearence_bottom',
+			minTexturePath: 'mineffect/new_clearence/new_clearence_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
