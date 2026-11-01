@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fixedCastAura } from '../../src/DB/Skills/CastAuraRule.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // The aura a caster stands in while a skill with a cast time charges: one per
 // element (Entity.js, onEntityCastSkill). Each grows over its first second and
@@ -11,7 +12,7 @@ import { fixedCastAura } from '../../src/DB/Skills/CastAuraRule.js';
 //
 // Read as text: the effect tables import the renderer, which does not load
 // without a canvas, and what is being checked is what the tables say.
-const effectTable = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function cylinders(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

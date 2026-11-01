@@ -7,6 +7,7 @@ let current;
 vi.mock('Renderer/EntityManager.js', () => ({ default: { get: () => current } }));
 
 import CasterMarks, { SCHEDULES, colorAt } from 'Renderer/Effects/CasterMarks.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Wind Walk (SN_WINDWALK 383) as the official client (kRO 2025-07-16) plays it:
 // cast aura 58 whatever the element; effect 389 on the caster from the use
@@ -17,7 +18,7 @@ import CasterMarks, { SCHEDULES, colorAt } from 'Renderer/Effects/CasterMarks.js
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function entry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start, `${id} is defined`).toBeGreaterThan(-1);
 	return table.slice(start, table.indexOf('\n\t],', start)).replace(/\s+/g, ' ');

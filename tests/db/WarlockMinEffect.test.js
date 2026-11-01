@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Under /mineffect (low-effects option 229) the kRO 2025-07-16 client loads the mineffect\ copy of these
 // Warlock registry effects: Hell Inferno 1550-1552, Soul Expansion 1587 / 1588 / 1591 / 1592, Chain
 // Lightning 1635 / 1636 / 1638. Tetra Vortex, Crimson Rock and Comet have no copy.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const table = effectTableSource().replace(/\r\n/g, '\n');
 
 function part(id) {
 	const at = table.indexOf(`(${id}): CEZ2STREffect`);

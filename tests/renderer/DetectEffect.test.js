@@ -5,6 +5,7 @@ import vm from 'node:vm';
 
 import { createPrimState, advancePrim } from 'Renderer/Effects/EffectPrimSim.js';
 import { sendFalcon } from 'Engine/MapEngine/FalconFlight.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Detect (HT_DETECTING, skill 130) as the official client (kRO 2020-12-29)
 // plays it: from the ground packet, effect 119 at the cell (hunter_detecting.wav
@@ -15,7 +16,7 @@ import { sendFalcon } from 'Engine/MapEngine/FalconFlight.js';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function effectRow(id) {
-	const source = read('DB/Effects/EffectTable.js');
+	const source = effectTableSource().replace(/\r\n/g, '\n');
 	const start = source.indexOf(`\n\t${id}: [`);
 	expect(start, `${id} is defined`).toBeGreaterThan(-1);
 	const end = source.indexOf('\n\t],', start);

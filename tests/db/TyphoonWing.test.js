@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Typhoon Wing, as the official client plays it: when the ground-skill packet
 // arrives, one EZ2 effect (top layer plus floor layer) at the target cell.
@@ -11,7 +12,7 @@ import vm from 'node:vm';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 const SKID = 6557;
 const CAST = 'ef_druid_cast_circle_green';

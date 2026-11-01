@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
 import groundScatter from '../../src/Renderer/Effects/GroundScatter.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Sunset Blast, as the official client plays it: on the target of the successful
 // use-skill packet, one big blast (EZ2 sunset_blast) that follows the target, and
@@ -12,7 +13,7 @@ import groundScatter from '../../src/Renderer/Effects/GroundScatter.js';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

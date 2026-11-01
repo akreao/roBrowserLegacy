@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Ground Drift (GS_GROUNDDRIFT 521): effect\그라운드.wav from the ground packet; each grenade unit (0xbe-0xc2, 0x108) a looping sprite, effects 638-642 and 1120.
 // Spec: effect-port/gunslinger-skills.md.
@@ -9,7 +10,7 @@ import vm from 'node:vm';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function row(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start).toBeGreaterThan(0);
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);

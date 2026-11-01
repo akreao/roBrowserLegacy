@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NINJA_ITEM, planThrow, stoneAt, trailAt } from '../../src/Renderer/Effects/ThrownStoneSim.js';
 import { NINJA_TEXTURES, ninjaThrowEffects, stoneEffect } from '../../src/DB/Effects/ThrowStoneEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Throw Shuriken / Kunai / Huuma / Zeny (NJ_SYURIKEN 523 ... NJ_ZENYNAGE 526): the official client throws
 // 613-616 from the caster at the target once per damage packet, as it arrives: the item image 8 units
@@ -10,7 +11,7 @@ import { NINJA_TEXTURES, ninjaThrowEffects, stoneEffect } from '../../src/DB/Eff
 // trailing copies, no sound; no hit effect. Spec: effect-port/ninja-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Ninja throws', () => {
 	it('throw once per damage packet from the caster, with no hit effect', () => {

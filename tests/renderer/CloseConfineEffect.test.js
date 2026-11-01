@@ -9,6 +9,7 @@ import { SCHEDULES as MOTIONS } from 'Renderer/Effects/BodyMotionSim.js';
 import CloseConfineEffect from 'DB/Effects/CloseConfineEffect.js';
 import StatusEffectTable from 'DB/Status/StatusEffectTable.js';
 import StatusConst from 'DB/Status/StatusConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Close Confine (RG_CLOSECONFINE, skill 1005), as the official client plays it: 602 on the target
 // when the skill works (ef_hit6.wav on tick 20, then quake and a red / white flicker to tick 59),
@@ -16,7 +17,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 // Spec: effect-port/rogue-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Close Confine', () => {
 	it('plays 602 on the target when the skill works', () => {

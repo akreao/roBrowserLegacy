@@ -5,13 +5,14 @@ import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
 import StatusEffectTable from '../../src/DB/Status/StatusEffectTable.js';
 import StatusConst from '../../src/DB/Status/StatusConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Anti-Material Blast (RL_AM_BLAST, skill 2569): the official client's skilleffectinfo row only plays
 // RL_AM_BLAST.wav as each damage packet arrives. The ANTI_M_BLAST status keeps 1136
 // (RL_anti_material\anti.str) on the actor while it is on. kRO 2025-07-16.
 // Spec: effect-port/rebellion-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 const row = key => {
 	const at = table.indexOf(`\n\t${key}: [`);
 	return table.slice(at, table.indexOf('\n\t],', at));

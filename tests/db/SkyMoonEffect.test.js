@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Sky Moon (SKE_SKY_MOON) as the official client plays it: the cast effect on the
 // caster for the whole cast, the moon once on the target when the skill is used,
@@ -9,7 +10,7 @@ import { join } from 'node:path';
 // Read as text: the effect tables import the renderer, which does not load
 // without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src/DB', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('Skills/SkillEffect.js');
 
 function effect(id) {

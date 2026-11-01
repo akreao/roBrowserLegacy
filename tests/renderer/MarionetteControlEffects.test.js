@@ -10,6 +10,7 @@ import SC from 'DB/Status/StatusConst.js';
 import StatusEffectTable from 'DB/Status/StatusEffectTable.js';
 import CasterMarks, { SCHEDULES } from 'Renderer/Effects/CasterMarks.js';
 import StatusState from 'DB/Status/StatusState.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Marionette Control (CG_MARIONETTE, skill 396) in the official client (kRO 2025-07-16): the use packet
 // (result set) plays 395 (소울 체인지.wav on tick 0) and 396 on the caster and 396 on the target. 396 draws
@@ -17,7 +18,7 @@ import StatusState from 'DB/Status/StatusState.js';
 // status MARIONETTE_MASTER (caster) or MARIONETTE (target) removes every 396 on the actor and starts it
 // again while the status is on. Spec: effect-port/clown-gypsy-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'latin1').replace(/\r\n/g, '\n');
+const table = effectTableSource('latin1').replace(/\r\n/g, '\n');
 const row = id => {
 	const start = table.indexOf(`\n\t${id}: [`);
 	return table.slice(start, table.indexOf('\n\t],', start));

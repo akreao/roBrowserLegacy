@@ -10,6 +10,7 @@ import { SCHEDULES, colorAt } from 'Renderer/Effects/CasterMarks.js';
 import { DETOX, EDP_BUBBLES, planBubbles } from 'Renderer/Effects/DetoxBubbleSim.js';
 import { EDP_LIFE, EDP_SOUND_TICKS, edpEffect } from 'DB/Effects/PoisonAttackEffect.js';
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Enchant Deadly Poison (ASC_EDP 378) as the official client (kRO 2025-07-16)
 // plays it: effect 493 on the caster from the use packet, only when its result
@@ -41,7 +42,7 @@ describe('Enchant Deadly Poison (493)', () => {
 	});
 
 	it('uses the EDP table entry', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\t493: [');
 		const row = table.slice(start, table.indexOf('\n\t],', start));
 		expect(row).toContain('...edpEffect()');

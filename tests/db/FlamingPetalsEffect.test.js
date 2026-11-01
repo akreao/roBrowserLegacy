@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Flaming Petals (NJ_KOUENKA, skill 534): the official client plays 618 on the target as the damage
 // packet arrives (EF_FireArrow1-3.wav on ticks 12-15, petals, no STR) and the fire hit 49 once per
 // damage packet when it lands. Spec: effect-port/ninja-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 const row = id => table.slice(table.indexOf(`\t${id}: [`), table.indexOf('\t],', table.indexOf(`\t${id}: [`)));
 
 describe('Flaming Petals', () => {

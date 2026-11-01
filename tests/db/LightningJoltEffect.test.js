@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Lightning Jolt (NJ_RAIGEKISAI, skill 541): the official client plays 622 at the cell (ground packet)
 // and on the caster when the use packet succeeds: the 썬더스톰 sprite, 2 ticks a frame, once, 2.5
@@ -9,7 +10,7 @@ import vm from 'node:vm';
 // effect-port/ninja-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 const row = id => table.slice(table.indexOf(`\t${id}: [`), table.indexOf('\t],', table.indexOf(`\t${id}: [`)));
 
 describe('Lightning Jolt', () => {

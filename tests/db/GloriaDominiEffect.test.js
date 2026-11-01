@@ -4,13 +4,14 @@ import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
 import { NONE_RANGES } from '../../src/DB/Skills/SkillMotionEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Gloria Domini (PA_PRESSURE, 367) as the official client (kRO 2025-07-16) plays it: the holy cast
 // aura 58 whatever the packet's element; nothing on the use packet; 365 on the target as the damage
 // packet arrives (the falling cross, 프레셔.wav on tick 3, a quake on tick 33); the hit flash 0.
 // Spec: effect-port/paladin-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const table = effectTableSource().replace(/\r\n/g, '\n');
 
 function row(name) {
 	const start = table.indexOf(`\t${name}: [`);

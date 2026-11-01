@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Water Ball (WZ_WATERBALL, skill 86), as the official client plays it: the server sends one
 // damage packet per ball, and as each arrives the client launches 117 on the caster: one
@@ -12,7 +13,7 @@ import vm from 'node:vm';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function effect117() {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf('\n\t117: [');
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	return vm.runInNewContext(`(${text})`);

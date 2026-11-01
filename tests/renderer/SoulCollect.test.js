@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Soul energy orbs (effect 1225), as the official client draws them for a
 // Soul Reaper or Soul Ascetic from ZC_SOULENERGY. Numbers in soul-collect.md
@@ -73,7 +74,7 @@ describe('soul energy orbs', () => {
 	});
 
 	it('has effect 1225 draw the orbs on their owner with the count', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		expect(table).toMatch(/import SoulCollect from 'Renderer\/Effects\/SoulCollect\.js';/);
 		const start = table.indexOf('\n\t1225: [');
 		expect(start).toBeGreaterThan(-1);

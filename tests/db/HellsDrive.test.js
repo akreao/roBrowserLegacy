@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
 import shuffledGrid from '../../src/Renderer/Effects/ShuffledGrid.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Hell's Drive, as the official client plays it: when the use-skill packet
 // succeeds, n spots on an n x n grid around the target (one cell apart, one per
@@ -12,7 +13,7 @@ import shuffledGrid from '../../src/Renderer/Effects/ShuffledGrid.js';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 const BLASTS = ['ef_hn_hells_drive_00', 'ef_hn_hells_drive_01', 'ef_hn_hells_drive_02'];
 const IDS = ['ef_hn_hells_drive_bottom', BLASTS];

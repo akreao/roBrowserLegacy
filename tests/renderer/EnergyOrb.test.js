@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Spirit charm orbs (Kagerou/Oboro, Shinkiro/Shiranui), as the official client
 // draws them from ZC_SPIRITS_ATTRIBUTE: one orb per charm, effect 735 to 738 by
@@ -94,7 +95,7 @@ describe('spirit charm orbs', () => {
 	});
 
 	it('has effects 735 to 738 draw the orbs on their owner with the charm count', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		expect(table).toMatch(/import EnergyOrb from 'Renderer\/Effects\/EnergyOrb\.js';/);
 		for (const id of [735, 736, 737, 738]) {
 			const start = table.indexOf(`\n\t${id}: [`);

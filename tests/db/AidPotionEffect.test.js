@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { POTION_BOTTLE, planThrow, potionBottle, stoneAt } from '../../src/Renderer/Effects/ThrownStoneSim.js';
 import { aidPotionEffect, stoneEffect } from '../../src/DB/Effects/ThrowStoneEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Aid Potion (AM_POTIONPITCHER, skill 231): when the use packet has the result set, the official client
 // launches 299 (EF_THROWITEM2) on the caster, aimed at the target, with the skill level as its colour:
@@ -11,7 +12,7 @@ import { aidPotionEffect, stoneEffect } from '../../src/DB/Effects/ThrowStoneEff
 // Spec: effect-port/alchemist-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 const manager = readFileSync(join(process.cwd(), 'src/Renderer/EffectManager.js'), 'utf8');
 
 const throwAt = level => {

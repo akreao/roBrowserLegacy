@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Fire Dance (RL_FIREDANCE, skill 2561): the official client's skilleffectinfo row plays 데스페라도.wav and
 // launches 1133 (RL_fire_dance\firedance.str) on the caster when the use packet has the result set, and
 // launches 647 (EF_TRACKING) on the target as each damage packet arrives. No hit flash. kRO 2025-07-16.
 // Spec: effect-port/rebellion-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Fire Dance', () => {
 	it('plays the sound and firedance.str on the caster on success, 647 on each target at damage arrival', () => {

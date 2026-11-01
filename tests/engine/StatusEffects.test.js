@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 const running = new Set();
 vi.mock('Renderer/EffectManager.js', () => ({
@@ -22,7 +23,7 @@ const { updateStatusEffects } = await import('Engine/MapEngine/StatusEffects.js'
 
 // The effect table imports most of the renderer, so read entries from its source.
 function effectEntry(name) {
-	const source = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+	const source = effectTableSource();
 	const start = source.indexOf(`\n\t${name}: [`);
 	const end = source.indexOf('\n\t],', start);
 	return vm.runInNewContext(`(${source.slice(start, end + 3).trim().replace(/^\w+:/, '').replace(/,$/, '')})`);

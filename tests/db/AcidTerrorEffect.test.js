@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ACID_BOTTLE, planThrow, stoneAt, trailAt } from '../../src/Renderer/Effects/ThrownStoneSim.js';
 import { acidTerrorEffect, lastStoneTick, stoneEffect } from '../../src/DB/Effects/ThrowStoneEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Acid Terror (AM_ACIDTERROR, skill 230): the official client launches 298 (EF_THROWITEM) on the caster,
 // aimed at the target, as each damage packet arrives: 빈병.bmp tinted (135, 255, 135), 6 x 6 units, a
@@ -10,7 +11,7 @@ import { acidTerrorEffect, lastStoneTick, stoneEffect } from '../../src/DB/Effec
 // kRO 2025-07-16. Spec: effect-port/alchemist-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Acid Terror', () => {
 	it('throws 298 from the caster as the damage packet arrives and flashes every hit', () => {

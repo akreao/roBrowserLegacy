@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Star Light Kick's caster effect, official effect 2426. It draws nothing: on the
 // 60 Hz effect clock it holds the caster on frame 5 of the skill motion at tick 5
@@ -11,7 +12,7 @@ import vm from 'node:vm';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

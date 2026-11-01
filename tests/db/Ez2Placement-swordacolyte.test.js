@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Dragon Knight, Imperial Guard, Cardinal and Inquisitor: hand-written STR rows placed as the kRO client places them, from
 // their ez2streffect.bson rows (PosX/PosY, IsFloor). See effect-port/ez2-placement.md.
 
 // The effect tables import most of the renderer, so read them from their source.
-const effectTable = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function effectEntry(name) {
 	const start = effectTable.indexOf(`\n\t${name}: [`);

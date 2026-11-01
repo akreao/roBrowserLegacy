@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Jupitel Thunder, timed like the official client: the ball (effect 93) leaves
 // when the skill packet arrives and flies for 20 ticks of the 60 Hz effect
@@ -11,7 +12,7 @@ import { join } from 'node:path';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

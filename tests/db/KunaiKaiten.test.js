@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Kunai - Rotation, as the official client plays it: when the use-skill packet
 // reports success, the EZ2 rows kunaikaiten_bottom, _00, _01 and _02 (_02 is
@@ -11,7 +12,7 @@ import vm from 'node:vm';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 const DIR = 'shinkiro_shiranui/ss_kunaikaiten/';
 const LAYERS = ['kunaikaiten_bottom', 'kunaikaiten_00', 'kunaikaiten_01', 'kunaikaiten_00'];

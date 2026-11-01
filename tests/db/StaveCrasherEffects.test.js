@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Stave Crasher (HW_MAGICCRASHER, skill 365), as the official client plays it: effect 380 on the
 // target as the damage packet arrives (매직 크래쉬.wav on tick 25, a camera quake on tick 30, the
@@ -10,7 +11,7 @@ import { join } from 'node:path';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function entry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	return table.slice(start, table.indexOf('\n\t],', start));
 }

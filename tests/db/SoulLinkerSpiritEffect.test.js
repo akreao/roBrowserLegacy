@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Soul Linker spirits (445, 447-458, 460, 461, Spirit of Rebirth 494 and 572-575): the official
 // client casts them with the blue aura 441 and, when the use packet succeeds, plays 503 and 424 on
@@ -32,7 +33,7 @@ const SPIRITS = [
 	'SL_GUNNER'
 ];
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Soul Linker spirit effects', () => {
 	it.each(SPIRITS)('%s: blue cast aura, 503 and 424 only on success', name => {

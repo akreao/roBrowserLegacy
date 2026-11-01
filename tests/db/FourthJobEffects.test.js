@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Fourth-job skills whose art the client's data has and the effect tables did
 // not use (tracking list: Flux159/ragnarokoffline.app#309). Hasty Fire in the
@@ -10,7 +11,7 @@ import { join } from 'node:path';
 // Read as text: the effect tables import the renderer, which does not load
 // without a canvas, and what is being checked is what the tables say.
 const read = file => readFileSync(join(process.cwd(), 'src/DB', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('Skills/SkillEffect.js');
 
 // The layers of one effect: its source text, split at each `{` that opens one.

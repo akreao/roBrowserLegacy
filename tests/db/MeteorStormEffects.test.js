@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Meteor Storm (WZ_METEOR, skill 83), as the official client plays it: each meteor's ground
 // packet launches 92 at its cell, which picks one of Meteor1-3.str (the GRF's meteor4.str is
@@ -11,7 +12,7 @@ import { join } from 'node:path';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function entry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	return table.slice(start, table.indexOf('\n\t],', start));
 }

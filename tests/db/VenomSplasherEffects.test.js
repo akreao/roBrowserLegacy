@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
 import { hitHasEffects } from '../../src/DB/Skills/SplashHit.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Venom Splasher (AS_SPLASHER, skill 141), as the official client plays it: 125 (the poison
 // particles) on the target when the skill succeeds; when it bursts, 129 (VenomSplasher.str, the
@@ -15,7 +16,7 @@ const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').repl
 const skills = read('DB/Skills/SkillEffect.js');
 
 function row(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	return vm.runInNewContext(`(${text})`);

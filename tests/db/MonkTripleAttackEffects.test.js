@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Raging Trifecta Blow (MO_TRIPLEATTACK, 263): the official client plays 329 on the
 // caster as the damage packet arrives (sounds on ticks 10, 20, 30) and the hit flash 0
@@ -16,7 +17,7 @@ describe('Raging Trifecta Blow effects', () => {
 	});
 
 	it('plays 329 sounds on ticks 10, 20 and 30', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const row = table.slice(table.indexOf('\t329: ['), table.indexOf('\t331: ['));
 		expect([...row.matchAll(/delayWav: (\d+)/g)].map(m => Number(m[1]))).toEqual([167, 333, 500]);
 	});

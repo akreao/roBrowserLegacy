@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Union of the Sun, Moon and Stars (SG_FUSION, skill 444): the official client casts it with the blue
 // aura 441 and, when the use packet succeeds, plays T_변신.wav at the player and quakes the screen at
 // once (kRO 2025-07-16). 433 was not official. Spec: effect-port/star-gladiator-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'latin1');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Union effects', () => {
 	it('casts with the blue aura, then the sound and quake only on success', () => {

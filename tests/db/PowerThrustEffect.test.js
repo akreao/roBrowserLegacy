@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Power Thrust (BS_OVERTHRUST, skill 113; Maximum Power Thrust 486 shares it): the official client plays
 // 128 (EF_OVERTHRUST) on the source only when the use packet succeeds; 128 plays black_overthrust.wav
 // and EF_StoneCurse.wav on tick 0 (kRO 2025-07-16). Spec: effect-port/blacksmith-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Power Thrust effects', () => {
 	it('plays 128 on the source only on success', () => {

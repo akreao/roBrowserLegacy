@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Lord of Vermilion (WZ_VERMILION, skill 85), as the official client plays effect 90 at the
 // cell: Lord.str with wizard_meteo.wav and hunter_blastmine.wav on tick 0, hunter_blastmine.wav
@@ -13,7 +14,7 @@ const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').repl
 const TICK = 1000 / 60;
 
 function effect90() {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf('\n\t90: [');
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	const quakes = [];

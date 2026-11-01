@@ -15,6 +15,7 @@ import {
 	throwPoint,
 	toWorld
 } from 'Renderer/Effects/BezierArcThrowSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Thundering Orb, as the official client plays it: from the ground packet
 // only. An orb (the same for both skills) flies from 2 cells above the caster
@@ -26,7 +27,7 @@ import {
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

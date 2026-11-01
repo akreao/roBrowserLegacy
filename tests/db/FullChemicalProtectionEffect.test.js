@@ -3,12 +3,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Full Chemical Protection (CR_FULLPROTECTION, skill 479): the official client launches 300
 // (EF_CHEMICALPROTECTION) and then 500 (EF_CHEMICALBODY) on the target only when the use packet has the
 // result set. kRO 2025-07-16. Spec: effect-port/creator-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Full Chemical Protection', () => {
 	it('plays 300 then 500 on the target on success only', () => {

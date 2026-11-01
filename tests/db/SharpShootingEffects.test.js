@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Sharp Shooting (SN_SHARPSHOOTING 382) as the official client (kRO 2025-07-16)
 // plays it: cast aura 58 whatever the element; effect 388 on the caster as each
@@ -20,7 +21,7 @@ function skillRow(name) {
 }
 
 function entry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start, `${id} is defined`).toBeGreaterThan(-1);
 	return table.slice(start, table.indexOf('\n\t],', start)).replace(/\s+/g, ' ');
@@ -61,7 +62,7 @@ describe('Sharp Shooting', () => {
 	});
 
 	it('the old ring_jadu cast circle is gone', () => {
-		expect(read('DB/Effects/EffectTable.js')).not.toContain('496_beforecast');
+		expect(effectTableSource().replace(/\r\n/g, '\n')).not.toContain('496_beforecast');
 		expect(read('DB/Skills/SkillEffect.js')).not.toContain('496_beforecast');
 	});
 });

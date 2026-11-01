@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Bard and Dancer songs, dances and ensembles: on a successful use the official client plays
 // the song's sound and a bubble cone (840-845) on the caster; A Whistle, Dissonance and Ugly
@@ -8,7 +9,7 @@ import { join } from 'node:path';
 // Spec: effect-port/bard-dancer-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const effects = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const effects = effectTableSource();
 
 const SONGS = {
 	BD_LULLABY: '[278, 845]',

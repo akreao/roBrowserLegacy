@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import vm from 'node:vm';
 import shuffledGrid from '../../src/Renderer/Effects/ShuffledGrid.js';
 import spinSets, { SPIN_SLOT } from '../../src/Renderer/Effects/SpinSets.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Kunai - Nightmare, as the official client plays it: when the use-skill packet
 // succeeds, the floor burst at the caster, then all three blade files. Each is a
@@ -14,7 +15,7 @@ import spinSets, { SPIN_SLOT } from '../../src/Renderer/Effects/SpinSets.js';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 const SETS = ['ef_ss_hitouakumu_00', 'ef_ss_hitouakumu_01', 'ef_ss_hitouakumu_02'];
 const ROW = { successEffectId: 'ef_ss_hitouakumu', successEffectSpinSets: SETS };

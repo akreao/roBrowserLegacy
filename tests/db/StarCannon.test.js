@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Star Cannon (SKE_STAR_CANNON, 5473), like the official client: the skill's
 // ground unit (UNT_STAR_CANNON) runs effect 2350, which drops a star at a random
@@ -11,7 +12,7 @@ import vm from 'node:vm';
 //
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(name) {
 	const start = effectTable.indexOf(`\n\t${name}: [`);

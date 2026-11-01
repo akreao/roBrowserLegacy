@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Enchanting Sky, as in the official client: the skill draws nothing of its own.
 // The Sky Enchant status shows it: a 20-frame burst with the sound when it starts,
@@ -9,7 +10,7 @@ import { join } from 'node:path';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

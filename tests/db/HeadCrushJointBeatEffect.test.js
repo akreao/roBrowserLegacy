@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Head Crush 398 and Joint Beat 399: the official client (kRO 2025-07-16) gives them no cast aura,
 // plays 399 / 400 on the caster as each damage packet arrives (not at the cast) and the hit flash 0
 // on each hit; the hit message plays the weapon hit sound itself. 400's sound plays on tick 22.
 // Spec: effect-port/lord-knight-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 function row(name) {
 	const start = table.indexOf(`\t${name}: [`);

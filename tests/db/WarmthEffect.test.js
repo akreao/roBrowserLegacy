@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Warmth of the Sun, Moon and Stars (SG_SUN_WARM / SG_MOON_WARM / SG_STAR_WARM, skills 428-430): the
 // official client plays 418, 544 and 572 on the source only when the use packet succeeds; 572 plays
@@ -9,7 +10,7 @@ import { join } from 'node:path';
 // Spec: effect-port/star-gladiator-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'latin1');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Warmth effects', () => {
 	it('plays 572 on the source only on success', () => {

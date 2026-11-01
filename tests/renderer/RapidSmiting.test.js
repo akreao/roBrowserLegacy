@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { SMITE, launchTick, planShield, randomHeading, shieldAt } from 'Renderer/Effects/RapidSmitingSim.js';
 import { trailAt } from 'Renderer/Effects/ShieldBoomerangSim.js';
 import { launchCentre, smiteShieldEffect } from 'DB/Effects/RapidSmitingEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Rapid Smiting (PA_SHIELDCHAIN, skill 480) as the official client (kRO 2025-07-16) plays it: the
 // holy cast aura 58, 520 on the target as the damage packet arrives (cru_shield boomerang.wav and
@@ -17,8 +18,8 @@ describe('Rapid Smiting wiring', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
 			/SkillEffect\[SK\.PA_SHIELDCHAIN\] = \{ castAuraEffectId: 58, damageEffectIdOnTarget: 520, hitEffectId: 0 \};/
 		);
-		expect(read('DB/Effects/EffectTable.js')).toMatch(/\n\t520: rapidSmitingEffect,/);
-		expect(read('DB/Effects/EffectTable.js')).not.toMatch(/ef_shield_projectile/);
+		expect(effectTableSource().replace(/\r\n/g, '\n')).toMatch(/\n\t520: rapidSmitingEffect,/);
+		expect(effectTableSource().replace(/\r\n/g, '\n')).not.toMatch(/ef_shield_projectile/);
 		expect(read('DB/Effects/RapidSmitingEffect.js')).toContain("wav: 'effect/cru_shield boomerang'");
 	});
 

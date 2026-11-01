@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { SHIELD, heading, planBoomerang, shieldAt, trailAt } from 'Renderer/Effects/ShieldBoomerangSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Shield Boomerang (CR_SHIELDBOOMERANG, skill 251) as the official client (2020-12-29) plays it:
 // 249 on the caster as each damage packet arrives (cru_shield boomerang.wav and the thrown shield,
@@ -15,7 +16,7 @@ describe('Shield Boomerang wiring', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
 			/SkillEffect\[SK\.CR_SHIELDBOOMERANG\] = \{ damageEffectIdOnCaster: 249, hitEffectId: 0, hitEffectOnce: true \};/
 		);
-		expect(read('DB/Effects/EffectTable.js')).toMatch(/\n\t249: shieldBoomerangEffect,/);
+		expect(effectTableSource().replace(/\r\n/g, '\n')).toMatch(/\n\t249: shieldBoomerangEffect,/);
 		expect(read('DB/Effects/ShieldBoomerangEffect.js')).toContain("wav: 'effect/cru_shield boomerang'");
 	});
 });

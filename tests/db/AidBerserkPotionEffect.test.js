@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BERSERK_POTION, planThrow } from '../../src/Renderer/Effects/ThrownStoneSim.js';
 import { berserkPotionThrowEffect } from '../../src/DB/Effects/ThrowStoneEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Aid Berserk Potion (AM_BERSERKPITCHER, skill 446): when the use packet has the result set, the official
 // client launches 541 (EF_THROWITEM5) on the caster, aimed at the target (버서크포션.bmp in the bottle
@@ -10,7 +11,7 @@ import { berserkPotionThrowEffect } from '../../src/DB/Effects/ThrowStoneEffect.
 // quakes the screen on tick 18. kRO 2025-07-16. Spec: effect-port/alchemist-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Aid Berserk Potion', () => {
 	it('throws 541 from the caster and plays 220 on the target when the skill succeeds', () => {

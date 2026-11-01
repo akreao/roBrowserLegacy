@@ -8,6 +8,7 @@ import {
 	pointHeight,
 	stepBand
 } from '../../src/Renderer/Effects/FieldBandSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Volcano, Deluge and Violent Gale ground (effects 239-241): the official client's primitive 36,
 // one breathing band of ring texture under every unit cell. Spec: effect-port/sage-skills.md.
@@ -75,7 +76,7 @@ describe('Sage ground field bands', () => {
 	const rows = { 239: 'ring_red.tga', 240: 'ring_blue.tga', 241: 'magic_green.tga' };
 	for (const [id, texture] of Object.entries(rows)) {
 		it(`${id} draws the band in ${texture}`, () => {
-			const table = read('DB/Effects/EffectTable.js');
+			const table = effectTableSource().replace(/\r\n/g, '\n');
 			const start = table.indexOf(`\n\t${id}: [`);
 			const text = table.slice(start, table.indexOf('\n\t],', start));
 			expect(text).toContain(`new FieldBand(Params.Inst.position, Params.Inst.startTick, '${texture}')`);

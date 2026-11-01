@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Triple Action (GS_TRIPLEACTION 502): 648 on the target as each damage packet arrives (sound on tick 25, sprite from tick 30 at 2 ticks a frame), hit flash 0 once per packet.
 // Spec: effect-port/gunslinger-skills.md.
@@ -9,7 +10,7 @@ import vm from 'node:vm';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function row(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start).toBeGreaterThan(0);
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);

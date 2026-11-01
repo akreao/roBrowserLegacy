@@ -5,6 +5,7 @@ import { join } from 'node:path';
 vi.mock('Renderer/EntityManager.js', () => ({ default: { get: () => null } }));
 
 import { SCHEDULES } from 'Renderer/Effects/CasterMarks.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Preserve (ST_PRESERVE, skill 475): the official client casts with aura 59 (the purple ring) whatever
 // the element, plays 496 on the caster from the use packet when its result is set
@@ -13,7 +14,7 @@ import { SCHEDULES } from 'Renderer/Effects/CasterMarks.js';
 // Spec: effect-port/rogue-skills.md, effect-port/stalker-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Preserve', () => {
 	it('casts with the purple aura and plays 496 on the caster only when the skill works', () => {

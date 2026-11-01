@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // The official client's white cast rings: 911 (EF_GREENCASTING, the cast-aura
 // ring in green) and 2369 (its colour-cycling twin, primitive 139)
@@ -8,7 +9,7 @@ import { join } from 'node:path';
 //
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
 
 const { CYCLE_MODES, CYCLE_TICKS, ringFrames, ringTint, modeTint, createRing, stepRing } = await import(

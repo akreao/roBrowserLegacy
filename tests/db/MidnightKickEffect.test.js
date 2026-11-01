@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Midnight Kick (SKE_MIDNIGHT_KICK), played like the official client: the cast
 // aura is always the holy one (effect 58), whatever the packet's element, and
@@ -10,7 +11,7 @@ import { join } from 'node:path';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const entity = read('Engine/MapEngine/Entity.js');
 
 function entry(id) {

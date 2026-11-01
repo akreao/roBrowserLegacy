@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { FUNNEL, SAGE_GROUND_FUNNEL, funnelAlpha, visibleTicks } from '../../src/Renderer/Effects/CastFunnelSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Volcano, Deluge, Violent Gale and Land Protector: the official client's ground packet plays
 // 225 / 236 / 237 / 238 at the target cell, the funnel primitive (four rings opening out) in
@@ -10,7 +11,7 @@ import { FUNNEL, SAGE_GROUND_FUNNEL, funnelAlpha, visibleTicks } from '../../src
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function rowText(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start).toBeGreaterThan(0);
 	return table.slice(start, table.indexOf('\n\t],', start));

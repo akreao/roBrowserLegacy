@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Brandish Spear (KN_BRANDISHSPEAR, skill 57), as the official client plays it: no cast bar or
 // aura, and 70 (Brandish.str) on each target as its damage packet arrives, with no sound. No hit
@@ -10,7 +11,7 @@ import vm from 'node:vm';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function effectEntry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	return vm.runInNewContext(`(${text})`);

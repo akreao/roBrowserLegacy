@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Soul Drain (HW_SOULDRAIN, skill 364), as the kRO 2025-07-16 client plays it: a use packet with the
 // result set launches 378 on the caster aimed at the target. 378 sends three particle1 souls from
@@ -11,7 +12,7 @@ import vm from 'node:vm';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function effect378() {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf('\n\t378: [');
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	return vm.runInNewContext(`(${text})`);

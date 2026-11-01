@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Mental Strength (MO_STEELBODY, 268): when the use packet reports success the official
 // client shakes the camera, plays mon_맹룡과강.wav and launches 261 on the caster.
@@ -16,7 +17,7 @@ describe('Mental Strength effects', () => {
 	});
 
 	it('plays mon_맹룡과강.wav', () => {
-		expect(read('DB/Effects/EffectTable.js')).toMatch(
+		expect(effectTableSource().replace(/\r\n/g, '\n')).toMatch(
 			/monk_raging_thrust_sound: \[\n\t\t\{\n(\t\t\t\/\/[^\n]*\n)+\t\t\twav: 'effect\/mon_\\xb8\\xcd\\xb7\\xe6\\xb0\\xfa\\xb0\\xad'/
 		);
 	});

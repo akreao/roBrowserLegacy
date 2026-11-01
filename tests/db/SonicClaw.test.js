@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Chul Ho Sonic Claw, as the official client plays it: when the use-skill packet
 // succeeds, the claw (EZ2 chul_ho_sonic_claw) and one wave on the caster. The wave
@@ -10,7 +11,7 @@ import vm from 'node:vm';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function row() {
 	const start = skillEffect.indexOf('SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] =');

@@ -2,13 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Four Colors Charm (SS_FOUR_CHARM, 5499), as the official client shows it:
 // one look per spirit charm element, picked from the caster's charm type
 // (ZC_SPIRITS_ATTRIBUTE: 1 water, 2 earth, 3 fire, 4 wind). Each look is the
 // EZ2 floor ring then the top layer (PosX 0, PosY 11). No charms, no effect.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
 
 function entry(id) {

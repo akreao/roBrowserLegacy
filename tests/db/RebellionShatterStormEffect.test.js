@@ -3,12 +3,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Shatter Storm (RL_S_STORM, skill 2557): the official client's skilleffectinfo row plays
 // RL_S_STORM.wav and launches 1078 (RL_STORM\S_STORM.str) on the target as each damage packet
 // arrives. No hit flash. kRO 2025-07-16. Spec: effect-port/rebellion-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Shatter Storm', () => {
 	it('plays its effect on the target as each damage packet arrives', () => {

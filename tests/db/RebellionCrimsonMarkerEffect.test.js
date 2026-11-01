@@ -5,13 +5,14 @@ import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
 import StatusEffectTable from '../../src/DB/Status/StatusEffectTable.js';
 import StatusConst from '../../src/DB/Status/StatusConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Crimson Marker (RL_C_MARKER, skill 2560): the official client plays nothing from the use packet (the
 // skilleffectinfo row only has a sound for damage packets, which the skill does not send). The marks come
 // from the C_MARKER status: 1061 (RL_C_MAKER\deffender.str) and 1075 (RL_C_MAKER\cm.str) once each when it
 // starts; 1075 is removed whenever the status changes. kRO 2025-07-16. Spec: effect-port/rebellion-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 const entity = readFileSync(join(process.cwd(), 'src/Engine/MapEngine/Entity.js'), 'utf8');
 
 describe('Crimson Marker', () => {

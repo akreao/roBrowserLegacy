@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Heal (AL_HEAL, skill 28) as the official client shows it. Spec: effect-port/acolyte-skills.md.
 // - use packet, result set: by the healed amount (level field) 7 / 312 / 313 / 325 on the target;
@@ -13,7 +14,7 @@ const skills = read('DB/Skills/SkillEffect.js');
 
 // The effect table imports most of the renderer, so read entries from its source.
 function effectEntry(id) {
-	const source = read('DB/Effects/EffectTable.js');
+	const source = effectTableSource().replace(/\r\n/g, '\n');
 	const start = source.indexOf(`\n\t${id}: [`);
 	const end = source.indexOf('\n\t],', start);
 	const body = source.slice(start, end + 3).trim().replace(/^\d+:/, '').replace(/,$/, '');

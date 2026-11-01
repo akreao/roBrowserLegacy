@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Maximize Power (BS_MAXIMIZE, skill 114): the official client plays 104 (EF_MAXPOWER) on the source only
 // when the use packet succeeds, and nothing at cast start. 104 plays black_maximize_power_circle.wav on
@@ -8,7 +9,7 @@ import { join } from 'node:path';
 // tick 65 (kRO 2025-07-16). Spec: effect-port/blacksmith-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Maximize Power effects', () => {
 	it('plays 104 on the source only on success, nothing at cast start', () => {

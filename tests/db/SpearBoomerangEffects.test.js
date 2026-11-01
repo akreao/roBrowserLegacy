@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Spear Boomerang (KN_SPEARBOOMERANG, skill 59), as the official client plays it: as each damage
 // packet arrives, effect 80 on the caster (four spear sprites thrown at the target on ticks 0, 4,
@@ -13,7 +14,7 @@ const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').repl
 const TICK = 1000 / 60;
 
 function effectEntry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	return vm.runInNewContext(`(${text})`);

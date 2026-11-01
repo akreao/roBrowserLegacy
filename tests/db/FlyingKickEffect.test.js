@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Flying Kick (TK_JUMPKICK, skill 421): as each damage packet arrives the official client plays
 // 457 (EF_JUMPKICK: the flying kick sound at tick 5) on the caster and 458 (EF_QUAKEBODY2: the
@@ -8,7 +9,7 @@ import { join } from 'node:path';
 // Spec: effect-port/taekwon-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Flying Kick effects', () => {
 	it('plays the kick on the caster and shakes the target at packet arrival, with the hit flash on every hit', () => {

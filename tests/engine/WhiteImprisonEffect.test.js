@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // White Imprison (WL_WHITEIMPRISON 2201), kRO 2025-07-16: the use packet plays nothing; the target shows 802 while
 // its body state is IMPRISON (8), launched and removed by Actor_UpdateOption (0xc55f00).
@@ -29,7 +30,7 @@ describe('White Imprison', () => {
 		expect(spawn.indexOf('updateImprisonEffect(entity.GID, oldBodyState, entity._bodyState);')).toBeGreaterThan(
 			spawn.indexOf('EntityManager.add(entity);')
 		);
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const table = effectTableSource();
 		const row = table.slice(table.indexOf('\t802: ['), table.indexOf('\t803'));
 		expect(row).not.toContain('duration: 20000');
 		expect(row).toContain('duration: 49983');

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 vi.mock('Renderer/EffectManager.js', () => ({
 	default: { spam: vi.fn(), has: vi.fn(() => false), remove: vi.fn() }
@@ -53,7 +54,7 @@ describe('Bard and Dancer song status auras', () => {
 	});
 
 	it('draws the auras with the client effects', () => {
-		const source = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'latin1');
+		const source = effectTableSource('latin1');
 		const variants = { 861: 2, 865: 3, 867: 4, 871: 5, 873: 6, 875: 7, 877: 8 };
 		for (const [id, variant] of Object.entries(variants)) {
 			expect(source).toMatch(

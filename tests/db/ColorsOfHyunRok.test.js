@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Colors of Hyunrok, as the official client plays it: one EZ2 effect on the
 // caster when the use-skill packet reports success, picked by skill level.
@@ -12,7 +13,7 @@ import vm from 'node:vm';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 const ELEMENTS = ['water', 'wind', 'earth', 'fire', 'darkness', 'saint', 'reset'];
 const NAMES = ELEMENTS.map(e => `ef_sh_colors_of_hyun_rok_${e}`);

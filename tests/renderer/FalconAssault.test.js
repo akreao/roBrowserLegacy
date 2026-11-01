@@ -8,6 +8,7 @@ vi.mock('Renderer/EntityManager.js', () => ({ default: { get: () => current } })
 
 import CasterMarks, { SCHEDULES, TURN_STEP, turnedDirection } from 'Renderer/Effects/CasterMarks.js';
 import { turnedDirection as facingTurn } from 'Renderer/Effects/FacingTurn.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Falcon Assault (SN_FALCONASSAULT 381) as the official client (kRO 2020-12-29)
 // plays it: effect 387 on the target as the damage packet arrives (no sound;
@@ -18,7 +19,7 @@ import { turnedDirection as facingTurn } from 'Renderer/Effects/FacingTurn.js';
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function entry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start, `${id} is defined`).toBeGreaterThan(-1);
 	return table.slice(start, table.indexOf('\n\t],', start)).replace(/\s+/g, ' ');

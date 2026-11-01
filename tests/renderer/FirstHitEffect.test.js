@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // firstHitEffectId plays on the first hit of a damage packet only: the official client
 // sends a multi-hit packet's hit-map effect with its first hit message, while the hit
@@ -47,7 +48,7 @@ describe('firstHitEffectId', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
 			/SkillEffect\[SK\.MO_FINGEROFFENSIVE\] = \{ damageEffectIdOnCaster: 265, hitEffectId: 0, firstHitEffectId: 1 \};/
 		);
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const row = table.slice(table.indexOf('\t265: ['), table.indexOf('\t266: ['));
 		expect(row).toMatch(/fromSrc: true/);
 		expect(row).not.toMatch(/toSrc/);

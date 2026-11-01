@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Hammer Fall (BS_HAMMERFALL, skill 110): the official client plays 102 (EF_CRASHEARTH) at the cell from
 // the ground packet. 102 plays wizard_fire_pillar_b.wav on tick 30 and quakes the screen on tick 35; it
 // never loads black_hammerfall.wav (kRO 2025-07-16). Spec: effect-port/blacksmith-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Hammer Fall effects', () => {
 	it('plays 102 from the ground packet', () => {

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Aura Blade 355, Parry 356, Concentration 357, Frenzy 359 and Fury 360: the official client
 // (kRO 2025-07-16) plays their effects on the caster only when the use packet's result is set:
@@ -10,7 +11,7 @@ import SK from '../../src/DB/Skills/SkillConst.js';
 // (Concentration: knight_twohandquicken.wav, no STR), 368 + screen quake (Frenzy, Fury).
 // Spec: effect-port/lord-knight-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 function row(name) {
 	const start = table.indexOf(`\t${name}: [`);

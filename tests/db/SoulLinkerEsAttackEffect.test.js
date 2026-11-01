@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Estin 467, Estun 468 and Esma 469: the official client casts them with the blue aura 441 and plays
 // nothing on the use packet; as each damage packet arrives it plays 547 / 555 / 553 on the caster and
@@ -10,7 +11,7 @@ import SK from '../../src/DB/Skills/SkillConst.js';
 // T_에너지방출.wav at once, 553 T_날라차기.wav on ticks 5, 20, 35, 50 and 65.
 // Spec: effect-port/soul-linker-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 function row(name) {
 	const start = table.indexOf(`\t${name}: [`);

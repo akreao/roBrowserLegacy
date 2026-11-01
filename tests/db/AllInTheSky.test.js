@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // All in the Sky (SKE_ALL_IN_THE_SKY, 5474), as the official client shows it:
 // when the cast starts, the EZ2 effect ske_all_in_the_sky plays on the target
@@ -11,7 +12,7 @@ import vm from 'node:vm';
 // The tables are read as text: they import the renderer, which does not load
 // without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
 
 function entry(id) {

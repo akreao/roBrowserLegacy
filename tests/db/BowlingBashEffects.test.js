@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Bowling Bash (KN_BOWLINGBASH, skill 62), as the official client plays it: no cast bar or aura,
 // 149 (Bowling.str) on the caster as each damage packet arrives, silent, and on the hit, once per
@@ -12,7 +13,7 @@ const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').repl
 const TICK = 1000 / 60;
 
 function effectEntry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	const text = table.slice(table.indexOf('[', start), table.indexOf('\n\t],', start) + 3);
 	return vm.runInNewContext(`(${text})`);

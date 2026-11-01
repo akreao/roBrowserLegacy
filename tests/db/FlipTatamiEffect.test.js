@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Flip Tatami (NJ_TATAMIGAESHI, skill 527): the official client plays 다다미뒤집기.wav when the use
 // packet succeeds, and each Tatami unit (0xbc) shows 631 once: 다다미 action 0, 6 ticks a frame,
@@ -8,7 +9,7 @@ import { join } from 'node:path';
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
 const units = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillUnit.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 const row = id => table.slice(table.indexOf(`\t${id}: [`), table.indexOf('\t],', table.indexOf(`\t${id}: [`)));
 
 describe('Flip Tatami', () => {

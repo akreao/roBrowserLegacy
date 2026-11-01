@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Taekwon stances (TK_READYSTORM 412, TK_READYDOWN 414, TK_READYTURN 416, TK_READYCOUNTER 418)
 // and Tumbling (TK_DODGE 420): each time the use packet arrives the official client plays 449
@@ -8,7 +9,7 @@ import { join } from 'node:path';
 // works. Spec: effect-port/taekwon-skills.md.
 
 const skills = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Taekwon ready glow', () => {
 	it('glows the caster for each stance and Tumbling', () => {

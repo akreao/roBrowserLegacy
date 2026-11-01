@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Hand-written STR rows that stand in for an ez2streffect.bson row play that
 // row's sound, once (IsSoundLoop is false for all of them), as the official
@@ -9,7 +10,7 @@ import vm from 'node:vm';
 // cast, for one, was silent. [entry, STR file, sound], read from the bson.
 //
 // Read as text: the tables import the renderer, which does not load without a canvas.
-const effectTable = readFileSync(join(process.cwd(), 'src', 'DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

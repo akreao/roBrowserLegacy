@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 const {
 	STREAK_FRAMES,
@@ -133,7 +134,7 @@ describe('streak lines (Quill Spear, effect 2442)', () => {
 	});
 
 	it('plays from Quill Spear, on the caster, with the quill_spear_line textures', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\tef_druid_quill_spear_line: [');
 		expect(start).toBeGreaterThan(-1);
 		const row = table.slice(start, table.indexOf('\n\t],', start));

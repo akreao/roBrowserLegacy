@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Eswoo 470, Eske 471 and Eska 472: the official client casts them with the blue aura 441 and, when
 // the use packet succeeds, plays the skill's sound at the player and its effects on the target
 // (kRO 2025-07-16): Eswoo T_슈웃.wav + 420 + 589, Eske T_공격력.wav + 427, Eska T_방어형.wav, a screen
 // quake, 254 + 1132 + 261. 589 and 254 have no sound of their own. Spec: effect-port/soul-linker-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 function row(name) {
 	const start = table.indexOf(`\t${name}: [`);

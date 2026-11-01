@@ -3,12 +3,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Flicker (RL_FLICKER, skill 2556): when the use packet has the result set, the official client's
 // skilleffectinfo row plays RL_FLICKER.wav, then launches 153 (EF_CONCENTRATION) on the caster.
 // kRO 2025-07-16. Spec: effect-port/rebellion-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Flicker', () => {
 	it('plays its sound and 153 on the caster on success only', () => {

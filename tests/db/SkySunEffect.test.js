@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BURST_COUNT, BURST_GAP_MS, SKY_SUN_BURST, skySunBursts, spawnSkySunBursts } from 'DB/Effects/SkySunEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Sky Sun (SKE_SKY_SUN) as the official client plays it (kRO 2026-02-11 and
 // its ez2streffect.bson): see effect-port/sky-sun.md in the project files.
@@ -61,7 +62,7 @@ describe('Sky Sun bursts', () => {
 });
 
 describe('Sky Sun effect table', () => {
-	const effectTable = read('Effects/EffectTable.js');
+	const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 	const skillEffect = read('Skills/SkillEffect.js');
 
 	it('maps the skill to its cast and hit effects', () => {

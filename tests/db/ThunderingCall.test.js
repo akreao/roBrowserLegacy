@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Thundering Call, as the official client plays it: when the use-skill packet
 // reports success, one EZ2 effect (top layer plus floor layer) on the target.
@@ -12,7 +13,7 @@ import vm from 'node:vm';
 // Read as text: the tables import the renderer, which does not load without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 const skillEffect = read('DB/Skills/SkillEffect.js');
-const effectTable = read('DB/Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 const SKILLS = { KR_THUNDERING_CALL: ['g', 6567], KR_THUNDERING_CALL_S: ['y', 6568] };
 const byLevel = c => [...Array(6).fill(`ef_druid_thundering_call_${c}_3x3`), `ef_druid_thundering_call_${c}_5x5`];

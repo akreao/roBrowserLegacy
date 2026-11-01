@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import SC from 'DB/Status/StatusConst.js';
 import SK from 'DB/Skills/SkillConst.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // The Druid line (Druid, Karnos, Alitea): kRO draws its skills with the STR
 // effects in data/texture/effect/druid/, which the effect tables did not use,
@@ -13,7 +14,7 @@ import SU from 'DB/Skills/SkillUnitConst.js';
 // Read as text: the effect tables import the renderer, which does not load
 // without a canvas.
 const read = file => readFileSync(join(process.cwd(), 'src/DB', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('Skills/SkillEffect.js');
 const skillUnit = read('Skills/SkillUnit.js');
 

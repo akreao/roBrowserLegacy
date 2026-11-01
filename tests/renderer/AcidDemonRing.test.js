@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Acid Demonstration (CR_ACIDDEMONSTRATION, skill 490), effect 537 (EF_ACIDDEMON): the official client's
 // prim-118 ring set of ring_black.tga at the target's cell. kRO 2025-07-16. Spec: effect-port/creator-skills.md.
@@ -64,7 +65,7 @@ describe('Acid Demonstration rows', () => {
 	});
 
 	it('537 draws the rings at the cell with EF_FireWall.wav and quakes on tick 5', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const row = table.slice(table.indexOf('\t537: ['), table.indexOf('\t//538'));
 		expect(row).toContain('attachedEntity: false');
 		expect(row).toContain("wav: 'effect/ef_firewall'");

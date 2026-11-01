@@ -4,13 +4,14 @@ import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
 import { martyrsReckoningBody, sacrificeBodyAt } from '../../src/DB/Effects/MartyrsReckoningEffect.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Martyr's Reckoning (PA_SACRIFICE, 368) as the official client (kRO 2025-07-16) plays it: no cast
 // aura, nothing on the use packet, 366 on the caster as each damage packet arrives (세크리파이스.wav
 // on tick 22, the doubled body coloured 255/200/200 on ticks 20-40), the hit flash 0.
 // Spec: effect-port/paladin-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe("Martyr's Reckoning", () => {
 	it('plays 366 on the caster as each damage packet arrives, with no cast aura', () => {

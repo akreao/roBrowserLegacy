@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import SkillEffect from '../../src/DB/Skills/SkillEffect.js';
 import SK from '../../src/DB/Skills/SkillConst.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Kaizel 462, Kaahi 463, Kaupe 464 and Kaite 465: the official client casts them with the blue aura
 // 441 and, when the use packet succeeds, plays the skill's sound at the player and its effects on
@@ -11,7 +12,7 @@ import SK from '../../src/DB/Skills/SkillConst.js';
 // removes and relaunches it). 543 and 590 have no sound of their own.
 // Spec: effect-port/soul-linker-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 function row(name) {
 	const start = table.indexOf(`\t${name}: [`);

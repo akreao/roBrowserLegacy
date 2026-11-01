@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // When the official client (kRO 2025-07-16) plays the Priest effect sounds, in ms from the
 // effect's start (ticks of 1/60 s). Spec: effect-port/priest-audit.md.
 //
 // Read as text: the effect table imports the renderer, which does not load without a canvas.
-const effectTable = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 /** [wav, delay ms] of every layer of an effect that plays a sound */
 function sounds(id) {

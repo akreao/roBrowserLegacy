@@ -10,6 +10,7 @@ import {
 	funnelAlpha,
 	visibleTicks
 } from '../../src/Renderer/Effects/CastFunnelSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Ganbantein (HW_GANBANTEIN, skill 483), as the official client plays it from the ground packet:
 // EF_FireWall.wav and effect 223 at the cell, the funnel of four ring_white.tga rings (prim 31)
@@ -49,7 +50,7 @@ describe('Ganbantein funnel', () => {
 		expect(read('DB/Skills/SkillEffect.js')).toMatch(
 			/SkillEffect\[SK\.HW_GANBANTEIN\] = \{ effectId: \[223, 'ef_ganbantein_wav'\], castAuraEffectId: 58 \};/
 		);
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const row = table.slice(table.indexOf('\n\t223: ['), table.indexOf('\n\t],', table.indexOf('\n\t223: [')));
 		expect(row).toContain("new CastFunnel(Params.Inst.position, Params.Inst.startTick, 300, 'ring_white.tga', GANBANTEIN_FUNNEL)");
 		const wav = table.slice(table.indexOf('\n\tef_ganbantein_wav: ['), table.indexOf('\n\t],', table.indexOf('\n\tef_ganbantein_wav: [')));

@@ -9,11 +9,12 @@ import SK from 'DB/Skills/SkillConst.js';
 import SC from 'DB/Status/StatusConst.js';
 import StatusEffectTable from 'DB/Status/StatusEffectTable.js';
 import { SCHEDULES } from 'Renderer/Effects/CasterMarks.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Assumptio in the official client (kRO 2025-07-16): the use packet plays 375 and 440 on the target
 // when its result is set; status 110 keeps 375 on the actor while it is on; 375 draws a glow copy
 // round the actor on every tick. Spec: effect-port/priest-audit.md.
-const effectTable = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 describe('Assumptio', () => {
 	it('plays 375 and 440 on success', () => {

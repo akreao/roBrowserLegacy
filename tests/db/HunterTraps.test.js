@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Hunter traps as the official client (kRO 2020-12-29) plays them. When a trap
 // goes off the server turns its unit into a used trap (UNT_USED_TRAPS, 0x8c);
@@ -22,7 +23,7 @@ function skillRow(name) {
 }
 
 function effectRow(id) {
-	const source = read('DB/Effects/EffectTable.js');
+	const source = effectTableSource().replace(/\r\n/g, '\n');
 	const start = source.indexOf(`\n\t${id}: [`);
 	expect(start, `${id} is defined`).toBeGreaterThan(-1);
 	const end = source.indexOf('\n\t],', start);

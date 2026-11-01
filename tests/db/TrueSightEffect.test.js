@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // True Sight (SN_SIGHT 380) as the official client (kRO 2025-07-16) plays it:
 // effect 386 on the caster from the use packet, only when the packet's result
@@ -18,7 +19,7 @@ function skillRow(name) {
 }
 
 function entry(id) {
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const start = table.indexOf(`\n\t${id}: [`);
 	expect(start, `${id} is defined`).toBeGreaterThan(-1);
 	return table.slice(start, table.indexOf('\n\t],', start)).replace(/\s+/g, ' ');

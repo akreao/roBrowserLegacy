@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Intensive Aim, as in the official client: while the stance is on, the server
 // raises the Intensive Aim Count status from 1 to 10. Each value clears the gauge
@@ -19,7 +20,7 @@ const { updateStatusEffects } = await import('Engine/MapEngine/StatusEffects.js'
 const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').replace(/\r\n/g, '\n');
 
 function effectEntry(name) {
-	const source = read('DB/Effects/EffectTable.js');
+	const source = effectTableSource().replace(/\r\n/g, '\n');
 	const start = source.indexOf(`\n\t${name}: [`);
 	expect(start, `${name} is defined`).toBeGreaterThan(-1);
 	const end = source.indexOf('\n\t],', start);

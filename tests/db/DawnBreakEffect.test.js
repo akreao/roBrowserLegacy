@@ -2,13 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Dawn Break (SKE_DAWN_BREAK) as the official client draws it.
 // Spec: effect-port/dawn-break.md.
 
 // The effect tables import most of the renderer, so read them from their source.
 const read = file => readFileSync(join(process.cwd(), 'src/DB', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 const skillEffect = read('Skills/SkillEffect.js');
 
 function effectEntry(name) {

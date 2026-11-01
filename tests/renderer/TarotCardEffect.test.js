@@ -7,13 +7,14 @@ vi.mock('Renderer/EntityManager.js', () => ({ default: { get: () => null } }));
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
 import { SCHEDULES, colorAt } from 'Renderer/Effects/CasterMarks.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Tarot Card of Fate (CG_TAROTCARD, skill 489) in the official client (kRO 2025-07-16): cast aura 58
 // whatever the element; the use packet (result set) plays priest_slowpoison.wav and 500 on the target.
 // 500 lives 120 ticks: on ages 0 to 30 a glow copy every tick, the target drawn adding light in blue
 // (0, 0, 255) on even ages and white on odd ones. Spec: effect-port/clown-gypsy-skills.md.
 
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+const table = effectTableSource();
 
 describe('Tarot Card of Fate', () => {
 	it('plays its sound and 500 on the target on success, with cast aura 58', () => {

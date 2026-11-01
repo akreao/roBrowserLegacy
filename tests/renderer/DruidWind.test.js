@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // The Druid wind skills as the kRO 2026-02-11 client plays them (effect-port
 // druid-wind.md): placement rules in DruidWindSim.js, the mirror and tilt in
@@ -118,7 +119,7 @@ describe('StrEffect mirror and tilt', () => {
 
 describe('Druid wind skill rows', () => {
 	const skills = read('DB/Skills/SkillEffect.js');
-	const table = read('DB/Effects/EffectTable.js');
+	const table = effectTableSource().replace(/\r\n/g, '\n');
 	const row = name => {
 		const start = skills.indexOf(`SkillEffect[SK.${name}] =`);
 		expect(start, name).toBeGreaterThan(-1);

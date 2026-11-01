@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Summoner (Doram) skills: what the official client plays for each. Spec: effect-port/summoner-skills.md.
 
@@ -23,7 +24,7 @@ describe('Summoner skill effects', () => {
 	});
 
 	it('Tuna Belly is the one su_tunabelly STR with its sound', () => {
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const table = effectTableSource();
 		const block = table.match(/\tef_su_tunabelly: \[([\s\S]*?)\r?\n\t\],/)[1];
 		expect(block.match(/type: 'STR'/g)).toHaveLength(1);
 		expect(block).toContain("file: 'su_tunabelly/su_tunabelly'");
@@ -61,7 +62,7 @@ describe('Summoner skill effects', () => {
 	});
 
 	it('Tasty Shrimp Party is Fresh Shrimp with su_shrimpparty.wav', () => {
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const table = effectTableSource();
 		const block = table.match(/\tef_su_shrimparty: \[([\s\S]*?)\r?\n\t\],/)[1];
 		expect(block).toContain("file: 'su_freshshrimp/su_freshshrimp'");
 		expect(block).toContain("wav: 'effect/su_shrimpparty'");
@@ -71,7 +72,7 @@ describe('Summoner skill effects', () => {
 	});
 
 	it('Bunch of Shrimp has its sound', () => {
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const table = effectTableSource();
 		const block = table.match(/\tef_su_bunchofshrimp: \[([\s\S]*?)\r?\n\t\],/)[1];
 		expect(block).toContain("wav: 'effect/su_brunchofshrimp'");
 	});
@@ -80,7 +81,7 @@ describe('Summoner skill effects', () => {
 	});
 
 	it('Stem Spear has its sound and is not attached', () => {
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const table = effectTableSource();
 		const block = table.match(/\tef_su_sv_stemspear: \[([\s\S]*?)\r?\n\t\],/)[1];
 		expect(block).toContain("wav: 'effect/su_stemspear'");
 		expect(block).not.toContain('attachedEntity');
@@ -91,7 +92,7 @@ describe('Summoner skill effects', () => {
 	it('Bite scar plays once when the status starts and is removed when it ends', () => {
 		const table = readFileSync(join(process.cwd(), 'src/DB/Status/StatusEffectTable.js'), 'utf8');
 		expect(table).toMatch(/\[StatusConst\.BITESCAR\]: \{\s*start: \['ef_su_bitescar'\],\s*stop: \['ef_su_bitescar'\]\s*\}/);
-		const effects = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const effects = effectTableSource();
 		expect(effects).toMatch(/\tef_su_bitescar: \[[\s\S]*?file: 'bite_scar\/bite_scar'/);
 	});
 	it("Catnip Meteor drops a meteor per ground packet", () => {
@@ -103,7 +104,7 @@ describe('Summoner skill effects', () => {
 	});
 
 	it('Catnip Meteor is su_cn_meteor.spr at 4 ticks a frame, faded without the item', () => {
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const table = effectTableSource();
 		const plain = table.match(/\tef_su_cn_meteor: \[([\s\S]*?)\r?\n\t\],/)[1];
 		const item = table.match(/\tef_su_cn_meteor2: \[([\s\S]*?)\r?\n\t\],/)[1];
 		for (const block of [plain, item]) {
@@ -127,7 +128,7 @@ describe('Summoner skill effects', () => {
 	it('Root Twist loops the roots sprite on the actor while the status lasts', () => {
 		const table = readFileSync(join(process.cwd(), 'src/DB/Status/StatusEffectTable.js'), 'utf8');
 		expect(table).toMatch(/\[StatusConst\.SV_ROOTTWIST\]: \{\s*loop: \['ef_su_roottwist'\]\s*\}/);
-		const effects = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const effects = effectTableSource();
 		const block = effects.match(/\tef_su_roottwist: \[([\s\S]*?)\r?\n\t\],/)[1];
 		expect(block).toContain("file: 'su_sv_roottwist/su_sv_roottwist'");
 		expect(block).toContain("wav: 'effect/su_roottwist'");
