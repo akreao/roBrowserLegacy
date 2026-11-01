@@ -80077,7 +80077,7 @@ var init_Common$1 = __esmMin((() => {
 	Common_default$1 = "/* Avoid input focus border */\r\n:focus {\r\n	outline: none;\r\n}\r\n::-moz-focus-inner {\r\n	border: 0;\r\n}\r\n\r\n* {\r\n	-moz-user-select: none;\r\n}\r\n\r\nhtml,\r\nbody {\r\n	touch-action: manipulation;\r\n	margin: 0;\r\n}\r\n\r\n/* Reference for the viewport sized body below */\r\nhtml {\r\n	height: 100%;\r\n}\r\n\r\n/* Prevent mobile browser auto-zoom on input focus and double-tap */\r\n:host {\r\n	touch-action: manipulation;\r\n}\r\n\r\ninput,\r\ntextarea,\r\nselect {\r\n	touch-action: manipulation;\r\n}\r\n\r\ncanvas {\r\n	touch-action: none;\r\n}\r\n\r\n/* Page zoomed in (browser pinch / input focus zoom, tracked by Core/Mobile.js): hand the\r\n   touches back to the browser so the user can pan and pinch the page back out */\r\nbody.ro-page-zoomed canvas {\r\n	touch-action: auto;\r\n}\r\n\r\nbody {\r\n	background-color: black;\r\n	font-size: 12px;\r\n	/* Arial matches the client's English UI; Liberation Sans / Arimo keep its metrics on Linux.\r\n	   Korean glyphs use Gulim when installed, then the Windows Korean UI font, and finally\r\n	   SCDream loaded from the client by DBManager. */\r\n	font-family: Arial, 'Liberation Sans', Arimo, Gulim, 'Malgun Gothic', 'SCDream', sans-serif;\r\n	/* Normalize any resolved font's x-height to Arial's (sxHeight 1062 / unitsPerEm 2048 = 0.5186),\r\n	   so text keeps Arial's apparent size on every OS/font. It's inherited and crosses Shadow DOM\r\n	   hosts, so it also rescales elements that use a non-Arial face; those opt out with\r\n	   `font-size-adjust: none` on the selector declaring that font (Intro, GrfViewer, JoystickUI\r\n	   header). SCDream, when a server serves it, is normalized to Arial on purpose.\r\n	   Progressive enhancement: engines that don't support the numeric form ignore it\r\n	   and render at the resolved font's native x-height (no JS fallback needed — Arial\r\n	   / Liberation Sans already carry correct metrics, only annex fonts degrade). */\r\n	font-size-adjust: 0.5186;\r\n	overflow: hidden;\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n	min-width: 100vw;\r\n	min-height: 100vh;\r\n	letter-spacing: 0;\r\n	line-height: 1.2;\r\n}\r\n\r\n/* Apps owning the 3D viewport (set by Renderer.init) are a fixed viewport: size the body to it and\r\n   contain it. `overflow: hidden` alone doesn't clip the body box — it propagates to the viewport —\r\n   so content positioned off screen (entity overlays, signboards, dragged windows) still extends the\r\n   document's scrollable area, and the browser scrolls, or on mobile lays the page out at its\r\n   fallback width and scales it down, to reveal it. Paint containment clips the box for real. */\r\nbody.ro-viewport {\r\n	width: 100%;\r\n	height: 100%;\r\n	min-width: 0;\r\n	min-height: 0;\r\n	contain: paint;\r\n}\r\n\r\n/* Window captions override the bold defaults retained in individual components. */\r\n.titlebar .text {\r\n	font-weight: normal !important;\r\n}\r\n\r\n.title {\r\n	font-size: 12px;\r\n}\r\n\r\nbutton,\r\nui-button {\r\n	padding: 0;\r\n}\r\n\r\nui-button {\r\n	display: inline-block;\r\n}\r\n\r\n.ui-btn {\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n\r\n	height: 20px;\r\n	min-width: 52px;\r\n	padding: 0 10px;\r\n\r\n	font-size: 12px;\r\n	line-height: 1;\r\n	color: #3f3f3f;\r\n	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.85);\r\n\r\n	border-radius: 4px;\r\n	border: 1px solid;\r\n\r\n	/* 3D border: top right bottom left */\r\n	border-color: #cfcfcf #a9a9a9 #5f5f5f #bdbdbd;\r\n\r\n	/* glossy + subtle depth */\r\n	background: linear-gradient(to bottom, #ffffff 0%, #f2f2f2 35%, #dcdcdc 55%, #f9f9f9 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.95),\r\n		/* top highlight */ inset 0 -1px 0 rgba(0, 0, 0, 0.12),\r\n		/* bottom inner edge */ 0 1px 0 rgba(0, 0, 0, 0.12); /* outer bottom shadow */\r\n\r\n	cursor: pointer;\r\n}\r\n\r\n/* Hover: hơi xanh nhẹ giống button Reset */\r\n.ui-btn:hover {\r\n	border-color: #c9d1dd #8ea2c4 #4d5f86 #b1bfd5;\r\n	background: linear-gradient(to bottom, #f7fbff 0%, #dfe8f6 35%, #c0d0ee 55%, #f0f6ff 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.95),\r\n		inset 0 -1px 0 rgba(0, 0, 0, 0.12),\r\n		0 1px 0 rgba(0, 0, 0, 0.12);\r\n}\r\n\r\n/* Active: giống \"ấn xuống\" */\r\n.ui-btn:active {\r\n	border-color: #9fb0c9 #6f86a6 #3b4b67 #7f96b6;\r\n\r\n	background: linear-gradient(to bottom, #cdd8eb 0%, #b7c8e5 45%, #dfe9fb 100%);\r\n\r\n	box-shadow:\r\n		inset 0 2px 3px rgba(0, 0, 0, 0.18),\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.35);\r\n\r\n	transform: translateY(1px); /* cảm giác bị nhấn */\r\n}\r\n\r\n/* Disabled */\r\n.ui-btn:disabled,\r\n.ui-btn.is-disabled {\r\n	cursor: default;\r\n	color: #8f8f8f;\r\n	text-shadow: none;\r\n\r\n	border-color: #d3d3d3 #bdbdbd #9b9b9b #c9c9c9;\r\n\r\n	background: linear-gradient(to bottom, #f6f6f6 0%, #e7e7e7 55%, #fafafa 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.9),\r\n		inset 0 -1px 0 rgba(0, 0, 0, 0.08),\r\n		0 1px 0 rgba(0, 0, 0, 0.08);\r\n\r\n	transform: none;\r\n}\r\n\r\n/* Hide native cursor inside Shadow DOM when custom cursor is active */\r\n@container style(--ro-game-cursor: on) {\r\n	* {\r\n		cursor: none !important;\r\n	}\r\n}\r\n\r\n/* The shadow container every component's markup sits in.\r\n\r\n   It had no size of its own, so a component asking for `height: 100%`\r\n   resolved it against `auto` and collapsed to its content -- a title bar and\r\n   nothing else, with the rest clipped by any `overflow: hidden` beneath it.\r\n   Inert where the host has no definite height, which is most components. */\r\n.ui-component-root {\r\n	height: 100%;\r\n}\r\n\r\n/* Tooltip appearance is shared; each component sets placement and wrapping.\r\n   Scope item overlays so full-screen dialog layers keep their own layout. */\r\n:is(\r\n		#InventoryV0,\r\n		#InventoryV1,\r\n		#InventoryV2,\r\n		#InventoryV3,\r\n		#EquipmentV0,\r\n		#EquipmentV1,\r\n		#EquipmentV2,\r\n		#EquipmentV3,\r\n		#EquipmentV4,\r\n		#PlayerViewEquip,\r\n		#Trade,\r\n		#CashShop,\r\n		#LaphineSys,\r\n		#LaphineUpg,\r\n		#ItemReform,\r\n		#Refine,\r\n		#Enchant,\r\n		#cartitems,\r\n		#vending,\r\n		#vendingshop,\r\n		#VendingReport,\r\n		#Storage,\r\n		#StorageFilter,\r\n		#ItemListWindowSelection,\r\n		#ConvertItems,\r\n		#WriteRodex,\r\n		#Mail,\r\n		#ReadMail,\r\n		#PartyFriends,\r\n		.EntityRoom,\r\n		.EntitySignboard\r\n	)\r\n	.overlay,\r\n.overlay.js-overlay,\r\n.switchoverlay,\r\n.menu_tip,\r\n.shortcut-tooltip,\r\n.enchant_tooltip,\r\n.tooltiptext,\r\n.overlay_open,\r\n.overlay_read,\r\n.overlay_prev,\r\n.overlay_next,\r\n#map-tooltip,\r\n#moveinfo-tooltip,\r\n#StatusIcons .state .description,\r\n#WinStats .desc .hover,\r\n[role='tooltip'] {\r\n	background: rgba(0, 0, 0, 0.5) !important;\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	box-shadow: none !important;\r\n	padding: 5px !important;\r\n	height: auto !important;\r\n	font-size: 12px !important;\r\n	font-weight: normal !important;\r\n	line-height: 1.2 !important;\r\n	text-shadow: 1px 1px black !important;\r\n}\r\n\r\n#moveinfo-tooltip {\r\n	color: white;\r\n}\r\n";
 }));
 // src/Controls/MouseEventHandler.js
-var Mouse;
+var Mouse, trackPointer;
 var init_MouseEventHandler = __esmMin((() => {
 	Mouse = class {
 		/**
@@ -80111,13 +80111,15 @@ var init_MouseEventHandler = __esmMin((() => {
 		*/
 		static state = 0;
 	};
-	/**
-	* Track mouse move event (native, passive)
-	*/
-	window.addEventListener("mousemove", (event) => {
+	trackPointer = (event) => {
 		Mouse.screen.x = event.pageX;
 		Mouse.screen.y = event.pageY;
-	}, { passive: true });
+	};
+	window.addEventListener("mousemove", trackPointer, { passive: true });
+	window.addEventListener("dragover", trackPointer, {
+		passive: true,
+		capture: true
+	});
 }));
 // src/Core/Preferences.js
 /**
@@ -80306,37 +80308,43 @@ var init_SessionStorage = __esmMin((() => {
 		}
 	};
 }));
-// src/Loaders/wasm/targa.js
-var TARGA_WASM_BASE64, base64ToUint8Array$2, _wasmInstance$2, _wasmFailed$2, getTargaWasm;
-var init_targa = __esmMin((() => {
-	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
-	base64ToUint8Array$2 = (base64) => {
+// src/Utils/wasmLoader.js
+var base64ToUint8Array, createWasmLoader;
+var init_wasmLoader = __esmMin((() => {
+	base64ToUint8Array = (base64) => {
 		const binaryString = atob(base64);
 		const len = binaryString.length;
 		const bytes = new Uint8Array(len);
 		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
 		return bytes;
 	};
-	_wasmInstance$2 = null;
-	_wasmFailed$2 = false;
-	getTargaWasm = () => {
-		if (_wasmInstance$2) return _wasmInstance$2;
-		if (_wasmFailed$2) return null;
-		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-			_wasmFailed$2 = true;
-			return null;
-		}
-		try {
-			const wasmBytes = base64ToUint8Array$2(TARGA_WASM_BASE64);
-			const module = new WebAssembly.Module(wasmBytes);
-			_wasmInstance$2 = new WebAssembly.Instance(module);
-			return _wasmInstance$2;
-		} catch (e) {
-			_wasmFailed$2 = true;
-			console.warn("Loaders/wasm/targa - Failed to instantiate WASM module:", e);
-			return null;
-		}
+	createWasmLoader = (base64, name, imports = {}) => {
+		let instance = null;
+		let failed = false;
+		return () => {
+			if (instance) return instance;
+			if (failed) return null;
+			if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+				failed = true;
+				return null;
+			}
+			try {
+				instance = new WebAssembly.Instance(new WebAssembly.Module(base64ToUint8Array(base64)), imports);
+				return instance;
+			} catch (e) {
+				failed = true;
+				console.warn(`Loaderswasm${name} - Failed to instantiate WASM module`, e);
+				return null;
+			}
+		};
 	};
+}));
+// src/Loaders/wasm/targa.js
+var TARGA_WASM_BASE64, getTargaWasm;
+var init_targa = __esmMin((() => {
+	init_wasmLoader();
+	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
+	getTargaWasm = createWasmLoader(TARGA_WASM_BASE64, "targa");
 }));
 // src/Loaders/Targa.js
 /**
@@ -81034,68 +81042,18 @@ var init_Graphics = __esmMin((() => {
 	GraphicsSettings.defaults = cleanDefaults;
 }));
 // src/Loaders/wasm/paletteConvert.js
-var PALETTE_CONVERT_WASM_BASE64, base64ToUint8Array$1, _wasmInstance$1, _wasmFailed$1, getPaletteConvertWasm;
+var PALETTE_CONVERT_WASM_BASE64, getPaletteConvertWasm;
 var init_paletteConvert = __esmMin((() => {
+	init_wasmLoader();
 	PALETTE_CONVERT_WASM_BASE64 = "AGFzbQEAAAABCQFgBX9/f39/AAMCAQAFAwEAAQcXAgZtZW1vcnkCAApjb252ZXJ0UGFsAAAKdwF1AQV/IANBAnQhCUEAIQUCQANAIAUgBE8NASABIAUgA2xqIQcgAiAEIAVrQQFrIAlsaiEIQQAhBgJAA0AgBiADTw0BIAggBkECdGogACAHIAZqLQAAQQJ0aigCADYCACAGQQFqIQYMAAsLIAVBAWohBQwACwsL";
-	base64ToUint8Array$1 = (base64) => {
-		const binaryString = atob(base64);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
-		return bytes;
-	};
-	_wasmInstance$1 = null;
-	_wasmFailed$1 = false;
-	getPaletteConvertWasm = () => {
-		if (_wasmInstance$1) return _wasmInstance$1;
-		if (_wasmFailed$1) return null;
-		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-			_wasmFailed$1 = true;
-			return null;
-		}
-		try {
-			const wasmBytes = base64ToUint8Array$1(PALETTE_CONVERT_WASM_BASE64);
-			const module = new WebAssembly.Module(wasmBytes);
-			_wasmInstance$1 = new WebAssembly.Instance(module);
-			return _wasmInstance$1;
-		} catch (e) {
-			_wasmFailed$1 = true;
-			console.warn("Loaders/wasm/paletteConvert - Failed to instantiate WASM module:", e);
-			return null;
-		}
-	};
+	getPaletteConvertWasm = createWasmLoader(PALETTE_CONVERT_WASM_BASE64, "paletteConvert");
 }));
 // src/Loaders/wasm/spriteCompile.js
-var SPRITE_COMPILE_WASM_BASE64, base64ToUint8Array, _wasmInstance, _wasmFailed, getSpriteCompileWasm;
+var SPRITE_COMPILE_WASM_BASE64, getSpriteCompileWasm;
 var init_spriteCompile = __esmMin((() => {
+	init_wasmLoader();
 	SPRITE_COMPILE_WASM_BASE64 = "AGFzbQEAAAABJgRgCX9/f39/f39/fwBgB39/f39/f38AYAR/f39/AGAFf39/f38AAwUEAAECAwUDAQABB0wFBm1lbW9yeQIACmNvbXBpbGVQYWwAAAtjb21waWxlUmdiYQABEWZyYW1lUmdiYVRvQ2FudmFzAAIQZnJhbWVQYWxUb0NhbnZhcwADCqcEBIQBAQV/QQAhCQJAA0AgCSAETw0BIAEgCSADbGohCyACIAkgCGogBWwgB2pqIQxBACEKAkADQCAKIANPDQEgCyAKai0AACENIAAgDUECdGooAgBB/4F8RgRAIAwgCmpBADoAAAUgDCAKaiANOgAACyAKQQFqIQoMAAsLIAlBAWohCQwACwsLsQEBCX8gAkECdCEJQQAhBwJAA0AgByADTw0BIAAgAyAHa0EBayAJbGohCiABIAcgBmogBGwgBWpBAnRqIQtBACEIAkADQCAIIAJPDQEgCiAIQQJ0aiEMIAsgCEECdGohDSAMLQAAIQ4gDkUEQCANQQA2AgAFIA5BGHQgDC0AAUEQdHIgDC0AAkEIdCAMLQADcnIhDyANIA82AgALIAhBAWohCAwACwsgB0EBaiEHDAALCwuhAQEHfyACQQJ0IQZBACEEAkADQCAEIANPDQEgACAEIAZsaiEHIAEgAyAEa0EBayAGbGohCEEAIQUCQANAIAUgAk8NASAHIAVBAnRqKAIAIQkgCUH/AXFBGHQgCUGA/gNxQQh0ciAJQYCA/AdxQQh2IAlBgICAeHFBGHZyciEKIAggBUECdGogCjYCACAFQQFqIQUMAAsLIARBAWohBAwACwsLSQEEfyADIARsIQZBACEFAkADQCAFIAZPDQEgASAFai0AACEHIAAgB0ECdGooAgAhCCACIAVBAnRqIAg2AgAgBUEBaiEFDAALCws=";
-	base64ToUint8Array = (base64) => {
-		const binaryString = atob(base64);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
-		return bytes;
-	};
-	_wasmInstance = null;
-	_wasmFailed = false;
-	getSpriteCompileWasm = () => {
-		if (_wasmInstance) return _wasmInstance;
-		if (_wasmFailed) return null;
-		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-			_wasmFailed = true;
-			return null;
-		}
-		try {
-			const wasmBytes = base64ToUint8Array(SPRITE_COMPILE_WASM_BASE64);
-			const module = new WebAssembly.Module(wasmBytes);
-			_wasmInstance = new WebAssembly.Instance(module);
-			return _wasmInstance;
-		} catch (e) {
-			_wasmFailed = true;
-			console.warn("Loaders/wasm/spriteCompile - Failed to instantiate WASM module:", e);
-			return null;
-		}
-	};
+	getSpriteCompileWasm = createWasmLoader(SPRITE_COMPILE_WASM_BASE64, "spriteCompile");
 }));
 // src/Loaders/Sprite.js
 var SPR;
@@ -81230,12 +81188,12 @@ var init_Sprite = __esmMin((() => {
 		*
 		* The exact byte layout depends on the chosen packing below.
 		*/
-		convert32bPal(pal, flip = false) {
+		convert32bPal(flip = false) {
 			const pal32 = /* @__PURE__ */ new Uint32Array(256);
 			for (let i = 0; i < 256; i++) {
-				const r = pal[i * 4 + 0];
-				const g = pal[i * 4 + 1];
-				const b = pal[i * 4 + 2];
+				const r = this.palette[i * 4 + 0];
+				const g = this.palette[i * 4 + 1];
+				const b = this.palette[i * 4 + 2];
 				const a = i === 0 ? 0 : 255;
 				if (flip === true) pal32[i] = a << 24 | b << 16 | g << 8 | r;
 				else pal32[i] = r << 24 | g << 16 | b << 8 | a;
@@ -81247,8 +81205,8 @@ var init_Sprite = __esmMin((() => {
 		* (why keep palette for hat/weapon/shield/monster ?)
 		*/
 		switchToRGBA() {
-			const frames = this.frames, pal = this.palette;
-			const pal32 = this.convert32bPal(pal, false);
+			const frames = this.frames;
+			const pal32 = this.convert32bPal(false);
 			const wasmInstance = getPaletteConvertWasm();
 			if (wasmInstance) {
 				const memory = wasmInstance.exports.memory;
@@ -81268,10 +81226,23 @@ var init_Sprite = __esmMin((() => {
 					}
 					const dstPtr = srcPtr + pixelCount;
 					const totalBytesNeeded = dstPtr + pixelCount * 4;
-					if (memory.buffer.byteLength < totalBytesNeeded) {
+					if (memory.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 						memory.grow(additionalPages);
 						new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					} catch (_e) {
+						const frameWidth = frame.width, frameHeight = frame.height;
+						const data = frame.data;
+						const out = new Uint8Array(frameWidth * frameHeight * 4);
+						const out32 = new Uint32Array(out.buffer);
+						for (let y = 0; y < frameHeight; ++y) {
+							const srcRowStart = y * frameWidth;
+							const dstRowStart = (frameHeight - y - 1) * frameWidth;
+							for (let x = 0; x < frameWidth; ++x) out32[dstRowStart + x] = pal32[data[srcRowStart + x]];
+						}
+						frame.data = out;
+						frame.type = SPR.TYPE_RGBA;
+						continue;
 					}
 					new Uint8Array(memory.buffer, srcPtr, pixelCount).set(frame.data);
 					convertPal(palPtr, srcPtr, dstPtr, width, height);
@@ -81331,9 +81302,27 @@ var init_Sprite = __esmMin((() => {
 					const srcPtr = 1024;
 					const dstPtr = srcPtr + srcBytes;
 					const totalBytesNeeded = dstPtr + dstBytes;
-					if (memory.buffer.byteLength < totalBytesNeeded) {
+					if (memory.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 						memory.grow(additionalPages);
+					} catch (_e) {
+						const data32 = new Uint32Array(imageData.data.buffer);
+						let frameData32;
+						if ((frame.data.byteOffset & 3) === 0) frameData32 = new Uint32Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+						else {
+							frameData32 = new Uint32Array(pixelCount);
+							new Uint8Array(frameData32.buffer).set(new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount * 4));
+						}
+						for (let y = 0; y < height; ++y) {
+							const srcRow = y * width;
+							const dstRow = (height - y - 1) * width;
+							for (let x = 0; x < width; ++x) {
+								const pixel = frameData32[srcRow + x];
+								data32[dstRow + x] = (pixel & 255) << 24 | (pixel & 65280) << 8 | (pixel & 16711680) >> 8 | (pixel & 4278190080) >>> 24;
+							}
+						}
+						ctx.putImageData(imageData, 0, 0);
+						return canvas;
 					}
 					const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
 					new Uint8Array(memory.buffer, srcPtr, srcBytes).set(frameBytes);
@@ -81357,8 +81346,8 @@ var init_Sprite = __esmMin((() => {
 					}
 				}
 			} else {
-				if (!this._pal32Canvas && this.palette) this._pal32Canvas = this.convert32bPal(this.palette, true);
-				const pal32 = this._pal32Canvas || this.convert32bPal(this.palette, true);
+				if (!this._pal32Canvas && this.palette) this._pal32Canvas = this.convert32bPal(true);
+				const pal32 = this._pal32Canvas || this.convert32bPal(true);
 				const pixelCount = width * height;
 				const srcBytes = pixelCount;
 				const dstBytes = pixelCount * 4;
@@ -81368,9 +81357,21 @@ var init_Sprite = __esmMin((() => {
 					const srcPtr = 1024;
 					const dstPtr = srcPtr + srcBytes;
 					const totalBytesNeeded = dstPtr + dstBytes;
-					if (memory.buffer.byteLength < totalBytesNeeded) {
+					if (memory.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 						memory.grow(additionalPages);
+					} catch (_e) {
+						const data32 = new Uint32Array(imageData.data.buffer);
+						const frameIndices = new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+						for (let y = 0; y < height; ++y) {
+							const rowStart = y * width;
+							for (let x = 0; x < width; ++x) {
+								const idx = frameIndices[rowStart + x];
+								data32[rowStart + x] = pal32[idx];
+							}
+						}
+						ctx.putImageData(imageData, 0, 0);
+						return canvas;
 					}
 					new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
 					const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
@@ -81425,16 +81426,36 @@ var init_Sprite = __esmMin((() => {
 				start_x = Math.floor((gl_width - width) * .5);
 				start_y = Math.floor((gl_height - height) * .5);
 				if (frame.type === SPR.TYPE_PAL) {
-					if (!pal32) pal32 = this.convert32bPal(this.palette, true);
+					if (!pal32) pal32 = this.convert32bPal(true);
 					if (width <= 0 || height <= 0) out = new Uint8Array(gl_width * gl_height);
 					else if (wasmInstance) {
 						const srcBytes = width * height;
 						const dstBytes = gl_width * gl_height;
 						const dstPtr = wasmSrcPtr + srcBytes;
 						const totalBytesNeeded = dstPtr + dstBytes;
-						if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+						if (wasmMem.buffer.byteLength < totalBytesNeeded) try {
 							const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
 							wasmMem.grow(additionalPages);
+						} catch (_e) {
+							out = new Uint8Array(gl_width * gl_height);
+							for (let y = 0; y < height; ++y) {
+								const srcRow = y * width;
+								const dstRow = (y + start_y) * gl_width + start_x;
+								for (let x = 0; x < width; ++x) {
+									const idx = data[srcRow + x];
+									if (pal32[idx] === MAGENTA) out[dstRow + x] = 0;
+									else out[dstRow + x] = idx;
+								}
+							}
+							output[i] = {
+								type: frame.type,
+								width: gl_width,
+								height: gl_height,
+								originalWidth: width,
+								originalHeight: height,
+								data: out
+							};
+							continue;
 						}
 						if (!wasmPalInitialized) {
 							new Uint32Array(wasmMem.buffer, wasmPalPtr, 256).set(pal32);
@@ -81462,9 +81483,40 @@ var init_Sprite = __esmMin((() => {
 					const dstBytes = gl_width * gl_height * 4;
 					const dstPtr = wasmSrcPtr + srcBytes;
 					const totalBytesNeeded = dstPtr + dstBytes;
-					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+					if (wasmMem.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
 						wasmMem.grow(additionalPages);
+					} catch (_e) {
+						out = new Uint8Array(gl_width * gl_height * 4);
+						const out32 = new Uint32Array(out.buffer);
+						for (let y = 0; y < height; ++y) {
+							const srcRow = (height - y - 1) * width * 4;
+							const dstRow = (y + start_y) * gl_width + start_x;
+							for (let x = 0; x < width; ++x) {
+								const srcIdx = srcRow + x * 4;
+								/**
+								* OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
+								* NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
+								*/
+								const a = data[srcIdx];
+								if (a === 0) out32[dstRow + x] = 0;
+								else {
+									const r = data[srcIdx + 3];
+									const g = data[srcIdx + 2];
+									const b = data[srcIdx + 1];
+									out32[dstRow + x] = a << 24 | b << 16 | g << 8 | r;
+								}
+							}
+						}
+						output[i] = {
+							type: frame.type,
+							width: gl_width,
+							height: gl_height,
+							originalWidth: width,
+							originalHeight: height,
+							data: out
+						};
+						continue;
 					}
 					new Uint8Array(wasmMem.buffer, dstPtr, dstBytes).fill(0);
 					new Uint8Array(wasmMem.buffer, wasmSrcPtr, srcBytes).set(data);
@@ -88436,19 +88488,19 @@ var init_WeaponAction = __esmMin((() => {
 		this[WeaponType_default.TWOHANDROD] = 1;
 		this[WeaponType_default.SHORTSWORD] = 2;
 	})()];
-	WeaponAction[JobConst_default.DO_SUMMONER] = new (function() {
-		this[WeaponType_default.NONE] = 0;
-		this[WeaponType_default.ROD] = 1;
-		this[WeaponType_default.TWOHANDROD] = 1;
-	})();
-	WeaponAction[JobConst_default.DRUID] = new (function() {
-		this[WeaponType_default.NONE] = 0;
-		this[WeaponType_default.SHORTSWORD] = 1;
-		this[WeaponType_default.AXE] = 2;
-		this[WeaponType_default.TWOHANDAXE] = 2;
-		this[WeaponType_default.MACE] = 2;
-		this[WeaponType_default.TWOHANDMACE] = 2;
-	})();
+	WeaponAction[JobConst_default.DO_SUMMONER] = {
+		[WeaponType_default.NONE]: 0,
+		[WeaponType_default.ROD]: 1,
+		[WeaponType_default.TWOHANDROD]: 1
+	};
+	WeaponAction[JobConst_default.DRUID] = {
+		[WeaponType_default.NONE]: 0,
+		[WeaponType_default.SHORTSWORD]: 1,
+		[WeaponType_default.AXE]: 2,
+		[WeaponType_default.TWOHANDAXE]: 2,
+		[WeaponType_default.MACE]: 2,
+		[WeaponType_default.TWOHANDMACE]: 2
+	};
 	duplicateEntry$4(JobConst_default.NOVICE, JobConst_default.NOVICE_H, JobConst_default.NOVICE_B);
 	duplicateEntry$4(JobConst_default.SWORDMAN, JobConst_default.SWORDMAN_H, JobConst_default.SWORDMAN_B);
 	duplicateEntry$4(JobConst_default.MAGICIAN, JobConst_default.MAGICIAN_H, JobConst_default.MAGICIAN_B);
@@ -143257,11 +143309,20 @@ function keepBuiltInSkills(tree, jobIds, builtIn = BuiltInSkillTreeView) {
 		}
 	}
 }
-var isSkill$1, BuiltInSkillTreeView;
+var isSkill$1, BuiltInSkillTreeView, BuiltInTreeGroup;
 var init_SkillTreeMerge = __esmMin((() => {
 	init_SkillTreeView();
 	isSkill$1 = (key) => /^\d+$/.test(key);
 	BuiltInSkillTreeView = Object.freeze(Object.fromEntries(Object.entries(SkillTreeView).map(([jobId, entry]) => [jobId, Object.freeze({ ...entry })])));
+	BuiltInTreeGroup = (() => {
+		const first = /* @__PURE__ */ new Map();
+		const group = {};
+		for (const [jobId, entry] of Object.entries(SkillTreeView)) {
+			if (!first.has(entry)) first.set(entry, jobId);
+			group[jobId] = first.get(entry);
+		}
+		return Object.freeze(group);
+	})();
 }));
 // src/DB/Skills/SkillTreeMods.js
 /** Forget every hidden skill, before a client loads its mods' tables. */
@@ -168572,7 +168633,7 @@ var init_PacketStructure = __esmMin((() => {
 	PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 		this.GID = fp.readULong();
 		this.type = fp.readUChar();
-		if (PacketVerManager_default.value >= 20180704) {
+		if (PacketVerManager_default.value >= 20181121) {
 			this.value = fp.readULong();
 			this.value2 = fp.readULong();
 		} else {
@@ -168580,7 +168641,7 @@ var init_PacketStructure = __esmMin((() => {
 			this.value2 = fp.readShort();
 		}
 	};
-	PACKET.ZC.SPRITE_CHANGE2.size = PacketVerManager_default.value >= 20180704 ? 15 : 11;
+	PACKET.ZC.SPRITE_CHANGE2.size = PacketVerManager_default.value >= 20181121 ? 15 : 11;
 	PACKET.ZC.NOTIFY_STANDENTRY2 = function PACKET_ZC_NOTIFY_STANDENTRY2(fp, end) {
 		this.GID = fp.readULong();
 		this.speed = fp.readShort();
@@ -171188,6 +171249,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readShort();
@@ -171221,6 +171283,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -171253,6 +171316,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -173196,6 +173260,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readUShort();
 		this.weapon = fp.readULong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readULong();
+		else this.shield = 0;
 		this.accessory = fp.readUShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readUShort();
@@ -173234,6 +173299,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -173271,6 +173337,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -216392,12 +216459,12 @@ var init_SpriteAtlas = __esmMin((() => {
 // src/Renderer/SpriteBatch.vs?raw
 var SpriteBatch_default$1;
 var init_SpriteBatch$2 = __esmMin((() => {
-	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, full plane depth (0/1)\r\nin vec3 aSource;          // where the pixels are, atlas layer, palette row (see SpriteBatch.js)\r\n\r\nout vec2 vTextureCoord;\r\nout float vBillboardZ;     // depth candidates, see SpriteRenderer.vs\r\nout float vPlaneZ;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\nflat out vec3 vSource;    // source, atlas layer, palette row\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    float billboardZ = gl_Position.z;\r\n    float planeZ     = billboardZ;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        planeZ = correctedZBase;\r\n        if (aAngleDepthShadowCap.w > 0.5) {\r\n            billboardZ = planeZ;\r\n        }\r\n    }\r\n\r\n    // Min of both taken per fragment, see docs/reference/renderer/sprite-depth.md\r\n    float zOffset = (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);\r\n    vBillboardZ   = billboardZ - zOffset;\r\n    vPlaneZ       = planeZ - zOffset;\r\n    gl_Position.z = min(vBillboardZ, vPlaneZ);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowCap.z;\r\n    vSource = aSource;\r\n}";
+	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, full plane depth (0/1)\r\nin vec3 aSource;          // where the pixels are, atlas layer, palette row (see SpriteBatch.js)\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\nflat out vec3 vSource;    // source, atlas layer, palette row\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = aAngleDepthShadowCap.w > 0.5 ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowCap.z;\r\n    vSource = aSource;\r\n}";
 }));
 // src/Renderer/SpriteBatch.fs?raw
 var SpriteBatch_default;
 var init_SpriteBatch$1 = __esmMin((() => {
-	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\nprecision highp sampler2DArray;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nin float vBillboardZ;\r\nin float vPlaneZ;\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nflat in vec3 vSource;   // source, atlas layer, palette row (see SpriteBatch.js)\r\nout vec4 fragColor;\r\n\r\n// The sprite's own texture and palette (source 0, palette row -2)\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\nuniform vec2 uTextSize;\r\n\r\n// The shared atlas (SpriteAtlas.js)\r\nuniform sampler2DArray uIndexAtlas;\r\nuniform sampler2DArray uRGBAAtlas;\r\nuniform sampler2D uPaletteAtlas;\r\nuniform vec2 uIndexAtlasSize;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(vec2 uv, vec2 size, vec2 origin) {\r\n    ivec2 texel = ivec2(origin + clamp(floor(uv * size), vec2(0.0), size - 1.0));\r\n    if (vSource.x > 0.5) {\r\n        return texelFetch(uIndexAtlas, ivec3(texel, int(vSource.y + 0.5)), 0).x;\r\n    }\r\n    return texelFetch(uDiffuse, texel, 0).x;\r\n}\r\n\r\n// A palette colour; index is the texel's value, k / 255. On its own texture,\r\n// texture(LUT, vec2(index, 1.0)) reads colour k, except for 255: 1.0 wraps\r\n// around (palette textures REPEAT) and reads colour 0. The atlas does the same.\r\nvec4 lookup(float index) {\r\n    if (vSource.z > -0.5) {\r\n        int k = int(index * 255.0 + 0.5);\r\n        return vec4(texelFetch(uPaletteAtlas, ivec2(k == 255 ? 0 : k, int(vSource.z + 0.5)), 0).rgb, 1.0);\r\n    }\r\n    return vec4(texture(uPalette, vec2(index, 1.0)).rgb, 1.0);\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates.\r\nvec4 bilinearSample(vec2 uv) {\r\n    vec2 atlasSize = vSource.x > 0.5 ? uIndexAtlasSize : uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(uv, size, origin);\r\n    float trLUT = fetchIndex(uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : lookup(tlLUT);\r\n    vec4 tr = trLUT == 0.0 ? transparent : lookup(trLUT);\r\n    vec4 bl = blLUT == 0.0 ? transparent : lookup(blLUT);\r\n    vec4 br = brLUT == 0.0 ? transparent : lookup(brLUT);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (abs(vSource.z + 1.0) > 0.5) { // a palette: not -1\r\n        textureSample = bilinearSample( vTextureCoord );\r\n    }\r\n    else if (vSource.x > 1.5) {\r\n        textureSample = texture( uRGBAAtlas, vec3(toTexture(vTextureCoord.st), vSource.y) );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Clip-space depth back to window depth, fogged at the same depth\r\n    float fragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;\r\n    gl_FragDepth    = fragDepth;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = fragDepth / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}\r\n";
+	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\nprecision highp sampler2DArray;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nflat in vec3 vSource;   // source, atlas layer, palette row (see SpriteBatch.js)\r\nout vec4 fragColor;\r\n\r\n// The sprite's own texture and palette (source 0, palette row -2)\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\nuniform vec2 uTextSize;\r\n\r\n// The shared atlas (SpriteAtlas.js)\r\nuniform sampler2DArray uIndexAtlas;\r\nuniform sampler2DArray uRGBAAtlas;\r\nuniform sampler2D uPaletteAtlas;\r\nuniform vec2 uIndexAtlasSize;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(vec2 uv, vec2 size, vec2 origin) {\r\n    ivec2 texel = ivec2(origin + clamp(floor(uv * size), vec2(0.0), size - 1.0));\r\n    if (vSource.x > 0.5) {\r\n        return texelFetch(uIndexAtlas, ivec3(texel, int(vSource.y + 0.5)), 0).x;\r\n    }\r\n    return texelFetch(uDiffuse, texel, 0).x;\r\n}\r\n\r\n// A palette colour; index is the texel's value, k / 255. On its own texture,\r\n// texture(LUT, vec2(index, 1.0)) reads colour k, except for 255: 1.0 wraps\r\n// around (palette textures REPEAT) and reads colour 0. The atlas does the same.\r\nvec4 lookup(float index) {\r\n    if (vSource.z > -0.5) {\r\n        int k = int(index * 255.0 + 0.5);\r\n        return vec4(texelFetch(uPaletteAtlas, ivec2(k == 255 ? 0 : k, int(vSource.z + 0.5)), 0).rgb, 1.0);\r\n    }\r\n    return vec4(texture(uPalette, vec2(index, 1.0)).rgb, 1.0);\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates.\r\nvec4 bilinearSample(vec2 uv) {\r\n    vec2 atlasSize = vSource.x > 0.5 ? uIndexAtlasSize : uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(uv, size, origin);\r\n    float trLUT = fetchIndex(uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : lookup(tlLUT);\r\n    vec4 tr = trLUT == 0.0 ? transparent : lookup(trLUT);\r\n    vec4 bl = blLUT == 0.0 ? transparent : lookup(blLUT);\r\n    vec4 br = brLUT == 0.0 ? transparent : lookup(brLUT);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (abs(vSource.z + 1.0) > 0.5) { // a palette: not -1\r\n        textureSample = bilinearSample( vTextureCoord );\r\n    }\r\n    else if (vSource.x > 1.5) {\r\n        textureSample = texture( uRGBAAtlas, vec3(toTexture(vTextureCoord.st), vSource.y) );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}\r\n";
 }));
 // src/Renderer/SpriteBatch.js
 /**
@@ -216796,12 +216863,12 @@ var init_SpriteBatch = __esmMin((() => {
 // src/Renderer/SpriteRenderer.vs?raw
 var SpriteRenderer_default$1;
 var init_SpriteRenderer$2 = __esmMin((() => {
-	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\nout float vBillboardZ;\r\nout float vPlaneZ;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uFullPlaneDepth;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    float billboardZ = gl_Position.z;\r\n    float planeZ     = billboardZ;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // A pass that writes depth takes the vertical plane depth for the whole quad, so\r\n        // the part of the sprite below the water surface sorts behind the (later drawn)\r\n        // water pass. A pass that only tests depth keeps the nearer of the two: on the\r\n        // vertical plane, anything drawn below the feet (a magic circle, a shadow, a\r\n        // spread cape) lies under the ground and the ground would cut it off.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        planeZ = correctedZBase;\r\n        if (uFullPlaneDepth) {\r\n            billboardZ = planeZ;\r\n        }\r\n    }\r\n\r\n    // Min of both taken per fragment, see docs/reference/renderer/sprite-depth.md\r\n    float zOffset = (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n    vBillboardZ   = billboardZ - zOffset;\r\n    vPlaneZ       = planeZ - zOffset;\r\n    gl_Position.z = min(vBillboardZ, vPlaneZ);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
+	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uFullPlaneDepth;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // A pass that writes depth takes the vertical plane depth for the whole quad, so\r\n        // the part of the sprite below the water surface sorts behind the (later drawn)\r\n        // water pass. A pass that only tests depth keeps the nearer of the two: on the\r\n        // vertical plane, anything drawn below the feet (a magic circle, a shadow, a\r\n        // spread cape) lies under the ground and the ground would cut it off.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = uFullPlaneDepth ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
 }));
 // src/Renderer/SpriteRenderer.fs?raw
 var SpriteRenderer_default;
 var init_SpriteRenderer$1 = __esmMin((() => {
-	SpriteRenderer_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin float vBillboardZ;\r\nin float vPlaneZ;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\nuniform vec4 uSpriteRendererColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform float uShadow;\r\nuniform vec2 uTextSize;\r\nuniform bool uIsRGBA;\r\n\r\n// With palette we don't have a good result because of the gl.NEAREST, so smooth it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 TextInterval = 1.0 / uTextSize;\r\n\r\n    float tlLUT = texture(indexT, uv ).x;\r\n    float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;\r\n    float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;\r\n    float brLUT = texture(indexT, uv + TextInterval).x;\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * uTextSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (uSpriteRendererColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, vTextureCoord.st );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Clip-space depth back to window depth, fogged at the same depth\r\n    float fragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;\r\n    gl_FragDepth    = fragDepth;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= uShadow;\r\n    fragColor   = textureSample * uSpriteRendererColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = fragDepth / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+	SpriteRenderer_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\nuniform vec4 uSpriteRendererColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform float uShadow;\r\nuniform vec2 uTextSize;\r\nuniform bool uIsRGBA;\r\n\r\n// With palette we don't have a good result because of the gl.NEAREST, so smooth it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 TextInterval = 1.0 / uTextSize;\r\n\r\n    float tlLUT = texture(indexT, uv ).x;\r\n    float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;\r\n    float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;\r\n    float brLUT = texture(indexT, uv + TextInterval).x;\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * uTextSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (uSpriteRendererColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, vTextureCoord.st );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= uShadow;\r\n    fragColor   = textureSample * uSpriteRendererColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/SpriteRenderer.js
 /**
@@ -216989,6 +217056,39 @@ function fillImageData(imageData, frame, pal, color) {
 		}
 	}
 }
+function getFrameCanvas(_cache, frame, pal, color) {
+	let entry = _cache.get(frame);
+	if (!entry) {
+		entry = {
+			rgba: /* @__PURE__ */ new Map(),
+			byPalette: /* @__PURE__ */ new WeakMap()
+		};
+		_cache.set(frame, entry);
+	}
+	let byColor;
+	if (frame.type === 1 || !pal) byColor = entry.rgba;
+	else {
+		byColor = entry.byPalette.get(pal);
+		if (!byColor) {
+			byColor = /* @__PURE__ */ new Map();
+			entry.byPalette.set(pal, byColor);
+		}
+	}
+	const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
+	let canvas = byColor.get(colorKey);
+	if (!canvas) {
+		if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
+		canvas = document.createElement("canvas");
+		canvas.width = frame.width;
+		canvas.height = frame.height;
+		const ctx = canvas.getContext("2d");
+		const imageData = ctx.createImageData(frame.width, frame.height);
+		fillImageData(imageData, frame, pal, color);
+		ctx.putImageData(imageData, 0, 0);
+		byColor.set(colorKey, canvas);
+	}
+	return canvas;
+}
 /**
 * Set the depth test and depth write. Inside a batch only the state is kept:
 * each recorded sprite carries it, and SpriteBatch sets it when it draws.
@@ -217021,7 +217121,7 @@ function syncAfterBatch() {
 	_texture$10 = null;
 	_groupId++;
 }
-var mat4$20, RenderCanvas2D, _program$44, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$10, _usepal, _fogColor$2, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$20, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$44, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$10, _usepal, _fogColor$2, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -217031,42 +217131,9 @@ var init_SpriteRenderer = __esmMin((() => {
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
 	mat4$20 = gl_matrix_default.mat4;
+	MAX_COLORS_PER_PALETTE = 8;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		const _cache = /* @__PURE__ */ new WeakMap();
-		const MAX_COLORS_PER_PALETTE = 8;
-		function getFrameCanvas(frame, pal, color) {
-			let entry = _cache.get(frame);
-			if (!entry) {
-				entry = {
-					rgba: /* @__PURE__ */ new Map(),
-					byPalette: /* @__PURE__ */ new WeakMap()
-				};
-				_cache.set(frame, entry);
-			}
-			let byColor;
-			if (frame.type === 1 || !pal) byColor = entry.rgba;
-			else {
-				byColor = entry.byPalette.get(pal);
-				if (!byColor) {
-					byColor = /* @__PURE__ */ new Map();
-					entry.byPalette.set(pal, byColor);
-				}
-			}
-			const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
-			let canvas = byColor.get(colorKey);
-			if (!canvas) {
-				if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
-				canvas = document.createElement("canvas");
-				canvas.width = frame.width;
-				canvas.height = frame.height;
-				const ctx = canvas.getContext("2d");
-				const imageData = ctx.createImageData(frame.width, frame.height);
-				fillImageData(imageData, frame, pal, color);
-				ctx.putImageData(imageData, 0, 0);
-				byColor.set(colorKey, canvas);
-			}
-			return canvas;
-		}
 		return function() {
 			if (this.sprite.width <= 0 || this.sprite.height <= 0) return;
 			let scale_x, scale_y;
@@ -217087,7 +217154,7 @@ var init_SpriteRenderer = __esmMin((() => {
 				scale_y *= -1;
 				_size$7[1] *= -1;
 			}
-			const canvas = getFrameCanvas(frame, pal, this.color);
+			const canvas = getFrameCanvas(_cache, frame, pal, this.color);
 			_ctx$4.save();
 			_ctx$4.translate(_x | 0, _y | 0);
 			_ctx$4.rotate(this.angle / 180 * Math.PI);
@@ -217120,6 +217187,22 @@ var init_SpriteRenderer = __esmMin((() => {
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
+		static get gl() {
+			return _gl$3;
+		}
+		static get is2D() {
+			return this.render === RenderCanvas2D;
+		}
+		static renderCanvas(canvas) {
+			if (this.render !== RenderCanvas2D) return false;
+			_ctx$4.save();
+			_ctx$4.translate(_pos$8[0] + this.offset[0], _pos$8[1] + this.offset[1] - 17.5);
+			_ctx$4.rotate(this.angle / 180 * Math.PI);
+			_ctx$4.scale(Math.sign(this.size[0]) || 1, Math.sign(this.size[1]) || 1);
+			_ctx$4.drawImage(canvas, -Math.abs(this.size[0]) / 2, -Math.abs(this.size[1]) / 2, Math.abs(this.size[0]), Math.abs(this.size[1]));
+			_ctx$4.restore();
+			return true;
+		}
 		/**
 		* @type {function} functions to use to render
 		*/
@@ -217989,7 +218072,7 @@ var init_Models = __esmMin((() => {
 // src/Renderer/Map/AnimatedModels.vs?raw
 var AnimatedModels_default$2;
 var init_AnimatedModels$2 = __esmMin((() => {
-	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\nin float aMatrixIndex;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;  \r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nuniform highp sampler2D uMatrixTexture;  \r\n  \r\nmat4 fetchMatrix(int index) {  \r\n    int pixelIndex = index * 4;  \r\n    vec4 row0 = texelFetch(uMatrixTexture, ivec2(pixelIndex, 0), 0);  \r\n    vec4 row1 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 1, 0), 0);  \r\n    vec4 row2 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 2, 0), 0);  \r\n    vec4 row3 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 3, 0), 0);  \r\n    return mat4(row0, row1, row2, row3);  \r\n}  \r\n  \r\nvoid main(void) {  \r\n    mat4 M = fetchMatrix(int(aMatrixIndex));  \r\n    vec4 worldPos = M * vec4(aPosition, 1.0);  \r\n    vec4 position = uModelViewMat * worldPos;  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = worldPos.xyz;  \r\n  \r\n    vec3 c0 = normalize(M[0].xyz);  \r\n    vec3 c1 = normalize(M[1].xyz);  \r\n    vec3 c2 = normalize(M[2].xyz);  \r\n    mat3 rotMat = mat3(c0, c1, c2);  \r\n    vec3 normal = normalize(rotMat * aNormal);  \r\n  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
+	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\nin float aMatrixIndex;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;  \r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nuniform highp sampler2D uMatrixTexture;  \r\n  \r\nmat4 fetchMatrix(int index) {  \r\n    int width = textureSize(uMatrixTexture, 0).x;  \r\n    int pixelIndex = index * 4;  \r\n    ivec2 base = ivec2(pixelIndex % width, pixelIndex / width);  \r\n    vec4 row0 = texelFetch(uMatrixTexture, base, 0);  \r\n    vec4 row1 = texelFetch(uMatrixTexture, base + ivec2(1, 0), 0);  \r\n    vec4 row2 = texelFetch(uMatrixTexture, base + ivec2(2, 0), 0);  \r\n    vec4 row3 = texelFetch(uMatrixTexture, base + ivec2(3, 0), 0);  \r\n    return mat4(row0, row1, row2, row3);  \r\n}  \r\n  \r\nvoid main(void) {  \r\n    mat4 M = fetchMatrix(int(aMatrixIndex));  \r\n    vec4 worldPos = M * vec4(aPosition, 1.0);  \r\n    vec4 position = uModelViewMat * worldPos;  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = worldPos.xyz;  \r\n  \r\n    vec3 c0 = normalize(M[0].xyz);  \r\n    vec3 c1 = normalize(M[1].xyz);  \r\n    vec3 c2 = normalize(M[2].xyz);  \r\n    mat3 rotMat = mat3(c0, c1, c2);  \r\n    vec3 normal = normalize(rotMat * aNormal);  \r\n  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
 }));
 // src/Renderer/Map/AnimatedModels.fs?raw
 var AnimatedModels_default$1;
@@ -218276,14 +218359,17 @@ function add$3(gl, modelData) {
 		}
 	}
 	const totalMatrices = nodes.length * numInstances;
-	const matrixData = new Float32Array(totalMatrices * 16);
+	const matricesPerRow = Math.min(totalMatrices, Math.floor(gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4));
+	const matrixTexWidth = matricesPerRow * 4;
+	const matrixTexHeight = Math.ceil(totalMatrices / matricesPerRow);
+	const matrixData = new Float32Array(matrixTexWidth * matrixTexHeight * 4);
 	const matrixTexture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, matrixTexture);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, totalMatrices * 4, 1, 0, gl.RGBA, gl.FLOAT, matrixData);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, matrixTexWidth, matrixTexHeight, 0, gl.RGBA, gl.FLOAT, matrixData);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	const animModel = {
 		filename: modelData.filename,
@@ -218305,7 +218391,8 @@ function add$3(gl, modelData) {
 		buffer: gl.createBuffer(),
 		matrixTexture,
 		matrixData,
-		totalMatrices,
+		matrixTexWidth,
+		matrixTexHeight,
 		meshInfos,
 		lastFrame: -1,
 		lastAnimFrame: -1,
@@ -218504,7 +218591,7 @@ function updateModelBuffer(gl, model, frame, force) {
 		}
 	}
 	gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
-	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.totalMatrices * 4, 1, gl.RGBA, gl.FLOAT, matrixData);
+	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.matrixTexWidth, model.matrixTexHeight, gl.RGBA, gl.FLOAT, matrixData);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 /**
@@ -238203,12 +238290,12 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 	else Component.setCostumeConfig = function setCostumeConfig(_on) {};
 	Component.equip = function equip(item, location) {
 		const it = DB.getItemInfo(item.ITID);
-		if (entityRender) item.equipped = location;
-		_list[item.index] = item;
-		if (!entityRender && arguments.length === 1) {
+		if (!location && arguments.length === 1) {
 			if ("WearState" in item) location = item.WearState;
 			else if ("location" in item) location = item.location;
 		}
+		item.equipped = location;
+		_list[item.index] = item;
 		const root = Component.getRoot();
 		const selector = getSelectorFromLocation$1(location);
 		const gradeInner = enchantGrade ? "<div class=\"grade\"></div>" : "";
@@ -238247,6 +238334,16 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 	};
 	Component.onLevelUp = function onLevelUp() {
 		if (UIVersionManager.getEquipmentVersion() > 0 && _btnLevelUp) document.body.appendChild(_btnLevelUp);
+	};
+	Component.getEquippedItem = function getEquippedItem(index) {
+		return _list[index] || null;
+	};
+	Component.getEquippedItemByLocation = function getEquippedItemByLocation(location) {
+		for (const key in _list) {
+			const item = _list[key];
+			if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & location) return item;
+		}
+		return null;
 	};
 	Component.checkEquipLoc = function checkEquipLoc(location) {
 		if (!entityRender) return 0;
@@ -239523,17 +239620,18 @@ function getJobLineage(jobId, skillTreeView) {
 /**
 * Find which of candidateJobIds applies to the character's job: the first one
 * met walking up the job's lineage (the job, then the job before it, and so
-* on). Aliased jobs in SkillTreeView share the same tree object, so an alias
-* matches its canonical job's entry. Returns the matching candidate as given,
-* or undefined.
+* on). An alias matches its canonical job's entry: aliased jobs share one
+* tree object in SkillTreeView, and, once a reset or a client file has given
+* each its own copy, the same group in treeGroup. Returns the matching
+* candidate as given, or undefined.
 */
-function findLineageJob(candidateJobIds, jobId, skillTreeView) {
+function findLineageJob(candidateJobIds, jobId, skillTreeView, treeGroup = BuiltInTreeGroup) {
 	const candidates = Array.from(candidateJobIds, String);
 	for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
 		if (candidates.includes(String(lineageJobId))) return String(lineageJobId);
 		const lineageTree = skillTreeView[lineageJobId];
-		if (!lineageTree) continue;
-		const canonicalJobId = candidates.find((candidateJobId) => skillTreeView[candidateJobId] === lineageTree);
+		const lineageGroup = treeGroup[lineageJobId];
+		const canonicalJobId = candidates.find((candidateJobId) => lineageTree && skillTreeView[candidateJobId] === lineageTree || lineageGroup !== void 0 && treeGroup[candidateJobId] === lineageGroup);
 		if (canonicalJobId !== void 0) return canonicalJobId;
 	}
 }
@@ -239638,7 +239736,9 @@ function createSkillUpgradeOrder(options) {
 	for (const skillId of plan.keys()) if (!visit(skillId)) return null;
 	return order;
 }
-var init_SkillRequirements = __esmMin((() => {}));
+var init_SkillRequirements = __esmMin((() => {
+	init_SkillTreeMerge();
+}));
 // src/UI/Components/SkillDescription/SkillDescription.html?raw
 var SkillDescription_default$2;
 var init_SkillDescription$2 = __esmMin((() => {
@@ -242331,7 +242431,7 @@ function onTogglePixelPerfect() {
 			for (let i = 0; i < sprFiles.length; i++) MemoryManager.remove(gl, sprFiles[i]);
 		}
 		reloadSprites();
-	} else ChatBox_default.addText("[System] Pixel Perfect is disabled. Reload the page (F5) to apply the changes.", ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
+	}
 }
 /**
 * Post-Processing
@@ -242487,6 +242587,9 @@ function onResetToDefaults() {
 		if (defaultSettings.hasOwnProperty(key)) GraphicsSettings[key] = defaultSettings[key];
 	});
 	GraphicsSettings.save();
+	const gl = Renderer.getContext();
+	const sprFiles = MemoryManager.search(/\.spr$/i);
+	for (let i = 0; i < sprFiles.length; i++) MemoryManager.remove(gl, sprFiles[i]);
 	GraphicsOption.onAppend();
 }
 var GraphicsOption, _preferences$37, GraphicsOption_default;
@@ -242503,7 +242606,6 @@ var init_GraphicsOption = __esmMin((() => {
 	init_GraphicsOption$2();
 	init_GraphicsOption$1();
 	init_MemoryManager();
-	init_ChatBox();
 	GraphicsOption = new GUIComponent("GraphicsOption", GraphicsOption_default$1);
 	_preferences$37 = Preferences.get("GraphicsOption", {
 		x: 300,
@@ -255347,7 +255449,7 @@ function createQuest(config) {
 		const prevMaxCount = hunt.maxCount;
 		if (hunt_info.huntIDCount) hunt.huntIDCount = hunt_info.huntIDCount;
 		if (hunt_info.maxCount) hunt.maxCount = hunt_info.maxCount;
-		if (hunt_info.huntCount) hunt.huntCount = hunt_info.huntCount;
+		if (typeof hunt_info.huntCount === "number") hunt.huntCount = hunt_info.huntCount;
 		if (hunt_info.mobGID) hunt.mobGID = hunt_info.mobGID;
 		if (hunt.huntCount === prevHuntCount && hunt.maxCount === prevMaxCount) {
 			if (questWindow) {
@@ -260487,10 +260589,10 @@ var init_StrEffect = __esmMin((() => {
 				const cos = Math.cos(rad);
 				const sin = Math.sin(rad);
 				const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
-				const y = (AIM_PIVOT_Y - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+				const y = (pivotY - animat.pos[1]) * k * (this.flipY ? -1 : 1);
 				const squash = this.tilt ? Math.cos(this.tilt / 180 * Math.PI) : 1;
 				out[0] = x * cos - y * sin + shiftX;
-				out[1] = AIM_PIVOT_Y - pivotY - (x * sin + y * cos) * squash - shiftY;
+				out[1] = -(x * sin + y * cos) * squash - shiftY;
 				return verticalBase;
 			}
 			out[0] = (animat.pos[0] - 320) * k + shiftX;
@@ -267248,7 +267350,7 @@ var init_ChatBox = __esmMin((() => {
 				const clipboard = (event.originalEvent || event).clipboardData || event.clipboardData;
 				let pastedText = clipboard ? clipboard.getData("text/plain") : "";
 				if (!pastedText) return;
-				pastedText = pastedText.replace(/\u00A0/g, " ");
+				pastedText = pastedText.replace(/\u00A0/g, " ").replace(/\r\n?|\n/g, " ");
 				const currentText = extractChatMessage(inputChatbox);
 				const remaining = MAX_LENGTH - currentText.length;
 				if (remaining <= 0) return;
@@ -286784,6 +286886,250 @@ var init_Camera = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Entity/EntityComposer.js
+function capture(entity, frame, palette, offset) {
+	if (!active$1 || !frame || frame.width <= 0 || frame.height <= 0) return false;
+	const width = Math.abs(SpriteRenderer.size[0]);
+	const height = Math.abs(SpriteRenderer.size[1]);
+	const angle = SpriteRenderer.angle;
+	const radians = angle / 180 * Math.PI;
+	const boundsWidth = Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians));
+	const boundsHeight = Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians));
+	active$1.layers.push({
+		frame,
+		palette,
+		color: Array.from(SpriteRenderer.color),
+		angle,
+		width: SpriteRenderer.size[0],
+		height: SpriteRenderer.size[1],
+		x: offset[0],
+		y: offset[1],
+		boundsWidth,
+		boundsHeight
+	});
+	return true;
+}
+function makeKey(layers, width, height) {
+	const parts = [width, height];
+	for (const layer of layers) parts.push(layer.frame, layer.palette, layer.color[0], layer.color[1], layer.color[2], layer.color[3], layer.angle, layer.width, layer.height, layer.x, layer.y, layer.boundsWidth, layer.boundsHeight);
+	return parts;
+}
+function sameKey(a, b) {
+	if (!a || a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+	return true;
+}
+/**
+* Delete the texture of a composite.
+*
+* The texture is deleted with the context it was created with, not with the
+* current one: the two may differ after a context loss.
+*
+* @param {object} entry - the cache entry
+* @param {WebGLRenderingContext} gl - fallback context
+*/
+function releaseEntry(entry, gl) {
+	const ctx = entry && entry.gl || gl;
+	if (entry && entry.texture && ctx) ctx.deleteTexture(entry.texture);
+	if (entry) entry.texture = null;
+}
+function useEntry(entry) {
+	if (SpriteRenderer.renderCanvas(entry.canvas)) return;
+	SpriteRenderer.image.size[0] = entry.width;
+	SpriteRenderer.image.size[1] = entry.height;
+	SpriteRenderer.size[0] = entry.width;
+	SpriteRenderer.size[1] = entry.height;
+	SpriteRenderer.offset[0] = entry.offsetX;
+	SpriteRenderer.offset[1] = entry.offsetY;
+	SpriteRenderer.angle = 0;
+	SpriteRenderer.color.set([
+		1,
+		1,
+		1,
+		1
+	]);
+	SpriteRenderer.image.texture = entry.texture;
+	SpriteRenderer.image.palette = null;
+	SpriteRenderer.image.frame = null;
+	SpriteRenderer.image.spr = null;
+	SpriteRenderer.sprite = {
+		type: 1,
+		width: entry.width,
+		height: entry.height
+	};
+	SpriteRenderer.render(false);
+}
+var STALE_MS, MAX_TEXTURES, cache, canvasCache, pendingDeletion, active$1, cacheGL, EntityComposer;
+var init_EntityComposer = __esmMin((() => {
+	init_SpriteRenderer();
+	init_SpriteBatch();
+	init_Graphics();
+	STALE_MS = 2e3;
+	MAX_TEXTURES = 512;
+	cache = /* @__PURE__ */ new Map();
+	canvasCache = /* @__PURE__ */ new WeakMap();
+	pendingDeletion = [];
+	active$1 = null;
+	cacheGL = null;
+	EntityComposer = class {
+		static begin(entity) {
+			active$1 = SpriteRenderer.gl && !SpriteRenderer.is2D ? {
+				entity,
+				layers: []
+			} : null;
+		}
+		static get active() {
+			return !!active$1;
+		}
+		static suspend(callback) {
+			const current = active$1;
+			active$1 = null;
+			try {
+				callback();
+			} finally {
+				active$1 = current;
+			}
+		}
+		static capture(entity, frame, palette, offset) {
+			return capture(entity, frame, palette, offset);
+		}
+		static end() {
+			const work = active$1;
+			active$1 = null;
+			if (!work || !work.layers.length) return;
+			let minX = Infinity;
+			let minY = Infinity;
+			let maxX = -Infinity;
+			let maxY = -Infinity;
+			for (const layer of work.layers) {
+				minX = Math.min(minX, layer.x - layer.boundsWidth / 2);
+				minY = Math.min(minY, layer.y - layer.boundsHeight / 2);
+				maxX = Math.max(maxX, layer.x + layer.boundsWidth / 2);
+				maxY = Math.max(maxY, layer.y + layer.boundsHeight / 2);
+			}
+			const width = Math.max(1, Math.ceil(maxX - minX));
+			const height = Math.max(1, Math.ceil(maxY - minY));
+			const key = makeKey(work.layers, width, height);
+			const gl = SpriteRenderer.gl;
+			let entry = cache.get(work.entity);
+			if (cacheGL !== gl) {
+				if (cacheGL && gl) for (const cached of cache.values()) cacheGL.deleteTexture(cached.texture);
+				cache.clear();
+				cacheGL = gl;
+				entry = null;
+			}
+			const now = Date.now();
+			if (gl && entry && sameKey(entry.key, key)) {
+				entry.lastUsed = now;
+				const filter = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : gl.LINEAR;
+				if (entry.filter !== filter) {
+					gl.bindTexture(gl.TEXTURE_2D, entry.texture);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+					entry.filter = filter;
+				}
+				cache.delete(work.entity);
+				cache.set(work.entity, entry);
+				useEntry(entry);
+				return;
+			}
+			if (!entry) {
+				entry = {
+					texture: gl ? gl.createTexture() : null,
+					canvas: document.createElement("canvas"),
+					ctx: null,
+					gl,
+					lastUsed: now
+				};
+				entry.ctx = entry.canvas.getContext("2d");
+				cache.set(work.entity, entry);
+			} else entry.lastUsed = now;
+			if (entry.canvas.width !== width || entry.canvas.height !== height) {
+				entry.canvas.width = width;
+				entry.canvas.height = height;
+			}
+			entry.width = width;
+			entry.height = height;
+			entry.key = key;
+			entry.minX = minX;
+			entry.minY = minY;
+			entry.offsetX = minX + width / 2;
+			entry.offsetY = minY + height / 2;
+			entry.ctx.clearRect(0, 0, width, height);
+			for (const layer of work.layers) {
+				const source = getFrameCanvas(canvasCache, layer.frame, layer.palette, layer.color);
+				entry.ctx.save();
+				entry.ctx.translate(layer.x - minX, layer.y - minY);
+				entry.ctx.rotate(layer.angle / 180 * Math.PI);
+				entry.ctx.scale(Math.sign(layer.width) || 1, Math.sign(layer.height) || 1);
+				entry.ctx.drawImage(source, -Math.abs(layer.width) / 2, -Math.abs(layer.height) / 2, Math.abs(layer.width), Math.abs(layer.height));
+				entry.ctx.restore();
+			}
+			if (gl) {
+				gl.bindTexture(gl.TEXTURE_2D, entry.texture);
+				const filter = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : gl.LINEAR;
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+				entry.filter = filter;
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, entry.canvas);
+			}
+			useEntry(entry);
+		}
+		/**
+		* Release the composites that were not drawn for a while.
+		*
+		* Call it once per frame, AFTER the batch has been drawn: a texture can
+		* only be deleted when no queued draw references it anymore. Deleting one
+		* earlier (while the entity pass is still recording) blanks the sprite it
+		* belongs to, since the draw only happens at flush time.
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static endFrame(gl) {
+			for (const entry of pendingDeletion) releaseEntry(entry, gl);
+			pendingDeletion.length = 0;
+			const now = Date.now();
+			for (const [entity, entry] of cache) if (now - entry.lastUsed > STALE_MS) {
+				cache.delete(entity);
+				releaseEntry(entry, gl);
+			}
+			if (cache.size > MAX_TEXTURES) {
+				const entries = [...cache.entries()].sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+				for (let i = 0; i < entries.length - MAX_TEXTURES; i++) {
+					cache.delete(entries[i][0]);
+					releaseEntry(entries[i][1], gl);
+				}
+			}
+		}
+		/**
+		* Forget the composite of an entity that left the scene.
+		*
+		* The texture is deleted right away when no batch is recording, and after
+		* the next flush when a batch still holds a draw of it.
+		*
+		* @param {object} entity
+		*/
+		static remove(entity) {
+			const entry = cache.get(entity);
+			if (!entry) return;
+			cache.delete(entity);
+			if (SpriteBatch.active) pendingDeletion.push(entry);
+			else releaseEntry(entry);
+		}
+		/**
+		* Forget every composite: the WebGL context was lost, its textures are
+		* gone and cannot be deleted anymore.
+		*/
+		static reset() {
+			cache.clear();
+			pendingDeletion.length = 0;
+			cacheGL = null;
+		}
+	};
+}));
 // src/Renderer/Renderer.js
 var Renderer_exports = /* @__PURE__ */ __exportAll({ default: () => Renderer });
 var mat4$7, _requestAnimationFrame, _cancelAnimationFrame, Renderer;
@@ -286802,6 +287148,7 @@ var init_Renderer = __esmMin((() => {
 	init_MemoryManager();
 	init_PerfProbe();
 	init_SpriteBatch();
+	init_EntityComposer();
 	init_FramePacer();
 	init_preload_helper();
 	({mat4: mat4$7} = gl_matrix_default);
@@ -286936,6 +287283,7 @@ var init_Renderer = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			PostProcess.restartModules(gl);
 			SpriteBatch.contextRestored();
+			EntityComposer.reset();
 			this.resize();
 			this.render();
 		}
@@ -348154,8 +348502,8 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 	for (const field in skillEntry) {
 		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]).flat(Infinity);
 		for (const name of names) {
-			const effects = typeof name === "string" ? EffectTable[name] : null;
-			if (Array.isArray(effects) && effects.some((effect) => keyOf(effect.file) === wanted)) return true;
+			const effects = typeof name === "string" || typeof name === "number" ? EffectTable[name] : null;
+			if (Array.isArray(effects) && effects.some((effect) => effect && effect.type === "STR" && keyOf(effect.file) === wanted)) return true;
 		}
 	}
 	return false;
@@ -348244,9 +348592,18 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			}
 		}
 	}
-	const skidNames = Object.keys(SkillConst_default);
+	const siblingIds = {};
+	const skidNames = Object.keys(SkillConst_default).sort();
+	for (let i = 0; i < skidNames.length; i++) {
+		const prefix = skidNames[i] + "_";
+		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
+			const other = SkillConst_default[skidNames[j]];
+			if (skidNames[j].startsWith(prefix) && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
+		}
+	}
 	function siblingPlaysFile(skillId, file) {
-		return skidNames.some((name) => SkillConst_default[name] === skillId && skidNames.some((other) => other.startsWith(name + "_") && skillPlaysFile(SkillEffect[SkillConst_default[other]], EffectTable, file)));
+		const siblings = siblingIds[skillId];
+		return !!siblings && siblings.some((id) => skillPlaysFile(SkillEffect[id], EffectTable, file));
 	}
 	for (const effectName in Ez2streffect) {
 		const entry = Ez2streffect[effectName];
@@ -351710,6 +352067,10 @@ var init_DBManager = __esmMin((() => {
 				default: if (typeof id === "string") {
 					if (id.includes("_FALCON")) return "data/sprite/ÀÌÆÑÆ®/¸Å";
 					else if (id.includes("_WUG")) return "data/sprite/¸ó½ºÅÍ/¿ö±×";
+					else if (id.startsWith("CART_")) {
+						const cartNum = parseInt(id.slice(5), 10) || 0;
+						return DB.getCartPath(cartNum);
+					}
 				}
 			}
 			return "data/sprite/¸ó½ºÅÍ/" + (MonsterTable_default[id] || MonsterTable_default[1001]).toLowerCase();
@@ -351849,16 +352210,45 @@ var init_DBManager = __esmMin((() => {
 			return "data/texture/" + (PetIllustration_default[id] || PetIllustration_default[1002]);
 		}
 		/**
+		* Is the item ID a shield item?
+		* Only checks inventory item IDs, never view IDs.
+		*
+		* @param {integer} id item id
+		* @return {boolean}
+		*/
+		static isShieldItem(id) {
+			const num = Number(id);
+			if (isNaN(num) || num <= 0) return false;
+			return num >= 2100 && num <= 2199 || num >= 28900 && num <= 28999 || num >= 46e4 && num <= 469999;
+		}
+		/**
 		* is shield checking
 		*
-		* @param {integer} id
+		* The left-hand slot can hold either an item ID or a view ID (ClassNum, <= 500).
+		* Shield views and weapon views share the same numeric range (1-500).
+		*
+		* When reliable offhand information is known (isOffhandWeapon === true/false),
+		* that flag distinguishes weapons from shields.
+		* When explicitly marked (isOffhandWeapon is true/false), that classification is honored.
+		* When unknown (isOffhandWeapon === undefined), ambiguous view IDs (<= 500) are preserved
+		* as shields unless reliable weapon evidence is present (e.g. item ID > 500), rather than
+		* assuming every assassin's shield view is a weapon.
+		*
+		* @param {integer} id item id or view id
+		* @param {integer} [job] job id of the owner
+		* @param {boolean} [isOffhandWeapon] explicitly marks whether the equipment is an offhand weapon
 		* @return {boolean} is shield?
 		*
 		* @author MrUnzO
 		*/
-		static isShield(id) {
-			if (id >= 2100 && id <= 2199 || id >= 28900 && id <= 28999 || id >= 46e4 && id <= 460099) return true;
-			return false;
+		static isShield(id, job, isOffhandWeapon) {
+			const num = Number(id);
+			if (isNaN(num) || num <= 0) return false;
+			if (isOffhandWeapon === true) return false;
+			if (isOffhandWeapon === false) return true;
+			if (DB.isShieldItem(num)) return true;
+			if (num > 500) return false;
+			return true;
 		}
 		static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
 			if (isDualWeapon) switch (job) {
@@ -352385,11 +352775,17 @@ var init_DBManager = __esmMin((() => {
 		* @param {boolean} sex
 		*/
 		static getShieldPath(id, job, sex) {
-			if (id === 0) return null;
-			if (!DB.isShield(id)) return DB.getWeaponPath(id, job, sex);
+			if (!id || id <= 0) return null;
+			if (!DB.isShield(id, job, false)) return DB.getWeaponPath(id, job, sex);
 			const baseClass = ShieldJobTable[job] || ShieldJobTable[0];
-			if (id in ItemTable_default && "ClassNum" in ItemTable_default[id]) id = ItemTable_default[id].ClassNum;
-			return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + (ShieldTable_default[id] || ShieldTable_default[1]);
+			let viewId = id;
+			if (id in ItemTable_default && "ClassNum" in ItemTable_default[id]) viewId = ItemTable_default[id].ClassNum;
+			if (!viewId || viewId <= 0) return null;
+			let suffix = "";
+			if (viewId in ShieldTable_default) suffix = ShieldTable_default[viewId];
+			else if (viewId >= 5) suffix = viewId + "_¹æÆÐ";
+			else return null;
+			return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + suffix;
 		}
 		/**
 		* @return {string} Path to weapon
@@ -355164,6 +355560,7 @@ function Init$10() {
 			this.ACTION.ACTION = 7;
 			break;
 		case Entity.TYPE_FALCON:
+		case Entity.TYPE_CART:
 			this.ACTION.IDLE = 0;
 			this.ACTION.WALK = 1;
 	}
@@ -357405,22 +357802,6 @@ function View() {
 	this.accessory3 = new ViewFiles();
 	this.robe = new ViewFiles();
 	this.shadow = new ViewFiles("data/sprite/shadow.spr", "data/sprite/shadow.act");
-	this.cart = [];
-	this.cart[0] = new ViewFiles(DB.getCartPath(0) + ".spr", DB.getCartPath(0) + ".act");
-	this.cart[1] = new ViewFiles(DB.getCartPath(1) + ".spr", DB.getCartPath(1) + ".act");
-	this.cart[2] = new ViewFiles(DB.getCartPath(2) + ".spr", DB.getCartPath(2) + ".act");
-	this.cart[3] = new ViewFiles(DB.getCartPath(3) + ".spr", DB.getCartPath(3) + ".act");
-	this.cart[4] = new ViewFiles(DB.getCartPath(4) + ".spr", DB.getCartPath(4) + ".act");
-	this.cart[5] = new ViewFiles(DB.getCartPath(5) + ".spr", DB.getCartPath(5) + ".act");
-	this.cart[6] = new ViewFiles(DB.getCartPath(6) + ".spr", DB.getCartPath(6) + ".act");
-	this.cart[7] = new ViewFiles(DB.getCartPath(7) + ".spr", DB.getCartPath(7) + ".act");
-	this.cart[8] = new ViewFiles(DB.getCartPath(8) + ".spr", DB.getCartPath(8) + ".act");
-	this.cart[9] = new ViewFiles(DB.getCartPath(9) + ".spr", DB.getCartPath(9) + ".act");
-	this.cart[10] = new ViewFiles(DB.getCartPath(10) + ".spr", DB.getCartPath(10) + ".act");
-	this.cart[11] = new ViewFiles(DB.getCartPath(11) + ".spr", DB.getCartPath(11) + ".act");
-	this.cart[12] = new ViewFiles(DB.getCartPath(12) + ".spr", DB.getCartPath(12) + ".act");
-	this.cart[13] = new ViewFiles(DB.getCartPath(13) + ".spr", DB.getCartPath(13) + ".act");
-	this.cart_shadow = new ViewFiles("data/sprite/shadow.spr", "data/sprite/shadow.act");
 }
 /**
 * If changing sex, all files have to be reload
@@ -357822,8 +358203,14 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
-		if (val <= 0) {
+		let keepLook = false;
+		if (!val || val <= 0) {
 			this["_" + type] = 0;
+			if (this.files[type]) {
+				this.files[type].spr = null;
+				this.files[type].act = null;
+				this.files[type].pal = null;
+			}
 			return;
 		}
 		switch (type) {
@@ -357844,7 +358231,7 @@ function UpdateGeneric(type, func, fallback) {
 		function LoadView(filepath, final) {
 			Client.loadFile(filepath + ".act");
 			Client.loadFile(filepath + ".spr", function() {
-				_this["_" + type] = _val;
+				_this["_" + type] = keepLook ? val : _val;
 				if (!shouldSuppressHead.call(_this)) {
 					_this.files[type].spr = filepath + ".spr";
 					_this.files[type].act = filepath + ".act";
@@ -357868,6 +358255,7 @@ function UpdateGeneric(type, func, fallback) {
 					if (type === "weapon" && filepath === path) {
 						_val = DB.getWeaponType(val, true);
 						filepath = DB[func](_val, _this.job, _this._sex);
+						keepLook = true;
 					}
 					if (filepath) LoadView(filepath, true);
 				} else if (type === "robe" && !final) {
@@ -358090,8 +358478,8 @@ function WalkStructure() {
 	this.tick = 0;
 	this.prevTick = 0;
 	this.dist = 0;
-	this.path = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
-	this.segmentDurations = new Float32Array(PathFinding_default.MAX_WALKPATH);
+	this.path = new Int16Array((PathFinding_default.MAX_WALKPATH + 1) * 2);
+	this.segmentDurations = new Float32Array(PathFinding_default.MAX_WALKPATH + 1);
 	this.pos = /* @__PURE__ */ new Float32Array(3);
 	this.lastPos = /* @__PURE__ */ new Float32Array(3);
 	this.onEnd = null;
@@ -358137,87 +358525,71 @@ function walkToNonWalkableGround(from_x, from_y, to_x, to_y, range, isOverShoot 
 		to_x = OverShootPosition[0];
 		to_y = OverShootPosition[1];
 	}
-	if (from_x === to_x && from_y === to_y) return;
-	const path = this.walk.path;
-	let total = 0;
-	const result = PathFinding_default.searchLongIgnoreCellType(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
-	if (result.success) total = result.pathLength + 1;
-	this.walk.index = 2;
-	this.walk.total = total * 2;
-	if (total > 0) {
-		this.walk.pos.set(this.position);
-		const numSegments = total - 1;
-		for (let i = 0; i < numSegments; i++) {
-			const pIdx = (i + 1) * 2;
-			const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
-			const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
-			const segDist = Math.hypot(segDx, segDy);
-			this.walk.segmentDurations[i] = segDist * this.walk.speed;
+	if (from_x === to_x && from_y === to_y && !isAttacking) return;
+	if (from_x !== to_x || from_y !== to_y) {
+		const path = this.walk.path;
+		let total = 0;
+		const result = PathFinding_default.searchLongIgnoreCellType(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
+		if (result.success) total = result.pathLength + 1;
+		this.walk.index = 2;
+		this.walk.total = total * 2;
+		if (total > 0) {
+			this.walk.pos.set(this.position);
+			const numSegments = total - 1;
+			for (let i = 0; i < numSegments; i++) {
+				const pIdx = (i + 1) * 2;
+				const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
+				const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
+				const segDist = Math.hypot(segDx, segDy);
+				this.walk.segmentDurations[i] = segDist * this.walk.speed;
+			}
+			const nowTick = Date.now();
+			const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
+			const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC ? pathDuration : Math.min(pathDuration, this.walk.speed));
+			this.walk.tick = this.walk.prevTick = startTick;
+			if (!hadRoute) this.walk.dist = 0;
+			this.walk.lastPos.set(this.position);
+			if (this.walk.total >= 2) {
+				const firstX0 = this.walk.path[2];
+				const firstY0 = this.walk.path[3];
+				const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+				this.direction = quantizeDir(initDir0);
+			}
 		}
-		const nowTick = Date.now();
-		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
-		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC ? pathDuration : Math.min(pathDuration, this.walk.speed));
-		this.walk.tick = this.walk.prevTick = startTick;
-		if (!hadRoute) this.walk.dist = 0;
-		this.walk.lastPos.set(this.position);
-		if (this.walk.total >= 2) {
-			const firstX0 = this.walk.path[2];
-			const firstY0 = this.walk.path[3];
-			const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
-			this.direction = quantizeDir(initDir0);
-		}
-		let action = this.ACTION.WALK;
-		if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) action = this.ACTION.IDLE;
-		if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: Date.now() + 200,
-					action: this.ACTION.ATTACK,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: {
-						delay: Date.now() + 432,
-						action: this.ACTION.IDLE,
-						frame: 0,
-						repeat: true,
-						play: true,
-						next: false
-					}
-				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
-			}, 632);
-		} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: Date.now() + 432,
-					action: this.ACTION.IDLE,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: false
-				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
-			}, 432);
-		} else if (this.action !== action) this.setAction({
-			action,
+	}
+	if (from_x === to_x && from_y === to_y && this.objecttype === this.constructor.TYPE_FALCON && isAttacking) this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX + (Math.random() > .5 ? 2 : -2), this._followTargetY + (Math.random() > .5 ? 2 : -2), 0, false, false);
+	let action = this.ACTION.WALK;
+	if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) action = this.ACTION.IDLE;
+	if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+		if (from_x !== to_x || from_y !== to_y) this.setAction({
+			action: this.ACTION.WALK,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: false
+		});
+		else this.setAction({
+			action: this.ACTION.ATTACK,
+			frame: 0,
+			repeat: true,
+			play: true,
+			next: false
+		});
+		scheduleCompanionReturn(this, from_x !== to_x || from_y !== to_y ? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432 : 432);
+	} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
+		if (from_x !== to_x || from_y !== to_y) this.setAction({
+			action: this.ACTION.WALK,
 			frame: 0,
 			repeat: true,
 			play: true
 		});
-	}
+		scheduleCompanionReturn(this, from_x !== to_x || from_y !== to_y ? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432 : 432);
+	} else if (this.action !== action) this.setAction({
+		action,
+		frame: 0,
+		repeat: true,
+		play: true
+	});
 }
 /**
 * Want to move to a cell
@@ -358740,9 +359112,70 @@ function walkProcess() {
 		return;
 	}
 }
+function scheduleCompanionReturn(entity, delay) {
+	if (entity._returnTimer) clearTimeout(entity._returnTimer);
+	entity._returnTimer = setTimeout(() => {
+		entity._returnTimer = null;
+		entity.setAction({
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: true,
+			play: true,
+			next: false
+		});
+		entity.walkToNonWalkableGround(entity.position[0], entity.position[1], entity._followTargetX, entity._followTargetY, 1, false, false);
+		entity.isAttacking = false;
+	}, delay);
+}
 function entitiesWalkProcess() {
 	const ownerCellX = this.position[0];
 	const ownerCellY = this.position[1];
+	if (this.cart) {
+		const cart = this.cart;
+		const retDist = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK) ? 1.6 : 1;
+		const dx = cart.position[0] - ownerCellX;
+		const dy = cart.position[1] - ownerCellY;
+		const dist = Math.hypot(dx, dy);
+		if (dist > 5) {
+			const angle = (6 - this.direction) * (Math.PI / 4);
+			const behindDx = -Math.cos(angle);
+			const behindDy = -Math.sin(angle);
+			cart.position[0] = ownerCellX + behindDx * retDist;
+			cart.position[1] = ownerCellY + behindDy * retDist;
+			cart.position[2] = Altitude.getCellHeight(cart.position[0], cart.position[1]);
+			cart.direction = this.direction;
+			cart.setAction({
+				action: cart.ACTION.IDLE,
+				frame: 0,
+				play: false,
+				repeat: true
+			});
+		} else if (dist > retDist) {
+			const factor = retDist / dist;
+			const newX = ownerCellX + dx * factor;
+			const newY = ownerCellY + dy * factor;
+			const deltaMove = Math.hypot(newX - cart.position[0], newY - cart.position[1]);
+			cart.position[0] = newX;
+			cart.position[1] = newY;
+			cart.position[2] = Altitude.getCellHeight(newX, newY);
+			if (cart.walk) cart.walk.dist += deltaMove;
+			cart.direction = quantizeDir(offsetToFloatDir(ownerCellX - newX, ownerCellY - newY));
+		}
+		if (this.action === this.ACTION.WALK && dist > retDist) {
+			if (cart.action !== cart.ACTION.WALK) cart.setAction({
+				action: cart.ACTION.WALK,
+				play: true,
+				repeat: true
+			});
+		} else if (cart.action !== cart.ACTION.IDLE) cart.setAction({
+			action: cart.ACTION.IDLE,
+			frame: 0,
+			play: false,
+			repeat: true
+		});
+		cart.effectColor.set(this.effectColor);
+		cart.hideEntity = this.hideEntity;
+	}
 	if (this.falcon && !this.falcon.isAttacking && (!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1e3 < Date.now())) {
 		if (Math.floor(this.distance(this, this.falcon)) < 2) return;
 		if (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY) {
@@ -358760,7 +359193,8 @@ function entitiesWalkProcess() {
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
-			this.wug.walkToNonWalkableGround(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, false, false, Date.now());
+			this.wug.walkTo(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, Date.now());
+			if (!this.wug.walk.total) this.wug.walkToNonWalkableGround(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, false, false, Date.now());
 		}
 	}
 }
@@ -358845,12 +359279,13 @@ function Init$4() {
 	this.resetRoute = resetRoute;
 	this.distance = distance;
 }
-var DIRECTION$1, DIAGONAL_FACTOR, LATENCY_SLACK_MS, MIN_PACE, MAX_PACE, SERVER_MAX_WALK_PATH, SERVER_MAX_BENT_PATH, SETTLE_MAX_CELLS, SETTLE_MAX_MS, _serverPath;
+var DIRECTION$1, DIAGONAL_FACTOR, LATENCY_SLACK_MS, MIN_PACE, MAX_PACE, SERVER_MAX_WALK_PATH, SERVER_MAX_BENT_PATH, SETTLE_MAX_CELLS, SETTLE_MAX_MS, RIDING_MASK, _serverPath;
 var init_EntityWalk = __esmMin((() => {
 	init_PathFinding();
 	init_Altitude();
 	init_SessionStorage();
 	init_Configs();
+	init_StatusState();
 	DIRECTION$1 = [
 		[
 			1,
@@ -358876,6 +359311,7 @@ var init_EntityWalk = __esmMin((() => {
 	SERVER_MAX_BENT_PATH = 14;
 	SETTLE_MAX_CELLS = 2;
 	SETTLE_MAX_MS = 200;
+	RIDING_MASK = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
 	_serverPath = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
 }));
 // src/Renderer/Entity/ScaledLayer.js
@@ -359156,6 +359592,28 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 		color[3] = a;
 	}
 }
+function deferReadyGlow(entity, layers, spr, pal, files, _position, glowColor, alpha) {
+	let item = _deferredGlows[_deferredGlowCount];
+	if (!item) item = _deferredGlows[_deferredGlowCount] = { position: /* @__PURE__ */ new Int32Array(2) };
+	_deferredGlowCount++;
+	item.entity = entity;
+	item.layers = layers;
+	item.spr = spr;
+	item.pal = pal;
+	item.files = files;
+	item.position[0] = _position[0];
+	item.position[1] = _position[1];
+	item.color = glowColor;
+	item.alpha = alpha;
+}
+function flushReadyGlows() {
+	for (let i = 0; i < _deferredGlowCount; i++) {
+		const item = _deferredGlows[i];
+		renderReadyGlow(item.entity, item.layers, item.spr, item.pal, item.files, item.position, item.color, item.alpha);
+		item.entity = item.layers = item.spr = item.pal = item.files = null;
+	}
+	_deferredGlowCount = 0;
+}
 /**
 * Body glow (BodyMotion.js: Taekwon ready glow, Gunslinger blue and red
 * glows): the layers drawn twice more, added, in one colour at one alpha.
@@ -359290,7 +359748,7 @@ function renderReflectRipples(entity, layers, spr, pal, files, _position) {
 function renderSecondBody(entity, layers, spr, pal, files, type, _position, enableHalo, enableTrail, blurType) {
 	const trailLength = 5;
 	if (!enableHalo && !enableTrail) return;
-	if (type === "shadow" || type === "cartshadow") return;
+	if (type === "shadow") return;
 	if (enableHalo) {
 		const originalR = entity.effectColor[0];
 		const originalG = entity.effectColor[1];
@@ -359409,7 +359867,7 @@ function getAnimationDelay(type, entity, act) {
 * Calculate animations
 */
 function calcAnimation(entity, act, type, tick) {
-	if (type === "shadow" || type === "cartshadow") return 0;
+	if (type === "shadow") return 0;
 	const ACTION = entity.ACTION;
 	const action = entity.action;
 	const animation = entity.animation;
@@ -359422,7 +359880,6 @@ function calcAnimation(entity, act, type, tick) {
 	let anim = 0;
 	if (animation.length) animCount = animation.length;
 	if (animation.speed) delay = animation.speed;
-	if (type === "cart" && isIdle) return 0;
 	if ((type === "body" || type === "robe") && (entity.objecttype === entity.constructor.TYPE_PC || entity.objecttype === entity.constructor.TYPE_MERC) && isIdle) {
 		if (entity.headDir <= animLastIndex) return entity.headDir;
 		return animLastIndex;
@@ -359555,6 +360012,7 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
+	if (EntityComposer.capture(this, frame, pal.palette, SpriteRenderer.offset)) return;
 	SpriteRenderer.render(isBlendModeOne);
 }
 /**
@@ -359568,7 +360026,7 @@ function Init$3() {
 	this.waterDepthFrame = void 0;
 	this._waterDepthFrameBuffer = null;
 }
-var WALK_DIST_TO_MOTION, _snapshotPool, _scratchPosition, _scratchColor, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, _attachmentPosition, renderElement;
+var WALK_DIST_TO_MOTION, _snapshotPool, _scratchPosition, _scratchColor, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, _attachmentPosition, _deferredGlows, _deferredGlowCount, renderElement;
 var init_EntityRender = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
@@ -359577,14 +360035,13 @@ var init_EntityRender = __esmMin((() => {
 	init_SpriteRenderer();
 	init_Ground();
 	init_Altitude();
-	init_SessionStorage();
-	init_DBManager();
 	init_GarmentLayer();
 	init_Graphics();
 	init_GR2ModelRenderer();
 	init_BodyMotionSim();
 	init_ScaledLayer();
 	init_FlyingLift();
+	init_EntityComposer();
 	WALK_DIST_TO_MOTION = 170.2;
 	_snapshotPool = [];
 	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
@@ -359746,88 +360203,28 @@ var init_EntityRender = __esmMin((() => {
 				case Entity.TYPE_MERC:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.runWithDepth(true, true, false, function() {
-						let cartidx;
-						const RIDING_STATUS = self.effectState & (StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER) || self.allRidingState;
-						const robeOnTop = self.robe > 0 && garmentOnTop(self, direction);
-						const robeFromTable = self.robe > 0 && GarmentLayer_default.isLoaded(self.sex);
-						function robeCorrection(lookingFront) {
-							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? 50 : 25) > self.bodyHeight + 64) {
-									if (!robeFromTable && (self.action === self.ACTION.ATTACK || self.action === self.ACTION.ATTACK1 || self.action === self.ACTION.ATTACK2 || self.action === self.ACTION.ATTACK3) && !lookingFront) return -450;
-									if (self.action === self.ACTION.SIT) return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
-									return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
-								}
-							}
-							if (self.action === self.ACTION.SIT) return lookingFront ? -100 : 550;
-							return lookingFront ? 1 : 400;
-						}
-						if (self.shield && behind) SpriteRenderer.runWithDepth(true, false, false, function() {
-							SpriteRenderer.zIndex = -1;
-							renderElement(self, self.files.shield, "shield", _position, true);
-						});
-						if (!isLookingBack(direction)) {
-							if (SessionStorage_default.Playing == true && self.hasCart == true) {
-								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-								SpriteRenderer.runWithDepth(true, false, false, function() {
-									SpriteRenderer.zIndex = -1;
-									renderElement(self, self.files.cart_shadow, "cartshadow", _position, false);
-									SpriteRenderer.zIndex = 1;
-									renderElement(self, self.files.cart[cartidx], "cart", _position, false);
-								});
-							}
-						}
-						if (self.robe > 0 && !robeOnTop) {
-							SpriteRenderer.zIndex = robeCorrection(true);
-							renderElement(self, self.files.robe, "robe", _position, true);
-						}
 						SpriteRenderer.zIndex = 150;
-						if (RIDING_STATUS && !isLookingBack(direction) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
+						EntityComposer.begin(self);
+						const robeOnTop = self.robe > 0 && garmentOnTop(self, direction);
+						if (self.shield && behind) renderElement(self, self.files.shield, "shield", _position, true);
+						if (self.robe > 0 && !robeOnTop) renderElement(self, self.files.robe, "robe", _position, true);
 						renderElement(self, self.files.body, "body", _position, true);
-						let bodyZOffset = 250;
-						if (RIDING_STATUS) {
-							bodyZOffset *= 2;
-							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) bodyZOffset += 250;
-						}
-						SpriteRenderer.zIndex = bodyZOffset + 50;
 						renderElement(self, self.files.head, "head", _position, false);
 						const showHats = !self.suHide;
-						if (showHats && self.accessory3 > 0 && self.accessory3 !== self.accessory) {
-							SpriteRenderer.zIndex = bodyZOffset + 100;
-							renderElement(self, self.files.accessory3, "head", _position, false);
-						}
-						if (showHats && self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) {
-							SpriteRenderer.zIndex = bodyZOffset + 200;
-							renderElement(self, self.files.accessory2, "head", _position, false);
-						}
-						if (showHats && self.accessory > 0) {
-							SpriteRenderer.zIndex = bodyZOffset + 300;
-							renderElement(self, self.files.accessory, "head", _position, false);
-						}
-						if (self.robe > 0 && robeOnTop) {
-							SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
-							renderElement(self, self.files.robe, "robe", _position, true);
-						}
-						if (isLookingBack(direction)) {
-							if (SessionStorage_default.Playing == true && self.hasCart == true) {
-								SpriteRenderer.zIndex = bodyZOffset + 500;
-								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-								SpriteRenderer.runWithDepth(true, false, false, function() {
-									renderElement(self, self.files.cart_shadow, "cartshadow", _position, false);
-									renderElement(self, self.files.cart[cartidx], "cart", _position, false);
-								});
-							}
-						}
+						if (showHats && self.accessory3 > 0 && self.accessory3 !== self.accessory) renderElement(self, self.files.accessory3, "head", _position, false);
+						if (showHats && self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) renderElement(self, self.files.accessory2, "head", _position, false);
+						if (showHats && self.accessory > 0) renderElement(self, self.files.accessory, "head", _position, false);
+						if (self.robe > 0 && robeOnTop) renderElement(self, self.files.robe, "robe", _position, true);
 						if (self.weapon > 0) {
-							SpriteRenderer.zIndex = bodyZOffset + 250;
 							renderElement(self, self.files.weapon, "weapon", _position, true);
 							renderElement(self, self.files.weapon_trail, "weapon_trail", _position, true);
 						}
-						if (self.shield > 0 && !behind) {
-							SpriteRenderer.zIndex = bodyZOffset + 300;
-							renderElement(self, self.files.shield, "shield", _position, true);
-						}
+						if (self.shield > 0 && !behind) renderElement(self, self.files.shield, "shield", _position, true);
+						EntityComposer.end();
+						flushReadyGlows();
 					});
 					break;
+				case Entity.TYPE_WUG:
 				case Entity.TYPE_HOM:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.zIndex = 150;
@@ -359854,6 +360251,8 @@ var init_EntityRender = __esmMin((() => {
 		};
 	})();
 	_attachmentPosition = /* @__PURE__ */ new Int32Array(2);
+	_deferredGlows = [];
+	_deferredGlowCount = 0;
 	renderElement = (function renderElementClosure() {
 		const _position = /* @__PURE__ */ new Int32Array(2);
 		return function _renderElement(entity, files, type, position, is_main) {
@@ -359874,39 +360273,6 @@ var init_EntityRender = __esmMin((() => {
 				_position[0] = position[0] - animation.pos[0].x;
 				_position[1] = position[1] - animation.pos[0].y;
 			}
-			if (type === "cart" || type === "cartshadow") switch ((Camera.direction + entity.direction + 8) % 8) {
-				case 0:
-					_position[0] = 0;
-					_position[1] = -30;
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4:
-					_position[0] = 0;
-					_position[1] = 20;
-					break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
-			}
 			if (type !== "shadow" && entity.getOpt3(StatusState_default.Status.BERSERK) || entity.getOpt3(StatusState_default.Status.MARIONETTE) || type !== "shadow" && entity._additiveBody > 0) isBlendModeOne = true;
 			const isBUNSIN = entity.getOpt3(StatusState_default.Status.NJ_BUNSINJYUTSU);
 			const isHALLUCINATIONWALK = entity.getOpt3(StatusState_default.Status.HALLUCINATIONWALK);
@@ -359915,15 +360281,16 @@ var init_EntityRender = __esmMin((() => {
 			const isOVERTHRUST = entity.getOpt3(StatusState_default.Status.OVERTHRUST);
 			const isEXPLOSIONSPIRITS = entity.getOpt3(StatusState_default.Status.EXPLOSIONSPIRITS);
 			const isBERSERK = entity.getOpt3(StatusState_default.Status.BERSERK);
-			renderSecondBody(entity, layers, spr, pal, files, type, _position, entity.getOpt3(StatusState_default.Status.ASSUMPTIO) || !!entity._enableHalo, isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._fastMoveTrail || !!entity._enableTrail, isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1);
-			if (type !== "shadow" && type !== "cartshadow" && (entity._castGlow > 0 || entity._splitImageAge >= 0)) renderCasterMarks(entity, layers, spr, pal, files, _position);
+			const outsideComposite = (draw) => EntityComposer.active ? EntityComposer.suspend(draw) : draw();
+			outsideComposite(() => renderSecondBody(entity, layers, spr, pal, files, type, _position, entity.getOpt3(StatusState_default.Status.ASSUMPTIO) || !!entity._enableHalo, isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._fastMoveTrail || !!entity._enableTrail, isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1));
+			if (type !== "shadow" && type !== "cartshadow" && (entity._castGlow > 0 || entity._splitImageAge >= 0)) outsideComposite(() => renderCasterMarks(entity, layers, spr, pal, files, _position));
 			const marks = type !== "shadow" && type !== "cartshadow" && entity._bodyMotions && entity._bodyMotions.size ? marksOf(entity) : null;
 			const bodyAlpha = entity.effectColor[3];
 			if (marks && marks.length) {
 				const link = linkAlpha$1(marks);
-				if (link > 0) renderLinkGlow(entity, layers, spr, pal, files, _position, link);
+				if (link > 0) outsideComposite(() => renderLinkGlow(entity, layers, spr, pal, files, _position, link));
 				if (hasReflect(marks)) {
-					if (!isBlendModeOne) renderReflectRipples(entity, layers, spr, pal, files, _position);
+					if (!isBlendModeOne) outsideComposite(() => renderReflectRipples(entity, layers, spr, pal, files, _position));
 					entity.effectColor[3] = bodyAlpha * (150 / 255);
 				}
 			}
@@ -359931,7 +360298,11 @@ var init_EntityRender = __esmMin((() => {
 			entity.effectColor[3] = bodyAlpha;
 			if (marks && marks.length) {
 				const glows = glowLayers(marks);
-				for (let g = 0; g < glows.length; g++) renderReadyGlow(entity, layers, spr, pal, files, _position, glows[g].color, glows[g].alpha);
+				for (let g = 0; g < glows.length; g++) {
+					const glow = glows[g];
+					if (EntityComposer.active) deferReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha);
+					else renderReadyGlow(entity, layers, spr, pal, files, _position, glow.color, glow.alpha);
+				}
 			}
 			if (is_main && type === "body" && entity.waterDepthFrame === null) {
 				const frame = entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: /* @__PURE__ */ new Int32Array(2) });
@@ -361108,6 +361479,8 @@ var init_Entity$1 = __esmMin((() => {
 	init_SessionStorage();
 	init_Client();
 	init_gl_matrix();
+	init_DBManager();
+	init_StatusState();
 	init_EntityControl();
 	init_EntityAction();
 	init_EntityCast();
@@ -361132,6 +361505,7 @@ var init_Entity$1 = __esmMin((() => {
 		/**
 		* Constantes
 		*/
+		static TYPE_CART = -8;
 		static TYPE_WUG = -7;
 		static TYPE_FALCON = -6;
 		static TYPE_EFFECT = -5;
@@ -361184,7 +361558,8 @@ var init_Entity$1 = __esmMin((() => {
 				[Entity.TYPE_TRAP]: 0,
 				[Entity.TYPE_EFFECT]: -1,
 				[Entity.TYPE_FALCON]: -1,
-				[Entity.TYPE_WUG]: -1
+				[Entity.TYPE_WUG]: -1,
+				[Entity.TYPE_CART]: -1
 			},
 			Support: {
 				[Entity.TYPE_PC]: 3,
@@ -361205,7 +361580,8 @@ var init_Entity$1 = __esmMin((() => {
 				[Entity.TYPE_TRAP]: 0,
 				[Entity.TYPE_EFFECT]: -1,
 				[Entity.TYPE_FALCON]: -1,
-				[Entity.TYPE_WUG]: -1
+				[Entity.TYPE_WUG]: -1,
+				[Entity.TYPE_CART]: -1
 			}
 		};
 		constructor(data) {
@@ -361367,6 +361743,12 @@ var init_Entity$1 = __esmMin((() => {
 				case "level":
 					this.clevel = unit.level;
 					break;
+				case "_followTargetX":
+					this._followTargetX = unit._followTargetX;
+					break;
+				case "_followTargetY":
+					this._followTargetY = unit._followTargetY;
+					break;
 				default: if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) this[keys[i]] = unit[keys[i]];
 			}
 			if (this.life.hp > -1 && this.life.hp_max > -1) {
@@ -361390,8 +361772,15 @@ var init_Entity$1 = __esmMin((() => {
 			this.dropEffect.free();
 			this.remove_tick = 0;
 			this.remove_delay = 0;
+			if (this.cart) {
+				this.cart.owner = null;
+				EntityManager.remove(this.cart.GID);
+				this.cart = null;
+			}
+			this.owner = null;
 			this.falcon = null;
 			this.wug = null;
+			if (this._returnTimer) clearTimeout(this._returnTimer);
 			this.GID = -1;
 		}
 		/**
@@ -361401,17 +361790,26 @@ var init_Entity$1 = __esmMin((() => {
 		* @return {boolean} removed immediatly ?
 		*/
 		remove(type) {
+			const is_pc = this.objecttype === Entity.TYPE_PC;
+			const is_falcon = this.objecttype === Entity.TYPE_FALCON;
+			const is_wug = this.objecttype === Entity.TYPE_WUG;
+			const is_cart = this.objecttype === Entity.TYPE_CART;
+			if (this.cart) {
+				if (type === Entity.VT.DEAD) {
+					const cart = this.cart;
+					cart.owner = null;
+					EntityManager.remove(cart.GID);
+				} else this.cart.remove(type);
+				this.cart = null;
+			}
 			switch (type) {
 				case Entity.VT.OUTOFSIGHT:
 					this.clean();
 					this.remove_tick = +Date.now();
 					this.remove_delay = 1e3;
 					break;
-				case Entity.VT.DEAD: {
-					const is_pc = this.objecttype === Entity.TYPE_PC;
-					const is_falcon = this.objecttype === Entity.TYPE_FALCON;
-					const is_wug = this.objecttype === Entity.TYPE_WUG;
-					if (!is_falcon) {
+				case Entity.VT.DEAD:
+					if (!is_falcon && !is_cart) {
 						this.setAction({
 							action: this.ACTION.DIE,
 							repeat: is_pc,
@@ -361426,11 +361824,71 @@ var init_Entity$1 = __esmMin((() => {
 						}
 					}
 					break;
-				}
 				default:
 					this.clean();
 					this.remove_tick = Date.now();
 					this.remove_delay = 0;
+			}
+		}
+		/**
+		* Attach or remove pushcart companion entity
+		*
+		* @param {boolean} enabled
+		* @param {number} [cartNum]
+		*/
+		setCart(enabled, cartNum) {
+			this.hasCart = !!enabled;
+			if (typeof cartNum === "number") this.CartNum = cartNum;
+			if (this.hasCart) {
+				const cartJob = "CART_" + (DB.isSuperNovice(this._job) ? 0 : this.CartNum || 1);
+				if (!this.cart) {
+					const cart = new Entity();
+					cart.set({
+						objecttype: Entity.TYPE_CART,
+						GID: this.GID + "_CART",
+						job: cartJob,
+						speed: this.walk ? this.walk.speed : 150,
+						name: "",
+						hp: -1,
+						maxhp: -1
+					});
+					const RIDING_MASK = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
+					const retDist = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK) ? 1.6 : 1;
+					const angle = (6 - this.direction) * (Math.PI / 4);
+					const behindDx = -Math.cos(angle);
+					const behindDy = -Math.sin(angle);
+					cart.position[0] = this.position[0] + behindDx * retDist;
+					cart.position[1] = this.position[1] + behindDy * retDist;
+					cart.position[2] = Altitude.getCellHeight(cart.position[0], cart.position[1]);
+					cart.direction = this.direction;
+					cart.depth = this.depth;
+					cart.setAction({
+						action: cart.ACTION.IDLE,
+						frame: 0,
+						play: false,
+						repeat: true
+					});
+					this.cart = cart;
+					cart.owner = this;
+					EntityManager.add(cart);
+				} else {
+					if (this.cart.job !== cartJob) this.cart.job = cartJob;
+					const RIDING_MASK = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
+					const retDist = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK) ? 1.6 : 1;
+					if (Math.hypot(this.cart.position[0] - this.position[0], this.cart.position[1] - this.position[1]) > 5) {
+						const angle = (6 - this.direction) * (Math.PI / 4);
+						const behindDx = -Math.cos(angle);
+						const behindDy = -Math.sin(angle);
+						this.cart.position[0] = this.position[0] + behindDx * retDist;
+						this.cart.position[1] = this.position[1] + behindDy * retDist;
+						this.cart.position[2] = Altitude.getCellHeight(this.cart.position[0], this.cart.position[1]);
+						this.cart.direction = this.direction;
+					}
+				}
+			} else if (this.cart) {
+				this.cart.owner = null;
+				EntityManager.remove(this.cart.GID);
+				this.cart = null;
 			}
 		}
 		/**
@@ -361562,6 +362020,8 @@ var init_Entity$1 = __esmMin((() => {
 	Entity.prototype.isOverWeight = false;
 	Entity.prototype.falcon = null;
 	Entity.prototype.wug = null;
+	Entity.prototype.cart = null;
+	Entity.prototype.owner = null;
 	Entity.prototype.hideShadow = false;
 	Entity.prototype.call_flag = 0;
 	Object.defineProperty(Entity.prototype, "level", {
@@ -361698,10 +362158,16 @@ function addEntity(entity) {
 * Clean up entities from list
 */
 function free() {
-	_list.forEach((entity) => {
+	const snapshot = _list.slice();
+	const live = new Set(snapshot);
+	for (let i = 0; i < snapshot.length; ++i) {
+		const entity = snapshot[i];
+		if (!live.has(entity) || !_list.includes(entity)) continue;
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
-	});
+		live.delete(entity);
+	}
 	_list.length = 0;
 	_gidMap.clear();
 	_over = null;
@@ -361725,7 +362191,20 @@ function removeGID(gid) {
 function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 	if (entity) {
+		if (entity.cart) {
+			removeEntity(entity.cart.GID);
+			entity.cart = null;
+		}
+		if (entity.falcon) {
+			removeEntity(entity.falcon.GID);
+			entity.falcon = null;
+		}
+		if (entity.wug) {
+			removeEntity(entity.wug.GID);
+			entity.wug = null;
+		}
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
 		_gidMap.delete(gid);
 		const index = _list.indexOf(entity);
@@ -361770,8 +362249,10 @@ function setFocusEntity(entity) {
 * @param {Entity} b
 */
 function sort(a, b) {
-	const aDepth = a.depth + a.GID % 100 / 1e3;
-	return b.depth + b.GID % 100 / 1e3 - aDepth;
+	const aGID = typeof a.GID === "number" ? a.GID : parseInt(a.GID, 10) || 0;
+	const bGID = typeof b.GID === "number" ? b.GID : parseInt(b.GID, 10) || 0;
+	const aDepth = a.depth + aGID % 100 / 1e3;
+	return b.depth + bGID % 100 / 1e3 - aDepth;
 }
 /**
 * Set reverse priority for entity sorting (for supportive skills)
@@ -361863,7 +362344,10 @@ function cull() {
 */
 function render$4(gl, modelView, projection, fog, renderEffects) {
 	const tick = Date.now();
-	if (!_list.length) return;
+	if (!_list.length) {
+		EntityComposer.endFrame(gl);
+		return;
+	}
 	_renderFrameCounter++;
 	if (_renderSortDirty || (GraphicsSettings.performanceMode ? _renderFrameCounter >= 6 : _renderFrameCounter >= 3)) {
 		_list.sort(sort);
@@ -361877,6 +362361,7 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 		renderList(modelView, projection, renderEffects, tick);
 	} finally {
 		SpriteRenderer.endBatch();
+		EntityComposer.endFrame(gl);
 	}
 	SpriteRenderer.unbind(gl);
 }
@@ -361894,10 +362379,13 @@ function renderList(modelView, projection, renderEffects, tick) {
 			}
 			_gidMap.delete(_list[i].GID);
 			releaseGr2(_list[i]);
-			_list[i].clean();
-			_list.splice(i, 1);
-			i--;
-			count--;
+			const entity = _list[i];
+			EntityComposer.remove(entity);
+			entity.clean();
+			const at = _list.indexOf(entity);
+			if (at > -1) _list.splice(at, 1);
+			i = (at > -1 ? at : i) - 1;
+			count = _list.length;
 			_pickSortDirty = true;
 			continue;
 		}
@@ -361952,6 +362440,7 @@ function intersect() {
 			const dy = entity.position[1] - playerY;
 			if (dx * dx + dy * dy > viewAreaSq) continue;
 		}
+		if (entity.objecttype === Entity.TYPE_EFFECT || entity.objecttype === Entity.TYPE_FALCON || entity.objecttype === Entity.TYPE_WUG || entity.objecttype === Entity.TYPE_CART) continue;
 		if ((entity.action !== entity.ACTION.DIE || entity.objecttype === Entity.TYPE_PC) && entity.remove_tick === 0) {
 			if (x > entity.boundingRect.x1 && x < entity.boundingRect.x2 && y > entity.boundingRect.y1 && y < entity.boundingRect.y2) return entity;
 		}
@@ -362109,6 +362598,7 @@ var init_EntityManager = __esmMin((() => {
 	init_Altitude();
 	init_Water();
 	init_GR2ModelRenderer();
+	init_EntityComposer();
 	_list = [];
 	_gidMap = /* @__PURE__ */ new Map();
 	_renderSortDirty = true;
@@ -362244,12 +362734,14 @@ function bindMouseEvents() {
 			Cursor.setType(_restoreType);
 		}
 	});
-	window.addEventListener("pointermove", (e) => {
+	const followPointer = (e) => {
 		Cursor.x = e.pageX;
 		Cursor.y = e.pageY;
 		_selector.style.left = `${e.pageX}px`;
 		_selector.style.top = `${e.pageY}px`;
-	}, true);
+	};
+	window.addEventListener("pointermove", followPointer, true);
+	window.addEventListener("dragover", followPointer, true);
 }
 /**
 * Keep the cursor animated while the scene render loop is stopped (login, server list)
@@ -362641,7 +363133,7 @@ function _untrackNoCursorStyle(style) {
 	const index = _noCursorStyles.indexOf(style);
 	if (index !== -1) _noCursorStyles.splice(index, 1);
 }
-var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _noCursorStyles, _noCursorMedia, _snapCache, MouseMode, _enteredGuards, _dragged, DENIED_SELECTOR, CSS_NUMBER, _frozenBy, GUIComponent;
+var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _noCursorStyles, _noCursorMedia, _snapCache, _frozenBy, MouseMode, _enteredGuards, _dragged, DENIED_SELECTOR, CSS_NUMBER, GUIComponent;
 var init_GUIComponent = __esmMin((() => {
 	init_Common$1();
 	init_MouseEventHandler();
@@ -362661,6 +363153,7 @@ var init_GUIComponent = __esmMin((() => {
 	_depsPromise = null;
 	_noCursorMedia = "not all";
 	_snapCache = [];
+	_frozenBy = [];
 	MouseMode = Object.freeze({
 		CROSS: 0,
 		STOP: 1,
@@ -362689,7 +363182,6 @@ var init_GUIComponent = __esmMin((() => {
 		widows: true,
 		zoom: true
 	};
-	_frozenBy = /* @__PURE__ */ new Set();
 	GUIComponent = class GUIComponent {
 		/**
 		* @param {string} name       - Unique component name
@@ -362793,7 +363285,7 @@ var init_GUIComponent = __esmMin((() => {
 			if (this._noCursorStyle) _trackNoCursorStyle(this._noCursorStyle);
 			if (this.onKeyDown) this._bindKeyDown();
 			if (this.mouseMode === MouseMode.FREEZE) {
-				_frozenBy.add(this);
+				if (!_frozenBy.includes(this)) _frozenBy.push(this);
 				Mouse.intersect = false;
 				SessionStorage_default.FreezeUI = true;
 				_EntityManager?.setOverEntity(null);
@@ -362837,8 +363329,9 @@ var init_GUIComponent = __esmMin((() => {
 				whenDrawn.suspend(this._host);
 				if (this._noCursorStyle) _untrackNoCursorStyle(this._noCursorStyle);
 				if (this.mouseMode === MouseMode.FREEZE) {
-					_frozenBy.delete(this);
-					if (_frozenBy.size === 0) {
+					const index = _frozenBy.indexOf(this);
+					if (index !== -1) _frozenBy.splice(index, 1);
+					if (!_frozenBy.length) {
 						Mouse.intersect = true;
 						SessionStorage_default.FreezeUI = false;
 					}
@@ -363238,6 +363731,12 @@ var init_GUIComponent = __esmMin((() => {
 				if (related && related.closest && related.closest(CLICKABLE_SELECTOR)) return;
 				_hovering = false;
 				_Cursor?.setType(_savedType);
+			});
+			container.addEventListener("x_remove", () => {
+				if (_hovering) {
+					_hovering = false;
+					_Cursor?.setType(_savedType);
+				}
 			});
 			container.addEventListener("mousedown", (e) => {
 				const target = e.target;
@@ -364899,7 +365398,7 @@ function isFreeCell$2(x, y) {
 	if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) return false;
 	let free = true;
 	EntityManager.forEach((entity) => {
-		if (entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
+		if (entity !== SessionStorage_default.Entity && entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && entity.objecttype !== entity.constructor.TYPE_CART && entity.objecttype !== entity.constructor.TYPE_FALCON && entity.objecttype !== entity.constructor.TYPE_WUG && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
 			free = false;
 			return false;
 		}
@@ -367417,7 +367916,7 @@ function isFreeCell$1(x, y) {
 	if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) return false;
 	let free = true;
 	EntityManager.forEach(function(entity) {
-		if (entity.objecttype != entity.constructor.TYPE_EFFECT && entity.objecttype != entity.constructor.TYPE_UNIT && entity.objecttype != entity.constructor.TYPE_TRAP && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
+		if (entity !== SessionStorage_default.Entity && entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && entity.objecttype !== entity.constructor.TYPE_CART && entity.objecttype !== entity.constructor.TYPE_FALCON && entity.objecttype !== entity.constructor.TYPE_WUG && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
 			free = false;
 			return false;
 		}
@@ -369808,7 +370307,7 @@ function onClickSearch() {
 			items[iit].tab = tab.tabNum;
 			const it = DB.getItemInfo(items[iit].itemId);
 			if (it.identifiedDisplayName) {
-				if (new RegExp(val).test(it.identifiedDisplayName.toLowerCase())) newList.push(items[iit]);
+				if (it.identifiedDisplayName.toLowerCase().includes(val)) newList.push(items[iit]);
 			}
 		}
 	}
@@ -370271,6 +370770,7 @@ var init_CashShop$1 = __esmMin((() => {
 		container.addEventListener("dragover", stopPropagation$6);
 		const searchInput = root.querySelector(".cashshop-search");
 		if (searchInput) searchInput.addEventListener("keydown", (e) => {
+			if (e.isComposing || e.keyCode === 229) return;
 			if (e.which === KEYS.ENTER || e.key === "Enter") {
 				e.preventDefault();
 				onClickSearch();
@@ -376199,6 +376699,91 @@ var init_SplashHit = __esmMin((() => {
 	];
 	inRanges = (ranges, id) => ranges.some(([first, last]) => id >= first && id <= last);
 }));
+// src/Engine/MapEngine/OffhandWeapon.js
+/**
+* Check whether the local player is currently holding an offhand weapon.
+*
+* Resolvable only for our own character (entity.GID === sessionEntity.GID).
+* For other entities, the server transmits only view IDs without equipment
+* type metadata, so we return undefined (unknown) so callers can preserve
+* ambiguous offhand views as shields unless explicit weapon evidence is provided.
+*
+* @param {object} entity - Target entity
+* @param {object} sessionEntity - Local player entity (Session.Entity)
+* @param {object} [inventory] - Inventory component
+* @param {object} [equipment] - Equipment component
+* @returns {boolean|undefined} true if own offhand is weapon, false if own offhand is not weapon, undefined if unknown (other entity, or no left-hand record)
+*/
+function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) {
+	if (!entity || !sessionEntity || entity.GID !== sessionEntity.GID) return;
+	if (equipment) {
+		if (typeof equipment.getEquippedItemByLocation === "function") {
+			const item = equipment.getEquippedItemByLocation(EquipmentLocation_default.SHIELD);
+			if (item) return item.type === ItemType_default.WEAPON;
+		}
+		if (typeof equipment.getEquippedItem === "function" && inventory) {
+			const indexes = inventory.equippedItems || [];
+			for (let i = 0; i < indexes.length; i++) {
+				const item = equipment.getEquippedItem(indexes[i]);
+				if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & EquipmentLocation_default.SHIELD) return item.type === ItemType_default.WEAPON;
+			}
+		}
+	}
+	if (inventory) {
+		const indexes = inventory.equippedItems || [];
+		for (let i = 0; i < indexes.length; i++) {
+			const item = typeof inventory.getItemByIndex === "function" ? inventory.getItemByIndex(indexes[i]) : null;
+			if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & EquipmentLocation_default.SHIELD) return item.type === ItemType_default.WEAPON;
+		}
+	}
+}
+/**
+* Resolve weapon and shield values for an entity given packet values.
+* Used by both spawn (onEntitySpam) and view change (onEntityViewChange) handling.
+*
+* @param {number} weaponVal - Weapon ID or view ID from packet
+* @param {number} shieldVal - Shield / offhand ID or view ID from packet
+* @param {object} entity - Entity being updated
+* @param {object} sessionEntity - Local player entity (Session.Entity)
+* @param {object} [inventory] - Inventory component
+* @param {object} [equipment] - Equipment component
+* @returns {{ weapon: number, shield: number }}
+*/
+function resolveEntityWeapons(weaponVal, shieldVal, entity, sessionEntity, inventory, equipment) {
+	let weapon = weaponVal || 0;
+	let shield = shieldVal || 0;
+	const offhand = isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment);
+	const job = entity ? entity.job : void 0;
+	const isAssassin = typeof DB.isAssassin === "function" ? DB.isAssassin(job) : false;
+	const isShield = typeof DB.isShield === "function" ? DB.isShield(shield, job, offhand) : shield > 0;
+	const getWeaponType = typeof DB.getWeaponType === "function" ? (w, flag) => DB.getWeaponType(w, flag) : (w) => w;
+	const getWeaponViewID = typeof DB.getWeaponViewID === "function" ? (w) => DB.getWeaponViewID(w) : (w) => w;
+	const isKatar = typeof DB.isKatar === "function" ? (wt) => DB.isKatar(wt) : () => false;
+	const mountWeapon = typeof DB.mountWeapon === "function" ? (w1, w2) => DB.mountWeapon(w1, w2) : (w1, w2) => w1 << 7 | w2;
+	if (isAssassin && weapon === 0 && shield !== 0 && !isShield) {
+		weapon = shield;
+		shield = 0;
+	}
+	const weaponType = getWeaponType(weapon, true);
+	const viewId = getWeaponViewID(weapon);
+	if (isAssassin && shield !== 0 && !isShield && weapon !== 0) return {
+		weapon: mountWeapon(weaponType, getWeaponType(shield, true)),
+		shield: 0
+	};
+	if (isKatar(weaponType)) return {
+		weapon: viewId,
+		shield: viewId
+	};
+	return {
+		weapon: viewId,
+		shield
+	};
+}
+var init_OffhandWeapon = __esmMin((() => {
+	init_EquipmentLocation();
+	init_ItemType();
+	init_DBManager();
+}));
 // src/DB/Monsters/AttackEffectTable.js
 var AE, JOB;
 var init_AttackEffectTable = __esmMin((() => {
@@ -377055,7 +377640,9 @@ function onEntitySpam(pkt) {
 			name: "",
 			hp: -1,
 			maxhp: -1,
-			hideShadow: true
+			hideShadow: true,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.falcon);
 	}
@@ -377073,28 +377660,26 @@ function onEntitySpam(pkt) {
 			speed: Math.max(entity.walk.speed - 50, 1),
 			name: "",
 			hp: -1,
-			maxhp: -1
+			maxhp: -1,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.wug);
 	}
+	let cartNum = 0;
+	if (pkt.effectState & StatusState_default.EffectState.CART1) cartNum = 1;
+	else if (pkt.effectState & StatusState_default.EffectState.CART2) cartNum = 2;
+	else if (pkt.effectState & StatusState_default.EffectState.CART3) cartNum = 3;
+	else if (pkt.effectState & StatusState_default.EffectState.CART4) cartNum = 4;
+	else if (pkt.effectState & StatusState_default.EffectState.CART5) cartNum = 5;
+	if (cartNum > 0 || entity.hasCart || SessionStorage_default.Entity && entity.GID === SessionStorage_default.Entity.GID && SessionStorage_default.hasCart) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : cartNum || entity.CartNum || SessionStorage_default.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	}
 	if (entity.objecttype === Entity.TYPE_PC) {
-		if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield)) {
-			pkt.weapon = pkt.shield;
-			pkt.shield = 0;
-		}
-		const weaponType = DB.getWeaponType(pkt.weapon, true);
-		const viewId = DB.getWeaponViewID(pkt.weapon);
-		if (DB.isAssassin(entity.job) && pkt.shield !== 0 && !DB.isShield(pkt.shield) && pkt.weapon !== 0) {
-			const secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
-			entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
-			entity.shield = 0;
-		} else if (DB.isKatar(weaponType)) {
-			entity.weapon = viewId;
-			entity.shield = viewId;
-		} else {
-			entity.weapon = viewId;
-			entity.shield = pkt.shield;
-		}
+		const resolved = resolveEntityWeapons(pkt.weapon, pkt.shield, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+		entity.weapon = resolved.weapon;
+		entity.shield = resolved.shield;
 		if (PacketVerManager_default.value > 20150513) {
 			if (entity.body !== pkt.body) entity.body = pkt.body;
 		}
@@ -377169,20 +377754,24 @@ function onEntityVanish(pkt) {
 					EffectManager.spam(EF_Init_Par);
 				}
 				if (entity.falcon) {
+					EntityManager.removeGID(entity.falcon.GID);
 					entity.falcon.remove(pkt.type);
 					entity.falcon = null;
 				}
 				if (entity.wug) {
+					EntityManager.removeGID(entity.wug.GID);
 					entity.wug.remove(pkt.type);
 					entity.wug = null;
 				}
 			case Entity.VT.OUTOFSIGHT:
 				EffectManager.remove(null, pkt.GID, null);
 				if (entity.falcon) {
+					EntityManager.removeGID(entity.falcon.GID);
 					entity.falcon.remove(pkt.type);
 					entity.falcon = null;
 				}
 				if (entity.wug) {
+					EntityManager.removeGID(entity.wug.GID);
 					entity.wug.remove(pkt.type);
 					entity.wug = null;
 				}
@@ -377796,26 +378385,12 @@ function onEntityViewChange(pkt) {
 			break;
 		case 2:
 			if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
-				if (pkt.value === 0 && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-					pkt.value = pkt.value2;
-					pkt.value2 = 0;
-				}
-				const weaponType = DB.getWeaponType(pkt.value, true);
-				const viewId = DB.getWeaponViewID(pkt.value);
-				if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-					const secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
-					entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
-					entity.shield = 0;
-				} else if (DB.isKatar(weaponType)) {
-					entity.weapon = viewId;
-					entity.shield = viewId;
-				} else {
-					entity.weapon = viewId;
-					entity.shield = pkt.value2;
-				}
+				const resolved = resolveEntityWeapons(pkt.value, pkt.value2, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
 			} else {
-				entity.weapon = pkt.value;
-				entity.shield = pkt.value2;
+				entity.weapon = DB.getWeaponViewID(pkt.value);
+				if (pkt.value2 !== void 0) entity.shield = pkt.value2;
 			}
 			entity.aura.load(EffectManager);
 			if (entity.falcon) entity.falcon.set({
@@ -378237,6 +378812,14 @@ function onEntityStatusChange(pkt) {
 		case StatusConst_default.ON_PUSH_CART:
 			entity.hasCart = pkt.state || !pkt.hasOwnProperty("state");
 			if (pkt.val && (pkt.state || !pkt.hasOwnProperty("state"))) entity.CartNum = pkt.val[0];
+			if (SessionStorage_default.Entity && entity.GID === SessionStorage_default.Entity.GID) {
+				SessionStorage_default.hasCart = entity.hasCart;
+				SessionStorage_default.CartNum = entity.CartNum;
+			}
+			entity._statusCart = !!entity.hasCart;
+			if (entity._statusCart || !(entity.effectState & (StatusState_default.EffectState.CART1 | StatusState_default.EffectState.CART2 | StatusState_default.EffectState.CART3 | StatusState_default.EffectState.CART4 | StatusState_default.EffectState.CART5))) entity.setCart(entity._statusCart, entity.CartNum);
+			else entity.hasCart = true;
+			if (SessionStorage_default.Entity && entity.GID === SessionStorage_default.Entity.GID && entity.hasCart && !CartItems_default._host?.isConnected) CartItems_default.append();
 			break;
 		case StatusConst_default.HIDING:
 			if (pkt.state == 1 && entity.job != JobConst_default.NINJA && entity.job != JobConst_default.NINJA_B) EffectManager.spam({
@@ -378260,7 +378843,9 @@ function onEntityStatusChange(pkt) {
 					name: "",
 					hp: -1,
 					maxhp: -1,
-					hideShadow: true
+					hideShadow: true,
+					_followTargetX: entity.position[0],
+					_followTargetY: entity.position[1]
 				});
 				EntityManager.add(entity.falcon);
 			}
@@ -378532,7 +379117,7 @@ function onEntityStatusChange(pkt) {
 			updateEntityStyle(entity);
 		});
 	}
-	updateStatusEffects(pkt.AID, pkt.index, pkt.state, pkt.val);
+	updateStatusEffects(pkt.AID, pkt.index, Object.prototype.hasOwnProperty.call(pkt, "state") ? pkt.state : 1, pkt.val);
 	processBlockStatus(entity, pkt);
 	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS, pkt.val ? pkt.val[0] : 0);
 }
@@ -378602,11 +379187,13 @@ function onEntityOptionChange(pkt) {
 			name: "",
 			hp: -1,
 			maxhp: -1,
-			hideShadow: true
+			hideShadow: true,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.falcon);
 	} else if (entity.falcon && !(entity.effectState & StatusState_default.EffectState.FALCON)) {
-		entity.falcon.remove();
+		EntityManager.remove(entity.falcon.GID);
 		entity.falcon = null;
 	}
 	if (!entity.wug && entity.effectState & StatusState_default.EffectState.WUG) {
@@ -378623,13 +379210,26 @@ function onEntityOptionChange(pkt) {
 			speed: Math.max(entity.walk.speed - 50, 1),
 			name: "",
 			hp: -1,
-			maxhp: -1
+			maxhp: -1,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.wug);
 	} else if (entity.wug && !(entity.effectState & StatusState_default.EffectState.WUG)) {
-		entity.wug.remove();
+		EntityManager.remove(entity.wug.GID);
 		entity.wug = null;
 	}
+	let statusCartNum = 0;
+	if (entity.effectState & StatusState_default.EffectState.CART1) statusCartNum = 1;
+	else if (entity.effectState & StatusState_default.EffectState.CART2) statusCartNum = 2;
+	else if (entity.effectState & StatusState_default.EffectState.CART3) statusCartNum = 3;
+	else if (entity.effectState & StatusState_default.EffectState.CART4) statusCartNum = 4;
+	else if (entity.effectState & StatusState_default.EffectState.CART5) statusCartNum = 5;
+	const keepViaFlag = !!entity._statusCart || entity === SessionStorage_default.Entity && entity.hasCart;
+	if (statusCartNum > 0 || keepViaFlag) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	} else if (entity.cart) entity.setCart(false);
 }
 /**
 * Display a shop above entity's head
@@ -379022,6 +379622,7 @@ var init_Entity = __esmMin((() => {
 	init_JobConst();
 	init_SplashHit();
 	init_SkillMotionEffect();
+	init_OffhandWeapon();
 	init_AttackEffectTable();
 	init_Configs();
 	init_Events();
@@ -379052,6 +379653,7 @@ var init_Entity = __esmMin((() => {
 	init_MiniMap();
 	init_PartyFriends();
 	init_Equipment();
+	init_CartItems();
 	init_ScreenEffectManager();
 	init_Footprints();
 	init_StatusEffects();
@@ -380589,8 +381191,16 @@ function onEquipementTakeOff(pkt) {
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_MID);
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_BOTTOM);
 		if (pkt.wearLocation & EquipmentLocation_default.GARMENT) SessionStorage_default.Entity.robe = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_ROBE);
-		if (pkt.wearLocation & EquipmentLocation_default.WEAPON) SessionStorage_default.Entity.weapon = 0;
-		if (pkt.wearLocation & EquipmentLocation_default.SHIELD) SessionStorage_default.Entity.shield = 0;
+		if (pkt.wearLocation & (EquipmentLocation_default.WEAPON | EquipmentLocation_default.SHIELD)) {
+			const heldAt = (location) => typeof EquipmentController.getEquippedItemByLocation === "function" ? EquipmentController.getEquippedItemByLocation(location) : null;
+			const right = heldAt(EquipmentLocation_default.WEAPON);
+			const left = heldAt(EquipmentLocation_default.SHIELD);
+			let shieldVal = 0;
+			if (left) shieldVal = left.type === ItemType_default.WEAPON ? left.ITID : SessionStorage_default.Entity.shield;
+			const resolved = resolveEntityWeapons(right ? right.ITID : 0, shieldVal, SessionStorage_default.Entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+			SessionStorage_default.Entity.weapon = resolved.weapon;
+			SessionStorage_default.Entity.shield = resolved.shield;
+		}
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) SessionStorage_default.Entity.accessory2 = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_TOP);
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_MID);
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_BOTTOM);
@@ -380619,8 +381229,11 @@ function onItemEquip(pkt) {
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = CostumeCheckMid ? CostumeCheckMid : pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = CostumeCheckBot ? CostumeCheckBot : pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.GARMENT) SessionStorage_default.Entity.robe = CostumeCheckRobe ? CostumeCheckRobe : pkt.viewid;
-		if (pkt.wearLocation & EquipmentLocation_default.WEAPON) SessionStorage_default.Entity.weapon = pkt.viewid;
-		if (pkt.wearLocation & EquipmentLocation_default.SHIELD) SessionStorage_default.Entity.shield = pkt.viewid;
+		if (pkt.wearLocation & EquipmentLocation_default.WEAPON || pkt.wearLocation & EquipmentLocation_default.SHIELD) {
+			const resolved = resolveEntityWeapons(pkt.wearLocation & EquipmentLocation_default.WEAPON ? pkt.viewid : SessionStorage_default.Entity.weapon, pkt.wearLocation & EquipmentLocation_default.SHIELD ? pkt.viewid : SessionStorage_default.Entity.shield, SessionStorage_default.Entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+			SessionStorage_default.Entity.weapon = resolved.weapon;
+			SessionStorage_default.Entity.shield = resolved.shield;
+		}
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) SessionStorage_default.Entity.accessory2 = pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_MID) SessionStorage_default.Entity.accessory3 = pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_BOTTOM) SessionStorage_default.Entity.accessory = pkt.viewid;
@@ -380752,6 +381365,14 @@ function onCartSetInfo(pkt) {
 }
 function onCartRemoveItem(pkt) {
 	CartItems_default.removeItem(pkt.index, pkt.count);
+}
+function onCartOff() {
+	SessionStorage_default.hasCart = false;
+	if (SessionStorage_default.Entity) {
+		SessionStorage_default.Entity._statusCart = false;
+		SessionStorage_default.Entity.setCart(false);
+	}
+	CartItems_default.remove();
 }
 function reqMoveItemToCart(index, count) {
 	if (count <= 0) return;
@@ -380993,6 +381614,7 @@ function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_WEAR_EQUIP_V5, onItemEquip);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_BODY, onIventoryRemoveItem);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_CART, onCartRemoveItem);
+	Network.hookPacket(PACKET.ZC.CARTOFF, onCartOff);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK2, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.EQUIP_ARROW, onArrowEquipped);
@@ -381031,6 +381653,7 @@ var init_Item = __esmMin((() => {
 	init_DBManager();
 	init_Configs();
 	init_EquipmentLocation();
+	init_ItemType();
 	init_NetworkManager();
 	init_PacketStructure();
 	init_PacketVerManager();
@@ -381046,6 +381669,7 @@ var init_Item = __esmMin((() => {
 	init_Equipment();
 	init_PlayerViewEquip();
 	init_SwitchEquip();
+	init_OffhandWeapon();
 	init_Storage$1();
 	init_MakeItemSelection();
 	init_ItemListWindowSelection();
@@ -382528,9 +383152,19 @@ function onSkillResult(pkt) {
 		case 13:
 			error = 1398;
 			break;
+		case 71:
+			error = 1536;
+			break;
 		case 83: error = 661;
 	}
-	if (error) ChatBox_default.addText(DB.getMessage(error), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
+	if (error) {
+		if (pkt.itemId > 0 && pkt.NUM > 0 && error === 1536) {
+			const itemInfo = DB.getItemInfo(pkt.itemId);
+			const itemName = itemInfo.identifiedDisplayName || itemInfo.unidentifiedDisplayName || `Item ${pkt.itemId}`;
+			const msg = DB.getMessage(error).replace("%s", itemName).replace("%d", pkt.NUM || 1);
+			ChatBox_default.addText(msg, ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
+		} else ChatBox_default.addText(DB.getMessage(error), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
+	}
 }
 /**
 * List of skills
@@ -388206,6 +388840,10 @@ function onMapChange(pkt) {
 			});
 			EntityManager.add(SessionStorage_default.Entity.wug);
 		}
+		if (SessionStorage_default.hasCart || SessionStorage_default.Entity.hasCart) {
+			const realCartNum = DB.isSuperNovice(SessionStorage_default.Entity._job) ? 0 : SessionStorage_default.CartNum || SessionStorage_default.Entity.CartNum || 1;
+			SessionStorage_default.Entity.setCart(true, realCartNum);
+		}
 		SessionStorage_default.Entity.aura.free();
 		SessionStorage_default.Entity.aura.load(EffectManager);
 		const mapName = MapRenderer.currentMap.replace(".gat", "").toLowerCase();
@@ -388533,7 +389171,7 @@ function isFreeCell(x, y) {
 	if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) return false;
 	let free = true;
 	EntityManager.forEach(function(entity) {
-		if (entity.objecttype != entity.constructor.TYPE_EFFECT && entity.objecttype != entity.constructor.TYPE_UNIT && entity.objecttype != entity.constructor.TYPE_TRAP && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
+		if (entity !== SessionStorage_default.Entity && entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && entity.objecttype !== entity.constructor.TYPE_CART && entity.objecttype !== entity.constructor.TYPE_FALCON && entity.objecttype !== entity.constructor.TYPE_WUG && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
 			free = false;
 			return false;
 		}
@@ -390830,6 +391468,17 @@ var init_CharCreate$2 = __esmMin((() => {
 	CharCreate_default$1 = ":host {\r\n	width: 576px;\r\n	height: 342px;\r\n}\r\n\r\n#charcreate {\r\n	position: absolute;\r\n	width: 576px;\r\n	height: 342px;\r\n}\r\n\r\n/** Name **/\r\n#charcreate input {\r\n	position: absolute;\r\n	top: 244px;\r\n	left: 62px;\r\n	width: 97px;\r\n	height: 14px;\r\n	padding-top: 2px;\r\n	padding-left: 3px;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\n\r\n/** Chargen **/\r\n#charcreate .chargen ui-button {\r\n	position: absolute;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n#charcreate .chargen .left {\r\n	top: 135px;\r\n	left: 47px;\r\n}\r\n#charcreate .chargen .up {\r\n	top: 105px;\r\n	left: 87px;\r\n}\r\n#charcreate .chargen .right {\r\n	top: 135px;\r\n	left: 127px;\r\n}\r\n#charcreate .chargen canvas {\r\n	position: absolute;\r\n	top: 120px;\r\n	left: 62px;\r\n}\r\n\r\n/** Graph buttons **/\r\n#charcreate .graph ui-button {\r\n	position: absolute;\r\n	width: 36px;\r\n	height: 36px;\r\n}\r\n#charcreate .graph .str {\r\n	top: 50px;\r\n	left: 270px;\r\n}\r\n#charcreate .graph .int {\r\n	top: 243px;\r\n	left: 270px;\r\n}\r\n#charcreate .graph .vit {\r\n	top: 104px;\r\n	left: 348px;\r\n}\r\n#charcreate .graph .dex {\r\n	top: 190px;\r\n	left: 191px;\r\n}\r\n#charcreate .graph .agi {\r\n	top: 103px;\r\n	left: 191px;\r\n}\r\n#charcreate .graph .luk {\r\n	top: 190px;\r\n	left: 348px;\r\n}\r\n#charcreate .graph canvas {\r\n	position: absolute;\r\n	left: 209px;\r\n	top: 86px;\r\n}\r\n\r\n/** Stats infos **/\r\n#charcreate .info {\r\n	position: absolute;\r\n	top: 40px;\r\n	left: 480px;\r\n}\r\n#charcreate .info div {\r\n	position: absolute;\r\n	left: 0px;\r\n}\r\n#charcreate .info .str {\r\n	top: 0px;\r\n}\r\n#charcreate .info .agi {\r\n	top: 16px;\r\n}\r\n#charcreate .info .vit {\r\n	top: 32px;\r\n}\r\n#charcreate .info .int {\r\n	top: 48px;\r\n}\r\n#charcreate .info .dex {\r\n	top: 64px;\r\n}\r\n#charcreate .info .luk {\r\n	top: 80px;\r\n}\r\n\r\n/** Buttons **/\r\n#charcreate .btns {\r\n	position: absolute;\r\n	bottom: 4px;\r\n	width: 100%;\r\n	height: 20px;\r\n}\r\n#charcreate .btn {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n}\r\n#charcreate .make {\r\n	right: 50px;\r\n}\r\n#charcreate .cancel {\r\n	right: 4px;\r\n}\r\n\r\n#charcreate .btns ui-button {\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n";
 }));
 // src/UI/Components/CharCreate/CharCreateCommon.js
+/**
+* The buttons for one hairstyle, one in each race/gender list. A list with
+* fewer styles keeps empty .styleN cells to hold the grid; those get no frame.
+*
+* @param {HTMLElement} root
+* @param {number} style
+* @return {HTMLElement[]}
+*/
+function hairstyleButtons(root, style) {
+	return Array.from(root.querySelectorAll(`.style${style}`)).filter((el) => el.querySelector(".hstyle_button"));
+}
 function createCharCreate(config) {
 	const { name, htmlText, cssText, hostHeight = 342, hostWidth = 576, hasStats = false, hasRace = false, gridHairstyle = false, chargenCanvasSelector = ".content canvas", graphCanvasSelector = ".graph canvas", statButtonsSelector = ".graph ui-button", hairArrows = [], humanCanvasSelector = "#canvas_human", doramCanvasSelector = "#canvas_doram", modelCanvasSelector = "#canvas_model", nameInputSelector = "input", nameInputEvent = "mousedown", cancelSelectors = [".cancel"], makeSelector = ".make" } = config;
 	const Component = new GUIComponent(name, cssText);
@@ -391309,12 +391958,12 @@ function createCharCreate(config) {
 				if (el) el.style.backgroundImage = `url(${dataURI})`;
 			});
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, (dataURI) => {
-				root.querySelectorAll(`.style${_prevhead}`).forEach((el) => {
+				hairstyleButtons(root, _prevhead).forEach((el) => {
 					el.style.backgroundImage = `url(${dataURI})`;
 				});
 			});
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_select.bmp`, (dataURI) => {
-				root.querySelectorAll(`.style${_curhead}`).forEach((el) => {
+				hairstyleButtons(root, _curhead).forEach((el) => {
 					el.style.backgroundImage = `url(${dataURI})`;
 				});
 			});
@@ -391453,7 +392102,7 @@ function createCharCreate(config) {
 		const value = parseInt(target.getAttribute("for"));
 		_prevhead = _model.entity.head;
 		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, (dataURI) => {
-			root.querySelectorAll(`.style${_prevhead}`).forEach((el) => {
+			hairstyleButtons(root, _prevhead).forEach((el) => {
 				el.style.backgroundImage = `url(${dataURI})`;
 			});
 		});
@@ -391502,7 +392151,7 @@ function createCharCreate(config) {
 			value = 4218;
 		}
 		for (let i = 1; i <= 24; i++) Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, (dataURI) => {
-			root.querySelectorAll(`.style${i}`).forEach((el) => {
+			hairstyleButtons(root, i).forEach((el) => {
 				el.style.backgroundImage = `url(${dataURI})`;
 			});
 		});
