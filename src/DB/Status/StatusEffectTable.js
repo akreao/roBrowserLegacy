@@ -358,6 +358,10 @@ export default {
 		loop: ['ef_su_roottwist']
 	},
 
+	// Tuna Party (SU_TUNAPARTY): the official client removes 1097 and launches it again when the
+	// status starts (EFST 919, 0xd442f0), and the tuna circles the actor until the status ends.
+	[StatusConst.TUNAPARTY]: { restart: [1097], stop: [1097] },
+
 	// Assumptio (HP_ASSUMPTIO): the official client removes 375 and launches it again when the status
 	// starts, and removes it when the status ends.
 	[StatusConst.ASSUMPTIO]: {
