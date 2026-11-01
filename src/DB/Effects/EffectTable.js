@@ -35,6 +35,7 @@ import Events from 'Core/Events.js';
 import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
 import { removeTrapEffect } from 'DB/Effects/RemoveTrapEffect.js';
+import BurstParts from 'Renderer/Effects/BurstParts.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
@@ -9321,6 +9322,19 @@ export default {
 			//EF_TRUESIGHT	   True Sight
 			wav: 'effect/hunter_detecting',
 			attachedEntity: true
+		},
+		// Official client (kRO 2025-07-16, 0xbc8da0, life 250 ticks): on tick 0, twelve
+		// alpha_center.tga bursts of four blades (0xbd91c0 variant 3, BurstPartsSim.js)
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			duration: (250 * 1000) / 60,
+			func: function (Params) {
+				this.add(
+					new BurstParts(3, 12, 'alpha_center.tga', Params.Init.ownerEntity, Params.Inst.startTick),
+					Params
+				);
+			}
 		}
 	],
 
