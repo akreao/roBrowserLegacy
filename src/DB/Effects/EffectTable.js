@@ -25405,15 +25405,6 @@ export default {
 		}
 	],
 
-	// Fear Breeze (RA_FEARBREEZE), from the client's own effect folders.
-	ef_ra_fearbreeze: [
-		{
-			type: 'STR',
-			file: 'new_fearbreeze/new_fearbreeze',
-			texturePath: 'new_fearbreeze/'
-		}
-	],
-
 	// Vulcan Arm (NC_VULCANARM), from the client's own effect folders.
 	ef_nc_vulcanarm: [
 		{
@@ -27226,6 +27217,19 @@ export default {
 			texturePath: 'new_aimedbolt/new_aimedbolt_attack_11clock/',
 			min: 'mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/new_aimedbolt_attack_11clock',
 			minTexturePath: 'mineffect/new_aimedbolt/new_aimedbolt_attack_11clock/',
+			attachedEntity: true
+		}
+	],
+
+	// Fear Breeze (RA_FEARBREEZE): on the caster when the use packet succeeds. See effect-port/ranger-skills.md.
+	1549: [
+		{
+			//(1549): CEZ2STREffect, new_fearbreeze\\new_fearbreeze.str
+			type: 'STR',
+			file: 'new_fearbreeze/new_fearbreeze',
+			texturePath: 'new_fearbreeze/',
+			min: 'mineffect/new_fearbreeze/new_fearbreeze',
+			minTexturePath: 'mineffect/new_fearbreeze/',
 			attachedEntity: true
 		}
 	],

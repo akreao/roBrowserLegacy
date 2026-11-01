@@ -1063,7 +1063,7 @@ SkillEffect[SK.AB_SILENTIUM] = {}; //Silentium //CHECk Marked magic attack as we
 SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
 // RA Ranger
 SkillEffect[SK.RA_ARROWSTORM] = { arrivalEffectIdOnTarget: ['ef_ra_arrowstorm_sound', 1293, 1294] }; //Arrow Storm: arrowstorm.wav + 1293, then 1294 three times (600 / 800 / 1000 ms), on each target as the damage arrives
-SkillEffect[SK.RA_FEARBREEZE] = { effectId: 'ef_ra_fearbreeze' }; //Fear Breeze
+SkillEffect[SK.RA_FEARBREEZE] = { successEffectIdOnCaster: 1549 }; //Fear Breeze: 1549 on the caster on success
 SkillEffect[SK.RA_AIMEDBOLT] = { hideCastAura: true, beginCastEffectId: 1649, beginCastTargetEffectId: 1651, damageEffectIdOnTarget: 'ef_arrow_projectile', arrivalEffectIdOnTarget: 1650, arrivalEffectIdOnCasterByFacing: [1646, 1645, 1648, 1647] }; //Aimed Bolt: no aura, 1649 while casting, 1651 on the target while casting; bow arrow per damage packet; 1650 on the target and the shot by facing on the caster as the damage arrives
 SkillEffect[SK.RA_DETONATOR] = { effectId: 750 }; //Detonator
 SkillEffect[SK.RA_ELECTRICSHOCKER] = {}; //Electric Shocker
