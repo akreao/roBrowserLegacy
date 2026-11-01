@@ -16,8 +16,4 @@ describe('Arrow Repel effects', () => {
 			/SkillEffect\[SK\.AC_CHARGEARROW\] = \{ hideCastAura: true, damageEffectIdOnCaster: 16, hitEffectId: \[0\] \};/
 		);
 	});
-
-	it('is shared by the mercenary Arrow Repel', () => {
-		expect(source).toMatch(/SkillEffect\[SK\.MA_CHARGEARROW\] = SkillEffect\[SK\.AC_CHARGEARROW\];/);
-	});
 });

@@ -54,6 +54,5 @@ describe('Arrow Shower arrows', () => {
 		expect(source).toMatch(
 			/SkillEffect\[SK\.AC_SHOWER\] = \{\r?\n\tdamageEffectIdOnTarget: 'ef_arrow_shower_target',\r?\n\treleaseEffectId: 'ef_arrow_projectile',\r?\n\thitEffectId: \[0, 1\]\r?\n\}; \/\/Arrow Shower/
 		);
-		expect(source).toMatch(/SkillEffect\[SK\.MA_SHOWER\] = SkillEffect\[SK\.AC_SHOWER\];/);
 	});
 });

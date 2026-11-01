@@ -7,12 +7,12 @@ import { join } from 'node:path';
 import vm from 'node:vm';
 
 // Sonic Wave (RK_SONICWAVE 2002): no use effect; when the damage arrives the official client plays
-// 기공포.wav and launches 832 and 1678 (new_sonicwave, not ported) on the caster.
+// 기공포.wav and launches 832 and 1678 (new_sonicwave rings, SonicWaveSim.js) on the caster.
 // kRO 2025-07-16, spec: effect-port/rune-knight-skills.md.
 
 describe('Sonic Wave', () => {
-	it('plays 832 (the sound) on the caster as each packet damage is due, nothing on use', () => {
-		expect(SkillEffect[SK.RK_SONICWAVE]).toMatchObject({ arrivalEffectIdOnCaster: 832 });
+	it('plays 832 (the sound) and 1678 on the caster as each packet damage is due, nothing on use', () => {
+		expect(SkillEffect[SK.RK_SONICWAVE]).toMatchObject({ arrivalEffectIdOnCaster: [832, 1678] });
 		expect(EffectTable[832][0].wav).toBe('effect/\xb1\xe2\xb0\xf8\xc6\xf7');
 	});
 });

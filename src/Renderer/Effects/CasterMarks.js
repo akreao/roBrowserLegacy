@@ -6,7 +6,7 @@
  * Enchant Deadly Poison's 493, Soul Destroyer's 361 and Meteor Assault's 409,
  * do to the
  * caster's own sprite (and a few effects to their target's, such as Tarot
- * Card of Fate's 500). It
+ * Card of Fate's 500 and the Rune Knight's 538). It
  * draws nothing itself: it marks the owner each tick, and EntityRender reads
  * the marks.
  *
@@ -85,6 +85,7 @@ const WHITE = [255, 255, 255];
 const PURPLE = [182, 89, 255];
 const BLUE = [0, 0, 255];
 const MAGENTA = [255, 0, 255];
+const GREEN = [0, 255, 0];
 
 /**
  * What each effect sets on the caster on its tick `age` (0 on the first).
@@ -142,6 +143,12 @@ export const SCHEDULES = {
 	835: age => {
 		const on = age >= 20 && age <= 100;
 		return { add: false, glow: on, split: false, color: on ? [255, 255, 150] : null };
+	},
+	// EF_GREENBODY (538; Refresh, Abundance, Phantom Thrust): as 500, in green.
+	538: age => {
+		const on = age <= 30;
+		const even = age % 2 === 0;
+		return { add: on && even, glow: on, split: false, color: on ? (even ? GREEN : WHITE) : null };
 	},
 	// Spiral Pierce Max: glow copy to age 140, flickering yellow (added) and white.
 	502: age => {

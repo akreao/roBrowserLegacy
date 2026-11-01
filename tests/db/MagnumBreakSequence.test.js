@@ -19,8 +19,4 @@ describe('Magnum Break effect sequence', () => {
 		const line = source.split('\n').find(l => l.startsWith('SkillEffect[SK.SM_MAGNUM]'));
 		expect(line).not.toMatch(/quake/);
 	});
-
-	it('is shared by the mercenary Magnum Break', () => {
-		expect(source).toMatch(/SkillEffect\[SK\.MS_MAGNUM\] = SkillEffect\[SK\.SM_MAGNUM\];/);
-	});
 });

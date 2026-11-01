@@ -99,7 +99,12 @@ function PrepareInit(callParams) {
  */
 function spamSTR(Params) {
 	let filename;
-	const texturePath = Params.effect.texturePath || '';
+	let texturePath = Params.effect.texturePath || '';
+
+	// A part the client leaves out under /mineffect
+	if (Preferences.mineffect && Params.effect.minSkip) {
+		return;
+	}
 
 	// Get STR file
 	const minimal = !!(Preferences.mineffect && Params.effect.min);
@@ -126,6 +131,10 @@ function spamSTR(Params) {
 	if (minimal) {
 		// No minimal version: the full one is better than nothing.
 		fallbacks.unshift({ filename: 'data/texture/effect/' + pick(Params.effect.file) + '.str', texturePath });
+		// The client's mineffect\ copies keep their textures in their own folder.
+		if (Params.effect.minTexturePath) {
+			texturePath = Params.effect.minTexturePath;
+		}
 	}
 
 	// Thrown from the owner onto the position (Thundering Orb's orb)
