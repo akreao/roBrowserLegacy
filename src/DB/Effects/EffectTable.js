@@ -27606,6 +27606,41 @@ export default {
 	// Judex (AB_JUDEX): twelve 1633 + 1634 pairs round the target as each damage arrives (JudexEffect.js). See effect-port/arch-bishop-skills.md.
 	ef_ab_judex_lights: judexLightsEffect,
 
+	// Adoramus (AB_ADORAMUS): AB_adoramus.wav as each damage packet's damage arrives. See effect-port/arch-bishop-skills.md.
+	ef_ab_adoramus_sound: [
+		{
+			wav: 'effect/ab_adoramus',
+			attachedEntity: true
+		}
+	],
+
+	// Adoramus (AB_ADORAMUS): on the target as each damage packet's damage arrives, with 1259; 1428 under /mineffect. See effect-port/arch-bishop-skills.md.
+	1258: [
+		{
+			//(1258): CEZ2STREffect, new_adoramus\\new_adoramus\\new_adoramus.str
+			type: 'STR',
+			file: 'new_adoramus/new_adoramus/new_adoramus',
+			texturePath: 'new_adoramus/new_adoramus/',
+			min: 'mineffect/new_adoramus/new_adoramus/new_adoramus',
+			minTexturePath: 'mineffect/new_adoramus/new_adoramus/',
+			attachedEntity: true
+		}
+	],
+
+	// Adoramus (AB_ADORAMUS): floor of 1258; 1429 under /mineffect. See effect-port/arch-bishop-skills.md.
+	1259: [
+		{
+			//(1259): CEZ2STREffect, new_adoramus\\new_adoramus_bottom\\new_adoramus_bottom.str
+			type: 'STR',
+			file: 'new_adoramus/new_adoramus_bottom/new_adoramus_bottom',
+			texturePath: 'new_adoramus/new_adoramus_bottom/',
+			min: 'mineffect/new_adoramus/new_adoramus_bottom/new_adoramus_bottom',
+			minTexturePath: 'mineffect/new_adoramus/new_adoramus_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
