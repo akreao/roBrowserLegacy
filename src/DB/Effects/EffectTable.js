@@ -65,7 +65,7 @@ import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import { spamTetraSubExplosions } from 'DB/Effects/TetraVortexEffect.js';
 import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
-import { hundredSpearEffect, hundredSpearDashEffect } from 'DB/Effects/HundredSpearEffect.js';
+import { hundredSpearEffect, hundredSpearDashEffect, aimedSprite } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
 import { SET_AGES, WAVE_FRAMES, WAVE_TICK_MS } from 'Renderer/Effects/SonicWaveSim.js';
@@ -85,6 +85,9 @@ import { martyrsReckoningBody } from 'DB/Effects/MartyrsReckoningEffect.js';
 import { shieldBoomerangEffect } from 'DB/Effects/ShieldBoomerangEffect.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import StreakLines from 'Renderer/Effects/StreakLines.js';
+
+/** Textures of the 2025 streak builder's variants (0xbdf6e0). */
+const STREAK_LINE3 = { line3: 'line3.tga', line3y: 'line3y.tga' };
 import { detoxifyEffect } from 'DB/Effects/DetoxifyEffect.js';
 import { warmthEffect } from 'DB/Effects/WarmthEffect.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
@@ -104,6 +107,7 @@ import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import { GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
+import MapPreferences from 'Preferences/Map.js';
 import {
 	planPath as planIcePath,
 	planShards as planIceShards,
@@ -117,6 +121,7 @@ import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { sightEffect } from 'DB/Effects/SightEffect.js';
 import { releaseEffect } from 'DB/Effects/ReleaseEffect.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 
@@ -1282,55 +1287,8 @@ export default {
 		...detoxifyEffect
 	],
 
-	22: [
-		{
-			//EF_SIGHT	Sight
-			type: '3D',
-			shadowTexture: true,
-			alphaMax: 0.5,
-			attachedEntity: true,
-			blendMode: 8,
-			duration: 12200,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			nbOfRotation: 10,
-			posx: -2,
-			posz: 4,
-			playSprite: true,
-			rotateLate: 0.9,
-			rotateLateDelta: -0.1,
-			rotatePosX: 3,
-			rotatePosY: 3,
-			rotationClockwise: true,
-			size: 30,
-			sizeDelta: 10
-		},
-		{
-			type: '3D',
-			spriteName: 'sight',
-			alphaMax: 123 / 255,
-			alphaMaxDelta: 3 / 255,
-			attachedEntity: true,
-			blendMode: 8,
-			duration: 12200,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			nbOfRotation: 10,
-			posx: -2,
-			posz: 4,
-			playSprite: true,
-			rotateLate: 0.9,
-			rotateLateDelta: -0.1,
-			rotatePosX: 3,
-			rotatePosY: 3,
-			rotationClockwise: true,
-			size: 60,
-			sizeDelta: 20
-		},
-		{
-			wav: 'effect/ef_sight'
-		}
-	],
+	// EF_SIGHT, Sight: the official client's orbiting sight sprite and shadow (SightEffect.js)
+	22: sightEffect,
 
 	23: [
 		{
@@ -1857,23 +1815,23 @@ export default {
 			zIndex: 1
 		},
 		{
-			alphaMax: 0.3,
-			attachedEntity: false,
-			blendMode: 2,
-			blue: 1,
+			// Official client (kRO 2025-07-16, 0xba43f0): a flat prim-12 disc of alpha_down.tga, radius 10
+			// (band as wide as the radius), tinted (32, 176, 232), alpha 0 rising 100 / 30 a tick to 100,
+			// fading out over the last 30 of the effect's 150 ticks. Sound on tick 0.
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'alpha_down',
+			attachedEntity: true,
 			duration: 2500,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok2.tga',
-			green: 0.75,
-			posx: 0,
-			posy: 0,
-			posz: 0,
-			red: 0.1,
-			size: 140,
-			type: '3D',
-			wav: 'effect/ef_blessing',
-			zIndex: 10
+			frames: 150,
+			radius: 10,
+			width: 10,
+			color: [32, 176, 232],
+			alpha: 0,
+			alphaSpeed: 100 / 30,
+			alphaMax: 100,
+			fadeOutFrame: 120,
+			wav: 'effect/ef_blessing'
 		}
 	],
 
@@ -3984,6 +3942,14 @@ export default {
 	],
 
 	130: [
+		{
+			// The official client removes a running 130 before it starts a new one (knight-audit.md)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.remove(null, Params.Init.ownerAID, 130);
+			}
+		},
 		{
 			//EF_TWOHANDQUICKEN	Two-Hand Quicken
 			type: 'STR',
@@ -6308,7 +6274,10 @@ export default {
 		{
 			//EF_CHIMTO	   Occult Impaction
 			wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
-		}
+		},
+		// Official client (kRO 2025-07-16, builder 0xbdfcc0 variant 0, life 16 ticks): the 침투경_ sprite at the
+		// target, turned towards the caster, scale 2.5, alpha 200, a frame every 2 ticks (HundredSpearEffect.js)
+		aimedSprite(267, '\xc4\xa7\xc5\xf5\xb0\xe6_', { frameTicks: 2, lifeTicks: 16, scale: 2.5, alpha: 200, loop: true })
 	],
 
 	268: [
@@ -8878,7 +8847,23 @@ export default {
 			//aura blade	//EF_AURABLADE	Aura Blade
 			wav: 'effect/\xbf\xc0\xb6\xf3\x20\xba\xed\xb7\xb9\xc0\xcc\xb5\xe5', //żŔ¶ó şí·ąŔĚµĺ
 			attachedEntity: true
-			//+ on cast small white-magic aura (double)
+		},
+		{
+			// Official client (kRO 2025-07-16, lord-knight-skills.md): on tick 0 two cast-aura rings (builder
+			// 0xbfa8b0), size 45 in ring_white.tga and size 25 in ring_yellow.tga, both argument 22; life 60 ticks.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				if (!Params.Init.ownerEntity) {
+					return;
+				}
+				this.add(
+					new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, 60 * 16, 'ring_white.tga', [22, 22], {
+						textures: ['ring_white.tga', 'ring_yellow.tga']
+					}),
+					Params
+				);
+			}
 		}
 	],
 
@@ -13370,11 +13355,28 @@ export default {
 
 	623: [
 		{
-			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28; also 8 streak sets
-			// (prim 56, line3y.tga) along the shot, not ported. See effect-port/gunslinger-skills.md.
+			//EF_CHEMICAL4	Piercing Shot. Official client: the sound on tick 28. See effect-port/gunslinger-skills.md.
 			wav: 'effect/\xc7\xc7\xbe\xee\xbd\xcc\xbc\xa6', // 피어싱샷
 			delayWav: 467, // tick 28
 			attachedEntity: true
+		},
+		{
+			// On tick 0, 8 green streak sets along the shot: the 2025 builder 0xbdf6e0 with variants 20 and 21,
+			// four times (StreakLinesSim.createVariantSets).
+			type: 'FUNC',
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!caster || !target || target === caster) {
+					return;
+				}
+				this.add(
+					new StreakLines(caster.position, target.position, Params.Inst.startTick, STREAK_LINE3, [
+						20, 21, 20, 21, 20, 21, 20, 21
+					]),
+					Params
+				);
+			}
 		}
 	],
 	624: [
@@ -15756,7 +15758,21 @@ export default {
 	],
 
 	//796: [{}],	//EF_GTHUNDER	   Spinning blue triangles
-	//797: [{}],	//EF_STONERING	   Stapo
+	797: [
+		{
+			//EF_STONERING	   Sienna Execrate (Stapo), on the target
+			// Official client (kRO 2025-07-16, CRagEffect 0xbbb473, builder 0xbe4480 variant 60): wl_siennaexecrate.wav
+			// on tick 0 and the 몬스터\\stapo sprite 8 units up, action 0 or 1 at random, 4 ticks a frame, played once.
+			type: 'SPR',
+			completeFile: 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/stapo',
+			frame: [0, 1],
+			delayFrame: 4 * (1000 / 60),
+			yOffset: -8 * 7,
+			stackable: true,
+			attachedEntity: true,
+			wav: 'effect/wl_siennaexecrate'
+		}
+	],
 	//798: [{}],	//EF_INTIMIDATE2	   Red triangles (like Intimidate)
 	799: [
 		{
@@ -21235,43 +21251,23 @@ export default {
 			attachedEntity: true
 		},
 		{
-			//ice spikes traveling outward from the caster in all 8 directions
-			type: 'TRAIL',
-			attachedEntity: false,
-			duration: 1000,
-			speed: 24,
-			interval: 34,
-			startOffset: 1,
-			angles: [0, 45, 90, 135, 180, 225, 270, 315],
-			spread: [0.1, 0.4],
-			spawn: [
-				{
-					type: 'QuadHorn',
-					textureFile: 'effect/ice.tga',
-					attachedEntity: false,
-					duration: 670,
-					height: [0.2, 1.8],
-					offsetX: 0,
-					offsetY: 0,
-					offsetZ: 0,
-					bottomSize: [0.06, 0.22],
-					blendMode: 8,
-					rotateX: [-15, 15],
-					rotateY: [0, 360],
-					color: [1.0, 1.0, 1.0, 1.0],
-					animation: 4,
-					animationSpeed: 330,
-					riseDistance: 2.0,
-					fadeOut: 170
+			// Official client (kRO 2025-07-16, use case 0xd1282d): ten 801 EF_FROSTDIVER3 on the caster, each a Frost
+			// Diver path (builder 0xbadce0, variant 3: additive, deep blue flickering) to a point 80 units out, the
+			// i-th at i x 36 + r(36) degrees; nothing under /mineffect. Effect 801 lives 150 ticks.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				if (!caster || MapPreferences.mineffect) {
+					return;
 				}
-			]
-		}
-	],
-
-	ef_siennaexecrate: [
-		{
-			wav: 'effect/wl_siennaexecrate',
-			attachedEntity: true
+				const at = [caster.position[0], caster.position[1], caster.position[2]];
+				for (let i = 0; i < 10; i++) {
+					const angle = ((i * 36 + Math.floor(Math.random() * 36)) * Math.PI) / 180;
+					const spikes = planIcePath(80 * Math.cos(angle), 80 * Math.sin(angle));
+					this.add(new IceSpikes(at, Params.Inst.startTick, spikes, ICE_PATH.life, { glow: true }), Params);
+				}
+			}
 		}
 	],
 
@@ -26851,6 +26847,31 @@ export default {
 			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_sub_bottom/',
 			renderBeforeEntities: true,
 			attachedEntity: false
+		}
+	],
+
+	1418: [
+		{
+			// Comet's cast aura (kRO 2025-07-16, CRagEffect 0xbc0a31): on its first tick EF_BeginSpell.wav and one
+			// cast-aura ring (builder 0xbfa8b0, size 45, argument 20: tinted (10, 66, 114), additive) in
+			// new_comet\\new_comet_cast_ring\\ring_rainbow.tga, for the cast time (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_comet/new_comet_cast_ring/ring_rainbow.tga',
+						[20],
+						{ sizes: [45], castTimeOnly: true }
+					),
+					Params
+				);
+			}
 		}
 	],
 
