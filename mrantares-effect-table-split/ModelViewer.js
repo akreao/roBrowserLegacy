@@ -209464,6 +209464,182 @@ end
 		}
 	};
 }));
+// src/Renderer/Effects/LockOnTarget.vs?raw
+var LockOnTarget_default$1;
+var init_LockOnTarget$2 = __esmMin((() => {
+	LockOnTarget_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uRotationMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\n\r\nvoid main(void) {\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0) * uRotationMat;\r\n\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.02;\r\n\r\n    vTextureCoord  = aTextureCoord;\r\n}";
+}));
+// src/Renderer/Effects/LockOnTarget.fs?raw
+var LockOnTarget_default;
+var init_LockOnTarget$1 = __esmMin((() => {
+	LockOnTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uColor;\r\nout vec4 fragColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    fragColor     = textureSample;\r\n    fragColor.gb *= uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+}));
+// src/Renderer/Effects/LockOnTarget.js
+var _texture$7, _program$35, _buffer$20, mat4$24, _matrix$6, LockOnTarget;
+var init_LockOnTarget = __esmMin((() => {
+	init_WebGL();
+	init_Texture();
+	init_gl_matrix();
+	init_Client();
+	init_Configs();
+	init_LockOnTarget$2();
+	init_LockOnTarget$1();
+	mat4$24 = gl_matrix_default.mat4;
+	_matrix$6 = mat4$24.create();
+	LockOnTarget = class LockOnTarget {
+		constructor(target, startTick, endTick) {
+			this.target = target;
+			this.startTick = startTick;
+			this.endTick = endTick;
+		}
+		/**
+		* Preparing for render
+		*
+		* @param {object} webgl context
+		*/
+		init(gl) {
+			this.ready = true;
+		}
+		/**
+		* Destroying data
+		*
+		* @param {object} webgl context
+		*/
+		free(gl) {
+			this.ready = false;
+		}
+		/**
+		* Rendering cast
+		*
+		* @param {object} wegl context
+		*/
+		render(gl, tick) {
+			let time = tick - this.startTick;
+			let color = 20 - Math.floor(time / 20) % 20;
+			color /= 20;
+			time /= 50;
+			time = Math.max(time, 1);
+			time = Math.min(time, 5);
+			gl.uniform3fv(_program$35.uniform.uPosition, this.target.position);
+			gl.uniform1f(_program$35.uniform.uSize, (6 - time) * 3);
+			gl.uniform1f(_program$35.uniform.uColor, color);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+			this.needCleanUp = this.endTick < tick;
+		}
+		/**
+		* Initialize effect
+		*
+		* @param {object} webgl context
+		*/
+		static init(gl) {
+			_program$35 = WebGL_default.createShaderProgram(gl, LockOnTarget_default$1, LockOnTarget_default);
+			_buffer$20 = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+				-.5,
+				-.5,
+				0,
+				0,
+				.5,
+				-.5,
+				1,
+				0,
+				.5,
+				.5,
+				1,
+				1,
+				.5,
+				.5,
+				1,
+				1,
+				-.5,
+				.5,
+				0,
+				1,
+				-.5,
+				-.5,
+				0,
+				0
+			]), gl.STATIC_DRAW);
+			Client.loadFile("data/texture/effect/lockon128.tga", (buffer) => {
+				Texture.load(buffer, function() {
+					const enableMipmap = Configs.get("enableMipmap");
+					const ctx = this.getContext("2d");
+					ctx.save();
+					ctx.translate(this.width / 2, this.height / 2);
+					ctx.rotate(45 / 180 * Math.PI);
+					ctx.translate(-this.width / 2, -this.height / 2);
+					ctx.drawImage(this, 0, 0);
+					ctx.restore();
+					_texture$7 = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, _texture$7);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+					if (enableMipmap) gl.generateMipmap(gl.TEXTURE_2D);
+					LockOnTarget.ready = true;
+				});
+			});
+		}
+		/**
+		* Destroy objects
+		*
+		* @param {object} webgl context
+		*/
+		static free(gl) {
+			if (_texture$7) {
+				gl.deleteTexture(_texture$7);
+				_texture$7 = null;
+			}
+			if (_program$35) {
+				gl.deleteProgram(_program$35);
+				_program$35 = null;
+			}
+			if (_buffer$20) gl.deleteBuffer(_buffer$20);
+			this.ready = false;
+		}
+		/**
+		* Before render, set up program
+		*
+		* @param {object} webgl context
+		*/
+		static beforeRender(gl, modelView, projection, fog, tick) {
+			const uniform = _program$35.uniform;
+			const attribute = _program$35.attribute;
+			mat4$24.identity(_matrix$6);
+			mat4$24.rotateY(_matrix$6, _matrix$6, tick / 4 / 180 * Math.PI);
+			gl.useProgram(_program$35);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$6);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, _texture$7);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
+			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
+		}
+		/**
+		* After render, clean attributes
+		*
+		* @param {object} webgl context
+		*/
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$35.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$35.attribute.aTextureCoord);
+		}
+	};
+	/**
+	* @var {boolean} should we render it before entities ?
+	*/
+	LockOnTarget.renderBeforeEntities = true;
+}));
 // src/Controls/KeyEventHandler.js
 var KEYS, onKeyEvent;
 var init_KeyEventHandler = __esmMin((() => {
@@ -211055,7 +211231,7 @@ var init_SpriteBatch$1 = __esmMin((() => {
 */
 function init$14(gl) {
 	_gl$3 = gl;
-	_program$35 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
+	_program$34 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
 	_quad = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -211078,7 +211254,7 @@ function init$14(gl) {
 	]), gl.STATIC_DRAW);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
-	const attribute = _program$35.attribute;
+	const attribute = _program$34.attribute;
 	gl.bindVertexArray(_vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.enableVertexAttribArray(attribute.aPosition);
@@ -211108,7 +211284,7 @@ function init$14(gl) {
 */
 function pointInstances(first) {
 	const gl = _gl$3;
-	const attribute = _program$35.attribute;
+	const attribute = _program$34.attribute;
 	const base = first * STRIDE;
 	gl.vertexAttribPointer(attribute.aPositionZIndex, 4, gl.FLOAT, false, STRIDE, base);
 	gl.vertexAttribPointer(attribute.aOffsetSize, 4, gl.FLOAT, false, STRIDE, base + 16);
@@ -211117,14 +211293,14 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 80);
 }
-var mat4$24, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$35, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView$3, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$23, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$34, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView$3, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_SpriteAtlas();
 	init_SpriteBatch$2();
 	init_SpriteBatch$1();
-	mat4$24 = gl_matrix_default.mat4;
+	mat4$23 = gl_matrix_default.mat4;
 	FLOATS = 24;
 	STRIDE = 96;
 	SOURCE_OWN = 0;
@@ -211169,7 +211345,7 @@ var init_SpriteBatch = __esmMin((() => {
 		}
 	};
 	_gl$3 = null;
-	_program$35 = null;
+	_program$34 = null;
 	_vao = null;
 	_quad = null;
 	_instanceBuffer = null;
@@ -211222,7 +211398,7 @@ var init_SpriteBatch = __esmMin((() => {
 		static setFrame(modelView, projection, fog, zoom) {
 			_modelView$3.set(modelView);
 			_projection.set(projection);
-			mat4$24.invert(_viewModel, _modelView$3);
+			mat4$23.invert(_viewModel, _modelView$3);
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
@@ -211238,7 +211414,7 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$3 || typeof gl.drawArraysInstanced !== "function") return false;
-			if (!_program$35 || _gl$3 !== gl) init$14(gl);
+			if (!_program$34 || _gl$3 !== gl) init$14(gl);
 			SpriteAtlas.init(gl);
 			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
@@ -211292,7 +211468,7 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static contextRestored() {
 			_gl$3 = null;
-			_program$35 = null;
+			_program$34 = null;
 			_vao = null;
 			_quad = null;
 			_instanceBuffer = null;
@@ -211353,13 +211529,13 @@ var init_SpriteBatch = __esmMin((() => {
 			const total = shadow.count + main.count;
 			if (!_active$3 || !total) return 0;
 			const gl = _gl$3;
-			const uniform = _program$35.uniform;
+			const uniform = _program$34.uniform;
 			if (_upload.length < total * FLOATS) _upload = new Float32Array(total * FLOATS * 2);
 			_upload.set(shadow.data.subarray(0, shadow.count * FLOATS), 0);
 			_upload.set(main.data.subarray(0, main.count * FLOATS), shadow.count * FLOATS);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, _upload, gl.STREAM_DRAW, 0, total * FLOATS);
-			gl.useProgram(_program$35);
+			gl.useProgram(_program$34);
 			gl.bindVertexArray(_vao);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, _projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView$3);
@@ -211428,575 +211604,6 @@ var init_SpriteBatch = __esmMin((() => {
 				gl.blendFunc(gl.SRC_ALPHA, state.blendOne ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
 			}
 			return draws;
-		}
-	};
-}));
-// src/Renderer/SpriteRenderer.vs?raw
-var SpriteRenderer_default$1;
-var init_SpriteRenderer$2 = __esmMin((() => {
-	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uIgnoreZindexCap;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // The whole quad takes the vertical plane depth so the part of the sprite below\r\n        // the water surface sorts behind the (later drawn) water pass.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = uIgnoreZindexCap ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
-}));
-// src/Renderer/SpriteRenderer.fs?raw
-var SpriteRenderer_default;
-var init_SpriteRenderer$1 = __esmMin((() => {
-	SpriteRenderer_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\nuniform vec4 uSpriteRendererColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform float uShadow;\r\nuniform vec2 uTextSize;\r\nuniform bool uIsRGBA;\r\n\r\n// With palette we don't have a good result because of the gl.NEAREST, so smooth it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 TextInterval = 1.0 / uTextSize;\r\n\r\n    float tlLUT = texture(indexT, uv ).x;\r\n    float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;\r\n    float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;\r\n    float brLUT = texture(indexT, uv + TextInterval).x;\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * uTextSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (uSpriteRendererColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, vTextureCoord.st );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= uShadow;\r\n    fragColor   = textureSample * uSpriteRendererColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
-}));
-// src/Renderer/SpriteRenderer.js
-/**
-* Render in 3D mode
-*/
-function RenderCanvas3D(isBlendModeOne) {
-	if (!this.image.texture || !this.color[3]) return;
-	if (SpriteBatch.active) {
-		RecordCanvas3D.call(this, isBlendModeOne);
-		return;
-	}
-	const uniform = _program$34.uniform;
-	const gl = _gl$2;
-	const use_pal = this.image.palette !== null;
-	if (isBlendModeOne) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-	else if (isBlendModeOne === false) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	if (this.shadow !== _shadow) gl.uniform1f(uniform.uShadow, _shadow = this.shadow);
-	gl.uniform3fv(uniform.uSpriteRendererPosition, this.position);
-	if (use_pal) {
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, this.image.palette);
-		gl.uniform2fv(uniform.uTextSize, this.image.size);
-		gl.activeTexture(gl.TEXTURE0);
-	}
-	if (_usepal !== use_pal) gl.uniform1i(uniform.uUsePal, _usepal = use_pal);
-	if (this.depth !== _depth) gl.uniform1f(uniform.uSpriteRendererDepth, _depth = this.depth);
-	const disableDepthCorrection = !!this.disableDepthCorrection;
-	if (_disableDepthCorrection !== disableDepthCorrection) {
-		_disableDepthCorrection = disableDepthCorrection;
-		gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
-	}
-	gl.uniform1i(uniform.uIgnoreZindexCap, this.ignoreDepthMinCap);
-	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
-	if (this.angle !== _angle) {
-		_angle = this.angle;
-		mat4$23.identity(_matrix$6);
-		if (_angle) mat4$23.rotateZ(_matrix$6, _matrix$6, -_angle / 180 * Math.PI);
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$6);
-	}
-	_offset[0] = this.offset[0] / 175 * this.xSize;
-	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
-	_size$7[0] = this.size[0] / 175 * this.xSize;
-	_size$7[1] = this.size[1] / 175 * this.ySize;
-	gl.uniform4fv(uniform.uSpriteRendererColor, this.color);
-	gl.uniform2fv(uniform.uSpriteRendererSize, _size$7);
-	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
-	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
-	if (_groupId !== _lastGroupId || _texture$7 !== this.image.texture) {
-		_lastGroupId = _groupId;
-		gl.bindTexture(gl.TEXTURE_2D, _texture$7 = this.image.texture);
-	}
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-}
-/**
-* Record a sprite into the open batch: the same values RenderCanvas3D
-* uploads as uniforms, and the state it would have drawn with.
-*/
-function RecordCanvas3D(isBlendModeOne) {
-	if (isBlendModeOne === true || isBlendModeOne === false) _blendOne = isBlendModeOne;
-	const image = this.image;
-	let texture = image.texture;
-	let palette = image.palette;
-	let source = SpriteBatch.SOURCE_OWN;
-	let paletteRow = palette ? SpriteBatch.PALETTE_OWN : SpriteBatch.PALETTE_NONE;
-	let layer = 0;
-	let u0 = 0, v0 = 0, u1 = 1, v1 = 1;
-	if (image.frame && image.spr && image.frame.texture === texture) {
-		const rect = SpriteBatch.atlasFor(image.spr, image.frame);
-		if (rect && rect.rgba === !palette) {
-			source = rect.rgba ? SpriteBatch.SOURCE_RGBA : SpriteBatch.SOURCE_INDEX;
-			texture = null;
-			layer = rect.layer;
-			u0 = rect.u0;
-			v0 = rect.v0;
-			u1 = rect.u1;
-			v1 = rect.v1;
-			if (palette) {
-				const row = SpriteBatch.paletteRow(palette, this.palette);
-				if (row >= 0) {
-					paletteRow = row;
-					palette = null;
-				}
-			}
-		}
-	}
-	image.frame = null;
-	image.spr = null;
-	const data = SpriteBatch.record(this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN, texture, palette, image.size[0], image.size[1], _blendOne, _depthTest, _depthMask, !!this.disableDepthCorrection);
-	let o = SpriteBatch.offset;
-	data[o++] = this.position[0];
-	data[o++] = this.position[1];
-	data[o++] = this.position[2];
-	data[o++] = this.zIndex++;
-	data[o++] = this.offset[0] / 175 * this.xSize;
-	data[o++] = this.offset[1] / 175 * this.ySize - .5;
-	data[o++] = this.size[0] / 175 * this.xSize;
-	data[o++] = this.size[1] / 175 * this.ySize;
-	data[o++] = this.color[0];
-	data[o++] = this.color[1];
-	data[o++] = this.color[2];
-	data[o++] = this.color[3];
-	data[o++] = u0;
-	data[o++] = v0;
-	data[o++] = u1;
-	data[o++] = v1;
-	data[o++] = this.angle;
-	data[o++] = this.depth;
-	data[o++] = this.shadow;
-	data[o++] = this.ignoreDepthMinCap ? 1 : 0;
-	data[o++] = source;
-	data[o++] = layer;
-	data[o] = paletteRow;
-}
-/**
-* Convert a sprite frame (RGBA or palette-indexed) into canvas ImageData,
-* applying the layer color modulation.
-*/
-function fillImageData(imageData, frame, pal, color) {
-	let x, y, r, g, b, a, inRow, outRow;
-	const width = frame.width;
-	const height = frame.height;
-	const input = frame.data;
-	const outputWidth = width;
-	const output32 = new Uint32Array(imageData.data.buffer);
-	const r_mul = color[0], g_mul = color[1], b_mul = color[2], a_mul = color[3];
-	const isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
-	if (frame.type === 1) {
-		/**
-		* OLD LOGIC: Per-channel RGBA modulation using byte array access.
-		*            4 loads + 4 stores + multiplications per pixel.
-		* NEW LOGIC: Reads and writes pixels as a single 32-bit integer.
-		*            Uses bitwise extraction and assembly with optional color modulation.
-		*            1 load + 1 store per pixel in the fast path.
-		* Reduces memory writes and bounds checks inside the inner loop.
-		*/
-		const input32 = new Uint32Array(input.buffer);
-		for (y = 0; y < height; ++y) {
-			outRow = y * outputWidth;
-			inRow = y * width;
-			for (x = 0; x < width; ++x) {
-				const pixel = input32[inRow + x];
-				if (pixel === 0) {
-					output32[outRow + x] = 0;
-					continue;
-				}
-				if (isColorIdentity) output32[outRow + x] = pixel;
-				else {
-					r = (pixel & 255) * r_mul;
-					g = (pixel >> 8 & 255) * g_mul;
-					b = (pixel >> 16 & 255) * b_mul;
-					a = (pixel >> 24 & 255) * a_mul;
-					output32[outRow + x] = a << 24 | b << 16 | g << 8 | r;
-				}
-			}
-		}
-	} else {
-		const pal32 = /* @__PURE__ */ new Uint32Array(256);
-		for (let i = 0; i < 256; i++) {
-			if (i === 0) {
-				pal32[i] = 0;
-				continue;
-			}
-			const pIdx = i * 4;
-			r = pal[pIdx + 0] * r_mul | 0;
-			g = pal[pIdx + 1] * g_mul | 0;
-			b = pal[pIdx + 2] * b_mul | 0;
-			a = 255 * a_mul | 0;
-			pal32[i] = a << 24 | b << 16 | g << 8 | r;
-		}
-		for (y = 0; y < height; ++y) {
-			outRow = y * outputWidth;
-			inRow = y * width;
-			for (x = 0; x < width; ++x) output32[outRow + x] = pal32[input[inRow + x]];
-		}
-	}
-}
-function getFrameCanvas(_cache, frame, pal, color) {
-	let entry = _cache.get(frame);
-	if (!entry) {
-		entry = {
-			rgba: /* @__PURE__ */ new Map(),
-			byPalette: /* @__PURE__ */ new WeakMap()
-		};
-		_cache.set(frame, entry);
-	}
-	let byColor;
-	if (frame.type === 1 || !pal) byColor = entry.rgba;
-	else {
-		byColor = entry.byPalette.get(pal);
-		if (!byColor) {
-			byColor = /* @__PURE__ */ new Map();
-			entry.byPalette.set(pal, byColor);
-		}
-	}
-	const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
-	let canvas = byColor.get(colorKey);
-	if (!canvas) {
-		if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
-		canvas = document.createElement("canvas");
-		canvas.width = frame.width;
-		canvas.height = frame.height;
-		const ctx = canvas.getContext("2d");
-		const imageData = ctx.createImageData(frame.width, frame.height);
-		fillImageData(imageData, frame, pal, color);
-		ctx.putImageData(imageData, 0, 0);
-		byColor.set(colorKey, canvas);
-	}
-	return canvas;
-}
-/**
-* Set the depth test and depth write. Inside a batch only the state is kept:
-* each recorded sprite carries it, and SpriteBatch sets it when it draws.
-*
-* @param {boolean} depthTest
-* @param {boolean} depthMask
-*/
-function setDepth(depthTest, depthMask) {
-	const direct = !SpriteBatch.active;
-	if (_depthTest !== depthTest) {
-		_depthTest = depthTest;
-		if (direct) {
-			if (depthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
-			else _gl$2.disable(_gl$2.DEPTH_TEST);
-		}
-	}
-	if (_depthMask !== depthMask) {
-		_depthMask = depthMask;
-		if (direct) _gl$2.depthMask(depthMask);
-	}
-}
-/**
-* After a batch drew with its own program: put this program back and forget
-* the bound texture.
-*/
-function syncAfterBatch() {
-	_gl$2.useProgram(_program$34);
-	_gl$2.activeTexture(_gl$2.TEXTURE0);
-	_texture$7 = null;
-	_groupId++;
-}
-var mat4$23, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$34, _buffer$20, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$7, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
-var init_SpriteRenderer = __esmMin((() => {
-	init_WebGL();
-	init_gl_matrix();
-	init_Configs();
-	init_Camera();
-	init_SpriteBatch();
-	init_SpriteRenderer$2();
-	init_SpriteRenderer$1();
-	mat4$23 = gl_matrix_default.mat4;
-	MAX_COLORS_PER_PALETTE = 8;
-	RenderCanvas2D = (function RenderCanvas2DClosure() {
-		const _cache = /* @__PURE__ */ new WeakMap();
-		return function() {
-			if (this.sprite.width <= 0 || this.sprite.height <= 0) return;
-			let scale_x, scale_y;
-			scale_x = 1;
-			scale_y = 1;
-			const _x = _pos$8[0] + this.offset[0];
-			const _y = _pos$8[1] + this.offset[1] - 17.5;
-			const pal = this.palette;
-			const frame = this.sprite;
-			const width = frame.width;
-			const height = frame.height;
-			_size$7.set(this.size);
-			if (_size$7[0] < 0) {
-				scale_x *= -1;
-				_size$7[0] *= -1;
-			}
-			if (_size$7[1] < 0) {
-				scale_y *= -1;
-				_size$7[1] *= -1;
-			}
-			const canvas = getFrameCanvas(_cache, frame, pal, this.color);
-			_ctx$4.save();
-			_ctx$4.translate(_x | 0, _y | 0);
-			_ctx$4.rotate(this.angle / 180 * Math.PI);
-			_ctx$4.scale(scale_x, scale_y);
-			_ctx$4.drawImage(canvas, 0, 0, width, height, -_size$7[0] >> 1, -_size$7[1] >> 1, _size$7[0] | 0, _size$7[1] | 0);
-			_ctx$4.restore();
-		};
-	})();
-	_program$34 = null;
-	_buffer$20 = null;
-	_ctx$4 = null;
-	_gl$2 = null;
-	_groupId = 0;
-	_lastGroupId = 0;
-	_shadow = null;
-	_angle = null;
-	_depth = null;
-	_disableDepthCorrection = false;
-	_depthMask = true;
-	_depthTest = true;
-	_blendOne = null;
-	_texture$7 = null;
-	_usepal = null;
-	_pos$8 = /* @__PURE__ */ new Int16Array(2);
-	_matrix$6 = /* @__PURE__ */ new Float32Array(16);
-	_size$7 = /* @__PURE__ */ new Float32Array(2);
-	_offset = /* @__PURE__ */ new Float32Array(2);
-	SpriteRenderer = class {
-		static get gl() {
-			return _gl$2;
-		}
-		static get is2D() {
-			return this.render === RenderCanvas2D;
-		}
-		static renderCanvas(canvas) {
-			if (this.render !== RenderCanvas2D) return false;
-			_ctx$4.save();
-			_ctx$4.translate(_pos$8[0] + this.offset[0], _pos$8[1] + this.offset[1] - 17.5);
-			_ctx$4.rotate(this.angle / 180 * Math.PI);
-			_ctx$4.scale(Math.sign(this.size[0]) || 1, Math.sign(this.size[1]) || 1);
-			_ctx$4.drawImage(canvas, -Math.abs(this.size[0]) / 2, -Math.abs(this.size[1]) / 2, Math.abs(this.size[0]), Math.abs(this.size[1]));
-			_ctx$4.restore();
-			return true;
-		}
-		/**
-		* @type {function} functions to use to render
-		*/
-		static render = null;
-		/**
-		* @type {number} sprite shadow (mult * color)
-		*/
-		static shadow = 1;
-		/**
-		* @type {number} sprite angle rotation
-		*/
-		static angle = 0;
-		/**
-		* @type {number} depth
-		*/
-		static depth = 0;
-		/**
-		* @type {Float32Array} sprite position in 3D world
-		*/
-		static position = /* @__PURE__ */ new Float32Array(3);
-		/**
-		* @type {Float32Array} sprite color (color * color)
-		*/
-		static color = /* @__PURE__ */ new Float32Array(4);
-		/**
-		* @type {Float32Array} sprite size
-		*/
-		static size = /* @__PURE__ */ new Float32Array(2);
-		/**
-		* @type {Float32Array} sprite offset position
-		*/
-		static offset = /* @__PURE__ */ new Float32Array(2);
-		/**
-		* @type {object} sprite image information
-		*/
-		static image = {
-			texture: null,
-			palette: null,
-			size: /* @__PURE__ */ new Float32Array(2),
-			spr: null,
-			frame: null
-		};
-		/**
-		* @type {boolean} the sprite is a shadow: a batch draws it before the other sprites
-		*/
-		static shadowQueue = false;
-		/**
-		* @type {object} sprite imageData (for 2D context)
-		*/
-		static sprite = null;
-		/**
-		* @type {object} sprite palette (for 2D context)
-		*/
-		static palette = null;
-		/**
-		* @type {number} groupid used (avoid draw call)
-		*/
-		static groupId = 0;
-		/**
-		* @type {boolean} disable depth correction (ray-plane) for current draw
-		*/
-		static disableDepthCorrection = false;
-		/**
-		* @type {boolean} cached depth test state
-		*/
-		static ignoreDepthMinCap = false;
-		/**
-		* @type {number} width unity
-		*/
-		static xSize = 5;
-		/**
-		* @type {number} height unity
-		*/
-		static ySize = 5;
-		/**
-		* Initialize SpriteRenderer Renderer
-		*
-		* @param {object} gl context
-		*/
-		static init(gl) {
-			if (!_buffer$20) {
-				_buffer$20 = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
-				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-					-.5,
-					.5,
-					0,
-					0,
-					.5,
-					.5,
-					1,
-					0,
-					-.5,
-					-.5,
-					0,
-					1,
-					.5,
-					-.5,
-					1,
-					1
-				]), gl.STATIC_DRAW);
-			}
-			if (!_program$34) _program$34 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
-			SpriteBatch.enabled = Configs.get("spriteBatching", true) !== false;
-		}
-		/**
-		* Initialize 3D Context
-		*
-		* @param {object} gl context
-		* @param {mat4} modelView
-		* @param {mat4} projection
-		* @param {object} fog structure
-		*/
-		static bind3DContext(gl, modelView, projection, fog) {
-			const attribute = _program$34.attribute;
-			const uniform = _program$34.uniform;
-			if (SpriteBatch.active) {
-				this.flushBatch();
-				SpriteBatch.invalidate();
-			}
-			SpriteBatch.setFrame(modelView, projection, fog, Camera.zoom);
-			gl.useProgram(_program$34);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$23.invert(_matrix$6, modelView));
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.uniform1i(uniform.uPalette, 1);
-			gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
-			gl.uniform1f(uniform.uCameraLatitude, Camera.getLatitude());
-			gl.uniform1i(uniform.uDisableDepthCorrection, _disableDepthCorrection = false);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
-			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
-			this.render = RenderCanvas3D;
-			this.xSize = 5;
-			this.ySize = 5;
-			_gl$2 = gl;
-			_depthMask = true;
-			_groupId++;
-		}
-		/**
-		* Unbind 3D Context
-		*
-		* @param {object} gl context
-		*/
-		static unbind(gl) {
-			const attribute = _program$34.attribute;
-			gl.disableVertexAttribArray(attribute.aPosition);
-			gl.disableVertexAttribArray(attribute.aTextureCoord);
-		}
-		/**
-		* Prepare to render on 2D context.
-		*
-		* @param {object} ctx canvas context
-		* @param {number} x position
-		* @param {number} y position
-		*/
-		static bind2DContext(ctx, x, y) {
-			_ctx$4 = ctx;
-			_pos$8[0] = x;
-			_pos$8[1] = y;
-			this.render = RenderCanvas2D;
-			this.xSize = 5;
-			this.ySize = 5;
-		}
-		/**
-		* Executes a render block with an isolated depth state.
-		*
-		* Temporarily overrides depth test, depth write mask, and depth correction
-		* flags, executes the given function, then restores the previous GL state.
-		*
-		* This prevents depth state leakage between render passes and ensures
-		* deterministic layered rendering.
-		*
-		* @param {boolean} use depthTest enable.
-		* @param {boolean} use depthMask enable.
-		* @param {boolean} use disableDepthCorrection enable.
-		* @param {function} execute function with this parameters before restore gl state.
-		*/
-		static runWithDepth(depthTest, depthMask, depthCorrection, fn) {
-			if (!_gl$2) {
-				fn();
-				return;
-			}
-			const prevDepthTest = _depthTest;
-			const prevDepthMask = _depthMask;
-			const prevDepthCorrection = this.disableDepthCorrection;
-			setDepth(depthTest, depthMask);
-			if (this.disableDepthCorrection !== depthCorrection) this.disableDepthCorrection = depthCorrection;
-			try {
-				fn();
-			} finally {
-				setDepth(prevDepthTest, prevDepthMask);
-				if (this.disableDepthCorrection !== prevDepthCorrection) this.disableDepthCorrection = prevDepthCorrection;
-			}
-		}
-		/**
-		* Record the sprites drawn from here to endBatch() and draw them in a few
-		* instanced calls (see SpriteBatch.js). Call after bind3DContext.
-		*
-		* @param {WebGL2RenderingContext} gl
-		*/
-		static beginBatch(gl) {
-			if (SpriteBatch.open(gl, {
-				depthTest: _depthTest,
-				depthMask: _depthMask
-			})) _blendOne = null;
-		}
-		/**
-		* Draw what the batch recorded so far. Anything that draws with another
-		* program in the middle of a batch calls this first, to keep the order.
-		*/
-		static flushBatch() {
-			if (!SpriteBatch.active) return;
-			SpriteBatch.flush({
-				depthTest: _depthTest,
-				depthMask: _depthMask,
-				blendOne: _blendOne
-			});
-			syncAfterBatch();
-		}
-		/**
-		* Draw what the batch recorded and go back to drawing sprites one by one.
-		*/
-		static endBatch() {
-			if (!SpriteBatch.active) return;
-			SpriteBatch.close({
-				depthTest: _depthTest,
-				depthMask: _depthMask,
-				blendOne: _blendOne
-			});
-			syncAfterBatch();
 		}
 	};
 }));
@@ -218290,7 +217897,7 @@ function normalize3(v) {
 * Camera.modelView (the view matrix); the per-instance world is composed on top.
 */
 function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
-	_gl$1 = gl;
+	_gl$2 = gl;
 	if (_instances.length === 0 || !light) return;
 	if (!_program$28) init$8(gl);
 	for (const path in _types) {
@@ -218556,8 +218163,8 @@ function detach(inst) {
 	if (idx !== -1) _instances.splice(idx, 1);
 	const type = _types[inst.path];
 	if (type && type.refcount > 0) type.refcount--;
-	if (inst.emblemTex && _gl$1) {
-		_gl$1.deleteTexture(inst.emblemTex);
+	if (inst.emblemTex && _gl$2) {
+		_gl$2.deleteTexture(inst.emblemTex);
 		inst.emblemTex = null;
 	}
 	inst.entity = null;
@@ -218647,7 +218254,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach(insts[i]);
 	_poseCache = {};
 }
-var mat3$4, mat4$19, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$28, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE$1, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$4, mat4$19, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$28, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE$1, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -218707,7 +218314,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 		treasurebox_2: "emp"
 	};
 	_program$28 = null;
-	_gl$1 = null;
+	_gl$2 = null;
 	_types = {};
 	_missing = {};
 	_instances = [];
@@ -226130,7 +225737,7 @@ function eventsBooks$1() {
 		readCanvas.height = 15;
 		readCanvas.className = "book_read event_add_cursor";
 		event.appendChild(readCanvas);
-		_ctx$3 = readCanvas.getContext("2d");
+		_ctx$4 = readCanvas.getContext("2d");
 		const bookRead = root.querySelector(".book_read");
 		if (bookRead) {
 			bookRead.addEventListener("mouseover", (e) => {
@@ -226163,7 +225770,7 @@ function validateFieldsExist$1(event) {
 	if (!event.querySelector("button")) event.insertAdjacentHTML("beforeend", "<button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button>");
 	return true;
 }
-var _sprite$3, _action$3, _ctx$3, _type$6, _start$1, ItemCompare, rendering$3, ItemCompare_default;
+var _sprite$3, _action$3, _ctx$4, _type$6, _start$1, ItemCompare, rendering$3, ItemCompare_default;
 var init_ItemCompare = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -226307,8 +225914,8 @@ var init_ItemCompare = __esmMin((() => {
 			const animation = action.animations[anim % action.animations.length];
 			let i, count;
 			count = animation.layers.length;
-			SpriteRenderer.bind2DContext(_ctx$3, 10, 25);
-			_ctx$3.clearRect(0, 0, _ctx$3.canvas.width, _ctx$3.canvas.height);
+			SpriteRenderer.bind2DContext(_ctx$4, 10, 25);
+			_ctx$4.clearRect(0, 0, _ctx$4.canvas.width, _ctx$4.canvas.height);
 			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$3, _sprite$3, 1, position, false);
 		};
 	})();
@@ -226379,7 +225986,7 @@ function applyPreviewItem(entity) {
 	if (_previewLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) entity.accessory2 = _previewSpriteId;
 	if (_previewLocation & EquipmentLocation_default.COSTUME_ROBE) entity.robe = _previewSpriteId;
 }
-var ItemPreview, _ctx$2, _direction, _previewLocation, _previewSpriteId, _rendering, _remove, renderPreview, ItemPreview_default;
+var ItemPreview, _ctx$3, _direction, _previewLocation, _previewSpriteId, _rendering, _remove, renderPreview, ItemPreview_default;
 var init_ItemPreview = __esmMin((() => {
 	init_DBManager();
 	init_EquipmentLocation();
@@ -226413,7 +226020,7 @@ var init_ItemPreview = __esmMin((() => {
 	*/
 	ItemPreview.init = function init() {
 		const root = this.getRoot();
-		_ctx$2 = root.querySelector("canvas").getContext("2d");
+		_ctx$3 = root.querySelector("canvas").getContext("2d");
 		root.querySelector(".close").addEventListener("click", () => {
 			ItemPreview.remove();
 		});
@@ -226497,8 +226104,8 @@ var init_ItemPreview = __esmMin((() => {
 			save: false
 		};
 		return function render() {
-			if (!_ctx$2) return;
-			_ctx$2.clearRect(0, 0, _ctx$2.canvas.width, _ctx$2.canvas.height);
+			if (!_ctx$3) return;
+			_ctx$3.clearRect(0, 0, _ctx$3.canvas.width, _ctx$3.canvas.height);
 			if (!_previewSpriteId || !_previewLocation || !SessionStorage_default.Entity) return;
 			const previewCharacter = new Entity();
 			previewCharacter.set({
@@ -226524,8 +226131,8 @@ var init_ItemPreview = __esmMin((() => {
 			previewCharacter.headDir = 0;
 			previewCharacter.action = previewCharacter.ACTION.IDLE;
 			previewCharacter.animation = _animation;
-			SpriteRenderer.bind2DContext(_ctx$2, Math.floor(_ctx$2.canvas.width / 2), _ctx$2.canvas.height);
-			previewCharacter.renderEntity(_ctx$2);
+			SpriteRenderer.bind2DContext(_ctx$3, Math.floor(_ctx$3.canvas.width / 2), _ctx$3.canvas.height);
+			previewCharacter.renderEntity(_ctx$3);
 			previewCharacter.effectColor.set(_savedColor);
 		};
 	})();
@@ -228452,7 +228059,7 @@ function resetPathFindingWorker() {
 	terminatePathFindingWorker();
 	initializePathFindingWorker();
 }
-var PRIVATE_AIRSHIP_PACKETVER, Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$1, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
+var PRIVATE_AIRSHIP_PACKETVER, Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$2, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
 var init_Navigation = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Renderer();
@@ -228481,7 +228088,7 @@ var init_Navigation = __esmMin((() => {
 	_inn = createAsyncImage();
 	_kafra = createAsyncImage();
 	_map = createAsyncImage();
-	_ctx$1 = null;
+	_ctx$2 = null;
 	_towninfo = [];
 	_markers = [];
 	_path = [];
@@ -228530,7 +228137,7 @@ var init_Navigation = __esmMin((() => {
 		const canvas = document.createElement("canvas");
 		canvas.width = 280;
 		canvas.height = 230;
-		_ctx$1 = canvas.getContext("2d");
+		_ctx$2 = canvas.getContext("2d");
 		const mapDisplay = root.querySelector(".map-display");
 		if (mapDisplay) mapDisplay.appendChild(canvas);
 		Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
@@ -228837,7 +228444,7 @@ var init_Navigation = __esmMin((() => {
 		if ((this._host ? getComputedStyle(this._host).display : "none") === "none") return;
 		const width = 280;
 		const height = 230;
-		const ctx = _ctx$1;
+		const ctx = _ctx$2;
 		if (!ctx) return;
 		const currentMap = getCurrentMap();
 		const currentPos = getPlayerPosition();
@@ -249617,7 +249224,7 @@ function eventsBooks() {
 		readCanvas.height = 15;
 		readCanvas.className = "book_read event_add_cursor";
 		event.appendChild(readCanvas);
-		_ctx = readCanvas.getContext("2d");
+		_ctx$1 = readCanvas.getContext("2d");
 		const bookRead = root.querySelector(".book_read");
 		if (bookRead) {
 			bookRead.addEventListener("mouseover", (e) => {
@@ -249688,7 +249295,7 @@ function buildMoveInfoTooltip(moveInfo) {
 	for (const entry of MOVE_INFO_MESSAGES) if (moveInfo[entry.key] === true) lines.push(DB.getMessage(entry.msgId));
 	return lines.map((l) => `<div>${l}</div>`).join("");
 }
-var ItemInfo, _sprite$2, _action$2, _ctx, _type$4, _start, MOVE_INFO_MESSAGES, rendering$2, ItemInfo_default;
+var ItemInfo, _sprite$2, _action$2, _ctx$1, _type$4, _start, MOVE_INFO_MESSAGES, rendering$2, ItemInfo_default;
 var init_ItemInfo = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -249933,8 +249540,8 @@ var init_ItemInfo = __esmMin((() => {
 			const animation = action.animations[anim % action.animations.length];
 			let i, count;
 			count = animation.layers.length;
-			SpriteRenderer.bind2DContext(_ctx, 10, 25);
-			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+			SpriteRenderer.bind2DContext(_ctx$1, 10, 25);
+			_ctx$1.clearRect(0, 0, _ctx$1.canvas.width, _ctx$1.canvas.height);
 			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$2, _sprite$2, 1, position, false);
 		};
 	})();
@@ -262949,7 +262556,7 @@ function clean(name, AID, effectID) {
 	const list = _list$3[name];
 	count = list.length;
 	for (i = 0; i < count; ++i) if ((!AID || list[i]._Params.Init.ownerAID === AID) && (!effectID || effectIdList.includes(list[i]._Params.Inst.effectID))) {
-		if (list[i].free) list[i].free(_gl);
+		if (list[i].free) list[i].free(_gl$1);
 		list.splice(i, 1);
 		i--;
 		count--;
@@ -262965,7 +262572,7 @@ function cleanRepeat(name, AID, effectID) {
 		}
 	});
 }
-var _gl, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
+var _gl$1, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
 var init_EffectManager = __esmMin((() => {
 	init_EffectTable();
 	init_SkillEffect();
@@ -263029,7 +262636,7 @@ var init_EffectManager = __esmMin((() => {
 		* Initialize effects manager
 		*/
 		static init(gl) {
-			_gl = gl;
+			_gl$1 = gl;
 			if (Configs.get("development")) ProcessCommand_default.add("d_effectmanager", "Print EffectManager list to console.", function() {
 				EffectManager.debug();
 			}, ["d_em"], true);
@@ -263783,7 +263390,7 @@ var init_EffectManager = __esmMin((() => {
 				for (let i = list.length - 1; i >= 0; --i) {
 					const Params = list[i]._Params;
 					if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
-						if (list[i].free) list[i].free(_gl);
+						if (list[i].free) list[i].free(_gl$1);
 						list.splice(i, 1);
 					}
 				}
@@ -264137,7 +263744,7 @@ var init_EntitySignboard = __esmMin((() => {
 	EntitySignboard_default = UIManager.addComponent(EntitySignboard);
 }));
 // src/Renderer/SignboardManager.js
-var signboards, mat4$12, vec4$6, _pos$7, _size$6, SignboardManager;
+var signboards, mat4$12, vec4$6, _pos$8, _size$7, SignboardManager;
 var init_SignboardManager = __esmMin((() => {
 	init_gl_matrix();
 	init_Renderer();
@@ -264147,8 +263754,8 @@ var init_SignboardManager = __esmMin((() => {
 	signboards = [];
 	mat4$12 = gl_matrix_default.mat4;
 	vec4$6 = gl_matrix_default.vec4;
-	_pos$7 = /* @__PURE__ */ new Float32Array(4);
-	_size$6 = /* @__PURE__ */ new Float32Array(2);
+	_pos$8 = /* @__PURE__ */ new Float32Array(4);
+	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	SignboardManager = class {
 		/**
 		* Adds a new signboard to the manager.
@@ -264193,19 +263800,19 @@ var init_SignboardManager = __esmMin((() => {
 				_matrix[9] = 0;
 				_matrix[10] = 1;
 				mat4$12.multiply(_matrix, projection, _matrix);
-				_pos$7[0] = 0;
-				_pos$7[1] = signboard.posX / 35;
-				_pos$7[2] = 0;
-				_pos$7[3] = 1;
-				_size$6[0] = Renderer.width / 2;
-				_size$6[1] = Renderer.height / 2;
-				vec4$6.transformMat4(_pos$7, _pos$7, _matrix);
-				const z = _pos$7[3] === 0 ? 1 : 1 / _pos$7[3];
-				_pos$7[0] = _size$6[0] + Math.round(_size$6[0] * (_pos$7[0] * z));
-				_pos$7[1] = _size$6[1] - Math.round(_size$6[1] * (_pos$7[1] * z));
-				if (VerticalFlip.isActive()) _pos$7[1] = Renderer.height - _pos$7[1];
-				ui.style.top = (_pos$7[1] | 0) + "px";
-				ui.style.left = (_pos$7[0] - signboard.posY | 0) + "px";
+				_pos$8[0] = 0;
+				_pos$8[1] = signboard.posX / 35;
+				_pos$8[2] = 0;
+				_pos$8[3] = 1;
+				_size$7[0] = Renderer.width / 2;
+				_size$7[1] = Renderer.height / 2;
+				vec4$6.transformMat4(_pos$8, _pos$8, _matrix);
+				const z = _pos$8[3] === 0 ? 1 : 1 / _pos$8[3];
+				_pos$8[0] = _size$7[0] + Math.round(_size$7[0] * (_pos$8[0] * z));
+				_pos$8[1] = _size$7[1] - Math.round(_size$7[1] * (_pos$8[1] * z));
+				if (VerticalFlip.isActive()) _pos$8[1] = Renderer.height - _pos$8[1];
+				ui.style.top = (_pos$8[1] | 0) + "px";
+				ui.style.left = (_pos$8[0] - signboard.posY | 0) + "px";
 			});
 		}
 		static free() {
@@ -267388,7 +266995,7 @@ function onMapComplete(success, error) {
 		}
 	});
 }
-var mat4$11, _pos$6, _revealing, _nextMap, MapRenderer;
+var mat4$11, _pos$7, _revealing, _nextMap, MapRenderer;
 var init_MapRenderer = __esmMin((() => {
 	init_Thread();
 	init_SoundManager();
@@ -267437,7 +267044,7 @@ var init_MapRenderer = __esmMin((() => {
 	init_WebGL();
 	init_PerfProbe();
 	mat4$11 = gl_matrix_default.mat4;
-	_pos$6 = /* @__PURE__ */ new Uint16Array(2);
+	_pos$7 = /* @__PURE__ */ new Uint16Array(2);
 	_revealing = false;
 	_nextMap = null;
 	MapRenderer = class MapRenderer {
@@ -267617,9 +267224,9 @@ var init_MapRenderer = __esmMin((() => {
 			const normalMat = Camera.normalMat;
 			Ground_default.render(gl, modelView, projection, normalMat, fog, light);
 			Effects_default.spam(SessionStorage_default.Entity.position, tick);
-			if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos$6)) {
-				x = _pos$6[0];
-				y = _pos$6[1];
+			if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos$7)) {
+				x = _pos$7[0];
+				y = _pos$7[1];
 				const isWalkable = Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE;
 				Mouse.world.x = x;
 				Mouse.world.y = y;
@@ -268066,778 +267673,572 @@ var init_Camera = __esmMin((() => {
 		}
 	};
 }));
-// src/Renderer/Effects/LockOnTarget.vs?raw
-var LockOnTarget_default$1;
-var init_LockOnTarget$2 = __esmMin((() => {
-	LockOnTarget_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uRotationMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\n\r\nvoid main(void) {\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0) * uRotationMat;\r\n\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.02;\r\n\r\n    vTextureCoord  = aTextureCoord;\r\n}";
+// src/Renderer/SpriteRenderer.vs?raw
+var SpriteRenderer_default$1;
+var init_SpriteRenderer$2 = __esmMin((() => {
+	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\nuniform bool  uIgnoreZindexCap;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // The whole quad takes the vertical plane depth so the part of the sprite below\r\n        // the water surface sorts behind the (later drawn) water pass.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = uIgnoreZindexCap ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
 }));
-// src/Renderer/Effects/LockOnTarget.fs?raw
-var LockOnTarget_default;
-var init_LockOnTarget$1 = __esmMin((() => {
-	LockOnTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uColor;\r\nout vec4 fragColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    fragColor     = textureSample;\r\n    fragColor.gb *= uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+// src/Renderer/SpriteRenderer.fs?raw
+var SpriteRenderer_default;
+var init_SpriteRenderer$1 = __esmMin((() => {
+	SpriteRenderer_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\nuniform vec4 uSpriteRendererColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform float uShadow;\r\nuniform vec2 uTextSize;\r\nuniform bool uIsRGBA;\r\n\r\n// With palette we don't have a good result because of the gl.NEAREST, so smooth it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 TextInterval = 1.0 / uTextSize;\r\n\r\n    float tlLUT = texture(indexT, uv ).x;\r\n    float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;\r\n    float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;\r\n    float brLUT = texture(indexT, uv + TextInterval).x;\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * uTextSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (uSpriteRendererColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, vTextureCoord.st );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= uShadow;\r\n    fragColor   = textureSample * uSpriteRendererColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
-// src/Renderer/Effects/LockOnTarget.js
-var _texture$5, _program$14, _buffer$6, mat4$9, _matrix$2, LockOnTarget;
-var init_LockOnTarget = __esmMin((() => {
+// src/Renderer/SpriteRenderer.js
+/**
+* Render in 3D mode
+*/
+function RenderCanvas3D(isBlendModeOne) {
+	if (!this.image.texture || !this.color[3]) return;
+	if (SpriteBatch.active) {
+		RecordCanvas3D.call(this, isBlendModeOne);
+		return;
+	}
+	const uniform = _program$14.uniform;
+	const gl = _gl;
+	const use_pal = this.image.palette !== null;
+	if (isBlendModeOne) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+	else if (isBlendModeOne === false) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	if (this.shadow !== _shadow) gl.uniform1f(uniform.uShadow, _shadow = this.shadow);
+	gl.uniform3fv(uniform.uSpriteRendererPosition, this.position);
+	if (use_pal) {
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, this.image.palette);
+		gl.uniform2fv(uniform.uTextSize, this.image.size);
+		gl.activeTexture(gl.TEXTURE0);
+	}
+	if (_usepal !== use_pal) gl.uniform1i(uniform.uUsePal, _usepal = use_pal);
+	if (this.depth !== _depth) gl.uniform1f(uniform.uSpriteRendererDepth, _depth = this.depth);
+	const disableDepthCorrection = !!this.disableDepthCorrection;
+	if (_disableDepthCorrection !== disableDepthCorrection) {
+		_disableDepthCorrection = disableDepthCorrection;
+		gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
+	}
+	gl.uniform1i(uniform.uIgnoreZindexCap, this.ignoreDepthMinCap);
+	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
+	if (this.angle !== _angle) {
+		_angle = this.angle;
+		mat4$9.identity(_matrix$2);
+		if (_angle) mat4$9.rotateZ(_matrix$2, _matrix$2, -_angle / 180 * Math.PI);
+		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$2);
+	}
+	_offset[0] = this.offset[0] / 175 * this.xSize;
+	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
+	_size$6[0] = this.size[0] / 175 * this.xSize;
+	_size$6[1] = this.size[1] / 175 * this.ySize;
+	gl.uniform4fv(uniform.uSpriteRendererColor, this.color);
+	gl.uniform2fv(uniform.uSpriteRendererSize, _size$6);
+	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
+	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
+	if (_groupId !== _lastGroupId || _texture$5 !== this.image.texture) {
+		_lastGroupId = _groupId;
+		gl.bindTexture(gl.TEXTURE_2D, _texture$5 = this.image.texture);
+	}
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+/**
+* Record a sprite into the open batch: the same values RenderCanvas3D
+* uploads as uniforms, and the state it would have drawn with.
+*/
+function RecordCanvas3D(isBlendModeOne) {
+	if (isBlendModeOne === true || isBlendModeOne === false) _blendOne = isBlendModeOne;
+	const image = this.image;
+	let texture = image.texture;
+	let palette = image.palette;
+	let source = SpriteBatch.SOURCE_OWN;
+	let paletteRow = palette ? SpriteBatch.PALETTE_OWN : SpriteBatch.PALETTE_NONE;
+	let layer = 0;
+	let u0 = 0, v0 = 0, u1 = 1, v1 = 1;
+	if (image.frame && image.spr && image.frame.texture === texture) {
+		const rect = SpriteBatch.atlasFor(image.spr, image.frame);
+		if (rect && rect.rgba === !palette) {
+			source = rect.rgba ? SpriteBatch.SOURCE_RGBA : SpriteBatch.SOURCE_INDEX;
+			texture = null;
+			layer = rect.layer;
+			u0 = rect.u0;
+			v0 = rect.v0;
+			u1 = rect.u1;
+			v1 = rect.v1;
+			if (palette) {
+				const row = SpriteBatch.paletteRow(palette, this.palette);
+				if (row >= 0) {
+					paletteRow = row;
+					palette = null;
+				}
+			}
+		}
+	}
+	image.frame = null;
+	image.spr = null;
+	const data = SpriteBatch.record(this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN, texture, palette, image.size[0], image.size[1], _blendOne, _depthTest, _depthMask, !!this.disableDepthCorrection);
+	let o = SpriteBatch.offset;
+	data[o++] = this.position[0];
+	data[o++] = this.position[1];
+	data[o++] = this.position[2];
+	data[o++] = this.zIndex++;
+	data[o++] = this.offset[0] / 175 * this.xSize;
+	data[o++] = this.offset[1] / 175 * this.ySize - .5;
+	data[o++] = this.size[0] / 175 * this.xSize;
+	data[o++] = this.size[1] / 175 * this.ySize;
+	data[o++] = this.color[0];
+	data[o++] = this.color[1];
+	data[o++] = this.color[2];
+	data[o++] = this.color[3];
+	data[o++] = u0;
+	data[o++] = v0;
+	data[o++] = u1;
+	data[o++] = v1;
+	data[o++] = this.angle;
+	data[o++] = this.depth;
+	data[o++] = this.shadow;
+	data[o++] = this.ignoreDepthMinCap ? 1 : 0;
+	data[o++] = source;
+	data[o++] = layer;
+	data[o] = paletteRow;
+}
+/**
+* Convert a sprite frame (RGBA or palette-indexed) into canvas ImageData,
+* applying the layer color modulation.
+*/
+function fillImageData(imageData, frame, pal, color) {
+	let x, y, r, g, b, a, inRow, outRow;
+	const width = frame.width;
+	const height = frame.height;
+	const input = frame.data;
+	const outputWidth = width;
+	const output32 = new Uint32Array(imageData.data.buffer);
+	const r_mul = color[0], g_mul = color[1], b_mul = color[2], a_mul = color[3];
+	const isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
+	if (frame.type === 1) {
+		/**
+		* OLD LOGIC: Per-channel RGBA modulation using byte array access.
+		*            4 loads + 4 stores + multiplications per pixel.
+		* NEW LOGIC: Reads and writes pixels as a single 32-bit integer.
+		*            Uses bitwise extraction and assembly with optional color modulation.
+		*            1 load + 1 store per pixel in the fast path.
+		* Reduces memory writes and bounds checks inside the inner loop.
+		*/
+		const input32 = new Uint32Array(input.buffer);
+		for (y = 0; y < height; ++y) {
+			outRow = y * outputWidth;
+			inRow = y * width;
+			for (x = 0; x < width; ++x) {
+				const pixel = input32[inRow + x];
+				if (pixel === 0) {
+					output32[outRow + x] = 0;
+					continue;
+				}
+				if (isColorIdentity) output32[outRow + x] = pixel;
+				else {
+					r = (pixel & 255) * r_mul;
+					g = (pixel >> 8 & 255) * g_mul;
+					b = (pixel >> 16 & 255) * b_mul;
+					a = (pixel >> 24 & 255) * a_mul;
+					output32[outRow + x] = a << 24 | b << 16 | g << 8 | r;
+				}
+			}
+		}
+	} else {
+		const pal32 = /* @__PURE__ */ new Uint32Array(256);
+		for (let i = 0; i < 256; i++) {
+			if (i === 0) {
+				pal32[i] = 0;
+				continue;
+			}
+			const pIdx = i * 4;
+			r = pal[pIdx + 0] * r_mul | 0;
+			g = pal[pIdx + 1] * g_mul | 0;
+			b = pal[pIdx + 2] * b_mul | 0;
+			a = 255 * a_mul | 0;
+			pal32[i] = a << 24 | b << 16 | g << 8 | r;
+		}
+		for (y = 0; y < height; ++y) {
+			outRow = y * outputWidth;
+			inRow = y * width;
+			for (x = 0; x < width; ++x) output32[outRow + x] = pal32[input[inRow + x]];
+		}
+	}
+}
+function getFrameCanvas(_cache, frame, pal, color) {
+	let entry = _cache.get(frame);
+	if (!entry) {
+		entry = {
+			rgba: /* @__PURE__ */ new Map(),
+			byPalette: /* @__PURE__ */ new WeakMap()
+		};
+		_cache.set(frame, entry);
+	}
+	let byColor;
+	if (frame.type === 1 || !pal) byColor = entry.rgba;
+	else {
+		byColor = entry.byPalette.get(pal);
+		if (!byColor) {
+			byColor = /* @__PURE__ */ new Map();
+			entry.byPalette.set(pal, byColor);
+		}
+	}
+	const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
+	let canvas = byColor.get(colorKey);
+	if (!canvas) {
+		if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
+		canvas = document.createElement("canvas");
+		canvas.width = frame.width;
+		canvas.height = frame.height;
+		const ctx = canvas.getContext("2d");
+		const imageData = ctx.createImageData(frame.width, frame.height);
+		fillImageData(imageData, frame, pal, color);
+		ctx.putImageData(imageData, 0, 0);
+		byColor.set(colorKey, canvas);
+	}
+	return canvas;
+}
+/**
+* Set the depth test and depth write. Inside a batch only the state is kept:
+* each recorded sprite carries it, and SpriteBatch sets it when it draws.
+*
+* @param {boolean} depthTest
+* @param {boolean} depthMask
+*/
+function setDepth(depthTest, depthMask) {
+	const direct = !SpriteBatch.active;
+	if (_depthTest !== depthTest) {
+		_depthTest = depthTest;
+		if (direct) {
+			if (depthTest) _gl.enable(_gl.DEPTH_TEST);
+			else _gl.disable(_gl.DEPTH_TEST);
+		}
+	}
+	if (_depthMask !== depthMask) {
+		_depthMask = depthMask;
+		if (direct) _gl.depthMask(depthMask);
+	}
+}
+/**
+* After a batch drew with its own program: put this program back and forget
+* the bound texture.
+*/
+function syncAfterBatch() {
+	_gl.useProgram(_program$14);
+	_gl.activeTexture(_gl.TEXTURE0);
+	_texture$5 = null;
+	_groupId++;
+}
+var mat4$9, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$14, _buffer$6, _ctx, _gl, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$5, _usepal, _pos$6, _matrix$2, _size$6, _offset, SpriteRenderer;
+var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
-	init_Texture();
 	init_gl_matrix();
-	init_Client();
 	init_Configs();
-	init_LockOnTarget$2();
-	init_LockOnTarget$1();
+	init_Camera();
+	init_SpriteBatch();
+	init_SpriteRenderer$2();
+	init_SpriteRenderer$1();
 	mat4$9 = gl_matrix_default.mat4;
-	_matrix$2 = mat4$9.create();
-	LockOnTarget = class LockOnTarget {
-		constructor(target, startTick, endTick) {
-			this.target = target;
-			this.startTick = startTick;
-			this.endTick = endTick;
+	MAX_COLORS_PER_PALETTE = 8;
+	RenderCanvas2D = (function RenderCanvas2DClosure() {
+		const _cache = /* @__PURE__ */ new WeakMap();
+		return function() {
+			if (this.sprite.width <= 0 || this.sprite.height <= 0) return;
+			let scale_x, scale_y;
+			scale_x = 1;
+			scale_y = 1;
+			const _x = _pos$6[0] + this.offset[0];
+			const _y = _pos$6[1] + this.offset[1] - 17.5;
+			const pal = this.palette;
+			const frame = this.sprite;
+			const width = frame.width;
+			const height = frame.height;
+			_size$6.set(this.size);
+			if (_size$6[0] < 0) {
+				scale_x *= -1;
+				_size$6[0] *= -1;
+			}
+			if (_size$6[1] < 0) {
+				scale_y *= -1;
+				_size$6[1] *= -1;
+			}
+			const canvas = getFrameCanvas(_cache, frame, pal, this.color);
+			_ctx.save();
+			_ctx.translate(_x | 0, _y | 0);
+			_ctx.rotate(this.angle / 180 * Math.PI);
+			_ctx.scale(scale_x, scale_y);
+			_ctx.drawImage(canvas, 0, 0, width, height, -_size$6[0] >> 1, -_size$6[1] >> 1, _size$6[0] | 0, _size$6[1] | 0);
+			_ctx.restore();
+		};
+	})();
+	_program$14 = null;
+	_buffer$6 = null;
+	_ctx = null;
+	_gl = null;
+	_groupId = 0;
+	_lastGroupId = 0;
+	_shadow = null;
+	_angle = null;
+	_depth = null;
+	_disableDepthCorrection = false;
+	_depthMask = true;
+	_depthTest = true;
+	_blendOne = null;
+	_texture$5 = null;
+	_usepal = null;
+	_pos$6 = /* @__PURE__ */ new Int16Array(2);
+	_matrix$2 = /* @__PURE__ */ new Float32Array(16);
+	_size$6 = /* @__PURE__ */ new Float32Array(2);
+	_offset = /* @__PURE__ */ new Float32Array(2);
+	SpriteRenderer = class {
+		static get gl() {
+			return _gl;
+		}
+		static get is2D() {
+			return this.render === RenderCanvas2D;
+		}
+		static renderCanvas(canvas) {
+			if (this.render !== RenderCanvas2D) return false;
+			_ctx.save();
+			_ctx.translate(_pos$6[0] + this.offset[0], _pos$6[1] + this.offset[1] - 17.5);
+			_ctx.rotate(this.angle / 180 * Math.PI);
+			_ctx.scale(Math.sign(this.size[0]) || 1, Math.sign(this.size[1]) || 1);
+			_ctx.drawImage(canvas, -Math.abs(this.size[0]) / 2, -Math.abs(this.size[1]) / 2, Math.abs(this.size[0]), Math.abs(this.size[1]));
+			_ctx.restore();
+			return true;
 		}
 		/**
-		* Preparing for render
-		*
-		* @param {object} webgl context
+		* @type {function} functions to use to render
 		*/
-		init(gl) {
-			this.ready = true;
-		}
+		static render = null;
 		/**
-		* Destroying data
-		*
-		* @param {object} webgl context
+		* @type {number} sprite shadow (mult * color)
 		*/
-		free(gl) {
-			this.ready = false;
-		}
+		static shadow = 1;
 		/**
-		* Rendering cast
-		*
-		* @param {object} wegl context
+		* @type {number} sprite angle rotation
 		*/
-		render(gl, tick) {
-			let time = tick - this.startTick;
-			let color = 20 - Math.floor(time / 20) % 20;
-			color /= 20;
-			time /= 50;
-			time = Math.max(time, 1);
-			time = Math.min(time, 5);
-			gl.uniform3fv(_program$14.uniform.uPosition, this.target.position);
-			gl.uniform1f(_program$14.uniform.uSize, (6 - time) * 3);
-			gl.uniform1f(_program$14.uniform.uColor, color);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-			this.needCleanUp = this.endTick < tick;
-		}
+		static angle = 0;
 		/**
-		* Initialize effect
+		* @type {number} depth
+		*/
+		static depth = 0;
+		/**
+		* @type {Float32Array} sprite position in 3D world
+		*/
+		static position = /* @__PURE__ */ new Float32Array(3);
+		/**
+		* @type {Float32Array} sprite color (color * color)
+		*/
+		static color = /* @__PURE__ */ new Float32Array(4);
+		/**
+		* @type {Float32Array} sprite size
+		*/
+		static size = /* @__PURE__ */ new Float32Array(2);
+		/**
+		* @type {Float32Array} sprite offset position
+		*/
+		static offset = /* @__PURE__ */ new Float32Array(2);
+		/**
+		* @type {object} sprite image information
+		*/
+		static image = {
+			texture: null,
+			palette: null,
+			size: /* @__PURE__ */ new Float32Array(2),
+			spr: null,
+			frame: null
+		};
+		/**
+		* @type {boolean} the sprite is a shadow: a batch draws it before the other sprites
+		*/
+		static shadowQueue = false;
+		/**
+		* @type {object} sprite imageData (for 2D context)
+		*/
+		static sprite = null;
+		/**
+		* @type {object} sprite palette (for 2D context)
+		*/
+		static palette = null;
+		/**
+		* @type {number} groupid used (avoid draw call)
+		*/
+		static groupId = 0;
+		/**
+		* @type {boolean} disable depth correction (ray-plane) for current draw
+		*/
+		static disableDepthCorrection = false;
+		/**
+		* @type {boolean} cached depth test state
+		*/
+		static ignoreDepthMinCap = false;
+		/**
+		* @type {number} width unity
+		*/
+		static xSize = 5;
+		/**
+		* @type {number} height unity
+		*/
+		static ySize = 5;
+		/**
+		* Initialize SpriteRenderer Renderer
 		*
-		* @param {object} webgl context
+		* @param {object} gl context
 		*/
 		static init(gl) {
-			_program$14 = WebGL_default.createShaderProgram(gl, LockOnTarget_default$1, LockOnTarget_default);
-			_buffer$6 = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$6);
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-				-.5,
-				-.5,
-				0,
-				0,
-				.5,
-				-.5,
-				1,
-				0,
-				.5,
-				.5,
-				1,
-				1,
-				.5,
-				.5,
-				1,
-				1,
-				-.5,
-				.5,
-				0,
-				1,
-				-.5,
-				-.5,
-				0,
-				0
-			]), gl.STATIC_DRAW);
-			Client.loadFile("data/texture/effect/lockon128.tga", (buffer) => {
-				Texture.load(buffer, function() {
-					const enableMipmap = Configs.get("enableMipmap");
-					const ctx = this.getContext("2d");
-					ctx.save();
-					ctx.translate(this.width / 2, this.height / 2);
-					ctx.rotate(45 / 180 * Math.PI);
-					ctx.translate(-this.width / 2, -this.height / 2);
-					ctx.drawImage(this, 0, 0);
-					ctx.restore();
-					_texture$5 = gl.createTexture();
-					gl.bindTexture(gl.TEXTURE_2D, _texture$5);
-					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
-					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-					if (enableMipmap) gl.generateMipmap(gl.TEXTURE_2D);
-					LockOnTarget.ready = true;
-				});
-			});
+			if (!_buffer$6) {
+				_buffer$6 = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$6);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+					-.5,
+					.5,
+					0,
+					0,
+					.5,
+					.5,
+					1,
+					0,
+					-.5,
+					-.5,
+					0,
+					1,
+					.5,
+					-.5,
+					1,
+					1
+				]), gl.STATIC_DRAW);
+			}
+			if (!_program$14) _program$14 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
+			SpriteBatch.enabled = Configs.get("spriteBatching", true) !== false;
 		}
 		/**
-		* Destroy objects
+		* Initialize 3D Context
 		*
-		* @param {object} webgl context
+		* @param {object} gl context
+		* @param {mat4} modelView
+		* @param {mat4} projection
+		* @param {object} fog structure
 		*/
-		static free(gl) {
-			if (_texture$5) {
-				gl.deleteTexture(_texture$5);
-				_texture$5 = null;
-			}
-			if (_program$14) {
-				gl.deleteProgram(_program$14);
-				_program$14 = null;
-			}
-			if (_buffer$6) gl.deleteBuffer(_buffer$6);
-			this.ready = false;
-		}
-		/**
-		* Before render, set up program
-		*
-		* @param {object} webgl context
-		*/
-		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$14.uniform;
+		static bind3DContext(gl, modelView, projection, fog) {
 			const attribute = _program$14.attribute;
-			mat4$9.identity(_matrix$2);
-			mat4$9.rotateY(_matrix$2, _matrix$2, tick / 4 / 180 * Math.PI);
+			const uniform = _program$14.uniform;
+			if (SpriteBatch.active) {
+				this.flushBatch();
+				SpriteBatch.invalidate();
+			}
+			SpriteBatch.setFrame(modelView, projection, fog, Camera.zoom);
 			gl.useProgram(_program$14);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$2);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$9.invert(_matrix$2, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, _texture$5);
 			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.uniform1i(uniform.uPalette, 1);
+			gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
+			gl.uniform1f(uniform.uCameraLatitude, Camera.getLatitude());
+			gl.uniform1i(uniform.uDisableDepthCorrection, _disableDepthCorrection = false);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$6);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
+			this.render = RenderCanvas3D;
+			this.xSize = 5;
+			this.ySize = 5;
+			_gl = gl;
+			_depthMask = true;
+			_groupId++;
 		}
 		/**
-		* After render, clean attributes
+		* Unbind 3D Context
 		*
-		* @param {object} webgl context
+		* @param {object} gl context
 		*/
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$14.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$14.attribute.aTextureCoord);
+		static unbind(gl) {
+			const attribute = _program$14.attribute;
+			gl.disableVertexAttribArray(attribute.aPosition);
+			gl.disableVertexAttribArray(attribute.aTextureCoord);
 		}
-	};
-	/**
-	* @var {boolean} should we render it before entities ?
-	*/
-	LockOnTarget.renderBeforeEntities = true;
-}));
-// src/Renderer/Effects/EndureSim.js
-/**
-* Alpha (0-254) after k ticks of a prim's life.
-*
-* @param {number} k
-* @param {number} life
-* @return {number}
-*/
-function primAlpha(k, life) {
-	const fadeStart = life - Math.floor(life / 3);
-	const rise = (alpha) => Math.min(ENDURE.alphaMax / ENDURE.fadeIn * alpha, ENDURE.alphaMax);
-	if (k < fadeStart) return rise(k);
-	return Math.max(rise(fadeStart) * (life - k) / (life - fadeStart), 0);
-}
-/**
-* Half size of endure.tga after k ticks.
-*
-* @param {number} k
-* @return {number}
-*/
-function ringHalfSize(k) {
-	const { half, speed, shrinkTicks } = ENDURE.ring;
-	const n = Math.min(k, shrinkTicks);
-	const accel = -speed / shrinkTicks;
-	return half + speed * n + accel * n * (n + 1) / 2;
-}
-/**
-* endure.tga `age` ticks after the effect started, or null outside its life.
-*
-* @param {number} age
-* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
-*/
-function ringAt(age) {
-	const k = Math.floor(age);
-	if (k < 0 || k >= ENDURE.life) return null;
-	const size = ringHalfSize(k) * 2;
-	return {
-		offsetX: 0,
-		offsetY: -ENDURE.lift,
-		sizeX: size,
-		sizeY: size,
-		alpha: primAlpha(k, ENDURE.life),
-		angle: 0
-	};
-}
-/**
-* The streaks that show (born on ticks 0-41).
-*
-* @param {function} [random] returns a number in [0, 1)
-* @return {Array<object>} { spawn, angle, dist, halfWidth, halfLength }
-*/
-function planStreaks(random = Math.random) {
-	const streaks = [];
-	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
-		const streak = {
-			spawn,
-			angle: r(random, 360),
-			dist: 100 + r(random, 40),
-			halfWidth: (60 + r(random, 100)) / 100,
-			halfLength: 30 + r(random, 20)
-		};
-		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
-	}
-	return streaks;
-}
-/**
-* Distance a streak has slid back after k ticks.
-*
-* @param {number} k
-* @return {number}
-*/
-function streakSlide(k) {
-	const { speed, accel } = ENDURE.streak;
-	return -(speed * k + accel * k * (k + 1) / 2);
-}
-/**
-* A streak `age` ticks after its spawn, or null outside its life.
-*
-* @param {object} streak from planStreaks
-* @param {number} age
-* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
-*/
-function streakAt(streak, age) {
-	const k = Math.floor(age);
-	if (k < 0 || k >= ENDURE.streak.life) return null;
-	const dist = streak.dist - streakSlide(k);
-	return {
-		offsetX: Math.sin(rad(streak.angle)) * dist,
-		offsetY: -Math.cos(rad(streak.angle)) * dist - ENDURE.lift,
-		sizeX: streak.halfWidth * 2,
-		sizeY: streak.halfLength * 2,
-		alpha: primAlpha(k, ENDURE.streak.life),
-		angle: streak.angle
-	};
-}
-var ENDURE, r, rad;
-var init_EndureSim = __esmMin((() => {
-	ENDURE = {
-		life: 80,
-		lift: 20,
-		alphaMax: 254,
-		fadeIn: 20,
-		ring: {
-			half: 150,
-			speed: -5,
-			shrinkTicks: 45
-		},
-		streak: {
-			ticks: 50,
-			life: 40,
-			speed: -4,
-			accel: .1
-		}
-	};
-	r = (random, k) => Math.floor(random() * k);
-	rad = (deg) => deg * Math.PI / 180;
-}));
-// src/DB/Effects/EndureEffect.js
-/**
-* A 3D row drawing one prim on the caster from a sampler.
-*
-* @param {string} file texture
-* @param {number} life ticks
-* @param {function} at age -> sample in client numbers, or null
-* @return {object}
-*/
-function primEffect(file, life, at) {
-	return {
-		type: "3D",
-		file,
-		sharedTexture: true,
-		alphaMax: 1,
-		attachedEntity: true,
-		duration: life * PRIM_TICK_MS,
-		zIndex: 10,
-		track(age) {
-			const p = at(age);
-			if (!p) return null;
-			return {
-				x: 0,
-				y: 0,
-				z: 0,
-				offsetX: p.offsetX,
-				offsetY: p.offsetY,
-				sizeX: p.sizeX,
-				sizeY: p.sizeY,
-				alpha: p.alpha / 255,
-				angle: p.angle
-			};
-		}
-	};
-}
-/**
-* The row of one streak. It starts on the streak's own tick.
-*
-* @param {object} streak from planStreaks
-* @return {object}
-*/
-function endureStreakEffect(streak) {
-	return primEffect("effect/alpha_down.tga", ENDURE.streak.life, (age) => streakAt(streak, age));
-}
-var endureRingEffect, endureEffect;
-var init_EndureEffect = __esmMin((() => {
-	init_EffectPrimSim();
-	init_EndureSim();
-	endureRingEffect = primEffect("effect/endure.tga", ENDURE.life, ringAt);
-	endureEffect = [{
-		...endureRingEffect,
-		wav: "effect/ef_endure"
-	}, {
-		type: "FUNC",
-		attachedEntity: true,
-		func: function(Params) {
-			planStreaks().forEach((streak, i) => {
-				this.spamEffect({
-					effect: endureStreakEffect(streak),
-					Inst: {
-						effectID: 11,
-						duplicateID: i + 1,
-						startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS
-					},
-					Init: Params.Init
-				});
-			});
-		}
-	}];
-}));
-// src/Renderer/Effects/BoltRainSim.js
-/**
-* A whole number from 0 to k - 1
-*
-* @param {number} k
-* @param {function} [random] returns a number in [0, 1)
-* @return {number}
-*/
-function randomInt$1(k, random = Math.random) {
-	return Math.min(k - 1, Math.floor(random() * k));
-}
-/**
-* Plan every bolt of one effect
-*
-* @param {number} count the damage packet's hit count
-* @param {function} [random] returns a number in [0, 1)
-* @return {Array} bolts: spawn tick, start point, step a tick, ticks of flight
-*/
-function planBolts(count, random = Math.random) {
-	const n = Math.max(1, Math.min(BOLT.maxCount, Math.floor(count) || 1));
-	const bolts = [];
-	for (let i = 0; i < n; ++i) {
-		const start = {
-			x: BOLT.startX + randomInt$1(BOLT.spread, random),
-			y: BOLT.startY + randomInt$1(BOLT.spread, random),
-			up: BOLT.height
-		};
-		const aimX = randomInt$1(BOLT.aim, random) - BOLT.aim / 2;
-		const aimY = randomInt$1(BOLT.aim, random) - BOLT.aim / 2;
-		const heading = Math.atan2(aimY - start.y, aimX - start.x);
-		const elevation = Math.atan2(BOLT.height, Math.hypot(start.x, start.y));
-		const flat = Math.cos(elevation) * BOLT.speed;
-		const step = {
-			x: Math.cos(heading) * flat,
-			y: Math.sin(heading) * flat,
-			up: -Math.sin(elevation) * BOLT.speed
-		};
-		bolts.push({
-			spawn: BOLT.first + BOLT.every * i,
-			start,
-			step,
-			flight: Math.ceil(BOLT.height / -step.up)
-		});
-	}
-	return bolts;
-}
-/**
-* Where a bolt is and how visible, at the given age (ticks since it started)
-*
-* @param {object} bolt from planBolts
-* @param {number} age
-* @return {object|null} x, y, up, alpha (0..254); null once it is gone
-*/
-function boltAt(bolt, age) {
-	if (age < 0) return null;
-	const moving = Math.min(age, bolt.flight);
-	const ownAge = age <= bolt.flight ? age : BOLT.landAge + (age - bolt.flight);
-	if (ownAge >= BOLT.life) return null;
-	const alpha = ownAge <= BOLT.fadeStart ? BOLT.alpha : BOLT.alpha * (BOLT.life - ownAge) / (BOLT.life - BOLT.fadeStart);
-	return {
-		x: bolt.start.x + bolt.step.x * moving,
-		y: bolt.start.y + bolt.step.y * moving,
-		up: bolt.start.up + bolt.step.up * moving,
-		alpha
-	};
-}
-/**
-* Tick (since the effect started) on which a bolt lands and opens its ring
-*
-* @param {object} bolt
-* @return {number}
-*/
-function ringStart(bolt) {
-	return bolt.spawn + bolt.flight;
-}
-/**
-* Write one vertex in roBrowser's GL space (x, y on the map, up; GL keeps the
-* map plane in x/z and points y down)
-*/
-function vertex$5(out, i, center, x, y, up, u, v) {
-	out[i + 0] = center[0] + .5 + x / 5;
-	out[i + 1] = -center[2] - up / 5;
-	out[i + 2] = center[1] + .5 + y / 5;
-	out[i + 3] = u;
-	out[i + 4] = v;
-	return i + 5;
-}
-/**
-* Build one bolt: two quads crossing along its line, one level and one upright.
-*
-* @param {Float32Array} out
-* @param {number} offset first float to write
-* @param {object} bolt from planBolts
-* @param {object} point from boltAt
-* @param {object} kind BOLT_KINDS entry
-* @param {Array} center target position, in cells
-* @return {number} next float to write
-*/
-function buildBolt(out, offset, bolt, point, kind, center) {
-	let axes = bolt.axes;
-	if (!axes) {
-		const len = Math.hypot(bolt.step.x, bolt.step.y, bolt.step.up);
-		const dx = bolt.step.x / len;
-		const dy = bolt.step.y / len;
-		const dz = bolt.step.up / len;
-		const flat = Math.hypot(dx, dy) || 1;
-		const sx = -dy / flat;
-		const sy = dx / flat;
-		axes = bolt.axes = [
-			dx,
-			dy,
-			dz,
-			sx,
-			sy,
-			0,
-			sy * dz,
-			-sx * dz,
-			sx * dy - sy * dx
-		];
-	}
-	const L = kind.length;
-	const W = kind.width;
-	let o = offset;
-	for (let quad = 0; quad < 2; ++quad) {
-		const ax = axes[3 + quad * 3];
-		const ay = axes[4 + quad * 3];
-		const az = axes[5 + quad * 3];
-		const tx = point.x - axes[0] * L;
-		const ty = point.y - axes[1] * L;
-		const tz = point.up - axes[2] * L;
-		const hx = point.x + axes[0] * L;
-		const hy = point.y + axes[1] * L;
-		const hz = point.up + axes[2] * L;
-		const wx = ax * W;
-		const wy = ay * W;
-		const wz = az * W;
-		o = vertex$5(out, o, center, tx - wx, ty - wy, tz - wz, 0, 1);
-		o = vertex$5(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
-		o = vertex$5(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
-		o = vertex$5(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
-		o = vertex$5(out, o, center, hx + wx, hy + wy, hz + wz, 1, 0);
-		o = vertex$5(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
-	}
-	return o;
-}
-/**
-* Which texture frame a bolt shows at the given age
-*
-* @param {object} kind
-* @param {number} age
-* @return {number}
-*/
-function boltFrame(kind, age) {
-	return Math.max(0, age) % kind.frames.length;
-}
-/**
-* Plan Fire Bolt's sparks. One every 4 ticks while the effect lasts, from the newest
-* bolt's point (where it flies, or where it stuck), once the first bolt is out.
-*
-* @param {Array} bolts from planBolts
-* @param {function} [random] returns a number in [0, 1)
-* @return {Array} sparks: tick, start and end points, life in ticks, scale
-*/
-function planSparks(bolts, random = Math.random) {
-	const sparks = [];
-	const DEG = Math.PI / 180;
-	for (let tick = SPARK.every; tick < BOLT.effectLife; tick += SPARK.every) {
-		const bolt = bolts.filter((b) => b.spawn <= tick).pop();
-		if (!bolt) continue;
-		const age = Math.min(tick - bolt.spawn, bolt.flight);
-		const start = {
-			x: bolt.start.x + bolt.step.x * age,
-			y: bolt.start.y + bolt.step.y * age,
-			up: bolt.start.up + bolt.step.up * age
-		};
-		const life = SPARK.life + randomInt$1(SPARK.lifeSpread, random);
-		const heading = Math.atan2(bolt.step.y, bolt.step.x) + (randomInt$1(2 * SPARK.turn, random) - SPARK.turn) * DEG;
-		const elevation = Math.atan2(-bolt.step.up, Math.hypot(bolt.step.x, bolt.step.y)) + (randomInt$1(2 * SPARK.tilt, random) - SPARK.tilt) * DEG;
-		const speed = (SPARK.speed + randomInt$1(SPARK.speedSpread, random)) / 100;
-		const scale = (SPARK.scale + randomInt$1(SPARK.scaleSpread, random)) / 100;
-		const slow = speed / life / SPARK.slow;
-		const distance = speed * life - slow * life * (life + 1) / 2;
-		const flat = Math.cos(elevation) * distance;
-		sparks.push({
-			tick,
-			start,
-			end: {
-				x: start.x - Math.cos(heading) * flat,
-				y: start.y - Math.sin(heading) * flat,
-				up: start.up + Math.sin(elevation) * distance
-			},
-			life,
-			scale
-		});
-	}
-	return sparks;
-}
-var BOLT, BOLT_KINDS, BOLT_RING, SPARK;
-var init_BoltRainSim = __esmMin((() => {
-	init_EffectPrimSim();
-	BOLT = {
-		first: 12,
-		every: 10,
-		life: 70,
-		landAge: 45,
-		fadeStart: 50,
-		speed: 2.75,
-		height: 60,
-		startX: 25,
-		startY: 15,
-		spread: 10,
-		aim: 4,
-		alpha: 254,
-		effectLife: 160,
-		maxCount: 50
-	};
-	BOLT_KINDS = {
-		cold: {
-			length: 11.5,
-			width: 3.8,
-			frames: ["icearrow.tga"],
-			ring: "ring_blue.tga"
-		},
-		fire: {
-			length: 14,
-			width: 3.5,
-			frames: [
-				1,
-				2,
-				3,
-				4,
-				5,
-				6
-			].map((i) => `\xba\xd2\xc8\xad\xbb\xec${i}.tga`),
-			ring: "ring_yellow.tga"
-		}
-	};
-	BOLT_RING = {
-		prim: "ring",
-		frames: 30,
-		radius: 0,
-		radiusSpeed: 1.2,
-		radiusAccel: 1.2 / 70 * -2,
-		width: 10,
-		segments: 10,
-		alpha: 0,
-		alphaSpeed: 254 / 10,
-		fadeOutFrame: 20
-	};
-	SPARK = {
-		every: 4,
-		life: 6,
-		lifeSpread: 24,
-		speed: 60,
-		speedSpread: 90,
-		slow: 1.5,
-		scale: 20,
-		scaleSpread: 30,
-		turn: 20,
-		tilt: 10
-	};
-}));
-// src/Renderer/Effects/BoltRain.js
-function loadTexture$6(gl, name) {
-	if (_textures$4.has(name)) return;
-	_textures$4.set(name, null);
-	const generation = _generation$1;
-	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
-		WebGL_default.texture(gl, buffer, (texture) => {
-			if (generation !== _generation$1 || !_textures$4.has(name)) {
-				gl.deleteTexture(texture);
-				return;
-			}
-			_textures$4.set(name, texture);
-		});
-	});
-}
-var _program$13, _textures$4, _generation$1, RING_VERTICES$1, BoltRain;
-var init_BoltRain = __esmMin((() => {
-	init_WebGL();
-	init_Client();
-	init_SpriteRenderer();
-	init_EffectPrimSim();
-	init_BoltRainSim();
-	init_EffectPrim$2();
-	init_EffectPrim$1();
-	_program$13 = null;
-	_textures$4 = /* @__PURE__ */ new Map();
-	_generation$1 = 0;
-	RING_VERTICES$1 = primVertexCount(BOLT_RING);
-	BoltRain = class {
 		/**
-		* @param {vec3} position target position (kept by reference, so it follows)
-		* @param {number} startTick
-		* @param {number} count the damage packet's hit count
-		* @param {string} kind 'cold' or 'fire'
-		* @param {function} [random] returns a number in [0, 1)
-		* @param {function} [onSpark] called with each Fire Bolt spark (BoltRainSim planSparks) on its tick
+		* Prepare to render on 2D context.
+		*
+		* @param {object} ctx canvas context
+		* @param {number} x position
+		* @param {number} y position
 		*/
-		constructor(position, startTick, count, kind, random = Math.random, onSpark = null) {
-			this.position = position;
-			this.startTick = startTick || 0;
-			this.kind = BOLT_KINDS[kind] || BOLT_KINDS.cold;
-			this.bolts = planBolts(count, random);
-			this.sparks = onSpark ? planSparks(this.bolts, random) : [];
-			this.nextSpark = 0;
-			this.onSpark = onSpark;
-			this.endTick = this.startTick + BOLT.effectLife * PRIM_TICK_MS;
-			this.boltVertices = /* @__PURE__ */ new Float32Array(60);
-			this.ringVertices = new Float32Array(RING_VERTICES$1 * 5);
-			this.color = new Float32Array([
-				1,
-				1,
-				1,
-				1
-			]);
+		static bind2DContext(ctx, x, y) {
+			_ctx = ctx;
+			_pos$6[0] = x;
+			_pos$6[1] = y;
+			this.render = RenderCanvas2D;
+			this.xSize = 5;
+			this.ySize = 5;
 		}
-		init(gl) {
-			this.buffer = gl.createBuffer();
-			this.kind.frames.forEach((name) => loadTexture$6(gl, name));
-			loadTexture$6(gl, this.kind.ring);
-			this.ready = true;
-		}
-		free(gl) {
-			this.ready = false;
-			if (this.buffer) {
-				gl.deleteBuffer(this.buffer);
-				this.buffer = null;
-			}
-		}
-		draw(gl, vertices, count, texture, alpha) {
-			const attribute = _program$13.attribute;
-			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			this.color[3] = alpha / 255;
-			gl.uniform4fv(_program$13.uniform.uColor, this.color);
-			gl.drawArrays(gl.TRIANGLES, 0, count);
-		}
-		render(gl, tick) {
-			if (tick < this.startTick) return;
-			if (tick > this.endTick) {
-				this.needCleanUp = true;
+		/**
+		* Executes a render block with an isolated depth state.
+		*
+		* Temporarily overrides depth test, depth write mask, and depth correction
+		* flags, executes the given function, then restores the previous GL state.
+		*
+		* This prevents depth state leakage between render passes and ensures
+		* deterministic layered rendering.
+		*
+		* @param {boolean} use depthTest enable.
+		* @param {boolean} use depthMask enable.
+		* @param {boolean} use disableDepthCorrection enable.
+		* @param {function} execute function with this parameters before restore gl state.
+		*/
+		static runWithDepth(depthTest, depthMask, depthCorrection, fn) {
+			if (!_gl) {
+				fn();
 				return;
 			}
-			const frame = Math.min(BOLT.effectLife, Math.floor((tick - this.startTick) / PRIM_TICK_MS));
-			const self = this;
-			while (this.nextSpark < this.sparks.length && this.sparks[this.nextSpark].tick <= frame) {
-				const spark = this.sparks[this.nextSpark++];
-				this.onSpark(spark, this.startTick + spark.tick * PRIM_TICK_MS);
+			const prevDepthTest = _depthTest;
+			const prevDepthMask = _depthMask;
+			const prevDepthCorrection = this.disableDepthCorrection;
+			setDepth(depthTest, depthMask);
+			if (this.disableDepthCorrection !== depthCorrection) this.disableDepthCorrection = depthCorrection;
+			try {
+				fn();
+			} finally {
+				setDepth(prevDepthTest, prevDepthMask);
+				if (this.disableDepthCorrection !== prevDepthCorrection) this.disableDepthCorrection = prevDepthCorrection;
 			}
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-				self.bolts.forEach((bolt) => {
-					const age = frame - bolt.spawn;
-					const point = boltAt(bolt, age);
-					const texture = _textures$4.get(self.kind.frames[boltFrame(self.kind, age)]);
-					if (point && point.alpha > 0 && texture) {
-						buildBolt(self.boltVertices, 0, bolt, point, self.kind, self.position);
-						self.draw(gl, self.boltVertices, 12, texture, point.alpha);
-					}
-					const ringAge = frame - ringStart(bolt);
-					const ringTexture = _textures$4.get(self.kind.ring);
-					if (ringAge >= 0 && ringAge < BOLT_RING.frames && ringTexture) {
-						const state = bolt.ringState || (bolt.ringState = createPrimState(BOLT_RING));
-						advancePrim(state, ringAge);
-						if (state.alpha > 0) {
-							buildPrimGeometry(self.ringVertices, BOLT_RING, state, self.position);
-							self.draw(gl, self.ringVertices, RING_VERTICES$1, ringTexture, state.alpha);
-						}
-					}
-				});
+		}
+		/**
+		* Record the sprites drawn from here to endBatch() and draw them in a few
+		* instanced calls (see SpriteBatch.js). Call after bind3DContext.
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		static beginBatch(gl) {
+			if (SpriteBatch.open(gl, {
+				depthTest: _depthTest,
+				depthMask: _depthMask
+			})) _blendOne = null;
+		}
+		/**
+		* Draw what the batch recorded so far. Anything that draws with another
+		* program in the middle of a batch calls this first, to keep the order.
+		*/
+		static flushBatch() {
+			if (!SpriteBatch.active) return;
+			SpriteBatch.flush({
+				depthTest: _depthTest,
+				depthMask: _depthMask,
+				blendOne: _blendOne
 			});
+			syncAfterBatch();
 		}
-		static init(gl) {
-			_program$13 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			this.ready = true;
-			this.renderBeforeEntities = false;
-		}
-		static free(gl) {
-			_generation$1++;
-			if (_program$13) {
-				gl.deleteProgram(_program$13);
-				_program$13 = null;
-			}
-			for (const texture of _textures$4.values()) if (texture) gl.deleteTexture(texture);
-			_textures$4.clear();
-			this.ready = false;
-		}
-		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$13.uniform;
-			const attribute = _program$13.attribute;
-			gl.useProgram(_program$13);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$13.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$13.attribute.aTextureCoord);
+		/**
+		* Draw what the batch recorded and go back to drawing sprites one by one.
+		*/
+		static endBatch() {
+			if (!SpriteBatch.active) return;
+			SpriteBatch.close({
+				depthTest: _depthTest,
+				depthMask: _depthMask,
+				blendOne: _blendOne
+			});
+			syncAfterBatch();
 		}
 	};
 }));
@@ -268845,23 +268246,23 @@ var init_BoltRain = __esmMin((() => {
 /**
 * A whole number from 0 to k - 1
 */
-function randomInt(k, random = Math.random) {
+function randomInt$1(k, random = Math.random) {
 	return Math.min(k - 1, Math.floor(random() * k));
 }
 /**
 * One spike's random look, at a point (units, relative to the effect)
 */
 function makeSpike(spawn, x, y, set, alpha, random) {
-	const turn = randomInt(360, random) * DEG$5;
-	const radial = (set.radial[0] + randomInt(set.radial[1], random)) / 10;
+	const turn = randomInt$1(360, random) * DEG$5;
+	const radial = (set.radial[0] + randomInt$1(set.radial[1], random)) / 10;
 	return {
 		spawn,
 		x: x + Math.cos(turn) * radial,
 		y: y + Math.sin(turn) * radial,
-		size: (set.base[0] + randomInt(set.base[1], random)) / 100,
-		height: (set.height[0] + randomInt(set.height[1], random)) / 10,
-		yaw: randomInt(360, random),
-		pitch: set.pitch[0] + randomInt(set.pitch[1], random),
+		size: (set.base[0] + randomInt$1(set.base[1], random)) / 100,
+		height: (set.height[0] + randomInt$1(set.height[1], random)) / 10,
+		yaw: randomInt$1(360, random),
+		pitch: set.pitch[0] + randomInt$1(set.pitch[1], random),
 		alpha
 	};
 }
@@ -268942,7 +268343,7 @@ function spikeAxes(spike) {
 		]
 	];
 }
-function vertex$4(out, i, center, x, y, up, u, v) {
+function vertex$5(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -268968,9 +268369,9 @@ function buildSpike(out, offset, spike, rise, center) {
 		const q0 = CORNER_Q[i] * S;
 		const p1 = CORNER_P[j] * S;
 		const q1 = CORNER_Q[j] * S;
-		o = vertex$4(out, o, center, baseX + a[0] * p0 + b[0] * q0, baseY + a[1] * p0 + b[1] * q0, baseZ + a[2] * p0 + b[2] * q0, u, 1);
-		o = vertex$4(out, o, center, tipX, tipY, tipZ, u, 0);
-		o = vertex$4(out, o, center, baseX + a[0] * p1 + b[0] * q1, baseY + a[1] * p1 + b[1] * q1, baseZ + a[2] * p1 + b[2] * q1, u + SPIKE.uStep, 1);
+		o = vertex$5(out, o, center, baseX + a[0] * p0 + b[0] * q0, baseY + a[1] * p0 + b[1] * q0, baseZ + a[2] * p0 + b[2] * q0, u, 1);
+		o = vertex$5(out, o, center, tipX, tipY, tipZ, u, 0);
+		o = vertex$5(out, o, center, baseX + a[0] * p1 + b[0] * q1, baseY + a[1] * p1 + b[1] * q1, baseZ + a[2] * p1 + b[2] * q1, u + SPIKE.uStep, 1);
 		u += SPIKE.uStep;
 	}
 	return o;
@@ -269022,7 +268423,7 @@ var init_IceSpikesSim = __esmMin((() => {
 	];
 }));
 // src/Renderer/Effects/IceSpikes.js
-var TEXTURE$1, _program$12, _texture$4, _loading, _generation, IceSpikes;
+var TEXTURE$1, _program$13, _texture$4, _loading, _generation$1, IceSpikes;
 var init_IceSpikes = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -269031,10 +268432,10 @@ var init_IceSpikes = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	TEXTURE$1 = "ice.tga";
-	_program$12 = null;
+	_program$13 = null;
 	_texture$4 = null;
 	_loading = false;
-	_generation = 0;
+	_generation$1 = 0;
 	IceSpikes = class {
 		/**
 		* @param {vec3} position effect position (kept by reference: a spike follows it)
@@ -269059,10 +268460,10 @@ var init_IceSpikes = __esmMin((() => {
 			this.buffer = gl.createBuffer();
 			if (!_texture$4 && !_loading) {
 				_loading = true;
-				const generation = _generation;
+				const generation = _generation$1;
 				Client.loadFile(`data/texture/effect/${TEXTURE$1}`, (buffer) => {
 					WebGL_default.texture(gl, buffer, (texture) => {
-						if (generation !== _generation) {
+						if (generation !== _generation$1) {
 							gl.deleteTexture(texture);
 							return;
 						}
@@ -269087,7 +268488,7 @@ var init_IceSpikes = __esmMin((() => {
 			}
 			if (!_texture$4) return;
 			const frame = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
-			const attribute = _program$12.attribute;
+			const attribute = _program$13.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -269100,33 +268501,33 @@ var init_IceSpikes = __esmMin((() => {
 					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 					self.color[3] = state.alpha / 255;
-					gl.uniform4fv(_program$12.uniform.uColor, self.color);
+					gl.uniform4fv(_program$13.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, 0, 12);
 				});
 			});
 		}
 		static init(gl) {
-			_program$12 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$13 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$12) {
-				gl.deleteProgram(_program$12);
-				_program$12 = null;
+			if (_program$13) {
+				gl.deleteProgram(_program$13);
+				_program$13 = null;
 			}
 			if (_texture$4) {
 				gl.deleteTexture(_texture$4);
 				_texture$4 = null;
 			}
 			_loading = false;
-			_generation++;
+			_generation$1++;
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$12.uniform;
-			const attribute = _program$12.attribute;
-			gl.useProgram(_program$12);
+			const uniform = _program$13.uniform;
+			const attribute = _program$13.attribute;
+			gl.useProgram(_program$13);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -269140,198 +268541,17 @@ var init_IceSpikes = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$12.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$12.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$13.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$13.attribute.aTextureCoord);
 		}
 	};
 }));
-// src/Renderer/Effects/SoulStrikeSim.js
-/**
-* The souls of a damage packet.
-*
-* @param {number} hits the packet's hit count
-* @return {Array} { spawn (tick), bow (degrees) }
-*/
-function planSouls(hits) {
-	if (!(hits >= 1 && hits <= SOUL.maxHits)) return [];
-	const base = hits === 1 ? 0 : -90;
-	const out = [];
-	for (let k = 1; k <= hits; k++) out.push({
-		spawn: SOUL.every * k - SOUL.lead,
-		bow: k * STEPS[hits] + base
-	});
-	return out;
-}
-/**
-* Where a soul is after `n` updates, in units from the caster's feet.
-*
-* @param {object} soul from planSouls
-* @param {Array} dir unit direction to the target on the map, [x, y]
-* @param {number} distance to the target, units
-* @param {number} n updates (1..life)
-* @param {object} [kind] the flight's numbers: SOUL, or another effect's with the same keys
-*   (life, back, bow, up; the speed covers the distance `speedTimes` times, default 1)
-* @return {object} { x, y, up }
-*/
-function soulAt(soul, dir, distance, n, kind = SOUL) {
-	const speed = (kind.speedTimes || 1) * distance / kind.life;
-	const backStep = 2 * kind.back / kind.life;
-	const bowStep = -2 * kind.bow / kind.life;
-	const along = n * speed - (kind.back * n - backStep * n * (n + 1) / 2);
-	const across = kind.bow * n + bowStep * n * (n - 1) / 2;
-	const a = soul.bow * Math.PI / 180;
-	const side = across * Math.sin(a);
-	return {
-		x: dir[0] * along + dir[1] * side,
-		y: dir[1] * along - dir[0] * side,
-		up: kind.up - across * Math.cos(a)
-	};
-}
-/**
-* Alpha (0..254) and scale of trail step `i` (0 the soul itself).
-*
-* @param {number} i
-* @return {object} { alpha, scale }
-*/
-function trailLook(i) {
-	return {
-		alpha: SOUL.alpha - SOUL.alpha / SOUL.trail * i,
-		scale: SOUL.scale - SOUL.scale / SOUL.trail * i * .5
-	};
-}
-var SOUL, STEPS;
-var init_SoulStrikeSim = __esmMin((() => {
-	SOUL = {
-		every: 11,
-		lead: 5,
-		maxHits: 7,
-		life: 40,
-		up: 10,
-		back: 3.5,
-		bow: -2,
-		scale: 2.75,
-		alpha: 254,
-		trail: 12
-	};
-	STEPS = [
-		0,
-		1,
-		180,
-		90,
-		60,
-		45,
-		30,
-		25
-	];
-}));
-// src/DB/Effects/SoulStrikeEffect.js
-/**
-* The 3D effect drawing step `i` of a soul's trail (0 the soul itself). It
-* starts on the soul's tick and shows where the soul was `i` ticks before.
-*
-* @param {object} soul from planSouls
-* @param {Array} dir unit direction to the target on the map, [x, y]
-* @param {number} distance to the target, units
-* @param {number} i
-* @param {number} [rise] the target's height above the caster's, cells: the
-*   soul climbs to it as it goes
-* @return {object}
-*/
-function soulTrailEffect(soul, dir, distance, i, rise = 0) {
-	const look = trailLook(i);
-	return {
-		type: "3D",
-		spriteName: "particle1",
-		alphaMax: 1,
-		attachedEntity: false,
-		duration: SOUL.life * PRIM_TICK_MS,
-		zIndex: 1,
-		wav: i === 0 ? "effect/ef_soulstrike" : void 0,
-		track(age) {
-			const k = Math.floor(age);
-			const n = k + 1 - i;
-			if (k < 0 || k >= SOUL.life || n < 1) return null;
-			const p = soulAt(soul, dir, distance, n);
-			return {
-				x: p.x / 5,
-				y: p.y / 5,
-				z: p.up / 5 + rise * soulProgress(p, dir, distance, n),
-				size: look.scale * 100,
-				alpha: look.alpha / 255
-			};
-		}
-	};
-}
-/**
-* How far along the way to the target a soul is, 0 to 1.
-*
-* @param {object} p from soulAt
-* @param {Array} dir
-* @param {number} distance units
-* @param {number} n the soul's update count: with no distance, the climb goes by its life
-* @return {number}
-*/
-function soulProgress(p, dir, distance, n) {
-	if (!distance) return Math.min(1, n / SOUL.life);
-	return Math.min(1, Math.max(0, (p.x * dir[0] + p.y * dir[1]) / distance));
-}
-/**
-* Direction and distance from the caster to the target, in units, and how
-* much higher the target stands, in cells.
-*
-* @param {Array} from caster [x, y, z]
-* @param {Array} to target [x, y, z]
-* @return {object} { dir: [x, y], distance, rise }
-*/
-function soulAim(from, to) {
-	const dx = (to[0] - from[0]) * 5;
-	const dy = (to[1] - from[1]) * 5;
-	const distance = Math.hypot(dx, dy);
-	const rise = (to[2] || 0) - (from[2] || 0);
-	return distance ? {
-		dir: [dx / distance, dy / distance],
-		distance,
-		rise
-	} : {
-		dir: [0, 1],
-		distance: 0,
-		rise
-	};
-}
-var soulStrikeEffect;
-var init_SoulStrikeEffect = __esmMin((() => {
-	init_EffectPrimSim();
-	init_SoulStrikeSim();
-	soulStrikeEffect = [{
-		type: "FUNC",
-		attachedEntity: false,
-		func: function(Params) {
-			const from = Params.Inst.position;
-			const { dir, distance, rise } = soulAim(from, Params.Inst.otherPosition || from);
-			planSouls(Params.Init.hitCount || 1).forEach((soul, s) => {
-				for (let i = 0; i < SOUL.trail; i++) this.spamEffect({
-					effect: soulTrailEffect(soul, dir, distance, i, rise),
-					Inst: {
-						effectID: 15,
-						duplicateID: s * SOUL.trail + i,
-						startTick: Params.Inst.startTick + soul.spawn * PRIM_TICK_MS
-					},
-					Init: Params.Init
-				});
-			});
-		}
-	}];
-}));
-// src/DB/Effects/Table/Effects0000.js
+// src/DB/Effects/Table/Common/Effects0000.js
 var Effects0000_default;
 var init_Effects0000 = __esmMin((() => {
-	init_Camera();
 	init_LockOnTarget();
-	init_EndureEffect();
-	init_BoltRain();
 	init_IceSpikes();
 	init_IceSpikesSim();
-	init_SoulStrikeEffect();
 	Effects0000_default = {
 		0: [{
 			type: "3D",
@@ -269755,69 +268975,6 @@ var init_Effects0000 = __esmMin((() => {
 			topSize: 13,
 			type: "CYLINDER"
 		}],
-		9: [
-			{
-				alphaMax: .2,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				bottomSize: .95,
-				duration: 2e3,
-				fade: true,
-				height: 10,
-				textureName: "alpha_down",
-				topSize: .95,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				duration: 1e3,
-				delayLate: 500,
-				duplicate: 7,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				duration: 1e3,
-				delayOffset: 400,
-				duplicate: 3,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			}
-		],
-		10: [{
-			type: "STR",
-			file: "maemor",
-			min: "memor_min",
-			wav: "effect/ef_coin2",
-			attachedEntity: true
-		}],
-		11: [...endureEffect],
 		12: [{
 			type: "CYLINDER",
 			alphaMax: .8,
@@ -269910,7 +269067,6 @@ var init_Effects0000 = __esmMin((() => {
 				zIndex: 1
 			}
 		],
-		15: soulStrikeEffect,
 		16: [
 			{
 				type: "CYLINDER",
@@ -269975,71 +269131,6 @@ var init_Effects0000 = __esmMin((() => {
 				attachedEntity: true
 			}
 		],
-		17: [
-			{
-				type: "PRIM",
-				prim: "ring",
-				texture: "ring_yellow",
-				attachedEntity: false,
-				duration: 500,
-				frames: 30,
-				radiusSpeed: 1.75,
-				radiusAccel: -.029166666666666667,
-				width: 12,
-				alpha: 0,
-				alphaSpeed: 254 / 15,
-				fadeOutFrame: 15,
-				wav: "effect/ef_magnumbreak"
-			},
-			{
-				type: "PRIM",
-				prim: "sphere",
-				texture: "´ëÆø¹ß",
-				attachedEntity: false,
-				duration: 500,
-				frames: 30,
-				radiusSpeed: 1.15,
-				radiusAccel: -.019166666666666665,
-				spin: 3,
-				alpha: 0,
-				alphaSpeed: 254 / 15,
-				fadeOutFrame: 15
-			},
-			{
-				type: "PRIM",
-				prim: "ring",
-				texture: "ring_yellow",
-				attachedEntity: false,
-				duration: 500,
-				frames: 30,
-				radiusSpeed: 1.75,
-				radiusAccel: -.029166666666666667,
-				width: 12,
-				alpha: 0,
-				alphaSpeed: 254 / 15,
-				fadeOutFrame: 15
-			}
-		],
-		18: [{
-			alphaMax: 1,
-			attachedEntity: false,
-			red: 1,
-			green: 1,
-			blue: .85,
-			duration: 500,
-			duplicate: 7,
-			timeBetweenDupli: 0,
-			fadeOut: true,
-			file: "effect/pok1.tga",
-			posxEndRand: 3.5,
-			posyEndRand: 3.5,
-			poszEndRand: 1,
-			poszEndRandMiddle: 3,
-			sizeEnd: 10,
-			sizeStart: 200,
-			type: "3D",
-			zIndex: 10
-		}, { wav: "effect/ef_steal" }],
 		20: [{
 			alphaMax: 1,
 			attachedEntity: true,
@@ -270055,29 +269146,6 @@ var init_Effects0000 = __esmMin((() => {
 			poszEnd: 5,
 			poszStart: 0,
 			red: 1,
-			size: 100,
-			sizeRand: 20,
-			type: "3D",
-			zIndex: 1
-		}, {
-			attachedEntity: true,
-			wav: "effect/ef_detoxication"
-		}],
-		21: [{
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 1e3,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/pok1.tga",
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStart: 0,
-			red: .7,
 			size: 100,
 			sizeRand: 20,
 			type: "3D",
@@ -270132,136 +269200,6 @@ var init_Effects0000 = __esmMin((() => {
 			},
 			{ wav: "effect/ef_sight" }
 		],
-		23: [{
-			type: "STR",
-			file: "stonecurse",
-			attachedEntity: true
-		}],
-		stonecurse_sound: [{
-			wav: "_stonecurse",
-			attachedEntity: true
-		}],
-		24: [
-			{
-				type: "3D",
-				spriteName: "fireball",
-				playSprite: true,
-				attachedEntity: false,
-				fromSrc: true,
-				rotateToTarget: true,
-				rotateWithCamera: true,
-				zOffset: 3,
-				delayStart: 333,
-				duration: 333,
-				alphaMax: 1,
-				size: 130,
-				zIndex: 1
-			},
-			{
-				type: "3D",
-				spriteName: "fireball",
-				playSprite: true,
-				attachedEntity: false,
-				fromSrc: true,
-				rotateToTarget: true,
-				rotateWithCamera: true,
-				zOffset: 3,
-				delayStart: 400,
-				duration: 333,
-				alphaMax: 180 / 255,
-				red: 246 / 255,
-				green: 199 / 255,
-				blue: 76 / 255,
-				size: 130,
-				zIndex: 1
-			},
-			{
-				type: "3D",
-				spriteName: "fireball",
-				playSprite: true,
-				attachedEntity: false,
-				fromSrc: true,
-				rotateToTarget: true,
-				rotateWithCamera: true,
-				zOffset: 3,
-				delayStart: 467,
-				duration: 333,
-				alphaMax: 130 / 255,
-				red: 246 / 255,
-				green: 199 / 255,
-				blue: 76 / 255,
-				size: 130,
-				zIndex: 1
-			},
-			{
-				type: "3D",
-				spriteName: "fireball",
-				playSprite: true,
-				attachedEntity: false,
-				fromSrc: true,
-				rotateToTarget: true,
-				rotateWithCamera: true,
-				zOffset: 3,
-				delayStart: 533,
-				duration: 333,
-				alphaMax: 80 / 255,
-				red: 246 / 255,
-				green: 199 / 255,
-				blue: 76 / 255,
-				size: 130,
-				zIndex: 1
-			},
-			{
-				wav: "effect/ef_fireball",
-				delayWav: 333
-			},
-			{
-				wav: "effect/ef_fireball",
-				delayWav: 400
-			},
-			{
-				wav: "effect/ef_fireball",
-				delayWav: 467
-			},
-			{
-				wav: "effect/ef_fireball",
-				delayWav: 533
-			}
-		],
-		25: [{
-			type: "STR",
-			file: "firewall%d",
-			rand: [1, 2],
-			attachedEntity: false
-		}, { wav: "effect/ef_firewall" }],
-		26: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				this.add(new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.hitCount, "cold"), Params);
-			}
-		}, {
-			wav: "effect/ef_icearrow%d",
-			rand: [1, 3],
-			delayWav: 200,
-			attachedEntity: true
-		}],
-		27: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const caster = Params.Init.ownerEntity;
-				const target = Params.Init.otherEntity;
-				if (!target) return;
-				const at = [
-					caster.position[0],
-					caster.position[1],
-					caster.position[2]
-				];
-				const spikes = planPath((target.position[0] - at[0]) * 5, (target.position[1] - at[1]) * 5);
-				this.add(new IceSpikes(at, Params.Inst.startTick, spikes, PATH.life), Params);
-			}
-		}],
 		28: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -270270,64 +269208,6 @@ var init_Effects0000 = __esmMin((() => {
 			}
 		}, {
 			wav: "effect/ef_frostdiver2",
-			attachedEntity: true
-		}],
-		29: [{
-			attachedEntity: true,
-			duplicate: 1,
-			file: "lightning",
-			type: "STR"
-		}],
-		30: [{
-			type: "STR",
-			file: "thunderstorm",
-			wav: "effect/magician_thunderstorm",
-			attachedEntity: false
-		}],
-		31: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const target = Params.Init.ownerEntity;
-				const spark = (s, startTick) => {
-					const at = [
-						target.position[0],
-						target.position[1],
-						target.position[2]
-					];
-					this.spamEffect({
-						effect: {
-							type: "3D",
-							spriteName: "particle4",
-							playSprite: true,
-							attachedEntity: false,
-							duration: s.life * 1e3 / 60,
-							posxStart: s.start.x / 5,
-							posyStart: s.start.y / 5,
-							poszStart: s.start.up / 5,
-							posxEnd: s.end.x / 5,
-							posyEnd: s.end.y / 5,
-							poszEnd: s.end.up / 5,
-							sizeStart: s.scale * 100,
-							sizeEnd: 1,
-							alphaMax: 1,
-							fadeOut: true,
-							zIndex: 1
-						},
-						Inst: {
-							effectID: 31,
-							duplicateID: 0,
-							startTick
-						},
-						Init: Object.assign({}, Params.Init, { position: at })
-					});
-				};
-				this.add(new BoltRain(target.position, Params.Inst.startTick, Params.Init.hitCount, "fire", Math.random, spark), Params);
-			}
-		}, {
-			wav: "effect/ef_firearrow%d",
-			rand: [1, 3],
-			delayWav: 200,
 			attachedEntity: true
 		}],
 		32: [{
@@ -270415,216 +269295,6 @@ var init_Effects0000 = __esmMin((() => {
 			type: "CYLINDER",
 			wav: "effect/ef_readyportal"
 		}],
-		37: [
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				delayLate: 500,
-				duplicate: 7,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: .75,
-				attachedEntity: true,
-				duration: 1e3,
-				delayOffset: 400,
-				duplicate: 3,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				duplicate: 10,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/agi_up.bmp",
-				poszEnd: 3,
-				poszStart: .4,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 100,
-				sizeY: 45,
-				type: "3D",
-				wav: "effect/ef_incagility",
-				overlay: true,
-				zIndex: 10
-			}
-		],
-		38: [{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1e3,
-			duplicate: 20,
-			fadeOut: true,
-			file: "effect/ac_center2.tga",
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 1,
-			poszStartRand: 1,
-			poszStartRandMiddle: 6,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: "3D",
-			zIndex: 0
-		}, {
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1e3,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/slow.bmp",
-			poszEnd: .4,
-			poszStart: 2.8,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: "3D",
-			wav: "effect/ef_decagility",
-			zIndex: 10
-		}],
-		39: [{
-			type: "SPR",
-			file: "¼º¼ö¶ß±â",
-			wav: "effect/ef_aqua",
-			head: true,
-			attachedEntity: true
-		}],
-		40: [{
-			type: "STR",
-			file: "cross",
-			wav: "effect/ef_signum",
-			attachedEntity: true
-		}],
-		41: [{
-			type: "STR",
-			file: "angelus",
-			wav: "effect/ef_angelus",
-			min: "jong_mini",
-			head: true,
-			attachedEntity: true
-		}],
-		42: [
-			{
-				type: "SPR",
-				attachedEntity: true,
-				delayFrame: 30,
-				file: "Ãàº¹",
-				frame: 0,
-				repeat: true,
-				duration: 1500,
-				stackable: true,
-				head: true,
-				yOffset: -120
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1200,
-				delayOffset: 300,
-				duplicate: 6,
-				fadeIn: true,
-				fadeOut: true,
-				posxRand: 1.2,
-				posyRand: 1,
-				poszEndRand: .5,
-				poszEndRandMiddle: 1,
-				poszStartRand: 2,
-				poszStartRandMiddle: 5.5,
-				size: 50,
-				sparkling: true,
-				sparkNumber: 2,
-				spriteName: "particle6",
-				timeBetweenDupli: 0,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1200,
-				delayOffset: 400,
-				duplicate: 6,
-				fadeIn: true,
-				fadeOut: true,
-				posxRand: 1.4,
-				posyRand: 1.1,
-				poszEndRand: .5,
-				poszEndRandMiddle: 1,
-				poszStartRand: 2,
-				poszStartRandMiddle: 5.5,
-				size: 50,
-				spriteName: "particle6",
-				timeBetweenDupli: 0,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .3,
-				attachedEntity: false,
-				blendMode: 2,
-				blue: 1,
-				duration: 2500,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok2.tga",
-				green: .75,
-				posx: 0,
-				posy: 0,
-				posz: 0,
-				red: .1,
-				size: 140,
-				type: "3D",
-				wav: "effect/ef_blessing",
-				zIndex: 10
-			}
-		],
 		43: [{
 			alphaMax: 1,
 			attachedEntity: true,
@@ -271069,369 +269739,6 @@ var init_Effects0000 = __esmMin((() => {
 				zIndex: 1
 			}
 		],
-		62: [
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 0,
-				posyEnd: -8,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 0,
-				posyEnd: -8,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 5.66,
-				posyEnd: -5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 5.66,
-				posyEnd: -5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 8,
-				posyEnd: 0,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 8,
-				posyEnd: 0,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 5.66,
-				posyEnd: 5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 5.66,
-				posyEnd: 5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 0,
-				posyEnd: 8,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: 0,
-				posyEnd: 8,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: -5.66,
-				posyEnd: 5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: -5.66,
-				posyEnd: 5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: -8,
-				posyEnd: 0,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: -8,
-				posyEnd: 0,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: -5.66,
-				posyEnd: -5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 60,
-				sizeEnd: 160,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				duplicate: 4,
-				timeBetweenDupli: 100,
-				sizeDelta: -60,
-				duration: 800,
-				attachedEntity: false,
-				posxStart: 0,
-				posyStart: 0,
-				posxEnd: -5.66,
-				posyEnd: -5.66,
-				poszStart: 2,
-				poszEnd: 2,
-				sizeStart: 20,
-				sizeEnd: 260,
-				playSprite: true,
-				fadeIn: true,
-				fadeOut: true,
-				blendMode: 8
-			},
-			{ wav: "effect/wizard_sightrasher" }
-		],
 		64: [{
 			type: "STR",
 			file: "arrowshot",
@@ -271443,116 +269750,10 @@ var init_Effects0000 = __esmMin((() => {
 			wav: "effect/thief_invenom",
 			attachedEntity: true
 		}],
-		66: [{
-			type: "STR",
-			file: "cure",
-			wav: "effect/acolyte_cure",
-			min: "cure_min",
-			attachedEntity: true
-		}],
-		67: [{
-			type: "STR",
-			file: "provoke",
-			wav: "effect/swordman_provoke",
-			delayWav: 83,
-			attachedEntity: true
-		}, {
-			wav: "effect/swordman_provoke",
-			delayWav: 500
-		}],
 		68: [{
 			type: "STR",
 			file: "mvp",
 			wav: "effect/st_mvp",
-			attachedEntity: true
-		}],
-		69: [{
-			type: "STR",
-			file: "skidtrap",
-			wav: "effect/hunter_skidtrap",
-			attachedEntity: false
-		}],
-		70: [{
-			attachedEntity: false,
-			file: "brandish",
-			type: "STR",
-			wav: "effect/knight_brandish_spear"
-		}],
-		74: [
-			{
-				type: "QuadHorn",
-				textureFile: "effect/ice.tga",
-				attachedEntity: false,
-				height: [2.8, 3.3],
-				offsetX: [.25, .75],
-				offsetY: [.25, .75],
-				offsetZ: -.1,
-				bottomSize: [.3, .5],
-				blendMode: 8,
-				rotateY: [1, 360],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 1,
-				animationSpeed: 50
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/ice.tga",
-				attachedEntity: false,
-				height: [2.3, 2.8],
-				offsetX: [.25, .75],
-				offsetY: [.25, .75],
-				offsetZ: -.1,
-				bottomSize: [.3, .5],
-				blendMode: 8,
-				rotateY: [1, 360],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 1,
-				animationSpeed: 50
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/ice.tga",
-				attachedEntity: false,
-				height: [2.5, 2.9],
-				offsetX: [.25, .75],
-				offsetY: [.25, .75],
-				offsetZ: -.1,
-				bottomSize: [.3, .5],
-				blendMode: 8,
-				rotateY: [1, 360],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 1,
-				animationSpeed: 50
-			},
-			{ wav: "effect/wizard_icewall" }
-		],
-		75: [{
-			type: "STR",
-			file: "gloria",
-			wav: "effect/priest_gloria",
-			min: "gloria_min",
-			attachedEntity: true
-		}],
-		76: [{
-			type: "STR",
-			file: "magnificat",
-			wav: "effect/priest_magnificat",
-			min: "magnificat_min",
 			attachedEntity: true
 		}],
 		77: [{
@@ -271562,145 +269763,6 @@ var init_Effects0000 = __esmMin((() => {
 			min: "resurrection_min",
 			attachedEntity: true
 		}],
-		78: [{
-			type: "STR",
-			file: "recovery",
-			wav: "effect/priest_recovery",
-			attachedEntity: true
-		}],
-		79: [
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 5e3,
-				height: [.95, 1.5],
-				offsetX: [.4, .6],
-				offsetY: [.4, .6],
-				offsetZ: -.1,
-				bottomSize: [.5, .6],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-8, 8],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 3,
-				animationSpeed: 120,
-				animationOut: true
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 5e3,
-				height: [.2, .4],
-				offsetX: [0, 0],
-				offsetY: [.5, .5],
-				offsetZ: -.1,
-				bottomSize: [.1, .2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15, 15],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 2,
-				animationSpeed: 100,
-				animationOut: true
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 5e3,
-				height: [.2, .4],
-				offsetX: [0, .5],
-				offsetY: [.5, 1],
-				offsetZ: -.1,
-				bottomSize: [.1, .2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15, 15],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 2,
-				animationSpeed: 100,
-				animationOut: true
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 5e3,
-				height: [.2, .4],
-				offsetX: [1, 1.2],
-				offsetY: [.5, .8],
-				offsetZ: -.1,
-				bottomSize: [.1, .2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15, 15],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 2,
-				animationSpeed: 100,
-				animationOut: true
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 5e3,
-				height: [.2, .4],
-				offsetX: [.5, .7],
-				offsetY: [0, -.2],
-				offsetZ: -.1,
-				bottomSize: [.1, .2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15, 15],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 2,
-				animationSpeed: 100,
-				animationOut: true
-			},
-			{
-				wav: "effect/wizard_earthspike",
-				attachedEntity: false
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const start = Params.Inst.startTick;
-					Camera.setQuake(start, 200);
-				}
-			}
-		],
-		80: [{
-			wav: "effect/ef_fireball",
-			attachedEntity: true
-		}],
 		81: [{
 			wav: "effect/ef_bash",
 			attachedEntity: true
@@ -271708,244 +269770,18 @@ var init_Effects0000 = __esmMin((() => {
 		82: [{
 			wav: "effect/ef_bash",
 			attachedEntity: true
-		}],
-		83: [{
-			type: "STR",
-			file: "sanctuary",
-			wav: "effect/priest_sanctuary",
-			attachedEntity: true
-		}],
-		84: [{
-			type: "STR",
-			file: "impositio",
-			wav: "effect/priest_impositio",
-			attachedEntity: true
-		}],
-		85: [{
-			type: "STR",
-			file: "lexaeterna",
-			wav: "effect/priest_lexaeterna",
-			min: "lexaeterna_min",
-			attachedEntity: true
-		}],
-		86: [{
-			type: "STR",
-			file: "aspersio",
-			wav: "effect/priest_aspersio",
-			attachedEntity: true
-		}],
-		87: [{
-			type: "STR",
-			file: "lexdivina",
-			wav: "effect/priest_lexdivina",
-			attachedEntity: true
-		}],
-		88: [{
-			type: "STR",
-			file: "suffragium",
-			wav: "effect/priest_suffragium",
-			min: "suffragium_min",
-			attachedEntity: true
-		}],
-		89: [{
-			type: "STR",
-			file: "stormgust",
-			wav: "effect/wizard_stormgust",
-			min: "storm_min",
-			attachedEntity: true
-		}],
-		90: [{
-			type: "STR",
-			file: "lord",
-			wav: "effect/wizard_fire_ivy",
-			attachedEntity: true
-		}],
-		91: [{
-			type: "STR",
-			file: "benedictio",
-			wav: "effect/priest_benedictio",
-			attachedEntity: true
-		}],
-		92: [{
-			type: "STR",
-			file: "meteor%d",
-			wav: "effect/wizard_meteor",
-			rand: [1, 4],
-			attachedEntity: true
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 600;
-				Camera.setQuake(start);
-			}
-		}],
-		93: [
-			{
-				wav: "effect/hunter_shockwavetrap",
-				attachedEntity: false
-			},
-			{
-				type: "3D",
-				file: "effect/thunder_center.bmp",
-				duration: 200,
-				size: 35,
-				toSrc: true,
-				blendMode: 2,
-				overlay: true,
-				alphaMax: .66
-			},
-			{
-				type: "3D",
-				fileList: [
-					"effect/thunder_ball_a.bmp",
-					"effect/thunder_ball_b.bmp",
-					"effect/thunder_ball_c.bmp",
-					"effect/thunder_ball_d.bmp",
-					"effect/thunder_ball_e.bmp",
-					"effect/thunder_ball_f.bmp"
-				],
-				frameDelay: 10,
-				duration: 200,
-				size: 45,
-				toSrc: true,
-				overlay: true,
-				blendMode: 2
-			}
-		],
-		94: [{
-			type: "3D",
-			file: "effect/thunder_pang.bmp",
-			duration: 100,
-			sizeStart: 0,
-			sizeEnd: 25,
-			blendMode: 2,
-			rotateToTarget: true,
-			fadeOut: true,
-			overlay: true,
-			attachedEntity: true
-		}, {
-			type: "3D",
-			fileList: [
-				"effect/thunder_plazma_blast_a.bmp",
-				"effect/thunder_plazma_blast_b.bmp",
-				"effect/thunder_ball_d.bmp",
-				"effect/thunder_ball_e.bmp",
-				"effect/thunder_ball_f.bmp"
-			],
-			frameDelay: 10,
-			duration: 300,
-			size: 75,
-			blendMode: 2,
-			overlay: true,
-			attachedEntity: true
-		}],
-		95: [{
-			type: "STR",
-			file: "quagmire",
-			attachedEntity: false
-		}, { wav: "effect/wizard_quagmire" }],
-		96: [{
-			type: "STR",
-			file: "firepillar",
-			wav: "effect/wizard_fire_pillar_a",
-			attachedEntity: false
-		}],
-		97: [{
-			type: "STR",
-			file: "firepillarbomb",
-			wav: "effect/wizard_fire_pillar_b",
-			attachedEntity: false
-		}],
-		98: [{
-			wav: "effect/black_adrenalinerush_b",
-			attachedEntity: true
-		}],
-		"98_beforecast": [{
-			wav: "effect/black_adrenalinerush_a",
-			attachedEntity: true
-		}],
-		99: [{
-			wav: "effect/hunter_flasher",
-			attachedEntity: false
 		}]
 	};
 }));
-// src/DB/Effects/Table/Effects0100.js
+// src/DB/Effects/Table/Common/Effects0100.js
 var Effects0100_default;
 var init_Effects0100 = __esmMin((() => {
 	init_RainWeather();
 	init_SnowWeather();
 	init_SakuraWeatherEffect();
 	init_Camera();
-	init_QuadHorn();
-	init_Altitude();
-	init_Renderer();
 	Effects0100_default = {
-		100: [{
-			wav: "effect/hunter_removetrap",
-			attachedEntity: false
-		}],
-		101: [
-			{
-				type: "STR",
-				file: "repairweapon",
-				attachedEntity: true
-			},
-			{
-				wav: "effect/black_weapon_repair_a",
-				delayWav: 480
-			},
-			{
-				wav: "effect/black_weapon_repair_a",
-				delayWav: 1320
-			}
-		],
-		102: [{
-			type: "STR",
-			file: "crashearth",
-			wav: "effect/black_hammerfall",
-			attachedEntity: false
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 350;
-				Camera.setQuake(start);
-			}
-		}],
-		103: [{
-			type: "STR",
-			file: "weaponperfection",
-			wav: "effect/black_weapon_perfection",
-			min: "weaponperfection_min",
-			attachedEntity: true
-		}],
-		104: [{
-			type: "STR",
-			file: "maximizepower",
-			min: "maximize_min",
-			attachedEntity: true
-		}],
 		105: [{ wav: "effect/hun_anklesnare" }],
-		106: [{
-			type: "STR",
-			file: "blastmine",
-			wav: "effect/hunter_blastmine",
-			attachedEntity: false
-		}],
-		107: [{
-			type: "STR",
-			file: "claymore",
-			wav: "effect/hunter_claymoretrap",
-			attachedEntity: false
-		}],
-		108: [{
-			type: "STR",
-			file: "freezing",
-			wav: "effect/hunter_freezingtrap",
-			attachedEntity: false
-		}],
 		109: [{
 			type: "STR",
 			file: "bubble%d",
@@ -271957,247 +269793,12 @@ var init_Effects0100 = __esmMin((() => {
 			file: "gaspush",
 			attachedEntity: false
 		}],
-		111: [{
-			type: "STR",
-			file: "spring",
-			wav: "effect/hunter_springtrap",
-			attachedEntity: false
-		}],
-		112: [{
-			type: "STR",
-			file: "kyrie",
-			wav: "effect/priest_kyrie_eleison_a",
-			min: "kyrie_min",
-			attachedEntity: true
-		}],
-		113: [{
-			type: "STR",
-			file: "magnus",
-			wav: "effect/priest_magnus",
-			attachedEntity: false
-		}],
-		115: [{
-			wav: "effect/hunter_blitzbeat",
-			attachedEntity: true
-		}],
-		116: [{
-			type: "3D",
-			duration: 500,
-			fileList: [
-				"effect/water_out_a.bmp",
-				"effect/water_out_b.bmp",
-				"effect/water_out_c.bmp"
-			],
-			fadeOut: true,
-			posxRand: 1.5,
-			poszRand: 1.5,
-			posyStart: 0,
-			posyEnd: 3,
-			posySmooth: true,
-			size: 30.5,
-			rotateWithCamera: true,
-			blendMode: 2,
-			attachedEntity: true,
-			wav: "effect/wizard_waterball_chulung"
-		}],
-		117: [{
-			type: "3D",
-			duration: 500,
-			duplicate: 20,
-			timeBetweenDupli: 50,
-			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/waterball",
-			playSprite: true,
-			fromSrc: true,
-			rotateToTarget: true,
-			fadeOut: true,
-			size: 50,
-			zOffsetStart: 5,
-			zOffsetEnd: 0,
-			arc: 7.5,
-			retreat: 5,
-			wav: "effect/wizard_waterball_chulung"
-		}],
-		119: [{
-			wav: "effect/hunter_detecting",
-			attachedEntity: true
-		}],
-		120: [{ wav: "effect/assasin_cloaking" }],
-		121: [{
-			type: "3D",
-			blendMode: 2,
-			duration: 400,
-			alphaMax: 1,
-			fadeOut: true,
-			sizeStart: 100,
-			sizeEnd: 300,
-			file: "effect/ring2.bmp",
-			wav: "effect/ef_stonecurse",
-			zIndex: 10,
-			attachedEntity: true
-		}],
-		122: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				const delay = Params.Inst.startTick - Renderer.tick;
-				entity.animations.add(function(tick) {
-					if (tick >= delay) {
-						entity.direction = (entity.direction + 2) % 8;
-						return true;
-					}
-				});
-			}
-		}],
-		123: [{
-			wav: "effect/ef_frostdiver",
-			attachedEntity: true
-		}, {
-			type: "TRAIL",
-			attachedEntity: false,
-			duration: 2500,
-			speed: 24,
-			interval: 50,
-			stopAtTarget: true,
-			overshoot: 3,
-			spawn: [{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 670,
-				height: [.6, 1],
-				offsetX: 0,
-				offsetY: 0,
-				offsetZ: 0,
-				bottomSize: [.05, .1],
-				blendMode: 8,
-				rotateX: [-15, 15],
-				rotateY: [0, 360],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 4,
-				animationSpeed: 330,
-				riseDistance: .8,
-				fadeOut: 170
-			}]
-		}],
-		124: [{
-			type: "STR",
-			file: "venomdust",
-			wav: "effect/assasin_poisonreact",
-			attachedEntity: false
-		}],
-		126: [{
-			type: "STR",
-			file: "poisonreact_1st",
-			wav: "effect/assasin_poisonreact",
-			attachedEntity: true
-		}],
-		127: [{
-			type: "STR",
-			file: "poisonreact",
-			wav: "effect/assasin_poisonreact",
-			attachedEntity: true
-		}],
-		128: [{
-			wav: "effect/black_overthrust",
-			attachedEntity: true
-		}],
-		129: [{
-			type: "STR",
-			file: "venomsplasher",
-			wav: "effect/assasin_venomsplasher",
-			attachedEntity: true
-		}],
-		130: [{
-			type: "STR",
-			file: "twohand",
-			wav: "effect/knight_twohandquicken",
-			head: true,
-			attachedEntity: true
-		}],
 		131: [{
 			type: "STR",
 			file: "autocounter",
 			wav: "effect/knight_autocounter",
 			attachedEntity: true
 		}],
-		132: [
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 15e3,
-				height: 2.5,
-				offsetX: .5,
-				offsetY: .4,
-				offsetZ: -.2,
-				bottomSize: .15,
-				blendMode: 1,
-				rotateX: -15,
-				rotateY: 0,
-				rotateZ: 0,
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 3,
-				animationSpeed: 120,
-				animationOut: true
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 15e3,
-				height: 2.5,
-				offsetY: .5,
-				bottomSize: .15,
-				blendMode: 1,
-				rotateX: 5,
-				rotateY: 45,
-				rotateZ: -15,
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 3,
-				animationSpeed: 120,
-				animationOut: true
-			},
-			{
-				type: "QuadHorn",
-				textureFile: "effect/stone.bmp",
-				attachedEntity: false,
-				duration: 15e3,
-				height: 2.5,
-				offsetX: .5,
-				offsetY: .5,
-				offsetZ: 0,
-				bottomSize: .15,
-				blendMode: 1,
-				rotateX: 5,
-				rotateY: 45,
-				rotateZ: 15,
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 3,
-				animationSpeed: 120,
-				animationOut: true
-			}
-		],
 		133: [{
 			type: "STR",
 			file: "freeze",
@@ -272213,148 +269814,8 @@ var init_Effects0100 = __esmMin((() => {
 			file: "icecrash",
 			attachedEntity: true
 		}],
-		136: [{
-			type: "STR",
-			file: "slowp",
-			wav: "effect/priest_slowpoison",
-			attachedEntity: false
-		}],
-		138: [
-			{
-				type: "CYLINDER",
-				attachedEntity: false,
-				topSize: 2,
-				bottomSize: 1,
-				textureName: "magic_red",
-				height: 3,
-				duration: 5e3,
-				delayOffset: 1e3,
-				rotate: true
-			},
-			{
-				type: "CYLINDER",
-				attachedEntity: false,
-				topSize: 1.5,
-				bottomSize: .7,
-				textureName: "magic_red",
-				height: 5,
-				duration: 5e3,
-				delayOffset: 1e3,
-				rotate: true
-			},
-			{
-				type: "CYLINDER",
-				attachedEntity: false,
-				topSize: 1,
-				bottomSize: .5,
-				textureName: "magic_red",
-				height: 7,
-				duration: 5e3,
-				delayOffset: 1e3,
-				rotate: true
-			}
-		],
-		139: [{
-			type: "STR",
-			file: "sandman",
-			wav: "effect/hunter_sandman",
-			attachedEntity: false
-		}],
 		140: [{
 			wav: "effect/priest_resurrection",
-			attachedEntity: true
-		}],
-		141: [{
-			type: "STR",
-			file: "pneuma%d",
-			rand: [1, 3],
-			attachedEntity: false
-		}],
-		142: [
-			{
-				type: "FUNC",
-				func: function(Params) {
-					for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
-						const newParams = {
-							effect: {
-								type: "QuadHorn",
-								textureFile: "effect/stone.bmp",
-								attachedEntity: false,
-								duration: 1e3,
-								height: [.75, 1.2],
-								offsetX: [.2, .2],
-								offsetY: [.2, .2],
-								offsetZ: -.1,
-								bottomSize: [.4, .7],
-								blendMode: 1,
-								rotateY: [1, 360],
-								rotateZ: [-8, 8],
-								color: [
-									1,
-									1,
-									1,
-									1
-								],
-								animation: 3,
-								animationSpeed: 250,
-								animationOut: true
-							},
-							Init: {},
-							Inst: {}
-						};
-						const newPos = [Params.Init.position[0] + i, Params.Init.position[1] + j];
-						Object.assign(newParams.Init, Params.Init);
-						newParams.Init.position = [
-							newPos[0],
-							newPos[1],
-							Altitude.getCellHeight(newPos[0], newPos[1])
-						];
-						newParams.Init.duration = newParams.effect.duration;
-						Object.assign(newParams.Inst, Params.Inst);
-						newParams.Inst.position = [
-							newPos[0],
-							newPos[1],
-							Altitude.getCellHeight(newPos[0], newPos[1])
-						];
-						newParams.Inst.duration = newParams.effect.duration;
-						newParams.Inst.endTick = newParams.Inst.startTick + newParams.effect.duration;
-						this.add(new QuadHorn(newParams.effect, newParams.Inst, newParams.Init), newParams);
-					}
-				}
-			},
-			{
-				wav: "effect/wizard_earthspike",
-				attachedEntity: false
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const start = Params.Inst.startTick;
-					Camera.setQuake(start, 200);
-				}
-			}
-		],
-		143: [{
-			type: "STR",
-			file: "sonicblow",
-			attachedEntity: true
-		}],
-		144: [{
-			type: "STR",
-			file: "brandish2",
-			wav: "effect/knight_brandish_spear",
-			attachedEntity: true
-		}],
-		145: [{
-			type: "SPR",
-			file: "shockwave",
-			wav: "effect/hunter_shockwavetrap",
-			attachedEntity: true
-		}],
-		146: [{
-			type: "STR",
-			file: "shockwavehit",
 			attachedEntity: true
 		}],
 		147: [{
@@ -272362,40 +269823,9 @@ var init_Effects0100 = __esmMin((() => {
 			file: "earthhit",
 			attachedEntity: true
 		}],
-		148: [{
-			type: "STR",
-			file: "pierce",
-			attachedEntity: true
-		}],
-		149: [{
-			type: "STR",
-			file: "bowling",
-			wav: "_enemy_hit_normal1",
-			head: true,
-			attachedEntity: true
-		}],
-		150: [{
-			type: "STR",
-			file: "spearstab",
-			wav: "_enemy_hit_normal1",
-			attachedEntity: true
-		}],
-		151: [{
-			type: "STR",
-			file: "spearboomerang",
-			wav: "effect/knight_spear_boomerang",
-			head: true,
-			attachedEntity: true
-		}],
 		152: [{
 			type: "STR",
 			file: "holyhit",
-			attachedEntity: true
-		}],
-		153: [{
-			type: "STR",
-			file: "concentration",
-			wav: "effect/ac_concentration",
 			attachedEntity: true
 		}],
 		154: [{
@@ -272441,40 +269871,6 @@ var init_Effects0100 = __esmMin((() => {
 			file: "Å©¸®½º¸¶½º",
 			duration: 1e3,
 			attachedEntity: true
-		}],
-		166: [{
-			type: "FUNC",
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				if (!entity) return;
-				entity._enableTrail = true;
-				entity._blurType = 1;
-				setTimeout(() => {
-					entity._enableTrail = false;
-				}, Params.Init.duration || 2e3);
-			}
-		}],
-		169: [{
-			type: "STR",
-			file: "energycoat",
-			attachedEntity: true
-		}],
-		170: [{
-			type: "STR",
-			file: "cartrevolution",
-			wav: "effect/ef_magnumbreak",
-			attachedEntity: true
-		}],
-		171: [{
-			type: "3D",
-			spriteName: "particle3",
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 100,
-			size: 80,
-			poszStart: 0,
-			poszEnd: .5,
-			repeat: true
 		}],
 		181: [{
 			type: "STR",
@@ -272849,7 +270245,7 @@ function calculateSize(self, aura, auraAngle, i) {
 	const endY = sin * (aura[i].distance * .8 + riseFactor);
 	return [Math.abs(endX - startX), Math.abs(endY - startY)];
 }
-var _program$11, _buffer$5, GroundAura;
+var _program$12, _buffer$5, GroundAura;
 var init_GroundAura = __esmMin((() => {
 	init_GroundAura$2();
 	init_GroundAura$1();
@@ -272904,7 +270300,7 @@ var init_GroundAura = __esmMin((() => {
 			this.ready = false;
 		}
 		render(gl, tick) {
-			const uniform = _program$11.uniform;
+			const uniform = _program$12.uniform;
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
 			const RAG_TICK_MS = 25;
 			const dt = Math.min(tick - (this._lastTick || tick), 250);
@@ -272954,7 +270350,7 @@ var init_GroundAura = __esmMin((() => {
 		* Initialize static resources
 		*/
 		static init(gl) {
-			_program$11 = WebGL_default.createShaderProgram(gl, GroundAura_default$1, GroundAura_default);
+			_program$12 = WebGL_default.createShaderProgram(gl, GroundAura_default$1, GroundAura_default);
 			const vertices = generateGroundQuad();
 			_buffer$5 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$5);
@@ -272966,9 +270362,9 @@ var init_GroundAura = __esmMin((() => {
 		* Free static resources
 		*/
 		static free(gl) {
-			if (_program$11) {
-				gl.deleteProgram(_program$11);
-				_program$11 = null;
+			if (_program$12) {
+				gl.deleteProgram(_program$12);
+				_program$12 = null;
 			}
 			if (_buffer$5) {
 				gl.deleteBuffer(_buffer$5);
@@ -272980,10 +270376,10 @@ var init_GroundAura = __esmMin((() => {
 		* Before render setup
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$11.uniform;
-			const attribute = _program$11.attribute;
+			const uniform = _program$12.uniform;
+			const attribute = _program$12.attribute;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.useProgram(_program$11);
+			gl.useProgram(_program$12);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -273003,8 +270399,8 @@ var init_GroundAura = __esmMin((() => {
 		*/
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$11.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$11.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$12.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$12.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -273071,7 +270467,7 @@ function createAnchor(isGhost, seedMaxUnits) {
 		z: 0
 	};
 }
-var DEG_TO_RAD, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$10, _buffer$4, BILLBOARD_CORNERS, Level99Bubble;
+var DEG_TO_RAD, GAME_TO_WORLD, NUM_COLUMNS, ANCHORS_PER_COL, BASE_LIFT, REF_RADIUS, REF_SPEED, REF_DRIFT_K, REF_SEED_MAX, REF_RESET_Y, REF_ALPHA_OFFSET, REF_ALPHA_GAIN, ANCHOR_SIGNS, ANCHOR_PHASE_OFFSETS, debugConfig, _program$11, _buffer$4, BILLBOARD_CORNERS, Level99Bubble;
 var init_Level99Bubble = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -273313,7 +270709,7 @@ var init_Level99Bubble = __esmMin((() => {
 		}
 		render(gl, tick) {
 			if (!this.ready || !this.texture) return;
-			const uniform = _program$10.uniform;
+			const uniform = _program$11.uniform;
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 			const basePos = [
 				this.position[0] + .5,
@@ -273377,7 +270773,7 @@ var init_Level99Bubble = __esmMin((() => {
 			}
 		}
 		renderBackground(gl, basePos) {
-			const uniform = _program$10.uniform;
+			const uniform = _program$11.uniform;
 			const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
 			const height = this.seedMax * GAME_TO_WORLD;
 			function drawQuad(v0, v1, v2, v3) {
@@ -273507,7 +270903,7 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.uniform1i(uniform.uSolidBg, 0);
 		}
 		static init(gl) {
-			_program$10 = WebGL_default.createShaderProgram(gl, Level99Bubble_default$1, Level99Bubble_default);
+			_program$11 = WebGL_default.createShaderProgram(gl, Level99Bubble_default$1, Level99Bubble_default);
 			_buffer$4 = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$4);
 			gl.bufferData(gl.ARRAY_BUFFER, 120, gl.DYNAMIC_DRAW);
@@ -273515,9 +270911,9 @@ var init_Level99Bubble = __esmMin((() => {
 			this.renderBeforeEntities = true;
 		}
 		static free(gl) {
-			if (_program$10) {
-				gl.deleteProgram(_program$10);
-				_program$10 = null;
+			if (_program$11) {
+				gl.deleteProgram(_program$11);
+				_program$11 = null;
 			}
 			if (_buffer$4) {
 				gl.deleteBuffer(_buffer$4);
@@ -273526,10 +270922,10 @@ var init_Level99Bubble = __esmMin((() => {
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$10.uniform;
-			const attribute = _program$10.attribute;
+			const uniform = _program$11.uniform;
+			const attribute = _program$11.attribute;
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.useProgram(_program$10);
+			gl.useProgram(_program$11);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -273547,8 +270943,8 @@ var init_Level99Bubble = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$10.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$10.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$11.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$11.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -273563,7 +270959,7 @@ var init_Tiles$1 = __esmMin((() => {
 	Tiles_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\nuniform sampler2D uDiffuse;\r\nuniform float alpha;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n    void main(void) {\r\n        vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n        if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n            discard;\r\n        }\r\n        textureSample.a = alpha;\r\n        fragColor = textureSample;\r\n    \r\n    if (uFogUse) {\r\n    float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n    float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n    fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/Tiles.js
-function loadTexture$5(gl, texture, cb) {
+function loadTexture$6(gl, texture, cb) {
 	const _texture = gl.createTexture();
 	Client.loadFile(texture.filename, function(buffer) {
 		Texture.load(buffer, function(canvas) {
@@ -273634,7 +271030,7 @@ var init_Tiles = __esmMin((() => {
 				0,
 				0
 			]), gl.STATIC_DRAW);
-			loadTexture$5(gl, {
+			loadTexture$6(gl, {
 				filename: textureFilename,
 				size
 			}, (texture) => {
@@ -273901,225 +271297,6 @@ var init_Songs = __esmMin((() => {
 		EvillandEffects: EvillandEffects$1
 	};
 }));
-// src/Renderer/Effects/LPEffect.vs?raw
-var LPEffect_default$1;
-var init_LPEffect$2 = __esmMin((() => {
-	LPEffect_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\nout vec2 vTextureCoord;\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\nvoid main(void) {\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.01;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
-}));
-// src/Renderer/Effects/LPEffect.fs?raw
-var LPEffect_default;
-var init_LPEffect$1 = __esmMin((() => {
-	LPEffect_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nuniform sampler2D uDiffuse;\r\nout vec4 fragColor;\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {\r\n        discard;\r\n    }\r\n    textureSample.a = 0.7;\r\n    fragColor = textureSample;\r\n}";
-}));
-// src/Renderer/Effects/LPEffect.js
-var _lpNum$1, LPEffect;
-var init_LPEffect = __esmMin((() => {
-	init_WebGL();
-	init_Tiles();
-	init_LPEffect$2();
-	init_LPEffect$1();
-	_lpNum$1 = 0;
-	LPEffect = class extends FlatTexture("data/texture/effect/aaa copy.bmp") {
-		static createShaderProgram(gl) {
-			return WebGL_default.createShaderProgram(gl, LPEffect_default$1, LPEffect_default);
-		}
-		constructor() {
-			super(...arguments);
-			this.ix = ++_lpNum$1;
-		}
-		render(gl, tick) {
-			const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-			const sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
-			gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
-			gl.uniform1f(this.constructor._program.uniform.uSize, .8 + .05 * sizeMult);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
-	};
-}));
-// src/Renderer/Effects/PropertyGround.vs?raw
-var PropertyGround_default$1;
-var init_PropertyGround$2 = __esmMin((() => {
-	PropertyGround_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uRotationMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uTopSize;\r\nuniform float uBottomSize;\r\nuniform float uHeight;\r\n\r\nvoid main(void) {\r\n    float size, height;\r\n\r\n    if (aPosition.z == 1.0) {\r\n        size   = uTopSize;\r\n        height = uHeight;\r\n    }\r\n    else {\r\n        size   = uBottomSize;\r\n        height = 0.0;\r\n    }\r\n\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - height, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0) * uRotationMat;\r\n\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
-}));
-// src/Renderer/Effects/PropertyGround.fs?raw
-var PropertyGround_default;
-var init_PropertyGround$1 = __esmMin((() => {
-	PropertyGround_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 texture = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (texture.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {\r\n        discard;\r\n    }\r\n    texture.a = 0.42;\r\n    fragColor = texture;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
-}));
-// src/Renderer/Effects/PropertyGround.js
-/**
-* Generate a generic PropertyGround
-*
-* @returns {Float32Array} buffer array
-*/
-function generatePropertyGround() {
-	let i, a, b;
-	const total = 20;
-	const bottom = [];
-	const top = [];
-	const mesh = [];
-	for (i = 0; i <= total; i++) {
-		a = (i + 0) / total;
-		b = (i + .5) / total;
-		bottom[i] = [
-			Math.sin(a * Math.PI * 2),
-			Math.cos(a * Math.PI * 2),
-			0,
-			a,
-			1
-		];
-		top[i] = [
-			Math.sin(b * Math.PI * 2),
-			Math.cos(b * Math.PI * 2),
-			1,
-			b,
-			0
-		];
-	}
-	for (i = 0; i <= total; i++) {
-		mesh.push.apply(mesh, bottom[i + 0]);
-		mesh.push.apply(mesh, top[i + 0]);
-		mesh.push.apply(mesh, bottom[i + 1]);
-		mesh.push.apply(mesh, top[i + 0]);
-		mesh.push.apply(mesh, bottom[i + 1]);
-		mesh.push.apply(mesh, top[i + 1]);
-	}
-	return new Float32Array(mesh);
-}
-var _program$9, _buffer$3, mat4$7, _rotationMatrices$2, _verticeCount$1, _num, PropertyGround;
-var init_PropertyGround = __esmMin((() => {
-	init_WebGL();
-	init_gl_matrix();
-	init_Client();
-	init_PropertyGround$2();
-	init_PropertyGround$1();
-	mat4$7 = gl_matrix_default.mat4;
-	_rotationMatrices$2 = (function() {
-		const matrices = [];
-		for (let i = 0; i < 16; i++) matrices.push(mat4$7.create());
-		return matrices;
-	})();
-	_verticeCount$1 = 0;
-	_num = 0;
-	PropertyGround = class {
-		constructor(position, topSize, bottomSize, height, textureName, tick) {
-			this.position = position;
-			this.topSize = topSize;
-			this.bottomSize = bottomSize;
-			this.textureName = textureName;
-			this.height = height;
-			this.tick = tick;
-			this.sizeRandomize = 0 + Math.random() * 10;
-			this.ix = _num++ % _rotationMatrices$2.length;
-		}
-		/**
-		* Preparing for render
-		*
-		* @param {object} webgl context
-		*/
-		init(gl) {
-			Client.loadFile(`data/texture/effect/${this.textureName}.tga`, (buffer) => {
-				WebGL_default.texture(gl, buffer, (texture) => {
-					this.texture = texture;
-					this.ready = true;
-				});
-			});
-		}
-		/**
-		* Destroying data
-		*
-		* @param {object} webgl context
-		*/
-		free(gl) {
-			this.ready = false;
-		}
-		/**
-		* Rendering cast
-		*
-		* @param {object} wegl context
-		*/
-		render(gl, tick) {
-			const uniform = _program$9.uniform;
-			const attribute = _program$9.attribute;
-			let sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
-			if (sizeMult < .5) sizeMult = .5;
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _rotationMatrices$2[this.ix]);
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$3);
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			gl.uniform3fv(uniform.uPosition, this.position);
-			gl.uniform1f(uniform.uBottomSize, this.bottomSize * sizeMult);
-			gl.uniform1f(uniform.uTopSize, this.topSize * sizeMult);
-			gl.uniform1f(uniform.uHeight, this.height);
-			gl.drawArrays(gl.TRIANGLES, 0, _verticeCount$1);
-		}
-		/**
-		* Initialize effect
-		*
-		* @param {object} webgl context
-		*/
-		static init(gl) {
-			const vertices = generatePropertyGround();
-			_verticeCount$1 = vertices.length / 5;
-			_program$9 = WebGL_default.createShaderProgram(gl, PropertyGround_default$1, PropertyGround_default);
-			_buffer$3 = gl.createBuffer();
-			this.ready = true;
-			this.renderBeforeEntities = false;
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$3);
-			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-		}
-		/**
-		* Destroy objects
-		*
-		* @param {object} webgl context
-		*/
-		static free(gl) {
-			if (_program$9) {
-				gl.deleteProgram(_program$9);
-				_program$9 = null;
-			}
-			if (_buffer$3) gl.deleteBuffer(_buffer$3);
-			this.ready = false;
-		}
-		/**
-		* Before render, set up program
-		*
-		* @param {object} webgl context
-		*/
-		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$9.uniform;
-			let _matrix, offset;
-			for (let i = 0, _len = _rotationMatrices$2.length; i < _len; i++) {
-				_matrix = _rotationMatrices$2[i];
-				mat4$7.identity(_matrix);
-				offset = i * 2 * Math.PI / _rotationMatrices$2.length;
-				mat4$7.rotateY(_matrix, _matrix, offset + tick / 8 / 180 * Math.PI);
-			}
-			gl.useProgram(_program$9);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-		}
-		/**
-		* After render, clean attributes
-		*
-		* @param {object} webgl context
-		*/
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$9.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$9.attribute.aTextureCoord);
-		}
-	};
-}));
 // src/Renderer/Effects/SpiritSphere.vs?raw
 var SpiritSphere_default$1;
 var init_SpiritSphere$2 = __esmMin((() => {
@@ -274131,7 +271308,7 @@ var init_SpiritSphere$1 = __esmMin((() => {
 	SpiritSphere_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;    \r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform vec4 uColor;\r\nuniform sampler2D uDiffuse;\r\nfloat tmp;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    \r\n    textureSample *= uColor;\r\n    \r\n    /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {\r\n        discard;\r\n    }*/\r\n    \r\n    fragColor = textureSample;\r\n\r\n}";
 }));
 // src/Renderer/Effects/SpiritSphere.js
-var _texture$3, _program$8, _buffer$2, mat4$6, _rotationMatrices$1, SpiritSphere;
+var _texture$3, _program$10, _buffer$3, mat4$7, _rotationMatrices$2, SpiritSphere;
 var init_SpiritSphere = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -274142,16 +271319,16 @@ var init_SpiritSphere = __esmMin((() => {
 	init_SpriteRenderer();
 	init_SpiritSphere$2();
 	init_SpiritSphere$1();
-	mat4$6 = gl_matrix_default.mat4;
-	_rotationMatrices$1 = (function() {
+	mat4$7 = gl_matrix_default.mat4;
+	_rotationMatrices$2 = (function() {
 		const matrices = [];
 		for (let i = 0; i < 5; i++) matrices.push({
-			posMat: mat4$6.create(),
-			texMat: mat4$6.create()
+			posMat: mat4$7.create(),
+			texMat: mat4$7.create()
 		});
 		return matrices;
 	})();
-	mat4$6.create();
+	mat4$7.create();
 	SpiritSphere = class SpiritSphere {
 		constructor(entity, num, isCoin) {
 			this.position = entity.position;
@@ -274166,9 +271343,9 @@ var init_SpiritSphere = __esmMin((() => {
 			this.ready = false;
 		}
 		static init(gl) {
-			_program$8 = WebGL_default.createShaderProgram(gl, SpiritSphere_default$1, SpiritSphere_default);
-			_buffer$2 = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$2);
+			_program$10 = WebGL_default.createShaderProgram(gl, SpiritSphere_default$1, SpiritSphere_default);
+			_buffer$3 = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$3);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 				-1,
 				-1,
@@ -274219,29 +271396,29 @@ var init_SpiritSphere = __esmMin((() => {
 				gl.deleteTexture(_texture$3);
 				_texture$3 = null;
 			}
-			if (_program$8) {
-				gl.deleteProgram(_program$8);
-				_program$8 = null;
+			if (_program$10) {
+				gl.deleteProgram(_program$10);
+				_program$10 = null;
 			}
-			if (_buffer$2) gl.deleteBuffer(_buffer$2);
+			if (_buffer$3) gl.deleteBuffer(_buffer$3);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$8.uniform;
-			const attribute = _program$8.attribute;
-			gl.useProgram(_program$8);
+			const uniform = _program$10.uniform;
+			const attribute = _program$10.attribute;
+			gl.useProgram(_program$10);
 			let _matrix, offset;
-			for (let i = 0, _len = _rotationMatrices$1.length; i < _len; i++) {
+			for (let i = 0, _len = _rotationMatrices$2.length; i < _len; i++) {
 				const vcRad = (Camera.angle[0] - 90) * Math.PI / 180;
 				const hcRad = Camera.angle[1] * Math.PI / 180;
-				offset = i * 2 * Math.PI / _rotationMatrices$1.length;
+				offset = i * 2 * Math.PI / _rotationMatrices$2.length;
 				const rotRad = offset - tick / 64 / 180 * Math.PI;
-				const textureMatrix = mat4$6.create();
-				mat4$6.rotateX(_rotationMatrices$1[i].texMat, textureMatrix, vcRad);
-				mat4$6.rotateY(_rotationMatrices$1[i].texMat, _rotationMatrices$1[i].texMat, hcRad - rotRad);
-				_matrix = _rotationMatrices$1[i].posMat;
-				mat4$6.identity(_matrix);
-				mat4$6.rotateY(_matrix, _matrix, rotRad);
+				const textureMatrix = mat4$7.create();
+				mat4$7.rotateX(_rotationMatrices$2[i].texMat, textureMatrix, vcRad);
+				mat4$7.rotateY(_rotationMatrices$2[i].texMat, _rotationMatrices$2[i].texMat, hcRad - rotRad);
+				_matrix = _rotationMatrices$2[i].posMat;
+				mat4$7.identity(_matrix);
+				mat4$7.rotateY(_matrix, _matrix, rotRad);
 			}
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
@@ -274250,20 +271427,20 @@ var init_SpiritSphere = __esmMin((() => {
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$2);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$3);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
 		}
 		render(gl, tick) {
-			const uniform = _program$8.uniform;
+			const uniform = _program$10.uniform;
 			gl.uniform3fv(uniform.uPosition, this.position);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$2);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$3);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 			gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 			SpriteRenderer.runWithDepth(true, false, false, () => {
 				let _matrix;
 				for (let i = this.num; i > 0; i--) {
-					_matrix = _rotationMatrices$1[i % _rotationMatrices$1.length];
+					_matrix = _rotationMatrices$2[i % _rotationMatrices$2.length];
 					gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
 					gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix.posMat);
 					if (i > 10) {
@@ -274352,46 +271529,24 @@ var init_SpiritSphere = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$8.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$8.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$10.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$10.attribute.aTextureCoord);
 		}
 	};
 	SpiritSphere.renderBeforeEntities = false;
 }));
-// src/DB/Effects/Table/Effects0200.js
-var ServiceEffects, getBragiSpellNote, DissonanceEffects, LullabyEffects, MrKimEffects, EtChaosEffects, DrumEffects, NibelungEffects, LokiEffects, AbyssEffects, SiegfiedEffects, WhistleEffects, SinEffects, AppleEffects, UglyEffects, HummingEffects, ForgetEffects, FortuneEffects, Effects0200_default;
+// src/DB/Effects/Table/Common/Effects0200.js
+var DissonanceEffects, UglyEffects, Effects0200_default;
 var init_Effects0200 = __esmMin((() => {
-	init_Camera();
 	init_SwirlingAura();
 	init_GroundAura();
 	init_Level99Bubble();
 	init_Songs();
-	init_DBManager();
-	init_SessionStorage();
 	init_CloudWeatherEffect();
-	init_LPEffect();
 	init_PokJukWeatherEffect();
-	init_PropertyGround();
 	init_SpiritSphere();
-	init_ChatBox();
-	ServiceEffects = Songs_default.ServiceEffects;
-	getBragiSpellNote = Songs_default.getBragiSpellNote;
 	DissonanceEffects = Songs_default.DissonanceEffects;
-	LullabyEffects = Songs_default.LullabyEffects;
-	MrKimEffects = Songs_default.MrKimEffects;
-	EtChaosEffects = Songs_default.EtChaosEffects;
-	DrumEffects = Songs_default.DrumEffects;
-	NibelungEffects = Songs_default.NibelungEffects;
-	LokiEffects = Songs_default.LokiEffects;
-	AbyssEffects = Songs_default.AbyssEffects;
-	SiegfiedEffects = Songs_default.SiegfiedEffects;
-	WhistleEffects = Songs_default.WhistleEffects;
-	SinEffects = Songs_default.SinEffects;
-	AppleEffects = Songs_default.AppleEffects;
 	UglyEffects = Songs_default.UglyEffects;
-	HummingEffects = Songs_default.HummingEffects;
-	ForgetEffects = Songs_default.ForgetEffects;
-	FortuneEffects = Songs_default.FortuneEffects;
 	Effects0200_default = {
 		200: [{
 			type: "FUNC",
@@ -274542,97 +271697,6 @@ var init_Effects0200 = __esmMin((() => {
 			retreat: 3,
 			drainPattern: true
 		}],
-		217: [
-			{
-				type: "3D",
-				duration: 600,
-				duplicate: 5,
-				timeBetweenDupli: 0,
-				absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
-				playSprite: true,
-				toSrc: true,
-				rotateToTarget: true,
-				red: .4,
-				green: .4,
-				blue: 1,
-				sizeStart: 150,
-				sizeEnd: 180,
-				zOffsetStart: 5,
-				arc: 3,
-				retreat: 3,
-				drainPattern: true
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function EffectBodyColor(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						if (tick < 500) return false;
-						const time = tick - 500;
-						if (time < 200) {
-							const val = (255 - (time + 50)) / 255;
-							entity._flashColor[0] = val;
-							entity._flashColor[1] = val;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return false;
-						}
-						if (time < 400) {
-							const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
-							entity._flashColor[0] = val;
-							entity._flashColor[1] = val;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return false;
-						}
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					});
-				}
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function EffectBodyColor(Params) {
-					const entity = Params.Init.otherEntity;
-					if (!entity) return true;
-					entity.animations.add(function(tick) {
-						const time = tick;
-						if (time < 200) {
-							const val = (255 - (time + 50)) / 255;
-							entity._flashColor[0] = val;
-							entity._flashColor[1] = val;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return false;
-						}
-						if (time < 400) {
-							const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
-							entity._flashColor[0] = val;
-							entity._flashColor[1] = val;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return false;
-						}
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					});
-				}
-			}
-		],
 		218: [{
 			type: "STR",
 			file: "ÁýÁß",
@@ -274643,547 +271707,6 @@ var init_Effects0200 = __esmMin((() => {
 			type: "STR",
 			file: "°¢¼º",
 			wav: "effect/ac_concentration",
-			attachedEntity: true
-		}],
-		220: [{
-			type: "STR",
-			file: "¹ö¼­Å©",
-			wav: "effect/ac_concentration",
-			attachedEntity: true
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 200;
-				Camera.setQuake(start, 200);
-			}
-		}],
-		222: [{
-			type: "CYLINDER",
-			alphaMax: .6,
-			animation: 1,
-			blendMode: 8,
-			bottomSize: 1.5,
-			topSize: 1.5,
-			duration: 3e3,
-			fade: true,
-			height: 10,
-			rotate: true,
-			textureName: "ring_black",
-			attachedEntity: true
-		}],
-		226: [
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -2
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -3
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -4
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 2
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 3
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 4
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: 1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: 2
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: 3
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: 4
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: -1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: -2
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: -3
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posY: -4
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 1,
-				posY: 1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 1,
-				posY: -1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -1,
-				posY: -1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 4,
-				circleSides: 4,
-				topSize: .7,
-				bottomSize: .7,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 45,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -1,
-				posY: 1
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 20,
-				circleSides: 5,
-				topSize: 3,
-				bottomSize: 3,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: -180,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 3.5,
-				posY: 3.5
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 20,
-				circleSides: 5,
-				topSize: 3,
-				bottomSize: 3,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 90,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: 3.5,
-				posY: -3.5
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 20,
-				circleSides: 5,
-				topSize: 3,
-				bottomSize: 3,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: 0,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -3.5,
-				posY: -3.5
-			},
-			{
-				type: "CYLINDER",
-				alphaMax: .1,
-				animation: 1,
-				attachedEntity: false,
-				blendMode: 2,
-				totalCircleSides: 20,
-				circleSides: 5,
-				topSize: 3,
-				bottomSize: 3,
-				duration: 1e3,
-				fade: true,
-				height: 5,
-				rotate: false,
-				angleY: -90,
-				textureName: "ring_red",
-				duplicate: 3,
-				timeBetweenDupli: 500,
-				posX: -3.5,
-				posY: 3.5
-			},
-			{ wav: "effect/cru_grand cross" }
-		],
-		227: [{
-			wav: "effect/rog_intimidate",
 			attachedEntity: true
 		}],
 		228: [{
@@ -275237,248 +271760,7 @@ var init_Effects0200 = __esmMin((() => {
 				CloudWeatherEffect.startOrRestart(Params);
 			}
 		}],
-		234: [{
-			type: "STR",
-			file: "spell",
-			wav: "effect/sage_spell breake",
-			attachedEntity: true
-		}],
-		235: [{
-			type: "STR",
-			file: "µð½ºÆç",
-			attachedEntity: true
-		}],
-		239: [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				this.add(new PropertyGround(Params.Inst.position, 3, 1, 2, "ring_red", Params.Inst.startTick), Params);
-			}
-		}],
-		240: [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				this.add(new PropertyGround(Params.Inst.position, 3, 1, 2, "ring_blue", Params.Inst.startTick), Params);
-			}
-		}],
-		241: [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				this.add(new PropertyGround(Params.Inst.position, 3, 1, 2, "ring_yellow", Params.Inst.startTick), Params);
-			}
-		}],
-		242: [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				this.add(new LPEffect(Params.Inst.position, Params.Inst.startTick), Params);
-			}
-		}],
-		244: [{
-			type: "STR",
-			file: "¸ÅÁ÷·Îµå",
-			wav: "effect/sage_magic rod",
-			attachedEntity: true
-		}],
-		245: [{
-			type: "STR",
-			file: "holy_cross",
-			wav: "effect/cru_holy cross",
-			attachedEntity: true
-		}],
-		246: [{
-			type: "STR",
-			file: "shield_charge",
-			attachedEntity: true
-		}],
-		248: [{
-			type: "STR",
-			file: "providence",
-			attachedEntity: true
-		}],
-		249: [{ wav: "effect/cru_shield boomerang" }],
-		250: [{
-			type: "STR",
-			file: "twohand",
-			wav: "effect/knight_twohandquicken",
-			head: true,
-			attachedEntity: true
-		}],
-		251: [{
-			type: "STR",
-			file: "devotion",
-			attachedEntity: true
-		}],
-		252: [{
-			type: "CYLINDER",
-			alphaMax: .6,
-			animation: 1,
-			blendMode: 8,
-			bottomSize: 1.5,
-			topSize: 1.5,
-			duration: 3e3,
-			fade: true,
-			height: 10,
-			rotate: true,
-			textureName: "ring_yellow",
-			attachedEntity: true
-		}],
-		253: [
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .3,
-				green: .3,
-				blue: 1,
-				bottomSize: 1.1,
-				duration: 1500,
-				fade: true,
-				height: 15,
-				rotate: true,
-				textureName: "ring_blue",
-				topSize: 1.1,
-				type: "CYLINDER",
-				wav: "effect/Èí±â"
-			},
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .3,
-				green: .3,
-				blue: 1,
-				bottomSize: 1,
-				duration: 1500,
-				fade: true,
-				height: 13,
-				rotate: true,
-				textureName: "ring_blue",
-				topSize: 1,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .3,
-				green: .3,
-				blue: 1,
-				bottomSize: 1.1,
-				duration: 1500,
-				fade: true,
-				height: 2,
-				rotate: true,
-				textureName: "ring_blue",
-				topSize: 3,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .3,
-				green: .3,
-				blue: 1,
-				duration: 1500,
-				duplicate: 4,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				posxRand: 1.2,
-				posyRand: 1.2,
-				poszEndRand: 1,
-				poszEndRandMiddle: 8,
-				poszStart: 0,
-				size: 9,
-				sizeRand: 2,
-				sparkling: true,
-				sparkNumber: 2,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .3,
-				green: .3,
-				blue: 1,
-				duration: 1300,
-				delayOffset: 400,
-				duplicate: 20,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				posxRand: 1.5,
-				posyRand: 1.5,
-				poszEndRand: 3,
-				poszEndRandMiddle: 6,
-				poszStart: 0,
-				size: 9,
-				sizeRand: 2,
-				sparkling: true,
-				sparkNumber: 2,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .3,
-				green: .3,
-				blue: 1,
-				duration: 1100,
-				delayLate: 200,
-				duplicate: 10,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				posxRand: 1,
-				posyRand: 1,
-				poszEnd: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 0,
-				size: 9,
-				sizeRand: 2,
-				timeBetweenDupli: 50,
-				type: "3D",
-				zIndex: 1
-			}
-		],
 		254: [{ wav: "effect/mon_±Ý°­ºÒ±«" }],
-		255: [{
-			type: "STR",
-			file: "enc_fire",
-			wav: "_enemy_hit_wind1",
-			attachedEntity: true
-		}],
-		256: [{
-			type: "STR",
-			file: "enc_ice",
-			wav: "_enemy_hit_wind1",
-			attachedEntity: true
-		}],
-		257: [{
-			type: "STR",
-			file: "enc_wind",
-			wav: "effect/_enemy_hit_wind1",
-			attachedEntity: true
-		}],
-		258: [{
-			type: "STR",
-			file: "enc_earth",
-			wav: "_enemy_hit_wind1",
-			attachedEntity: true
-		}],
 		261: [{
 			type: "CYLINDER",
 			alphaMax: .5,
@@ -275498,31 +271780,6 @@ var init_Effects0200 = __esmMin((() => {
 			wav: "effect/mon_Æø±â",
 			attachedEntity: true
 		}],
-		262: [{
-			wav: "effect/mon_Æø±â",
-			type: "3D",
-			duplicate: 12,
-			timeBetweenDupli: 0,
-			file: "effect/alpha_center.tga",
-			delayStart: 250,
-			duration: 550,
-			alphaMax: .8,
-			fadeIn: true,
-			fadeOut: true,
-			posxStart: 0,
-			posyStart: 0,
-			posxEndRand: 40,
-			posyEndRand: 40,
-			sizeStartX: 10,
-			sizeStartY: 150,
-			sizeEndX: 10,
-			sizeEndY: 150,
-			blendMode: 2,
-			attachedEntity: true,
-			overlay: true,
-			rotateToTarget: true,
-			rotateWithCamera: true
-		}],
 		263: [{
 			type: "CYLINDER",
 			alphaMax: .3,
@@ -275539,303 +271796,12 @@ var init_Effects0200 = __esmMin((() => {
 			topSize: 6,
 			attachedEntity: true
 		}],
-		265: [{
-			type: "3D",
-			file: "effect/blue_ivy.bmp",
-			alphaMax: 1,
-			blendMode: 2,
-			duration: 150,
-			toSrc: true,
-			rotateWithCamera: true,
-			rotateToTarget: true,
-			angle: 90,
-			zOffset: 1,
-			size: 50,
-			wav: "effect/mon_ÅºÁö½ÅÅë",
-			attachedEntity: true
-		}],
-		266: [{
-			wav: "effect/mon_¾Æ¼ö¶ó ÆÐÈ²±Ç",
-			type: "3D",
-			duplicate: 24,
-			timeBetweenDupli: 0,
-			file: "effect/lens1.tga",
-			delayStart: 100,
-			duration: 550,
-			alphaMax: .8,
-			fadeIn: true,
-			fadeOut: true,
-			posxStart: 0,
-			posyStart: 0,
-			posxEndRand: 40,
-			posyEndRand: 40,
-			sizeStartX: 10,
-			sizeStartY: 150,
-			sizeEndX: 10,
-			sizeEndY: 150,
-			blendMode: 2,
-			attachedEntity: true,
-			overlay: true,
-			rotateToTarget: true,
-			rotateWithCamera: true
-		}],
-		267: [{ wav: "effect/mon_Ä§Åõ°æ" }],
-		268: [{
-			type: "STR",
-			file: "steal_coin",
-			attachedEntity: true
-		}],
-		269: [{
-			type: "STR",
-			file: "strip_weapon",
-			wav: "effect/t_º®Æ¨±è",
-			attachedEntity: true
-		}],
-		270: [{
-			type: "STR",
-			file: "strip_shield",
-			wav: "effect/t_º®Æ¨±è",
-			attachedEntity: true
-		}],
-		271: [{
-			type: "STR",
-			file: "strip_armor",
-			wav: "effect/t_º®Æ¨±è",
-			attachedEntity: true
-		}],
-		272: [{
-			type: "STR",
-			file: "strip_helm",
-			wav: "effect/t_º®Æ¨±è",
-			attachedEntity: true
-		}],
-		273: [{
-			type: "STR",
-			file: "¿¬È¯",
-			wav: "effect/mon_¿¬È¯",
-			attachedEntity: true
-		}],
-		274: [{
-			type: "2D",
-			overlay: true,
-			file: "effect/coin_a.bmp",
-			blendMode: 2,
-			alphaMax: .8,
-			duplicate: 30,
-			timeBetweenDupli: 50,
-			duration: 1500,
-			fadeOut: true,
-			posxEndRand: 10,
-			posyEndRand: 10,
-			posz: 2,
-			size: 20,
-			rotateToTarget: true,
-			attachedEntity: true
-		}, { wav: "effect/rog_steal coin" }],
-		275: [{
-			wav: "effect/rog_back stap",
-			attachedEntity: true
-		}],
-		276: [{
-			type: "3D",
-			duplicate: 20,
-			timeBetweenDupli: 0,
-			file: "effect/lens1.tga",
-			delayStart: 100,
-			duration: 550,
-			alphaMax: .8,
-			fadeIn: true,
-			fadeOut: true,
-			posxStart: 0,
-			posyStart: 0,
-			posxEndRand: 40,
-			posyEndRand: 40,
-			sizeStartX: 10,
-			sizeStartY: 150,
-			sizeEndX: 10,
-			sizeEndY: 150,
-			blendMode: 2,
-			attachedEntity: true,
-			red: .1,
-			green: .1,
-			blue: 1,
-			overlay: true,
-			rotateToTarget: true,
-			rotateWithCamera: true
-		}],
 		"277_ground": [{
 			type: "FUNC",
 			attachedEntity: false,
 			func: function(Params) {
 				const self = this;
 				DissonanceEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		278: [{
-			wav: "effect/ÀÚÀå°¡",
-			attachedEntity: true
-		}],
-		"278_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				LullabyEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		279: [{
-			wav: "effect/±è¼­¹æµ·",
-			attachedEntity: true
-		}],
-		"279_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				MrKimEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		280: [{
-			wav: "effect/¿µ¿øÀÇ È¥µ·",
-			attachedEntity: true
-		}],
-		"280_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				EtChaosEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		281: [{
-			wav: "effect/ÀüÀåÀÇ",
-			attachedEntity: true
-		}],
-		"281_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				DrumEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		282: [{
-			wav: "effect/´Ïº§·î°ÕÀÇ ¹ÝÁö",
-			attachedEntity: true
-		}],
-		"282_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				NibelungEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		283: [{
-			wav: "effect/·ÎÅ°",
-			attachedEntity: true
-		}],
-		"283_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				LokiEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		284: [{
-			wav: "effect/½É¿¬¼ÓÀ¸·Î",
-			attachedEntity: true
-		}],
-		"284_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				AbyssEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		285: [{
-			wav: "effect/ºÒ»ç½Å",
-			attachedEntity: true
-		}],
-		"285_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				SiegfiedEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		286: [{
-			wav: "effect/´Þºû¼¼·¹³ªµ¥",
-			attachedEntity: true
-		}],
-		"286_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				WhistleEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		287: [{
-			wav: "effect/¼®¾çÀÇ ¾î½Ø½Å",
-			attachedEntity: true
-		}],
-		"287_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				SinEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		288: [{
-			wav: "effect/ºê¶ó±âÀÇ ½Ã",
-			attachedEntity: true
-		}],
-		"288_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				const bragiNoteEffect = getBragiSpellNote();
-				self.add(new bragiNoteEffect(Params.Inst.position, Params.Inst.startTick, 2), Params);
-			}
-		}],
-		289: [{
-			wav: "effect/ÀÌµÐÀÇ »ç°ú",
-			attachedEntity: true
-		}],
-		"289_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				AppleEffects.forEach(function(effect) {
 					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
@@ -275850,126 +271816,24 @@ var init_Effects0200 = __esmMin((() => {
 				});
 			}
 		}],
-		291: [{
-			wav: "effect/Èï¾ó°Å¸²",
-			attachedEntity: true
-		}],
-		"291_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				HummingEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		292: [{
-			wav: "effect/³ª¸¦ÀØÁö¸»¾Æ¿ä",
-			attachedEntity: true
-		}],
-		"292_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				ForgetEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		293: [{
-			wav: "effect/Çà¿îÀÇ",
-			attachedEntity: true
-		}],
-		"293_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				FortuneEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		294: [{
-			wav: "effect/´ç½ÅÀ» À§ÇÑ ¼­ºñ½º",
-			attachedEntity: true
-		}],
-		"294_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				ServiceEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		}],
-		295: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				if (Params.Init.ownerAID == SessionStorage_default.Entity.GID) {
-					const msg = DB.getRandomJoke();
-					if (msg) ChatBox_default.onRequestTalk("", msg, ChatBox_default.TYPE.PUBLIC);
-				}
-			}
-		}],
-		296: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				if (Params.Init.ownerAID == SessionStorage_default.Entity.GID) {
-					const msg = DB.getRandomScream();
-					if (msg) ChatBox_default.onRequestTalk("", msg, ChatBox_default.TYPE.PUBLIC);
-				}
-			}
-		}],
 		297: [{
 			type: "FUNC",
 			attachedEntity: false,
 			func: function(Params) {
 				PokJukWeatherEffect.startOrRestart(Params);
 			}
-		}],
-		298: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 300,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¿°»êº´.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: .5,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
 		}]
 	};
 }));
-// src/DB/Effects/Table/Effects0300.js
-var GospelEffects, Effects0300_default;
+// src/DB/Effects/Table/Common/Effects0300.js
+var Effects0300_default;
 var init_Effects0300 = __esmMin((() => {
 	init_SakuraWeatherEffect();
 	init_Camera();
-	init_Songs();
-	init_FlatColorTile();
 	init_PoisonEffect();
 	init_Blind();
-	GospelEffects = Songs_default.GospelEffects;
 	Effects0300_default = {
 		300: [{ wav: "apocalips_attack" }],
-		302: [{
-			type: "SPR",
-			file: "µ¥¸ó½ºÆ®·¹ÀÌ¼Ç",
-			attachedEntity: false
-		}],
 		303: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -276061,265 +271925,6 @@ var init_Effects0300 = __esmMin((() => {
 			wav: "effect/p_failed",
 			attachedEntity: true
 		}],
-		308: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: .5,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		309: [{
-			type: "2D",
-			alphaMax: 80 / 255,
-			blendMode: 2,
-			file: "effect/pikapika2.bmp",
-			red: 150 / 255,
-			green: 150 / 255,
-			blue: 250 / 255,
-			angleRand: [0, 359],
-			fadeInMs: 20 * (1e3 / 60),
-			fadeOutStartMs: 100 * (1e3 / 60),
-			duration: 3e3,
-			size: 140,
-			sizePulse: {
-				amount: .05,
-				degPerTick: 3
-			},
-			posz: 2.4,
-			wav: "_heal_effect"
-		}],
-		311: [{
-			type: "STR",
-			file: "loud",
-			wav: "effect/°í¼º¹æ°¡",
-			attachedEntity: true
-		}],
-		312: [
-			{
-				alphaMax: .2,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: .95,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 8,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: .95,
-				type: "CYLINDER",
-				wav: "_heal_effect"
-			},
-			{
-				alphaMax: .2,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 8,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 1,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1300,
-				delayOffset: 400,
-				duplicate: 15,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1.5,
-				posyRand: 1.5,
-				poszEndRand: 2,
-				poszEndRandMiddle: 6,
-				poszStart: 0,
-				red: 1,
-				size: 9,
-				sizeRand: 2,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1100,
-				delayLate: 200,
-				duplicate: 7,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1,
-				posyRand: 1,
-				poszEnd: 5,
-				poszStartRand: 1,
-				poszStartRandMiddle: 0,
-				red: 1,
-				size: 9,
-				sizeRand: 2,
-				timeBetweenDupli: 50,
-				type: "3D",
-				zIndex: 1
-			}
-		],
-		313: [
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1.1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 15,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 1.1,
-				type: "CYLINDER",
-				wav: "_heal_effect"
-			},
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 13,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 1,
-				type: "CYLINDER",
-				wav: "_heal_effect"
-			},
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1.1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 2,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 3,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1500,
-				duplicate: 4,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1.2,
-				posyRand: 1.2,
-				poszEndRand: 1,
-				poszEndRandMiddle: 8,
-				poszStart: 0,
-				red: 1,
-				size: 9,
-				sizeRand: 2,
-				sparkling: true,
-				sparkNumber: 2,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1300,
-				delayOffset: 400,
-				duplicate: 20,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1.5,
-				posyRand: 1.5,
-				poszEndRand: 3,
-				poszEndRandMiddle: 6,
-				poszStart: 0,
-				red: 1,
-				size: 9,
-				sizeRand: 2,
-				sparkling: true,
-				sparkNumber: 2,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1100,
-				delayLate: 200,
-				duplicate: 10,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1,
-				posyRand: 1,
-				poszEnd: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 0,
-				red: 1,
-				size: 9,
-				sizeRand: 2,
-				timeBetweenDupli: 50,
-				type: "3D",
-				zIndex: 1
-			}
-		],
 		314: [
 			{
 				alphaMax: .3,
@@ -276542,151 +272147,6 @@ var init_Effects0300 = __esmMin((() => {
 			wav: "effect/t_º®Æ¨±è",
 			attachedEntity: false
 		}],
-		soulink_target_effect: [{
-			wav: "effect/t_¿µÈ¥",
-			attachedEntity: true
-		}],
-		gunslinger_coin: [{
-			wav: "effect/ÇÃ¸³",
-			attachedEntity: true
-		}],
-		ef_coldbolt: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 112.5,
-			duration: 500,
-			file: "effect/icearrow.tga",
-			posxEnd: 0,
-			posxStartRandMiddle: 5,
-			posxStartRand: 1,
-			posyEnd: 0,
-			posyStartRandMiddle: 2,
-			posyStartRand: 1,
-			poszEnd: 0,
-			poszStart: 20,
-			size: 50,
-			zIndex: 1,
-			wav: "effect/ef_icearrow%d",
-			rand: [1, 3],
-			attachedEntity: true
-		}, {
-			type: "CYLINDER",
-			alphaMax: .7,
-			animation: 4,
-			attachedEntity: false,
-			bottomSize: 3,
-			duration: 1e3,
-			delayLate: 500,
-			fade: true,
-			height: .1,
-			rotate: true,
-			textureName: "ring_blue",
-			topSize: 5
-		}],
-		ef_firebolt: [{
-			type: "3D",
-			alphaMax: 1,
-			blendMode: 2,
-			angle: 112.5,
-			duration: 500,
-			fileList: [
-				"effect/ºÒÈ­»ì1.tga",
-				"effect/ºÒÈ­»ì2.tga",
-				"effect/ºÒÈ­»ì3.tga",
-				"effect/ºÒÈ­»ì4.tga",
-				"effect/ºÒÈ­»ì5.tga",
-				"effect/ºÒÈ­»ì6.tga"
-			],
-			frameDelay: 30,
-			posxEnd: 0,
-			posxStartRandMiddle: 5,
-			posxStartRand: 1,
-			posyEnd: 0,
-			posyStartRandMiddle: 2,
-			posyStartRand: 1,
-			poszEnd: 0,
-			poszStart: 20,
-			sizeX: 100,
-			sizeY: 50,
-			zIndex: 1,
-			wav: "effect/ef_firearrow%d",
-			rand: [1, 3],
-			attachedEntity: true
-		}],
-		318: [{
-			alphaMax: .2,
-			animation: 0,
-			attachedEntity: true,
-			blendMode: 2,
-			totalCircleSides: 4,
-			circleSides: 4,
-			bottomSize: .7,
-			duration: 5e4,
-			fade: false,
-			height: 5,
-			rotate: false,
-			textureName: "ring_red",
-			topSize: .7,
-			type: "CYLINDER",
-			angleY: 45
-		}, {
-			alphaMax: .1,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			totalCircleSides: 4,
-			circleSides: 4,
-			bottomSize: .7,
-			duration: 2e3,
-			fade: true,
-			height: 5,
-			rotate: false,
-			textureName: "ring_red",
-			topSize: .7,
-			type: "CYLINDER",
-			angleY: 45,
-			repeat: true
-		}],
-		319: [{
-			alphaMax: .3,
-			animation: 0,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: .5,
-			totalCircleSides: 4,
-			circleSides: 4,
-			bottomSize: .7,
-			duration: 5e4,
-			fade: false,
-			green: .9,
-			height: 2,
-			red: .5,
-			rotate: false,
-			textureName: "magic_green",
-			topSize: .7,
-			type: "CYLINDER",
-			angleY: 45
-		}, {
-			alphaMax: .1,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: .5,
-			totalCircleSides: 4,
-			circleSides: 4,
-			bottomSize: .7,
-			duration: 2e3,
-			fade: true,
-			green: .9,
-			height: 2,
-			red: .5,
-			rotate: false,
-			textureName: "magic_green",
-			topSize: .7,
-			type: "CYLINDER",
-			angleY: 45,
-			repeat: true
-		}],
 		320: [
 			{
 				alphaMax: .2,
@@ -276842,136 +272302,6 @@ var init_Effects0300 = __esmMin((() => {
 				poszStart: 0,
 				repeat: true,
 				size: 50,
-				type: "3D",
-				zIndex: 1
-			}
-		],
-		325: [
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1.1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 18,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 1.1,
-				type: "CYLINDER",
-				wav: "_heal_effect"
-			},
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 15,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 1,
-				type: "CYLINDER",
-				wav: "_heal_effect"
-			},
-			{
-				alphaMax: .3,
-				animation: 1,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: .7,
-				bottomSize: 1.1,
-				duration: 1500,
-				fade: true,
-				green: 1,
-				height: 3,
-				red: .7,
-				rotate: true,
-				textureName: "ring_white",
-				topSize: 3,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1500,
-				duplicate: 7,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1.2,
-				posyRand: 1.2,
-				poszEndRand: 1,
-				poszEndRandMiddle: 8,
-				poszStart: 0,
-				red: 1,
-				size: 9,
-				sizeRand: 2,
-				sparkling: true,
-				sparkNumber: 3,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1300,
-				delayOffset: 400,
-				duplicate: 25,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1.5,
-				posyRand: 1.5,
-				poszEndRand: 3,
-				poszEndRandMiddle: 6,
-				poszStart: 0,
-				red: 1,
-				size: 10,
-				sizeRand: 5,
-				sparkling: true,
-				sparkNumber: 3,
-				timeBetweenDupli: 10,
-				type: "3D",
-				zIndex: 1
-			},
-			{
-				alphaMax: .8,
-				attachedEntity: true,
-				blendMode: 2,
-				blue: 1,
-				duration: 1100,
-				delayLate: 200,
-				duplicate: 15,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok3.tga",
-				green: 1,
-				posxRand: 1,
-				posyRand: 1,
-				poszEnd: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 0,
-				red: 1,
-				size: 11,
-				sizeRand: 2,
-				timeBetweenDupli: 50,
 				type: "3D",
 				zIndex: 1
 			}
@@ -277242,17 +272572,6 @@ var init_Effects0300 = __esmMin((() => {
 				delayStart: 1700
 			}
 		],
-		329: [
-			{ wav: "effect/ef_hit2" },
-			{
-				wav: "effect/ef_hit4",
-				delayWav: 200
-			},
-			{
-				wav: "effect/ef_hit2",
-				delayWav: 400
-			}
-		],
 		331: [{
 			type: "3D",
 			duplicate: 12,
@@ -277401,35 +272720,6 @@ var init_Effects0300 = __esmMin((() => {
 			file: "joblvup",
 			attachedEntity: true
 		}],
-		"339_beforecast": [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity._flashColor[0] = 1;
-				entity._flashColor[1] = 1;
-				entity._flashColor[2] = 1;
-				entity._flashColor[3] = 1;
-				entity.recalculateBlendingColor();
-				entity.animations.add(function(tick) {
-					if (!entity.cast.display) {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-					entity._flashColor[1] = 0 + Math.sin(tick / (6 * Math.PI));
-					entity._flashColor[2] = 0 + Math.sin(tick / (6 * Math.PI));
-					entity.recalculateBlendingColor();
-				});
-			}
-		}],
-		339: [{ wav: "permeter_attack" }, {
-			wav: "effect/ef_magnumbreak",
-			delayWav: 300
-		}],
 		344: [
 			{
 				alphaMax: .5,
@@ -277542,170 +272832,12 @@ var init_Effects0300 = __esmMin((() => {
 			variant: "dark-small",
 			vertical: true
 		}],
-		361: [{
-			type: "3D",
-			file: "effect/purpleslash.tga",
-			alphaMax: .4,
-			duration: 500,
-			fadeIn: true,
-			fadeOut: true,
-			zIndex: 10,
-			toSrc: true,
-			rotateWithCamera: true,
-			rotateToTarget: true,
-			angle: 90,
-			posz: 2,
-			sizeStart: 100,
-			sizeEnd: 200,
-			wav: "effect/±â°øÆ÷",
-			attachedEntity: true
-		}],
 		362: [{}],
 		363: [{
 			type: "SPR",
 			file: "vallentine",
 			wav: "effect/vallentine",
 			attachedEntity: true
-		}],
-		365: [
-			{
-				type: "3D",
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				duration: 500,
-				rotate: true,
-				angle: 0,
-				toAngle: -611,
-				poszStart: 20,
-				poszEnd: 5,
-				size: 100,
-				zIndex: 1,
-				file: "effect/cross_old.bmp",
-				wav: "effect/ÇÁ·¹¼Å"
-			},
-			{
-				type: "3D",
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				duration: 500,
-				delayOffset: 501,
-				fadeOut: true,
-				angle: -611,
-				posz: 5,
-				size: 100,
-				zIndex: 1,
-				file: "effect/cross_old.bmp"
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const start = Params.Inst.startTick + 500;
-					Camera.setQuake(start);
-				}
-			}
-		],
-		366: [
-			{
-				wav: "effect/bash3d",
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						entity._enableHalo = tick >= 150 && tick <= 450;
-						if (tick >= 150 && tick <= 450) {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = .78;
-							entity._flashColor[2] = .78;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						}
-						return tick > 500;
-					});
-				}
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				delayStart: 200,
-				duplicate: 5,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 4.5,
-				animation: 2,
-				zIndex: 1.1,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				duplicate: 5,
-				delayStart: 200,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 7.2,
-				animation: 2,
-				zIndex: 1.2,
-				attachedEntity: true
-			}
-		],
-		367: [{
-			wav: "effect/¿À¶ó ºí·¹ÀÌµå",
-			attachedEntity: true
-		}],
-		368: [{
-			wav: "effect/¹ö¼­Å©",
-			attachedEntity: true
-		}],
-		369: [{
-			type: "STR",
-			file: "twohand",
-			wav: "effect/knight_twohandquicken",
-			head: true,
-			attachedEntity: true
-		}],
-		370: [{
-			wav: "effect/°¡½ºÆç",
-			attachedEntity: true
-		}],
-		"370_ground": [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				const self = this;
-				GospelEffects.forEach(function(effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
 		}],
 		371: [{
 			type: "STR",
@@ -277723,738 +272855,22 @@ var init_Effects0300 = __esmMin((() => {
 			file: "poisonhit",
 			attachedEntity: true
 		}],
-		374: [
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.45,
-				topSize: 2.45,
-				height: 2,
-				alphaMax: 32 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.52,
-				topSize: 2.52,
-				height: 2.1,
-				alphaMax: 32 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				angleY: 10,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.6,
-				topSize: 2.6,
-				height: 2,
-				alphaMax: 15 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				angleY: 26.6,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.6,
-				topSize: 2.6,
-				height: 2,
-				alphaMax: 15 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				angleY: 79.8,
-				duration: 2e4,
-				attachedEntity: true
-			}
-		],
-		376: [{ wav: "effect/¸ÍÈ£°æÆÄ»ê" }],
-		377: [
-			{
-				wav: "effect/mon_Æø±â",
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						entity._enableHalo = tick >= 50 && tick <= 350;
-						if (tick >= 50 && tick <= 350) {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = .39;
-							entity._flashColor[2] = .39;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						}
-						return tick > 400;
-					});
-				}
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				delayStart: 50,
-				duplicate: 8,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 4.5,
-				animation: 2,
-				zIndex: 1.1,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				duplicate: 8,
-				delayStart: 50,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 7.2,
-				animation: 2,
-				zIndex: 1.2,
-				attachedEntity: true
-			}
-		],
-		378: [{
-			type: "3D",
-			duration: 600,
-			duplicate: 5,
-			timeBetweenDupli: 0,
-			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
-			playSprite: true,
-			fromSrc: true,
-			toSrc: true,
-			rotateToTarget: true,
-			red: .8,
-			green: .8,
-			blue: 1,
-			sizeStart: 160,
-			sizeEnd: 190,
-			zOffsetStart: 5,
-			arc: 3,
-			retreat: 3,
-			drainPattern: true
-		}],
-		379: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity.animations.add(function(tick) {
-					if (tick < 500) return false;
-					const time = tick - 500;
-					entity._enableHalo = true;
-					if (time < 200) {
-						const val = (255 - (time + 50)) / 255;
-						entity._flashColor[0] = val;
-						entity._flashColor[1] = val;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return false;
-					}
-					if (time < 400) {
-						const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
-						entity._flashColor[0] = val;
-						entity._flashColor[1] = val;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return false;
-					}
-					entity._enableHalo = false;
-					entity._flashColor[0] = 1;
-					entity._flashColor[1] = 1;
-					entity._flashColor[2] = 1;
-					entity._flashColor[3] = 1;
-					entity.recalculateBlendingColor();
-					return true;
-				});
-			}
-		}],
-		380: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity.animations.add(function(tick) {
-					if (tick < 1e3) {
-						if (tick > 500) {
-							entity._flashColor[0] = Math.random();
-							entity._flashColor[1] = Math.random();
-							entity._flashColor[2] = Math.random();
-							entity._flashColor[3] = .6;
-							entity.recalculateBlendingColor();
-						}
-					} else {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-				});
-			},
-			wav: "effect/¸ÅÁ÷ Å©·¡½¬"
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 300;
-				Camera.setQuake(start);
-			}
-		}],
 		382: [{
 			type: "SPR",
 			file: "ÇÑº¹Ãµ»ç",
 			head: true,
 			attachedEntity: true
 		}],
-		383: [{
-			type: "3D",
-			duration: 600,
-			duplicate: 5,
-			timeBetweenDupli: 0,
-			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
-			playSprite: true,
-			fromSrc: true,
-			toSrc: true,
-			rotateToTarget: true,
-			red: .7,
-			green: 1,
-			blue: .7,
-			sizeStart: 140,
-			sizeEnd: 170,
-			zOffsetStart: 5,
-			arc: 3,
-			retreat: 3,
-			drainPattern: true
-		}],
-		384: [{
-			wav: "effect/¼Ò¿ï Ã¼ÀÎÁö",
-			attachedEntity: true
-		}],
-		386: [{
-			wav: "effect/hunter_detecting",
-			attachedEntity: true
-		}],
-		387: [{
-			wav: "effect/hunter_blitzbeat",
-			attachedEntity: true
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 300;
-				Camera.setQuake(start);
-			}
-		}],
-		388: [{
-			wav: "effect/»þÇÁ½´ÆÃ",
-			attachedEntity: true
-		}],
-		389: [{
-			wav: "effect/À©µå¿öÅ©",
-			attachedEntity: true
-		}],
-		390: [{
-			type: "STR",
-			file: "melt",
-			attachedEntity: true
-		}],
-		391: [{
-			type: "STR",
-			file: "cart",
-			wav: "effect/ef_incagility",
-			attachedEntity: true
-		}],
-		392: [{
-			type: "STR",
-			file: "sword",
-			wav: "effect/kyrie_guard",
-			attachedEntity: true
-		}],
-		393: [{ wav: "effect/¾Ö·Î¿ì ¹ßÄ­" }],
-		394: [{
-			type: "FUNC",
-			wav: "effect/´Þºû¼¼·¹³ªµ¥",
-			attachedEntity: false,
-			func: function(Params) {
-				const BlueTile = FlatColorTile_default("salmon", {
-					r: 1,
-					g: 138 / 255,
-					b: 187 / 255,
-					a: .6
-				});
-				this.add(new BlueTile(Params.Inst.position, Params.Inst.startTick), Params);
-			}
-		}],
 		397: [{}],
-		398: [{}],
-		399: [
-			{
-				wav: "effect/Çìµå Å©·¯½¬",
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						entity._enableHalo = true;
-						if (tick < 200) {
-							const val = (255 - (tick + 50)) / 255;
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = val;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return false;
-						}
-						if (tick < 500) {
-							const val = 5 / 255 + .9803921568627451 * ((tick - 200) / 300);
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = val;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return false;
-						}
-						entity._enableHalo = false;
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					});
-				}
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				delayStart: 500,
-				duplicate: 6,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 4.5,
-				animation: 2,
-				zIndex: 1.1,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				duplicate: 6,
-				delayStart: 500,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 7.2,
-				animation: 2,
-				zIndex: 1.2,
-				attachedEntity: true
-			}
-		]
+		398: [{}]
 	};
 }));
-// src/Renderer/Effects/MagicRing.vs?raw
-var MagicRing_default$1;
-var init_MagicRing$2 = __esmMin((() => {
-	MagicRing_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uRotationMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uTopSize;\r\nuniform float uBottomSize;\r\nuniform float uHeight;\r\n\r\nvoid main(void) {\r\n    float size, height;\r\n\r\n    if (aPosition.z == 1.0) {\r\n        size   = uTopSize;\r\n        height = uHeight;\r\n    }\r\n    else {\r\n        size   = uBottomSize;\r\n        height = 0.0;\r\n    }\r\n\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - height, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0) * uRotationMat;\r\n\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
-}));
-// src/Renderer/Effects/MagicRing.fs?raw
-var MagicRing_default;
-var init_MagicRing$1 = __esmMin((() => {
-	MagicRing_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {\r\n        discard;\r\n    }\r\n    textureSample.a = 0.7;\r\n    fragColor = textureSample;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
-}));
-// src/Renderer/Effects/MagicRing.js
-/**
-* Generate a generic MagicRing
-*
-* @returns {Float32Array} buffer array
-*/
-function generateMagicRing() {
-	let i, a, b;
-	const total = 20;
-	const bottom = [];
-	const top = [];
-	const mesh = [];
-	for (i = 0; i <= total; i++) {
-		a = (i + 0) / total;
-		b = (i + .5) / total;
-		bottom[i] = [
-			Math.sin(a * Math.PI * 2),
-			Math.cos(a * Math.PI * 2),
-			0,
-			a,
-			1
-		];
-		top[i] = [
-			Math.sin(b * Math.PI * 2),
-			Math.cos(b * Math.PI * 2),
-			1,
-			b,
-			0
-		];
-	}
-	for (i = 0; i <= total; i++) {
-		mesh.push.apply(mesh, bottom[i + 0]);
-		mesh.push.apply(mesh, top[i + 0]);
-		mesh.push.apply(mesh, bottom[i + 1]);
-		mesh.push.apply(mesh, top[i + 0]);
-		mesh.push.apply(mesh, bottom[i + 1]);
-		mesh.push.apply(mesh, top[i + 1]);
-	}
-	return new Float32Array(mesh);
-}
-var _program$7, _buffer$1, mat4$5, _matrix$1, _verticeCount, MagicRing;
-var init_MagicRing = __esmMin((() => {
-	init_WebGL();
-	init_gl_matrix();
-	init_Client();
-	init_MagicRing$2();
-	init_MagicRing$1();
-	mat4$5 = gl_matrix_default.mat4;
-	_matrix$1 = mat4$5.create();
-	_verticeCount = 0;
-	MagicRing = class {
-		constructor(target, topSize, bottomSize, height, textureName, endTick) {
-			this.target = target;
-			this.topSize = topSize;
-			this.bottomSize = bottomSize;
-			this.textureName = textureName;
-			this.height = height;
-			this.endTick = endTick;
-		}
-		/**
-		* Preparing for render
-		*
-		* @param {object} webgl context
-		*/
-		init(gl) {
-			Client.loadFile(`data/texture/effect/${this.textureName}.tga`, (buffer) => {
-				WebGL_default.texture(gl, buffer, (texture) => {
-					this.texture = texture;
-					this.ready = true;
-				});
-			});
-		}
-		/**
-		* Destroying data
-		*
-		* @param {object} webgl context
-		*/
-		free(gl) {
-			this.ready = false;
-		}
-		/**
-		* Rendering cast
-		*
-		* @param {object} wegl context
-		*/
-		render(gl, tick) {
-			const uniform = _program$7.uniform;
-			const attribute = _program$7.attribute;
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$1);
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			gl.uniform3fv(uniform.uPosition, this.target.position);
-			gl.uniform1f(uniform.uBottomSize, this.bottomSize);
-			gl.uniform1f(uniform.uTopSize, this.topSize);
-			gl.uniform1f(uniform.uHeight, this.height);
-			gl.drawArrays(gl.TRIANGLES, 0, _verticeCount);
-			this.needCleanUp = this.endTick < tick;
-			if (!this.target.cast.display) this.needCleanUp = true;
-		}
-		/**
-		* Initialize effect
-		*
-		* @param {object} webgl context
-		*/
-		static init(gl) {
-			const vertices = generateMagicRing();
-			_verticeCount = vertices.length / 5;
-			_program$7 = WebGL_default.createShaderProgram(gl, MagicRing_default$1, MagicRing_default);
-			_buffer$1 = gl.createBuffer();
-			this.ready = true;
-			this.renderBeforeEntities = false;
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$1);
-			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-		}
-		/**
-		* Destroy objects
-		*
-		* @param {object} webgl context
-		*/
-		static free(gl) {
-			if (_program$7) {
-				gl.deleteProgram(_program$7);
-				_program$7 = null;
-			}
-			if (_buffer$1) gl.deleteBuffer(_buffer$1);
-			this.ready = false;
-		}
-		/**
-		* Before render, set up program
-		*
-		* @param {object} webgl context
-		*/
-		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$7.uniform;
-			mat4$5.identity(_matrix$1);
-			mat4$5.rotateY(_matrix$1, _matrix$1, tick / 4 / 180 * Math.PI);
-			gl.useProgram(_program$7);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$1);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-		}
-		/**
-		* After render, clean attributes
-		*
-		* @param {object} webgl context
-		*/
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$7.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$7.attribute.aTextureCoord);
-		}
-	};
-}));
-// src/Renderer/Effects/SpiderWeb.vs?raw
-var SpiderWeb_default$1;
-var init_SpiderWeb$2 = __esmMin((() => {
-	SpiderWeb_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\n\r\nvoid main(void) {\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.01;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
-}));
-// src/Renderer/Effects/SpiderWeb.fs?raw
-var SpiderWeb_default;
-var init_SpiderWeb$1 = __esmMin((() => {
-	SpiderWeb_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {\r\n        discard;\r\n    }\r\n    textureSample.a = 0.7;\r\n    fragColor = textureSample;\r\n}";
-}));
-// src/Renderer/Effects/SpiderWeb.js
-var _lpNum, SpiderWeb;
-var init_SpiderWeb = __esmMin((() => {
-	init_WebGL();
-	init_Tiles();
-	init_SpiderWeb$2();
-	init_SpiderWeb$1();
-	_lpNum = 0;
-	SpiderWeb = class extends FlatTexture("data/texture/effect/spiderweb.tga", 128) {
-		static createShaderProgram(gl) {
-			return WebGL_default.createShaderProgram(gl, SpiderWeb_default$1, SpiderWeb_default);
-		}
-		constructor() {
-			super(...arguments);
-			this.ix = ++_lpNum;
-		}
-		render(gl, tick) {
-			const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-			const sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
-			gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
-			gl.uniform1f(this.constructor._program.uniform.uSize, 1.5 + .05 * sizeMult);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
-	};
-}));
-// src/DB/Effects/Table/Effects0400.js
+// src/DB/Effects/Table/Common/Effects0400.js
 var FogEffects, Effects0400_default;
 var init_Effects0400 = __esmMin((() => {
 	init_Songs();
-	init_MagicRing();
-	init_SpiderWeb();
 	FogEffects = Songs_default.FogEffects;
 	Effects0400_default = {
-		400: [
-			{
-				wav: "effect/ºñÆ® Á¶ÀÎÆ®",
-				type: "FUNC",
-				attachedEntity: true,
-				func: function(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						if (tick >= 150 && tick <= 500) entity._enableHalo = true;
-						else entity._enableHalo = false;
-						return tick > 600;
-					});
-				}
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				delayStart: 500,
-				duplicate: 6,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 4.5,
-				animation: 2,
-				zIndex: 1.1,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				duplicate: 6,
-				delayStart: 500,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 7.2,
-				animation: 2,
-				zIndex: 1.2,
-				attachedEntity: true
-			}
-		],
-		charge_attack: [{ attachedEntity: true }],
-		402: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity.animations.add(function(tick) {
-					const time = tick;
-					if (time < 200) {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 0;
-						entity._flashColor[3] = .1;
-						entity.recalculateBlendingColor();
-						return false;
-					}
-					if (time < 800) {
-						const progress = (time - 200) / 600;
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 0 + 1 * progress;
-						entity._flashColor[3] = .1 + .9 * progress;
-						entity.recalculateBlendingColor();
-						return false;
-					}
-					entity._flashColor[0] = 1;
-					entity._flashColor[1] = 1;
-					entity._flashColor[2] = 1;
-					entity._flashColor[3] = 1;
-					entity.recalculateBlendingColor();
-					return true;
-				});
-			}
-		}],
-		403: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity.animations.add(function(tick) {
-					if (tick < 1e3) {
-						entity._flashColor[0] = Math.random();
-						entity._flashColor[1] = Math.random();
-						entity._flashColor[2] = Math.random();
-						entity.recalculateBlendingColor();
-					} else {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-				});
-			},
-			wav: "effect/swordman_provoke"
-		}],
-		404: [{
-			type: "FUNC",
-			attachedEntity: false,
-			func: function(Params) {
-				this.add(new SpiderWeb(Params.Inst.position, Params.Inst.startTick), Params);
-			}
-		}],
 		"405_ground": [{
 			type: "FUNC",
 			attachedEntity: false,
@@ -278465,160 +272881,10 @@ var init_Effects0400 = __esmMin((() => {
 				});
 			}
 		}],
-		406: [{
-			type: "STR",
-			file: "¼Ò¿ï¹ø",
-			attachedEntity: true
-		}],
 		407: [{
 			type: "STR",
 			file: "»ç¶÷È¿°ú",
 			attachedEntity: true
-		}],
-		409: [
-			{ wav: "effect/¸ÞÅ×¿À ¾î½äÆ®" },
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: -1,
-				posxEnd: -5,
-				posyStart: 0,
-				posyEnd: 0,
-				rotateWithCamera: true,
-				angle: 0
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: -.7,
-				posxEnd: -3.53,
-				posyStart: -.7,
-				posyEnd: -3.53,
-				rotateWithCamera: true,
-				angle: -45
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: 0,
-				posxEnd: 0,
-				posyStart: -1,
-				posyEnd: -5,
-				rotateWithCamera: true,
-				angle: -90
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: .7,
-				posxEnd: 3.53,
-				posyStart: -.7,
-				posyEnd: -3.53,
-				rotateWithCamera: true,
-				angle: -135
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: 1,
-				posxEnd: 5,
-				posyStart: 0,
-				posyEnd: 0,
-				rotateWithCamera: true,
-				angle: -180
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: .7,
-				posxEnd: 3.53,
-				posyStart: .7,
-				posyEnd: 3.53,
-				rotateWithCamera: true,
-				angle: -225
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: 0,
-				posxEnd: 0,
-				posyStart: 1,
-				posyEnd: 5,
-				rotateWithCamera: true,
-				angle: -270
-			},
-			{
-				type: "3D",
-				file: "effect/purpleslash.tga",
-				alphaMax: .6,
-				duration: 500,
-				fadeOut: true,
-				zIndex: 10,
-				sizeStart: 100,
-				sizeEnd: 200,
-				posxStart: -.7,
-				posxEnd: -3.53,
-				posyStart: .7,
-				posyEnd: 3.53,
-				rotateWithCamera: true,
-				angle: -315
-			}
-		],
-		420: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectSmallTransition(Params) {
-				const entity = Params.Init.ownerEntity;
-				const xSize = entity.xSize;
-				const ySize = entity.ySize;
-				entity.animations.add(function(tick) {
-					entity.xSize = xSize + (2.5 - xSize) * (Math.min(tick, 300) / 300);
-					entity.ySize = ySize + (2.5 - ySize) * (Math.min(tick, 300) / 300);
-					return tick > 300;
-				});
-			}
 		}],
 		421: [{
 			type: "FUNC",
@@ -278656,12 +272922,6 @@ var init_Effects0400 = __esmMin((() => {
 			wav: "effect/º¹È£°Ý",
 			attachedEntity: true
 		}],
-		440: [{
-			type: "STR",
-			file: "asum",
-			wav: "effect/¾Æ¼ûÇÁÆ¼¿À",
-			attachedEntity: true
-		}],
 		441: [{
 			alphaMax: .8,
 			animation: 2,
@@ -278681,10 +272941,6 @@ var init_Effects0400 = __esmMin((() => {
 		}],
 		444: [{
 			wav: "effect/t_È¿°úÀ½1",
-			attachedEntity: true
-		}],
-		445: [{
-			wav: "effect/t_È¸ÇÇ2",
 			attachedEntity: true
 		}],
 		450: [{}],
@@ -278773,14 +273029,6 @@ var init_Effects0400 = __esmMin((() => {
 			topSize: 5,
 			type: "CYLINDER",
 			wav: "effect/ef_beginspell"
-		}],
-		456: [{
-			wav: "effect/mon_Æø±â",
-			attachedEntity: true
-		}],
-		457: [{
-			wav: "effect/t_³¯¶óÂ÷±â",
-			attachedEntity: true
 		}],
 		467: [
 			{ wav: "effect/t_¹Ù¶÷¹æÃâ" },
@@ -279442,20 +273690,7 @@ var init_Effects0400 = __esmMin((() => {
 			type: "STR",
 			file: "ramadan",
 			attachedEntity: true
-		}],
-		493: [{
-			wav: "effect/assasin_cloaking",
-			attachedEntity: true
-		}],
-		"496_beforecast": [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				this.add(new MagicRing(entity, 2.45, .8, 2.8, "ring_jadu", Params.Inst.startTick + 1e4), Params);
-			}
-		}],
-		496: [{ wav: "effect/black_maximize_power_sword_bic" }]
+		}]
 	};
 }));
 // src/Renderer/Effects/MagicTargetSim.js
@@ -279594,7 +273829,7 @@ var init_MagicTarget$1 = __esmMin((() => {
 	MagicTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uAlpha;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n        discard;\r\n    }\r\n\r\n    fragColor = vec4(textureSample.rgb, textureSample.a * uAlpha);\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/MagicTarget.js
-var _texture$2, _program$6, mat4$4, MagicTarget;
+var _texture$2, _program$9, mat4$6, MagicTarget;
 var init_MagicTarget = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -279604,7 +273839,7 @@ var init_MagicTarget = __esmMin((() => {
 	init_MagicTargetSim();
 	init_MagicTarget$2();
 	init_MagicTarget$1();
-	mat4$4 = gl_matrix_default.mat4;
+	mat4$6 = gl_matrix_default.mat4;
 	MagicTarget = class {
 		constructor(id, x, y, endTick, srcEntity, startTick) {
 			this.x = x;
@@ -279612,7 +273847,7 @@ var init_MagicTarget = __esmMin((() => {
 			this.size = castSize(id);
 			this.startTick = startTick || 0;
 			this.endTick = endTick;
-			this.matrix = mat4$4.create();
+			this.matrix = mat4$6.create();
 		}
 		/**
 		* Preparing for render
@@ -279649,14 +273884,14 @@ var init_MagicTarget = __esmMin((() => {
 		render(gl, tick) {
 			this.needCleanUp = this.endTick < tick;
 			if (!this.vertCount) return;
-			const attribute = _program$6.attribute;
+			const attribute = _program$9.attribute;
 			const angle = spinAngle(Math.max(0, Math.floor((tick - this.startTick) / PRIM_TICK_MS)), this.size);
-			mat4$4.identity(this.matrix);
-			mat4$4.rotateZ(this.matrix, this.matrix, angle);
-			gl.uniformMatrix4fv(_program$6.uniform.uRotationMat, false, this.matrix);
-			gl.uniform1f(_program$6.uniform.uAlpha, targetAlpha(angle) / 255);
+			mat4$6.identity(this.matrix);
+			mat4$6.rotateZ(this.matrix, this.matrix, angle);
+			gl.uniformMatrix4fv(_program$9.uniform.uRotationMat, false, this.matrix);
+			gl.uniform1f(_program$9.uniform.uAlpha, targetAlpha(angle) / 255);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			gl.uniform1f(_program$6.uniform.uCameraLatitude, Camera.getLatitude());
+			gl.uniform1f(_program$9.uniform.uCameraLatitude, Camera.getLatitude());
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
@@ -279667,7 +273902,7 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static init(gl) {
-			_program$6 = WebGL_default.createShaderProgram(gl, MagicTarget_default$1, MagicTarget_default);
+			_program$9 = WebGL_default.createShaderProgram(gl, MagicTarget_default$1, MagicTarget_default);
 			Client.loadFile("data/texture/effect/magic_target.tga", (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					_texture$2 = texture;
@@ -279685,9 +273920,9 @@ var init_MagicTarget = __esmMin((() => {
 				gl.deleteTexture(_texture$2);
 				_texture$2 = null;
 			}
-			if (_program$6) {
-				gl.deleteProgram(_program$6);
-				_program$6 = null;
+			if (_program$9) {
+				gl.deleteProgram(_program$9);
+				_program$9 = null;
 			}
 			this.ready = false;
 		}
@@ -279697,9 +273932,9 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$6.uniform;
-			const attribute = _program$6.attribute;
-			gl.useProgram(_program$6);
+			const uniform = _program$9.uniform;
+			const attribute = _program$9.attribute;
+			gl.useProgram(_program$9);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -279718,8 +273953,8 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$6.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$6.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$9.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$9.attribute.aTextureCoord);
 		}
 	};
 	/**
@@ -279727,212 +273962,16 @@ var init_MagicTarget = __esmMin((() => {
 	*/
 	MagicTarget.renderBeforeEntities = true;
 }));
-// src/Renderer/Effects/CasterMarks.js
-/**
-* The caster's colour on tick `age`: the last colour the effect set, brought
-* back by 8 a tick since.
-*
-* @param {function} schedule
-* @param {number} age
-* @return {number[]|null} 0-255 per channel, or null when never set
-*/
-function colorAt(schedule, age) {
-	for (let a = age; a >= 0 && age - a <= Math.ceil(255 / 8); a--) {
-		const set = schedule(a).color;
-		if (set) return set.map((c) => Math.min(255, c + 8 * (age - a)));
-	}
-	return null;
-}
-/**
-* Recover a colour on an entity by 8 a tick until it is back to normal
-*
-* @param {Entity} entity
-* @param {number[]} color 0-255 per channel
-*/
-function recoverColor(entity, color) {
-	if (!entity.animations || !entity._flashColor) return;
-	entity.animations.add((tick) => {
-		const steps = Math.floor(tick / PRIM_TICK_MS);
-		let done = true;
-		for (let i = 0; i < 3; i++) {
-			const c = Math.min(255, color[i] + 8 * steps);
-			entity._flashColor[i] = c / 255;
-			done = done && c >= 255;
-		}
-		entity.recalculateBlendingColor();
-		return done;
-	});
-}
-var RED, YELLOW, WHITE, SCHEDULES, CasterMarks;
-var init_CasterMarks = __esmMin((() => {
-	init_EntityManager();
-	init_EffectPrimSim();
-	RED = [
-		255,
-		0,
-		0
-	];
-	YELLOW = [
-		250,
-		250,
-		100
-	];
-	WHITE = [
-		255,
-		255,
-		255
-	];
-	SCHEDULES = {
-		934: (age) => {
-			const on = age >= 10 && age <= 34 && age % 4 < 2;
-			return {
-				add: on,
-				glow: on,
-				split: false,
-				color: null
-			};
-		},
-		2373: (age) => {
-			const on = age <= 30;
-			return {
-				add: on,
-				glow: on,
-				split: true,
-				color: on ? RED : null
-			};
-		},
-		502: (age) => {
-			const on = age <= 140;
-			const even = age % 2 === 0;
-			return {
-				add: on && even,
-				glow: on,
-				split: false,
-				color: on ? even ? YELLOW : WHITE : null
-			};
-		}
-	};
-	CasterMarks = class {
-		static ready = true;
-		static renderBeforeEntities = true;
-		static beforeRender() {}
-		static afterRender() {}
-		/**
-		* @param {Entity} owner the caster
-		* @param {number} startTick
-		* @param {number} frames lifetime in ticks (1/60 s)
-		* @param {number} effectId 934, 2373 or 502
-		*/
-		constructor(owner, startTick, frames, effectId) {
-			this.owner = owner || null;
-			this.startTick = startTick || 0;
-			this.frames = Math.max(1, Math.floor(frames));
-			this.schedule = SCHEDULES[effectId];
-			this.add = false;
-			this.glow = false;
-			this.color = null;
-			this.ready = true;
-		}
-		/**
-		* Put the marks of tick `age` on the owner, or take them all off (null)
-		*/
-		mark(age) {
-			const owner = this.owner;
-			const state = age === null ? {
-				add: false,
-				glow: false,
-				split: false
-			} : this.schedule(age);
-			if (state.add !== this.add) {
-				owner._additiveBody = Math.max(0, (owner._additiveBody || 0) + (state.add ? 1 : -1));
-				this.add = state.add;
-			}
-			if (state.glow !== this.glow) {
-				owner._castGlow = Math.max(0, (owner._castGlow || 0) + (state.glow ? 1 : -1));
-				this.glow = state.glow;
-			}
-			if (state.split) {
-				owner._splitImageAge = age;
-				this._split = true;
-			} else if (this._split) {
-				owner._splitImageAge = void 0;
-				this._split = false;
-			}
-			if (age !== null && owner._flashColor) {
-				const color = colorAt(this.schedule, age);
-				if (color || this.color) {
-					const c = color || WHITE;
-					owner._flashColor[0] = c[0] / 255;
-					owner._flashColor[1] = c[1] / 255;
-					owner._flashColor[2] = c[2] / 255;
-					owner.recalculateBlendingColor();
-					this.color = color;
-				}
-			}
-		}
-		render(gl, tick) {
-			if (!this.owner || EntityManager.get(this.owner.GID) !== this.owner) {
-				this.needCleanUp = true;
-				return;
-			}
-			if (tick < this.startTick) return;
-			const age = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
-			if (age >= this.frames) {
-				this.needCleanUp = true;
-				return;
-			}
-			this.mark(age);
-		}
-		free() {
-			if (this.owner) {
-				this.mark(null);
-				if (this.color && this.color.some((c) => c < 255)) recoverColor(this.owner, this.color);
-			}
-			this.owner = null;
-		}
-	};
-}));
-// src/DB/Effects/Table/Effects0500.js
+// src/DB/Effects/Table/Common/Effects0500.js
 var GravityEffects, Effects0500_default;
 var init_Effects0500 = __esmMin((() => {
 	init_Camera();
 	init_Songs();
-	init_Events();
 	init_CloudWeatherEffect();
 	init_MagicTarget();
 	init_SpiritSphere();
-	init_CasterMarks();
 	GravityEffects = Songs_default.GravityEffects;
 	Effects0500_default = {
-		501: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				const duration = 500;
-				const count = 50;
-				const delay = duration / count;
-				for (let i = 0; i < count; i++) {
-					let delta = 1;
-					if (i <= 15) delta = 12 * (8 / 360);
-					else if (i <= 30) delta = .4;
-					else if (i <= 40) delta = 24 * (8 / 360);
-					else delta = 48 * (8 / 360);
-					Events.setTimeout(function() {
-						entity.direction = Math.floor(entity.direction + delta) % 8;
-					}, delay * i);
-				}
-			}
-		}],
-		502: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502), Params);
-			}
-		}],
 		504: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -280225,14 +274264,6 @@ var init_Effects0500 = __esmMin((() => {
 				delayStart: 1700
 			}
 		],
-		512: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 132;
-				Camera.setQuake(start);
-			}
-		}],
 		513: [{
 			type: "FUNC",
 			attachedEntity: false,
@@ -280253,11 +274284,6 @@ var init_Effects0500 = __esmMin((() => {
 			func: function(Params) {
 				CloudWeatherEffect.startOrRestart(Params);
 			}
-		}],
-		517: [{}],
-		"517_music": [{
-			wav: "effect/Çì¸£¸ðµåÀÇ ÁöÆÎÀÌ",
-			attachedEntity: true
 		}],
 		519: [{
 			type: "SPR",
@@ -280492,22 +274518,6 @@ var init_Effects0500 = __esmMin((() => {
 			zIndex: 10,
 			file: "effect/tarot14.tga"
 		}],
-		537: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick + 200;
-				Camera.setQuake(start);
-			}
-		}],
-		543: [{ wav: "effect/t_º¸Á¶¸¶¹ý" }],
-		547: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
-		553: [{
-			duplicate: 5,
-			timeBetweenDupli: 200,
-			wav: "effect/t_³¯¶óÂ÷±â"
-		}],
-		555: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
 		563: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -280585,12 +274595,6 @@ var init_Effects0500 = __esmMin((() => {
 			file: "m_ef01",
 			attachedEntity: true
 		}],
-		584: [{
-			type: "SPR",
-			file: "m_ef02",
-			attachedEntity: true,
-			direction: true
-		}],
 		585: [{
 			type: "SPR",
 			file: "m_ef03",
@@ -280601,24 +274605,11 @@ var init_Effects0500 = __esmMin((() => {
 			file: "m_ef04",
 			attachedEntity: true
 		}],
-		587: [{
-			type: "SPR",
-			file: "m_ef05",
-			wav: "dragon_breath",
-			attachedEntity: true
-		}],
 		588: [{
 			type: "SPR",
 			file: "m_ef06",
 			attachedEntity: true
 		}],
-		589: [{
-			type: "SPR",
-			file: "m_ef07",
-			wav: "effect/t_º¸Á¶¸¶¹ý",
-			attachedEntity: true
-		}],
-		590: [{ wav: "effect/priest_resurrection" }],
 		592: [{
 			type: "FUNC",
 			attachedEntity: false,
@@ -280658,7 +274649,7 @@ var init_Effects0500 = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/Effects0600.js
+// src/DB/Effects/Table/Common/Effects0600.js
 var EvillandEffects, Effects0600_default;
 var init_Effects0600 = __esmMin((() => {
 	init_Camera();
@@ -280667,45 +274658,11 @@ var init_Effects0600 = __esmMin((() => {
 	init_SpiritSphere();
 	EvillandEffects = Songs_default.EvillandEffects;
 	Effects0600_default = {
-		600: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/º£³Ñ³ªÀÌÇÁ.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
 		603: [{
 			type: "STR",
 			file: "firehit%d",
 			rand: [1, 3],
 			attachedEntity: true
-		}],
-		604: [{
-			type: "SPR",
-			file: "cconfine",
-			attachedEntity: true,
-			wav: "effect/ef_hit6",
-			stopAtEnd: true
-		}],
-		606: [{
-			type: "SPR",
-			file: "fvoice",
-			wav: "amon_ra_die01"
-		}],
-		607: [{
-			type: "SPR",
-			file: "wink"
 		}],
 		608: [{
 			type: "STR",
@@ -280729,148 +274686,6 @@ var init_Effects0600 = __esmMin((() => {
 			wav: "effect/itempokjuk",
 			attachedEntity: true
 		}],
-		613: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¼ö¸®°Ë.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		614: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Äí³ªÀÌ_µ¶.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		615: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Ç³¸¶_³ú¿ì.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 30,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		616: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 200,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/coin_a.bmp",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			rotate: true,
-			nbOfRotation: 1,
-			size: 20,
-			zOffset: 1,
-			zIndex: 1
-		}],
-		618: [{
-			type: "STR",
-			file: "firehit",
-			wav: "effect/ef_firearrow%d",
-			rand: [1, 3],
-			attachedEntity: true
-		}],
-		619: [{
-			type: "STR",
-			file: "freeze",
-			wav: "effect/ef_icearrow%d",
-			rand: [1, 3],
-			attachedEntity: true
-		}],
-		621: [{ wav: "effect/Ç³ÀÎ" }],
-		622: [{
-			type: "STR",
-			file: "setsudan",
-			wav: "effect/ef_thunderstorm",
-			attachedEntity: true
-		}],
-		627: [{ wav: "effect/µð½º¾Ï" }],
-		628: [
-			{
-				wav: "effect/bash3d5",
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				duplicate: 6,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 4.5,
-				animation: 2,
-				zIndex: 1.1,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_center",
-				alphaMax: .6,
-				duration: 175,
-				duplicate: 6,
-				timeBetweenDupli: 0,
-				totalCircleSides: 30,
-				circleSides: 1,
-				fade: true,
-				angleX: -90,
-				angleZRandom: 360,
-				fixedPerspective: true,
-				posZ: 1.5,
-				height: 0,
-				bottomSize: .01,
-				topSize: 7.2,
-				animation: 2,
-				zIndex: 1.2,
-				attachedEntity: true
-			}
-		],
 		629: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -280879,54 +274694,6 @@ var init_Effects0600 = __esmMin((() => {
 				const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, true);
 				this.add(Spheres, Params);
 			}
-		}],
-		630: [{
-			type: "SPR",
-			file: "±×¸²ÀÚº£±â",
-			wav: "effect/±×¸²ÀÚº£±â",
-			attachedEntity: true
-		}],
-		631: [{
-			type: "SPR",
-			file: "´Ù´Ù¹Ì µÚÁý±â",
-			wav: "effect/´Ù´Ù¹ÌµÚÁý±â",
-			attachedEntity: true
-		}],
-		632: [{
-			type: "SPR",
-			file: "¾È°³º£±â",
-			wav: "effect/¾È°³º£±â",
-			attachedEntity: true
-		}],
-		633: [{
-			type: "SPR",
-			file: "ÀÏ¼¶",
-			wav: "effect/ÀÏ¼¶",
-			attachedEntity: true
-		}],
-		634: [{
-			type: "SPR",
-			file: "È­¿°Áø",
-			repeat: true,
-			attachedEntity: true
-		}, { wav: "effect/È­¿°Áø" }],
-		635: [{
-			type: "STR",
-			file: "fire dragon",
-			wav: "effect/Æø¿°·æ",
-			attachedEntity: false
-		}],
-		636: [{
-			type: "STR",
-			file: "icy",
-			wav: "effect/ºùÁ¤¶ô",
-			attachedEntity: false
-		}],
-		637: [{
-			type: "SPR",
-			file: "µ¥½ºÆä¶óµµ",
-			wav: "effect/µ¥½ºÆä¶óµµ",
-			attachedEntity: true
 		}],
 		638: [{
 			type: "SPR",
@@ -280952,45 +274719,6 @@ var init_Effects0600 = __esmMin((() => {
 			type: "SPR",
 			file: "ÇÃ·¹¾î½ºÇÇ¾î",
 			attachedEntity: false
-		}],
-		643: [{
-			type: "SPR",
-			file: "·¡ÇÇµå»þ¿ö",
-			wav: "effect/·¡ÇÇµå»þ¿ö",
-			attachedEntity: true
-		}],
-		644: [{
-			type: "SPR",
-			file: "¸ÅÁöÄÃºÒ¸´",
-			wav: "effect/¸ÅÁöÄÃºí¸´",
-			attachedEntity: true
-		}],
-		645: [{
-			type: "SPR",
-			file: "½ºÇÁ·¹µå",
-			attachedEntity: true,
-			direction: true
-		}],
-		646: [{
-			type: "STR",
-			file: "Æ®·¢Å·",
-			attachedEntity: true
-		}],
-		647: [{
-			type: "SPR",
-			file: "Æ®·¡Å·",
-			attachedEntity: true
-		}],
-		648: [{
-			type: "SPR",
-			file: "Æ®¸®ÇÃ¾×¼Ç",
-			wav: "effect/Æ®¸®ÇÃ¾×¼Ç",
-			attachedEntity: true
-		}],
-		649: [{
-			type: "STR",
-			file: "ºÒ½º¾ÆÀÌ",
-			attachedEntity: true
 		}],
 		666: [{
 			type: "SPR",
@@ -281124,11 +274852,9 @@ var init_Effects0600 = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/Effects0700.js
+// src/DB/Effects/Table/Common/Effects0700.js
 var Effects0700_default;
 var init_Effects0700 = __esmMin((() => {
-	init_Camera();
-	init_Events();
 	Effects0700_default = {
 		704: [{
 			type: "STR",
@@ -281309,121 +275035,7 @@ var init_Effects0700 = __esmMin((() => {
 			min: "jong_mini",
 			attachedEntity: true
 		}],
-		718: [
-			{ wav: "effect/ab_judex" },
-			{
-				type: "CYLINDER",
-				attachedEntity: false,
-				topSize: .5,
-				bottomSize: .4,
-				textureName: "ring_white",
-				height: 3.5,
-				duration: 1e3,
-				rotate: true
-			},
-			{
-				type: "CYLINDER",
-				attachedEntity: false,
-				topSize: .75,
-				bottomSize: .45,
-				textureName: "ring_white",
-				height: 2.5,
-				duration: 1e3,
-				rotate: true
-			},
-			{
-				type: "CYLINDER",
-				attachedEntity: false,
-				topSize: 1,
-				bottomSize: .5,
-				textureName: "ring_white",
-				height: 1.5,
-				duration: 1e3,
-				rotate: true
-			}
-		],
 		719: [{ wav: "effect/ab_renovation" }],
-		721: [{
-			type: "STR",
-			file: "ado",
-			wav: "effect/ab_adoramus",
-			attachedEntity: true
-		}],
-		722: [{
-			type: "STR",
-			file: "ÀÌ±×´Ï¼Çºê·¹ÀÌÅ©",
-			wav: "effect/wl_jackfrost",
-			attachedEntity: true
-		}],
-		726: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
-		727: [{
-			type: "STR",
-			file: "crimson_r",
-			wav: "effect/crimson_r",
-			attachedEntity: true
-		}],
-		728: [{
-			type: "STR",
-			file: "hell_in",
-			attachedEntity: true
-		}],
-		729: [{
-			type: "SPR",
-			file: "mashofa"
-		}],
-		731: [{
-			type: "STR",
-			file: "dragon_h",
-			wav: "dragon_h",
-			attachedEntity: true
-		}],
-		732: [{
-			type: "QuadHorn",
-			textureFile: "effect/stone.bmp",
-			attachedEntity: false,
-			duration: 1e3,
-			height: [.75, 1.2],
-			offsetX: [.2, .2],
-			offsetY: [.2, .2],
-			offsetZ: -.1,
-			bottomSize: [.4, .9],
-			blendMode: 1,
-			rotateY: [1, 360],
-			rotateZ: [-8, 8],
-			color: [
-				1,
-				1,
-				1,
-				1
-			],
-			animation: 3,
-			animationSpeed: 250,
-			animationOut: true,
-			wav: "effect/wizard_earthspike"
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const start = Params.Inst.startTick;
-				Camera.setQuake(start, 200);
-			}
-		}],
-		734: [{
-			type: "STR",
-			file: "chainlight",
-			wav: "effect/chainlight",
-			attachedEntity: true
-		}],
-		745: [{
-			type: "STR",
-			file: "aimed",
-			attachedEntity: true
-		}],
-		746: [{
-			type: "STR",
-			file: "arrowstorm",
-			attachedEntity: true
-		}],
 		747: [{
 			type: "STR",
 			file: "laulamus",
@@ -281432,98 +275044,6 @@ var init_Effects0700 = __esmMin((() => {
 		748: [{
 			type: "STR",
 			file: "lauagnus",
-			attachedEntity: true
-		}],
-		749: [{
-			type: "STR",
-			file: "mil_shield",
-			attachedEntity: true
-		}],
-		750: [{
-			type: "STR",
-			file: "concentration",
-			attachedEntity: true
-		}],
-		754: [
-			{
-				alphaMax: .4,
-				animation: 4,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .6,
-				green: 1,
-				blue: .6,
-				bottomSize: 2.4,
-				duration: 500,
-				duplicate: 150,
-				fadeOut: true,
-				height: .1,
-				posZ: .1,
-				rotate: true,
-				textureName: "magic_green",
-				timeBetweenDupli: 200,
-				topSize: 3.9,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .4,
-				animation: 0,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .6,
-				green: 1,
-				blue: .6,
-				bottomSize: .6,
-				duration: 3e4,
-				fade: true,
-				height: 7,
-				rotate: true,
-				textureName: "magic_green",
-				topSize: .6,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .4,
-				animation: 0,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .6,
-				green: 1,
-				blue: .6,
-				bottomSize: .8,
-				duration: 3e4,
-				fade: true,
-				height: 6,
-				rotate: true,
-				textureName: "magic_green",
-				topSize: .8,
-				type: "CYLINDER"
-			},
-			{
-				alphaMax: .5,
-				animation: 0,
-				attachedEntity: true,
-				blendMode: 2,
-				red: .6,
-				green: 1,
-				blue: .6,
-				bottomSize: 1,
-				duration: 3e4,
-				fade: true,
-				height: 1,
-				posZ: 2,
-				rotate: true,
-				totalCircleSides: 20,
-				circleSides: 10,
-				repeatTextureX: 2,
-				textureName: "alpha1",
-				topSize: 1,
-				type: "CYLINDER"
-			}
-		],
-		756: [{
-			type: "STR",
-			file: "¹ö¼­Å©",
 			attachedEntity: true
 		}],
 		758: [
@@ -282445,73 +275965,7 @@ var init_Effects0700 = __esmMin((() => {
 				zIndex: 10,
 				file: "effect/È¸ÀüÄ«¿îÅÍ10.tga"
 			}
-		],
-		775: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				const duration = 500;
-				const count = 8;
-				const delay = duration / count;
-				for (let i = 0; i < count; i++) {
-					const delta = 1;
-					Events.setTimeout(function() {
-						entity.direction = Math.floor(entity.direction + delta) % 8;
-					}, delay * i);
-				}
-			}
-		}],
-		795: [{
-			type: "STR",
-			file: "powerswing",
-			attachedEntity: true
-		}],
-		799: [{ wav: "effect/wl_stasis" }]
-	};
-}));
-// src/Renderer/Effects/CasterStrobe.js
-/**
-* Colour multiplier of the caster on a tick of the effect
-*
-* @param {number} frame tick since the effect started
-* @return {number} 0 (black) .. 1 (normal)
-*/
-function casterStrobeShade(frame) {
-	if (frame < STROBE.first) return 1;
-	if (frame <= STROBE.last) return frame % 2 ? 1 : 0;
-	return Math.min(1, (frame - STROBE.last) * STROBE.recoverStep / 255);
-}
-/**
-* Run the strobe on an entity, through its flash colour
-*
-* @param {Entity} entity
-*/
-function startCasterStrobe(entity) {
-	if (!entity || !entity.animations || !entity._flashColor) return;
-	const setShade = (shade) => {
-		entity._flashColor[0] = shade;
-		entity._flashColor[1] = shade;
-		entity._flashColor[2] = shade;
-		entity._flashColor[3] = 1;
-		entity.recalculateBlendingColor();
-	};
-	entity.animations.add((tick) => {
-		const frame = Math.floor(tick / PRIM_TICK_MS);
-		const poisoned = (entity._healthState & StatusState_default.HealthState.POISON) !== 0;
-		const done = frame > STROBE.last && (poisoned || casterStrobeShade(frame) >= 1);
-		setShade(done ? 1 : casterStrobeShade(frame));
-		return done;
-	});
-}
-var STROBE;
-var init_CasterStrobe = __esmMin((() => {
-	init_StatusState();
-	init_EffectPrimSim();
-	STROBE = {
-		first: 6,
-		last: 60,
-		recoverStep: 8
+		]
 	};
 }));
 // src/Renderer/Effects/CastConeSim.js
@@ -282602,7 +276056,7 @@ function bubbleFrame(t) {
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$3(out, i, center, x, y, up, u, v) {
+function vertex$4(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -282679,12 +276133,12 @@ function buildBands(out, t, center, bands) {
 				u: j / 21
 			};
 			if (prev) {
-				o = vertex$3(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
-				o = vertex$3(out, o, center, point.fx, point.fy, 0, point.u, 1);
-				o = vertex$3(out, o, center, point.tx, point.ty, point.up, point.u, 0);
-				o = vertex$3(out, o, center, point.tx, point.ty, point.up, point.u, 0);
-				o = vertex$3(out, o, center, prev.tx, prev.ty, prev.up, prev.u, 0);
-				o = vertex$3(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
+				o = vertex$4(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
+				o = vertex$4(out, o, center, point.fx, point.fy, 0, point.u, 1);
+				o = vertex$4(out, o, center, point.tx, point.ty, point.up, point.u, 0);
+				o = vertex$4(out, o, center, point.tx, point.ty, point.up, point.u, 0);
+				o = vertex$4(out, o, center, prev.tx, prev.ty, prev.up, prev.u, 0);
+				o = vertex$4(out, o, center, prev.fx, prev.fy, 0, prev.u, 1);
 			}
 			prev = point;
 		}
@@ -282724,7 +276178,7 @@ function buildGround(out, t, center) {
 			2,
 			3,
 			0
-		]) o = vertex$3(out, o, center, corners[k][0], corners[k][1], 1, uv[k][0], uv[k][1]);
+		]) o = vertex$4(out, o, center, corners[k][0], corners[k][1], 1, uv[k][0], uv[k][1]);
 	}
 }
 var DEG$4, BANDS$2, LENGTH, FOOT, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE, GROUND, CONE_VERTICES, GROUND_VERTICES;
@@ -282891,23 +276345,23 @@ var init_CastConeSim = __esmMin((() => {
 	GROUND_VERTICES = GROUND.layers.length * 6;
 }));
 // src/Renderer/Effects/CastCone.js
-function loadTexture$4(gl, name) {
-	if (_textures$3.has(name)) return;
-	_textures$3.set(name, null);
+function loadTexture$5(gl, name) {
+	if (_textures$4.has(name)) return;
+	_textures$4.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$3.has(name)) {
+			if (!_textures$4.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$3.set(name, texture);
+			_textures$4.set(name, texture);
 		});
 	});
 }
 function bubbleName(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var BAND_VERTICES, _program$5, _textures$3, CastCone;
+var BAND_VERTICES, _program$8, _textures$4, CastCone;
 var init_CastCone = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -282916,8 +276370,8 @@ var init_CastCone = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	BAND_VERTICES = 120;
-	_program$5 = null;
-	_textures$3 = /* @__PURE__ */ new Map();
+	_program$8 = null;
+	_textures$4 = /* @__PURE__ */ new Map();
 	CastCone = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -282939,8 +276393,8 @@ var init_CastCone = __esmMin((() => {
 		}
 		init(gl) {
 			this.buffer = gl.createBuffer();
-			for (let i = 0; i < 27; i++) loadTexture$4(gl, bubbleName(i));
-			if (this.ground && !this.pulse) loadTexture$4(gl, GROUND.texture);
+			for (let i = 0; i < 27; i++) loadTexture$5(gl, bubbleName(i));
+			if (this.ground && !this.pulse) loadTexture$5(gl, GROUND.texture);
 			this.ready = true;
 		}
 		free(gl) {
@@ -282951,7 +276405,7 @@ var init_CastCone = __esmMin((() => {
 			}
 		}
 		upload(gl, data) {
-			const attribute = _program$5.attribute;
+			const attribute = _program$8.attribute;
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 			gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
@@ -282966,7 +276420,7 @@ var init_CastCone = __esmMin((() => {
 			this.color[1] = rgb[1] / 255;
 			this.color[2] = rgb[2] / 255;
 			this.color[3] = Math.min(255, alpha) / 255;
-			gl.uniform4fv(_program$5.uniform.uColor, this.color);
+			gl.uniform4fv(_program$8.uniform.uColor, this.color);
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			if (!additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.drawArrays(gl.TRIANGLES, first, count);
@@ -282986,7 +276440,7 @@ var init_CastCone = __esmMin((() => {
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
-				const texture = _textures$3.get(bubbleName(bubbleFrame(t)));
+				const texture = _textures$4.get(bubbleName(bubbleFrame(t)));
 				if (self.pulse) {
 					for (const crown of PULSE_CROWNS) {
 						const states = pulseBands(t, self.frames, crown.alpha);
@@ -282998,7 +276452,7 @@ var init_CastCone = __esmMin((() => {
 				}
 				if (self.ground) {
 					buildGround(self.squares, t, self.position);
-					self.pass(gl, self.squares, GROUND_VERTICES, _textures$3.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
+					self.pass(gl, self.squares, GROUND_VERTICES, _textures$4.get(GROUND.texture), GROUND.rgb, groundAlpha(t, self.frames), true);
 				}
 				const alpha = bandAlpha$1(t, self.frames);
 				buildCone(self.cone, t, self.position);
@@ -283011,23 +276465,23 @@ var init_CastCone = __esmMin((() => {
 			});
 		}
 		static init(gl) {
-			_program$5 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$8 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$5) {
-				gl.deleteProgram(_program$5);
-				_program$5 = null;
+			if (_program$8) {
+				gl.deleteProgram(_program$8);
+				_program$8 = null;
 			}
-			for (const texture of _textures$3.values()) if (texture) gl.deleteTexture(texture);
-			_textures$3.clear();
+			for (const texture of _textures$4.values()) if (texture) gl.deleteTexture(texture);
+			_textures$4.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$5.uniform;
-			const attribute = _program$5.attribute;
-			gl.useProgram(_program$5);
+			const uniform = _program$8.uniform;
+			const attribute = _program$8.attribute;
+			gl.useProgram(_program$8);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -283042,168 +276496,17 @@ var init_CastCone = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$5.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$5.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$8.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$8.attribute.aTextureCoord);
 		}
 	};
 }));
-// src/DB/Effects/Table/Effects0800.js
+// src/DB/Effects/Table/Common/Effects0800.js
 var Effects0800_default;
 var init_Effects0800 = __esmMin((() => {
 	init_SpiritSphere();
-	init_CasterStrobe();
 	init_CastCone();
 	Effects0800_default = {
-		802: [
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.2,
-				topSize: 2.2,
-				height: 3,
-				alphaMax: 65 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.25,
-				topSize: 2.25,
-				height: 3.1,
-				alphaMax: 65 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				angleY: 10,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.3,
-				topSize: 2.3,
-				height: 3,
-				alphaMax: 15 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{
-				type: "CYLINDER",
-				textureName: "alpha_down",
-				totalCircleSides: 4,
-				circleSides: 4,
-				bottomSize: 2.3,
-				topSize: 2.3,
-				height: 3,
-				alphaMax: 15 / 255,
-				blendMode: 2,
-				rotateWithCamera: true,
-				angleY: 53.2,
-				duration: 2e4,
-				attachedEntity: true
-			},
-			{ wav: "effect/wl_whiteimprison" }
-		],
-		803: [{ wav: "effect/wl_recognizedspell" }],
-		804: [{ wav: "effect/wl_tetravortex" }],
-		805: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity.animations.add(function(tick) {
-					if (!entity.cast.display) {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-					entity._flashColor[0] = Math.random();
-					entity._flashColor[1] = Math.random();
-					entity._flashColor[2] = Math.random();
-					entity._flashColor[3] = .5 + Math.random() / 2;
-					entity.recalculateBlendingColor();
-				});
-			}
-		}],
-		811: [{ wav: "effect/bodypaint" }],
-		812: [{
-			type: "PRIM",
-			prim: "quad",
-			texture: "fashasha",
-			attachedEntity: false,
-			duration: 950,
-			frames: 57,
-			color: [
-				10,
-				10,
-				10
-			],
-			height: 5,
-			sizeSpeed: 1.5,
-			sizeAccel: 1.5 / 14,
-			sizeChangeFrame: 10,
-			sizeChangeSpeed: .1,
-			sizeChangeAccel: .1 / 30,
-			alpha: 254,
-			fadeOutFrame: 30
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				startCasterStrobe(Params.Init.ownerEntity);
-			}
-		}],
-		813: [{
-			type: "STR",
-			file: "enervation",
-			attachedEntity: true
-		}],
-		814: [{
-			type: "STR",
-			file: "groomy",
-			attachedEntity: true
-		}],
-		815: [{
-			type: "STR",
-			file: "ignorance",
-			attachedEntity: true
-		}],
-		816: [{
-			type: "STR",
-			file: "laziness",
-			wav: "effect/laziness",
-			attachedEntity: true
-		}],
-		817: [{
-			type: "STR",
-			file: "unlucky",
-			attachedEntity: true
-		}],
-		818: [{
-			type: "STR",
-			file: "weakness",
-			attachedEntity: true
-		}],
-		822: [{ wav: "effect/dimension" }],
-		823: [{ wav: "effect/manhole" }],
-		825: [{ wav: "effect/dimension" }],
-		827: [{ wav: "effect/chaospanic" }],
-		828: [{ wav: "effect/maelstrom" }],
-		829: [{ wav: "effect/bloodylust" }],
 		830: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -283223,7 +276526,6 @@ var init_Effects0800 = __esmMin((() => {
 				}), Params);
 			}
 		}],
-		832: [{ wav: "effect/±â°øÆ÷" }],
 		833: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -283241,30 +276543,6 @@ var init_Effects0800 = __esmMin((() => {
 				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 3 }), Params);
 			}
 		}],
-		841: [{
-			type: "FUNC",
-			attachedEntity: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 4 }), Params);
-			}
-		}],
-		842: [{
-			type: "FUNC",
-			attachedEntity: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 5 }), Params);
-			}
-		}],
-		843: [{
-			type: "FUNC",
-			attachedEntity: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 6 }), Params);
-			}
-		}],
 		845: [{
 			type: "FUNC",
 			attachedEntity: true,
@@ -283273,282 +276551,6 @@ var init_Effects0800 = __esmMin((() => {
 				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 8 }), Params);
 			}
 		}],
-		847: [{ wav: "effect/¼öÁÝÀºÇÏ·çÀÇ¿ì¿ï" }],
-		856: [{
-			type: "3D",
-			file: "effect/melody_b.bmp",
-			red: 1,
-			green: .6,
-			blue: .6,
-			alphaMax: .6,
-			attachedEntity: true,
-			duration: 100,
-			size: 50,
-			posz: .5,
-			repeat: true
-		}, { wav: "effect/reverberation" }],
-		857: [{ wav: "effect/rainstorm" }],
-		858: [{ wav: "effect/¾È½ÄÀÇÀÚÀå°¡" }],
-		860: [{
-			type: "3D",
-			file: "effect/melody_a.bmp",
-			red: .6,
-			green: .6,
-			blue: 1,
-			alphaMax: .6,
-			attachedEntity: true,
-			duration: 100,
-			size: 50,
-			posz: .5,
-			repeat: true
-		}, { wav: "effect/³ª¶ôÀÇ³ë·¡" }],
-		861: [{ wav: "effect/¼øÈ¯ÇÏ´ÂÀÚ¿¬ÀÇ¼Ò¸®" }],
-		862: [
-			{
-				attachedEntity: true,
-				wav: "effect/ab_ancilla"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .55,
-				blue: .55,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 850,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .6,
-				blue: .6,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 800,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .65,
-				blue: .65,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 750,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .7,
-				blue: .7,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 700,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .75,
-				blue: .75,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 650,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .8,
-				blue: .8,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 600,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .85,
-				blue: .85,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 550,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .9,
-				blue: .9,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 500,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: .95,
-				blue: .95,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 450,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			},
-			{
-				alphaMax: .3,
-				blendMode: 2,
-				red: 1,
-				green: 1,
-				blue: 1,
-				attachedEntity: true,
-				duration: 1500,
-				fadeIn: true,
-				fadeOut: true,
-				posz: 7,
-				sizeEnd: 100,
-				sizeSmooth: true,
-				sizeStart: 400,
-				zIndex: 10,
-				type: "3D",
-				file: "effect/priest_spell.bmp"
-			}
-		],
-		866: [{ wav: "effect/¿ö±×¿ÍÇÔ²²ÃãÀ»" }],
-		868: [{ wav: "effect/¸¶³ªÀÇ³ë·¡" }],
-		870: [{ wav: "effect/»õÅÍµ¥ÀÌ³ªÀÌÆ®ÇÇ¹ö" }],
-		872: [{ wav: "effect/·¹¶óµåÀÇÀÌ½½" }],
-		874: [{ wav: "effect/¸á·Îµð¿Àºê½ÌÅ©" }],
-		876: [{ wav: "effect/ºñ¿æµå¿Àºê¿öÅ©¶óÀÌ" }],
-		878: [{ wav: "effect/¾ð¸®¹ÌÆ¼µåÇã¹Öº¸ÀÌ½º" }],
-		879: [{ wav: "effect/¼¼ÀÌ·»ÀÇ¸ñ¼Ò¸®" }],
-		883: [
-			{
-				type: "3D",
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				duration: 3e4,
-				red: 1e-4,
-				green: 1,
-				blue: 1e-4,
-				size: 400,
-				posz: 7,
-				zIndex: 1,
-				wav: "effect/ef_readyportal",
-				file: "effect/ef_epitree.tga"
-			},
-			{
-				type: "3D",
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				duration: 990,
-				duplicate: 15,
-				timeBetweenDupli: 2e3,
-				red: 1e-4,
-				green: 1,
-				blue: 1e-4,
-				sizeStart: 380,
-				sizeEnd: 420,
-				posz: 7,
-				zIndex: 1,
-				file: "effect/ef_epitree.tga"
-			},
-			{
-				type: "3D",
-				alphaMax: .6,
-				attachedEntity: true,
-				blendMode: 2,
-				duration: 990,
-				duplicate: 15,
-				timeBetweenDupli: 2e3,
-				delayOffset: 1e3,
-				red: 1e-4,
-				green: 1,
-				blue: 1e-4,
-				sizeStart: 420,
-				sizeEnd: 380,
-				posz: 7,
-				zIndex: 1,
-				file: "effect/ef_epitree.tga"
-			}
-		],
 		885: [
 			{
 				wav: "effect/bash3d",
@@ -283626,7 +276628,6 @@ var init_Effects0800 = __esmMin((() => {
 				attachedEntity: true
 			}
 		],
-		888: [{ wav: "effect/sr_earthshaker" }],
 		889: [{
 			wav: "effect/mon_¾Æ¼ö¶ó ÆÐÈ²±Ç",
 			type: "3D",
@@ -283654,6 +276655,339 @@ var init_Effects0800 = __esmMin((() => {
 			overlay: true,
 			rotateToTarget: true,
 			rotateWithCamera: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Common/Effects0900.js
+var Effects0900_default;
+var init_Effects0900 = __esmMin((() => {
+	Effects0900_default = {
+		959: [{
+			type: "STR",
+			file: "poison_mist",
+			attachedEntity: true
+		}],
+		960: [{
+			type: "STR",
+			file: "eraser_cutter",
+			attachedEntity: true
+		}],
+		964: [{
+			type: "STR",
+			file: "lava_slide",
+			attachedEntity: true
+		}],
+		965: [{
+			type: "STR",
+			file: "sonic_claw",
+			attachedEntity: true
+		}],
+		966: [{
+			type: "STR",
+			file: "tinder",
+			attachedEntity: true
+		}],
+		967: [{
+			type: "STR",
+			file: "mid_frenzy",
+			attachedEntity: true
+		}],
+		975: [{
+			type: "STR",
+			file: "vash00",
+			attachedEntity: true
+		}],
+		987: [{
+			type: "STR",
+			file: "rwc2011",
+			attachedEntity: true
+		}],
+		988: [{
+			type: "STR",
+			file: "rwc2011_2",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Common/Effects1000.js
+var Effects1000_default;
+var init_Effects1000 = __esmMin((() => {
+	Effects1000_default = {
+		1015: [{
+			type: "STR",
+			file: "rune_success",
+			attachedEntity: true
+		}],
+		1016: [{
+			type: "STR",
+			file: "rune_fail",
+			attachedEntity: true
+		}],
+		1017: [{
+			type: "STR",
+			file: "changematerial_su",
+			attachedEntity: true
+		}],
+		1018: [{
+			type: "STR",
+			file: "changematerial_fa",
+			attachedEntity: true
+		}],
+		1019: [{
+			type: "STR",
+			file: "guardian",
+			attachedEntity: true
+		}],
+		1020: [{
+			type: "STR",
+			file: "bubble%d_1",
+			rand: [1, 4],
+			attachedEntity: true
+		}],
+		1021: [{
+			type: "STR",
+			file: "dust",
+			attachedEntity: true
+		}],
+		1029: [{
+			type: "STR",
+			file: "dancingblade",
+			attachedEntity: true
+		}],
+		1031: [{
+			type: "STR",
+			file: "invincibleoff2",
+			attachedEntity: true
+		}],
+		1033: [{
+			type: "STR",
+			file: "devil",
+			attachedEntity: true
+		}],
+		1042: [{
+			type: "STR",
+			file: "all_full_throttle",
+			wav: "effect/all_full_throttle",
+			attachedEntity: true
+		}],
+		1055: [{
+			type: "STR",
+			file: "chill",
+			attachedEntity: true
+		}],
+		1057: [{
+			type: "STR",
+			file: "ab_offertorium_ring",
+			attachedEntity: true
+		}],
+		1062: [{
+			type: "STR",
+			file: "stormgust",
+			wav: "effect/RL_HAMMER_OF_GOD",
+			attachedEntity: true
+		}],
+		1094: [{
+			type: "STR",
+			file: "ach_complete/ppring3",
+			texturePath: "ach_complete/",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Common/Effects1100.js
+var Effects1100_default;
+var init_Effects1100 = __esmMin((() => {
+	Effects1100_default = {
+		1130: [{
+			type: "SPR",
+			file: "bakuretsu_hadou/bakuretsu_hadou",
+			texturePath: "bakuretsu_hadou/",
+			attachedEntity: true,
+			repeat: true,
+			head: true,
+			yOffset: -50
+		}],
+		1111: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity._flashColor[0] = 1;
+				entity._flashColor[1] = 0;
+				entity._flashColor[2] = 0;
+				entity._flashColor[3] = 0;
+				entity.recalculateBlendingColor();
+				entity.animations.add(function(tick) {
+					entity._flashColor[3] = 0 + tick / 100;
+					entity.recalculateBlendingColor();
+					if (tick > 300) {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					}
+				});
+			}
+		}],
+		1186: [
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_pink/dropitem_pink/dropitem_pink",
+				texturePath: "new_dropitem/dropitem_pink/dropitem_pink/",
+				renderBeforeEntities: true
+			},
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_pink/dropitem_pink_bottom/dropitem_pink_bottom",
+				texturePath: "new_dropitem/dropitem_pink/dropitem_pink_bottom/",
+				renderBeforeEntities: true
+			},
+			{ wav: "effect/drop_pink" }
+		],
+		1189: [
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_yellow/dropitem_yellow/dropitem_yellow",
+				texturePath: "new_dropitem/dropitem_yellow/dropitem_yellow/"
+			},
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_yellow/dropitem_yellow_bottom/dropitem_yellow_bottom",
+				texturePath: "new_dropitem/dropitem_yellow/dropitem_yellow_bottom/"
+			},
+			{ wav: "effect/drop_yellow" }
+		],
+		1190: [
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_purple/dropitem_purple/dropitem_purple",
+				texturePath: "new_dropitem/dropitem_purple/dropitem_purple/"
+			},
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_purple/dropitem_purple_bottom/dropitem_purple_bottom",
+				texturePath: "new_dropitem/dropitem_purple/dropitem_purple_bottom/"
+			},
+			{ wav: "effect/drop_purple" }
+		]
+	};
+}));
+// src/DB/Effects/Table/Common/Effects1200.js
+var Effects1200_default;
+var init_Effects1200 = __esmMin((() => {
+	Effects1200_default = { 1240: [{
+		type: "SPR",
+		file: "digital_space/digital_space",
+		texturePath: "digital_space/",
+		attachedEntity: true,
+		repeat: true,
+		renderBeforeEntities: true
+	}] };
+}));
+// src/DB/Effects/Table/Common/Effects1800.js
+var Effects1800_default;
+var init_Effects1800 = __esmMin((() => {
+	Effects1800_default = {
+		1869: [
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_blue/dropitem_blue/dropitem_blue",
+				texturePath: "new_dropitem/dropitem_blue/dropitem_blue/"
+			},
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_blue/dropitem_blue_bottom/dropitem_blue_bottom",
+				texturePath: "new_dropitem/dropitem_blue/dropitem_blue_bottom/"
+			},
+			{ wav: "effect/drop_blue" }
+		],
+		1870: [
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_green/dropitem_green/dropitem_green",
+				texturePath: "new_dropitem/dropitem_green/dropitem_green/"
+			},
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_green/dropitem_green_bottom/dropitem_green_bottom",
+				texturePath: "new_dropitem/dropitem_green/dropitem_green_bottom/"
+			},
+			{ wav: "effect/drop_green" }
+		],
+		1871: [
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_red/dropitem_red/dropitem_red",
+				texturePath: "new_dropitem/dropitem_red/dropitem_red/"
+			},
+			{
+				type: "STR",
+				file: "new_dropitem/dropitem_red/dropitem_red_bottom/dropitem_red_bottom",
+				texturePath: "new_dropitem/dropitem_red/dropitem_red_bottom/"
+			},
+			{ wav: "effect/drop_red" }
+		],
+		1872: [{
+			type: "STR",
+			file: "grade_enchant/new_success/new_success",
+			texturePath: "grade_enchant/new_success/"
+		}],
+		1873: [{
+			type: "STR",
+			file: "grade_enchant/new_failed/new_failed",
+			texturePath: "grade_enchant/new_failed/"
+		}],
+		1874: [{
+			type: "STR",
+			file: "grade_enchant/new_intro/new_intro",
+			texturePath: "grade_enchant/new_intro/"
+		}],
+		1875: [{
+			type: "STR",
+			file: "ui_enchant/ui_intro_yellow/ui_intro_yellow",
+			texturePath: "ui_enchant/ui_intro_yellow/"
+		}],
+		1876: [{
+			type: "STR",
+			file: "ui_enchant/ui_enchant_success/ui_enchant_success",
+			texturePath: "ui_enchant/ui_enchant_success/"
+		}],
+		1877: [{
+			type: "STR",
+			file: "ui_enchant/ui_fail/ui_enchant_fail",
+			texturePath: "ui_enchant/ui_fail/"
+		}],
+		1878: [{
+			type: "STR",
+			file: "ui_enchant/ui_intro_blue/ui_intro_blue",
+			texturePath: "ui_enchant/ui_intro_blue/"
+		}],
+		1879: [{
+			type: "STR",
+			file: "ui_enchant/ui_levelup_success/ui_levelup_success",
+			texturePath: "ui_enchant/ui_levelup_success/"
+		}],
+		1880: [{
+			type: "STR",
+			file: "ui_enchant/ui_fail/ui_levelup_fail",
+			texturePath: "ui_enchant/ui_fail/"
+		}],
+		1881: [{
+			type: "STR",
+			file: "ui_enchant/ui_intro_green/ui_intro_green",
+			texturePath: "ui_enchant/ui_intro_green/"
+		}],
+		1882: [{
+			type: "STR",
+			file: "ui_enchant/ui_reset_success/ui_reset_success",
+			texturePath: "ui_enchant/ui_reset_success/"
+		}],
+		1883: [{
+			type: "STR",
+			file: "ui_enchant/ui_fail/ui_reset_fail",
+			texturePath: "ui_enchant/ui_fail/"
 		}]
 	};
 }));
@@ -283780,7 +277114,7 @@ function stepRing(ring) {
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$2(out, i, center, x, y, up, u, v) {
+function vertex$3(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -283817,18 +277151,18 @@ function buildRing(out, ring, center) {
 			if (prev) {
 				const u0 = (j - 1) / 21;
 				const u1 = j / 21;
-				o = vertex$2(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-				o = vertex$2(out, o, center, point.fx, point.fy, 0, u1, 1);
-				o = vertex$2(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$2(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-				o = vertex$2(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$2(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex$3(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex$3(out, o, center, point.fx, point.fy, 0, u1, 1);
+				o = vertex$3(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex$3(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+				o = vertex$3(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex$3(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 			}
 			prev = point;
 		}
 	}
 }
-var DEG$3, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE, RING_VERTICES, ARG_MODE, RING_MODES, CYCLE_MODES;
+var DEG$3, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
 var init_CastRingSim = __esmMin((() => {
 	init_EffectPrimSim();
 	DEG$3 = Math.PI / 180;
@@ -283852,7 +277186,7 @@ var init_CastRingSim = __esmMin((() => {
 	LEAN_START = 80;
 	LEAN_MIN = 10;
 	WOBBLE = .3;
-	RING_VERTICES = BAND_START.length * 20 * 6;
+	RING_VERTICES$1 = BAND_START.length * 20 * 6;
 	ARG_MODE = {
 		1: 8,
 		2: 5,
@@ -284062,20 +277396,20 @@ var init_CastRingSim = __esmMin((() => {
 	];
 }));
 // src/Renderer/Effects/CastRing.js
-function loadTexture$3(gl, name) {
-	if (_textures$2.has(name)) return;
-	_textures$2.set(name, null);
+function loadTexture$4(gl, name) {
+	if (_textures$3.has(name)) return;
+	_textures$3.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$2.has(name)) {
+			if (!_textures$3.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$2.set(name, texture);
+			_textures$3.set(name, texture);
 		});
 	});
 }
-var _program$4, _textures$2, SIZES, CastRing;
+var _program$7, _textures$3, SIZES, CastRing;
 var init_CastRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -284083,8 +277417,8 @@ var init_CastRing = __esmMin((() => {
 	init_CastRingSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$4 = null;
-	_textures$2 = /* @__PURE__ */ new Map();
+	_program$7 = null;
+	_textures$3 = /* @__PURE__ */ new Map();
 	SIZES = [45, 25];
 	CastRing = class {
 		/**
@@ -284104,14 +277438,14 @@ var init_CastRing = __esmMin((() => {
 			this.ticks = 0;
 			this.rings = SIZES.map((size, i) => ({
 				sim: createRing(size, args[i], this.frames, cycle),
-				vertices: new Float32Array(RING_VERTICES * 5),
+				vertices: new Float32Array(RING_VERTICES$1 * 5),
 				color: /* @__PURE__ */ new Float32Array(4),
 				buffer: null
 			}));
 		}
 		init(gl) {
 			for (const ring of this.rings) ring.buffer = gl.createBuffer();
-			loadTexture$3(gl, this.texture);
+			loadTexture$4(gl, this.texture);
 			this.ready = true;
 		}
 		free(gl) {
@@ -284132,9 +277466,9 @@ var init_CastRing = __esmMin((() => {
 				for (const ring of this.rings) stepRing(ring.sim);
 				this.ticks++;
 			}
-			const texture = _textures$2.get(this.texture);
+			const texture = _textures$3.get(this.texture);
 			if (!texture) return;
-			const attribute = _program$4.attribute;
+			const attribute = _program$7.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -284153,7 +277487,7 @@ var init_CastRing = __esmMin((() => {
 						const alpha = Math.min(255, band.alpha);
 						if (alpha <= 0) return;
 						ring.color[3] = alpha / 255;
-						gl.uniform4fv(_program$4.uniform.uColor, ring.color);
+						gl.uniform4fv(_program$7.uniform.uColor, ring.color);
 						gl.drawArrays(gl.TRIANGLES, b * 20 * 6, 120);
 					});
 				}
@@ -284161,23 +277495,23 @@ var init_CastRing = __esmMin((() => {
 			});
 		}
 		static init(gl) {
-			_program$4 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$7 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$4) {
-				gl.deleteProgram(_program$4);
-				_program$4 = null;
+			if (_program$7) {
+				gl.deleteProgram(_program$7);
+				_program$7 = null;
 			}
-			for (const texture of _textures$2.values()) if (texture) gl.deleteTexture(texture);
-			_textures$2.clear();
+			for (const texture of _textures$3.values()) if (texture) gl.deleteTexture(texture);
+			_textures$3.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$4.uniform;
-			const attribute = _program$4.attribute;
-			gl.useProgram(_program$4);
+			const uniform = _program$7.uniform;
+			const attribute = _program$7.attribute;
+			gl.useProgram(_program$7);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -284191,1005 +277525,35 @@ var init_CastRing = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$4.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$4.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$7.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$7.attribute.aTextureCoord);
 		}
 	};
 }));
-// src/Renderer/Effects/CastFunnelSim.js
-/**
-* A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
-*
-* @param {number} t
-* @return {number}
-*/
-function funnelAlpha(t) {
-	if (t <= FUNNEL.riseTicks) return FUNNEL.alphaUp * Math.max(0, t);
-	return Math.max(0, FUNNEL.alphaUp * FUNNEL.riseTicks - FUNNEL.alphaDown * (t - FUNNEL.riseTicks));
-}
-/**
-* Band `b`'s state on tick `t`: start angle, lean and foot radius.
-*
-* @param {number} b band index
-* @param {number} t tick, 1 on the first
-* @return {{angle: number, lean: number, foot: number}}
-*/
-function bandState(b, t) {
-	return {
-		angle: (FUNNEL.turn * b + FUNNEL.spin * t) % 360,
-		lean: Math.max(FUNNEL.leanMin, FUNNEL.lean - FUNNEL.leanStep * t),
-		foot: FUNNEL.foot + b + FUNNEL.spread * t
-	};
-}
-/**
-* Height of point `j` of band `b` on tick `t`, in world units.
-*
-* @param {number} b
-* @param {number} j 0 to 20
-* @param {number} t
-* @return {number}
-*/
-function pointHeight$1(b, j, t) {
-	return FUNNEL.height * Math.sin(9 * j * DEG$2) * (1 + FUNNEL.breathe * Math.sin((t + FUNNEL.turn * b) % 360 * DEG$2));
-}
-/**
-* Write one vertex in roBrowser's GL space, from client units about `center`.
-*/
-function vertex$1(out, i, center, x, y, up, u, v) {
-	out[i + 0] = center[0] + .5 + x / 5;
-	out[i + 1] = -center[2] - up / 5;
-	out[i + 2] = center[1] + .5 + y / 5;
-	out[i + 3] = u;
-	out[i + 4] = v;
-	return i + 5;
-}
-/**
-* Fill `out` with every band's triangles on tick `t`.
-* V is 1 at a strip's foot and 0 at its tip; strip k runs U from k/21 to (k+1)/21.
-*
-* @param {Float32Array} out FUNNEL_VERTICES * 5 floats
-* @param {number} t tick, 1 on the first
-* @param {Array} center position, in cells
-* @return {number} vertices written
-*/
-function buildFunnel(out, t, center) {
-	const step = 18;
-	let o = 0;
-	for (let b = 0; b < 4; b++) {
-		const band = bandState(b, t);
-		const lean = Math.cos(band.lean * DEG$2);
-		const rise = Math.sin(band.lean * DEG$2);
-		let prev = null;
-		for (let j = 0; j < 21; j++) {
-			const angle = (j === 20 ? band.angle : band.angle + j * step) * DEG$2;
-			const cos = Math.cos(angle);
-			const sin = Math.sin(angle);
-			const h = pointHeight$1(b, j, t);
-			const point = {
-				fx: band.foot * cos,
-				fy: band.foot * sin,
-				tx: (band.foot + h * lean) * cos,
-				ty: (band.foot + h * lean) * sin,
-				up: h * rise
-			};
-			if (prev) {
-				const u0 = (j - 1) / 21;
-				const u1 = j / 21;
-				o = vertex$1(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-				o = vertex$1(out, o, center, point.fx, point.fy, 0, u1, 1);
-				o = vertex$1(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$1(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-				o = vertex$1(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$1(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			}
-			prev = point;
-		}
-	}
-	return o / 5;
-}
-var DEG$2, FUNNEL;
-var init_CastFunnelSim = __esmMin((() => {
-	init_EffectPrimSim();
-	DEG$2 = Math.PI / 180;
-	FUNNEL = {
-		height: 25,
-		breathe: .15,
-		turn: 90,
-		spin: 5,
-		lean: 80,
-		leanStep: 1,
-		leanMin: 40,
-		foot: 1,
-		spread: .3,
-		alphaUp: 20,
-		riseTicks: 10,
-		alphaDown: 5
-	};
-	FUNNEL.riseTicks + FUNNEL.alphaUp * FUNNEL.riseTicks / FUNNEL.alphaDown;
-}));
-// src/Renderer/Effects/CastFunnel.js
-function loadTexture$2(gl, name) {
-	if (_textures$1.has(name)) return;
-	_textures$1.set(name, null);
-	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
-		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$1.has(name)) {
-				gl.deleteTexture(texture);
-				return;
-			}
-			_textures$1.set(name, texture);
-		});
-	});
-}
-var _program$3, _textures$1, CastFunnel;
-var init_CastFunnel = __esmMin((() => {
-	init_WebGL();
-	init_Client();
-	init_SpriteRenderer();
-	init_CastFunnelSim();
-	init_EffectPrim$2();
-	init_EffectPrim$1();
-	_program$3 = null;
-	_textures$1 = /* @__PURE__ */ new Map();
-	CastFunnel = class {
-		/**
-		* @param {vec3} position caster position (kept by reference, so it follows)
-		* @param {number} startTick
-		* @param {number} frames lifetime in ticks (1/60 s)
-		* @param {string} texture file under data/texture/effect/
-		*/
-		constructor(position, startTick, frames, texture) {
-			this.position = position;
-			this.startTick = startTick || 0;
-			this.frames = Math.max(1, Math.floor(frames));
-			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
-			this.texture = texture;
-			this.vertices = /* @__PURE__ */ new Float32Array(2400);
-			this.color = new Float32Array([
-				1,
-				1,
-				1,
-				1
-			]);
-		}
-		init(gl) {
-			this.buffer = gl.createBuffer();
-			loadTexture$2(gl, this.texture);
-			this.ready = true;
-		}
-		free(gl) {
-			this.ready = false;
-			if (this.buffer) {
-				gl.deleteBuffer(this.buffer);
-				this.buffer = null;
-			}
-		}
-		render(gl, tick) {
-			if (tick < this.startTick) return;
-			if (tick > this.endTick) {
-				this.needCleanUp = true;
-				return;
-			}
-			const texture = _textures$1.get(this.texture);
-			if (!texture) return;
-			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
-			const alpha = funnelAlpha(t);
-			if (alpha <= 0) return;
-			const count = buildFunnel(this.vertices, t, this.position);
-			const attribute = _program$3.attribute;
-			const self = this;
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
-				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-				gl.bindTexture(gl.TEXTURE_2D, texture);
-				self.color[3] = alpha / 255;
-				gl.uniform4fv(_program$3.uniform.uColor, self.color);
-				gl.drawArrays(gl.TRIANGLES, 0, count);
-			});
-		}
-		static init(gl) {
-			_program$3 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			this.ready = true;
-			this.renderBeforeEntities = false;
-		}
-		static free(gl) {
-			if (_program$3) {
-				gl.deleteProgram(_program$3);
-				_program$3 = null;
-			}
-			for (const texture of _textures$1.values()) if (texture) gl.deleteTexture(texture);
-			_textures$1.clear();
-			this.ready = false;
-		}
-		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$3.uniform;
-			const attribute = _program$3.attribute;
-			gl.useProgram(_program$3);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$3.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$3.attribute.aTextureCoord);
-		}
-	};
-}));
-// src/Renderer/Effects/RotateLineSim.js
-/**
-* How long the effect plays, in ticks, for a cast of `castTime` ms.
-*
-* @param {number} castTime ms
-* @return {number}
-*/
-function rotateLineFrames(castTime) {
-	return Math.max(0, Math.floor((castTime || 0) / 16));
-}
-/**
-* The four ribbons as the client sets them up.
-*
-* @param {number} effectId 986 or 1000
-* @param {function} random returns 0 <= x < 1 (the tilts)
-* @return {Array<object>}
-*/
-function createLines(effectId, random = Math.random) {
-	const look = LOOKS[effectId] || LOOKS[986];
-	const lines = [];
-	for (let L = 0; L < 4; L++) {
-		const points = [];
-		for (let i = 0; i < 21; i++) points.push({
-			angle: START.turn * L,
-			span: START.span,
-			alpha: START.alpha,
-			radius: START.radius - START.radiusStep * L + look.radius
-		});
-		lines.push({
-			tilt: START.tiltMin + Math.floor(random() * START.tiltRange),
-			height: START.height - START.heightStep * L,
-			points
-		});
-	}
-	return lines;
-}
-/**
-* One client tick: `age` is the ticks already run (the client reads it before
-* counting the tick).
-*
-* @param {Array<object>} lines from createLines, changed in place
-* @param {number} age
-*/
-function stepLines(lines, age) {
-	for (const line of lines) {
-		const head = line.points[0];
-		head.angle = (head.angle + STEP.turn) % 360;
-		head.span = Math.min(STEP.maxSpan, head.span + STEP.span);
-		if (age < STEP.alphaInTicks) head.alpha += 1;
-		else {
-			head.radius += STEP.grow;
-			if (age > STEP.fadeAfter) head.alpha = Math.max(0, head.alpha - 1);
-		}
-		for (let i = 1; i < 21; i++) {
-			const point = line.points[i];
-			point.angle = (head.angle + STEP.turn * i) % 360;
-			point.span = Math.min(STEP.maxSpan, head.span + STEP.span * i);
-			if (age < STEP.alphaInTicks) point.alpha = head.alpha + i;
-			else {
-				point.radius = head.radius + STEP.grow * i;
-				if (age > STEP.fadeAfter) point.alpha = Math.max(0, head.alpha - i);
-			}
-		}
-	}
-}
-/**
-* Where point i of a ribbon sits on its circle, whole degrees.
-*
-* @param {object} point
-* @param {number} i
-* @return {number}
-*/
-function pointAngle(point, i) {
-	return (Math.trunc(point.span / 21) * i + point.angle) % 360;
-}
-/**
-* The upper and lower corners of point i, in the camera-turned frame: x toward
-* screen right, z away from the camera, y height (negative is up), world units.
-*
-* @param {object} line
-* @param {number} i
-* @param {Float32Array} out [upper x, y, z, lower x, y, z]
-* @return {Float32Array} out
-*/
-function pointCorners(line, i, out) {
-	const point = line.points[i];
-	const p = pointAngle(point, i) * DEG$1;
-	const cos = Math.cos(p);
-	const sin = Math.sin(p);
-	const lean = Math.cos(line.tilt * DEG$1);
-	const up = -line.height;
-	out[0] = cos * point.radius;
-	out[1] = up;
-	out[2] = sin * point.radius;
-	out[3] = cos * (point.radius + lean);
-	out[4] = up + START.drop - Math.sin(line.tilt * DEG$1);
-	out[5] = sin * (point.radius + lean);
-	return out;
-}
-/**
-* Screen right and away-from-camera directions on the ground, from the view matrix.
-*
-* @param {mat4} modelView view matrix (gl-matrix, column-major)
-* @param {Float32Array} right out: screen right, GL world
-* @param {Float32Array} away out: away from the camera, GL world
-*/
-function cameraFrame(modelView, right, away) {
-	let x = modelView[0];
-	let z = modelView[8];
-	let length = Math.hypot(x, z) || 1;
-	right[0] = x / length;
-	right[1] = 0;
-	right[2] = z / length;
-	x = modelView[1];
-	z = modelView[9];
-	length = Math.hypot(x, z);
-	if (length < 1e-6) {
-		away[0] = -right[2];
-		away[2] = right[0];
-	} else {
-		away[0] = x / length;
-		away[2] = z / length;
-	}
-	away[1] = 0;
-}
-var DEG$1, TEXTURE, LOOKS, START, STEP;
-var init_RotateLineSim = __esmMin((() => {
-	init_EffectPrimSim();
-	DEG$1 = Math.PI / 180;
-	TEXTURE = "cloud11.tga";
-	LOOKS = {
-		986: {
-			rgb: [
-				50,
-				50,
-				50
-			],
-			additive: false,
-			radius: 0
-		},
-		1e3: {
-			rgb: [
-				100,
-				100,
-				255
-			],
-			additive: true,
-			radius: 3
-		}
-	};
-	START = {
-		turn: 90,
-		height: 28,
-		heightStep: 5,
-		radius: 7,
-		radiusStep: 1,
-		span: 30,
-		alpha: 50,
-		drop: 3,
-		tiltMin: 80,
-		tiltRange: 21
-	};
-	STEP = {
-		turn: 5,
-		span: 3,
-		maxSpan: 180,
-		alphaInTicks: 13,
-		fadeAfter: 50,
-		grow: .1
-	};
-}));
-// src/Renderer/Effects/RotateLine.js
-function loadTexture$1(gl) {
-	if (_texture$1 || _textureLoading) return;
-	_textureLoading = true;
-	Client.loadFile(`data/texture/effect/${TEXTURE}`, (buffer) => {
-		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textureLoading) {
-				gl.deleteTexture(texture);
-				return;
-			}
-			_texture$1 = texture;
-		});
-	});
-}
-var _program$2, _texture$1, _textureLoading, _right, _away, _corners, _color, QUADS, QUAD_FLOATS, RotateLine;
-var init_RotateLine = __esmMin((() => {
-	init_WebGL();
-	init_Client();
-	init_SpriteRenderer();
-	init_RotateLineSim();
-	init_EffectPrim$2();
-	init_EffectPrim$1();
-	_program$2 = null;
-	_texture$1 = null;
-	_textureLoading = false;
-	_right = /* @__PURE__ */ new Float32Array(3);
-	_away = /* @__PURE__ */ new Float32Array(3);
-	_corners = /* @__PURE__ */ new Float32Array(6);
-	_color = /* @__PURE__ */ new Float32Array(4);
-	QUADS = 20;
-	QUAD_FLOATS = 30;
-	RotateLine = class {
-		/**
-		* @param {vec3} position caster position (kept by reference, so it follows)
-		* @param {number} startTick
-		* @param {number} castTime cast time, ms
-		* @param {number} effectId 986 gray or 1000 blue
-		*/
-		constructor(position, startTick, castTime, effectId = 986) {
-			this.position = position;
-			this.startTick = startTick || 0;
-			this.frames = rotateLineFrames(castTime);
-			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
-			this.look = LOOKS[effectId] || LOOKS[986];
-			this.lines = createLines(effectId);
-			this.age = 0;
-			this.vertices = new Float32Array(4 * QUADS * QUAD_FLOATS);
-		}
-		init(gl) {
-			this.buffer = gl.createBuffer();
-			loadTexture$1(gl);
-			this.ready = true;
-		}
-		free(gl) {
-			this.ready = false;
-			if (this.buffer) {
-				gl.deleteBuffer(this.buffer);
-				this.buffer = null;
-			}
-		}
-		/**
-		* Write one ribbon's quads to the vertex array, in GL world space.
-		*/
-		buildLine(line, offset) {
-			const out = this.vertices;
-			const base = this.position;
-			const cx = base[0] + .5;
-			const cz = base[1] + .5;
-			const cy = -base[2];
-			let prev = null;
-			for (let i = 0; i < 21; i++) {
-				pointCorners(line, i, _corners);
-				const ux = _corners[0] / 5;
-				const uz = _corners[2] / 5;
-				const lx = _corners[3] / 5;
-				const lz = _corners[5] / 5;
-				const cur = [
-					cx + _right[0] * ux + _away[0] * uz,
-					cy + _corners[1] / 5,
-					cz + _right[2] * ux + _away[2] * uz,
-					cx + _right[0] * lx + _away[0] * lz,
-					cy + _corners[4] / 5,
-					cz + _right[2] * lx + _away[2] * lz
-				];
-				if (prev) {
-					const u0 = (i - 1) / 21;
-					const u1 = i / 21;
-					const quad = [
-						[
-							prev[3],
-							prev[4],
-							prev[5],
-							u0,
-							0
-						],
-						[
-							cur[3],
-							cur[4],
-							cur[5],
-							u1,
-							0
-						],
-						[
-							prev[0],
-							prev[1],
-							prev[2],
-							u0,
-							1
-						],
-						[
-							cur[0],
-							cur[1],
-							cur[2],
-							u1,
-							1
-						]
-					];
-					let o = offset + (i - 1) * QUAD_FLOATS;
-					for (const k of [
-						0,
-						1,
-						2,
-						2,
-						1,
-						3
-					]) {
-						out.set(quad[k], o);
-						o += 5;
-					}
-				}
-				prev = cur;
-			}
-		}
-		render(gl, tick) {
-			if (tick < this.startTick) return;
-			if (tick > this.endTick) {
-				this.needCleanUp = true;
-				return;
-			}
-			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
-			while (this.age < t) {
-				stepLines(this.lines, this.age);
-				this.age++;
-			}
-			if (!_texture$1) return;
-			const lines = this.lines;
-			for (let L = 0; L < 4; L++) this.buildLine(lines[L], L * QUADS * QUAD_FLOATS);
-			const attribute = _program$2.attribute;
-			const look = this.look;
-			_color[0] = look.rgb[0] / 255;
-			_color[1] = look.rgb[1] / 255;
-			_color[2] = look.rgb[2] / 255;
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-			gl.bindTexture(gl.TEXTURE_2D, _texture$1);
-			gl.blendFunc(gl.SRC_ALPHA, look.additive ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				for (let L = 0; L < 4; L++) {
-					const points = lines[L].points;
-					for (let i = 1; i < 21; i++) {
-						const alpha = points[i].alpha;
-						if (alpha <= 0) continue;
-						_color[3] = Math.min(255, alpha) / 255;
-						gl.uniform4fv(_program$2.uniform.uColor, _color);
-						gl.drawArrays(gl.TRIANGLES, (L * QUADS + i - 1) * 6, 6);
-					}
-				}
-			});
-		}
-		static init(gl) {
-			_program$2 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			this.ready = true;
-			this.renderBeforeEntities = false;
-		}
-		static free(gl) {
-			if (_program$2) {
-				gl.deleteProgram(_program$2);
-				_program$2 = null;
-			}
-			if (_texture$1) {
-				gl.deleteTexture(_texture$1);
-				_texture$1 = null;
-			}
-			_textureLoading = false;
-			this.ready = false;
-		}
-		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$2.uniform;
-			const attribute = _program$2.attribute;
-			gl.useProgram(_program$2);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			cameraFrame(modelView, _right, _away);
-		}
-		static afterRender(gl) {
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program$2.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$2.attribute.aTextureCoord);
-		}
-	};
-}));
-// src/DB/Effects/Table/Effects0900.js
-var Effects0900_default;
-var init_Effects0900 = __esmMin((() => {
+// src/DB/Effects/Table/Common/Effects2300.js
+var Effects2300_default;
+var init_Effects2300 = __esmMin((() => {
 	init_CastRing();
-	init_CastFunnel();
-	init_CasterMarks();
-	init_RotateLine();
-	Effects0900_default = {
-		906: [{
-			type: "3D",
-			alphaMax: .6,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 500,
-			rotate: true,
-			angle: 0,
-			toAngle: -611,
-			poszStart: 20,
-			poszEnd: 5,
-			size: 100,
-			zIndex: 1,
-			file: "effect/shield.bmp",
-			wav: "effect/ÇÁ·¹¼Å"
-		}, {
-			type: "3D",
-			alphaMax: .6,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 500,
-			delayOffset: 501,
-			fadeOut: true,
-			angle: -611,
-			posz: 5,
-			size: 100,
-			zIndex: 1,
-			file: "effect/shield.bmp",
-			delayWav: 500,
-			wav: "effect/lg_shieldpress"
-		}],
-		908: [{ wav: "effect/lg_prestige" }],
-		909: [{ wav: "effect/lg_banding" }],
-		910: [{ wav: "effect/lg_inspiration" }],
-		911: [{
+	Effects2300_default = {
+		2367: [{
 			type: "FUNC",
 			attachedEntity: true,
 			castLoop: true,
 			wav: "effect/ef_beginspell",
 			func: function(Params) {
-				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_white.tga", [15, 15]), Params);
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", [0, 0]), Params);
 			}
 		}],
-		920: [{
-			type: "STR",
-			file: "firewall_per",
-			attachedEntity: true
-		}],
-		922: [{ wav: "effect/s»çÀÌÅ±¿þÀÌºê" }],
-		926: [{
-			type: "STR",
-			file: "hunter_shockwave_blue",
-			attachedEntity: true
-		}],
-		928: [{ wav: "effect/wl_jackfrost" }],
-		929: [{ wav: "effect/s¿ö¸Ó" }],
-		930: [{
-			type: "3D",
-			alphaMax: .6,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 500,
-			rotate: true,
-			angle: 0,
-			toAngle: -611,
-			poszStart: 20,
-			poszEnd: 5,
-			size: 100,
-			zIndex: 1,
-			file: "effect/cross1.bmp",
-			wav: "effect/ÇÁ·¹¼Å"
-		}, {
-			type: "3D",
-			alphaMax: .6,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 500,
-			delayOffset: 501,
-			fadeOut: true,
-			angle: -611,
-			posz: 5,
-			size: 100,
-			zIndex: 1,
-			file: "effect/cross1.bmp"
-		}],
-		934: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				this.add(new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, 300, "ring_white.tga"), Params);
-			}
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 934), Params);
-			}
-		}],
-		959: [{
-			type: "STR",
-			file: "poison_mist",
-			attachedEntity: true
-		}],
-		960: [{
-			type: "STR",
-			file: "eraser_cutter",
-			attachedEntity: true
-		}],
-		964: [{
-			type: "STR",
-			file: "lava_slide",
-			attachedEntity: true
-		}],
-		965: [{
-			type: "STR",
-			file: "sonic_claw",
-			attachedEntity: true
-		}],
-		966: [{
-			type: "STR",
-			file: "tinder",
-			attachedEntity: true
-		}],
-		967: [{
-			type: "STR",
-			file: "mid_frenzy",
-			attachedEntity: true
-		}],
-		975: [{
-			type: "STR",
-			file: "vash00",
-			attachedEntity: true
-		}],
-		986: [{
+		2369: [{
 			type: "FUNC",
 			attachedEntity: true,
 			castLoop: true,
+			wav: "effect/ef_beginspell",
 			func: function(Params) {
-				this.add(new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 986), Params);
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_white.tga", [0, 0], true), Params);
 			}
-		}],
-		987: [{
-			type: "STR",
-			file: "rwc2011",
-			attachedEntity: true
-		}],
-		988: [{
-			type: "STR",
-			file: "rwc2011_2",
-			attachedEntity: true
 		}]
 	};
-}));
-// src/DB/Effects/Table/Effects1000.js
-var Effects1000_default;
-var init_Effects1000 = __esmMin((() => {
-	Effects1000_default = {
-		1015: [{
-			type: "STR",
-			file: "rune_success",
-			attachedEntity: true
-		}],
-		1016: [{
-			type: "STR",
-			file: "rune_fail",
-			attachedEntity: true
-		}],
-		1017: [{
-			type: "STR",
-			file: "changematerial_su",
-			attachedEntity: true
-		}],
-		1018: [{
-			type: "STR",
-			file: "changematerial_fa",
-			attachedEntity: true
-		}],
-		1019: [{
-			type: "STR",
-			file: "guardian",
-			attachedEntity: true
-		}],
-		1020: [{
-			type: "STR",
-			file: "bubble%d_1",
-			rand: [1, 4],
-			attachedEntity: true
-		}],
-		1021: [{
-			type: "STR",
-			file: "dust",
-			attachedEntity: true
-		}],
-		1029: [{
-			type: "STR",
-			file: "dancingblade",
-			attachedEntity: true
-		}],
-		1031: [{
-			type: "STR",
-			file: "invincibleoff2",
-			attachedEntity: true
-		}],
-		1033: [{
-			type: "STR",
-			file: "devil",
-			attachedEntity: true
-		}],
-		1040: [{
-			type: "STR",
-			file: "gc_darkcrow",
-			attachedEntity: true
-		}],
-		1042: [{
-			type: "STR",
-			file: "all_full_throttle",
-			wav: "effect/all_full_throttle",
-			attachedEntity: true
-		}],
-		1043: [{
-			type: "STR",
-			file: "sr_flashcombo",
-			wav: "effect/sr_flashcombo",
-			attachedEntity: true
-		}],
-		1044: [{
-			type: "STR",
-			file: "rk_luxanima",
-			attachedEntity: true
-		}],
-		1046: [{
-			type: "STR",
-			file: "so_elemental_shield",
-			wav: "effect/so_elemental_shield",
-			attachedEntity: true
-		}],
-		1047: [{
-			type: "STR",
-			file: "ab_offertorium",
-			wav: "effect/ab_offertorium",
-			attachedEntity: true
-		}],
-		1048: [{
-			type: "STR",
-			file: "wl_telekinesis_intense",
-			wav: "effect/wl_telekinesis_intense",
-			attachedEntity: true
-		}],
-		1049: [{
-			type: "STR",
-			file: "gn_illusiondoping",
-			wav: "effect/gn_illusiondoping",
-			attachedEntity: true
-		}],
-		1050: [{
-			type: "STR",
-			file: "nc_magma_eruption",
-			wav: "effect/nc_magma_eruption",
-			attachedEntity: true
-		}],
-		1055: [{
-			type: "STR",
-			file: "chill",
-			attachedEntity: true
-		}],
-		1057: [{
-			type: "STR",
-			file: "ab_offertorium_ring",
-			attachedEntity: true
-		}],
-		1062: [{
-			type: "STR",
-			file: "stormgust",
-			wav: "effect/RL_HAMMER_OF_GOD",
-			attachedEntity: true
-		}],
-		1094: [{
-			type: "STR",
-			file: "ach_complete/ppring3",
-			texturePath: "ach_complete/",
-			attachedEntity: true
-		}]
-	};
-}));
-// src/DB/Effects/Table/Effects1100.js
-var Effects1100_default;
-var init_Effects1100 = __esmMin((() => {
-	Effects1100_default = {
-		1130: [{
-			type: "SPR",
-			file: "bakuretsu_hadou/bakuretsu_hadou",
-			texturePath: "bakuretsu_hadou/",
-			attachedEntity: true,
-			repeat: true,
-			head: true,
-			yOffset: -50
-		}],
-		1111: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function EffectBodyColor(Params) {
-				const entity = Params.Init.ownerEntity;
-				entity._flashColor[0] = 1;
-				entity._flashColor[1] = 0;
-				entity._flashColor[2] = 0;
-				entity._flashColor[3] = 0;
-				entity.recalculateBlendingColor();
-				entity.animations.add(function(tick) {
-					entity._flashColor[3] = 0 + tick / 100;
-					entity.recalculateBlendingColor();
-					if (tick > 300) {
-						entity._flashColor[0] = 1;
-						entity._flashColor[1] = 1;
-						entity._flashColor[2] = 1;
-						entity._flashColor[3] = 1;
-						entity.recalculateBlendingColor();
-						return true;
-					}
-				});
-			}
-		}],
-		1186: [
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_pink/dropitem_pink/dropitem_pink",
-				texturePath: "new_dropitem/dropitem_pink/dropitem_pink/",
-				renderBeforeEntities: true
-			},
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_pink/dropitem_pink_bottom/dropitem_pink_bottom",
-				texturePath: "new_dropitem/dropitem_pink/dropitem_pink_bottom/",
-				renderBeforeEntities: true
-			},
-			{ wav: "effect/drop_pink" }
-		],
-		1189: [
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_yellow/dropitem_yellow/dropitem_yellow",
-				texturePath: "new_dropitem/dropitem_yellow/dropitem_yellow/"
-			},
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_yellow/dropitem_yellow_bottom/dropitem_yellow_bottom",
-				texturePath: "new_dropitem/dropitem_yellow/dropitem_yellow_bottom/"
-			},
-			{ wav: "effect/drop_yellow" }
-		],
-		1190: [
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_purple/dropitem_purple/dropitem_purple",
-				texturePath: "new_dropitem/dropitem_purple/dropitem_purple/"
-			},
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_purple/dropitem_purple_bottom/dropitem_purple_bottom",
-				texturePath: "new_dropitem/dropitem_purple/dropitem_purple_bottom/"
-			},
-			{ wav: "effect/drop_purple" }
-		]
-	};
-}));
-// src/DB/Effects/Table/Effects1200.js
-var Effects1200_default;
-var init_Effects1200 = __esmMin((() => {
-	Effects1200_default = { 1240: [{
-		type: "SPR",
-		file: "digital_space/digital_space",
-		texturePath: "digital_space/",
-		attachedEntity: true,
-		repeat: true,
-		renderBeforeEntities: true
-	}] };
 }));
 // src/Renderer/Effects/CastCircleSim.js
 /** Strips drawn per band: one between each step of the arc, plus the 315 degree bands' extra step. */
@@ -285216,7 +277580,7 @@ function circleFrames(castTime) {
 * @return {number}
 */
 function bandAlpha(b, t, frames, tinted = false) {
-	const band = BANDS[b];
+	const band = BANDS$1[b];
 	const fadeFrom = frames - FADE;
 	if (!band.pulse) return Math.max(0, band.alpha - 5 * Math.max(0, t - fadeFrom + 1));
 	const up = Math.min(tinted ? 60 : 100, band.alpha + 8 * Math.min(t, fadeFrom - 1, 19));
@@ -285231,17 +277595,17 @@ function bandAlpha(b, t, frames, tinted = false) {
 * @param {boolean} [tinted] the tinted circle: no band pulses
 * @return {number}
 */
-function pointHeight(b, j, t, tinted = false) {
-	const band = BANDS[b];
-	const full = band.height * Math.sin(9 * j * DEG);
-	if (t < 91) return Math.max(0, full * Math.sin(t * DEG));
+function pointHeight$1(b, j, t, tinted = false) {
+	const band = BANDS$1[b];
+	const full = band.height * Math.sin(9 * j * DEG$2);
+	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$2));
 	if (!band.pulse || tinted || t === 91) return Math.max(0, full);
-	return full * .55 + full * .45 * Math.sin(t % 360 * DEG);
+	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$2);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex(out, i, center, x, y, up, u, v) {
+function vertex$2(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -285262,18 +277626,18 @@ function vertex(out, i, center, x, y, up, u, v) {
 * @return {number} next float
 */
 function buildBand(out, o, b, t, center, tinted) {
-	const band = BANDS[b];
+	const band = BANDS$1[b];
 	const step = Math.floor(band.arc / 20);
 	const turn = (band.turn + band.spin * t) % 360;
-	const lean = Math.cos(band.tilt * DEG);
-	const rise = Math.sin(band.tilt * DEG);
+	const lean = Math.cos(band.tilt * DEG$2);
+	const rise = Math.sin(band.tilt * DEG$2);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$2;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
-		const h = pointHeight(b, j, t, tinted);
+		const h = pointHeight$1(b, j, t, tinted);
 		const point = {
 			fx: band.foot * cos,
 			fy: band.foot * sin,
@@ -285284,12 +277648,12 @@ function buildBand(out, o, b, t, center, tinted) {
 		if (prev) {
 			const u0 = (j - 1) / 21;
 			const u1 = j / 21;
-			o = vertex(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$2(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$2(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$2(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$2(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$2(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$2(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 		}
 		prev = point;
 	}
@@ -285307,19 +277671,19 @@ function buildBand(out, o, b, t, center, tinted) {
 function buildCircle(out, t, center, tinted = false) {
 	const starts = [];
 	let o = 0;
-	for (let b = 0; b < BANDS.length; b++) {
+	for (let b = 0; b < BANDS$1.length; b++) {
 		starts.push(o / 5);
 		o = buildBand(out, o, b, t, center, tinted);
 	}
 	starts.push(o / 5);
 	return starts;
 }
-var DEG, FADE, BANDS, TINT_MODES, CIRCLE_VERTICES;
+var DEG$2, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
 var init_CastCircleSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG = Math.PI / 180;
+	DEG$2 = Math.PI / 180;
 	FADE = 40;
-	BANDS = [
+	BANDS$1 = [
 		{
 			foot: 4.5,
 			tilt: 70,
@@ -285384,23 +277748,23 @@ var init_CastCircleSim = __esmMin((() => {
 			additive: false
 		}
 	};
-	CIRCLE_VERTICES = BANDS.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
+	CIRCLE_VERTICES = BANDS$1.reduce((sum, band) => sum + stripsOf(band) * 6, 0);
 }));
 // src/Renderer/Effects/CastCircle.js
-function loadTexture(gl, name) {
-	if (_textures.has(name)) return;
-	_textures.set(name, null);
+function loadTexture$3(gl, name) {
+	if (_textures$2.has(name)) return;
+	_textures$2.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures.has(name)) {
+			if (!_textures$2.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures.set(name, texture);
+			_textures$2.set(name, texture);
 		});
 	});
 }
-var _program$1, _textures, CastCircle;
+var _program$6, _textures$2, CastCircle;
 var init_CastCircle = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -285408,8 +277772,8 @@ var init_CastCircle = __esmMin((() => {
 	init_CastCircleSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$1 = null;
-	_textures = /* @__PURE__ */ new Map();
+	_program$6 = null;
+	_textures$2 = /* @__PURE__ */ new Map();
 	CastCircle = class {
 		/**
 		* @param {vec3} position caster position (kept by reference, so it follows)
@@ -285437,7 +277801,7 @@ var init_CastCircle = __esmMin((() => {
 		}
 		init(gl) {
 			this.buffer = gl.createBuffer();
-			loadTexture(gl, this.texture);
+			loadTexture$3(gl, this.texture);
 			this.ready = true;
 		}
 		free(gl) {
@@ -285453,11 +277817,11 @@ var init_CastCircle = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			const texture = _textures.get(this.texture);
+			const texture = _textures$2.get(this.texture);
 			if (!texture) return;
 			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
 			const starts = buildCircle(this.vertices, t, this.position, this.tinted);
-			const attribute = _program$1.attribute;
+			const attribute = _program$6.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -285466,34 +277830,34 @@ var init_CastCircle = __esmMin((() => {
 				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 				gl.bindTexture(gl.TEXTURE_2D, texture);
 				if (self.additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-				for (let b = 0; b < BANDS.length; b++) {
+				for (let b = 0; b < BANDS$1.length; b++) {
 					const alpha = bandAlpha(b, t, self.frames, self.tinted);
 					if (alpha <= 0) continue;
 					self.color[3] = alpha / 255;
-					gl.uniform4fv(_program$1.uniform.uColor, self.color);
+					gl.uniform4fv(_program$6.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, starts[b], starts[b + 1] - starts[b]);
 				}
 				if (self.additive) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			});
 		}
 		static init(gl) {
-			_program$1 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$6 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
 		static free(gl) {
-			if (_program$1) {
-				gl.deleteProgram(_program$1);
-				_program$1 = null;
+			if (_program$6) {
+				gl.deleteProgram(_program$6);
+				_program$6 = null;
 			}
-			for (const texture of _textures.values()) if (texture) gl.deleteTexture(texture);
-			_textures.clear();
+			for (const texture of _textures$2.values()) if (texture) gl.deleteTexture(texture);
+			_textures$2.clear();
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$1.uniform;
-			const attribute = _program$1.attribute;
-			gl.useProgram(_program$1);
+			const uniform = _program$6.uniform;
+			const attribute = _program$6.attribute;
+			gl.useProgram(_program$6);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -285507,226 +277871,9 @@ var init_CastCircle = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$1.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$1.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$6.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$6.attribute.aTextureCoord);
 		}
-	};
-}));
-// src/DB/Effects/Table/Effects1400.js
-var Effects1400_default;
-var init_Effects1400 = __esmMin((() => {
-	init_CastCircle();
-	Effects1400_default = {
-		1446: [{
-			type: "STR",
-			file: "new_jackfrost/new_jackfrost_cast/new_jackfrost_cast",
-			texturePath: "new_jackfrost/new_jackfrost_cast/",
-			min: "new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast",
-			castLoop: true,
-			attachedEntity: true
-		}],
-		1449: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_jackfrost/ring_ice.tga", 2), Params);
-			}
-		}]
-	};
-}));
-// src/DB/Effects/Table/Effects1500.js
-var Effects1500_default;
-var init_Effects1500 = __esmMin((() => {
-	init_CastRing();
-	Effects1500_default = {
-		1556: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_blue.tga", [20, 21]), Params);
-			}
-		}],
-		1565: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", [23, 23]), Params);
-			}
-		}]
-	};
-}));
-// src/DB/Effects/Table/Effects1700.js
-var Effects1700_default;
-var init_Effects1700 = __esmMin((() => {
-	init_CastCircle();
-	Effects1700_default = {
-		1709: [{
-			type: "FUNC",
-			attachedEntity: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_earthdrive/ring_brown.tga"), Params);
-			}
-		}],
-		1774: [{
-			type: "STR",
-			file: "mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom",
-			texturePath: "mystery_illusion/mystery_illusion_cast_bottom/",
-			min: "mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom",
-			wav: "effect/ef_beginspell",
-			renderBeforeEntities: true,
-			castLoop: true,
-			attachedEntity: true
-		}]
-	};
-}));
-// src/DB/Effects/Table/Effects1800.js
-var Effects1800_default;
-var init_Effects1800 = __esmMin((() => {
-	Effects1800_default = {
-		1869: [
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_blue/dropitem_blue/dropitem_blue",
-				texturePath: "new_dropitem/dropitem_blue/dropitem_blue/"
-			},
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_blue/dropitem_blue_bottom/dropitem_blue_bottom",
-				texturePath: "new_dropitem/dropitem_blue/dropitem_blue_bottom/"
-			},
-			{ wav: "effect/drop_blue" }
-		],
-		1870: [
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_green/dropitem_green/dropitem_green",
-				texturePath: "new_dropitem/dropitem_green/dropitem_green/"
-			},
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_green/dropitem_green_bottom/dropitem_green_bottom",
-				texturePath: "new_dropitem/dropitem_green/dropitem_green_bottom/"
-			},
-			{ wav: "effect/drop_green" }
-		],
-		1871: [
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_red/dropitem_red/dropitem_red",
-				texturePath: "new_dropitem/dropitem_red/dropitem_red/"
-			},
-			{
-				type: "STR",
-				file: "new_dropitem/dropitem_red/dropitem_red_bottom/dropitem_red_bottom",
-				texturePath: "new_dropitem/dropitem_red/dropitem_red_bottom/"
-			},
-			{ wav: "effect/drop_red" }
-		],
-		1872: [{
-			type: "STR",
-			file: "grade_enchant/new_success/new_success",
-			texturePath: "grade_enchant/new_success/"
-		}],
-		1873: [{
-			type: "STR",
-			file: "grade_enchant/new_failed/new_failed",
-			texturePath: "grade_enchant/new_failed/"
-		}],
-		1874: [{
-			type: "STR",
-			file: "grade_enchant/new_intro/new_intro",
-			texturePath: "grade_enchant/new_intro/"
-		}],
-		1875: [{
-			type: "STR",
-			file: "ui_enchant/ui_intro_yellow/ui_intro_yellow",
-			texturePath: "ui_enchant/ui_intro_yellow/"
-		}],
-		1876: [{
-			type: "STR",
-			file: "ui_enchant/ui_enchant_success/ui_enchant_success",
-			texturePath: "ui_enchant/ui_enchant_success/"
-		}],
-		1877: [{
-			type: "STR",
-			file: "ui_enchant/ui_fail/ui_enchant_fail",
-			texturePath: "ui_enchant/ui_fail/"
-		}],
-		1878: [{
-			type: "STR",
-			file: "ui_enchant/ui_intro_blue/ui_intro_blue",
-			texturePath: "ui_enchant/ui_intro_blue/"
-		}],
-		1879: [{
-			type: "STR",
-			file: "ui_enchant/ui_levelup_success/ui_levelup_success",
-			texturePath: "ui_enchant/ui_levelup_success/"
-		}],
-		1880: [{
-			type: "STR",
-			file: "ui_enchant/ui_fail/ui_levelup_fail",
-			texturePath: "ui_enchant/ui_fail/"
-		}],
-		1881: [{
-			type: "STR",
-			file: "ui_enchant/ui_intro_green/ui_intro_green",
-			texturePath: "ui_enchant/ui_intro_green/"
-		}],
-		1882: [{
-			type: "STR",
-			file: "ui_enchant/ui_reset_success/ui_reset_success",
-			texturePath: "ui_enchant/ui_reset_success/"
-		}],
-		1883: [{
-			type: "STR",
-			file: "ui_enchant/ui_fail/ui_reset_fail",
-			texturePath: "ui_enchant/ui_fail/"
-		}]
-	};
-}));
-// src/DB/Effects/Table/Effects1900.js
-var Effects1900_default;
-var init_Effects1900 = __esmMin((() => {
-	init_CastRing();
-	Effects1900_default = { 1938: [{
-		type: "FUNC",
-		attachedEntity: true,
-		castLoop: true,
-		wav: "effect/ef_beginspell",
-		func: function(Params) {
-			this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_battle_w/abr_battle_warior.tga", [0, 0]), Params);
-		}
-	}] };
-}));
-// src/DB/Effects/Table/Effects2200.js
-var Effects2200_default;
-var init_Effects2200 = __esmMin((() => {
-	Effects2200_default = {
-		2228: [{
-			type: "STR",
-			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
-			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
-			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
-			wav: "effect/ef_beginspell",
-			castLoop: true,
-			attachedEntity: true
-		}],
-		2229: [{
-			type: "STR",
-			file: "acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom",
-			texturePath: "acidified_zone_ground/acidified_zone_ground_cast_bottom/",
-			min: "acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom",
-			renderBeforeEntities: true,
-			castLoop: true,
-			attachedEntity: true
-		}]
 	};
 }));
 // src/DB/Effects/ArrowShowerEffects.js
@@ -285824,7 +277971,7 @@ var init_WarlockSphere$1 = __esmMin((() => {
 	WarlockSphere_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform vec4 uColor;\r\nuniform sampler2D uDiffuse;\r\nfloat tmp;\r\nout vec4 fragColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    \r\n    textureSample *= uColor;\r\n    \r\n    /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {\r\n        discard;\r\n    }*/\r\n    \r\n    fragColor = textureSample;\r\n\r\n}";
 }));
 // src/Renderer/Effects/WarlockSphere.js
-var _texture, _program, _buffer, mat4$3, _rotationMatrices, WLS, SphereFiles, WarlockSphere;
+var _texture$1, _program$5, _buffer$2, mat4$5, _rotationMatrices$1, WLS, SphereFiles, WarlockSphere;
 var init_WarlockSphere = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -285835,16 +277982,16 @@ var init_WarlockSphere = __esmMin((() => {
 	init_Configs();
 	init_WarlockSphere$2();
 	init_WarlockSphere$1();
-	mat4$3 = gl_matrix_default.mat4;
-	_rotationMatrices = (function() {
+	mat4$5 = gl_matrix_default.mat4;
+	_rotationMatrices$1 = (function() {
 		const matrices = [];
 		for (let i = 0; i < 5; i++) matrices.push({
-			posMat: mat4$3.create(),
-			texMat: mat4$3.create()
+			posMat: mat4$5.create(),
+			texMat: mat4$5.create()
 		});
 		return matrices;
 	})();
-	mat4$3.create();
+	mat4$5.create();
 	WLS = {
 		FIRE: 68,
 		WIND: 69,
@@ -285869,9 +278016,9 @@ var init_WarlockSphere = __esmMin((() => {
 			this.ready = false;
 		}
 		static init(gl) {
-			_program = WebGL_default.createShaderProgram(gl, WarlockSphere_default$1, WarlockSphere_default);
-			_buffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			_program$5 = WebGL_default.createShaderProgram(gl, WarlockSphere_default$1, WarlockSphere_default);
+			_buffer$2 = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$2);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 				-1,
 				-1,
@@ -285907,8 +278054,8 @@ var init_WarlockSphere = __esmMin((() => {
 					ctx.translate(-this.width / 2, -this.height / 2);
 					ctx.drawImage(this, 0, 0);
 					ctx.restore();
-					_texture = gl.createTexture();
-					gl.bindTexture(gl.TEXTURE_2D, _texture);
+					_texture$1 = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, _texture$1);
 					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -285918,55 +278065,55 @@ var init_WarlockSphere = __esmMin((() => {
 			});
 		}
 		static free(gl) {
-			if (_texture) {
-				gl.deleteTexture(_texture);
-				_texture = null;
+			if (_texture$1) {
+				gl.deleteTexture(_texture$1);
+				_texture$1 = null;
 			}
-			if (_program) {
-				gl.deleteProgram(_program);
-				_program = null;
+			if (_program$5) {
+				gl.deleteProgram(_program$5);
+				_program$5 = null;
 			}
-			if (_buffer) gl.deleteBuffer(_buffer);
+			if (_buffer$2) gl.deleteBuffer(_buffer$2);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program.uniform;
-			const attribute = _program.attribute;
-			gl.useProgram(_program);
+			const uniform = _program$5.uniform;
+			const attribute = _program$5.attribute;
+			gl.useProgram(_program$5);
 			let _matrix, offset;
-			for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+			for (let i = 0, _len = _rotationMatrices$1.length; i < _len; i++) {
 				const vcRad = (Camera.angle[0] - 90) * Math.PI / 180;
 				const hcRad = Camera.angle[1] * Math.PI / 180;
-				offset = i * 2 * Math.PI / _rotationMatrices.length;
+				offset = i * 2 * Math.PI / _rotationMatrices$1.length;
 				const rotRad = offset - tick / 64 / 180 * Math.PI;
-				const textureMatrix = mat4$3.create();
-				mat4$3.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
-				mat4$3.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad - rotRad);
-				_matrix = _rotationMatrices[i].posMat;
-				mat4$3.identity(_matrix);
-				mat4$3.rotateY(_matrix, _matrix, rotRad);
+				const textureMatrix = mat4$5.create();
+				mat4$5.rotateX(_rotationMatrices$1[i].texMat, textureMatrix, vcRad);
+				mat4$5.rotateY(_rotationMatrices$1[i].texMat, _rotationMatrices$1[i].texMat, hcRad - rotRad);
+				_matrix = _rotationMatrices$1[i].posMat;
+				mat4$5.identity(_matrix);
+				mat4$5.rotateY(_matrix, _matrix, rotRad);
 			}
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, _texture);
+			gl.bindTexture(gl.TEXTURE_2D, _texture$1);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$2);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
 		}
 		render(gl, tick) {
-			const uniform = _program.uniform;
+			const uniform = _program$5.uniform;
 			gl.uniform3fv(uniform.uPosition, this.position);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$2);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 			gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 			let _matrix;
 			SpriteRenderer.runWithDepth(false, true, false, () => {
 				for (let i = this.spheres.length; i > 0; i--) {
-					_matrix = _rotationMatrices[i % _rotationMatrices.length];
+					_matrix = _rotationMatrices$1[i % _rotationMatrices$1.length];
 					gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
 					gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix.posMat);
 					if (i > 10) {
@@ -286055,93 +278202,91 @@ var init_WarlockSphere = __esmMin((() => {
 		}
 		static afterRender(gl) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			gl.disableVertexAttribArray(_program.attribute.aPosition);
-			gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$5.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$5.attribute.aTextureCoord);
 		}
 	};
 	WarlockSphere.renderBeforeEntities = false;
 }));
-// src/DB/Effects/Table/Effects2300.js
-var Effects2300_default;
-var init_Effects2300 = __esmMin((() => {
+// src/DB/Effects/Table/Common/Named.js
+var Named_default;
+var init_Named = __esmMin((() => {
 	init_Camera();
-	init_SoundManager();
-	init_Events();
-	init_CastCone();
 	init_CastCircle();
-	init_CastRing();
 	init_ArrowShowerEffects();
 	init_ArrowFlight();
-	init_CastFunnel();
-	init_CasterMarks();
 	init_WarlockSphere();
-	Effects2300_default = {
-		2367: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", [0, 0]), Params);
-			}
+	Named_default = {
+		soulink_target_effect: [{
+			wav: "effect/t_¿µÈ¥",
+			attachedEntity: true
 		}],
-		2368: [{
-			type: "FUNC",
-			attachedEntity: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 11 }), Params);
-			}
-		}],
-		2369: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_white.tga", [0, 0], true), Params);
-			}
-		}],
-		2373: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			func: function(Params) {
-				this.add(new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration / 16, "ring_black.tga"), Params);
-			}
+		ef_coldbolt: [{
+			type: "3D",
+			alphaMax: 1,
+			angle: 112.5,
+			duration: 500,
+			file: "effect/icearrow.tga",
+			posxEnd: 0,
+			posxStartRandMiddle: 5,
+			posxStartRand: 1,
+			posyEnd: 0,
+			posyStartRandMiddle: 2,
+			posyStartRand: 1,
+			poszEnd: 0,
+			poszStart: 20,
+			size: 50,
+			zIndex: 1,
+			wav: "effect/ef_icearrow%d",
+			rand: [1, 3],
+			attachedEntity: true
 		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			func: function(Params) {
-				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373), Params);
-			}
+			type: "CYLINDER",
+			alphaMax: .7,
+			animation: 4,
+			attachedEntity: false,
+			bottomSize: 3,
+			duration: 1e3,
+			delayLate: 500,
+			fade: true,
+			height: .1,
+			rotate: true,
+			textureName: "ring_blue",
+			topSize: 5
 		}],
-		maximize_power_sounds: [{
-			type: "FUNC",
-			attachedEntity: true,
-			func: function MaximizePowerSounds(Params) {
-				Events.setTimeout(function() {
-					SoundManager.play("effect/black_maximize_power_circle.wav");
-				}, 1);
-				Events.setTimeout(function() {
-					SoundManager.play("effect/black_maximize_power_sword.wav");
-				}, 550);
-				Events.setTimeout(function() {
-					SoundManager.play("effect/black_maximize_power_sword.wav");
-				}, 700);
-				Events.setTimeout(function() {
-					SoundManager.play("effect/black_maximize_power_sword_bic.wav");
-				}, 950);
-			}
+		ef_firebolt: [{
+			type: "3D",
+			alphaMax: 1,
+			blendMode: 2,
+			angle: 112.5,
+			duration: 500,
+			fileList: [
+				"effect/ºÒÈ­»ì1.tga",
+				"effect/ºÒÈ­»ì2.tga",
+				"effect/ºÒÈ­»ì3.tga",
+				"effect/ºÒÈ­»ì4.tga",
+				"effect/ºÒÈ­»ì5.tga",
+				"effect/ºÒÈ­»ì6.tga"
+			],
+			frameDelay: 30,
+			posxEnd: 0,
+			posxStartRandMiddle: 5,
+			posxStartRand: 1,
+			posyEnd: 0,
+			posyStartRandMiddle: 2,
+			posyStartRand: 1,
+			poszEnd: 0,
+			poszStart: 20,
+			sizeX: 100,
+			sizeY: 50,
+			zIndex: 1,
+			wav: "effect/ef_firearrow%d",
+			rand: [1, 3],
+			attachedEntity: true
 		}],
 		white_pulse: [{ attachedEntity: true }],
 		yellow_pulse: [{ attachedEntity: true }],
 		black_pulse: [{ attachedEntity: true }],
-		spear_hit_sound: [{
-			wav: "_hit_spear",
-			attachedEntity: true
-		}],
 		enemy_hit_normal1: [{
 			wav: "_enemy_hit_normal1",
 			attachedEntity: true
@@ -286150,490 +278295,8 @@ var init_Effects2300 = __esmMin((() => {
 			wav: "effect/ef_hit2",
 			attachedEntity: true
 		}],
-		ef_greed_sound: [{
-			wav: "effect/ef_entry",
-			attachedEntity: true
-		}],
-		ef_rush_windmill: [
-			{
-				wav: "effect/Ç³Â÷¸¦ÇâÇØµ¹°Ý",
-				attachedEntity: true
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				delayLate: 500,
-				duplicate: 7,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				red: .5,
-				green: .01,
-				blue: .9,
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: .75,
-				attachedEntity: true,
-				duration: 1e3,
-				delayOffset: 400,
-				duplicate: 3,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				duplicate: 10,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function EffectBodyColor(Params) {
-					const entity = Params.Init;
-					entity.animations.add(function(tick) {
-						if (tick < 500) {
-							if (tick % 2 == 0) {
-								entity._flashColor[0] = 1;
-								entity._flashColor[1] = 1;
-								entity._flashColor[2] = 1;
-								entity._flashColor[3] = .4;
-								entity.recalculateBlendingColor();
-							} else {
-								entity._flashColor[0] = 1;
-								entity._flashColor[1] = 1;
-								entity._flashColor[2] = 1;
-								entity._flashColor[3] = 1;
-								entity.recalculateBlendingColor();
-							}
-						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return true;
-						}
-					});
-				}
-			}
-		],
-		ef_swing_dance: [
-			{
-				wav: "effect/½ºÀ®´í½º",
-				attachedEntity: true
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				delayLate: 500,
-				duplicate: 7,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				red: 1,
-				green: .1,
-				blue: .5,
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: .75,
-				attachedEntity: true,
-				duration: 1e3,
-				delayOffset: 400,
-				duplicate: 3,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				alphaMax: 1,
-				attachedEntity: true,
-				duration: 1e3,
-				duplicate: 10,
-				fadeOut: true,
-				file: "effect/ac_center2.tga",
-				posxRand: 1.5,
-				posyRand: 1,
-				poszEndRand: 1,
-				poszEndRandMiddle: 6,
-				poszStartRand: 1,
-				poszStartRandMiddle: 1,
-				sizeRandY: 15,
-				sizeRandYMiddle: 45,
-				sizeX: 2.5,
-				type: "3D",
-				zIndex: 0
-			},
-			{
-				type: "FUNC",
-				attachedEntity: true,
-				func: function EffectBodyColor(Params) {
-					const entity = Params.Init.ownerEntity;
-					entity.animations.add(function(tick) {
-						if (tick < 500) {
-							if (tick % 2 == 0) {
-								entity._flashColor[0] = 1;
-								entity._flashColor[1] = .1;
-								entity._flashColor[2] = .5;
-								entity._flashColor[3] = .4;
-								entity.recalculateBlendingColor();
-							} else {
-								entity._flashColor[0] = 1;
-								entity._flashColor[1] = 1;
-								entity._flashColor[2] = 1;
-								entity._flashColor[3] = 1;
-								entity.recalculateBlendingColor();
-							}
-						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-							return true;
-						}
-					});
-				}
-			}
-		],
-		ef_magicpower: [{
-			wav: "effect/¸¶¹ý·Â ÁõÆø",
-			attachedEntity: true
-		}],
-		ef_metalicsound: [{
-			wav: "effect/metalic",
-			attachedEntity: true
-		}],
-		ef_ancilla: [{
-			wav: "effect/ab_ancilla",
-			attachedEntity: true
-		}],
-		ef_thorntrap: [{
-			wav: "effect/°¡½Ã³ª¹«µ£",
-			attachedEntity: true
-		}],
-		ef_banishingpoint: [{
-			wav: "effect/lg_banishingpoint",
-			attachedEntity: true
-		}],
-		ef_cannonspear: [{
-			wav: "effect/lg_cannonspear",
-			attachedEntity: true
-		}],
-		ef_earthdrive: [{
-			wav: "effect/lg_earthdrive",
-			attachedEntity: true
-		}],
-		ef_exceedbreak: [{
-			wav: "effect/lg_exceedbreak",
-			attachedEntity: true
-		}],
-		ef_hesperuslit: [{
-			wav: "effect/lg_hesperuslit",
-			attachedEntity: true
-		}],
-		ef_kings_grace: [{
-			wav: "effect/lg_kings_grace",
-			attachedEntity: true
-		}],
-		ef_moonslasher: [{
-			wav: "effect/lg_moonslasher",
-			attachedEntity: true
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				const duration = 500;
-				const count = 8;
-				const delay = duration / count;
-				for (let i = 0; i < count; i++) {
-					const delta = 1;
-					Events.setTimeout(function() {
-						entity.direction = Math.floor(entity.direction + delta) % 8;
-					}, delay * i);
-				}
-			}
-		}],
-		ef_overbrand: [{
-			wav: "effect/lg_overbrand",
-			attachedEntity: true
-		}],
-		ef_piety: [{
-			wav: "effect/lg_piety",
-			attachedEntity: true
-		}],
-		ef_pinpointattack: [{
-			wav: "effect/lg_pinpointattack",
-			attachedEntity: true
-		}],
-		ef_rageburst: [{
-			wav: "effect/lg_rageburst",
-			attachedEntity: true
-		}],
-		ef_rayofgenesis: [{
-			wav: "effect/lg_rayofgenesis",
-			attachedEntity: true
-		}],
-		ef_reflectdamage: [{
-			wav: "effect/lg_reflectdamage",
-			attachedEntity: true
-		}],
-		ef_shieldspell: [{
-			wav: "effect/lg_shieldspell",
-			attachedEntity: true
-		}],
-		ef_trample: [{
-			wav: "effect/lg_trample",
-			attachedEntity: true
-		}],
-		ef_crescentelbow: [{
-			wav: "effect/sr_crescentelbow",
-			attachedEntity: true
-		}],
-		ef_cursedcircle: [{
-			wav: "effect/sr_cursedcircle",
-			attachedEntity: true
-		}],
-		ef_dragoncombo: [{
-			wav: "effect/sr_dragoncombo",
-			attachedEntity: true
-		}],
-		ef_fallenempire: [{
-			wav: "effect/sr_fallenempire",
-			attachedEntity: true
-		}],
-		ef_gateofhell: [{
-			wav: "effect/sr_gateofhell",
-			attachedEntity: true
-		}],
-		ef_howlingoflion: [{
-			wav: "effect/sr_howlingoflion",
-			attachedEntity: true
-		}],
-		ef_knucklearrow: [{
-			wav: "effect/sr_knucklearrow",
-			attachedEntity: true
-		}],
-		ef_lightningwalk: [{
-			wav: "effect/sr_lightningwalk",
-			attachedEntity: true
-		}],
-		ef_powervelocity: [{
-			wav: "effect/sr_powervelocity",
-			attachedEntity: true
-		}],
-		ef_raisingdragon: [{
-			wav: "effect/sr_raisingdragon",
-			attachedEntity: true
-		}],
-		ef_rampageblaster: [{
-			wav: "effect/sr_rampageblaster",
-			attachedEntity: true
-		}],
-		ef_rideinlightning: [{
-			wav: "effect/sr_rideinlightning",
-			attachedEntity: true
-		}],
-		ef_skynetblow: [{
-			wav: "effect/sr_skynetblow",
-			attachedEntity: true
-		}],
-		ef_tigercannon: [{
-			wav: "effect/sr_tigercannon",
-			attachedEntity: true
-		}],
-		ef_windmill: [{
-			wav: "effect/sr_windmill",
-			attachedEntity: true
-		}, {
-			type: "FUNC",
-			attachedEntity: true,
-			func: function(Params) {
-				const entity = Params.Init.ownerEntity;
-				const duration = 500;
-				const count = 8;
-				const delay = duration / count;
-				for (let i = 0; i < count; i++) {
-					const delta = 1;
-					Events.setTimeout(function() {
-						entity.direction = Math.floor(entity.direction + delta) % 8;
-					}, delay * i);
-				}
-			}
-		}],
-		ef_jackfrost: [{
-			wav: "effect/wl_jackfrost",
-			attachedEntity: true
-		}, {
-			type: "TRAIL",
-			attachedEntity: false,
-			duration: 1e3,
-			speed: 24,
-			interval: 34,
-			startOffset: 1,
-			angles: [
-				0,
-				45,
-				90,
-				135,
-				180,
-				225,
-				270,
-				315
-			],
-			spread: [.1, .4],
-			spawn: [{
-				type: "QuadHorn",
-				textureFile: "effect/ice.tga",
-				attachedEntity: false,
-				duration: 670,
-				height: [.2, 1.8],
-				offsetX: 0,
-				offsetY: 0,
-				offsetZ: 0,
-				bottomSize: [.06, .22],
-				blendMode: 8,
-				rotateX: [-15, 15],
-				rotateY: [0, 360],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 4,
-				animationSpeed: 330,
-				riseDistance: 2,
-				fadeOut: 170
-			}]
-		}],
-		ef_siennaexecrate: [{
-			wav: "effect/wl_siennaexecrate",
-			attachedEntity: true
-		}],
-		ef_frigg_song: [{
-			wav: "effect/wm_frigg_song",
-			attachedEntity: true
-		}],
-		ef_duplelight: [{
-			wav: "effect/ab_duplelight",
-			attachedEntity: true
-		}],
-		ef_wugbite: [{
-			wav: "wug_bite",
-			attachedEntity: true
-		}],
-		ef_wugstrike: [{
-			wav: "wug_strike",
-			attachedEntity: true
-		}],
-		ef_wugrider: [{
-			wav: "wolf_stand",
-			attachedEntity: true
-		}],
-		ef_dragonbreath_water: [{
-			type: "SPR",
-			file: "rk_dragonbreath_water",
-			wav: "dragon_breath",
-			attachedEntity: true
-		}],
-		ef_hallucinationwalk: [{
-			wav: "effect/hallucinationwalk",
-			attachedEntity: true
-		}],
-		ef_s_storm: [{
-			type: "STR",
-			file: "S_STORM",
-			wav: "effect/RL_S_STORM",
-			attachedEntity: true
-		}],
 		ef_firebreath: [{
 			wav: "effect/ef_firewall",
-			attachedEntity: true
-		}],
-		ef_moonlit_serenade: [{
-			wav: "effect/´Þºû¼¼·¹³ªµ¥",
-			attachedEntity: true
-		}],
-		ef_sound_of_destruction: [{
-			wav: "effect/»ç¿îµå¿Àºêµð½ºÆ®·°¼Ç",
-			attachedEntity: true
-		}],
-		ef_great_echo: [{
-			wav: "effect/±×·¹ÀÌÆ®¿¡ÄÚ",
-			attachedEntity: true
-		}],
-		ef_valley_of_death: [{
-			wav: "effect/»ç¸ÁÀÇ°ñÂ¥±â¿¡¼­",
-			attachedEntity: true
-		}],
-		ef_harmonize: [{
-			wav: "effect/ÇÏ¸ð³ªÀÌÁî",
-			attachedEntity: true
-		}],
-		ef_echo_song: [{
-			wav: "effect/¸Þ¾Æ¸®ÀÇ³ë·¡",
-			attachedEntity: true
-		}],
-		ef_symphony_of_lovers: [{
-			wav: "effect/¿¬ÀÎµéÀ»À§ÇÑ½ÉÆ÷´Ï",
 			attachedEntity: true
 		}],
 		ef_arrow_projectile: [{
@@ -286653,23 +278316,6 @@ var init_Effects2300 = __esmMin((() => {
 			zIndex: 1
 		}],
 		...arrowShowerEffects(),
-		ef_spear_projectile: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: true,
-			duration: 140,
-			fadeIn: true,
-			fadeOut: true,
-			spriteName: "Ã¢",
-			playSprite: true,
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1
-		}],
 		ef_shield_projectile: [{
 			type: "3D",
 			alphaMax: 1,
@@ -286912,19 +278558,6 @@ var init_Effects2300 = __esmMin((() => {
 			file: "../npc/entweihen_bullet",
 			attachedEntity: false
 		}],
-		ef_c_marker1: [
-			{
-				type: "STR",
-				file: "RL_C_MAKER/deffender",
-				attachedEntity: true
-			},
-			{
-				type: "STR",
-				file: "RL_C_MAKER/cm",
-				attachedEntity: true
-			},
-			{ wav: "effect/RL_C_MARKER" }
-		],
 		ef_c_marker2: [{
 			type: "2D",
 			file: "effect/RL_C_MAKER/ome.bmp",
@@ -286978,66 +278611,3713 @@ var init_Effects2300 = __esmMin((() => {
 				Camera.setQuake(start, 50);
 			}
 		}],
+		ef_oldtrap_default: [{
+			type: "SPR",
+			file: "±âº»Æ®·¦",
+			attachedEntity: true
+		}],
+		ef_oldtrap_yellow: [{
+			type: "SPR",
+			file: "´ãÈ²»öÆ®·¦",
+			attachedEntity: true
+		}],
+		ef_oldtrap_blue: [{
+			type: "SPR",
+			file: "¾ÏÃ»»öÆ®·¦",
+			attachedEntity: true
+		}],
+		ef_oldtrap_red: [{
+			type: "SPR",
+			file: "ÀÚÈ«»öÆ®·¦",
+			attachedEntity: true
+		}],
+		ef_oldtrap_green: [{
+			type: "SPR",
+			file: "Ã»·Ï»öÆ®·¦",
+			attachedEntity: true
+		}],
+		ef_trap_01: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦01",
+			attachedEntity: true
+		}],
+		ef_trap_02: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦02",
+			attachedEntity: true
+		}],
+		ef_trap_03: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03",
+			attachedEntity: true
+		}],
+		ef_trap_03_2: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_2",
+			attachedEntity: true
+		}],
+		ef_trap_03_3: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_3",
+			attachedEntity: true
+		}],
+		ef_trap_03_4: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_4",
+			attachedEntity: true
+		}],
+		ef_trap_03_5: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_5",
+			attachedEntity: true
+		}],
+		ef_trap_03_6: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_6",
+			attachedEntity: true
+		}],
+		ef_trap_04: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦04",
+			attachedEntity: true
+		}],
+		ef_trap_05: [{
+			type: "RSM",
+			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦05",
+			attachedEntity: true
+		}],
+		ef_trap_3_thorn: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_°¡½Ã01",
+			attachedEntity: true
+		}],
+		ef_trap_3_cobalt: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_º¯¼ö01",
+			attachedEntity: true
+		}],
+		ef_trap_3_maze: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_º¯Áö01",
+			attachedEntity: true
+		}],
+		ef_trap_3_verdure: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_º¯Ç³01",
+			attachedEntity: true
+		}],
+		ef_trap_3_magenta: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_º¯È­01",
+			attachedEntity: true
+		}],
+		ef_trap_3_ice: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_¼ö01",
+			attachedEntity: true
+		}],
+		ef_trap_3_cluster: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_Áö01",
+			attachedEntity: true
+		}],
+		ef_trap_3_shock: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_Ç³01",
+			attachedEntity: true
+		}],
+		ef_trap_3_fire: [{
+			type: "RSM",
+			file: "event/3Â÷Æ®·¦_È­01",
+			attachedEntity: true
+		}],
 		ef_: [{
 			wav: "effect/",
+			attachedEntity: true
+		}],
+		ef_cast_circle_red: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", 1), Params);
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Acolyte.js
+var Acolyte_default;
+var init_Acolyte = __esmMin((() => {
+	Acolyte_default = {
+		37: [
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				delayLate: 500,
+				duplicate: 7,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: .75,
+				attachedEntity: true,
+				duration: 1e3,
+				delayOffset: 400,
+				duplicate: 3,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				duplicate: 10,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/agi_up.bmp",
+				poszEnd: 3,
+				poszStart: .4,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 100,
+				sizeY: 45,
+				type: "3D",
+				wav: "effect/ef_incagility",
+				overlay: true,
+				zIndex: 10
+			}
+		],
+		38: [{
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1e3,
+			duplicate: 20,
+			fadeOut: true,
+			file: "effect/ac_center2.tga",
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 1,
+			poszStartRand: 1,
+			poszStartRandMiddle: 6,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: "3D",
+			zIndex: 0
+		}, {
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1e3,
+			fadeIn: true,
+			fadeOut: true,
+			file: "effect/slow.bmp",
+			poszEnd: .4,
+			poszStart: 2.8,
+			sizeEnd: 100,
+			sizeSmooth: true,
+			sizeStart: 100,
+			sizeY: 45,
+			type: "3D",
+			wav: "effect/ef_decagility",
+			zIndex: 10
+		}],
+		39: [{
+			type: "SPR",
+			file: "¼º¼ö¶ß±â",
+			wav: "effect/ef_aqua",
+			head: true,
+			attachedEntity: true
+		}],
+		40: [{
+			type: "STR",
+			file: "cross",
+			wav: "effect/ef_signum",
+			attachedEntity: true
+		}],
+		41: [{
+			type: "STR",
+			file: "angelus",
+			wav: "effect/ef_angelus",
+			min: "jong_mini",
+			head: true,
+			attachedEntity: true
+		}],
+		42: [
+			{
+				type: "SPR",
+				attachedEntity: true,
+				delayFrame: 30,
+				file: "Ãàº¹",
+				frame: 0,
+				repeat: true,
+				duration: 1500,
+				stackable: true,
+				head: true,
+				yOffset: -120
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1200,
+				delayOffset: 300,
+				duplicate: 6,
+				fadeIn: true,
+				fadeOut: true,
+				posxRand: 1.2,
+				posyRand: 1,
+				poszEndRand: .5,
+				poszEndRandMiddle: 1,
+				poszStartRand: 2,
+				poszStartRandMiddle: 5.5,
+				size: 50,
+				sparkling: true,
+				sparkNumber: 2,
+				spriteName: "particle6",
+				timeBetweenDupli: 0,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1200,
+				delayOffset: 400,
+				duplicate: 6,
+				fadeIn: true,
+				fadeOut: true,
+				posxRand: 1.4,
+				posyRand: 1.1,
+				poszEndRand: .5,
+				poszEndRandMiddle: 1,
+				poszStartRand: 2,
+				poszStartRandMiddle: 5.5,
+				size: 50,
+				spriteName: "particle6",
+				timeBetweenDupli: 0,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .3,
+				attachedEntity: false,
+				blendMode: 2,
+				blue: 1,
+				duration: 2500,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok2.tga",
+				green: .75,
+				posx: 0,
+				posy: 0,
+				posz: 0,
+				red: .1,
+				size: 140,
+				type: "3D",
+				wav: "effect/ef_blessing",
+				zIndex: 10
+			}
+		],
+		66: [{
+			type: "STR",
+			file: "cure",
+			wav: "effect/acolyte_cure",
+			min: "cure_min",
+			attachedEntity: true
+		}],
+		141: [{
+			type: "STR",
+			file: "pneuma%d",
+			rand: [1, 3],
+			attachedEntity: false
+		}],
+		312: [
+			{
+				alphaMax: .2,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: .95,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 8,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: .95,
+				type: "CYLINDER",
+				wav: "_heal_effect"
+			},
+			{
+				alphaMax: .2,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 8,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 1,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1300,
+				delayOffset: 400,
+				duplicate: 15,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1.5,
+				posyRand: 1.5,
+				poszEndRand: 2,
+				poszEndRandMiddle: 6,
+				poszStart: 0,
+				red: 1,
+				size: 9,
+				sizeRand: 2,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1100,
+				delayLate: 200,
+				duplicate: 7,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1,
+				posyRand: 1,
+				poszEnd: 5,
+				poszStartRand: 1,
+				poszStartRandMiddle: 0,
+				red: 1,
+				size: 9,
+				sizeRand: 2,
+				timeBetweenDupli: 50,
+				type: "3D",
+				zIndex: 1
+			}
+		]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/ArchBishop.js
+var ArchBishop_default;
+var init_ArchBishop = __esmMin((() => {
+	ArchBishop_default = {
+		313: [
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1.1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 15,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 1.1,
+				type: "CYLINDER",
+				wav: "_heal_effect"
+			},
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 13,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 1,
+				type: "CYLINDER",
+				wav: "_heal_effect"
+			},
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1.1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 2,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 3,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1500,
+				duplicate: 4,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1.2,
+				posyRand: 1.2,
+				poszEndRand: 1,
+				poszEndRandMiddle: 8,
+				poszStart: 0,
+				red: 1,
+				size: 9,
+				sizeRand: 2,
+				sparkling: true,
+				sparkNumber: 2,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1300,
+				delayOffset: 400,
+				duplicate: 20,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1.5,
+				posyRand: 1.5,
+				poszEndRand: 3,
+				poszEndRandMiddle: 6,
+				poszStart: 0,
+				red: 1,
+				size: 9,
+				sizeRand: 2,
+				sparkling: true,
+				sparkNumber: 2,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1100,
+				delayLate: 200,
+				duplicate: 10,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1,
+				posyRand: 1,
+				poszEnd: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 0,
+				red: 1,
+				size: 9,
+				sizeRand: 2,
+				timeBetweenDupli: 50,
+				type: "3D",
+				zIndex: 1
+			}
+		],
+		325: [
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1.1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 18,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 1.1,
+				type: "CYLINDER",
+				wav: "_heal_effect"
+			},
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 15,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 1,
+				type: "CYLINDER",
+				wav: "_heal_effect"
+			},
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: .7,
+				bottomSize: 1.1,
+				duration: 1500,
+				fade: true,
+				green: 1,
+				height: 3,
+				red: .7,
+				rotate: true,
+				textureName: "ring_white",
+				topSize: 3,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1500,
+				duplicate: 7,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1.2,
+				posyRand: 1.2,
+				poszEndRand: 1,
+				poszEndRandMiddle: 8,
+				poszStart: 0,
+				red: 1,
+				size: 9,
+				sizeRand: 2,
+				sparkling: true,
+				sparkNumber: 3,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1300,
+				delayOffset: 400,
+				duplicate: 25,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1.5,
+				posyRand: 1.5,
+				poszEndRand: 3,
+				poszEndRandMiddle: 6,
+				poszStart: 0,
+				red: 1,
+				size: 10,
+				sizeRand: 5,
+				sparkling: true,
+				sparkNumber: 3,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				blue: 1,
+				duration: 1100,
+				delayLate: 200,
+				duplicate: 15,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				green: 1,
+				posxRand: 1,
+				posyRand: 1,
+				poszEnd: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 0,
+				red: 1,
+				size: 11,
+				sizeRand: 2,
+				timeBetweenDupli: 50,
+				type: "3D",
+				zIndex: 1
+			}
+		],
+		718: [
+			{ wav: "effect/ab_judex" },
+			{
+				type: "CYLINDER",
+				attachedEntity: false,
+				topSize: .5,
+				bottomSize: .4,
+				textureName: "ring_white",
+				height: 3.5,
+				duration: 1e3,
+				rotate: true
+			},
+			{
+				type: "CYLINDER",
+				attachedEntity: false,
+				topSize: .75,
+				bottomSize: .45,
+				textureName: "ring_white",
+				height: 2.5,
+				duration: 1e3,
+				rotate: true
+			},
+			{
+				type: "CYLINDER",
+				attachedEntity: false,
+				topSize: 1,
+				bottomSize: .5,
+				textureName: "ring_white",
+				height: 1.5,
+				duration: 1e3,
+				rotate: true
+			}
+		],
+		721: [{
+			type: "STR",
+			file: "ado",
+			wav: "effect/ab_adoramus",
+			attachedEntity: true
+		}],
+		754: [
+			{
+				alphaMax: .4,
+				animation: 4,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .6,
+				green: 1,
+				blue: .6,
+				bottomSize: 2.4,
+				duration: 500,
+				duplicate: 150,
+				fadeOut: true,
+				height: .1,
+				posZ: .1,
+				rotate: true,
+				textureName: "magic_green",
+				timeBetweenDupli: 200,
+				topSize: 3.9,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .4,
+				animation: 0,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .6,
+				green: 1,
+				blue: .6,
+				bottomSize: .6,
+				duration: 3e4,
+				fade: true,
+				height: 7,
+				rotate: true,
+				textureName: "magic_green",
+				topSize: .6,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .4,
+				animation: 0,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .6,
+				green: 1,
+				blue: .6,
+				bottomSize: .8,
+				duration: 3e4,
+				fade: true,
+				height: 6,
+				rotate: true,
+				textureName: "magic_green",
+				topSize: .8,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .5,
+				animation: 0,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .6,
+				green: 1,
+				blue: .6,
+				bottomSize: 1,
+				duration: 3e4,
+				fade: true,
+				height: 1,
+				posZ: 2,
+				rotate: true,
+				totalCircleSides: 20,
+				circleSides: 10,
+				repeatTextureX: 2,
+				textureName: "alpha1",
+				topSize: 1,
+				type: "CYLINDER"
+			}
+		],
+		883: [
+			{
+				type: "3D",
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				duration: 3e4,
+				red: 1e-4,
+				green: 1,
+				blue: 1e-4,
+				size: 400,
+				posz: 7,
+				zIndex: 1,
+				wav: "effect/ef_readyportal",
+				file: "effect/ef_epitree.tga"
+			},
+			{
+				type: "3D",
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				duration: 990,
+				duplicate: 15,
+				timeBetweenDupli: 2e3,
+				red: 1e-4,
+				green: 1,
+				blue: 1e-4,
+				sizeStart: 380,
+				sizeEnd: 420,
+				posz: 7,
+				zIndex: 1,
+				file: "effect/ef_epitree.tga"
+			},
+			{
+				type: "3D",
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				duration: 990,
+				duplicate: 15,
+				timeBetweenDupli: 2e3,
+				delayOffset: 1e3,
+				red: 1e-4,
+				green: 1,
+				blue: 1e-4,
+				sizeStart: 420,
+				sizeEnd: 380,
+				posz: 7,
+				zIndex: 1,
+				file: "effect/ef_epitree.tga"
+			}
+		],
+		1047: [{
+			type: "STR",
+			file: "ab_offertorium",
+			wav: "effect/ab_offertorium",
+			attachedEntity: true
+		}],
+		ef_ancilla: [{
+			wav: "effect/ab_ancilla",
+			attachedEntity: true
+		}],
+		ef_duplelight: [{
+			wav: "effect/ab_duplelight",
+			attachedEntity: true
+		}],
+		ef_ab_secrament: [{
+			type: "STR",
+			file: "new_secrament/new_secrament/new_secrament",
+			texturePath: "new_secrament/new_secrament/"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Cardinal.js
+var Cardinal_default;
+var init_Cardinal = __esmMin((() => {
+	Cardinal_default = {
+		ef_cd_reparatio: [{
+			type: "STR",
+			file: "new_reparatio/new_reparatio/new_reparatio",
+			texturePath: "new_reparatio/new_reparatio/",
+			min: "new_reparatio/new_reparatio/min_new_reparatio"
+		}, {
+			type: "STR",
+			file: "new_reparatio/new_reparatio_bottom/new_reparatio_bottom",
+			texturePath: "new_reparatio/new_reparatio_bottom/",
+			min: "new_reparatio/new_reparatio_bottom/min_new_reparatio_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_reparatio_cast: [{
+			type: "STR",
+			file: "new_reparatio/new_reparatio_cast/new_reparatio_cast",
+			texturePath: "new_reparatio/new_reparatio_cast/",
+			min: "new_reparatio/new_reparatio_cast/min_new_reparatio_cast"
+		}, {
+			type: "STR",
+			file: "new_reparatio/new_reparatio_cast_bottom/new_reparatio_cast_bottom",
+			texturePath: "new_reparatio/new_reparatio_cast_bottom/",
+			min: "new_reparatio/new_reparatio_cast_bottom/min_new_reparatio_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_mediale_votum: [{
+			type: "STR",
+			file: "medialevotum/medialevotum/medialevotum",
+			texturePath: "medialevotum/medialevotum/",
+			min: "medialevotum/medialevotum/min_medialevotum",
+			wav: "effect/cd_mediale_votum"
+		}],
+		ef_cd_mediale_votum_cast: [{
+			type: "STR",
+			file: "medialevotum/medialevotum_cast/medialevotum_cast",
+			texturePath: "medialevotum/medialevotum_cast/",
+			min: "medialevotum/medialevotum_cast/min_medialevotum_cast"
+		}],
+		ef_cd_argutus_vita: [{
+			type: "STR",
+			file: "argutusvita/argutusvita/argutusvita",
+			texturePath: "argutusvita/argutusvita/",
+			min: "argutusvita/argutusvita/min_argutusvita",
+			wav: "effect/cd_argutus_vita"
+		}],
+		ef_cd_argutus_vita_cast: [{
+			type: "STR",
+			file: "argutusvita/argutusvita_cast/argutusvita_cast",
+			texturePath: "argutusvita/argutusvita_cast/",
+			min: "argutusvita/argutusvita_cast/min_argutusvita_cast"
+		}],
+		ef_cd_argutus_telum: [{
+			type: "STR",
+			file: "argutustelum/argutustelum/argutustelum",
+			texturePath: "argutustelum/argutustelum/",
+			min: "argutustelum/argutustelum/min_argutustelum"
+		}],
+		ef_cd_argutus_telum_cast: [{
+			type: "STR",
+			file: "argutustelum/argutustelum_cast/argutustelum_cast",
+			texturePath: "argutustelum/argutustelum_cast/",
+			min: "argutustelum/argutustelum_cast/min_argutustelum_cast"
+		}],
+		ef_cd_arbitrium: [{
+			type: "STR",
+			file: "arbitrium/arbitrium/arbitrium",
+			texturePath: "arbitrium/arbitrium/",
+			min: "arbitrium/arbitrium/min_arbitrium",
+			wav: "effect/cd_arbitrium"
+		}, {
+			type: "STR",
+			file: "arbitrium/arbitrium_bottom/arbitrium_bottom",
+			texturePath: "arbitrium/arbitrium_bottom/",
+			min: "arbitrium/arbitrium_bottom/min_arbitrium_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_arbitrium_cast: [{
+			type: "STR",
+			file: "arbitrium/arbitrium_cast/arbitrium_cast",
+			texturePath: "arbitrium/arbitrium_cast/",
+			min: "arbitrium/arbitrium_cast/min_arbitrium_cast"
+		}, {
+			type: "STR",
+			file: "arbitrium/arbitrium_cast_bottom/arbitrium_cast_bottom",
+			texturePath: "arbitrium/arbitrium_cast_bottom/",
+			min: "arbitrium/arbitrium_cast_bottom/min_arbitrium_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_arbitrium_hit: [{
+			type: "STR",
+			file: "arbitrium/arbitrium_hit/arbitrium_hit",
+			texturePath: "arbitrium/arbitrium_hit/",
+			min: "arbitrium/arbitrium_hit/min_arbitrium_hit"
+		}],
+		ef_cd_arbitrium_atk: [{
+			type: "STR",
+			file: "arbitrium/arbitrium_hit/arbitrium_hit",
+			texturePath: "arbitrium/arbitrium_hit/",
+			min: "arbitrium/arbitrium_hit/min_arbitrium_hit"
+		}],
+		ef_cd_presens_acies: [{
+			type: "STR",
+			file: "presensacies/presensacies/presensacies",
+			texturePath: "presensacies/presensacies/",
+			min: "presensacies/presensacies/min_presensacies",
+			wav: "effect/cd_presens_acies"
+		}],
+		ef_cd_presens_acies_cast: [{
+			type: "STR",
+			file: "presensacies/presensacies_cast/presensacies_cast",
+			texturePath: "presensacies/presensacies_cast/",
+			min: "presensacies/presensacies_cast/min_presensacies_cast"
+		}],
+		ef_cd_effligo: [{
+			type: "STR",
+			file: "effligo/effligo/effligo",
+			texturePath: "effligo/effligo/",
+			min: "effligo/effligo/min_effligo",
+			wav: "effect/cd_effligo"
+		}, {
+			type: "STR",
+			file: "effligo/effligo_bottom/effligo_bottom",
+			texturePath: "effligo/effligo_bottom/",
+			min: "effligo/effligo_bottom/min_effligo_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_effligo_hit: [{
+			type: "STR",
+			file: "effligo/effligo_hit/effligo_hit",
+			texturePath: "effligo/effligo_hit/",
+			min: "effligo/effligo_hit/min_effligo_hit"
+		}],
+		ef_cd_competentia: [{
+			type: "STR",
+			file: "competentia/competentia/competentia",
+			texturePath: "competentia/competentia/",
+			min: "competentia/competentia/min_competentia",
+			wav: "effect/cd_competentia"
+		}, {
+			type: "STR",
+			file: "competentia/competentia_bottom/competentia_bottom",
+			texturePath: "competentia/competentia_bottom/",
+			min: "competentia/competentia_bottom/min_competentia_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_competentia_cast: [{
+			type: "STR",
+			file: "competentia/competentia_cast/competentia_cast",
+			texturePath: "competentia/competentia_cast/"
+		}],
+		ef_cd_pneumaticus_procella: [{
+			type: "STR",
+			file: "new_pneumaticusprocella/new_pneumaticusprocella/new_pneumaticusprocella",
+			texturePath: "new_pneumaticusprocella/new_pneumaticusprocella/",
+			wav: "effect/cd_pneumaticus_procella"
+		}],
+		ef_cd_pneumaticus_procella_cast: [{
+			type: "STR",
+			file: "new_pneumaticusprocella/new_pneumaticusprocella_cast/new_pneumaticusprocella_cast",
+			texturePath: "new_pneumaticusprocella/new_pneumaticusprocella_cast/"
+		}],
+		ef_cd_dilectio_heal: [{
+			type: "STR",
+			file: "new_dilectioheal/new_dilectioheal/new_dilectioheal",
+			texturePath: "new_dilectioheal/new_dilectioheal/",
+			min: "new_dilectioheal/new_dilectioheal/min_new_dilectioheal",
+			wav: "effect/cd_dilectio_heal"
+		}],
+		ef_cd_dilectio_heal_cast: [{
+			type: "STR",
+			file: "new_dilectioheal/new_dilectioheal_cast/new_dilectioheal_cast",
+			texturePath: "new_dilectioheal/new_dilectioheal_cast/",
+			min: "new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast"
+		}, {
+			type: "STR",
+			file: "new_dilectioheal/new_dilectioheal_cast_bottom/new_dilectioheal_cast_bottom",
+			texturePath: "new_dilectioheal/new_dilectioheal_cast_bottom/",
+			min: "new_dilectioheal/new_dilectioheal_cast_bottom/min_new_dilectioheal_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_religio: [{
+			type: "STR",
+			file: "religio/religio/religio",
+			texturePath: "religio/religio/",
+			min: "religio/religio/min_religio",
+			wav: "effect/cd_religio"
+		}],
+		ef_cd_religio_cast: [{
+			type: "STR",
+			file: "religio/religio_cast/religio_cast",
+			texturePath: "religio/religio_cast/",
+			min: "religio/religio_cast/min_religio_cast"
+		}],
+		ef_cd_benedictum: [{
+			type: "STR",
+			file: "benedictum/benedictum/benedictum",
+			texturePath: "benedictum/benedictum/",
+			min: "benedictum/benedictum/min_benedictum",
+			wav: "effect/cd_benedictum"
+		}],
+		ef_cd_benedictum_cast: [{
+			type: "STR",
+			file: "benedictum/benedictum_cast/benedictum_cast",
+			texturePath: "benedictum/benedictum_cast/",
+			min: "benedictum/benedictum_cast/min_benedictum_cast"
+		}, {
+			type: "STR",
+			file: "benedictum/benedictum_cast_bottom/benedictum_cast_bottom",
+			texturePath: "benedictum/benedictum_cast_bottom/",
+			min: "benedictum/benedictum_cast_bottom/min_benedictum_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_petitio: [{
+			type: "STR",
+			file: "petitio/petitio/petitio",
+			texturePath: "petitio/petitio/",
+			min: "petitio/petitio/min_petitio",
+			wav: "effect/cd_petitio"
+		}, {
+			type: "STR",
+			file: "petitio/petitio_bottom/petitio_bottom",
+			texturePath: "petitio/petitio_bottom/",
+			min: "petitio/petitio_bottom/min_petitio_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_framen: [{
+			wav: "effect/cd_framen",
+			attachedEntity: true
+		}],
+		ef_cd_divinus_flos: [{
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos/divinus_flos",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos/",
+			min: "cardinal/cd_divinus_flos/divinus_flos/min_divinus_flos",
+			wav: "effect/cd_divinus_flos"
+		}, {
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_bottom/divinus_flos_bottom",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_bottom/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_bottom/min_divinus_flos_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_divinus_flos_cast: [{
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_cast/divinus_flos_cast",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_cast/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_cast/min_divinus_flos_cast"
+		}, {
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/divinus_flos_cast_bottom",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/min_divinus_flos_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_divinus_flos_hit: [{
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_hit/divinus_flos_hit",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_hit/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_hit/min_divinus_flos_hit"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Champion.js
+var Champion_default;
+var init_Champion = __esmMin((() => {
+	init_Camera();
+	Champion_default = {
+		376: [{ wav: "effect/¸ÍÈ£°æÆÄ»ê" }],
+		377: [
+			{
+				wav: "effect/mon_Æø±â",
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const entity = Params.Init.ownerEntity;
+					entity.animations.add(function(tick) {
+						entity._enableHalo = tick >= 50 && tick <= 350;
+						if (tick >= 50 && tick <= 350) {
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = .39;
+							entity._flashColor[2] = .39;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+						} else {
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = 1;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+						}
+						return tick > 400;
+					});
+				}
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				delayStart: 50,
+				duplicate: 8,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				duplicate: 8,
+				delayStart: 50,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 7.2,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
+		402: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function(tick) {
+					const time = tick;
+					if (time < 200) {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 0;
+						entity._flashColor[3] = .1;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+					if (time < 800) {
+						const progress = (time - 200) / 600;
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 0 + 1 * progress;
+						entity._flashColor[3] = .1 + .9 * progress;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+					entity._flashColor[0] = 1;
+					entity._flashColor[1] = 1;
+					entity._flashColor[2] = 1;
+					entity._flashColor[3] = 1;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		}],
+		512: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick + 132;
+				Camera.setQuake(start);
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/HighPriest.js
+var HighPriest_default;
+var init_HighPriest = __esmMin((() => {
+	HighPriest_default = {
+		374: [
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.45,
+				topSize: 2.45,
+				height: 2,
+				alphaMax: 32 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.52,
+				topSize: 2.52,
+				height: 2.1,
+				alphaMax: 32 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				angleY: 10,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.6,
+				topSize: 2.6,
+				height: 2,
+				alphaMax: 15 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				angleY: 26.6,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.6,
+				topSize: 2.6,
+				height: 2,
+				alphaMax: 15 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				angleY: 79.8,
+				duration: 2e4,
+				attachedEntity: true
+			}
+		],
+		440: [{
+			type: "STR",
+			file: "asum",
+			wav: "effect/¾Æ¼ûÇÁÆ¼¿À",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Inquisitor.js
+var Inquisitor_default;
+var init_Inquisitor = __esmMin((() => {
+	Inquisitor_default = {
+		ef_iq_powerful_faith: [{
+			type: "STR",
+			file: "powerfulfaith/powerfulfaith/powerfulfaith",
+			texturePath: "powerfulfaith/powerfulfaith/",
+			min: "powerfulfaith/powerfulfaith/min_powerfulfaith"
+		}],
+		ef_iq_firm_faith: [{
+			type: "STR",
+			file: "firmfaith/firmfaith/firmfaith",
+			texturePath: "firmfaith/firmfaith/",
+			min: "firmfaith/firmfaith/min_firmfaith"
+		}],
+		ef_iq_oleum_sanctum: [{
+			type: "STR",
+			file: "4ig_oleumsanctum/oleumsanctum/oleumsanctum",
+			texturePath: "4ig_oleumsanctum/oleumsanctum/",
+			min: "4ig_oleumsanctum/oleumsanctum/min_oleumsanctum",
+			wav: "effect/iq_oleum_sanctum"
+		}, {
+			type: "STR",
+			file: "4ig_oleumsanctum/oleumsanctum_bottom/oleumsanctum_bottom",
+			texturePath: "4ig_oleumsanctum/oleumsanctum_bottom/",
+			min: "4ig_oleumsanctum/oleumsanctum_bottom/min_oleumsanctum_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_oleum_sanctum_hit: [{
+			type: "STR",
+			file: "4ig_oleumsanctum/oleumsanctum_hit/oleumsanctum_hit",
+			texturePath: "4ig_oleumsanctum/oleumsanctum_hit/",
+			min: "4ig_oleumsanctum/oleumsanctum_hit/min_oleumsanctum_hit"
+		}],
+		ef_iq_sincere_faith: [{
+			type: "STR",
+			file: "sincerefaith/sincerefaith/sincerefaith",
+			texturePath: "sincerefaith/sincerefaith/",
+			min: "sincerefaith/sincerefaith/min_sincerefaith"
+		}, {
+			type: "STR",
+			file: "sincerefaith/sincerefaith_bottom/sincerefaith_bottom",
+			texturePath: "sincerefaith/sincerefaith_bottom/",
+			min: "sincerefaith/sincerefaith_bottom/min_sincerefaith_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_massive_f_blaster: [{
+			type: "STR",
+			file: "4iq_massivefblaster/massivefblaster/massivefblaster",
+			texturePath: "4iq_massivefblaster/massivefblaster/",
+			min: "4iq_massivefblaster/massivefblaster/min_massivefblaster",
+			wav: "effect/iq_massive_f_blaster"
+		}],
+		ef_iq_massive_f_blaster_hit: [{
+			type: "STR",
+			file: "4iq_massivefblaster/massivefblaster_hit/massivefblaster_hit",
+			texturePath: "4iq_massivefblaster/massivefblaster_hit/",
+			min: "4iq_massivefblaster/massivefblaster_hit/min_massivefblaster_hit"
+		}, {
+			type: "STR",
+			file: "4iq_massivefblaster/massivefblaster_hit_bottom/massivefblaster_hit_bottom",
+			texturePath: "4iq_massivefblaster/massivefblaster_hit_bottom/",
+			min: "4iq_massivefblaster/massivefblaster_hit_bottom/min_massivefblaster_hit_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_exposion_blaster: [{
+			type: "STR",
+			file: "4ig_explosionblaster/explosionblaster/explosionblaster",
+			texturePath: "4ig_explosionblaster/explosionblaster/",
+			min: "4ig_explosionblaster/explosionblaster/min_explosionblaster",
+			wav: "effect/iq_exposion_blaster"
+		}, {
+			type: "STR",
+			file: "4ig_explosionblaster/explosionblaster_bottom/explosionblaster_bottom",
+			texturePath: "4ig_explosionblaster/explosionblaster_bottom/",
+			min: "4ig_explosionblaster/explosionblaster_bottom/min_explosionblaster_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_exposion_blaster_hit: [{
+			type: "STR",
+			file: "4ig_explosionblaster/explosionblaster_hit/explosionblaster_hit",
+			texturePath: "4ig_explosionblaster/explosionblaster_hit/",
+			min: "4ig_explosionblaster/explosionblaster_hit/min_explosionblaster_hit"
+		}],
+		ef_iq_first_brand: [{
+			type: "STR",
+			file: "4ig_firstbrand/firstbrand/firstbrand",
+			texturePath: "4ig_firstbrand/firstbrand/",
+			min: "4ig_firstbrand/firstbrand/min_firstbrand",
+			wav: "effect/iq_first_brand"
+		}],
+		ef_iq_first_brand_hit: [{
+			type: "STR",
+			file: "4ig_firstbrand/firstbrand_hit/firstbrand_hit",
+			texturePath: "4ig_firstbrand/firstbrand_hit/",
+			min: "4ig_firstbrand/firstbrand_hit/min_firstbrand_hit"
+		}],
+		ef_iq_first_faith_power: [{
+			type: "STR",
+			file: "4ig_firstfaithpower/firstfaithpower/firstfaithpower",
+			texturePath: "4ig_firstfaithpower/firstfaithpower/",
+			min: "4ig_firstfaithpower/firstfaithpower/min_firstfaithpower",
+			wav: "effect/iq_first_faith_power"
+		}],
+		ef_iq_first_faith_power_cast: [{
+			type: "STR",
+			file: "4ig_firstfaithpower/firstfaithpower_cast/firstfaithpower_cast",
+			texturePath: "4ig_firstfaithpower/firstfaithpower_cast/",
+			min: "4ig_firstfaithpower/firstfaithpower_cast/min_firstfaithpower_cast"
+		}],
+		ef_iq_judge: [{
+			type: "STR",
+			file: "4ig_judge/judge/judge",
+			texturePath: "4ig_judge/judge/",
+			min: "4ig_judge/judge/min_judge",
+			wav: "effect/iq_judge"
+		}],
+		ef_iq_judge_cast: [{
+			type: "STR",
+			file: "4ig_judge/judge_cast/judge_cast",
+			texturePath: "4ig_judge/judge_cast/",
+			min: "4ig_judge/judge_cast/min_judge_cast"
+		}],
+		ef_iq_second_flame: [{
+			type: "STR",
+			file: "4iq_secondflame/secondflame/secondflame",
+			texturePath: "4iq_secondflame/secondflame/",
+			min: "4iq_secondflame/secondflame/min_secondflame",
+			wav: "effect/iq_second_flame"
+		}, {
+			type: "STR",
+			file: "4iq_secondflame/secondflame_bottom/secondflame_bottom",
+			texturePath: "4iq_secondflame/secondflame_bottom/",
+			min: "4iq_secondflame/secondflame_bottom/min_secondflame_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_second_faith: [{
+			wav: "effect/iq_second_faith",
+			attachedEntity: true
+		}],
+		ef_iq_second_judgement: [{
+			type: "STR",
+			file: "4iq_secondjudgement/secondjudgement/secondjudgement",
+			texturePath: "4iq_secondjudgement/secondjudgement/",
+			min: "4iq_secondjudgement/secondjudgement/min_secondjudgement",
+			wav: "effect/iq_second_judgement"
+		}],
+		ef_iq_third_punish: [{
+			type: "STR",
+			file: "4iq_thirdpunish/thirdpunish/thirdpunish",
+			texturePath: "4iq_thirdpunish/thirdpunish/",
+			min: "4iq_thirdpunish/thirdpunish/min_thirdpunish",
+			wav: "effect/iq_third_punish"
+		}, {
+			type: "STR",
+			file: "4iq_thirdpunish/thirdpunish_bottom/thirdpunish_bottom",
+			texturePath: "4iq_thirdpunish/thirdpunish_bottom/",
+			min: "4iq_thirdpunish/thirdpunish_bottom/min_thirdpunish_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_third_flame_bomb: [{
+			type: "STR",
+			file: "4iq_thirdflamebomb/thirdflamebomb/thirdflamebomb",
+			texturePath: "4iq_thirdflamebomb/thirdflamebomb/",
+			min: "4iq_thirdflamebomb/thirdflamebomb/min_thirdflamebomb",
+			wav: "effect/iq_third_flame_bomb"
+		}, {
+			type: "STR",
+			file: "4iq_thirdflamebomb/thirdflamebomb_bottom/thirdflamebomb_bottom",
+			texturePath: "4iq_thirdflamebomb/thirdflamebomb_bottom/",
+			min: "4iq_thirdflamebomb/thirdflamebomb_bottom/min_thirdflamebomb_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_third_consecration: [{
+			type: "STR",
+			file: "4iq_thirdconsecration/thirdconsecration/thirdconsecration",
+			texturePath: "4iq_thirdconsecration/thirdconsecration/",
+			min: "4iq_thirdconsecration/thirdconsecration/min_thirdconsecration",
+			wav: "effect/iq_third_consecration"
+		}, {
+			type: "STR",
+			file: "4iq_thirdconsecration/thirdconsecration_bottom/thirdconsecration_bottom",
+			texturePath: "4iq_thirdconsecration/thirdconsecration_bottom/",
+			min: "4iq_thirdconsecration/thirdconsecration_bottom/min_thirdconsecration_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_third_exor_flame: [{
+			type: "STR",
+			file: "4ig_thirdexorflame/thirdexorflame/thirdexorflame",
+			texturePath: "4ig_thirdexorflame/thirdexorflame/",
+			min: "4ig_thirdexorflame/thirdexorflame/min_thirdexorflame",
+			wav: "effect/iq_third_exor_flame"
+		}],
+		ef_iq_third_exor_flame_cast: [{
+			type: "STR",
+			file: "4ig_thirdexorflame/thirdexorflame_cast/thirdexorflame_cast",
+			texturePath: "4ig_thirdexorflame/thirdexorflame_cast/",
+			min: "4ig_thirdexorflame/thirdexorflame_cast/min_thirdexorflame_cast"
+		}],
+		ef_iq_blazing_flame_blast: [{
+			type: "STR",
+			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast/blazing_flame_blast",
+			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast/",
+			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast/min_blazing_flame_blast",
+			wav: "effect/iq_blazing_flame_blast"
+		}],
+		ef_iq_blazing_flame_blast_cast: [{
+			type: "STR",
+			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/blazing_flame_blast_cast",
+			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/",
+			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/min_blazing_flame_blast_cast"
+		}, {
+			type: "STR",
+			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast_bottom/blazing_flame_blast_cast_bottom",
+			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast_bottom/",
+			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast_bottom/min_blazing_flame_blast_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_iq_blazing_flame_blast_hit: [{
+			type: "STR",
+			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/blazing_flame_blast_hit",
+			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/",
+			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/min_blazing_flame_blast_hit"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Monk.js
+var Monk_default;
+var init_Monk = __esmMin((() => {
+	Monk_default = {
+		166: [{
+			type: "FUNC",
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				if (!entity) return;
+				entity._enableTrail = true;
+				entity._blurType = 1;
+				setTimeout(() => {
+					entity._enableTrail = false;
+				}, Params.Init.duration || 2e3);
+			}
+		}],
+		253: [
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .3,
+				green: .3,
+				blue: 1,
+				bottomSize: 1.1,
+				duration: 1500,
+				fade: true,
+				height: 15,
+				rotate: true,
+				textureName: "ring_blue",
+				topSize: 1.1,
+				type: "CYLINDER",
+				wav: "effect/Èí±â"
+			},
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .3,
+				green: .3,
+				blue: 1,
+				bottomSize: 1,
+				duration: 1500,
+				fade: true,
+				height: 13,
+				rotate: true,
+				textureName: "ring_blue",
+				topSize: 1,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .3,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .3,
+				green: .3,
+				blue: 1,
+				bottomSize: 1.1,
+				duration: 1500,
+				fade: true,
+				height: 2,
+				rotate: true,
+				textureName: "ring_blue",
+				topSize: 3,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .3,
+				green: .3,
+				blue: 1,
+				duration: 1500,
+				duplicate: 4,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				posxRand: 1.2,
+				posyRand: 1.2,
+				poszEndRand: 1,
+				poszEndRandMiddle: 8,
+				poszStart: 0,
+				size: 9,
+				sizeRand: 2,
+				sparkling: true,
+				sparkNumber: 2,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .3,
+				green: .3,
+				blue: 1,
+				duration: 1300,
+				delayOffset: 400,
+				duplicate: 20,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				posxRand: 1.5,
+				posyRand: 1.5,
+				poszEndRand: 3,
+				poszEndRandMiddle: 6,
+				poszStart: 0,
+				size: 9,
+				sizeRand: 2,
+				sparkling: true,
+				sparkNumber: 2,
+				timeBetweenDupli: 10,
+				type: "3D",
+				zIndex: 1
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				blendMode: 2,
+				red: .3,
+				green: .3,
+				blue: 1,
+				duration: 1100,
+				delayLate: 200,
+				duplicate: 10,
+				fadeIn: true,
+				fadeOut: true,
+				file: "effect/pok3.tga",
+				posxRand: 1,
+				posyRand: 1,
+				poszEnd: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 0,
+				size: 9,
+				sizeRand: 2,
+				timeBetweenDupli: 50,
+				type: "3D",
+				zIndex: 1
+			}
+		],
+		262: [{
+			wav: "effect/mon_Æø±â",
+			type: "3D",
+			duplicate: 12,
+			timeBetweenDupli: 0,
+			file: "effect/alpha_center.tga",
+			delayStart: 250,
+			duration: 550,
+			alphaMax: .8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}],
+		265: [{
+			type: "3D",
+			file: "effect/blue_ivy.bmp",
+			alphaMax: 1,
+			blendMode: 2,
+			duration: 150,
+			toSrc: true,
+			rotateWithCamera: true,
+			rotateToTarget: true,
+			angle: 90,
+			zOffset: 1,
+			size: 50,
+			wav: "effect/mon_ÅºÁö½ÅÅë",
+			attachedEntity: true
+		}],
+		266: [{
+			wav: "effect/mon_¾Æ¼ö¶ó ÆÐÈ²±Ç",
+			type: "3D",
+			duplicate: 24,
+			timeBetweenDupli: 0,
+			file: "effect/lens1.tga",
+			delayStart: 100,
+			duration: 550,
+			alphaMax: .8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}],
+		267: [{ wav: "effect/mon_Ä§Åõ°æ" }],
+		273: [{
+			type: "STR",
+			file: "¿¬È¯",
+			wav: "effect/mon_¿¬È¯",
+			attachedEntity: true
+		}],
+		329: [
+			{ wav: "effect/ef_hit2" },
+			{
+				wav: "effect/ef_hit4",
+				delayWav: 200
+			},
+			{
+				wav: "effect/ef_hit2",
+				delayWav: 400
+			}
+		]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Priest.js
+var Priest_default;
+var init_Priest = __esmMin((() => {
+	Priest_default = {
+		75: [{
+			type: "STR",
+			file: "gloria",
+			wav: "effect/priest_gloria",
+			min: "gloria_min",
+			attachedEntity: true
+		}],
+		76: [{
+			type: "STR",
+			file: "magnificat",
+			wav: "effect/priest_magnificat",
+			min: "magnificat_min",
+			attachedEntity: true
+		}],
+		78: [{
+			type: "STR",
+			file: "recovery",
+			wav: "effect/priest_recovery",
+			attachedEntity: true
+		}],
+		83: [{
+			type: "STR",
+			file: "sanctuary",
+			wav: "effect/priest_sanctuary",
+			attachedEntity: true
+		}],
+		84: [{
+			type: "STR",
+			file: "impositio",
+			wav: "effect/priest_impositio",
+			attachedEntity: true
+		}],
+		85: [{
+			type: "STR",
+			file: "lexaeterna",
+			wav: "effect/priest_lexaeterna",
+			min: "lexaeterna_min",
+			attachedEntity: true
+		}],
+		86: [{
+			type: "STR",
+			file: "aspersio",
+			wav: "effect/priest_aspersio",
+			attachedEntity: true
+		}],
+		87: [{
+			type: "STR",
+			file: "lexdivina",
+			wav: "effect/priest_lexdivina",
+			attachedEntity: true
+		}],
+		88: [{
+			type: "STR",
+			file: "suffragium",
+			wav: "effect/priest_suffragium",
+			min: "suffragium_min",
+			attachedEntity: true
+		}],
+		91: [{
+			type: "STR",
+			file: "benedictio",
+			wav: "effect/priest_benedictio",
+			attachedEntity: true
+		}],
+		112: [{
+			type: "STR",
+			file: "kyrie",
+			wav: "effect/priest_kyrie_eleison_a",
+			min: "kyrie_min",
+			attachedEntity: true
+		}],
+		113: [{
+			type: "STR",
+			file: "magnus",
+			wav: "effect/priest_magnus",
+			attachedEntity: false
+		}],
+		136: [{
+			type: "STR",
+			file: "slowp",
+			wav: "effect/priest_slowpoison",
+			attachedEntity: false
+		}],
+		318: [{
+			alphaMax: .2,
+			animation: 0,
+			attachedEntity: true,
+			blendMode: 2,
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: .7,
+			duration: 5e4,
+			fade: false,
+			height: 5,
+			rotate: false,
+			textureName: "ring_red",
+			topSize: .7,
+			type: "CYLINDER",
+			angleY: 45
+		}, {
+			alphaMax: .1,
+			animation: 1,
+			attachedEntity: true,
+			blendMode: 2,
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: .7,
+			duration: 2e3,
+			fade: true,
+			height: 5,
+			rotate: false,
+			textureName: "ring_red",
+			topSize: .7,
+			type: "CYLINDER",
+			angleY: 45,
+			repeat: true
+		}],
+		319: [{
+			alphaMax: .3,
+			animation: 0,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: .5,
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: .7,
+			duration: 5e4,
+			fade: false,
+			green: .9,
+			height: 2,
+			red: .5,
+			rotate: false,
+			textureName: "magic_green",
+			topSize: .7,
+			type: "CYLINDER",
+			angleY: 45
+		}, {
+			alphaMax: .1,
+			animation: 1,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: .5,
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: .7,
+			duration: 2e3,
+			fade: true,
+			green: .9,
+			height: 2,
+			red: .5,
+			rotate: false,
+			textureName: "magic_green",
+			topSize: .7,
+			type: "CYLINDER",
+			angleY: 45,
+			repeat: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Acolyte/Sura.js
+var Sura_default;
+var init_Sura = __esmMin((() => {
+	init_Events();
+	Sura_default = {
+		888: [{ wav: "effect/sr_earthshaker" }],
+		1043: [{
+			type: "STR",
+			file: "sr_flashcombo",
+			wav: "effect/sr_flashcombo",
+			attachedEntity: true
+		}],
+		ef_crescentelbow: [{
+			wav: "effect/sr_crescentelbow",
+			attachedEntity: true
+		}],
+		ef_cursedcircle: [{
+			wav: "effect/sr_cursedcircle",
+			attachedEntity: true
+		}],
+		ef_dragoncombo: [{
+			wav: "effect/sr_dragoncombo",
+			attachedEntity: true
+		}],
+		ef_fallenempire: [{
+			wav: "effect/sr_fallenempire",
+			attachedEntity: true
+		}],
+		ef_gateofhell: [{
+			wav: "effect/sr_gateofhell",
+			attachedEntity: true
+		}],
+		ef_howlingoflion: [{
+			wav: "effect/sr_howlingoflion",
+			attachedEntity: true
+		}],
+		ef_knucklearrow: [{
+			wav: "effect/sr_knucklearrow",
+			attachedEntity: true
+		}],
+		ef_lightningwalk: [{
+			wav: "effect/sr_lightningwalk",
+			attachedEntity: true
+		}],
+		ef_powervelocity: [{
+			wav: "effect/sr_powervelocity",
+			attachedEntity: true
+		}],
+		ef_raisingdragon: [{
+			wav: "effect/sr_raisingdragon",
+			attachedEntity: true
+		}],
+		ef_rampageblaster: [{
+			wav: "effect/sr_rampageblaster",
+			attachedEntity: true
+		}],
+		ef_rideinlightning: [{
+			wav: "effect/sr_rideinlightning",
+			attachedEntity: true
+		}],
+		ef_skynetblow: [{
+			wav: "effect/sr_skynetblow",
+			attachedEntity: true
+		}],
+		ef_tigercannon: [{
+			wav: "effect/sr_tigercannon",
+			attachedEntity: true
+		}],
+		ef_windmill: [{
+			wav: "effect/sr_windmill",
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				const duration = 500;
+				const count = 8;
+				const delay = duration / count;
+				for (let i = 0; i < count; i++) {
+					const delta = 1;
+					Events.setTimeout(function() {
+						entity.direction = Math.floor(entity.direction + delta) % 8;
+					}, delay * i);
+				}
+			}
+		}],
+		ef_sr_fallenempire: [{
+			type: "STR",
+			file: "new_fallenempire/new_fallenempire/new_fallenempire",
+			texturePath: "new_fallenempire/new_fallenempire/",
+			wav: "effect/sr_fallenempire"
+		}, {
+			type: "STR",
+			file: "new_fallenempire/new_fallenempire_bottom/new_fallenempire_bottom",
+			texturePath: "new_fallenempire/new_fallenempire_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_fallenempire_hit: [{
+			type: "STR",
+			file: "new_fallenempire/new_fallenempire_hit/new_fallenempire_hit",
+			texturePath: "new_fallenempire/new_fallenempire_hit/"
+		}],
+		ef_sr_tigercannon: [{
+			type: "STR",
+			file: "new_tigercannon/new_tigercannon",
+			texturePath: "new_tigercannon/",
+			wav: "effect/sr_tigercannon"
+		}],
+		ef_sr_rampageblaster: [{
+			type: "STR",
+			file: "new_rampageblaster/new_rampageblaster/new_rampageblaster",
+			texturePath: "new_rampageblaster/new_rampageblaster/",
+			wav: "effect/sr_rampageblaster"
+		}, {
+			type: "STR",
+			file: "new_rampageblaster/new_rampageblaster_bottom/new_rampageblaster_bottom",
+			texturePath: "new_rampageblaster/new_rampageblaster_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_lightningwalk: [{
+			type: "STR",
+			file: "lightning",
+			texturePath: "",
+			wav: "effect/sr_lightningwalk"
+		}],
+		ef_sr_gateofhell_cast: [{
+			type: "STR",
+			file: "new_gateofhell/new_gateofhell_cast/new_gateofhell_cast",
+			texturePath: "new_gateofhell/new_gateofhell_cast/",
+			wav: "effect/sr_gateofhell"
+		}],
+		ef_sr_howlingoflion: [{
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion/new_howlingoflion",
+			texturePath: "new_howlingoflion/new_howlingoflion/",
+			wav: "effect/sr_howlingoflion"
+		}, {
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_bottom/new_howlingoflion_bottom",
+			texturePath: "new_howlingoflion/new_howlingoflion_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_howlingoflion_cast: [{
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_cast/new_howlingoflion_cast",
+			texturePath: "new_howlingoflion/new_howlingoflion_cast/"
+		}, {
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_cast_bottom/new_howlingoflion_cast_bottom",
+			texturePath: "new_howlingoflion/new_howlingoflion_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_howlingoflion_hit: [{
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_hit/new_howlingoflion_hit",
+			texturePath: "new_howlingoflion/new_howlingoflion_hit/"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/Archer.js
+var Archer_default;
+var init_Archer = __esmMin((() => {
+	Archer_default = { 153: [{
+		type: "STR",
+		file: "concentration",
+		wav: "effect/ac_concentration",
+		attachedEntity: true
+	}] };
+}));
+// src/DB/Effects/Table/Jobs/Archer/Bard.js
+var getBragiSpellNote, WhistleEffects, SinEffects, AppleEffects, Bard_default;
+var init_Bard = __esmMin((() => {
+	init_Songs();
+	init_DBManager();
+	init_SessionStorage();
+	init_ChatBox();
+	getBragiSpellNote = Songs_default.getBragiSpellNote;
+	WhistleEffects = Songs_default.WhistleEffects;
+	SinEffects = Songs_default.SinEffects;
+	AppleEffects = Songs_default.AppleEffects;
+	Bard_default = {
+		286: [{
+			wav: "effect/´Þºû¼¼·¹³ªµ¥",
+			attachedEntity: true
+		}],
+		"286_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				WhistleEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		287: [{
+			wav: "effect/¼®¾çÀÇ ¾î½Ø½Å",
+			attachedEntity: true
+		}],
+		"287_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				SinEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		288: [{
+			wav: "effect/ºê¶ó±âÀÇ ½Ã",
+			attachedEntity: true
+		}],
+		"288_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				const bragiNoteEffect = getBragiSpellNote();
+				self.add(new bragiNoteEffect(Params.Inst.position, Params.Inst.startTick, 2), Params);
+			}
+		}],
+		289: [{
+			wav: "effect/ÀÌµÐÀÇ »ç°ú",
+			attachedEntity: true
+		}],
+		"289_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				AppleEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		295: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				if (Params.Init.ownerAID == SessionStorage_default.Entity.GID) {
+					const msg = DB.getRandomJoke();
+					if (msg) ChatBox_default.onRequestTalk("", msg, ChatBox_default.TYPE.PUBLIC);
+				}
+			}
+		}],
+		606: [{
+			type: "SPR",
+			file: "fvoice",
+			wav: "amon_ra_die01"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/BardDancer.js
+var LullabyEffects, MrKimEffects, EtChaosEffects, DrumEffects, NibelungEffects, LokiEffects, AbyssEffects, SiegfiedEffects, BardDancer_default;
+var init_BardDancer = __esmMin((() => {
+	init_Songs();
+	LullabyEffects = Songs_default.LullabyEffects;
+	MrKimEffects = Songs_default.MrKimEffects;
+	EtChaosEffects = Songs_default.EtChaosEffects;
+	DrumEffects = Songs_default.DrumEffects;
+	NibelungEffects = Songs_default.NibelungEffects;
+	LokiEffects = Songs_default.LokiEffects;
+	AbyssEffects = Songs_default.AbyssEffects;
+	SiegfiedEffects = Songs_default.SiegfiedEffects;
+	BardDancer_default = {
+		278: [{
+			wav: "effect/ÀÚÀå°¡",
+			attachedEntity: true
+		}],
+		"278_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				LullabyEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		279: [{
+			wav: "effect/±è¼­¹æµ·",
+			attachedEntity: true
+		}],
+		"279_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				MrKimEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		280: [{
+			wav: "effect/¿µ¿øÀÇ È¥µ·",
+			attachedEntity: true
+		}],
+		"280_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				EtChaosEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		281: [{
+			wav: "effect/ÀüÀåÀÇ",
+			attachedEntity: true
+		}],
+		"281_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				DrumEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		282: [{
+			wav: "effect/´Ïº§·î°ÕÀÇ ¹ÝÁö",
+			attachedEntity: true
+		}],
+		"282_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				NibelungEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		283: [{
+			wav: "effect/·ÎÅ°",
+			attachedEntity: true
+		}],
+		"283_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				LokiEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		284: [{
+			wav: "effect/½É¿¬¼ÓÀ¸·Î",
+			attachedEntity: true
+		}],
+		"284_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				AbyssEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		285: [{
+			wav: "effect/ºÒ»ç½Å",
+			attachedEntity: true
+		}],
+		"285_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				SiegfiedEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/ClownGypsy.js
+var ClownGypsy_default;
+var init_ClownGypsy = __esmMin((() => {
+	init_FlatColorTile();
+	ClownGypsy_default = {
+		393: [{ wav: "effect/¾Ö·Î¿ì ¹ßÄ­" }],
+		394: [{
+			type: "FUNC",
+			wav: "effect/´Þºû¼¼·¹³ªµ¥",
+			attachedEntity: false,
+			func: function(Params) {
+				const BlueTile = FlatColorTile_default("salmon", {
+					r: 1,
+					g: 138 / 255,
+					b: 187 / 255,
+					a: .6
+				});
+				this.add(new BlueTile(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		}],
+		517: [{}],
+		"517_music": [{
+			wav: "effect/Çì¸£¸ðµåÀÇ ÁöÆÎÀÌ",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/Dancer.js
+var ServiceEffects, HummingEffects, ForgetEffects, FortuneEffects, Dancer_default;
+var init_Dancer = __esmMin((() => {
+	init_Songs();
+	init_DBManager();
+	init_SessionStorage();
+	init_ChatBox();
+	ServiceEffects = Songs_default.ServiceEffects;
+	HummingEffects = Songs_default.HummingEffects;
+	ForgetEffects = Songs_default.ForgetEffects;
+	FortuneEffects = Songs_default.FortuneEffects;
+	Dancer_default = {
+		291: [{
+			wav: "effect/Èï¾ó°Å¸²",
+			attachedEntity: true
+		}],
+		"291_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				HummingEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		292: [{
+			wav: "effect/³ª¸¦ÀØÁö¸»¾Æ¿ä",
+			attachedEntity: true
+		}],
+		"292_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				ForgetEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		293: [{
+			wav: "effect/Çà¿îÀÇ",
+			attachedEntity: true
+		}],
+		"293_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				FortuneEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		294: [{
+			wav: "effect/´ç½ÅÀ» À§ÇÑ ¼­ºñ½º",
+			attachedEntity: true
+		}],
+		"294_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				ServiceEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}],
+		296: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				if (Params.Init.ownerAID == SessionStorage_default.Entity.GID) {
+					const msg = DB.getRandomScream();
+					if (msg) ChatBox_default.onRequestTalk("", msg, ChatBox_default.TYPE.PUBLIC);
+				}
+			}
+		}],
+		607: [{
+			type: "SPR",
+			file: "wink"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/Hunter.js
+var Hunter_default;
+var init_Hunter = __esmMin((() => {
+	Hunter_default = {
+		69: [{
+			type: "STR",
+			file: "skidtrap",
+			wav: "effect/hunter_skidtrap",
+			attachedEntity: false
+		}],
+		99: [{
+			wav: "effect/hunter_flasher",
+			attachedEntity: false
+		}],
+		100: [{
+			wav: "effect/hunter_removetrap",
+			attachedEntity: false
+		}],
+		106: [{
+			type: "STR",
+			file: "blastmine",
+			wav: "effect/hunter_blastmine",
+			attachedEntity: false
+		}],
+		107: [{
+			type: "STR",
+			file: "claymore",
+			wav: "effect/hunter_claymoretrap",
+			attachedEntity: false
+		}],
+		108: [{
+			type: "STR",
+			file: "freezing",
+			wav: "effect/hunter_freezingtrap",
+			attachedEntity: false
+		}],
+		111: [{
+			type: "STR",
+			file: "spring",
+			wav: "effect/hunter_springtrap",
+			attachedEntity: false
+		}],
+		115: [{
+			wav: "effect/hunter_blitzbeat",
+			attachedEntity: true
+		}],
+		119: [{
+			wav: "effect/hunter_detecting",
+			attachedEntity: true
+		}],
+		139: [{
+			type: "STR",
+			file: "sandman",
+			wav: "effect/hunter_sandman",
+			attachedEntity: false
+		}],
+		145: [{
+			type: "SPR",
+			file: "shockwave",
+			wav: "effect/hunter_shockwavetrap",
+			attachedEntity: true
+		}],
+		146: [{
+			type: "STR",
+			file: "shockwavehit",
 			attachedEntity: true
 		}],
 		ef_ht_landmine: [{
 			type: "STR",
 			file: "landmine",
 			texturePath: ""
-		}],
-		ef_sa_instantdeath: [{
-			type: "STR",
-			file: "suicide",
-			texturePath: ""
-		}],
-		ef_tk_counter: [{
-			type: "STR",
-			file: "new_counter_slash/new_counter_slash/new_counter_slash",
-			texturePath: "new_counter_slash/new_counter_slash/"
-		}, {
-			type: "STR",
-			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
-			texturePath: "new_counter_slash/new_counter_slash_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sl_assasin: [{
-			type: "STR",
-			file: "assasin_poisonreact",
-			texturePath: ""
-		}, {
-			type: "STR",
-			file: "assasin_poisonreact_1st",
-			texturePath: ""
-		}],
-		ef_bs_adrenaline2: [{
-			type: "STR",
-			file: "adrenaline",
-			texturePath: ""
-		}],
-		ef_sl_hunter: [
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/MinstrelWanderer.js
+var MinstrelWanderer_default;
+var init_MinstrelWanderer = __esmMin((() => {
+	MinstrelWanderer_default = {
+		847: [{ wav: "effect/¼öÁÝÀºÇÏ·çÀÇ¿ì¿ï" }],
+		856: [{
+			type: "3D",
+			file: "effect/melody_b.bmp",
+			red: 1,
+			green: .6,
+			blue: .6,
+			alphaMax: .6,
+			attachedEntity: true,
+			duration: 100,
+			size: 50,
+			posz: .5,
+			repeat: true
+		}, { wav: "effect/reverberation" }],
+		857: [{ wav: "effect/rainstorm" }],
+		858: [{ wav: "effect/¾È½ÄÀÇÀÚÀå°¡" }],
+		860: [{
+			type: "3D",
+			file: "effect/melody_a.bmp",
+			red: .6,
+			green: .6,
+			blue: 1,
+			alphaMax: .6,
+			attachedEntity: true,
+			duration: 100,
+			size: 50,
+			posz: .5,
+			repeat: true
+		}, { wav: "effect/³ª¶ôÀÇ³ë·¡" }],
+		861: [{ wav: "effect/¼øÈ¯ÇÏ´ÂÀÚ¿¬ÀÇ¼Ò¸®" }],
+		862: [
 			{
-				type: "STR",
-				file: "hunter_loud",
-				texturePath: ""
+				attachedEntity: true,
+				wav: "effect/ab_ancilla"
 			},
 			{
-				type: "STR",
-				file: "hunter_poison",
-				texturePath: ""
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .55,
+				blue: .55,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 850,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
 			},
 			{
-				type: "STR",
-				file: "hunter_shockwave_blue",
-				texturePath: ""
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .6,
+				blue: .6,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 800,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .65,
+				blue: .65,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 750,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .7,
+				blue: .7,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 700,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .75,
+				blue: .75,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 650,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .8,
+				blue: .8,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 600,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .85,
+				blue: .85,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 550,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .9,
+				blue: .9,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 500,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: .95,
+				blue: .95,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 450,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
+			},
+			{
+				alphaMax: .3,
+				blendMode: 2,
+				red: 1,
+				green: 1,
+				blue: 1,
+				attachedEntity: true,
+				duration: 1500,
+				fadeIn: true,
+				fadeOut: true,
+				posz: 7,
+				sizeEnd: 100,
+				sizeSmooth: true,
+				sizeStart: 400,
+				zIndex: 10,
+				type: "3D",
+				file: "effect/priest_spell.bmp"
 			}
 		],
-		ef_sl_stun: [{
+		866: [{ wav: "effect/¿ö±×¿ÍÇÔ²²ÃãÀ»" }],
+		868: [{ wav: "effect/¸¶³ªÀÇ³ë·¡" }],
+		870: [{ wav: "effect/»õÅÍµ¥ÀÌ³ªÀÌÆ®ÇÇ¹ö" }],
+		872: [{ wav: "effect/·¹¶óµåÀÇÀÌ½½" }],
+		874: [{ wav: "effect/¸á·Îµð¿Àºê½ÌÅ©" }],
+		876: [{ wav: "effect/ºñ¿æµå¿Àºê¿öÅ©¶óÀÌ" }],
+		878: [{ wav: "effect/¾ð¸®¹ÌÆ¼µåÇã¹Öº¸ÀÌ½º" }],
+		879: [{ wav: "effect/¼¼ÀÌ·»ÀÇ¸ñ¼Ò¸®" }],
+		ef_rush_windmill: [
+			{
+				wav: "effect/Ç³Â÷¸¦ÇâÇØµ¹°Ý",
+				attachedEntity: true
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				delayLate: 500,
+				duplicate: 7,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				red: .5,
+				green: .01,
+				blue: .9,
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: .75,
+				attachedEntity: true,
+				duration: 1e3,
+				delayOffset: 400,
+				duplicate: 3,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				duplicate: 10,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function EffectBodyColor(Params) {
+					const entity = Params.Init;
+					entity.animations.add(function(tick) {
+						if (tick < 500) {
+							if (tick % 2 == 0) {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = 1;
+								entity._flashColor[2] = 1;
+								entity._flashColor[3] = .4;
+								entity.recalculateBlendingColor();
+							} else {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = 1;
+								entity._flashColor[2] = 1;
+								entity._flashColor[3] = 1;
+								entity.recalculateBlendingColor();
+							}
+						} else {
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = 1;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return true;
+						}
+					});
+				}
+			}
+		],
+		ef_swing_dance: [
+			{
+				wav: "effect/½ºÀ®´í½º",
+				attachedEntity: true
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				delayLate: 500,
+				duplicate: 7,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				red: 1,
+				green: .1,
+				blue: .5,
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: .75,
+				attachedEntity: true,
+				duration: 1e3,
+				delayOffset: 400,
+				duplicate: 3,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: 1,
+				attachedEntity: true,
+				duration: 1e3,
+				duplicate: 10,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function EffectBodyColor(Params) {
+					const entity = Params.Init.ownerEntity;
+					entity.animations.add(function(tick) {
+						if (tick < 500) {
+							if (tick % 2 == 0) {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = .1;
+								entity._flashColor[2] = .5;
+								entity._flashColor[3] = .4;
+								entity.recalculateBlendingColor();
+							} else {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = 1;
+								entity._flashColor[2] = 1;
+								entity._flashColor[3] = 1;
+								entity.recalculateBlendingColor();
+							}
+						} else {
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = 1;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return true;
+						}
+					});
+				}
+			}
+		],
+		ef_metalicsound: [{
+			wav: "effect/metalic",
+			attachedEntity: true
+		}],
+		ef_frigg_song: [{
+			wav: "effect/wm_frigg_song",
+			attachedEntity: true
+		}],
+		ef_moonlit_serenade: [{
+			wav: "effect/´Þºû¼¼·¹³ªµ¥",
+			attachedEntity: true
+		}],
+		ef_sound_of_destruction: [{
+			wav: "effect/»ç¿îµå¿Àºêµð½ºÆ®·°¼Ç",
+			attachedEntity: true
+		}],
+		ef_great_echo: [{
+			wav: "effect/±×·¹ÀÌÆ®¿¡ÄÚ",
+			attachedEntity: true
+		}],
+		ef_valley_of_death: [{
+			wav: "effect/»ç¸ÁÀÇ°ñÂ¥±â¿¡¼­",
+			attachedEntity: true
+		}],
+		ef_harmonize: [{
+			wav: "effect/ÇÏ¸ð³ªÀÌÁî",
+			attachedEntity: true
+		}],
+		ef_echo_song: [{
+			wav: "effect/¸Þ¾Æ¸®ÀÇ³ë·¡",
+			attachedEntity: true
+		}],
+		ef_symphony_of_lovers: [{
+			wav: "effect/¿¬ÀÎµéÀ»À§ÇÑ½ÉÆ÷´Ï",
+			attachedEntity: true
+		}],
+		ef_wm_metalicsound: [{
 			type: "STR",
-			file: "stun",
-			texturePath: "",
-			wav: "effect/_stun"
+			file: "new_metalicsound/new_metalicsound/new_metalicsound",
+			texturePath: "new_metalicsound/new_metalicsound/"
+		}, {
+			type: "STR",
+			file: "new_metalicsound/new_metalicsound_bottom/new_metalicsound_bottom",
+			texturePath: "new_metalicsound/new_metalicsound_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wm_metalicsound_hit: [{
+			type: "STR",
+			file: "new_metalicsound/new_metalicsound_hit/new_metalicsound_hit",
+			texturePath: "new_metalicsound/new_metalicsound_hit/"
+		}],
+		ef_wm_reverberation_magic_hit: [{
+			type: "STR",
+			file: "new_reverberation/new_reverberation_hit/new_reverberation_hit",
+			texturePath: "new_reverberation/new_reverberation_hit/"
+		}],
+		ef_wm_severe_rainstorm: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm/new_severerainstorm",
+			texturePath: "new_severerainstorm/new_severerainstorm/"
+		}],
+		ef_wm_severe_rainstorm_cast: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast",
+			texturePath: "new_severerainstorm/new_severerainstorm_cast/"
+		}],
+		ef_wm_sound_of_destruction_cast: [{
+			type: "STR",
+			file: "new_soundofdestruction/new_soundofdestruction_cast/new_soundofdestruction_cast",
+			texturePath: "new_soundofdestruction/new_soundofdestruction_cast/"
+		}, {
+			type: "STR",
+			file: "new_soundofdestruction/new_soundofdestruction_cast_bottom/new_soundofdestruction_cast_bottom",
+			texturePath: "new_soundofdestruction/new_soundofdestruction_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wm_unlimited_humming_voice: [{
+			type: "STR",
+			file: "new_unlimit/new_unlimit/new_unlimit",
+			texturePath: "new_unlimit/new_unlimit/"
+		}, {
+			type: "STR",
+			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
+			texturePath: "new_unlimit/new_unlimit_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wm_severe_rainstorm_melee: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm/new_severerainstorm",
+			texturePath: "new_severerainstorm/new_severerainstorm/"
+		}],
+		ef_wm_severe_rainstorm_melee_cast: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast",
+			texturePath: "new_severerainstorm/new_severerainstorm_cast/"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/Ranger.js
+var Ranger_default;
+var init_Ranger = __esmMin((() => {
+	Ranger_default = {
+		745: [{
+			type: "STR",
+			file: "aimed",
+			attachedEntity: true
+		}],
+		746: [{
+			type: "STR",
+			file: "arrowstorm",
+			attachedEntity: true
+		}],
+		750: [{
+			type: "STR",
+			file: "concentration",
+			attachedEntity: true
+		}],
+		ef_wugbite: [{
+			wav: "wug_bite",
+			attachedEntity: true
+		}],
+		ef_wugstrike: [{
+			wav: "wug_strike",
+			attachedEntity: true
+		}],
+		ef_wugrider: [{
+			wav: "wolf_stand",
+			attachedEntity: true
+		}],
+		ef_ra_fearbreeze: [{
+			type: "STR",
+			file: "new_fearbreeze/new_fearbreeze",
+			texturePath: "new_fearbreeze/"
+		}],
+		ef_ra_unlimit: [{
+			type: "STR",
+			file: "new_unlimit/new_unlimit/new_unlimit",
+			texturePath: "new_unlimit/new_unlimit/",
+			wav: "ra_unlimit"
+		}, {
+			type: "STR",
+			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
+			texturePath: "new_unlimit/new_unlimit_bottom/",
+			renderBeforeEntities: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/Sniper.js
+var Sniper_default;
+var init_Sniper = __esmMin((() => {
+	init_Camera();
+	Sniper_default = {
+		386: [{
+			wav: "effect/hunter_detecting",
+			attachedEntity: true
+		}],
+		387: [{
+			wav: "effect/hunter_blitzbeat",
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick + 300;
+				Camera.setQuake(start);
+			}
+		}],
+		388: [{
+			wav: "effect/»þÇÁ½´ÆÃ",
+			attachedEntity: true
+		}],
+		389: [{
+			wav: "effect/À©µå¿öÅ©",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/TroubadourTrouvere.js
+var TroubadourTrouvere_default;
+var init_TroubadourTrouvere = __esmMin((() => {
+	TroubadourTrouvere_default = {
+		ef_tr_mystic_symphony: [{
+			type: "STR",
+			file: "mysticsymphony/mysticsymphony/mysticsymphony",
+			texturePath: "mysticsymphony/mysticsymphony/",
+			min: "mysticsymphony/mysticsymphony/min_mysticsymphony",
+			wav: "effect/tr_mystic_symphony"
+		}],
+		ef_tr_mystic_symphony_cast: [{
+			type: "STR",
+			file: "mysticsymphony/mysticsymphony_cast/mysticsymphony_cast",
+			texturePath: "mysticsymphony/mysticsymphony_cast/",
+			min: "mysticsymphony/mysticsymphony_cast/min_mysticsymphony_cast"
+		}],
+		ef_tr_kvasir_sonata: [{
+			type: "STR",
+			file: "4tr_kvasirsonata/kvasirsonata/kvasirsonata",
+			texturePath: "4tr_kvasirsonata/kvasirsonata/",
+			min: "4tr_kvasirsonata/kvasirsonata/min_kvasirsonata",
+			wav: "effect/tr_kvasir_sonata"
+		}],
+		ef_tr_kvasir_sonata_cast: [{
+			type: "STR",
+			file: "4tr_kvasirsonata/kvasirsonata_cast/kvasirsonata_cast",
+			texturePath: "4tr_kvasirsonata/kvasirsonata_cast/",
+			min: "4tr_kvasirsonata/kvasirsonata_cast/min_kvasirsonata_cast"
+		}, {
+			type: "STR",
+			file: "4tr_kvasirsonata/kvasirsonata_cast_bottom/kvasirsonata_cast_bottom",
+			texturePath: "4tr_kvasirsonata/kvasirsonata_cast_bottom/",
+			min: "4tr_kvasirsonata/kvasirsonata_cast_bottom/min_kvasirsonata_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_roseblossom_cast: [{
+			type: "STR",
+			file: "roseblossom/roseblossom_cast/roseblossom_cast",
+			texturePath: "roseblossom/roseblossom_cast/",
+			min: "roseblossom/roseblossom_cast/min_roseblossom_cast"
+		}, {
+			type: "STR",
+			file: "roseblossom/roseblossom_cast_bottom/roseblossom_cast_bottom",
+			texturePath: "roseblossom/roseblossom_cast_bottom/",
+			min: "roseblossom/roseblossom_cast_bottom/min_roseblossom_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_roseblossom_hit: [{
+			type: "STR",
+			file: "roseblossom/roseblossom_hit/roseblossom_hit",
+			texturePath: "roseblossom/roseblossom_hit/",
+			min: "roseblossom/roseblossom_hit/min_roseblossom_hit"
+		}],
+		ef_tr_roseblossom_atk: [{
+			type: "STR",
+			file: "roseblossom/roseblossom_hit/roseblossom_hit",
+			texturePath: "roseblossom/roseblossom_hit/",
+			min: "roseblossom/roseblossom_hit/min_roseblossom_hit"
+		}],
+		ef_tr_rhythmshooting_cast: [{
+			type: "STR",
+			file: "rhythmshooting/rhythmshooting_cast/rhythmshooting_cast",
+			texturePath: "rhythmshooting/rhythmshooting_cast/",
+			min: "rhythmshooting/rhythmshooting_cast/min_rhythmshooting_cast",
+			wav: "effect/tr_rhythmshooting"
+		}, {
+			type: "STR",
+			file: "rhythmshooting/rhythmshooting_cast_bottom/rhythmshooting_cast_bottom",
+			texturePath: "rhythmshooting/rhythmshooting_cast_bottom/",
+			min: "rhythmshooting/rhythmshooting_cast_bottom/min_rhythmshooting_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmshooting_hit: [{
+			type: "STR",
+			file: "rhythmshooting/rhythmshooting_hit/rhythmshooting_hit",
+			texturePath: "rhythmshooting/rhythmshooting_hit/",
+			min: "rhythmshooting/rhythmshooting_hit/min_rhythmshooting_hit"
+		}],
+		ef_tr_metalic_fury: [{
+			type: "STR",
+			file: "metalicfury/metalicfury/metalicfury",
+			texturePath: "metalicfury/metalicfury/",
+			min: "metalicfury/metalicfury/min_metalicfury",
+			wav: "effect/tr_metalic_fury"
+		}],
+		ef_tr_soundblend: [{
+			type: "STR",
+			file: "soundblend/soundblend/soundblend",
+			texturePath: "soundblend/soundblend/",
+			min: "soundblend/soundblend/min_soundblend"
+		}],
+		ef_tr_soundblend_cast: [{
+			type: "STR",
+			file: "soundblend/soundblend_cast/soundblend_cast",
+			texturePath: "soundblend/soundblend_cast/",
+			min: "soundblend/soundblend_cast/min_soundblend_cast"
+		}, {
+			type: "STR",
+			file: "soundblend/soundblend_cast_bottom/soundblend_cast_bottom",
+			texturePath: "soundblend/soundblend_cast_bottom/",
+			min: "soundblend/soundblend_cast_bottom/min_soundblend_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_gef_nocturn: [{
+			type: "STR",
+			file: "gef_nocturn/gef_nocturn/gef_nocturn",
+			texturePath: "gef_nocturn/gef_nocturn/",
+			min: "gef_nocturn/gef_nocturn/min_gef_nocturn",
+			wav: "effect/tr_gef_nocturn"
+		}],
+		ef_tr_gef_nocturn_cast: [{
+			type: "STR",
+			file: "gef_nocturn/gef_nocturn_cast/gef_nocturn_cast",
+			texturePath: "gef_nocturn/gef_nocturn_cast/",
+			min: "gef_nocturn/gef_nocturn_cast/min_gef_nocturn_cast"
+		}, {
+			type: "STR",
+			file: "gef_nocturn/gef_nocturn_cast_bottom/gef_nocturn_cast_bottom",
+			texturePath: "gef_nocturn/gef_nocturn_cast_bottom/",
+			min: "gef_nocturn/gef_nocturn_cast_bottom/min_gef_nocturn_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_roki_capriccio: [{
+			type: "STR",
+			file: "roki_capriccio/roki_capriccio/roki_capriccio",
+			texturePath: "roki_capriccio/roki_capriccio/",
+			min: "roki_capriccio/roki_capriccio/min_roki_capriccio",
+			wav: "effect/tr_roki_capriccio"
+		}],
+		ef_tr_roki_capriccio_cast: [{
+			type: "STR",
+			file: "roki_capriccio/roki_capriccio_cast/roki_capriccio_cast",
+			texturePath: "roki_capriccio/roki_capriccio_cast/",
+			min: "roki_capriccio/roki_capriccio_cast/min_roki_capriccio_cast"
+		}, {
+			type: "STR",
+			file: "roki_capriccio/roki_capriccio_cast_bottom/roki_capriccio_cast_bottom",
+			texturePath: "roki_capriccio/roki_capriccio_cast_bottom/",
+			min: "roki_capriccio/roki_capriccio_cast_bottom/min_roki_capriccio_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_ain_rhapsody: [{
+			type: "STR",
+			file: "ain_rhapsody/ain_rhapsody/ain_rhapsody",
+			texturePath: "ain_rhapsody/ain_rhapsody/",
+			min: "ain_rhapsody/ain_rhapsody/min_ain_rhapsody",
+			wav: "effect/tr_ain_rhapsody"
+		}],
+		ef_tr_ain_rhapsody_cast: [{
+			type: "STR",
+			file: "ain_rhapsody/ain_rhapsody_cast/ain_rhapsody_cast",
+			texturePath: "ain_rhapsody/ain_rhapsody_cast/",
+			min: "ain_rhapsody/ain_rhapsody_cast/min_ain_rhapsody_cast"
+		}],
+		ef_tr_musical_interlude: [{
+			type: "STR",
+			file: "musical_interlude/musical_interlude/musical_interlude",
+			texturePath: "musical_interlude/musical_interlude/",
+			min: "musical_interlude/musical_interlude/min_musical_interlude",
+			wav: "effect/tr_musical_interlude"
+		}],
+		ef_tr_musical_interlude_cast: [{
+			type: "STR",
+			file: "musical_interlude/musical_interlude_cast/musical_interlude_cast",
+			texturePath: "musical_interlude/musical_interlude_cast/",
+			min: "musical_interlude/musical_interlude_cast/min_musical_interlude_cast"
+		}],
+		ef_tr_jawaii_serenade: [{
+			type: "STR",
+			file: "jawaii_serenade/jawaii_serenade/jawaii_serenade",
+			texturePath: "jawaii_serenade/jawaii_serenade/",
+			min: "jawaii_serenade/jawaii_serenade/min_jawaii_serenade",
+			wav: "effect/tr_jawaii_serenade"
+		}],
+		ef_tr_jawaii_serenade_cast: [{
+			type: "STR",
+			file: "jawaii_serenade/jawaii_serenade_cast/jawaii_serenade_cast",
+			texturePath: "jawaii_serenade/jawaii_serenade_cast/",
+			min: "jawaii_serenade/jawaii_serenade_cast/min_jawaii_serenade_cast"
+		}, {
+			type: "STR",
+			file: "jawaii_serenade/jawaii_serenade_cast_bottom/jawaii_serenade_cast_bottom",
+			texturePath: "jawaii_serenade/jawaii_serenade_cast_bottom/",
+			min: "jawaii_serenade/jawaii_serenade_cast_bottom/min_jawaii_serenade_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_nipelheim_requiem: [{
+			type: "STR",
+			file: "nipelheim/nipelheim/nipelheim",
+			texturePath: "nipelheim/nipelheim/",
+			min: "nipelheim/nipelheim/min_nipelheim",
+			wav: "effect/tr_nipelheim_requiem"
+		}],
+		ef_tr_nipelheim_requiem_cast: [{
+			type: "STR",
+			file: "nipelheim/nipelheim_cast/nipelheim_cast",
+			texturePath: "nipelheim/nipelheim_cast/",
+			min: "nipelheim/nipelheim_cast/min_nipelheim_cast"
+		}],
+		ef_tr_pron_march: [{
+			type: "STR",
+			file: "pronmarch/pronmarch/pronmarch",
+			texturePath: "pronmarch/pronmarch/",
+			min: "pronmarch/pronmarch/min_pronmarch",
+			wav: "effect/tr_pron_march"
+		}],
+		ef_tr_pron_march_cast: [{
+			type: "STR",
+			file: "pronmarch/pronmarch_cast/pronmarch_cast",
+			texturePath: "pronmarch/pronmarch_cast/",
+			min: "pronmarch/pronmarch_cast/min_pronmarch_cast"
+		}, {
+			type: "STR",
+			file: "pronmarch/pronmarch_cast_bottom/pronmarch_cast_bottom",
+			texturePath: "pronmarch/pronmarch_cast_bottom/",
+			min: "pronmarch/pronmarch_cast_bottom/min_pronmarch_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmical_wave: [{
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/rhythmical_wave",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/min_rhythmical_wave"
+		}, {
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/rhythmical_wave_bottom",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/min_rhythmical_wave_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmical_wave_cast: [{
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/rhythmical_wave_cast",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/min_rhythmical_wave_cast"
+		}, {
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/rhythmical_wave_cast_bottom",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/min_rhythmical_wave_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmical_wave_hit: [{
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/rhythmical_wave_hit",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/min_rhythmical_wave_hit"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Archer/Windhawk.js
+var Windhawk_default;
+var init_Windhawk = __esmMin((() => {
+	Windhawk_default = {
+		ef_wh_wind_sign: [{
+			type: "STR",
+			file: "windsign/windsign/windsign",
+			texturePath: "windsign/windsign/",
+			min: "windsign/windsign/min_windsign",
+			wav: "effect/wh_wind_sign"
+		}],
+		ef_wh_hawkrush: [{
+			type: "STR",
+			file: "hawkrush/hawkrush/hawkrush",
+			texturePath: "hawkrush/hawkrush/",
+			wav: "effect/wh_hawkrush"
+		}],
+		ef_wh_calamitygale_cast: [{
+			type: "STR",
+			file: "windhawk/calamitygale/calumitygale_cast/calumitygale_cast",
+			texturePath: "windhawk/calamitygale/calumitygale_cast/",
+			min: "windhawk/calamitygale/calumitygale_cast/min_calumitygale_cast",
+			fallback: ["4wh_calumitygale/calumitygale_cast/calumitygale_cast"],
+			wav: "effect/wh_calamitygale"
+		}],
+		ef_wh_hawkboomerang: [{
+			wav: "effect/wh_hawkboomerang",
+			attachedEntity: true
+		}],
+		ef_wh_galestorm: [{
+			type: "STR",
+			file: "galestorm/galestorm/galestorm",
+			texturePath: "galestorm/galestorm/",
+			min: "galestorm/galestorm/min_galestorm",
+			wav: "effect/wh_galestorm"
+		}],
+		ef_wh_galestorm_cast: [{
+			type: "STR",
+			file: "galestorm/galestorm_cast/galestorm_cast",
+			texturePath: "galestorm/galestorm_cast/",
+			min: "galestorm/galestorm_cast/min_galestorm_cast"
+		}],
+		ef_wh_galestorm_hit: [{
+			type: "STR",
+			file: "galestorm/galestorm_hit/galestorm_hit",
+			texturePath: "galestorm/galestorm_hit/",
+			min: "galestorm/galestorm_hit/min_galestorm_hit"
+		}],
+		ef_wh_deepblindtrap: [{
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap/deepblindtrap",
+			texturePath: "deepblindtrap/deepblindtrap/",
+			min: "deepblindtrap/deepblindtrap/min_deepblindtrap"
+		}, {
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap_bottom/deepblindtrap_bottom",
+			texturePath: "deepblindtrap/deepblindtrap_bottom/",
+			min: "deepblindtrap/deepblindtrap_bottom/min_deepblindtrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_deepblindtrap_cast: [{
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap_cast/deepblindtrap_cast",
+			texturePath: "deepblindtrap/deepblindtrap_cast/",
+			min: "deepblindtrap/deepblindtrap_cast/min_deepblindtrap_cast"
+		}],
+		ef_wh_deepblindtrap_hit: [{
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap_hit/deepblindtrap_hit",
+			texturePath: "deepblindtrap/deepblindtrap_hit/",
+			min: "deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit"
+		}],
+		ef_wh_solidtrap: [{
+			type: "STR",
+			file: "solidtrap/solidtrap/solidtrap",
+			texturePath: "solidtrap/solidtrap/",
+			min: "solidtrap/solidtrap/min_solidtrap"
+		}, {
+			type: "STR",
+			file: "solidtrap/solidtrap_bottom/solidtrap_bottom",
+			texturePath: "solidtrap/solidtrap_bottom/",
+			min: "solidtrap/solidtrap_bottom/min_solidtrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_solidtrap_cast: [{
+			type: "STR",
+			file: "solidtrap/solidtrap_cast/solidtrap_cast",
+			texturePath: "solidtrap/solidtrap_cast/",
+			min: "solidtrap/solidtrap_cast/min_solidtrap_cast"
+		}, {
+			type: "STR",
+			file: "solidtrap/solidtrap_cast_bottom/solidtrap_cast_bottom",
+			texturePath: "solidtrap/solidtrap_cast_bottom/",
+			min: "solidtrap/solidtrap_cast_bottom/min_solidtrap_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_solidtrap_hit: [{
+			type: "STR",
+			file: "solidtrap/solidtrap_hit/solidtrap_hit",
+			texturePath: "solidtrap/solidtrap_hit/",
+			min: "solidtrap/solidtrap_hit/min_solidtrap_hit"
+		}],
+		ef_wh_swifttrap: [{
+			type: "STR",
+			file: "swifttrap/swifttrap/swifttrap",
+			texturePath: "swifttrap/swifttrap/",
+			min: "swifttrap/swifttrap/min_swifttrap"
+		}, {
+			type: "STR",
+			file: "swifttrap/swifttrap_bottom/swifttrap_bottom",
+			texturePath: "swifttrap/swifttrap_bottom/",
+			min: "swifttrap/swifttrap_bottom/min_swifttrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_swifttrap_cast: [{
+			type: "STR",
+			file: "swifttrap/swifttrap_cast/swifttrap_cast",
+			texturePath: "swifttrap/swifttrap_cast/",
+			min: "swifttrap/swifttrap_cast/min_swifttrap_cast"
+		}],
+		ef_wh_swifttrap_hit: [{
+			type: "STR",
+			file: "swifttrap/swifttrap_hit/swifttrap_hit",
+			texturePath: "swifttrap/swifttrap_hit/",
+			min: "swifttrap/swifttrap_hit/min_swifttrap_hit"
+		}],
+		ef_wh_crescive_bolt: [{
+			type: "STR",
+			file: "crescivebolt/crescivebolt/crescivebolt",
+			texturePath: "crescivebolt/crescivebolt/",
+			min: "crescivebolt/crescivebolt/min_crescivebolt",
+			wav: "effect/wh_crescive_bolt"
+		}],
+		ef_wh_crescive_bolt_cast: [{
+			type: "STR",
+			file: "crescivebolt/crescivebolt_cast/crescivebolt_cast",
+			texturePath: "crescivebolt/crescivebolt_cast/",
+			min: "crescivebolt/crescivebolt_cast/min_crescivebolt_cast"
+		}],
+		ef_wh_crescive_bolt_hit: [{
+			type: "STR",
+			file: "crescivebolt/crescivebolt_hit/crescivebolt_hit",
+			texturePath: "crescivebolt/crescivebolt_hit/",
+			min: "crescivebolt/crescivebolt_hit/min_crescivebolt_hit"
+		}],
+		ef_wh_flametrap: [{
+			type: "STR",
+			file: "flametrap/flametrap/flametrap",
+			texturePath: "flametrap/flametrap/",
+			min: "flametrap/flametrap/min_flametrap"
+		}, {
+			type: "STR",
+			file: "flametrap/flametrap_bottom/flametrap_bottom",
+			texturePath: "flametrap/flametrap_bottom/",
+			min: "flametrap/flametrap_bottom/min_flametrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_flametrap_cast: [{
+			type: "STR",
+			file: "flametrap/flametrap_cast/flametrap_cast",
+			texturePath: "flametrap/flametrap_cast/",
+			min: "flametrap/flametrap_cast/min_flametrap_cast"
+		}],
+		ef_wh_flametrap_hit: [{
+			type: "STR",
+			file: "flametrap/flametrap_hit/flametrap_hit",
+			texturePath: "flametrap/flametrap_hit/",
+			min: "flametrap/flametrap_hit/min_flametrap_hit"
+		}],
+		ef_wh_wild_walk: [{
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk/wild_walk",
+			texturePath: "windhawk/wh_wild_walk/wild_walk/",
+			min: "windhawk/wh_wild_walk/wild_walk/min_wild_walk",
+			wav: "effect/wh_wild_walk"
+		}],
+		ef_wh_wild_walk_cast: [{
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk_cast/wild_walk_cast",
+			texturePath: "windhawk/wh_wild_walk/wild_walk_cast/",
+			min: "windhawk/wh_wild_walk/wild_walk_cast/min_wild_walk_cast"
+		}, {
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk_cast_bottom/wild_walk_cast_bottom",
+			texturePath: "windhawk/wh_wild_walk/wild_walk_cast_bottom/",
+			min: "windhawk/wh_wild_walk/wild_walk_cast_bottom/min_wild_walk_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_wild_walk_hit: [{
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk_hit/wild_walk_hit",
+			texturePath: "windhawk/wh_wild_walk/wild_walk_hit/",
+			min: "windhawk/wh_wild_walk/wild_walk_hit/min_wild_walk_hit"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Gunslinger/Gunslinger.js
+var Gunslinger_default;
+var init_Gunslinger = __esmMin((() => {
+	Gunslinger_default = {
+		gunslinger_coin: [{
+			wav: "effect/ÇÃ¸³",
+			attachedEntity: true
+		}],
+		456: [{
+			wav: "effect/mon_Æø±â",
+			attachedEntity: true
+		}],
+		584: [{
+			type: "SPR",
+			file: "m_ef02",
+			attachedEntity: true,
+			direction: true
+		}],
+		627: [{ wav: "effect/µð½º¾Ï" }],
+		628: [
+			{
+				wav: "effect/bash3d5",
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				duplicate: 6,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				duplicate: 6,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 7.2,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
+		637: [{
+			type: "SPR",
+			file: "µ¥½ºÆä¶óµµ",
+			wav: "effect/µ¥½ºÆä¶óµµ",
+			attachedEntity: true
+		}],
+		643: [{
+			type: "SPR",
+			file: "·¡ÇÇµå»þ¿ö",
+			wav: "effect/·¡ÇÇµå»þ¿ö",
+			attachedEntity: true
+		}],
+		644: [{
+			type: "SPR",
+			file: "¸ÅÁöÄÃºÒ¸´",
+			wav: "effect/¸ÅÁöÄÃºí¸´",
+			attachedEntity: true
+		}],
+		645: [{
+			type: "SPR",
+			file: "½ºÇÁ·¹µå",
+			attachedEntity: true,
+			direction: true
+		}],
+		646: [{
+			type: "STR",
+			file: "Æ®·¢Å·",
+			attachedEntity: true
+		}],
+		647: [{
+			type: "SPR",
+			file: "Æ®·¡Å·",
+			attachedEntity: true
+		}],
+		648: [{
+			type: "SPR",
+			file: "Æ®¸®ÇÃ¾×¼Ç",
+			wav: "effect/Æ®¸®ÇÃ¾×¼Ç",
+			attachedEntity: true
+		}],
+		649: [{
+			type: "STR",
+			file: "ºÒ½º¾ÆÀÌ",
+			attachedEntity: true
 		}],
 		ef_gs_increasing: [{
 			type: "STR",
@@ -287056,370 +282336,262 @@ var init_Effects2300 = __esmMin((() => {
 			texturePath: "increasing_activity/increasing_activity_cast_bottom/",
 			min: "increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom",
 			renderBeforeEntities: true
-		}],
-		ef_rk_windcutter: [{
-			type: "STR",
-			file: "new_windcutter/new_windcutter/new_windcutter",
-			texturePath: "new_windcutter/new_windcutter/"
-		}],
-		ef_ab_secrament: [{
-			type: "STR",
-			file: "new_secrament/new_secrament/new_secrament",
-			texturePath: "new_secrament/new_secrament/"
-		}],
-		ef_ra_fearbreeze: [{
-			type: "STR",
-			file: "new_fearbreeze/new_fearbreeze",
-			texturePath: "new_fearbreeze/"
-		}],
-		ef_sc_fatalmenace: [{
-			type: "STR",
-			file: "new_fatal_menace/new_fatal_menace/new_fatal_menace",
-			texturePath: "new_fatal_menace/new_fatal_menace/"
-		}, {
-			type: "STR",
-			file: "new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom",
-			texturePath: "new_fatal_menace/new_fatal_menace_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sc_fatalmenace_cast: [{
-			type: "STR",
-			file: "new_fatal_menace/new_fatal_menace_cast/new_fatal_menace_cast",
-			texturePath: "new_fatal_menace/new_fatal_menace_cast/"
-		}, {
-			type: "STR",
-			file: "new_fatal_menace/new_fatal_menace_cast_bottom/new_fatal_menace_cast_bottom",
-			texturePath: "new_fatal_menace/new_fatal_menace_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sc_reproduce: [{
-			type: "STR",
-			file: "new_reproduce/new_reproduce/new_reproduce",
-			texturePath: "new_reproduce/new_reproduce/",
-			wav: "effect/reproduce"
-		}, {
-			type: "STR",
-			file: "new_reproduce/new_reproduce_bottom/new_reproduce_bottom",
-			texturePath: "new_reproduce/new_reproduce_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sc_autoshadowspell: [{
-			type: "STR",
-			file: "new_autoshadowspell/new_autoshadowspell/new_autoshadowspell",
-			texturePath: "new_autoshadowspell/new_autoshadowspell/"
-		}, {
-			type: "STR",
-			file: "new_autoshadowspell/new_autoshadowspell_bottom/new_autoshadowspell_bottom",
-			texturePath: "new_autoshadowspell/new_autoshadowspell_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sp_soulgolem: [{
-			type: "STR",
-			file: "soul_golem/soul_golem",
-			texturePath: "soul_golem/"
-		}],
-		ef_sp_soulcurse: [{
-			type: "STR",
-			file: "soul_curse/soul_curse",
-			texturePath: "soul_curse/"
-		}],
-		ef_sp_soulrevolve: [{
-			type: "STR",
-			file: "soul_revolve/soul_revolve",
-			texturePath: "soul_revolve/"
-		}],
-		ef_ko_jyumonjikiri: [{
-			type: "STR",
-			file: "jyumonjikiri",
-			texturePath: ""
-		}],
-		ef_ko_setsudan: [{
-			type: "STR",
-			file: "setsudan",
-			texturePath: ""
-		}],
-		ef_ra_unlimit: [{
-			type: "STR",
-			file: "new_unlimit/new_unlimit/new_unlimit",
-			texturePath: "new_unlimit/new_unlimit/",
-			wav: "ra_unlimit"
-		}, {
-			type: "STR",
-			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
-			texturePath: "new_unlimit/new_unlimit_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_nv_helpangel: [{
-			type: "STR",
-			file: "help_angel/help_angel/help_angel",
-			texturePath: "help_angel/help_angel/",
-			wav: "effect/priest_sanctuary"
-		}, {
-			type: "STR",
-			file: "help_angel/help_angel_bottom/help_angel_bottom",
-			texturePath: "help_angel/help_angel_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_cast_circle_red: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", 1), Params);
-			}
-		}],
-		ef_cast_circle_violet: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "magic_violet.tga"), Params);
-			}
-		}],
-		ef_cast_circle_blue: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_blue.tga", 2), Params);
-			}
-		}],
-		ef_cast_circle_yellow: [{
-			type: "FUNC",
-			attachedEntity: true,
-			castLoop: true,
-			wav: "effect/ef_beginspell",
-			func: function(Params) {
-				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", 0), Params);
-			}
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_abc.js
-var ef_abc_default;
-var init_ef_abc = __esmMin((() => {
-	ef_abc_default = {
-		ef_abc_abyss_dagger: [{
+// src/DB/Effects/Table/Jobs/Gunslinger/NightWatch.js
+var NightWatch_default;
+var init_NightWatch = __esmMin((() => {
+	NightWatch_default = {
+		ef_nw_intensive_aim: [{
 			type: "STR",
-			file: "abyss_dagger/abyss_dagger/abyss_dagger",
-			texturePath: "abyss_dagger/abyss_dagger/",
-			min: "abyss_dagger/abyss_dagger/min_abyss_dagger",
-			wav: "effect/abc_abyss_dagger"
+			file: "night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim_full/",
+			min: "night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full",
+			wav: "effect/night_watch/nw_intensive_aim"
 		}],
-		ef_abc_abyss_dagger_hit: [{
+		ef_nw_grenade_fragment: [{
 			type: "STR",
-			file: "abyss_dagger/abyss_dagger_hit/abyss_dagger_hit",
-			texturePath: "abyss_dagger/abyss_dagger_hit/",
-			min: "abyss_dagger/abyss_dagger_hit/min_abyss_dagger_hit"
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_fire/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire"
 		}],
-		ef_abc_unlucky_rush: [{
+		ef_nw_the_vigilante_at_night: [{
 			type: "STR",
-			file: "unlucky_rush/unlucky_rush/unlucky_rush",
-			texturePath: "unlucky_rush/unlucky_rush/",
-			min: "unlucky_rush/unlucky_rush/min_unlucky_rush",
-			wav: "effect/abc_unlucky_rush"
-		}],
-		ef_abc_unlucky_rush_cast: [{
-			type: "STR",
-			file: "unlucky_rush/unlucky_rush_cast/unlucky_rush_cast",
-			texturePath: "unlucky_rush/unlucky_rush_cast/",
-			min: "unlucky_rush/unlucky_rush_cast/min_unlucky_rush_cast"
-		}],
-		ef_abc_unlucky_rush_hit: [{
-			type: "STR",
-			file: "unlucky_rush/unlucky_rush_hit/unlucky_rush_hit",
-			texturePath: "unlucky_rush/unlucky_rush_hit/",
-			min: "unlucky_rush/unlucky_rush_hit/min_unlucky_rush_hit"
-		}],
-		ef_abc_chain_reaction_shot: [{
-			type: "STR",
-			file: "chain_reaction_shot/chain_reaction_shot/chain_reaction_shot",
-			texturePath: "chain_reaction_shot/chain_reaction_shot/",
-			min: "chain_reaction_shot/chain_reaction_shot/min_chain_reaction_shot",
-			wav: "effect/abc_chain_reaction_shot"
-		}],
-		ef_abc_chain_reaction_shot_cast: [{
-			type: "STR",
-			file: "chain_reaction_shot/chain_reaction_shot_cast/chain_reaction_shot_cast",
-			texturePath: "chain_reaction_shot/chain_reaction_shot_cast/",
-			min: "chain_reaction_shot/chain_reaction_shot_cast/min_chain_reaction_shot_cast"
-		}, {
-			type: "STR",
-			file: "chain_reaction_shot/chain_reaction_shot_cast_bottom/chain_reaction_shot_cast_bottom",
-			texturePath: "chain_reaction_shot/chain_reaction_shot_cast_bottom/",
-			min: "chain_reaction_shot/chain_reaction_shot_cast_bottom/min_chain_reaction_shot_cast_bottom",
+			file: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/the_vigilante_at_night_bottom",
+			texturePath: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/",
+			min: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/min_the_vigilante_at_night_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_abc_chain_reaction_shot_hit: [{
+		ef_nw_only_one_bullet: [{
 			type: "STR",
-			file: "chain_reaction_shot/chain_reaction_shot_hit/chain_reaction_shot_hit",
-			texturePath: "chain_reaction_shot/chain_reaction_shot_hit/",
-			min: "chain_reaction_shot/chain_reaction_shot_hit/min_chain_reaction_shot_hit"
+			file: "night_watch/nw_only_one_bullet/only_one_bullet/only_one_bullet",
+			texturePath: "night_watch/nw_only_one_bullet/only_one_bullet/",
+			min: "night_watch/nw_only_one_bullet/only_one_bullet/min_only_one_bullet",
+			wav: "effect/night_watch/nw_only_one_bullet"
 		}],
-		ef_abc_from_the_abyss_hit: [{
+		ef_nw_only_one_bullet_hit: [{
 			type: "STR",
-			file: "from_the_abyss/from_the_abyss_attack/from_the_abyss_attack",
-			texturePath: "from_the_abyss/from_the_abyss_attack/",
-			wav: "effect/abc_from_the_abyss"
+			file: "night_watch/nw_only_one_bullet/only_one_bullet_hit/only_one_bullet_hit",
+			texturePath: "night_watch/nw_only_one_bullet/only_one_bullet_hit/",
+			min: "night_watch/nw_only_one_bullet/only_one_bullet_hit/min_only_one_bullet_hit"
 		}],
-		ef_abc_abyss_slayer: [{
+		ef_nw_spiral_shooting: [{
 			type: "STR",
-			file: "4abc_abyss_slayer/abyss_slayer/abyss_slayer",
-			texturePath: "4abc_abyss_slayer/abyss_slayer/",
-			min: "4abc_abyss_slayer/abyss_slayer/min_abyss_slayer",
-			wav: "effect/abc_abyss_slayer"
+			file: "night_watch/nw_spiral_shooting/spiral_shooting",
+			texturePath: "night_watch/nw_spiral_shooting/",
+			min: "night_watch/nw_spiral_shooting/min_spiral_shooting",
+			wav: "effect/night_watch/nw_spiral_shooting"
 		}],
-		ef_abc_abyss_slayer_cast: [{
+		ef_nw_magazine_for_one: [{
 			type: "STR",
-			file: "4abc_abyss_slayer/abyss_slayer_cast/abyss_slayer_cast",
-			texturePath: "4abc_abyss_slayer/abyss_slayer_cast/",
-			min: "4abc_abyss_slayer/abyss_slayer_cast/min_abyss_slayer_cast"
+			file: "night_watch/nw_magazine_for_one/magazine_for_one",
+			texturePath: "night_watch/nw_magazine_for_one/",
+			min: "night_watch/nw_magazine_for_one/min_magazine_for_one",
+			wav: "effect/night_watch/nw_magazine_for_one"
+		}],
+		ef_nw_wild_fire: [{
+			type: "STR",
+			file: "night_watch/nw_wild_fire/wild_fire/wild_fire",
+			texturePath: "night_watch/nw_wild_fire/wild_fire/",
+			min: "night_watch/nw_wild_fire/wild_fire/min_wild_fire",
+			wav: "effect/night_watch/nw_wild_fire"
 		}, {
 			type: "STR",
-			file: "4abc_abyss_slayer/abyss_slayer_cast_bottom/abyss_slayer_cast_bottom",
-			texturePath: "4abc_abyss_slayer/abyss_slayer_cast_bottom/",
-			min: "4abc_abyss_slayer/abyss_slayer_cast_bottom/min_abyss_slayer_cast_bottom",
+			file: "night_watch/nw_wild_fire/wild_fire_bottom/wild_fire_bottom",
+			texturePath: "night_watch/nw_wild_fire/wild_fire_bottom/",
+			min: "night_watch/nw_wild_fire/wild_fire_bottom/min_wild_fire_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_abc_abyss_strike: [{
+		ef_nw_basic_grenade: [{
 			type: "STR",
-			file: "abyss_strike/abyss_strike/abyss_strike",
-			texturePath: "abyss_strike/abyss_strike/",
-			min: "abyss_strike/abyss_strike/min_abyss_strike",
-			wav: "effect/abc_abyss_strike"
+			file: "night_watch/nw_basic_grenade/basic_grenade/basic_grenade",
+			texturePath: "night_watch/nw_basic_grenade/basic_grenade/",
+			min: "night_watch/nw_basic_grenade/basic_grenade/min_basic_grenade",
+			wav: "effect/night_watch/nw_basic_grenade"
 		}, {
 			type: "STR",
-			file: "abyss_strike/abyss_strike_bottom/abyss_strike_bottom",
-			texturePath: "abyss_strike/abyss_strike_bottom/",
-			min: "abyss_strike/abyss_strike_bottom/min_abyss_strike_bottom",
+			file: "night_watch/nw_basic_grenade/basic_grenade_bottom/basic_grenade_bottom",
+			texturePath: "night_watch/nw_basic_grenade/basic_grenade_bottom/",
+			min: "night_watch/nw_basic_grenade/basic_grenade_bottom/min_basic_grenade_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_abc_abyss_strike_cast: [{
+		ef_nw_grenades_dropping: [{
 			type: "STR",
-			file: "abyss_strike/abyss_strike_cast/abyss_strike_cast",
-			texturePath: "abyss_strike/abyss_strike_cast/",
-			min: "abyss_strike/abyss_strike_cast/min_abyss_strike_cast"
+			file: "night_watch/nw_grenades_dropping/grenades_dropping/grenades_dropping",
+			texturePath: "night_watch/nw_grenades_dropping/grenades_dropping/",
+			min: "night_watch/nw_grenades_dropping/grenades_dropping/min_grenades_dropping"
 		}, {
 			type: "STR",
-			file: "abyss_strike/abyss_strike_cast_bottom/abyss_strike_cast_bottom",
-			texturePath: "abyss_strike/abyss_strike_cast_bottom/",
-			min: "abyss_strike/abyss_strike_cast_bottom/min_abyss_strike_cast_bottom",
+			file: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/grenades_dropping_bottom",
+			texturePath: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/",
+			min: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/min_grenades_dropping_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_abc_abyss_strike_hit: [{
+		ef_nw_auto_firing_launcher: [{
 			type: "STR",
-			file: "abyss_strike/abyss_strike_hit/abyss_strike_hit",
-			texturePath: "abyss_strike/abyss_strike_hit/",
-			min: "abyss_strike/abyss_strike_hit/min_abyss_strike_hit"
-		}],
-		ef_abc_deft_stab: [{
-			type: "STR",
-			file: "deft_stab/deft_stab/deft_stab",
-			texturePath: "deft_stab/deft_stab/",
-			min: "deft_stab/deft_stab/min_deft_stab"
-		}],
-		ef_abc_abyss_square: [{
-			type: "STR",
-			file: "abyss_square/abyss_square/abyss_square",
-			texturePath: "abyss_square/abyss_square/",
-			min: "abyss_square/abyss_square/min_abyss_square",
-			wav: "effect/abc_abyss_square"
+			file: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/auto_firing_launcher",
+			texturePath: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/",
+			min: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/min_auto_firing_launcher",
+			wav: "effect/night_watch/nw_auto_firing_launcher"
 		}, {
 			type: "STR",
-			file: "abyss_square/abyss_square_bottom/abyss_square_bottom",
-			texturePath: "abyss_square/abyss_square_bottom/",
-			min: "abyss_square/abyss_square_bottom/min_abyss_square_bottom",
+			file: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/auto_firing_launcher_bottom",
+			texturePath: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/",
+			min: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/min_auto_firing_launcher_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_abc_abyss_square_hit: [{
+		ef_nw_hidden_card: [{
 			type: "STR",
-			file: "abyss_square/abyss_square_hit/abyss_square_hit",
-			texturePath: "abyss_square/abyss_square_hit/"
+			file: "night_watch/nw_hidden_card/hidden_card/hiddencard",
+			texturePath: "night_watch/nw_hidden_card/hidden_card/",
+			min: "night_watch/nw_hidden_card/hidden_card/min_hiddencard",
+			wav: "effect/night_watch/nw_hidden_card"
 		}],
-		ef_abc_frenzy_shot: [{
+		ef_nw_mission_bombard_hit: [{
 			type: "STR",
-			file: "frenzy_shot/frenzy_shot/frenzy_shot",
-			texturePath: "frenzy_shot/frenzy_shot/",
-			min: "frenzy_shot/frenzy_shot/min_frenzy_shot",
-			wav: "effect/abc_frenzy_shot"
+			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
+			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
+			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
 		}],
-		ef_abc_frenzy_shot_hit: [{
-			type: "STR",
-			file: "frenzy_shot/frenzy_shot_hit/frenzy_shot_hit",
-			texturePath: "frenzy_shot/frenzy_shot_hit/",
-			min: "frenzy_shot/frenzy_shot_hit/min_frenzy_shot_hit"
+		ef_nw_mission_bombard_field: [{
+			type: "AREA_SPAWN",
+			spawnEffectId: "ef_nw_mission_bombard_drop",
+			interval: 250,
+			count: 3,
+			areaByLevel: [9],
+			area: 9,
+			scaleRange: [.5, 1]
 		}],
-		ef_abc_chain_reaction_shot_atk: [{
+		ef_nw_mission_bombard_drop: [{
 			type: "STR",
-			file: "chain_reaction_shot/chain_reaction_shot_hit/chain_reaction_shot_hit",
-			texturePath: "chain_reaction_shot/chain_reaction_shot_hit/",
-			min: "chain_reaction_shot/chain_reaction_shot_hit/min_chain_reaction_shot_hit"
+			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
+			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
+			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
 		}],
-		ef_abc_from_the_abyss_atk: [{
+		ef_nw_wild_shot: [{
 			type: "STR",
-			file: "from_the_abyss/from_the_abyss_attack/from_the_abyss_attack",
-			texturePath: "from_the_abyss/from_the_abyss_attack/"
+			file: "night_watch/nw_wild_shot/wild_shot/wild_shot",
+			texturePath: "night_watch/nw_wild_shot/wild_shot/",
+			min: "night_watch/nw_wild_shot/wild_shot/min_wild_shot"
 		}],
-		ef_abc_chasing_break: [{
+		ef_nw_wild_shot_cast: [{
 			type: "STR",
-			file: "abyss_chaser/abc_chasing_break/chasing_break/chasing_break",
-			texturePath: "abyss_chaser/abc_chasing_break/chasing_break/",
-			min: "abyss_chaser/abc_chasing_break/chasing_break/min_chasing_break",
-			wav: "effect/abc_chasing_break"
+			castLoop: true,
+			attachedEntity: true,
+			file: "night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast",
+			texturePath: "night_watch/nw_wild_shot/wild_shot_cast/",
+			min: "night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast",
+			wav: "effect/ef_beginspell",
+			renderBeforeEntities: true,
+			yOffset: 11
 		}],
-		ef_abc_chasing_shot_cast: [{
+		ef_nw_wild_shot_hit: [{
 			type: "STR",
-			file: "abyss_chaser/abc_chasing_shot/chasing_shot_cast/chasing_shot_cast",
-			texturePath: "abyss_chaser/abc_chasing_shot/chasing_shot_cast/",
-			min: "abyss_chaser/abc_chasing_shot/chasing_shot_cast/min_chasing_shot_cast",
-			wav: "effect/abc_chasing_shot"
-		}, {
-			type: "STR",
-			file: "abyss_chaser/abc_chasing_shot/chasing_shot_cast_bottom/chasing_shot_cast_bottom",
-			texturePath: "abyss_chaser/abc_chasing_shot/chasing_shot_cast_bottom/",
-			min: "abyss_chaser/abc_chasing_shot/chasing_shot_cast_bottom/min_chasing_shot_cast_bottom",
-			renderBeforeEntities: true
+			file: "night_watch/nw_wild_shot/wild_shot_hit/wild_shot_hit",
+			texturePath: "night_watch/nw_wild_shot/wild_shot_hit/",
+			min: "night_watch/nw_wild_shot/wild_shot_hit/min_wild_shot_hit"
 		}],
-		ef_abc_chasing_shot_hit: [{
+		ef_nw_midnight_fallen: [{
 			type: "STR",
-			file: "abyss_chaser/abc_chasing_shot/chasing_shot_hit/chasing_shot_hit",
-			texturePath: "abyss_chaser/abc_chasing_shot/chasing_shot_hit/",
-			min: "abyss_chaser/abc_chasing_shot/chasing_shot_hit/min_chasing_shot_hit"
+			file: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/midnight_fallen_bottom",
+			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/",
+			min: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/min_midnight_fallen_bottom",
+			renderBeforeEntities: true,
+			wav: "effect/night_watch/nw_midnight_fallen"
 		}],
-		ef_abc_abyss_flame: [{
+		ef_nw_midnight_fallen_cast: [{
 			type: "STR",
-			file: "abyss_chaser/abc_abyss_flame/abyss_flame/abyss_flame",
-			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame/",
-			min: "abyss_chaser/abc_abyss_flame/abyss_flame/min_abyss_flame",
-			wav: "effect/abc_abyss_flame"
-		}],
-		ef_abc_abyss_flame_cast: [{
-			type: "STR",
-			file: "abyss_chaser/abc_abyss_flame/abyss_flame_cast/abyss_flame_cast",
-			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_cast/",
-			min: "abyss_chaser/abc_abyss_flame/abyss_flame_cast/min_abyss_flame_cast"
-		}, {
-			type: "STR",
-			file: "abyss_chaser/abc_abyss_flame/abyss_flame_cast_bottom/abyss_flame_cast_bottom",
-			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_cast_bottom/",
-			min: "abyss_chaser/abc_abyss_flame/abyss_flame_cast_bottom/min_abyss_flame_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_abc_abyss_flame_hit: [{
-			type: "STR",
-			file: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/abyss_flame_hit",
-			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/",
-			min: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/min_abyss_flame_hit"
+			castLoop: true,
+			attachedEntity: true,
+			file: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom",
+			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/",
+			min: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom",
+			wav: "effect/ef_beginspell",
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 11
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_ag.js
-var ef_ag_default;
-var init_ef_ag = __esmMin((() => {
-	ef_ag_default = {
+// src/DB/Effects/Table/Jobs/Gunslinger/Rebellion.js
+var Rebellion_default;
+var init_Rebellion = __esmMin((() => {
+	Rebellion_default = {
+		ef_s_storm: [{
+			type: "STR",
+			file: "S_STORM",
+			wav: "effect/RL_S_STORM",
+			attachedEntity: true
+		}],
+		ef_c_marker1: [
+			{
+				type: "STR",
+				file: "RL_C_MAKER/deffender",
+				attachedEntity: true
+			},
+			{
+				type: "STR",
+				file: "RL_C_MAKER/cm",
+				attachedEntity: true
+			},
+			{ wav: "effect/RL_C_MARKER" }
+		],
+		ef_rl_e_chain: [{
+			type: "STR",
+			file: "rl_e_chain/eternal",
+			texturePath: "rl_e_chain/"
+		}],
+		ef_rl_firedance: [{
+			type: "STR",
+			file: "rl_fire_dance/firedance",
+			texturePath: "rl_fire_dance/"
+		}],
+		ef_rl_h_mine: [{
+			type: "STR",
+			file: "rl_h_mine/mine",
+			texturePath: "rl_h_mine/",
+			wav: "effect/rl_h_mine"
+		}],
+		ef_rl_p_alter: [{
+			type: "STR",
+			file: "rl_p_alter/platinum",
+			texturePath: "rl_p_alter/"
+		}],
+		ef_rl_fallen_angel: [{
+			type: "STR",
+			file: "rl_fallen_angel/penne",
+			texturePath: "rl_fallen_angel/"
+		}],
+		ef_rl_d_tail: [{
+			type: "STR",
+			file: "rl_d_tail/dtdt",
+			texturePath: "rl_d_tail/",
+			wav: "effect/rl_d_tail"
+		}],
+		ef_rl_fire_rain: [{
+			type: "STR",
+			file: "rl_fire_rain/fire_rain",
+			texturePath: "rl_fire_rain/",
+			wav: "effect/rl_fire_rain"
+		}],
+		ef_rl_heat_barrel: [{
+			type: "STR",
+			file: "rl_heat_barrel/htb",
+			texturePath: "rl_heat_barrel/"
+		}],
+		ef_rl_slugshot: [{
+			type: "STR",
+			file: "rl_slugshot/slug",
+			texturePath: "rl_slugshot/",
+			wav: "effect/rl_slugshot"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Mage/ArchMage.js
+var ArchMage_default;
+var init_ArchMage = __esmMin((() => {
+	ArchMage_default = {
 		ef_ag_deadly_projection_cast: [{
 			type: "STR",
 			file: "deadly_projection/deadly_projection_cast/deadly_projection_cast",
@@ -287894,729 +283066,10 @@ var init_ef_ag = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_bo.js
-var ef_bo_default;
-var init_ef_bo = __esmMin((() => {
-	ef_bo_default = {
-		ef_bo_acidified_zone_water_atk: [{
-			type: "STR",
-			file: "acidified_zone_water/acidified_zone_water_hit/acidified_zone_water_hit",
-			texturePath: "acidified_zone_water/acidified_zone_water_hit/",
-			min: "acidified_zone_water/acidified_zone_water_hit/min_acidified_zone_water_hit"
-		}],
-		ef_bo_acidified_zone_ground_atk: [{
-			type: "STR",
-			file: "acidified_zone_ground/acidified_zone_ground_hit/acidified_zone_ground_hit",
-			texturePath: "acidified_zone_ground/acidified_zone_ground_hit/",
-			min: "acidified_zone_ground/acidified_zone_ground_hit/min_acidified_zone_ground_hit"
-		}],
-		ef_bo_acidified_zone_wind_atk: [{
-			type: "STR",
-			file: "acidified_zone_wind/acidified_zone_wind_hit/acidified_zone_wind_hit",
-			texturePath: "acidified_zone_wind/acidified_zone_wind_hit/",
-			min: "acidified_zone_wind/acidified_zone_wind_hit/min_acidified_zone_wind_hit"
-		}],
-		ef_bo_acidified_zone_fire_atk: [{
-			type: "STR",
-			file: "acidified_zone_fire/acidified_zone_fire_hit/acidified_zone_fire_hit",
-			texturePath: "acidified_zone_fire/acidified_zone_fire_hit/",
-			min: "acidified_zone_fire/acidified_zone_fire_hit/min_acidified_zone_fire_hit"
-		}],
-		ef_bo_advance_protection: [{
-			wav: "effect/bo_advance_protection",
-			attachedEntity: true
-		}],
-		ef_bo_acidified_zone_water_cast: [{
-			type: "STR",
-			file: "acidified_zone_water/acidified_zone_water_cast/acidified_zone_water_cast",
-			texturePath: "acidified_zone_water/acidified_zone_water_cast/",
-			min: "acidified_zone_water/acidified_zone_water_cast/min_acidified_zone_water_cast",
-			wav: "effect/bo_acidified_zone_water"
-		}, {
-			type: "STR",
-			file: "acidified_zone_water/acidified_zone_water_cast_bottom/acidified_zone_water_cast_bottom",
-			texturePath: "acidified_zone_water/acidified_zone_water_cast_bottom/",
-			min: "acidified_zone_water/acidified_zone_water_cast_bottom/min_acidified_zone_water_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_acidified_zone_water_hit: [{
-			type: "STR",
-			file: "acidified_zone_water/acidified_zone_water_hit/acidified_zone_water_hit",
-			texturePath: "acidified_zone_water/acidified_zone_water_hit/",
-			min: "acidified_zone_water/acidified_zone_water_hit/min_acidified_zone_water_hit"
-		}],
-		ef_bo_acidified_zone_ground_cast: [{
-			type: "STR",
-			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
-			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
-			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
-			wav: "effect/bo_acidified_zone_ground"
-		}, {
-			type: "STR",
-			file: "acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom",
-			texturePath: "acidified_zone_ground/acidified_zone_ground_cast_bottom/",
-			min: "acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_acidified_zone_ground_hit: [{
-			type: "STR",
-			file: "acidified_zone_ground/acidified_zone_ground_hit/acidified_zone_ground_hit",
-			texturePath: "acidified_zone_ground/acidified_zone_ground_hit/",
-			min: "acidified_zone_ground/acidified_zone_ground_hit/min_acidified_zone_ground_hit"
-		}],
-		ef_bo_acidified_zone_wind_cast: [{
-			type: "STR",
-			file: "acidified_zone_wind/acidified_zone_wind_cast/acidified_zone_wind_cast",
-			texturePath: "acidified_zone_wind/acidified_zone_wind_cast/",
-			min: "acidified_zone_wind/acidified_zone_wind_cast/min_acidified_zone_wind_cast",
-			wav: "effect/bo_acidified_zone_wind"
-		}, {
-			type: "STR",
-			file: "acidified_zone_wind/acidified_zone_wind_cast_bottom/acidified_zone_wind_cast_bottom",
-			texturePath: "acidified_zone_wind/acidified_zone_wind_cast_bottom/",
-			min: "acidified_zone_wind/acidified_zone_wind_cast_bottom/min_acidified_zone_wind_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_acidified_zone_wind_hit: [{
-			type: "STR",
-			file: "acidified_zone_wind/acidified_zone_wind_hit/acidified_zone_wind_hit",
-			texturePath: "acidified_zone_wind/acidified_zone_wind_hit/",
-			min: "acidified_zone_wind/acidified_zone_wind_hit/min_acidified_zone_wind_hit"
-		}],
-		ef_bo_acidified_zone_fire_cast: [{
-			type: "STR",
-			file: "acidified_zone_fire/acidified_zone_fire_cast/acidified_zone_fire_cast",
-			texturePath: "acidified_zone_fire/acidified_zone_fire_cast/",
-			min: "acidified_zone_fire/acidified_zone_fire_cast/min_acidified_zone_fire_cast",
-			wav: "effect/bo_acidified_zone_fire"
-		}, {
-			type: "STR",
-			file: "acidified_zone_fire/acidified_zone_fire_cast_bottom/acidified_zone_fire_cast_bottom",
-			texturePath: "acidified_zone_fire/acidified_zone_fire_cast_bottom/",
-			min: "acidified_zone_fire/acidified_zone_fire_cast_bottom/min_acidified_zone_fire_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_acidified_zone_fire_hit: [{
-			type: "STR",
-			file: "acidified_zone_fire/acidified_zone_fire_hit/acidified_zone_fire_hit",
-			texturePath: "acidified_zone_fire/acidified_zone_fire_hit/",
-			min: "acidified_zone_fire/acidified_zone_fire_hit/min_acidified_zone_fire_hit"
-		}],
-		ef_bo_woodenwarrior_cast: [{
-			type: "STR",
-			file: "wooden_warrior/wooden_warrior_cast/wooden_warrior_cast",
-			texturePath: "wooden_warrior/wooden_warrior_cast/",
-			min: "wooden_warrior/wooden_warrior_cast/min_wooden_warrior_cast"
-		}, {
-			type: "STR",
-			file: "wooden_warrior/wooden_warrior_cast_bottom/wooden_warrior_cast_bottom",
-			texturePath: "wooden_warrior/wooden_warrior_cast_bottom/",
-			min: "wooden_warrior/wooden_warrior_cast_bottom/min_wooden_warrior_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_woodenwarrior_hit: [
-			{
-				type: "STR",
-				file: "wooden_warrior/throwrock/throwrock_hit/throwrock_hit",
-				texturePath: "wooden_warrior/throwrock/throwrock_hit/",
-				min: "wooden_warrior/throwrock/throwrock_hit/min_throwrock_hit"
-			},
-			{
-				type: "STR",
-				file: "wooden_warrior/wooden_attack/wooden_attack/wooden_attack",
-				texturePath: "wooden_warrior/wooden_attack/wooden_attack/",
-				min: "wooden_warrior/wooden_attack/wooden_attack/min_wooden_attack"
-			},
-			{
-				type: "STR",
-				file: "wooden_warrior/wooden_attack/wooden_attack_hit/wooden_attack_hit",
-				texturePath: "wooden_warrior/wooden_attack/wooden_attack_hit/",
-				min: "wooden_warrior/wooden_attack/wooden_attack_hit/min_wooden_attack_hit"
-			}
-		],
-		ef_bo_wooden_fairy_cast: [{
-			type: "STR",
-			file: "wooden_fairy/wooden_cast/wooden_cast",
-			texturePath: "wooden_fairy/wooden_cast/",
-			min: "wooden_fairy/wooden_cast/min_wooden_cast"
-		}, {
-			type: "STR",
-			file: "wooden_fairy/wooden_cast_bottom/wooden_cast_bottom",
-			texturePath: "wooden_fairy/wooden_cast_bottom/",
-			min: "wooden_fairy/wooden_cast_bottom/min_wooden_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_researchreport: [{
-			type: "STR",
-			file: "research_report/researchreport/researchreport",
-			texturePath: "research_report/researchreport/",
-			min: "research_report/researchreport/min_researchreport",
-			wav: "effect/bo_researchreport"
-		}],
-		ef_bo_researchreport_cast: [{
-			type: "STR",
-			file: "research_report/researchreport_cast/researchreport_cast",
-			texturePath: "research_report/researchreport_cast/",
-			min: "research_report/researchreport_cast/min_researchreport_cast"
-		}, {
-			type: "STR",
-			file: "research_report/researchreport_cast_bottom/researchreport_cast_bottom",
-			texturePath: "research_report/researchreport_cast_bottom/",
-			min: "research_report/researchreport_cast_bottom/min_researchreport_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_helltree_cast: [{
-			type: "STR",
-			file: "helltree/helltree_cast/helltree_cast",
-			texturePath: "helltree/helltree_cast/",
-			min: "helltree/helltree_cast/min_helltree_cast"
-		}, {
-			type: "STR",
-			file: "helltree/helltree_cast_bottom/helltree_cast_bottom",
-			texturePath: "helltree/helltree_cast_bottom/",
-			min: "helltree/helltree_cast_bottom/min_helltree_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_wooden_attack_hit: [{
-			type: "STR",
-			file: "wooden_warrior/wooden_attack/wooden_attack/wooden_attack",
-			texturePath: "wooden_warrior/wooden_attack/wooden_attack/",
-			min: "wooden_warrior/wooden_attack/wooden_attack/min_wooden_attack",
-			wav: "effect/bo_wooden_attack"
-		}, {
-			type: "STR",
-			file: "wooden_warrior/wooden_attack/wooden_attack_hit/wooden_attack_hit",
-			texturePath: "wooden_warrior/wooden_attack/wooden_attack_hit/",
-			min: "wooden_warrior/wooden_attack/wooden_attack_hit/min_wooden_attack_hit"
-		}],
-		ef_bo_explosive_powder: [{
-			type: "STR",
-			file: "biolo/explosive_powder/explosive_powder/explosive_powder",
-			texturePath: "biolo/explosive_powder/explosive_powder/",
-			min: "biolo/explosive_powder/explosive_powder/min_explosive_powder",
-			wav: "effect/bo_explosive_powder"
-		}],
-		ef_bo_mayhemic_thorns: [{
-			type: "STR",
-			file: "biolo/mayhemic_thorns/mayhemic_thorns/mayhemic_thorns",
-			texturePath: "biolo/mayhemic_thorns/mayhemic_thorns/",
-			min: "biolo/mayhemic_thorns/mayhemic_thorns/min_mayhemic_thorns",
-			wav: "effect/bo_mayhemic_thorns"
-		}, {
-			type: "STR",
-			file: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/mayhemic_thorns_bottom",
-			texturePath: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/",
-			min: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/min_mayhemic_thorns_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_bo_mystery_powder: [{
-			type: "STR",
-			file: "biolo/bo_mystery_powder/mistery_powder/mistery_powder",
-			texturePath: "biolo/bo_mystery_powder/mistery_powder/",
-			min: "biolo/bo_mystery_powder/mistery_powder/min_mistery_powder",
-			wav: "effect/bo_mystery_powder"
-		}],
-		ef_bo_mystery_powder_hit: [{
-			type: "STR",
-			file: "biolo/bo_mystery_powder/mistery_powder_hit/mistery_powder_hit",
-			texturePath: "biolo/bo_mystery_powder/mistery_powder_hit/",
-			min: "biolo/bo_mystery_powder/mistery_powder_hit/min_mistery_powder_hit"
-		}],
-		ef_bo_dust_explosion: [{
-			type: "STR",
-			file: "biolo/bo_dust_explosion/dust_explosion/dust_explosion",
-			texturePath: "biolo/bo_dust_explosion/dust_explosion/",
-			min: "biolo/bo_dust_explosion/dust_explosion/min_dust_explosion"
-		}],
-		ef_bo_dust_explosion_hit: [{
-			type: "STR",
-			file: "biolo/bo_dust_explosion/dust_explosion_hit/dust_explosion_hit",
-			texturePath: "biolo/bo_dust_explosion/dust_explosion_hit/",
-			min: "biolo/bo_dust_explosion/dust_explosion_hit/min_dust_explosion_hit"
-		}, {
-			type: "STR",
-			file: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/dust_explosion_hit_bottom",
-			texturePath: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/",
-			min: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/min_dust_explosion_hit_bottom",
-			renderBeforeEntities: true
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_cd.js
-var ef_cd_default;
-var init_ef_cd = __esmMin((() => {
-	ef_cd_default = {
-		ef_cd_reparatio: [{
-			type: "STR",
-			file: "new_reparatio/new_reparatio/new_reparatio",
-			texturePath: "new_reparatio/new_reparatio/",
-			min: "new_reparatio/new_reparatio/min_new_reparatio"
-		}, {
-			type: "STR",
-			file: "new_reparatio/new_reparatio_bottom/new_reparatio_bottom",
-			texturePath: "new_reparatio/new_reparatio_bottom/",
-			min: "new_reparatio/new_reparatio_bottom/min_new_reparatio_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_reparatio_cast: [{
-			type: "STR",
-			file: "new_reparatio/new_reparatio_cast/new_reparatio_cast",
-			texturePath: "new_reparatio/new_reparatio_cast/",
-			min: "new_reparatio/new_reparatio_cast/min_new_reparatio_cast"
-		}, {
-			type: "STR",
-			file: "new_reparatio/new_reparatio_cast_bottom/new_reparatio_cast_bottom",
-			texturePath: "new_reparatio/new_reparatio_cast_bottom/",
-			min: "new_reparatio/new_reparatio_cast_bottom/min_new_reparatio_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_mediale_votum: [{
-			type: "STR",
-			file: "medialevotum/medialevotum/medialevotum",
-			texturePath: "medialevotum/medialevotum/",
-			min: "medialevotum/medialevotum/min_medialevotum",
-			wav: "effect/cd_mediale_votum"
-		}],
-		ef_cd_mediale_votum_cast: [{
-			type: "STR",
-			file: "medialevotum/medialevotum_cast/medialevotum_cast",
-			texturePath: "medialevotum/medialevotum_cast/",
-			min: "medialevotum/medialevotum_cast/min_medialevotum_cast"
-		}],
-		ef_cd_argutus_vita: [{
-			type: "STR",
-			file: "argutusvita/argutusvita/argutusvita",
-			texturePath: "argutusvita/argutusvita/",
-			min: "argutusvita/argutusvita/min_argutusvita",
-			wav: "effect/cd_argutus_vita"
-		}],
-		ef_cd_argutus_vita_cast: [{
-			type: "STR",
-			file: "argutusvita/argutusvita_cast/argutusvita_cast",
-			texturePath: "argutusvita/argutusvita_cast/",
-			min: "argutusvita/argutusvita_cast/min_argutusvita_cast"
-		}],
-		ef_cd_argutus_telum: [{
-			type: "STR",
-			file: "argutustelum/argutustelum/argutustelum",
-			texturePath: "argutustelum/argutustelum/",
-			min: "argutustelum/argutustelum/min_argutustelum"
-		}],
-		ef_cd_argutus_telum_cast: [{
-			type: "STR",
-			file: "argutustelum/argutustelum_cast/argutustelum_cast",
-			texturePath: "argutustelum/argutustelum_cast/",
-			min: "argutustelum/argutustelum_cast/min_argutustelum_cast"
-		}],
-		ef_cd_arbitrium: [{
-			type: "STR",
-			file: "arbitrium/arbitrium/arbitrium",
-			texturePath: "arbitrium/arbitrium/",
-			min: "arbitrium/arbitrium/min_arbitrium",
-			wav: "effect/cd_arbitrium"
-		}, {
-			type: "STR",
-			file: "arbitrium/arbitrium_bottom/arbitrium_bottom",
-			texturePath: "arbitrium/arbitrium_bottom/",
-			min: "arbitrium/arbitrium_bottom/min_arbitrium_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_arbitrium_cast: [{
-			type: "STR",
-			file: "arbitrium/arbitrium_cast/arbitrium_cast",
-			texturePath: "arbitrium/arbitrium_cast/",
-			min: "arbitrium/arbitrium_cast/min_arbitrium_cast"
-		}, {
-			type: "STR",
-			file: "arbitrium/arbitrium_cast_bottom/arbitrium_cast_bottom",
-			texturePath: "arbitrium/arbitrium_cast_bottom/",
-			min: "arbitrium/arbitrium_cast_bottom/min_arbitrium_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_arbitrium_hit: [{
-			type: "STR",
-			file: "arbitrium/arbitrium_hit/arbitrium_hit",
-			texturePath: "arbitrium/arbitrium_hit/",
-			min: "arbitrium/arbitrium_hit/min_arbitrium_hit"
-		}],
-		ef_cd_arbitrium_atk: [{
-			type: "STR",
-			file: "arbitrium/arbitrium_hit/arbitrium_hit",
-			texturePath: "arbitrium/arbitrium_hit/",
-			min: "arbitrium/arbitrium_hit/min_arbitrium_hit"
-		}],
-		ef_cd_presens_acies: [{
-			type: "STR",
-			file: "presensacies/presensacies/presensacies",
-			texturePath: "presensacies/presensacies/",
-			min: "presensacies/presensacies/min_presensacies",
-			wav: "effect/cd_presens_acies"
-		}],
-		ef_cd_presens_acies_cast: [{
-			type: "STR",
-			file: "presensacies/presensacies_cast/presensacies_cast",
-			texturePath: "presensacies/presensacies_cast/",
-			min: "presensacies/presensacies_cast/min_presensacies_cast"
-		}],
-		ef_cd_effligo: [{
-			type: "STR",
-			file: "effligo/effligo/effligo",
-			texturePath: "effligo/effligo/",
-			min: "effligo/effligo/min_effligo",
-			wav: "effect/cd_effligo"
-		}, {
-			type: "STR",
-			file: "effligo/effligo_bottom/effligo_bottom",
-			texturePath: "effligo/effligo_bottom/",
-			min: "effligo/effligo_bottom/min_effligo_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_effligo_hit: [{
-			type: "STR",
-			file: "effligo/effligo_hit/effligo_hit",
-			texturePath: "effligo/effligo_hit/",
-			min: "effligo/effligo_hit/min_effligo_hit"
-		}],
-		ef_cd_competentia: [{
-			type: "STR",
-			file: "competentia/competentia/competentia",
-			texturePath: "competentia/competentia/",
-			min: "competentia/competentia/min_competentia",
-			wav: "effect/cd_competentia"
-		}, {
-			type: "STR",
-			file: "competentia/competentia_bottom/competentia_bottom",
-			texturePath: "competentia/competentia_bottom/",
-			min: "competentia/competentia_bottom/min_competentia_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_competentia_cast: [{
-			type: "STR",
-			file: "competentia/competentia_cast/competentia_cast",
-			texturePath: "competentia/competentia_cast/"
-		}],
-		ef_cd_pneumaticus_procella: [{
-			type: "STR",
-			file: "new_pneumaticusprocella/new_pneumaticusprocella/new_pneumaticusprocella",
-			texturePath: "new_pneumaticusprocella/new_pneumaticusprocella/",
-			wav: "effect/cd_pneumaticus_procella"
-		}],
-		ef_cd_pneumaticus_procella_cast: [{
-			type: "STR",
-			file: "new_pneumaticusprocella/new_pneumaticusprocella_cast/new_pneumaticusprocella_cast",
-			texturePath: "new_pneumaticusprocella/new_pneumaticusprocella_cast/"
-		}],
-		ef_cd_dilectio_heal: [{
-			type: "STR",
-			file: "new_dilectioheal/new_dilectioheal/new_dilectioheal",
-			texturePath: "new_dilectioheal/new_dilectioheal/",
-			min: "new_dilectioheal/new_dilectioheal/min_new_dilectioheal",
-			wav: "effect/cd_dilectio_heal"
-		}],
-		ef_cd_dilectio_heal_cast: [{
-			type: "STR",
-			file: "new_dilectioheal/new_dilectioheal_cast/new_dilectioheal_cast",
-			texturePath: "new_dilectioheal/new_dilectioheal_cast/",
-			min: "new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast"
-		}, {
-			type: "STR",
-			file: "new_dilectioheal/new_dilectioheal_cast_bottom/new_dilectioheal_cast_bottom",
-			texturePath: "new_dilectioheal/new_dilectioheal_cast_bottom/",
-			min: "new_dilectioheal/new_dilectioheal_cast_bottom/min_new_dilectioheal_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_religio: [{
-			type: "STR",
-			file: "religio/religio/religio",
-			texturePath: "religio/religio/",
-			min: "religio/religio/min_religio",
-			wav: "effect/cd_religio"
-		}],
-		ef_cd_religio_cast: [{
-			type: "STR",
-			file: "religio/religio_cast/religio_cast",
-			texturePath: "religio/religio_cast/",
-			min: "religio/religio_cast/min_religio_cast"
-		}],
-		ef_cd_benedictum: [{
-			type: "STR",
-			file: "benedictum/benedictum/benedictum",
-			texturePath: "benedictum/benedictum/",
-			min: "benedictum/benedictum/min_benedictum",
-			wav: "effect/cd_benedictum"
-		}],
-		ef_cd_benedictum_cast: [{
-			type: "STR",
-			file: "benedictum/benedictum_cast/benedictum_cast",
-			texturePath: "benedictum/benedictum_cast/",
-			min: "benedictum/benedictum_cast/min_benedictum_cast"
-		}, {
-			type: "STR",
-			file: "benedictum/benedictum_cast_bottom/benedictum_cast_bottom",
-			texturePath: "benedictum/benedictum_cast_bottom/",
-			min: "benedictum/benedictum_cast_bottom/min_benedictum_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_petitio: [{
-			type: "STR",
-			file: "petitio/petitio/petitio",
-			texturePath: "petitio/petitio/",
-			min: "petitio/petitio/min_petitio",
-			wav: "effect/cd_petitio"
-		}, {
-			type: "STR",
-			file: "petitio/petitio_bottom/petitio_bottom",
-			texturePath: "petitio/petitio_bottom/",
-			min: "petitio/petitio_bottom/min_petitio_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_framen: [{
-			wav: "effect/cd_framen",
-			attachedEntity: true
-		}],
-		ef_cd_divinus_flos: [{
-			type: "STR",
-			file: "cardinal/cd_divinus_flos/divinus_flos/divinus_flos",
-			texturePath: "cardinal/cd_divinus_flos/divinus_flos/",
-			min: "cardinal/cd_divinus_flos/divinus_flos/min_divinus_flos",
-			wav: "effect/cd_divinus_flos"
-		}, {
-			type: "STR",
-			file: "cardinal/cd_divinus_flos/divinus_flos_bottom/divinus_flos_bottom",
-			texturePath: "cardinal/cd_divinus_flos/divinus_flos_bottom/",
-			min: "cardinal/cd_divinus_flos/divinus_flos_bottom/min_divinus_flos_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_divinus_flos_cast: [{
-			type: "STR",
-			file: "cardinal/cd_divinus_flos/divinus_flos_cast/divinus_flos_cast",
-			texturePath: "cardinal/cd_divinus_flos/divinus_flos_cast/",
-			min: "cardinal/cd_divinus_flos/divinus_flos_cast/min_divinus_flos_cast"
-		}, {
-			type: "STR",
-			file: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/divinus_flos_cast_bottom",
-			texturePath: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/",
-			min: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/min_divinus_flos_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_cd_divinus_flos_hit: [{
-			type: "STR",
-			file: "cardinal/cd_divinus_flos/divinus_flos_hit/divinus_flos_hit",
-			texturePath: "cardinal/cd_divinus_flos/divinus_flos_hit/",
-			min: "cardinal/cd_divinus_flos/divinus_flos_hit/min_divinus_flos_hit"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_dk.js
-var ef_dk_default;
-var init_ef_dk = __esmMin((() => {
-	ef_dk_default = {
-		ef_dk_servantweapon: [{
-			type: "STR",
-			file: "dragon_knight/dk_servantweapon/servantweapon/servantweapon",
-			texturePath: "dragon_knight/dk_servantweapon/servantweapon/",
-			min: "dragon_knight/dk_servantweapon/servantweapon/min_servantweapon",
-			fallback: ["new_servantweapon/new_servantweapon/new_servantweapon"],
-			wav: "effect/dk_servantweapon"
-		}],
-		ef_dk_servantweapon_cast: [{
-			type: "STR",
-			file: "dragon_knight/dk_servantweapon/servantweapon_cast/servantweapon_cast",
-			texturePath: "dragon_knight/dk_servantweapon/servantweapon_cast/",
-			min: "dragon_knight/dk_servantweapon/servantweapon_cast/min_servantweapon_cast",
-			fallback: ["new_servantweapon/new_servantweapon_cast/new_servantweapon_cast"]
-		}],
-		ef_dk_servantweapon_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_servantweapon/servantweapon_hit/servantweapon_hit",
-			texturePath: "dragon_knight/dk_servantweapon/servantweapon_hit/",
-			min: "dragon_knight/dk_servantweapon/servantweapon_hit/min_servantweapon_hit",
-			fallback: ["new_servantweapon/new_servantweapon_hit/new_servantweapon_hit"]
-		}, {
-			type: "STR",
-			file: "dragon_knight/dk_servantweapon/servantweapon_hit_bottom/servantweapon_hit_bottom",
-			texturePath: "dragon_knight/dk_servantweapon/servantweapon_hit_bottom/",
-			min: "dragon_knight/dk_servantweapon/servantweapon_hit_bottom/min_servantweapon_hit_bottom",
-			fallback: ["new_servantweapon/new_servantweapon_hit_bottom/new_servantweapon_hit_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_dk_servantweapon_atk: [{
-			type: "STR",
-			file: "new_servantweapon/new_servantweapon_hit/new_servantweapon_hit",
-			texturePath: "new_servantweapon/new_servantweapon_hit/",
-			min: "new_servantweapon/new_servantweapon_hit/min_new_servantweapon_hit"
-		}, {
-			type: "STR",
-			file: "new_servantweapon/new_servantweapon_hit_bottom/new_servantweapon_hit_bottom",
-			texturePath: "new_servantweapon/new_servantweapon_hit_bottom/",
-			min: "new_servantweapon/new_servantweapon_hit_bottom/min_new_servantweapon_hit_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_dk_servant_w_sign: [{
-			wav: "effect/dk_servant_w_sign",
-			attachedEntity: true
-		}],
-		ef_dk_servant_w_phantom: [{
-			type: "STR",
-			file: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub/servant_phantom_sub",
-			texturePath: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub/",
-			min: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub/min_servant_phantom_sub",
-			fallback: ["servant_phantom/servant_phantom_sub/servant_phantom_sub"],
-			wav: "effect/dk_servant_w_phantom"
-		}, {
-			type: "STR",
-			file: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/servant_phantom_sub_bottom",
-			texturePath: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/",
-			min: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/min_servant_phantom_sub_bottom",
-			fallback: ["servant_phantom/servant_phantom_sub_bottom/servant_phantom_sub_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_dk_servant_w_demol_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_servant_w_demol/servant_demolition_hit/servant_demolition_hit",
-			texturePath: "dragon_knight/dk_servant_w_demol/servant_demolition_hit/",
-			min: "dragon_knight/dk_servant_w_demol/servant_demolition_hit/min_servant_demolition_hit",
-			fallback: ["servant_demolition/servant_demolition_hit/servant_demolition_hit"],
-			wav: "effect/dk_servant_w_demol"
-		}],
-		ef_dk_chargingpierce_cast: [{
-			type: "STR",
-			file: "dragon_knight/dk_chargingpierce/chargingpierce_cast/chargingpierce_cast",
-			texturePath: "dragon_knight/dk_chargingpierce/chargingpierce_cast/",
-			fallback: ["new_chargingpierce/new_chargingpierce_cast/new_chargingpierce_cast"],
-			wav: "effect/dk_chargingpierce1"
-		}, {
-			type: "STR",
-			file: "dragon_knight/dk_chargingpierce/chargingpierce_cast_bottom/chargingpierce_cast_bottom",
-			texturePath: "dragon_knight/dk_chargingpierce/chargingpierce_cast_bottom/",
-			fallback: ["new_chargingpierce/new_chargingpierce_cast_bottom/new_chargingpierce_cast_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_dk_chargingpierce_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_chargingpierce/chargingpierce_hit/chargingpierce_hit",
-			texturePath: "dragon_knight/dk_chargingpierce/chargingpierce_hit/",
-			fallback: ["new_chargingpierce/new_chargingpierce_hit/new_chargingpierce_hit"],
-			wav: "effect/dk_chargingpierce2"
-		}],
-		ef_dk_hackandslasher: [{
-			type: "STR",
-			file: "dragon_knight/dk_hackandslasher/hackandslash/hackandslash",
-			texturePath: "dragon_knight/dk_hackandslasher/hackandslash/",
-			min: "dragon_knight/dk_hackandslasher/hackandslash/min_hackandslash",
-			fallback: ["hackandslash/hackandslash/hackandslash"],
-			wav: "effect/dk_hackandslasher"
-		}, {
-			type: "STR",
-			file: "dragon_knight/dk_hackandslasher/hackandslash_bottom/hackandslash_bottom",
-			texturePath: "dragon_knight/dk_hackandslasher/hackandslash_bottom/",
-			min: "dragon_knight/dk_hackandslasher/hackandslash_bottom/min_hackandslash_bottom",
-			fallback: ["hackandslash/hackandslash_bottom/hackandslash_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_dk_hackandslasher_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_hackandslasher/hackandslash_hit/hackandslash_hit",
-			texturePath: "dragon_knight/dk_hackandslasher/hackandslash_hit/",
-			min: "dragon_knight/dk_hackandslasher/hackandslash_hit/min_hackandslash_hit",
-			fallback: ["hackandslash/hackandslash_hit/hackandslash_hit"]
-		}],
-		ef_dk_hackandslasher_atk: [{
-			type: "STR",
-			file: "hackandslash/hackandslash_hit/hackandslash_hit",
-			texturePath: "hackandslash/hackandslash_hit/",
-			min: "hackandslash/hackandslash_hit/min_hackandslash_hit"
-		}],
-		ef_dk_dragonic_aura: [{
-			wav: "effect/dk_dragonic_aura1",
-			attachedEntity: true
-		}],
-		ef_dk_madness_crusher: [{
-			type: "STR",
-			file: "dragon_knight/dk_madness_crusher/madness_crusher/madness_crusher",
-			texturePath: "dragon_knight/dk_madness_crusher/madness_crusher/",
-			min: "dragon_knight/dk_madness_crusher/madness_crusher/min_madness_crusher",
-			fallback: ["madness_crusher/madness_crusher/madness_crusher"],
-			wav: "effect/dk_madness_crusher"
-		}, {
-			type: "STR",
-			file: "dragon_knight/dk_madness_crusher/madness_crusher_bottom/madness_crusher_bottom",
-			texturePath: "dragon_knight/dk_madness_crusher/madness_crusher_bottom/",
-			min: "dragon_knight/dk_madness_crusher/madness_crusher_bottom/min_madness_crusher_bottom",
-			fallback: ["madness_crusher/madness_crusher_bottom/madness_crusher_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_dk_vigor: [{
-			wav: "effect/dk_vigor",
-			attachedEntity: true
-		}],
-		ef_dk_vigor_cast: [{
-			type: "STR",
-			file: "dragon_knight/dk_vigor/vigor_cast/vigor_cast",
-			texturePath: "dragon_knight/dk_vigor/vigor_cast/",
-			min: "dragon_knight/dk_vigor/vigor_cast/min_vigor_cast",
-			fallback: ["vigor/vigor_cast/vigor_cast"]
-		}],
-		ef_dk_stormslash_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_stormslash/stormslash/stormslash_%d",
-			min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_%d",
-			rand: [1, 5],
-			texturePath: "dragon_knight/dk_stormslash/stormslash/",
-			fallback: ["stormslash/stormslash/stormslash_%d"],
-			wav: "effect/dk_stormslash1"
-		}],
-		ef_dk_dragonic_breath: [{
-			type: "STR",
-			file: "dragon_knight/dragonic_breath/dragonic_breath/dragonic_breath",
-			texturePath: "dragon_knight/dragonic_breath/dragonic_breath/",
-			min: "dragon_knight/dragonic_breath/dragonic_breath/min_dragonic_breath",
-			wav: "effect/dk_dragonic_breath"
-		}, {
-			type: "STR",
-			file: "dragon_knight/dragonic_breath/dragonic_breath_bottom/dragonic_breath_bottom",
-			texturePath: "dragon_knight/dragonic_breath/dragonic_breath_bottom/",
-			min: "dragon_knight/dragonic_breath/dragonic_breath_bottom/min_dragonic_breath_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_dk_dragonic_breath_hit: [{
-			type: "STR",
-			file: "dragon_knight/dragonic_breath/dragonic_breath_hit/dragonic_breath_hit",
-			texturePath: "dragon_knight/dragonic_breath/dragonic_breath_hit/",
-			min: "dragon_knight/dragonic_breath/dragonic_breath_hit/min_dragonic_breath_hit"
-		}],
-		ef_dk_dragonic_pierce: [{
-			type: "STR",
-			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_bottom/dragonic_pierce_bottom",
-			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_bottom/",
-			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_bottom/min_dragonic_pierce_bottom",
-			renderBeforeEntities: true,
-			wav: "effect/dk_dragonic_pierce"
-		}],
-		ef_dk_dragonic_pierce_cast: [{
-			type: "STR",
-			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/dragonic_pierce_cast",
-			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/",
-			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/min_dragonic_pierce_cast"
-		}],
-		ef_dk_dragonic_pierce_hit: [{
-			type: "STR",
-			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/dragonic_pierce_hit",
-			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/",
-			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/min_dragonic_pierce_hit"
-		}, {
-			type: "STR",
-			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit_bottom/dragonic_pierce_hit_bottom",
-			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit_bottom/",
-			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit_bottom/min_dragonic_pierce_hit_bottom",
-			renderBeforeEntities: true
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_em.js
-var ef_em_default;
-var init_ef_em = __esmMin((() => {
-	ef_em_default = {
+// src/DB/Effects/Table/Jobs/Mage/ElementalMaster.js
+var ElementalMaster_default;
+var init_ElementalMaster = __esmMin((() => {
+	ElementalMaster_default = {
 		ef_em_spell_enchanting: [{
 			type: "STR",
 			file: "spell_enchanting/spell_enchanting/spell_enchanting",
@@ -289101,47 +283554,3021 @@ var init_ef_em = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_gc.js
-var ef_gc_default;
-var init_ef_gc = __esmMin((() => {
-	ef_gc_default = {
-		ef_gc_crossimpact: [{
-			type: "STR",
-			file: "new_crossimpact/new_crossimpact/new_crossimpact",
-			texturePath: "new_crossimpact/new_crossimpact/"
+// src/DB/Effects/Table/Jobs/Mage/HighWizard.js
+var HighWizard_default;
+var init_HighWizard = __esmMin((() => {
+	init_Camera();
+	HighWizard_default = {
+		217: [
+			{
+				type: "3D",
+				duration: 600,
+				duplicate: 5,
+				timeBetweenDupli: 0,
+				absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
+				playSprite: true,
+				toSrc: true,
+				rotateToTarget: true,
+				red: .4,
+				green: .4,
+				blue: 1,
+				sizeStart: 150,
+				sizeEnd: 180,
+				zOffsetStart: 5,
+				arc: 3,
+				retreat: 3,
+				drainPattern: true
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function EffectBodyColor(Params) {
+					const entity = Params.Init.ownerEntity;
+					entity.animations.add(function(tick) {
+						if (tick < 500) return false;
+						const time = tick - 500;
+						if (time < 200) {
+							const val = (255 - (time + 50)) / 255;
+							entity._flashColor[0] = val;
+							entity._flashColor[1] = val;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return false;
+						}
+						if (time < 400) {
+							const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
+							entity._flashColor[0] = val;
+							entity._flashColor[1] = val;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return false;
+						}
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					});
+				}
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function EffectBodyColor(Params) {
+					const entity = Params.Init.otherEntity;
+					if (!entity) return true;
+					entity.animations.add(function(tick) {
+						const time = tick;
+						if (time < 200) {
+							const val = (255 - (time + 50)) / 255;
+							entity._flashColor[0] = val;
+							entity._flashColor[1] = val;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return false;
+						}
+						if (time < 400) {
+							const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
+							entity._flashColor[0] = val;
+							entity._flashColor[1] = val;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return false;
+						}
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					});
+				}
+			}
+		],
+		380: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function(tick) {
+					if (tick < 1e3) {
+						if (tick > 500) {
+							entity._flashColor[0] = Math.random();
+							entity._flashColor[1] = Math.random();
+							entity._flashColor[2] = Math.random();
+							entity._flashColor[3] = .6;
+							entity.recalculateBlendingColor();
+						}
+					} else {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					}
+				});
+			},
+			wav: "effect/¸ÅÁ÷ Å©·¡½¬"
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick + 300;
+				Camera.setQuake(start);
+			}
 		}],
-		ef_gc_poisoningweapon: [{
+		ef_magicpower: [{
+			wav: "effect/¸¶¹ý·Â ÁõÆø",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/Renderer/Effects/BoltRainSim.js
+/**
+* A whole number from 0 to k - 1
+*
+* @param {number} k
+* @param {function} [random] returns a number in [0, 1)
+* @return {number}
+*/
+function randomInt(k, random = Math.random) {
+	return Math.min(k - 1, Math.floor(random() * k));
+}
+/**
+* Plan every bolt of one effect
+*
+* @param {number} count the damage packet's hit count
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array} bolts: spawn tick, start point, step a tick, ticks of flight
+*/
+function planBolts(count, random = Math.random) {
+	const n = Math.max(1, Math.min(BOLT.maxCount, Math.floor(count) || 1));
+	const bolts = [];
+	for (let i = 0; i < n; ++i) {
+		const start = {
+			x: BOLT.startX + randomInt(BOLT.spread, random),
+			y: BOLT.startY + randomInt(BOLT.spread, random),
+			up: BOLT.height
+		};
+		const aimX = randomInt(BOLT.aim, random) - BOLT.aim / 2;
+		const aimY = randomInt(BOLT.aim, random) - BOLT.aim / 2;
+		const heading = Math.atan2(aimY - start.y, aimX - start.x);
+		const elevation = Math.atan2(BOLT.height, Math.hypot(start.x, start.y));
+		const flat = Math.cos(elevation) * BOLT.speed;
+		const step = {
+			x: Math.cos(heading) * flat,
+			y: Math.sin(heading) * flat,
+			up: -Math.sin(elevation) * BOLT.speed
+		};
+		bolts.push({
+			spawn: BOLT.first + BOLT.every * i,
+			start,
+			step,
+			flight: Math.ceil(BOLT.height / -step.up)
+		});
+	}
+	return bolts;
+}
+/**
+* Where a bolt is and how visible, at the given age (ticks since it started)
+*
+* @param {object} bolt from planBolts
+* @param {number} age
+* @return {object|null} x, y, up, alpha (0..254); null once it is gone
+*/
+function boltAt(bolt, age) {
+	if (age < 0) return null;
+	const moving = Math.min(age, bolt.flight);
+	const ownAge = age <= bolt.flight ? age : BOLT.landAge + (age - bolt.flight);
+	if (ownAge >= BOLT.life) return null;
+	const alpha = ownAge <= BOLT.fadeStart ? BOLT.alpha : BOLT.alpha * (BOLT.life - ownAge) / (BOLT.life - BOLT.fadeStart);
+	return {
+		x: bolt.start.x + bolt.step.x * moving,
+		y: bolt.start.y + bolt.step.y * moving,
+		up: bolt.start.up + bolt.step.up * moving,
+		alpha
+	};
+}
+/**
+* Tick (since the effect started) on which a bolt lands and opens its ring
+*
+* @param {object} bolt
+* @return {number}
+*/
+function ringStart(bolt) {
+	return bolt.spawn + bolt.flight;
+}
+/**
+* Write one vertex in roBrowser's GL space (x, y on the map, up; GL keeps the
+* map plane in x/z and points y down)
+*/
+function vertex$1(out, i, center, x, y, up, u, v) {
+	out[i + 0] = center[0] + .5 + x / 5;
+	out[i + 1] = -center[2] - up / 5;
+	out[i + 2] = center[1] + .5 + y / 5;
+	out[i + 3] = u;
+	out[i + 4] = v;
+	return i + 5;
+}
+/**
+* Build one bolt: two quads crossing along its line, one level and one upright.
+*
+* @param {Float32Array} out
+* @param {number} offset first float to write
+* @param {object} bolt from planBolts
+* @param {object} point from boltAt
+* @param {object} kind BOLT_KINDS entry
+* @param {Array} center target position, in cells
+* @return {number} next float to write
+*/
+function buildBolt(out, offset, bolt, point, kind, center) {
+	let axes = bolt.axes;
+	if (!axes) {
+		const len = Math.hypot(bolt.step.x, bolt.step.y, bolt.step.up);
+		const dx = bolt.step.x / len;
+		const dy = bolt.step.y / len;
+		const dz = bolt.step.up / len;
+		const flat = Math.hypot(dx, dy) || 1;
+		const sx = -dy / flat;
+		const sy = dx / flat;
+		axes = bolt.axes = [
+			dx,
+			dy,
+			dz,
+			sx,
+			sy,
+			0,
+			sy * dz,
+			-sx * dz,
+			sx * dy - sy * dx
+		];
+	}
+	const L = kind.length;
+	const W = kind.width;
+	let o = offset;
+	for (let quad = 0; quad < 2; ++quad) {
+		const ax = axes[3 + quad * 3];
+		const ay = axes[4 + quad * 3];
+		const az = axes[5 + quad * 3];
+		const tx = point.x - axes[0] * L;
+		const ty = point.y - axes[1] * L;
+		const tz = point.up - axes[2] * L;
+		const hx = point.x + axes[0] * L;
+		const hy = point.y + axes[1] * L;
+		const hz = point.up + axes[2] * L;
+		const wx = ax * W;
+		const wy = ay * W;
+		const wz = az * W;
+		o = vertex$1(out, o, center, tx - wx, ty - wy, tz - wz, 0, 1);
+		o = vertex$1(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
+		o = vertex$1(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
+		o = vertex$1(out, o, center, hx - wx, hy - wy, hz - wz, 1, 1);
+		o = vertex$1(out, o, center, hx + wx, hy + wy, hz + wz, 1, 0);
+		o = vertex$1(out, o, center, tx + wx, ty + wy, tz + wz, 0, 0);
+	}
+	return o;
+}
+/**
+* Which texture frame a bolt shows at the given age
+*
+* @param {object} kind
+* @param {number} age
+* @return {number}
+*/
+function boltFrame(kind, age) {
+	return Math.max(0, age) % kind.frames.length;
+}
+/**
+* Plan Fire Bolt's sparks. One every 4 ticks while the effect lasts, from the newest
+* bolt's point (where it flies, or where it stuck), once the first bolt is out.
+*
+* @param {Array} bolts from planBolts
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array} sparks: tick, start and end points, life in ticks, scale
+*/
+function planSparks(bolts, random = Math.random) {
+	const sparks = [];
+	const DEG = Math.PI / 180;
+	for (let tick = SPARK.every; tick < BOLT.effectLife; tick += SPARK.every) {
+		const bolt = bolts.filter((b) => b.spawn <= tick).pop();
+		if (!bolt) continue;
+		const age = Math.min(tick - bolt.spawn, bolt.flight);
+		const start = {
+			x: bolt.start.x + bolt.step.x * age,
+			y: bolt.start.y + bolt.step.y * age,
+			up: bolt.start.up + bolt.step.up * age
+		};
+		const life = SPARK.life + randomInt(SPARK.lifeSpread, random);
+		const heading = Math.atan2(bolt.step.y, bolt.step.x) + (randomInt(2 * SPARK.turn, random) - SPARK.turn) * DEG;
+		const elevation = Math.atan2(-bolt.step.up, Math.hypot(bolt.step.x, bolt.step.y)) + (randomInt(2 * SPARK.tilt, random) - SPARK.tilt) * DEG;
+		const speed = (SPARK.speed + randomInt(SPARK.speedSpread, random)) / 100;
+		const scale = (SPARK.scale + randomInt(SPARK.scaleSpread, random)) / 100;
+		const slow = speed / life / SPARK.slow;
+		const distance = speed * life - slow * life * (life + 1) / 2;
+		const flat = Math.cos(elevation) * distance;
+		sparks.push({
+			tick,
+			start,
+			end: {
+				x: start.x - Math.cos(heading) * flat,
+				y: start.y - Math.sin(heading) * flat,
+				up: start.up + Math.sin(elevation) * distance
+			},
+			life,
+			scale
+		});
+	}
+	return sparks;
+}
+var BOLT, BOLT_KINDS, BOLT_RING, SPARK;
+var init_BoltRainSim = __esmMin((() => {
+	init_EffectPrimSim();
+	BOLT = {
+		first: 12,
+		every: 10,
+		life: 70,
+		landAge: 45,
+		fadeStart: 50,
+		speed: 2.75,
+		height: 60,
+		startX: 25,
+		startY: 15,
+		spread: 10,
+		aim: 4,
+		alpha: 254,
+		effectLife: 160,
+		maxCount: 50
+	};
+	BOLT_KINDS = {
+		cold: {
+			length: 11.5,
+			width: 3.8,
+			frames: ["icearrow.tga"],
+			ring: "ring_blue.tga"
+		},
+		fire: {
+			length: 14,
+			width: 3.5,
+			frames: [
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			].map((i) => `\xba\xd2\xc8\xad\xbb\xec${i}.tga`),
+			ring: "ring_yellow.tga"
+		}
+	};
+	BOLT_RING = {
+		prim: "ring",
+		frames: 30,
+		radius: 0,
+		radiusSpeed: 1.2,
+		radiusAccel: 1.2 / 70 * -2,
+		width: 10,
+		segments: 10,
+		alpha: 0,
+		alphaSpeed: 254 / 10,
+		fadeOutFrame: 20
+	};
+	SPARK = {
+		every: 4,
+		life: 6,
+		lifeSpread: 24,
+		speed: 60,
+		speedSpread: 90,
+		slow: 1.5,
+		scale: 20,
+		scaleSpread: 30,
+		turn: 20,
+		tilt: 10
+	};
+}));
+// src/Renderer/Effects/BoltRain.js
+function loadTexture$2(gl, name) {
+	if (_textures$1.has(name)) return;
+	_textures$1.set(name, null);
+	const generation = _generation;
+	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+		WebGL_default.texture(gl, buffer, (texture) => {
+			if (generation !== _generation || !_textures$1.has(name)) {
+				gl.deleteTexture(texture);
+				return;
+			}
+			_textures$1.set(name, texture);
+		});
+	});
+}
+var _program$4, _textures$1, _generation, RING_VERTICES, BoltRain;
+var init_BoltRain = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_SpriteRenderer();
+	init_EffectPrimSim();
+	init_BoltRainSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	_program$4 = null;
+	_textures$1 = /* @__PURE__ */ new Map();
+	_generation = 0;
+	RING_VERTICES = primVertexCount(BOLT_RING);
+	BoltRain = class {
+		/**
+		* @param {vec3} position target position (kept by reference, so it follows)
+		* @param {number} startTick
+		* @param {number} count the damage packet's hit count
+		* @param {string} kind 'cold' or 'fire'
+		* @param {function} [random] returns a number in [0, 1)
+		* @param {function} [onSpark] called with each Fire Bolt spark (BoltRainSim planSparks) on its tick
+		*/
+		constructor(position, startTick, count, kind, random = Math.random, onSpark = null) {
+			this.position = position;
+			this.startTick = startTick || 0;
+			this.kind = BOLT_KINDS[kind] || BOLT_KINDS.cold;
+			this.bolts = planBolts(count, random);
+			this.sparks = onSpark ? planSparks(this.bolts, random) : [];
+			this.nextSpark = 0;
+			this.onSpark = onSpark;
+			this.endTick = this.startTick + BOLT.effectLife * PRIM_TICK_MS;
+			this.boltVertices = /* @__PURE__ */ new Float32Array(60);
+			this.ringVertices = new Float32Array(RING_VERTICES * 5);
+			this.color = new Float32Array([
+				1,
+				1,
+				1,
+				1
+			]);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			this.kind.frames.forEach((name) => loadTexture$2(gl, name));
+			loadTexture$2(gl, this.kind.ring);
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		draw(gl, vertices, count, texture, alpha) {
+			const attribute = _program$4.attribute;
+			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			this.color[3] = alpha / 255;
+			gl.uniform4fv(_program$4.uniform.uColor, this.color);
+			gl.drawArrays(gl.TRIANGLES, 0, count);
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			if (tick > this.endTick) {
+				this.needCleanUp = true;
+				return;
+			}
+			const frame = Math.min(BOLT.effectLife, Math.floor((tick - this.startTick) / PRIM_TICK_MS));
+			const self = this;
+			while (this.nextSpark < this.sparks.length && this.sparks[this.nextSpark].tick <= frame) {
+				const spark = this.sparks[this.nextSpark++];
+				this.onSpark(spark, this.startTick + spark.tick * PRIM_TICK_MS);
+			}
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
+				self.bolts.forEach((bolt) => {
+					const age = frame - bolt.spawn;
+					const point = boltAt(bolt, age);
+					const texture = _textures$1.get(self.kind.frames[boltFrame(self.kind, age)]);
+					if (point && point.alpha > 0 && texture) {
+						buildBolt(self.boltVertices, 0, bolt, point, self.kind, self.position);
+						self.draw(gl, self.boltVertices, 12, texture, point.alpha);
+					}
+					const ringAge = frame - ringStart(bolt);
+					const ringTexture = _textures$1.get(self.kind.ring);
+					if (ringAge >= 0 && ringAge < BOLT_RING.frames && ringTexture) {
+						const state = bolt.ringState || (bolt.ringState = createPrimState(BOLT_RING));
+						advancePrim(state, ringAge);
+						if (state.alpha > 0) {
+							buildPrimGeometry(self.ringVertices, BOLT_RING, state, self.position);
+							self.draw(gl, self.ringVertices, RING_VERTICES, ringTexture, state.alpha);
+						}
+					}
+				});
+			});
+		}
+		static init(gl) {
+			_program$4 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			_generation++;
+			if (_program$4) {
+				gl.deleteProgram(_program$4);
+				_program$4 = null;
+			}
+			for (const texture of _textures$1.values()) if (texture) gl.deleteTexture(texture);
+			_textures$1.clear();
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$4.uniform;
+			const attribute = _program$4.attribute;
+			gl.useProgram(_program$4);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$4.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$4.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/Renderer/Effects/SoulStrikeSim.js
+/**
+* The souls of a damage packet.
+*
+* @param {number} hits the packet's hit count
+* @return {Array} { spawn (tick), bow (degrees) }
+*/
+function planSouls(hits) {
+	if (!(hits >= 1 && hits <= SOUL.maxHits)) return [];
+	const base = hits === 1 ? 0 : -90;
+	const out = [];
+	for (let k = 1; k <= hits; k++) out.push({
+		spawn: SOUL.every * k - SOUL.lead,
+		bow: k * STEPS[hits] + base
+	});
+	return out;
+}
+/**
+* Where a soul is after `n` updates, in units from the caster's feet.
+*
+* @param {object} soul from planSouls
+* @param {Array} dir unit direction to the target on the map, [x, y]
+* @param {number} distance to the target, units
+* @param {number} n updates (1..life)
+* @param {object} [kind] the flight's numbers: SOUL, or another effect's with the same keys
+*   (life, back, bow, up; the speed covers the distance `speedTimes` times, default 1)
+* @return {object} { x, y, up }
+*/
+function soulAt(soul, dir, distance, n, kind = SOUL) {
+	const speed = (kind.speedTimes || 1) * distance / kind.life;
+	const backStep = 2 * kind.back / kind.life;
+	const bowStep = -2 * kind.bow / kind.life;
+	const along = n * speed - (kind.back * n - backStep * n * (n + 1) / 2);
+	const across = kind.bow * n + bowStep * n * (n - 1) / 2;
+	const a = soul.bow * Math.PI / 180;
+	const side = across * Math.sin(a);
+	return {
+		x: dir[0] * along + dir[1] * side,
+		y: dir[1] * along - dir[0] * side,
+		up: kind.up - across * Math.cos(a)
+	};
+}
+/**
+* Alpha (0..254) and scale of trail step `i` (0 the soul itself).
+*
+* @param {number} i
+* @return {object} { alpha, scale }
+*/
+function trailLook(i) {
+	return {
+		alpha: SOUL.alpha - SOUL.alpha / SOUL.trail * i,
+		scale: SOUL.scale - SOUL.scale / SOUL.trail * i * .5
+	};
+}
+var SOUL, STEPS;
+var init_SoulStrikeSim = __esmMin((() => {
+	SOUL = {
+		every: 11,
+		lead: 5,
+		maxHits: 7,
+		life: 40,
+		up: 10,
+		back: 3.5,
+		bow: -2,
+		scale: 2.75,
+		alpha: 254,
+		trail: 12
+	};
+	STEPS = [
+		0,
+		1,
+		180,
+		90,
+		60,
+		45,
+		30,
+		25
+	];
+}));
+// src/DB/Effects/SoulStrikeEffect.js
+/**
+* The 3D effect drawing step `i` of a soul's trail (0 the soul itself). It
+* starts on the soul's tick and shows where the soul was `i` ticks before.
+*
+* @param {object} soul from planSouls
+* @param {Array} dir unit direction to the target on the map, [x, y]
+* @param {number} distance to the target, units
+* @param {number} i
+* @param {number} [rise] the target's height above the caster's, cells: the
+*   soul climbs to it as it goes
+* @return {object}
+*/
+function soulTrailEffect(soul, dir, distance, i, rise = 0) {
+	const look = trailLook(i);
+	return {
+		type: "3D",
+		spriteName: "particle1",
+		alphaMax: 1,
+		attachedEntity: false,
+		duration: SOUL.life * PRIM_TICK_MS,
+		zIndex: 1,
+		wav: i === 0 ? "effect/ef_soulstrike" : void 0,
+		track(age) {
+			const k = Math.floor(age);
+			const n = k + 1 - i;
+			if (k < 0 || k >= SOUL.life || n < 1) return null;
+			const p = soulAt(soul, dir, distance, n);
+			return {
+				x: p.x / 5,
+				y: p.y / 5,
+				z: p.up / 5 + rise * soulProgress(p, dir, distance, n),
+				size: look.scale * 100,
+				alpha: look.alpha / 255
+			};
+		}
+	};
+}
+/**
+* How far along the way to the target a soul is, 0 to 1.
+*
+* @param {object} p from soulAt
+* @param {Array} dir
+* @param {number} distance units
+* @param {number} n the soul's update count: with no distance, the climb goes by its life
+* @return {number}
+*/
+function soulProgress(p, dir, distance, n) {
+	if (!distance) return Math.min(1, n / SOUL.life);
+	return Math.min(1, Math.max(0, (p.x * dir[0] + p.y * dir[1]) / distance));
+}
+/**
+* Direction and distance from the caster to the target, in units, and how
+* much higher the target stands, in cells.
+*
+* @param {Array} from caster [x, y, z]
+* @param {Array} to target [x, y, z]
+* @return {object} { dir: [x, y], distance, rise }
+*/
+function soulAim(from, to) {
+	const dx = (to[0] - from[0]) * 5;
+	const dy = (to[1] - from[1]) * 5;
+	const distance = Math.hypot(dx, dy);
+	const rise = (to[2] || 0) - (from[2] || 0);
+	return distance ? {
+		dir: [dx / distance, dy / distance],
+		distance,
+		rise
+	} : {
+		dir: [0, 1],
+		distance: 0,
+		rise
+	};
+}
+var soulStrikeEffect;
+var init_SoulStrikeEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_SoulStrikeSim();
+	soulStrikeEffect = [{
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const from = Params.Inst.position;
+			const { dir, distance, rise } = soulAim(from, Params.Inst.otherPosition || from);
+			planSouls(Params.Init.hitCount || 1).forEach((soul, s) => {
+				for (let i = 0; i < SOUL.trail; i++) this.spamEffect({
+					effect: soulTrailEffect(soul, dir, distance, i, rise),
+					Inst: {
+						effectID: 15,
+						duplicateID: s * SOUL.trail + i,
+						startTick: Params.Inst.startTick + soul.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}];
+}));
+// src/DB/Effects/Table/Jobs/Mage/Mage.js
+var Mage_default;
+var init_Mage = __esmMin((() => {
+	init_BoltRain();
+	init_IceSpikes();
+	init_IceSpikesSim();
+	init_SoulStrikeEffect();
+	Mage_default = {
+		15: soulStrikeEffect,
+		23: [{
+			type: "STR",
+			file: "stonecurse",
+			attachedEntity: true
+		}],
+		stonecurse_sound: [{
+			wav: "_stonecurse",
+			attachedEntity: true
+		}],
+		24: [
+			{
+				type: "3D",
+				spriteName: "fireball",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 333,
+				duration: 333,
+				alphaMax: 1,
+				size: 130,
+				zIndex: 1
+			},
+			{
+				type: "3D",
+				spriteName: "fireball",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 400,
+				duration: 333,
+				alphaMax: 180 / 255,
+				red: 246 / 255,
+				green: 199 / 255,
+				blue: 76 / 255,
+				size: 130,
+				zIndex: 1
+			},
+			{
+				type: "3D",
+				spriteName: "fireball",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 467,
+				duration: 333,
+				alphaMax: 130 / 255,
+				red: 246 / 255,
+				green: 199 / 255,
+				blue: 76 / 255,
+				size: 130,
+				zIndex: 1
+			},
+			{
+				type: "3D",
+				spriteName: "fireball",
+				playSprite: true,
+				attachedEntity: false,
+				fromSrc: true,
+				rotateToTarget: true,
+				rotateWithCamera: true,
+				zOffset: 3,
+				delayStart: 533,
+				duration: 333,
+				alphaMax: 80 / 255,
+				red: 246 / 255,
+				green: 199 / 255,
+				blue: 76 / 255,
+				size: 130,
+				zIndex: 1
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 333
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 400
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 467
+			},
+			{
+				wav: "effect/ef_fireball",
+				delayWav: 533
+			}
+		],
+		25: [{
+			type: "STR",
+			file: "firewall%d",
+			rand: [1, 2],
+			attachedEntity: false
+		}, { wav: "effect/ef_firewall" }],
+		26: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.hitCount, "cold"), Params);
+			}
+		}, {
+			wav: "effect/ef_icearrow%d",
+			rand: [1, 3],
+			delayWav: 200,
+			attachedEntity: true
+		}],
+		27: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!target) return;
+				const at = [
+					caster.position[0],
+					caster.position[1],
+					caster.position[2]
+				];
+				const spikes = planPath((target.position[0] - at[0]) * 5, (target.position[1] - at[1]) * 5);
+				this.add(new IceSpikes(at, Params.Inst.startTick, spikes, PATH.life), Params);
+			}
+		}],
+		29: [{
+			attachedEntity: true,
+			duplicate: 1,
+			file: "lightning",
+			type: "STR"
+		}],
+		30: [{
+			type: "STR",
+			file: "thunderstorm",
+			wav: "effect/magician_thunderstorm",
+			attachedEntity: false
+		}],
+		31: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const target = Params.Init.ownerEntity;
+				const spark = (s, startTick) => {
+					const at = [
+						target.position[0],
+						target.position[1],
+						target.position[2]
+					];
+					this.spamEffect({
+						effect: {
+							type: "3D",
+							spriteName: "particle4",
+							playSprite: true,
+							attachedEntity: false,
+							duration: s.life * 1e3 / 60,
+							posxStart: s.start.x / 5,
+							posyStart: s.start.y / 5,
+							poszStart: s.start.up / 5,
+							posxEnd: s.end.x / 5,
+							posyEnd: s.end.y / 5,
+							poszEnd: s.end.up / 5,
+							sizeStart: s.scale * 100,
+							sizeEnd: 1,
+							alphaMax: 1,
+							fadeOut: true,
+							zIndex: 1
+						},
+						Inst: {
+							effectID: 31,
+							duplicateID: 0,
+							startTick
+						},
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
+				};
+				this.add(new BoltRain(target.position, Params.Inst.startTick, Params.Init.hitCount, "fire", Math.random, spark), Params);
+			}
+		}, {
+			wav: "effect/ef_firearrow%d",
+			rand: [1, 3],
+			delayWav: 200,
+			attachedEntity: true
+		}],
+		169: [{
+			type: "STR",
+			file: "energycoat",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/Renderer/Effects/SpiderWeb.vs?raw
+var SpiderWeb_default$1;
+var init_SpiderWeb$2 = __esmMin((() => {
+	SpiderWeb_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\n\r\nvoid main(void) {\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.01;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
+}));
+// src/Renderer/Effects/SpiderWeb.fs?raw
+var SpiderWeb_default;
+var init_SpiderWeb$1 = __esmMin((() => {
+	SpiderWeb_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {\r\n        discard;\r\n    }\r\n    textureSample.a = 0.7;\r\n    fragColor = textureSample;\r\n}";
+}));
+// src/Renderer/Effects/SpiderWeb.js
+var _lpNum$1, SpiderWeb;
+var init_SpiderWeb = __esmMin((() => {
+	init_WebGL();
+	init_Tiles();
+	init_SpiderWeb$2();
+	init_SpiderWeb$1();
+	_lpNum$1 = 0;
+	SpiderWeb = class extends FlatTexture("data/texture/effect/spiderweb.tga", 128) {
+		static createShaderProgram(gl) {
+			return WebGL_default.createShaderProgram(gl, SpiderWeb_default$1, SpiderWeb_default);
+		}
+		constructor() {
+			super(...arguments);
+			this.ix = ++_lpNum$1;
+		}
+		render(gl, tick) {
+			const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+			const sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
+			gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
+			gl.uniform1f(this.constructor._program.uniform.uSize, 1.5 + .05 * sizeMult);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+	};
+}));
+// src/DB/Effects/Table/Jobs/Mage/Professor.js
+var Professor_default;
+var init_Professor = __esmMin((() => {
+	init_SpiderWeb();
+	Professor_default = {
+		378: [{
+			type: "3D",
+			duration: 600,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
+			playSprite: true,
+			fromSrc: true,
+			toSrc: true,
+			rotateToTarget: true,
+			red: .8,
+			green: .8,
+			blue: 1,
+			sizeStart: 160,
+			sizeEnd: 190,
+			zOffsetStart: 5,
+			arc: 3,
+			retreat: 3,
+			drainPattern: true
+		}],
+		379: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function(tick) {
+					if (tick < 500) return false;
+					const time = tick - 500;
+					entity._enableHalo = true;
+					if (time < 200) {
+						const val = (255 - (time + 50)) / 255;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+					if (time < 400) {
+						const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+					entity._enableHalo = false;
+					entity._flashColor[0] = 1;
+					entity._flashColor[1] = 1;
+					entity._flashColor[2] = 1;
+					entity._flashColor[3] = 1;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		}],
+		383: [{
+			type: "3D",
+			duration: 600,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/particle1",
+			playSprite: true,
+			fromSrc: true,
+			toSrc: true,
+			rotateToTarget: true,
+			red: .7,
+			green: 1,
+			blue: .7,
+			sizeStart: 140,
+			sizeEnd: 170,
+			zOffsetStart: 5,
+			arc: 3,
+			retreat: 3,
+			drainPattern: true
+		}],
+		384: [{
+			wav: "effect/¼Ò¿ï Ã¼ÀÎÁö",
+			attachedEntity: true
+		}],
+		403: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function(tick) {
+					if (tick < 1e3) {
+						entity._flashColor[0] = Math.random();
+						entity._flashColor[1] = Math.random();
+						entity._flashColor[2] = Math.random();
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					}
+				});
+			},
+			wav: "effect/swordman_provoke"
+		}],
+		404: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new SpiderWeb(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		}],
+		406: [{
+			type: "STR",
+			file: "¼Ò¿ï¹ø",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/Renderer/Effects/LPEffect.vs?raw
+var LPEffect_default$1;
+var init_LPEffect$2 = __esmMin((() => {
+	LPEffect_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\nout vec2 vTextureCoord;\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\nvoid main(void) {\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.01;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
+}));
+// src/Renderer/Effects/LPEffect.fs?raw
+var LPEffect_default;
+var init_LPEffect$1 = __esmMin((() => {
+	LPEffect_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nuniform sampler2D uDiffuse;\r\nout vec4 fragColor;\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {\r\n        discard;\r\n    }\r\n    textureSample.a = 0.7;\r\n    fragColor = textureSample;\r\n}";
+}));
+// src/Renderer/Effects/LPEffect.js
+var _lpNum, LPEffect;
+var init_LPEffect = __esmMin((() => {
+	init_WebGL();
+	init_Tiles();
+	init_LPEffect$2();
+	init_LPEffect$1();
+	_lpNum = 0;
+	LPEffect = class extends FlatTexture("data/texture/effect/aaa copy.bmp") {
+		static createShaderProgram(gl) {
+			return WebGL_default.createShaderProgram(gl, LPEffect_default$1, LPEffect_default);
+		}
+		constructor() {
+			super(...arguments);
+			this.ix = ++_lpNum;
+		}
+		render(gl, tick) {
+			const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+			const sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
+			gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
+			gl.uniform1f(this.constructor._program.uniform.uSize, .8 + .05 * sizeMult);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+	};
+}));
+// src/Renderer/Effects/PropertyGround.vs?raw
+var PropertyGround_default$1;
+var init_PropertyGround$2 = __esmMin((() => {
+	PropertyGround_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uRotationMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uTopSize;\r\nuniform float uBottomSize;\r\nuniform float uHeight;\r\n\r\nvoid main(void) {\r\n    float size, height;\r\n\r\n    if (aPosition.z == 1.0) {\r\n        size   = uTopSize;\r\n        height = uHeight;\r\n    }\r\n    else {\r\n        size   = uBottomSize;\r\n        height = 0.0;\r\n    }\r\n\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - height, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0) * uRotationMat;\r\n\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
+}));
+// src/Renderer/Effects/PropertyGround.fs?raw
+var PropertyGround_default;
+var init_PropertyGround$1 = __esmMin((() => {
+	PropertyGround_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 texture = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (texture.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {\r\n        discard;\r\n    }\r\n    texture.a = 0.42;\r\n    fragColor = texture;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+}));
+// src/Renderer/Effects/PropertyGround.js
+/**
+* Generate a generic PropertyGround
+*
+* @returns {Float32Array} buffer array
+*/
+function generatePropertyGround() {
+	let i, a, b;
+	const total = 20;
+	const bottom = [];
+	const top = [];
+	const mesh = [];
+	for (i = 0; i <= total; i++) {
+		a = (i + 0) / total;
+		b = (i + .5) / total;
+		bottom[i] = [
+			Math.sin(a * Math.PI * 2),
+			Math.cos(a * Math.PI * 2),
+			0,
+			a,
+			1
+		];
+		top[i] = [
+			Math.sin(b * Math.PI * 2),
+			Math.cos(b * Math.PI * 2),
+			1,
+			b,
+			0
+		];
+	}
+	for (i = 0; i <= total; i++) {
+		mesh.push.apply(mesh, bottom[i + 0]);
+		mesh.push.apply(mesh, top[i + 0]);
+		mesh.push.apply(mesh, bottom[i + 1]);
+		mesh.push.apply(mesh, top[i + 0]);
+		mesh.push.apply(mesh, bottom[i + 1]);
+		mesh.push.apply(mesh, top[i + 1]);
+	}
+	return new Float32Array(mesh);
+}
+var _program$3, _buffer$1, mat4$4, _rotationMatrices, _verticeCount$1, _num, PropertyGround;
+var init_PropertyGround = __esmMin((() => {
+	init_WebGL();
+	init_gl_matrix();
+	init_Client();
+	init_PropertyGround$2();
+	init_PropertyGround$1();
+	mat4$4 = gl_matrix_default.mat4;
+	_rotationMatrices = (function() {
+		const matrices = [];
+		for (let i = 0; i < 16; i++) matrices.push(mat4$4.create());
+		return matrices;
+	})();
+	_verticeCount$1 = 0;
+	_num = 0;
+	PropertyGround = class {
+		constructor(position, topSize, bottomSize, height, textureName, tick) {
+			this.position = position;
+			this.topSize = topSize;
+			this.bottomSize = bottomSize;
+			this.textureName = textureName;
+			this.height = height;
+			this.tick = tick;
+			this.sizeRandomize = 0 + Math.random() * 10;
+			this.ix = _num++ % _rotationMatrices.length;
+		}
+		/**
+		* Preparing for render
+		*
+		* @param {object} webgl context
+		*/
+		init(gl) {
+			Client.loadFile(`data/texture/effect/${this.textureName}.tga`, (buffer) => {
+				WebGL_default.texture(gl, buffer, (texture) => {
+					this.texture = texture;
+					this.ready = true;
+				});
+			});
+		}
+		/**
+		* Destroying data
+		*
+		* @param {object} webgl context
+		*/
+		free(gl) {
+			this.ready = false;
+		}
+		/**
+		* Rendering cast
+		*
+		* @param {object} wegl context
+		*/
+		render(gl, tick) {
+			const uniform = _program$3.uniform;
+			const attribute = _program$3.attribute;
+			let sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
+			if (sizeMult < .5) sizeMult = .5;
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _rotationMatrices[this.ix]);
+			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$1);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			gl.uniform3fv(uniform.uPosition, this.position);
+			gl.uniform1f(uniform.uBottomSize, this.bottomSize * sizeMult);
+			gl.uniform1f(uniform.uTopSize, this.topSize * sizeMult);
+			gl.uniform1f(uniform.uHeight, this.height);
+			gl.drawArrays(gl.TRIANGLES, 0, _verticeCount$1);
+		}
+		/**
+		* Initialize effect
+		*
+		* @param {object} webgl context
+		*/
+		static init(gl) {
+			const vertices = generatePropertyGround();
+			_verticeCount$1 = vertices.length / 5;
+			_program$3 = WebGL_default.createShaderProgram(gl, PropertyGround_default$1, PropertyGround_default);
+			_buffer$1 = gl.createBuffer();
+			this.ready = true;
+			this.renderBeforeEntities = false;
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$1);
+			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+		}
+		/**
+		* Destroy objects
+		*
+		* @param {object} webgl context
+		*/
+		static free(gl) {
+			if (_program$3) {
+				gl.deleteProgram(_program$3);
+				_program$3 = null;
+			}
+			if (_buffer$1) gl.deleteBuffer(_buffer$1);
+			this.ready = false;
+		}
+		/**
+		* Before render, set up program
+		*
+		* @param {object} webgl context
+		*/
+		static beforeRender(gl, modelView, projection, fog, tick) {
+			const uniform = _program$3.uniform;
+			let _matrix, offset;
+			for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+				_matrix = _rotationMatrices[i];
+				mat4$4.identity(_matrix);
+				offset = i * 2 * Math.PI / _rotationMatrices.length;
+				mat4$4.rotateY(_matrix, _matrix, offset + tick / 8 / 180 * Math.PI);
+			}
+			gl.useProgram(_program$3);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+		}
+		/**
+		* After render, clean attributes
+		*
+		* @param {object} webgl context
+		*/
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$3.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$3.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/DB/Effects/Table/Jobs/Mage/Sage.js
+var Sage_default;
+var init_Sage = __esmMin((() => {
+	init_LPEffect();
+	init_PropertyGround();
+	Sage_default = {
+		234: [{
+			type: "STR",
+			file: "spell",
+			wav: "effect/sage_spell breake",
+			attachedEntity: true
+		}],
+		235: [{
+			type: "STR",
+			file: "µð½ºÆç",
+			attachedEntity: true
+		}],
+		239: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new PropertyGround(Params.Inst.position, 3, 1, 2, "ring_red", Params.Inst.startTick), Params);
+			}
+		}],
+		240: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new PropertyGround(Params.Inst.position, 3, 1, 2, "ring_blue", Params.Inst.startTick), Params);
+			}
+		}],
+		241: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new PropertyGround(Params.Inst.position, 3, 1, 2, "ring_yellow", Params.Inst.startTick), Params);
+			}
+		}],
+		242: [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				this.add(new LPEffect(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		}],
+		244: [{
+			type: "STR",
+			file: "¸ÅÁ÷·Îµå",
+			wav: "effect/sage_magic rod",
+			attachedEntity: true
+		}],
+		255: [{
+			type: "STR",
+			file: "enc_fire",
+			wav: "_enemy_hit_wind1",
+			attachedEntity: true
+		}],
+		256: [{
+			type: "STR",
+			file: "enc_ice",
+			wav: "_enemy_hit_wind1",
+			attachedEntity: true
+		}],
+		257: [{
+			type: "STR",
+			file: "enc_wind",
+			wav: "effect/_enemy_hit_wind1",
+			attachedEntity: true
+		}],
+		258: [{
+			type: "STR",
+			file: "enc_earth",
+			wav: "_enemy_hit_wind1",
+			attachedEntity: true
+		}],
+		ef_sa_instantdeath: [{
+			type: "STR",
+			file: "suicide",
+			texturePath: ""
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Mage/Sorcerer.js
+var Sorcerer_default;
+var init_Sorcerer = __esmMin((() => {
+	Sorcerer_default = {
+		920: [{
+			type: "STR",
+			file: "firewall_per",
+			attachedEntity: true
+		}],
+		922: [{ wav: "effect/s»çÀÌÅ±¿þÀÌºê" }],
+		926: [{
+			type: "STR",
+			file: "hunter_shockwave_blue",
+			attachedEntity: true
+		}],
+		928: [{ wav: "effect/wl_jackfrost" }],
+		929: [{ wav: "effect/s¿ö¸Ó" }],
+		930: [{
+			type: "3D",
+			alphaMax: .6,
+			attachedEntity: true,
+			blendMode: 2,
+			duration: 500,
+			rotate: true,
+			angle: 0,
+			toAngle: -611,
+			poszStart: 20,
+			poszEnd: 5,
+			size: 100,
+			zIndex: 1,
+			file: "effect/cross1.bmp",
+			wav: "effect/ÇÁ·¹¼Å"
+		}, {
+			type: "3D",
+			alphaMax: .6,
+			attachedEntity: true,
+			blendMode: 2,
+			duration: 500,
+			delayOffset: 501,
+			fadeOut: true,
+			angle: -611,
+			posz: 5,
+			size: 100,
+			zIndex: 1,
+			file: "effect/cross1.bmp"
+		}],
+		1046: [{
+			type: "STR",
+			file: "so_elemental_shield",
+			wav: "effect/so_elemental_shield",
+			attachedEntity: true
+		}],
+		ef_so_earthgrave: [{
+			type: "STR",
+			file: "new_earthgrave/new_earthgrave/new_earthgrave",
+			texturePath: "new_earthgrave/new_earthgrave/"
+		}, {
+			type: "STR",
+			file: "new_earthgrave/new_earthgrave_bottom/new_earthgrave_bottom",
+			texturePath: "new_earthgrave/new_earthgrave_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_so_earthgrave_hit: [{
+			type: "STR",
+			file: "new_earthgrave/new_earthgrave_hit/new_earthgrave_hit",
+			texturePath: "new_earthgrave/new_earthgrave_hit/"
+		}],
+		ef_so_diamonddust: [{
+			type: "STR",
+			file: "new_diamonddust/new_diamonddust/new_diamonddust",
+			texturePath: "new_diamonddust/new_diamonddust/"
+		}, {
+			type: "STR",
+			file: "new_diamonddust/new_diamonddust_bottom/new_diamonddust_bottom",
+			texturePath: "new_diamonddust/new_diamonddust_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_so_diamonddust_cast: [{
+			type: "STR",
+			file: "new_diamonddust/new_diamonddust_cast/new_diamonddust_cast",
+			texturePath: "new_diamonddust/new_diamonddust_cast/"
+		}],
+		ef_so_poison_buster: [{
 			type: "STR",
 			file: "poison",
 			texturePath: ""
 		}],
-		ef_gc_counterslash: [{
+		ef_so_psychic_wave: [{
 			type: "STR",
-			file: "new_counter_slash/new_counter_slash/new_counter_slash",
-			texturePath: "new_counter_slash/new_counter_slash/"
+			file: "new_psychicwave/new_psychicwave/new_psychicwave",
+			texturePath: "new_psychicwave/new_psychicwave/"
 		}, {
 			type: "STR",
-			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
-			texturePath: "new_counter_slash/new_counter_slash_bottom/",
+			file: "new_psychicwave/new_psychicwave_bottom/new_psychicwave_bottom",
+			texturePath: "new_psychicwave/new_psychicwave_bottom/",
 			renderBeforeEntities: true
 		}],
-		ef_gc_poisonsmoke: [{
+		ef_so_psychic_wave_cast: [{
 			type: "STR",
-			file: "new_poisonsmoke/new_poisonsmoke/new_poisonsmoke_%d",
-			rand: [1, 2],
-			texturePath: "new_poisonsmoke/new_poisonsmoke/"
+			file: "new_psychicwave/new_psychicwave_cast/new_psychicwave_cast",
+			texturePath: "new_psychicwave/new_psychicwave_cast/"
 		}],
-		ef_gc_crossripperslasher: [{
+		ef_so_el_cure: [{
 			type: "STR",
-			file: "new_crossripperslasher/new_crossripperslasher/new_crossripperslasher",
-			texturePath: "new_crossripperslasher/new_crossripperslasher/"
+			file: "cure",
+			texturePath: ""
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_gn.js
-var ef_gn_default;
-var init_ef_gn = __esmMin((() => {
-	ef_gn_default = {
+// src/DB/Effects/Table/Jobs/Mage/Warlock.js
+var Warlock_default;
+var init_Warlock = __esmMin((() => {
+	init_Camera();
+	Warlock_default = {
+		726: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
+		727: [{
+			type: "STR",
+			file: "crimson_r",
+			wav: "effect/crimson_r",
+			attachedEntity: true
+		}],
+		728: [{
+			type: "STR",
+			file: "hell_in",
+			attachedEntity: true
+		}],
+		729: [{
+			type: "SPR",
+			file: "mashofa"
+		}],
+		732: [{
+			type: "QuadHorn",
+			textureFile: "effect/stone.bmp",
+			attachedEntity: false,
+			duration: 1e3,
+			height: [.75, 1.2],
+			offsetX: [.2, .2],
+			offsetY: [.2, .2],
+			offsetZ: -.1,
+			bottomSize: [.4, .9],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-8, 8],
+			color: [
+				1,
+				1,
+				1,
+				1
+			],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+			wav: "effect/wizard_earthspike"
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick;
+				Camera.setQuake(start, 200);
+			}
+		}],
+		734: [{
+			type: "STR",
+			file: "chainlight",
+			wav: "effect/chainlight",
+			attachedEntity: true
+		}],
+		799: [{ wav: "effect/wl_stasis" }],
+		802: [
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.2,
+				topSize: 2.2,
+				height: 3,
+				alphaMax: 65 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.25,
+				topSize: 2.25,
+				height: 3.1,
+				alphaMax: 65 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				angleY: 10,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.3,
+				topSize: 2.3,
+				height: 3,
+				alphaMax: 15 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_down",
+				totalCircleSides: 4,
+				circleSides: 4,
+				bottomSize: 2.3,
+				topSize: 2.3,
+				height: 3,
+				alphaMax: 15 / 255,
+				blendMode: 2,
+				rotateWithCamera: true,
+				angleY: 53.2,
+				duration: 2e4,
+				attachedEntity: true
+			},
+			{ wav: "effect/wl_whiteimprison" }
+		],
+		803: [{ wav: "effect/wl_recognizedspell" }],
+		804: [{ wav: "effect/wl_tetravortex" }],
+		805: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function(tick) {
+					if (!entity.cast.display) {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					}
+					entity._flashColor[0] = Math.random();
+					entity._flashColor[1] = Math.random();
+					entity._flashColor[2] = Math.random();
+					entity._flashColor[3] = .5 + Math.random() / 2;
+					entity.recalculateBlendingColor();
+				});
+			}
+		}],
+		1048: [{
+			type: "STR",
+			file: "wl_telekinesis_intense",
+			wav: "effect/wl_telekinesis_intense",
+			attachedEntity: true
+		}],
+		ef_jackfrost: [{
+			wav: "effect/wl_jackfrost",
+			attachedEntity: true
+		}, {
+			type: "TRAIL",
+			attachedEntity: false,
+			duration: 1e3,
+			speed: 24,
+			interval: 34,
+			startOffset: 1,
+			angles: [
+				0,
+				45,
+				90,
+				135,
+				180,
+				225,
+				270,
+				315
+			],
+			spread: [.1, .4],
+			spawn: [{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 670,
+				height: [.2, 1.8],
+				offsetX: 0,
+				offsetY: 0,
+				offsetZ: 0,
+				bottomSize: [.06, .22],
+				blendMode: 8,
+				rotateX: [-15, 15],
+				rotateY: [0, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 4,
+				animationSpeed: 330,
+				riseDistance: 2,
+				fadeOut: 170
+			}]
+		}],
+		ef_siennaexecrate: [{
+			wav: "effect/wl_siennaexecrate",
+			attachedEntity: true
+		}],
+		ef_wl_soulexpansion_cast: [{
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
+			texturePath: "new_soulexpansion/new_soulexpansion_cast/"
+		}, {
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom",
+			texturePath: "new_soulexpansion/new_soulexpansion_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_soulexpansion_hit: [{
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit",
+			texturePath: "new_soulexpansion/new_soulexpansion_hit/"
+		}, {
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom",
+			texturePath: "new_soulexpansion/new_soulexpansion_hit_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_hellinferno: [{
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno/new_hellinferno",
+			texturePath: "new_hellinferno/new_hellinferno/"
+		}, {
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom",
+			texturePath: "new_hellinferno/new_hellinferno_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_hellinferno_cast: [{
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom",
+			texturePath: "new_hellinferno/new_hellinferno_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_comet: [{
+			type: "STR",
+			file: "new_comet/new_comet/new_comet",
+			texturePath: "new_comet/new_comet/"
+		}, {
+			type: "STR",
+			file: "new_comet/new_comet_bottom/new_comet_bottom",
+			texturePath: "new_comet/new_comet_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_comet_cast: [{
+			type: "STR",
+			file: "new_comet/new_comet_cast/new_comet_cast",
+			texturePath: "new_comet/new_comet_cast/"
+		}, {
+			type: "STR",
+			file: "new_comet/new_comet_cast_bottom/new_comet_cast_bottom",
+			texturePath: "new_comet/new_comet_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_chainlightning_cast: [{
+			type: "STR",
+			file: "new_chainlightning/new_chainlightning_cast/new_chainlightning_cast",
+			texturePath: "new_chainlightning/new_chainlightning_cast/"
+		}, {
+			type: "STR",
+			file: "new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom",
+			texturePath: "new_chainlightning/new_chainlightning_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_tetravortex_fire: [{
+			type: "STR",
+			file: "mineffect/new_tetravortex/new_tetravortex_fire/new_tetravortex_fire",
+			texturePath: "mineffect/new_tetravortex/new_tetravortex_fire/"
+		}],
+		ef_wl_tetravortex_water: [{
+			type: "STR",
+			file: "mineffect/new_tetravortex/new_tetravortex_water/new_tetravortex_water",
+			texturePath: "mineffect/new_tetravortex/new_tetravortex_water/"
+		}],
+		ef_wl_tetravortex_wind: [{
+			type: "STR",
+			file: "mineffect/new_tetravortex/new_tetravortex_wind/new_tetravortex_wind",
+			texturePath: "mineffect/new_tetravortex/new_tetravortex_wind/"
+		}],
+		ef_wl_summon_atk_fire: [{
+			type: "STR",
+			file: "fire",
+			texturePath: ""
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Mage/Wizard.js
+var Wizard_default;
+var init_Wizard = __esmMin((() => {
+	init_Camera();
+	init_QuadHorn();
+	init_Altitude();
+	Wizard_default = {
+		62: [
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 0,
+				posyEnd: -8,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 0,
+				posyEnd: -8,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 5.66,
+				posyEnd: -5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 5.66,
+				posyEnd: -5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 8,
+				posyEnd: 0,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 8,
+				posyEnd: 0,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 5.66,
+				posyEnd: 5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 5.66,
+				posyEnd: 5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 0,
+				posyEnd: 8,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: 0,
+				posyEnd: 8,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: -5.66,
+				posyEnd: 5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: -5.66,
+				posyEnd: 5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: -8,
+				posyEnd: 0,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: -8,
+				posyEnd: 0,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				shadowTexture: true,
+				alphaMax: .5,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: -5.66,
+				posyEnd: -5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 60,
+				sizeEnd: 160,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{
+				type: "3D",
+				spriteName: "sight",
+				alphaMax: 123 / 255,
+				alphaMaxDelta: 3 / 255,
+				duplicate: 4,
+				timeBetweenDupli: 100,
+				sizeDelta: -60,
+				duration: 800,
+				attachedEntity: false,
+				posxStart: 0,
+				posyStart: 0,
+				posxEnd: -5.66,
+				posyEnd: -5.66,
+				poszStart: 2,
+				poszEnd: 2,
+				sizeStart: 20,
+				sizeEnd: 260,
+				playSprite: true,
+				fadeIn: true,
+				fadeOut: true,
+				blendMode: 8
+			},
+			{ wav: "effect/wizard_sightrasher" }
+		],
+		74: [
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				height: [2.8, 3.3],
+				offsetX: [.25, .75],
+				offsetY: [.25, .75],
+				offsetZ: -.1,
+				bottomSize: [.3, .5],
+				blendMode: 8,
+				rotateY: [1, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 1,
+				animationSpeed: 50
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				height: [2.3, 2.8],
+				offsetX: [.25, .75],
+				offsetY: [.25, .75],
+				offsetZ: -.1,
+				bottomSize: [.3, .5],
+				blendMode: 8,
+				rotateY: [1, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 1,
+				animationSpeed: 50
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				height: [2.5, 2.9],
+				offsetX: [.25, .75],
+				offsetY: [.25, .75],
+				offsetZ: -.1,
+				bottomSize: [.3, .5],
+				blendMode: 8,
+				rotateY: [1, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 1,
+				animationSpeed: 50
+			},
+			{ wav: "effect/wizard_icewall" }
+		],
+		79: [
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 5e3,
+				height: [.95, 1.5],
+				offsetX: [.4, .6],
+				offsetY: [.4, .6],
+				offsetZ: -.1,
+				bottomSize: [.5, .6],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-8, 8],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 3,
+				animationSpeed: 120,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 5e3,
+				height: [.2, .4],
+				offsetX: [0, 0],
+				offsetY: [.5, .5],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 5e3,
+				height: [.2, .4],
+				offsetX: [0, .5],
+				offsetY: [.5, 1],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 5e3,
+				height: [.2, .4],
+				offsetX: [1, 1.2],
+				offsetY: [.5, .8],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 5e3,
+				height: [.2, .4],
+				offsetX: [.5, .7],
+				offsetY: [0, -.2],
+				offsetZ: -.1,
+				bottomSize: [.1, .2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15, 15],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 2,
+				animationSpeed: 100,
+				animationOut: true
+			},
+			{
+				wav: "effect/wizard_earthspike",
+				attachedEntity: false
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const start = Params.Inst.startTick;
+					Camera.setQuake(start, 200);
+				}
+			}
+		],
+		89: [{
+			type: "STR",
+			file: "stormgust",
+			wav: "effect/wizard_stormgust",
+			min: "storm_min",
+			attachedEntity: true
+		}],
+		90: [{
+			type: "STR",
+			file: "lord",
+			wav: "effect/wizard_fire_ivy",
+			attachedEntity: true
+		}],
+		92: [{
+			type: "STR",
+			file: "meteor%d",
+			wav: "effect/wizard_meteor",
+			rand: [1, 4],
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick + 600;
+				Camera.setQuake(start);
+			}
+		}],
+		93: [
+			{
+				wav: "effect/hunter_shockwavetrap",
+				attachedEntity: false
+			},
+			{
+				type: "3D",
+				file: "effect/thunder_center.bmp",
+				duration: 200,
+				size: 35,
+				toSrc: true,
+				blendMode: 2,
+				overlay: true,
+				alphaMax: .66
+			},
+			{
+				type: "3D",
+				fileList: [
+					"effect/thunder_ball_a.bmp",
+					"effect/thunder_ball_b.bmp",
+					"effect/thunder_ball_c.bmp",
+					"effect/thunder_ball_d.bmp",
+					"effect/thunder_ball_e.bmp",
+					"effect/thunder_ball_f.bmp"
+				],
+				frameDelay: 10,
+				duration: 200,
+				size: 45,
+				toSrc: true,
+				overlay: true,
+				blendMode: 2
+			}
+		],
+		94: [{
+			type: "3D",
+			file: "effect/thunder_pang.bmp",
+			duration: 100,
+			sizeStart: 0,
+			sizeEnd: 25,
+			blendMode: 2,
+			rotateToTarget: true,
+			fadeOut: true,
+			overlay: true,
+			attachedEntity: true
+		}, {
+			type: "3D",
+			fileList: [
+				"effect/thunder_plazma_blast_a.bmp",
+				"effect/thunder_plazma_blast_b.bmp",
+				"effect/thunder_ball_d.bmp",
+				"effect/thunder_ball_e.bmp",
+				"effect/thunder_ball_f.bmp"
+			],
+			frameDelay: 10,
+			duration: 300,
+			size: 75,
+			blendMode: 2,
+			overlay: true,
+			attachedEntity: true
+		}],
+		95: [{
+			type: "STR",
+			file: "quagmire",
+			attachedEntity: false
+		}, { wav: "effect/wizard_quagmire" }],
+		96: [{
+			type: "STR",
+			file: "firepillar",
+			wav: "effect/wizard_fire_pillar_a",
+			attachedEntity: false
+		}],
+		97: [{
+			type: "STR",
+			file: "firepillarbomb",
+			wav: "effect/wizard_fire_pillar_b",
+			attachedEntity: false
+		}],
+		116: [{
+			type: "3D",
+			duration: 500,
+			fileList: [
+				"effect/water_out_a.bmp",
+				"effect/water_out_b.bmp",
+				"effect/water_out_c.bmp"
+			],
+			fadeOut: true,
+			posxRand: 1.5,
+			poszRand: 1.5,
+			posyStart: 0,
+			posyEnd: 3,
+			posySmooth: true,
+			size: 30.5,
+			rotateWithCamera: true,
+			blendMode: 2,
+			attachedEntity: true,
+			wav: "effect/wizard_waterball_chulung"
+		}],
+		117: [{
+			type: "3D",
+			duration: 500,
+			duplicate: 20,
+			timeBetweenDupli: 50,
+			absoluteSpriteName: "data/sprite/ÀÌÆÑÆ®/waterball",
+			playSprite: true,
+			fromSrc: true,
+			rotateToTarget: true,
+			fadeOut: true,
+			size: 50,
+			zOffsetStart: 5,
+			zOffsetEnd: 0,
+			arc: 7.5,
+			retreat: 5,
+			wav: "effect/wizard_waterball_chulung"
+		}],
+		138: [
+			{
+				type: "CYLINDER",
+				attachedEntity: false,
+				topSize: 2,
+				bottomSize: 1,
+				textureName: "magic_red",
+				height: 3,
+				duration: 5e3,
+				delayOffset: 1e3,
+				rotate: true
+			},
+			{
+				type: "CYLINDER",
+				attachedEntity: false,
+				topSize: 1.5,
+				bottomSize: .7,
+				textureName: "magic_red",
+				height: 5,
+				duration: 5e3,
+				delayOffset: 1e3,
+				rotate: true
+			},
+			{
+				type: "CYLINDER",
+				attachedEntity: false,
+				topSize: 1,
+				bottomSize: .5,
+				textureName: "magic_red",
+				height: 7,
+				duration: 5e3,
+				delayOffset: 1e3,
+				rotate: true
+			}
+		],
+		142: [
+			{
+				type: "FUNC",
+				func: function(Params) {
+					for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
+						const newParams = {
+							effect: {
+								type: "QuadHorn",
+								textureFile: "effect/stone.bmp",
+								attachedEntity: false,
+								duration: 1e3,
+								height: [.75, 1.2],
+								offsetX: [.2, .2],
+								offsetY: [.2, .2],
+								offsetZ: -.1,
+								bottomSize: [.4, .7],
+								blendMode: 1,
+								rotateY: [1, 360],
+								rotateZ: [-8, 8],
+								color: [
+									1,
+									1,
+									1,
+									1
+								],
+								animation: 3,
+								animationSpeed: 250,
+								animationOut: true
+							},
+							Init: {},
+							Inst: {}
+						};
+						const newPos = [Params.Init.position[0] + i, Params.Init.position[1] + j];
+						Object.assign(newParams.Init, Params.Init);
+						newParams.Init.position = [
+							newPos[0],
+							newPos[1],
+							Altitude.getCellHeight(newPos[0], newPos[1])
+						];
+						newParams.Init.duration = newParams.effect.duration;
+						Object.assign(newParams.Inst, Params.Inst);
+						newParams.Inst.position = [
+							newPos[0],
+							newPos[1],
+							Altitude.getCellHeight(newPos[0], newPos[1])
+						];
+						newParams.Inst.duration = newParams.effect.duration;
+						newParams.Inst.endTick = newParams.Inst.startTick + newParams.effect.duration;
+						this.add(new QuadHorn(newParams.effect, newParams.Inst, newParams.Init), newParams);
+					}
+				}
+			},
+			{
+				wav: "effect/wizard_earthspike",
+				attachedEntity: false
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const start = Params.Inst.startTick;
+					Camera.setQuake(start, 200);
+				}
+			}
+		]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Alchemist.js
+var Alchemist_default;
+var init_Alchemist = __esmMin((() => {
+	init_Camera();
+	Alchemist_default = {
+		220: [{
+			type: "STR",
+			file: "¹ö¼­Å©",
+			wav: "effect/ac_concentration",
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick + 200;
+				Camera.setQuake(start, 200);
+			}
+		}],
+		298: [{
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 300,
+			fadeIn: true,
+			fadeOut: true,
+			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¿°»êº´.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: .5,
+			size: 30,
+			zOffset: 1,
+			zIndex: 1
+		}],
+		302: [{
+			type: "SPR",
+			file: "µ¥¸ó½ºÆ®·¹ÀÌ¼Ç",
+			attachedEntity: false
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Biolo.js
+var Biolo_default;
+var init_Biolo = __esmMin((() => {
+	Biolo_default = {
+		2228: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
+			wav: "effect/ef_beginspell",
+			castLoop: true,
+			attachedEntity: true
+		}],
+		2229: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast_bottom/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom",
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}],
+		ef_bo_acidified_zone_water_atk: [{
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_hit/acidified_zone_water_hit",
+			texturePath: "acidified_zone_water/acidified_zone_water_hit/",
+			min: "acidified_zone_water/acidified_zone_water_hit/min_acidified_zone_water_hit"
+		}],
+		ef_bo_acidified_zone_ground_atk: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_hit/acidified_zone_ground_hit",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_hit/",
+			min: "acidified_zone_ground/acidified_zone_ground_hit/min_acidified_zone_ground_hit"
+		}],
+		ef_bo_acidified_zone_wind_atk: [{
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_hit/acidified_zone_wind_hit",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_hit/",
+			min: "acidified_zone_wind/acidified_zone_wind_hit/min_acidified_zone_wind_hit"
+		}],
+		ef_bo_acidified_zone_fire_atk: [{
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_hit/acidified_zone_fire_hit",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_hit/",
+			min: "acidified_zone_fire/acidified_zone_fire_hit/min_acidified_zone_fire_hit"
+		}],
+		ef_bo_advance_protection: [{
+			wav: "effect/bo_advance_protection",
+			attachedEntity: true
+		}],
+		ef_bo_acidified_zone_water_cast: [{
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_cast/acidified_zone_water_cast",
+			texturePath: "acidified_zone_water/acidified_zone_water_cast/",
+			min: "acidified_zone_water/acidified_zone_water_cast/min_acidified_zone_water_cast",
+			wav: "effect/bo_acidified_zone_water"
+		}, {
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_cast_bottom/acidified_zone_water_cast_bottom",
+			texturePath: "acidified_zone_water/acidified_zone_water_cast_bottom/",
+			min: "acidified_zone_water/acidified_zone_water_cast_bottom/min_acidified_zone_water_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_water_hit: [{
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_hit/acidified_zone_water_hit",
+			texturePath: "acidified_zone_water/acidified_zone_water_hit/",
+			min: "acidified_zone_water/acidified_zone_water_hit/min_acidified_zone_water_hit"
+		}],
+		ef_bo_acidified_zone_ground_cast: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
+			wav: "effect/bo_acidified_zone_ground"
+		}, {
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast_bottom/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_ground_hit: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_hit/acidified_zone_ground_hit",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_hit/",
+			min: "acidified_zone_ground/acidified_zone_ground_hit/min_acidified_zone_ground_hit"
+		}],
+		ef_bo_acidified_zone_wind_cast: [{
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_cast/acidified_zone_wind_cast",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_cast/",
+			min: "acidified_zone_wind/acidified_zone_wind_cast/min_acidified_zone_wind_cast",
+			wav: "effect/bo_acidified_zone_wind"
+		}, {
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_cast_bottom/acidified_zone_wind_cast_bottom",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_cast_bottom/",
+			min: "acidified_zone_wind/acidified_zone_wind_cast_bottom/min_acidified_zone_wind_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_wind_hit: [{
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_hit/acidified_zone_wind_hit",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_hit/",
+			min: "acidified_zone_wind/acidified_zone_wind_hit/min_acidified_zone_wind_hit"
+		}],
+		ef_bo_acidified_zone_fire_cast: [{
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_cast/acidified_zone_fire_cast",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_cast/",
+			min: "acidified_zone_fire/acidified_zone_fire_cast/min_acidified_zone_fire_cast",
+			wav: "effect/bo_acidified_zone_fire"
+		}, {
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_cast_bottom/acidified_zone_fire_cast_bottom",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_cast_bottom/",
+			min: "acidified_zone_fire/acidified_zone_fire_cast_bottom/min_acidified_zone_fire_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_fire_hit: [{
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_hit/acidified_zone_fire_hit",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_hit/",
+			min: "acidified_zone_fire/acidified_zone_fire_hit/min_acidified_zone_fire_hit"
+		}],
+		ef_bo_woodenwarrior_cast: [{
+			type: "STR",
+			file: "wooden_warrior/wooden_warrior_cast/wooden_warrior_cast",
+			texturePath: "wooden_warrior/wooden_warrior_cast/",
+			min: "wooden_warrior/wooden_warrior_cast/min_wooden_warrior_cast"
+		}, {
+			type: "STR",
+			file: "wooden_warrior/wooden_warrior_cast_bottom/wooden_warrior_cast_bottom",
+			texturePath: "wooden_warrior/wooden_warrior_cast_bottom/",
+			min: "wooden_warrior/wooden_warrior_cast_bottom/min_wooden_warrior_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_woodenwarrior_hit: [
+			{
+				type: "STR",
+				file: "wooden_warrior/throwrock/throwrock_hit/throwrock_hit",
+				texturePath: "wooden_warrior/throwrock/throwrock_hit/",
+				min: "wooden_warrior/throwrock/throwrock_hit/min_throwrock_hit"
+			},
+			{
+				type: "STR",
+				file: "wooden_warrior/wooden_attack/wooden_attack/wooden_attack",
+				texturePath: "wooden_warrior/wooden_attack/wooden_attack/",
+				min: "wooden_warrior/wooden_attack/wooden_attack/min_wooden_attack"
+			},
+			{
+				type: "STR",
+				file: "wooden_warrior/wooden_attack/wooden_attack_hit/wooden_attack_hit",
+				texturePath: "wooden_warrior/wooden_attack/wooden_attack_hit/",
+				min: "wooden_warrior/wooden_attack/wooden_attack_hit/min_wooden_attack_hit"
+			}
+		],
+		ef_bo_wooden_fairy_cast: [{
+			type: "STR",
+			file: "wooden_fairy/wooden_cast/wooden_cast",
+			texturePath: "wooden_fairy/wooden_cast/",
+			min: "wooden_fairy/wooden_cast/min_wooden_cast"
+		}, {
+			type: "STR",
+			file: "wooden_fairy/wooden_cast_bottom/wooden_cast_bottom",
+			texturePath: "wooden_fairy/wooden_cast_bottom/",
+			min: "wooden_fairy/wooden_cast_bottom/min_wooden_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_researchreport: [{
+			type: "STR",
+			file: "research_report/researchreport/researchreport",
+			texturePath: "research_report/researchreport/",
+			min: "research_report/researchreport/min_researchreport",
+			wav: "effect/bo_researchreport"
+		}],
+		ef_bo_researchreport_cast: [{
+			type: "STR",
+			file: "research_report/researchreport_cast/researchreport_cast",
+			texturePath: "research_report/researchreport_cast/",
+			min: "research_report/researchreport_cast/min_researchreport_cast"
+		}, {
+			type: "STR",
+			file: "research_report/researchreport_cast_bottom/researchreport_cast_bottom",
+			texturePath: "research_report/researchreport_cast_bottom/",
+			min: "research_report/researchreport_cast_bottom/min_researchreport_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_helltree_cast: [{
+			type: "STR",
+			file: "helltree/helltree_cast/helltree_cast",
+			texturePath: "helltree/helltree_cast/",
+			min: "helltree/helltree_cast/min_helltree_cast"
+		}, {
+			type: "STR",
+			file: "helltree/helltree_cast_bottom/helltree_cast_bottom",
+			texturePath: "helltree/helltree_cast_bottom/",
+			min: "helltree/helltree_cast_bottom/min_helltree_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_wooden_attack_hit: [{
+			type: "STR",
+			file: "wooden_warrior/wooden_attack/wooden_attack/wooden_attack",
+			texturePath: "wooden_warrior/wooden_attack/wooden_attack/",
+			min: "wooden_warrior/wooden_attack/wooden_attack/min_wooden_attack",
+			wav: "effect/bo_wooden_attack"
+		}, {
+			type: "STR",
+			file: "wooden_warrior/wooden_attack/wooden_attack_hit/wooden_attack_hit",
+			texturePath: "wooden_warrior/wooden_attack/wooden_attack_hit/",
+			min: "wooden_warrior/wooden_attack/wooden_attack_hit/min_wooden_attack_hit"
+		}],
+		ef_bo_explosive_powder: [{
+			type: "STR",
+			file: "biolo/explosive_powder/explosive_powder/explosive_powder",
+			texturePath: "biolo/explosive_powder/explosive_powder/",
+			min: "biolo/explosive_powder/explosive_powder/min_explosive_powder",
+			wav: "effect/bo_explosive_powder"
+		}],
+		ef_bo_mayhemic_thorns: [{
+			type: "STR",
+			file: "biolo/mayhemic_thorns/mayhemic_thorns/mayhemic_thorns",
+			texturePath: "biolo/mayhemic_thorns/mayhemic_thorns/",
+			min: "biolo/mayhemic_thorns/mayhemic_thorns/min_mayhemic_thorns",
+			wav: "effect/bo_mayhemic_thorns"
+		}, {
+			type: "STR",
+			file: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/mayhemic_thorns_bottom",
+			texturePath: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/",
+			min: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/min_mayhemic_thorns_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_mystery_powder: [{
+			type: "STR",
+			file: "biolo/bo_mystery_powder/mistery_powder/mistery_powder",
+			texturePath: "biolo/bo_mystery_powder/mistery_powder/",
+			min: "biolo/bo_mystery_powder/mistery_powder/min_mistery_powder",
+			wav: "effect/bo_mystery_powder"
+		}],
+		ef_bo_mystery_powder_hit: [{
+			type: "STR",
+			file: "biolo/bo_mystery_powder/mistery_powder_hit/mistery_powder_hit",
+			texturePath: "biolo/bo_mystery_powder/mistery_powder_hit/",
+			min: "biolo/bo_mystery_powder/mistery_powder_hit/min_mistery_powder_hit"
+		}],
+		ef_bo_dust_explosion: [{
+			type: "STR",
+			file: "biolo/bo_dust_explosion/dust_explosion/dust_explosion",
+			texturePath: "biolo/bo_dust_explosion/dust_explosion/",
+			min: "biolo/bo_dust_explosion/dust_explosion/min_dust_explosion"
+		}],
+		ef_bo_dust_explosion_hit: [{
+			type: "STR",
+			file: "biolo/bo_dust_explosion/dust_explosion_hit/dust_explosion_hit",
+			texturePath: "biolo/bo_dust_explosion/dust_explosion_hit/",
+			min: "biolo/bo_dust_explosion/dust_explosion_hit/min_dust_explosion_hit"
+		}, {
+			type: "STR",
+			file: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/dust_explosion_hit_bottom",
+			texturePath: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/",
+			min: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/min_dust_explosion_hit_bottom",
+			renderBeforeEntities: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Blacksmith.js
+var Blacksmith_default;
+var init_Blacksmith = __esmMin((() => {
+	init_Camera();
+	init_SoundManager();
+	init_Events();
+	Blacksmith_default = {
+		98: [{
+			wav: "effect/black_adrenalinerush_b",
+			attachedEntity: true
+		}],
+		"98_beforecast": [{
+			wav: "effect/black_adrenalinerush_a",
+			attachedEntity: true
+		}],
+		101: [
+			{
+				type: "STR",
+				file: "repairweapon",
+				attachedEntity: true
+			},
+			{
+				wav: "effect/black_weapon_repair_a",
+				delayWav: 480
+			},
+			{
+				wav: "effect/black_weapon_repair_a",
+				delayWav: 1320
+			}
+		],
+		102: [{
+			type: "STR",
+			file: "crashearth",
+			wav: "effect/black_hammerfall",
+			attachedEntity: false
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const start = Params.Inst.startTick + 350;
+				Camera.setQuake(start);
+			}
+		}],
+		103: [{
+			type: "STR",
+			file: "weaponperfection",
+			wav: "effect/black_weapon_perfection",
+			min: "weaponperfection_min",
+			attachedEntity: true
+		}],
+		104: [{
+			type: "STR",
+			file: "maximizepower",
+			min: "maximize_min",
+			attachedEntity: true
+		}],
+		128: [{
+			wav: "effect/black_overthrust",
+			attachedEntity: true
+		}],
+		maximize_power_sounds: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function MaximizePowerSounds(Params) {
+				Events.setTimeout(function() {
+					SoundManager.play("effect/black_maximize_power_circle.wav");
+				}, 1);
+				Events.setTimeout(function() {
+					SoundManager.play("effect/black_maximize_power_sword.wav");
+				}, 550);
+				Events.setTimeout(function() {
+					SoundManager.play("effect/black_maximize_power_sword.wav");
+				}, 700);
+				Events.setTimeout(function() {
+					SoundManager.play("effect/black_maximize_power_sword_bic.wav");
+				}, 950);
+			}
+		}],
+		ef_greed_sound: [{
+			wav: "effect/ef_entry",
+			attachedEntity: true
+		}],
+		ef_bs_adrenaline2: [{
+			type: "STR",
+			file: "adrenaline",
+			texturePath: ""
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Creator.js
+var Creator_default;
+var init_Creator = __esmMin((() => {
+	init_Camera();
+	Creator_default = { 537: [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			const start = Params.Inst.startTick + 200;
+			Camera.setQuake(start);
+		}
+	}] };
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Genetic.js
+var Genetic_default;
+var init_Genetic = __esmMin((() => {
+	Genetic_default = {
+		1049: [{
+			type: "STR",
+			file: "gn_illusiondoping",
+			wav: "effect/gn_illusiondoping",
+			attachedEntity: true
+		}],
+		ef_thorntrap: [{
+			wav: "effect/°¡½Ã³ª¹«µ£",
+			attachedEntity: true
+		}],
 		ef_gn_cart_tornado: [{
 			type: "STR",
 			file: "new_cart_tornado/new_cart_tornado/new_cart_tornado",
@@ -289213,10 +286640,1680 @@ var init_ef_gn = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_hn.js
-var ef_hn_default;
-var init_ef_hn = __esmMin((() => {
-	ef_hn_default = {
+// src/DB/Effects/Table/Jobs/Merchant/Mechanic.js
+var Mechanic_default;
+var init_Mechanic = __esmMin((() => {
+	Mechanic_default = {
+		795: [{
+			type: "STR",
+			file: "powerswing",
+			attachedEntity: true
+		}],
+		1050: [{
+			type: "STR",
+			file: "nc_magma_eruption",
+			wav: "effect/nc_magma_eruption",
+			attachedEntity: true
+		}],
+		ef_nc_vulcanarm: [{
+			type: "STR",
+			file: "new_vulcanarm/new_vulcanarm/new_vulcanarm",
+			texturePath: "new_vulcanarm/new_vulcanarm/"
+		}, {
+			type: "STR",
+			file: "new_vulcanarm/new_vulcanarm_bottom/new_vulcanarm_bottom",
+			texturePath: "new_vulcanarm/new_vulcanarm_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_nc_armscannon_cast: [{
+			type: "STR",
+			file: "new_armscannon/new_armscannon_cast/new_armscannon_cast",
+			texturePath: "new_armscannon/new_armscannon_cast/"
+		}, {
+			type: "STR",
+			file: "new_armscannon/new_armscannon_cast_bottom/new_armscannon_cast_bottom",
+			texturePath: "new_armscannon/new_armscannon_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_nc_repair: [{
+			type: "STR",
+			file: "repair weapon",
+			texturePath: ""
+		}, {
+			type: "STR",
+			file: "repairweapon",
+			texturePath: ""
+		}],
+		ef_nc_axeboomerang: [{
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang/new_axeboomerang",
+			texturePath: "new_axeboomerang/new_axeboomerang/"
+		}],
+		ef_nc_axeboomerang_cast: [{
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang_cast/new_axeboomerang_cast",
+			texturePath: "new_axeboomerang/new_axeboomerang_cast/"
+		}, {
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang_cast_bottom/new_axeboomerang_cast_bottom",
+			texturePath: "new_axeboomerang/new_axeboomerang_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_nc_axeboomerang_hit: [{
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang_hit/new_axeboomerang_hit",
+			texturePath: "new_axeboomerang/new_axeboomerang_hit/"
+		}],
+		ef_nc_axetornado: [{
+			type: "STR",
+			file: "new_axetornado/new_axetornado/new_axetornado",
+			texturePath: "new_axetornado/new_axetornado/"
+		}, {
+			type: "STR",
+			file: "new_axetornado/new_axetornado_bottom/new_axetornado_bottom",
+			texturePath: "new_axetornado/new_axetornado_bottom/",
+			renderBeforeEntities: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Meister.js
+var Meister_default;
+var init_Meister = __esmMin((() => {
+	init_CastRing();
+	Meister_default = {
+		ef_mt_axe_stomp: [{
+			type: "STR",
+			file: "new_axe_stomp/new_axe_stomp/new_axe_stomp",
+			texturePath: "new_axe_stomp/new_axe_stomp/",
+			min: "new_axe_stomp/new_axe_stomp/min_new_axe_stomp",
+			wav: "effect/mt_axe_stomp"
+		}, {
+			type: "STR",
+			file: "new_axe_stomp/new_axe_stomp_bottom/new_axe_stomp_bottom",
+			texturePath: "new_axe_stomp/new_axe_stomp_bottom/",
+			min: "new_axe_stomp/new_axe_stomp_bottom/min_new_axe_stomp_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_mt_axe_stomp_hit: [{
+			type: "STR",
+			file: "new_axe_stomp/new_axe_stomp_hit/new_axe_stomp_hit",
+			texturePath: "new_axe_stomp/new_axe_stomp_hit/",
+			min: "new_axe_stomp/new_axe_stomp_hit/min_new_axe_stomp_hit"
+		}],
+		ef_mt_rush_quake: [{
+			type: "STR",
+			file: "new_rush_quake/new_rush_quake/new_rush_quake",
+			texturePath: "new_rush_quake/new_rush_quake/",
+			min: "new_rush_quake/new_rush_quake/min_new_rush_quake",
+			wav: "effect/mt_rush_quake"
+		}],
+		ef_mt_rush_quake_hit: [{
+			type: "STR",
+			file: "new_rush_quake/new_rush_quake_hit/new_rush_quake_hit",
+			texturePath: "new_rush_quake/new_rush_quake_hit/",
+			min: "new_rush_quake/new_rush_quake_hit/min_new_rush_quake_hit"
+		}],
+		ef_mt_a_machine: [{
+			type: "STR",
+			file: "new_a_machine/new_a_machine/new_a_machine",
+			texturePath: "new_a_machine/new_a_machine/",
+			wav: "effect/mt_a_machine"
+		}],
+		ef_mt_a_machine_cast: [{
+			type: "STR",
+			file: "new_a_machine/new_a_machine_cast/new_a_machine_cast",
+			texturePath: "new_a_machine/new_a_machine_cast/"
+		}, {
+			type: "STR",
+			file: "new_a_machine/new_a_machine_cast_bottom/new_a_machine_cast_bottom",
+			texturePath: "new_a_machine/new_a_machine_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_mt_a_machine_hit: [{
+			type: "STR",
+			file: "new_a_machine/new_a_machine_attack/new_a_machine_attack",
+			texturePath: "new_a_machine/new_a_machine_attack/"
+		}, {
+			type: "STR",
+			file: "new_a_machine/new_a_machine_hit/new_a_machine_hit",
+			texturePath: "new_a_machine/new_a_machine_hit/"
+		}],
+		ef_mt_d_machine: [{
+			type: "STR",
+			file: "new_d_machine/new_d_machine/new_d_machine",
+			texturePath: "new_d_machine/new_d_machine/",
+			min: "new_d_machine/new_d_machine/min_new_d_machine",
+			wav: "effect/mt_d_machine"
+		}],
+		ef_mt_d_machine_cast: [{
+			type: "STR",
+			file: "new_d_machine/new_d_machine_cast/new_d_machine_cast",
+			texturePath: "new_d_machine/new_d_machine_cast/",
+			min: "new_d_machine/new_d_machine_cast/min_new_d_machine_cast"
+		}, {
+			type: "STR",
+			file: "new_d_machine/new_d_machine_cast_bottom/new_d_machine_cast_bottom",
+			texturePath: "new_d_machine/new_d_machine_cast_bottom/",
+			min: "new_d_machine/new_d_machine_cast_bottom/min_new_d_machine_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_mt_summon_abr_battle_warior: [{
+			wav: "effect/mt_summon_abr_battle_warior",
+			attachedEntity: true
+		}],
+		ef_mt_summon_abr_dual_cannon: [{
+			wav: "effect/mt_summon_abr_dual_cannon",
+			attachedEntity: true
+		}],
+		ef_mt_summon_abr_infinity: [{
+			type: "STR",
+			file: "new_abr_infinity/new_abr_infinity/new_abr_infinity",
+			texturePath: "new_abr_infinity/new_abr_infinity/",
+			min: "new_abr_infinity/new_abr_infinity/min_new_abr_infinity",
+			wav: "effect/mt_summon_abr_infinity"
+		}, {
+			type: "STR",
+			file: "new_abr_infinity/new_abr_infinity_bottom/new_abr_infinity_bottom",
+			texturePath: "new_abr_infinity/new_abr_infinity_bottom/",
+			min: "new_abr_infinity/new_abr_infinity_bottom/min_new_abr_infinity_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_mt_summon_abr_infinity_cast: [{
+			type: "STR",
+			file: "new_abr_infinity/new_abr_infinity_cast/new_abr_infinity_cast",
+			texturePath: "new_abr_infinity/new_abr_infinity_cast/",
+			min: "new_abr_infinity/new_abr_infinity_cast/min_new_abr_infinity_cast"
+		}],
+		ef_mt_summon_abr_infinity_hit: [{
+			type: "STR",
+			file: "new_abr_infinity/new_abr_infinity_hit/new_abr_infinity_hit",
+			texturePath: "new_abr_infinity/new_abr_infinity_hit/",
+			min: "new_abr_infinity/new_abr_infinity_hit/min_new_abr_infinity_hit"
+		}],
+		ef_mt_spark_blaster: [{
+			type: "STR",
+			file: "meister/spark_blaster/spark_blaster/spark_blaster",
+			texturePath: "meister/spark_blaster/spark_blaster/",
+			min: "meister/spark_blaster/spark_blaster/min_spark_blaster",
+			wav: "effect/mt_spark_blaster"
+		}, {
+			type: "STR",
+			file: "meister/spark_blaster/spark_blaster_bottom/spark_blaster_bottom",
+			texturePath: "meister/spark_blaster/spark_blaster_bottom/",
+			min: "meister/spark_blaster/spark_blaster_bottom/min_spark_blaster_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_mt_triple_laser: [{
+			type: "STR",
+			file: "meister/triple_laser/triple_laser/triple_laser",
+			texturePath: "meister/triple_laser/triple_laser/",
+			min: "meister/triple_laser/triple_laser/min_triple_laser",
+			wav: "effect/mt_triple_laser"
+		}],
+		ef_mt_mighty_smash: [{
+			type: "STR",
+			file: "meister/mighty_smash/mighty_smash/mighty_smash",
+			texturePath: "meister/mighty_smash/mighty_smash/",
+			min: "meister/mighty_smash/mighty_smash/min_mighty_smash",
+			wav: "effect/mt_mighty_smash"
+		}],
+		ef_mt_rush_strike: [{
+			type: "STR",
+			file: "meister/mt_rush_strike/rush_strike/rush_strike",
+			texturePath: "meister/mt_rush_strike/rush_strike/",
+			min: "meister/mt_rush_strike/rush_strike/min_rush_strike",
+			wav: "effect/mt_rush_strike"
+		}, {
+			type: "STR",
+			file: "meister/mt_rush_strike/rush_strike_bottom/rush_strike_bottom",
+			texturePath: "meister/mt_rush_strike/rush_strike_bottom/",
+			min: "meister/mt_rush_strike/rush_strike_bottom/min_rush_strike_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_mt_powerful_swing: [{
+			type: "STR",
+			file: "meister/mt_powerful_swing/powerful_swing/powerful_swing",
+			texturePath: "meister/mt_powerful_swing/powerful_swing/",
+			min: "meister/mt_powerful_swing/powerful_swing/min_powerful_swing",
+			wav: "effect/mt_powerful_swing"
+		}, {
+			type: "STR",
+			file: "meister/mt_powerful_swing/powerful_swing_bottom/powerful_swing_bottom",
+			texturePath: "meister/mt_powerful_swing/powerful_swing_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_mt_powerful_swing_hit: [{
+			type: "STR",
+			file: "meister/mt_powerful_swing/powerful_swing_hit/powerful_swing_hit",
+			texturePath: "meister/mt_powerful_swing/powerful_swing_hit/",
+			min: "meister/mt_powerful_swing/powerful_swing_hit/min_powerful_swing_hit"
+		}],
+		ef_mt_energy_cannonade: [{
+			type: "STR",
+			file: "meister/mt_energy_cannonade/energy_cannonade/energy_cannonade",
+			texturePath: "meister/mt_energy_cannonade/energy_cannonade/",
+			min: "meister/mt_energy_cannonade/energy_cannonade/min_energy_cannonade",
+			wav: "effect/mt_energy_cannonade"
+		}],
+		ef_mt_energy_cannonade_cast: [{
+			type: "STR",
+			file: "meister/mt_energy_cannonade/energy_cannonade_cast/energy_cannonade_cast",
+			texturePath: "meister/mt_energy_cannonade/energy_cannonade_cast/",
+			min: "meister/mt_energy_cannonade/energy_cannonade_cast/min_energy_cannonade_cast"
+		}, {
+			type: "STR",
+			file: "meister/mt_energy_cannonade/energy_cannonade_cast_bottom/energy_cannonade_cast_bottom",
+			texturePath: "meister/mt_energy_cannonade/energy_cannonade_cast_bottom/",
+			min: "meister/mt_energy_cannonade/energy_cannonade_cast_bottom/min_energy_cannonade_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_mt_energy_cannonade_hit: [{
+			type: "STR",
+			file: "meister/mt_energy_cannonade/energy_cannonade_hit/energy_cannonade_hit",
+			texturePath: "meister/mt_energy_cannonade/energy_cannonade_hit/",
+			min: "meister/mt_energy_cannonade/energy_cannonade_hit/min_energy_cannonade_hit"
+		}],
+		1938: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_battle_w/abr_battle_warior.tga", [0, 0]), Params);
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Merchant.js
+var Merchant_default;
+var init_Merchant = __esmMin((() => {
+	Merchant_default = {
+		10: [{
+			type: "STR",
+			file: "maemor",
+			min: "memor_min",
+			wav: "effect/ef_coin2",
+			attachedEntity: true
+		}],
+		170: [{
+			type: "STR",
+			file: "cartrevolution",
+			wav: "effect/ef_magnumbreak",
+			attachedEntity: true
+		}],
+		311: [{
+			type: "STR",
+			file: "loud",
+			wav: "effect/°í¼º¹æ°¡",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Merchant/Whitesmith.js
+var Whitesmith_default;
+var init_Whitesmith = __esmMin((() => {
+	Whitesmith_default = {
+		390: [{
+			type: "STR",
+			file: "melt",
+			attachedEntity: true
+		}],
+		391: [{
+			type: "STR",
+			file: "cart",
+			wav: "effect/ef_incagility",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Ninja/KagerouOboro.js
+var KagerouOboro_default;
+var init_KagerouOboro = __esmMin((() => {
+	KagerouOboro_default = {
+		ef_ko_jyumonjikiri: [{
+			type: "STR",
+			file: "jyumonjikiri",
+			texturePath: ""
+		}],
+		ef_ko_setsudan: [{
+			type: "STR",
+			file: "setsudan",
+			texturePath: ""
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Ninja/Ninja.js
+var Ninja_default;
+var init_Ninja = __esmMin((() => {
+	Ninja_default = {
+		613: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 200,
+			fadeIn: true,
+			fadeOut: true,
+			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/¼ö¸®°Ë.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: 1,
+			size: 30,
+			zOffset: 1,
+			zIndex: 1
+		}],
+		614: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 200,
+			fadeIn: true,
+			fadeOut: true,
+			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Äí³ªÀÌ_µ¶.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: 1,
+			size: 30,
+			zOffset: 1,
+			zIndex: 1
+		}],
+		615: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 200,
+			fadeIn: true,
+			fadeOut: true,
+			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/Ç³¸¶_³ú¿ì.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: 1,
+			size: 30,
+			zOffset: 1,
+			zIndex: 1
+		}],
+		616: [{ wav: "effect/´ÑÀÚ_´øÁö±â" }, {
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 200,
+			fadeIn: true,
+			fadeOut: true,
+			file: "effect/coin_a.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: 1,
+			size: 20,
+			zOffset: 1,
+			zIndex: 1
+		}],
+		618: [{
+			type: "STR",
+			file: "firehit",
+			wav: "effect/ef_firearrow%d",
+			rand: [1, 3],
+			attachedEntity: true
+		}],
+		619: [{
+			type: "STR",
+			file: "freeze",
+			wav: "effect/ef_icearrow%d",
+			rand: [1, 3],
+			attachedEntity: true
+		}],
+		621: [{ wav: "effect/Ç³ÀÎ" }],
+		622: [{
+			type: "STR",
+			file: "setsudan",
+			wav: "effect/ef_thunderstorm",
+			attachedEntity: true
+		}],
+		630: [{
+			type: "SPR",
+			file: "±×¸²ÀÚº£±â",
+			wav: "effect/±×¸²ÀÚº£±â",
+			attachedEntity: true
+		}],
+		631: [{
+			type: "SPR",
+			file: "´Ù´Ù¹Ì µÚÁý±â",
+			wav: "effect/´Ù´Ù¹ÌµÚÁý±â",
+			attachedEntity: true
+		}],
+		632: [{
+			type: "SPR",
+			file: "¾È°³º£±â",
+			wav: "effect/¾È°³º£±â",
+			attachedEntity: true
+		}],
+		633: [{
+			type: "SPR",
+			file: "ÀÏ¼¶",
+			wav: "effect/ÀÏ¼¶",
+			attachedEntity: true
+		}],
+		634: [{
+			type: "SPR",
+			file: "È­¿°Áø",
+			repeat: true,
+			attachedEntity: true
+		}, { wav: "effect/È­¿°Áø" }],
+		635: [{
+			type: "STR",
+			file: "fire dragon",
+			wav: "effect/Æø¿°·æ",
+			attachedEntity: false
+		}],
+		636: [{
+			type: "STR",
+			file: "icy",
+			wav: "effect/ºùÁ¤¶ô",
+			attachedEntity: false
+		}]
+	};
+}));
+// src/Renderer/Effects/CasterStrobe.js
+/**
+* Colour multiplier of the caster on a tick of the effect
+*
+* @param {number} frame tick since the effect started
+* @return {number} 0 (black) .. 1 (normal)
+*/
+function casterStrobeShade(frame) {
+	if (frame < STROBE.first) return 1;
+	if (frame <= STROBE.last) return frame % 2 ? 1 : 0;
+	return Math.min(1, (frame - STROBE.last) * STROBE.recoverStep / 255);
+}
+/**
+* Run the strobe on an entity, through its flash colour
+*
+* @param {Entity} entity
+*/
+function startCasterStrobe(entity) {
+	if (!entity || !entity.animations || !entity._flashColor) return;
+	const setShade = (shade) => {
+		entity._flashColor[0] = shade;
+		entity._flashColor[1] = shade;
+		entity._flashColor[2] = shade;
+		entity._flashColor[3] = 1;
+		entity.recalculateBlendingColor();
+	};
+	entity.animations.add((tick) => {
+		const frame = Math.floor(tick / PRIM_TICK_MS);
+		const poisoned = (entity._healthState & StatusState_default.HealthState.POISON) !== 0;
+		const done = frame > STROBE.last && (poisoned || casterStrobeShade(frame) >= 1);
+		setShade(done ? 1 : casterStrobeShade(frame));
+		return done;
+	});
+}
+var STROBE;
+var init_CasterStrobe = __esmMin((() => {
+	init_StatusState();
+	init_EffectPrimSim();
+	STROBE = {
+		first: 6,
+		last: 60,
+		recoverStep: 8
+	};
+}));
+// src/Renderer/Effects/CastFunnelSim.js
+/**
+* A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
+*
+* @param {number} t
+* @return {number}
+*/
+function funnelAlpha(t) {
+	if (t <= FUNNEL.riseTicks) return FUNNEL.alphaUp * Math.max(0, t);
+	return Math.max(0, FUNNEL.alphaUp * FUNNEL.riseTicks - FUNNEL.alphaDown * (t - FUNNEL.riseTicks));
+}
+/**
+* Band `b`'s state on tick `t`: start angle, lean and foot radius.
+*
+* @param {number} b band index
+* @param {number} t tick, 1 on the first
+* @return {{angle: number, lean: number, foot: number}}
+*/
+function bandState(b, t) {
+	return {
+		angle: (FUNNEL.turn * b + FUNNEL.spin * t) % 360,
+		lean: Math.max(FUNNEL.leanMin, FUNNEL.lean - FUNNEL.leanStep * t),
+		foot: FUNNEL.foot + b + FUNNEL.spread * t
+	};
+}
+/**
+* Height of point `j` of band `b` on tick `t`, in world units.
+*
+* @param {number} b
+* @param {number} j 0 to 20
+* @param {number} t
+* @return {number}
+*/
+function pointHeight(b, j, t) {
+	return FUNNEL.height * Math.sin(9 * j * DEG$1) * (1 + FUNNEL.breathe * Math.sin((t + FUNNEL.turn * b) % 360 * DEG$1));
+}
+/**
+* Write one vertex in roBrowser's GL space, from client units about `center`.
+*/
+function vertex(out, i, center, x, y, up, u, v) {
+	out[i + 0] = center[0] + .5 + x / 5;
+	out[i + 1] = -center[2] - up / 5;
+	out[i + 2] = center[1] + .5 + y / 5;
+	out[i + 3] = u;
+	out[i + 4] = v;
+	return i + 5;
+}
+/**
+* Fill `out` with every band's triangles on tick `t`.
+* V is 1 at a strip's foot and 0 at its tip; strip k runs U from k/21 to (k+1)/21.
+*
+* @param {Float32Array} out FUNNEL_VERTICES * 5 floats
+* @param {number} t tick, 1 on the first
+* @param {Array} center position, in cells
+* @return {number} vertices written
+*/
+function buildFunnel(out, t, center) {
+	const step = 18;
+	let o = 0;
+	for (let b = 0; b < 4; b++) {
+		const band = bandState(b, t);
+		const lean = Math.cos(band.lean * DEG$1);
+		const rise = Math.sin(band.lean * DEG$1);
+		let prev = null;
+		for (let j = 0; j < 21; j++) {
+			const angle = (j === 20 ? band.angle : band.angle + j * step) * DEG$1;
+			const cos = Math.cos(angle);
+			const sin = Math.sin(angle);
+			const h = pointHeight(b, j, t);
+			const point = {
+				fx: band.foot * cos,
+				fy: band.foot * sin,
+				tx: (band.foot + h * lean) * cos,
+				ty: (band.foot + h * lean) * sin,
+				up: h * rise
+			};
+			if (prev) {
+				const u0 = (j - 1) / 21;
+				const u1 = j / 21;
+				o = vertex(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex(out, o, center, point.fx, point.fy, 0, u1, 1);
+				o = vertex(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+				o = vertex(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			}
+			prev = point;
+		}
+	}
+	return o / 5;
+}
+var DEG$1, FUNNEL;
+var init_CastFunnelSim = __esmMin((() => {
+	init_EffectPrimSim();
+	DEG$1 = Math.PI / 180;
+	FUNNEL = {
+		height: 25,
+		breathe: .15,
+		turn: 90,
+		spin: 5,
+		lean: 80,
+		leanStep: 1,
+		leanMin: 40,
+		foot: 1,
+		spread: .3,
+		alphaUp: 20,
+		riseTicks: 10,
+		alphaDown: 5
+	};
+	FUNNEL.riseTicks + FUNNEL.alphaUp * FUNNEL.riseTicks / FUNNEL.alphaDown;
+}));
+// src/Renderer/Effects/CastFunnel.js
+function loadTexture$1(gl, name) {
+	if (_textures.has(name)) return;
+	_textures.set(name, null);
+	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+		WebGL_default.texture(gl, buffer, (texture) => {
+			if (!_textures.has(name)) {
+				gl.deleteTexture(texture);
+				return;
+			}
+			_textures.set(name, texture);
+		});
+	});
+}
+var _program$2, _textures, CastFunnel;
+var init_CastFunnel = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_SpriteRenderer();
+	init_CastFunnelSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	_program$2 = null;
+	_textures = /* @__PURE__ */ new Map();
+	CastFunnel = class {
+		/**
+		* @param {vec3} position caster position (kept by reference, so it follows)
+		* @param {number} startTick
+		* @param {number} frames lifetime in ticks (1/60 s)
+		* @param {string} texture file under data/texture/effect/
+		*/
+		constructor(position, startTick, frames, texture) {
+			this.position = position;
+			this.startTick = startTick || 0;
+			this.frames = Math.max(1, Math.floor(frames));
+			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
+			this.texture = texture;
+			this.vertices = /* @__PURE__ */ new Float32Array(2400);
+			this.color = new Float32Array([
+				1,
+				1,
+				1,
+				1
+			]);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			loadTexture$1(gl, this.texture);
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			if (tick > this.endTick) {
+				this.needCleanUp = true;
+				return;
+			}
+			const texture = _textures.get(this.texture);
+			if (!texture) return;
+			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
+			const alpha = funnelAlpha(t);
+			if (alpha <= 0) return;
+			const count = buildFunnel(this.vertices, t, this.position);
+			const attribute = _program$2.attribute;
+			const self = this;
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
+				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				self.color[3] = alpha / 255;
+				gl.uniform4fv(_program$2.uniform.uColor, self.color);
+				gl.drawArrays(gl.TRIANGLES, 0, count);
+			});
+		}
+		static init(gl) {
+			_program$2 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			if (_program$2) {
+				gl.deleteProgram(_program$2);
+				_program$2 = null;
+			}
+			for (const texture of _textures.values()) if (texture) gl.deleteTexture(texture);
+			_textures.clear();
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$2.uniform;
+			const attribute = _program$2.attribute;
+			gl.useProgram(_program$2);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$2.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$2.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/Renderer/Effects/CasterMarks.js
+/**
+* The caster's colour on tick `age`: the last colour the effect set, brought
+* back by 8 a tick since.
+*
+* @param {function} schedule
+* @param {number} age
+* @return {number[]|null} 0-255 per channel, or null when never set
+*/
+function colorAt(schedule, age) {
+	for (let a = age; a >= 0 && age - a <= Math.ceil(255 / 8); a--) {
+		const set = schedule(a).color;
+		if (set) return set.map((c) => Math.min(255, c + 8 * (age - a)));
+	}
+	return null;
+}
+/**
+* Recover a colour on an entity by 8 a tick until it is back to normal
+*
+* @param {Entity} entity
+* @param {number[]} color 0-255 per channel
+*/
+function recoverColor(entity, color) {
+	if (!entity.animations || !entity._flashColor) return;
+	entity.animations.add((tick) => {
+		const steps = Math.floor(tick / PRIM_TICK_MS);
+		let done = true;
+		for (let i = 0; i < 3; i++) {
+			const c = Math.min(255, color[i] + 8 * steps);
+			entity._flashColor[i] = c / 255;
+			done = done && c >= 255;
+		}
+		entity.recalculateBlendingColor();
+		return done;
+	});
+}
+var RED, YELLOW, WHITE, SCHEDULES, CasterMarks;
+var init_CasterMarks = __esmMin((() => {
+	init_EntityManager();
+	init_EffectPrimSim();
+	RED = [
+		255,
+		0,
+		0
+	];
+	YELLOW = [
+		250,
+		250,
+		100
+	];
+	WHITE = [
+		255,
+		255,
+		255
+	];
+	SCHEDULES = {
+		934: (age) => {
+			const on = age >= 10 && age <= 34 && age % 4 < 2;
+			return {
+				add: on,
+				glow: on,
+				split: false,
+				color: null
+			};
+		},
+		2373: (age) => {
+			const on = age <= 30;
+			return {
+				add: on,
+				glow: on,
+				split: true,
+				color: on ? RED : null
+			};
+		},
+		502: (age) => {
+			const on = age <= 140;
+			const even = age % 2 === 0;
+			return {
+				add: on && even,
+				glow: on,
+				split: false,
+				color: on ? even ? YELLOW : WHITE : null
+			};
+		}
+	};
+	CasterMarks = class {
+		static ready = true;
+		static renderBeforeEntities = true;
+		static beforeRender() {}
+		static afterRender() {}
+		/**
+		* @param {Entity} owner the caster
+		* @param {number} startTick
+		* @param {number} frames lifetime in ticks (1/60 s)
+		* @param {number} effectId 934, 2373 or 502
+		*/
+		constructor(owner, startTick, frames, effectId) {
+			this.owner = owner || null;
+			this.startTick = startTick || 0;
+			this.frames = Math.max(1, Math.floor(frames));
+			this.schedule = SCHEDULES[effectId];
+			this.add = false;
+			this.glow = false;
+			this.color = null;
+			this.ready = true;
+		}
+		/**
+		* Put the marks of tick `age` on the owner, or take them all off (null)
+		*/
+		mark(age) {
+			const owner = this.owner;
+			const state = age === null ? {
+				add: false,
+				glow: false,
+				split: false
+			} : this.schedule(age);
+			if (state.add !== this.add) {
+				owner._additiveBody = Math.max(0, (owner._additiveBody || 0) + (state.add ? 1 : -1));
+				this.add = state.add;
+			}
+			if (state.glow !== this.glow) {
+				owner._castGlow = Math.max(0, (owner._castGlow || 0) + (state.glow ? 1 : -1));
+				this.glow = state.glow;
+			}
+			if (state.split) {
+				owner._splitImageAge = age;
+				this._split = true;
+			} else if (this._split) {
+				owner._splitImageAge = void 0;
+				this._split = false;
+			}
+			if (age !== null && owner._flashColor) {
+				const color = colorAt(this.schedule, age);
+				if (color || this.color) {
+					const c = color || WHITE;
+					owner._flashColor[0] = c[0] / 255;
+					owner._flashColor[1] = c[1] / 255;
+					owner._flashColor[2] = c[2] / 255;
+					owner.recalculateBlendingColor();
+					this.color = color;
+				}
+			}
+		}
+		render(gl, tick) {
+			if (!this.owner || EntityManager.get(this.owner.GID) !== this.owner) {
+				this.needCleanUp = true;
+				return;
+			}
+			if (tick < this.startTick) return;
+			const age = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
+			if (age >= this.frames) {
+				this.needCleanUp = true;
+				return;
+			}
+			this.mark(age);
+		}
+		free() {
+			if (this.owner) {
+				this.mark(null);
+				if (this.color && this.color.some((c) => c < 255)) recoverColor(this.owner, this.color);
+			}
+			this.owner = null;
+		}
+	};
+}));
+// src/Renderer/Effects/RotateLineSim.js
+/**
+* How long the effect plays, in ticks, for a cast of `castTime` ms.
+*
+* @param {number} castTime ms
+* @return {number}
+*/
+function rotateLineFrames(castTime) {
+	return Math.max(0, Math.floor((castTime || 0) / 16));
+}
+/**
+* The four ribbons as the client sets them up.
+*
+* @param {number} effectId 986 or 1000
+* @param {function} random returns 0 <= x < 1 (the tilts)
+* @return {Array<object>}
+*/
+function createLines(effectId, random = Math.random) {
+	const look = LOOKS[effectId] || LOOKS[986];
+	const lines = [];
+	for (let L = 0; L < 4; L++) {
+		const points = [];
+		for (let i = 0; i < 21; i++) points.push({
+			angle: START.turn * L,
+			span: START.span,
+			alpha: START.alpha,
+			radius: START.radius - START.radiusStep * L + look.radius
+		});
+		lines.push({
+			tilt: START.tiltMin + Math.floor(random() * START.tiltRange),
+			height: START.height - START.heightStep * L,
+			points
+		});
+	}
+	return lines;
+}
+/**
+* One client tick: `age` is the ticks already run (the client reads it before
+* counting the tick).
+*
+* @param {Array<object>} lines from createLines, changed in place
+* @param {number} age
+*/
+function stepLines(lines, age) {
+	for (const line of lines) {
+		const head = line.points[0];
+		head.angle = (head.angle + STEP.turn) % 360;
+		head.span = Math.min(STEP.maxSpan, head.span + STEP.span);
+		if (age < STEP.alphaInTicks) head.alpha += 1;
+		else {
+			head.radius += STEP.grow;
+			if (age > STEP.fadeAfter) head.alpha = Math.max(0, head.alpha - 1);
+		}
+		for (let i = 1; i < 21; i++) {
+			const point = line.points[i];
+			point.angle = (head.angle + STEP.turn * i) % 360;
+			point.span = Math.min(STEP.maxSpan, head.span + STEP.span * i);
+			if (age < STEP.alphaInTicks) point.alpha = head.alpha + i;
+			else {
+				point.radius = head.radius + STEP.grow * i;
+				if (age > STEP.fadeAfter) point.alpha = Math.max(0, head.alpha - i);
+			}
+		}
+	}
+}
+/**
+* Where point i of a ribbon sits on its circle, whole degrees.
+*
+* @param {object} point
+* @param {number} i
+* @return {number}
+*/
+function pointAngle(point, i) {
+	return (Math.trunc(point.span / 21) * i + point.angle) % 360;
+}
+/**
+* The upper and lower corners of point i, in the camera-turned frame: x toward
+* screen right, z away from the camera, y height (negative is up), world units.
+*
+* @param {object} line
+* @param {number} i
+* @param {Float32Array} out [upper x, y, z, lower x, y, z]
+* @return {Float32Array} out
+*/
+function pointCorners(line, i, out) {
+	const point = line.points[i];
+	const p = pointAngle(point, i) * DEG;
+	const cos = Math.cos(p);
+	const sin = Math.sin(p);
+	const lean = Math.cos(line.tilt * DEG);
+	const up = -line.height;
+	out[0] = cos * point.radius;
+	out[1] = up;
+	out[2] = sin * point.radius;
+	out[3] = cos * (point.radius + lean);
+	out[4] = up + START.drop - Math.sin(line.tilt * DEG);
+	out[5] = sin * (point.radius + lean);
+	return out;
+}
+/**
+* Screen right and away-from-camera directions on the ground, from the view matrix.
+*
+* @param {mat4} modelView view matrix (gl-matrix, column-major)
+* @param {Float32Array} right out: screen right, GL world
+* @param {Float32Array} away out: away from the camera, GL world
+*/
+function cameraFrame(modelView, right, away) {
+	let x = modelView[0];
+	let z = modelView[8];
+	let length = Math.hypot(x, z) || 1;
+	right[0] = x / length;
+	right[1] = 0;
+	right[2] = z / length;
+	x = modelView[1];
+	z = modelView[9];
+	length = Math.hypot(x, z);
+	if (length < 1e-6) {
+		away[0] = -right[2];
+		away[2] = right[0];
+	} else {
+		away[0] = x / length;
+		away[2] = z / length;
+	}
+	away[1] = 0;
+}
+var DEG, TEXTURE, LOOKS, START, STEP;
+var init_RotateLineSim = __esmMin((() => {
+	init_EffectPrimSim();
+	DEG = Math.PI / 180;
+	TEXTURE = "cloud11.tga";
+	LOOKS = {
+		986: {
+			rgb: [
+				50,
+				50,
+				50
+			],
+			additive: false,
+			radius: 0
+		},
+		1e3: {
+			rgb: [
+				100,
+				100,
+				255
+			],
+			additive: true,
+			radius: 3
+		}
+	};
+	START = {
+		turn: 90,
+		height: 28,
+		heightStep: 5,
+		radius: 7,
+		radiusStep: 1,
+		span: 30,
+		alpha: 50,
+		drop: 3,
+		tiltMin: 80,
+		tiltRange: 21
+	};
+	STEP = {
+		turn: 5,
+		span: 3,
+		maxSpan: 180,
+		alphaInTicks: 13,
+		fadeAfter: 50,
+		grow: .1
+	};
+}));
+// src/Renderer/Effects/RotateLine.js
+function loadTexture(gl) {
+	if (_texture || _textureLoading) return;
+	_textureLoading = true;
+	Client.loadFile(`data/texture/effect/${TEXTURE}`, (buffer) => {
+		WebGL_default.texture(gl, buffer, (texture) => {
+			if (!_textureLoading) {
+				gl.deleteTexture(texture);
+				return;
+			}
+			_texture = texture;
+		});
+	});
+}
+var _program$1, _texture, _textureLoading, _right, _away, _corners, _color, QUADS, QUAD_FLOATS, RotateLine;
+var init_RotateLine = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_SpriteRenderer();
+	init_RotateLineSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	_program$1 = null;
+	_texture = null;
+	_textureLoading = false;
+	_right = /* @__PURE__ */ new Float32Array(3);
+	_away = /* @__PURE__ */ new Float32Array(3);
+	_corners = /* @__PURE__ */ new Float32Array(6);
+	_color = /* @__PURE__ */ new Float32Array(4);
+	QUADS = 20;
+	QUAD_FLOATS = 30;
+	RotateLine = class {
+		/**
+		* @param {vec3} position caster position (kept by reference, so it follows)
+		* @param {number} startTick
+		* @param {number} castTime cast time, ms
+		* @param {number} effectId 986 gray or 1000 blue
+		*/
+		constructor(position, startTick, castTime, effectId = 986) {
+			this.position = position;
+			this.startTick = startTick || 0;
+			this.frames = rotateLineFrames(castTime);
+			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
+			this.look = LOOKS[effectId] || LOOKS[986];
+			this.lines = createLines(effectId);
+			this.age = 0;
+			this.vertices = new Float32Array(4 * QUADS * QUAD_FLOATS);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			loadTexture(gl);
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		/**
+		* Write one ribbon's quads to the vertex array, in GL world space.
+		*/
+		buildLine(line, offset) {
+			const out = this.vertices;
+			const base = this.position;
+			const cx = base[0] + .5;
+			const cz = base[1] + .5;
+			const cy = -base[2];
+			let prev = null;
+			for (let i = 0; i < 21; i++) {
+				pointCorners(line, i, _corners);
+				const ux = _corners[0] / 5;
+				const uz = _corners[2] / 5;
+				const lx = _corners[3] / 5;
+				const lz = _corners[5] / 5;
+				const cur = [
+					cx + _right[0] * ux + _away[0] * uz,
+					cy + _corners[1] / 5,
+					cz + _right[2] * ux + _away[2] * uz,
+					cx + _right[0] * lx + _away[0] * lz,
+					cy + _corners[4] / 5,
+					cz + _right[2] * lx + _away[2] * lz
+				];
+				if (prev) {
+					const u0 = (i - 1) / 21;
+					const u1 = i / 21;
+					const quad = [
+						[
+							prev[3],
+							prev[4],
+							prev[5],
+							u0,
+							0
+						],
+						[
+							cur[3],
+							cur[4],
+							cur[5],
+							u1,
+							0
+						],
+						[
+							prev[0],
+							prev[1],
+							prev[2],
+							u0,
+							1
+						],
+						[
+							cur[0],
+							cur[1],
+							cur[2],
+							u1,
+							1
+						]
+					];
+					let o = offset + (i - 1) * QUAD_FLOATS;
+					for (const k of [
+						0,
+						1,
+						2,
+						2,
+						1,
+						3
+					]) {
+						out.set(quad[k], o);
+						o += 5;
+					}
+				}
+				prev = cur;
+			}
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			if (tick > this.endTick) {
+				this.needCleanUp = true;
+				return;
+			}
+			const t = Math.min(this.frames, Math.floor((tick - this.startTick) / PRIM_TICK_MS) + 1);
+			while (this.age < t) {
+				stepLines(this.lines, this.age);
+				this.age++;
+			}
+			if (!_texture) return;
+			const lines = this.lines;
+			for (let L = 0; L < 4; L++) this.buildLine(lines[L], L * QUADS * QUAD_FLOATS);
+			const attribute = _program$1.attribute;
+			const look = this.look;
+			_color[0] = look.rgb[0] / 255;
+			_color[1] = look.rgb[1] / 255;
+			_color[2] = look.rgb[2] / 255;
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			gl.bindTexture(gl.TEXTURE_2D, _texture);
+			gl.blendFunc(gl.SRC_ALPHA, look.additive ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				for (let L = 0; L < 4; L++) {
+					const points = lines[L].points;
+					for (let i = 1; i < 21; i++) {
+						const alpha = points[i].alpha;
+						if (alpha <= 0) continue;
+						_color[3] = Math.min(255, alpha) / 255;
+						gl.uniform4fv(_program$1.uniform.uColor, _color);
+						gl.drawArrays(gl.TRIANGLES, (L * QUADS + i - 1) * 6, 6);
+					}
+				}
+			});
+		}
+		static init(gl) {
+			_program$1 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			if (_program$1) {
+				gl.deleteProgram(_program$1);
+				_program$1 = null;
+			}
+			if (_texture) {
+				gl.deleteTexture(_texture);
+				_texture = null;
+			}
+			_textureLoading = false;
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$1.uniform;
+			const attribute = _program$1.attribute;
+			gl.useProgram(_program$1);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			cameraFrame(modelView, _right, _away);
+		}
+		static afterRender(gl) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			gl.disableVertexAttribArray(_program$1.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$1.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/DB/Effects/Table/Jobs/Ninja/ShinkiroShiranui.js
+var ShinkiroShiranui_default;
+var init_ShinkiroShiranui = __esmMin((() => {
+	init_CasterStrobe();
+	init_CastCircle();
+	init_CastFunnel();
+	init_CasterMarks();
+	init_RotateLine();
+	ShinkiroShiranui_default = {
+		812: [{
+			type: "PRIM",
+			prim: "quad",
+			texture: "fashasha",
+			attachedEntity: false,
+			duration: 950,
+			frames: 57,
+			color: [
+				10,
+				10,
+				10
+			],
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 10,
+			sizeChangeSpeed: .1,
+			sizeChangeAccel: .1 / 30,
+			alpha: 254,
+			fadeOutFrame: 30
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				startCasterStrobe(Params.Init.ownerEntity);
+			}
+		}],
+		ef_ss_tokedasu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_tokedasu/tokedasu/tokedasu",
+			texturePath: "shinkiro_shiranui/ss_tokedasu/tokedasu/",
+			min: "shinkiro_shiranui/ss_tokedasu/tokedasu/min_tokedasu",
+			wav: "effect/shinkiro_shiranui/ss_tokedasu"
+		}],
+		ef_ss_shimiru: [{
+			wav: "effect/shinkiro_shiranui/ss_shimiru",
+			attachedEntity: true
+		}],
+		ef_ss_akumukesu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_akumukesu/akumukesu",
+			texturePath: "shinkiro_shiranui/ss_akumukesu/",
+			min: "shinkiro_shiranui/ss_akumukesu/min_akumukesu",
+			wav: "effect/shinkiro_shiranui/ss_akumukesu"
+		}],
+		ef_ss_kagegari: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kagegari/kagegari",
+			texturePath: "shinkiro_shiranui/ss_kagegari/",
+			min: "shinkiro_shiranui/ss_kagegari/min_kagegari",
+			wav: "effect/shinkiro_shiranui/ss_kagegari"
+		}],
+		ef_ss_kagenomai: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kagenomai/kagenomai",
+			texturePath: "shinkiro_shiranui/ss_kagenomai/",
+			min: "shinkiro_shiranui/ss_kagenomai/min_kagenomai"
+		}],
+		ef_ss_kagegissen: [
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kagegissen/kagegissen",
+				texturePath: "shinkiro_shiranui/ss_kagegissen/",
+				min: "shinkiro_shiranui/ss_kagegissen/min_kagegissen",
+				wav: "effect/shinkiro_shiranui/ss_kagegissen"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen/new_kagegissen",
+				texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen/"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/new_kagegissen_bottom",
+				texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/",
+				renderBeforeEntities: true
+			}
+		],
+		ef_ss_kagegissen_hit: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/new_kagegissen_hit",
+			texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/"
+		}],
+		ef_ss_fuumashouaku: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/fuumashouaku",
+			texturePath: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/",
+			min: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/min_fuumashouaku",
+			wav: "effect/shinkiro_shiranui/ss_fuumashouaku"
+		}],
+		ef_ss_fuumakouchiku: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/fuumakouchiku",
+			texturePath: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/",
+			min: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/min_fuumakouchiku",
+			wav: "effect/shinkiro_shiranui/ss_fuumakouchiku"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/new_fuumakouchiku",
+			texturePath: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/",
+			min: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/min_new_fuumakouchiku"
+		}],
+		ef_ss_kunaiwaikyoku: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaiwaikyoku/kunaiwaikyoku",
+			texturePath: "shinkiro_shiranui/ss_kunaiwaikyoku/",
+			min: "shinkiro_shiranui/ss_kunaiwaikyoku/min_kunaiwaikyoku",
+			wav: "effect/shinkiro_shiranui/ss_kunaiwaikyoku"
+		}],
+		ef_ss_kunaikaiten: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/kunaikaiten_bottom",
+			texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/",
+			min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/min_kunaikaiten_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_ss_kunaikussetsu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/kunaikussetsu",
+			texturePath: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/",
+			min: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/min_kunaikussetsu",
+			wav: "effect/shinkiro_shiranui/ss_kunaikussetsu"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/kunaikussetsu_bottom",
+			texturePath: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_ss_sekienhou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_sekienhou/sekienhou",
+			texturePath: "shinkiro_shiranui/ss_sekienhou/",
+			min: "shinkiro_shiranui/ss_sekienhou/min_sekienhou",
+			wav: "effect/shinkiro_shiranui/ss_sekienhou"
+		}],
+		ef_ss_reiketsuhou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/reiketsuhou",
+			texturePath: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/",
+			min: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/min_reiketsuhou",
+			wav: "effect/shinkiro_shiranui/ss_reiketsuhou"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/reiketsuhou_bottom",
+			texturePath: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/",
+			min: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/min_reiketsuhou_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_ss_raidenpou: [
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/new_raidenpou",
+				texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/",
+				min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/min_new_raidenpou",
+				wav: "effect/shinkiro_shiranui/ss_raidenpou"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_raidenpou/raidenpou",
+				texturePath: "shinkiro_shiranui/ss_raidenpou/",
+				min: "shinkiro_shiranui/ss_raidenpou/min_raidenpou"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/new_raidenpou_bottom",
+				texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/",
+				renderBeforeEntities: true
+			}
+		],
+		ef_ss_raidenpou_cast: [{
+			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
+			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast",
+			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/",
+			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast",
+			wav: "effect/ef_beginspell",
+			yOffset: 8
+		}],
+		ef_ss_raidenpou_hit: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/new_raidenpou_hit",
+			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/",
+			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/min_new_raidenpou_hit"
+		}],
+		ef_ss_kinryuuhou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/kinryuuhou",
+			texturePath: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/",
+			min: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/min_kinryuuhou",
+			wav: "effect/shinkiro_shiranui/ss_kinryuuhou"
+		}],
+		ef_ss_kinryuuhou_hit: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/kinryuuhou_hit",
+			texturePath: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/",
+			min: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/min_kinryuuhou_hit"
+		}],
+		ef_ss_antenpou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_antenpou/antenpou",
+			texturePath: "shinkiro_shiranui/ss_antenpou/",
+			min: "shinkiro_shiranui/ss_antenpou/min_antenpou",
+			wav: "effect/shinkiro_shiranui/ss_antenpou"
+		}],
+		ef_ss_kageakumu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kageakumu/kageakumu",
+			texturePath: "shinkiro_shiranui/ss_kageakumu/",
+			min: "shinkiro_shiranui/ss_kageakumu/min_kageakumu"
+		}],
+		ef_ss_hitouakumu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/hitouakumu",
+			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/",
+			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/min_hitouakumu",
+			wav: "effect/shinkiro_shiranui/ss_hitouakumu"
+		}],
+		ef_ss_ankokuryuuakumu: [{
+			wav: "effect/shinkiro_shiranui/ss_ankokuryuuakumu",
+			attachedEntity: true
+		}],
+		ef_ss_four_charm: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice",
+			wav: "effect/shinkiro_shiranui/ss_four_charm"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/four_charm_ice_bottom",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/min_four_charm_ice_bottom",
+			renderBeforeEntities: true
+		}],
+		934: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, 300, "ring_white.tga"), Params);
+			}
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 934), Params);
+			}
+		}],
+		986: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			func: function(Params) {
+				this.add(new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 986), Params);
+			}
+		}],
+		1774: [{
+			type: "STR",
+			file: "mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom",
+			texturePath: "mystery_illusion/mystery_illusion_cast_bottom/",
+			min: "mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom",
+			wav: "effect/ef_beginspell",
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}],
+		2373: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			func: function(Params) {
+				this.add(new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration / 16, "ring_black.tga"), Params);
+			}
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373), Params);
+			}
+		}],
+		ef_cast_circle_violet: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "magic_violet.tga"), Params);
+			}
+		}],
+		ef_cast_circle_blue: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_blue.tga", 2), Params);
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Novice/HyperNovice.js
+var HyperNovice_default;
+var init_HyperNovice = __esmMin((() => {
+	init_CastCircle();
+	init_CasterMarks();
+	HyperNovice_default = {
+		9: [
+			{
+				alphaMax: .2,
+				animation: 1,
+				attachedEntity: true,
+				blendMode: 2,
+				bottomSize: .95,
+				duration: 2e3,
+				fade: true,
+				height: 10,
+				textureName: "alpha_down",
+				topSize: .95,
+				type: "CYLINDER"
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				duration: 1e3,
+				delayLate: 500,
+				duplicate: 7,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			},
+			{
+				alphaMax: .8,
+				attachedEntity: true,
+				duration: 1e3,
+				delayOffset: 400,
+				duplicate: 3,
+				fadeOut: true,
+				file: "effect/ac_center2.tga",
+				posxRand: 1.5,
+				posyRand: 1,
+				poszEndRand: 1,
+				poszEndRandMiddle: 6,
+				poszStartRand: 1,
+				poszStartRandMiddle: 1,
+				sizeRandY: 15,
+				sizeRandYMiddle: 45,
+				sizeX: 2.5,
+				type: "3D",
+				zIndex: 0
+			}
+		],
 		ef_hn_doublebowlingbash: [{
 			type: "STR",
 			file: "hyper_novice/hn_doublebowlingbash/double_bowlingbash",
@@ -289305,13 +288402,1165 @@ var init_ef_hn = __esmMin((() => {
 			texturePath: "hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/",
 			min: "hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/min_overcoming_crisis_bottom",
 			renderBeforeEntities: true
+		}],
+		502: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502), Params);
+			}
+		}],
+		1446: [{
+			type: "STR",
+			file: "new_jackfrost/new_jackfrost_cast/new_jackfrost_cast",
+			texturePath: "new_jackfrost/new_jackfrost_cast/",
+			min: "new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast",
+			castLoop: true,
+			attachedEntity: true
+		}],
+		1449: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_jackfrost/ring_ice.tga", 2), Params);
+			}
+		}],
+		1709: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_earthdrive/ring_brown.tga"), Params);
+			}
+		}],
+		ef_cast_circle_yellow: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCircle(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", 0), Params);
+			}
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_ig.js
-var ef_ig_default;
-var init_ef_ig = __esmMin((() => {
-	ef_ig_default = {
+// src/DB/Effects/Table/Jobs/Novice/Novice.js
+var Novice_default;
+var init_Novice = __esmMin((() => {
+	Novice_default = {
+		309: [{
+			type: "2D",
+			alphaMax: 80 / 255,
+			blendMode: 2,
+			file: "effect/pikapika2.bmp",
+			red: 150 / 255,
+			green: 150 / 255,
+			blue: 250 / 255,
+			angleRand: [0, 359],
+			fadeInMs: 20 * (1e3 / 60),
+			fadeOutStartMs: 100 * (1e3 / 60),
+			duration: 3e3,
+			size: 140,
+			sizePulse: {
+				amount: .05,
+				degPerTick: 3
+			},
+			posz: 2.4,
+			wav: "_heal_effect"
+		}],
+		ef_nv_helpangel: [{
+			type: "STR",
+			file: "help_angel/help_angel/help_angel",
+			texturePath: "help_angel/help_angel/",
+			wav: "effect/priest_sanctuary"
+		}, {
+			type: "STR",
+			file: "help_angel/help_angel_bottom/help_angel_bottom",
+			texturePath: "help_angel/help_angel_bottom/",
+			renderBeforeEntities: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Summoner/SpiritHandler.js
+var SpiritHandler_default;
+var init_SpiritHandler = __esmMin((() => {
+	init_CastCone();
+	SpiritHandler_default = {
+		ef_sh_chul_ho_sonic_claw: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/chul_ho_sonic_claw",
+			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/",
+			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/min_chul_ho_sonic_claw",
+			wav: "effect/spirit_handler/sh_chul_ho_sonic_claw"
+		}],
+		ef_sh_howling_of_chul_ho: [{
+			type: "STR",
+			file: "spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/howling_of_chul_ho",
+			texturePath: "spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/",
+			min: "spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/min_howling_of_chul_ho",
+			wav: "effect/spirit_handler/sh_howling_of_chul_ho"
+		}],
+		ef_sh_hogogong_strike: [{
+			type: "STR",
+			file: "spirit_handler/sh_hogogong_strike/hogogong_strike",
+			texturePath: "spirit_handler/sh_hogogong_strike/",
+			min: "spirit_handler/sh_hogogong_strike/min_hogogong_strike",
+			wav: "effect/spirit_handler/sh_hogogong_strike"
+		}],
+		ef_sh_ki_sul_water_spraying: [{
+			type: "STR",
+			file: "spirit_handler/sh_ki_sul_water_spraying/ki_sul_water_spraying",
+			texturePath: "spirit_handler/sh_ki_sul_water_spraying/",
+			min: "spirit_handler/sh_ki_sul_water_spraying/min_ki_sul_water_spraying",
+			wav: "effect/spirit_handler/sh_ki_sul_water_spraying"
+		}],
+		ef_sh_marine_festival_of_ki_sul: [{
+			type: "STR",
+			file: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/marine_festival_of_ki_sul",
+			texturePath: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/",
+			min: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/min_marine_festival_of_ki_sul",
+			wav: "effect/spirit_handler/sh_marine_festival_of_ki_sul"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/marine_festival_of_ki_sul_bottom",
+			texturePath: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/",
+			min: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/min_marine_festival_of_ki_sul_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_sh_sandy_festival_of_ki_sul: [{
+			type: "STR",
+			file: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/sandy_festival_of_ki_sul",
+			texturePath: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/",
+			min: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/min_sandy_festival_of_ki_sul",
+			wav: "effect/spirit_handler/sh_sandy_festival_of_ki_sul"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/sandy_festival_of_ki_sul_bottom",
+			texturePath: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/",
+			min: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/min_sandy_festival_of_ki_sul_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_sh_ki_sul_rampage: [{
+			type: "STR",
+			file: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/ki_sul_rampage",
+			texturePath: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/",
+			min: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/min_ki_sul_rampage",
+			wav: "effect/spirit_handler/sh_ki_sul_rampage"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/ki_sul_rampage_bottom",
+			texturePath: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/",
+			min: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/min_ki_sul_rampage_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_sh_colors_of_hyun_rok: [{
+			type: "STR",
+			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/colors_of_hyun_rok_fire",
+			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/",
+			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/min_colors_of_hyun_rok_fire",
+			wav: "effect/spirit_handler/sh_colors_of_hyun_rok"
+		}],
+		ef_sh_hyun_roks_breeze: [{
+			type: "STR",
+			file: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/hyun_roks_breeze",
+			texturePath: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/",
+			min: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/min_hyun_roks_breeze",
+			wav: "effect/spirit_handler/sh_hyun_roks_breeze"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/hyun_roks_breeze_bottom",
+			texturePath: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/",
+			min: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/min_hyun_roks_breeze_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_sh_hyun_rok_cannon: [{
+			type: "STR",
+			file: "spirit_handler/skid_sh_hyun_rok_cannon/hyun_rok_cannon",
+			texturePath: "spirit_handler/skid_sh_hyun_rok_cannon/",
+			min: "spirit_handler/skid_sh_hyun_rok_cannon/min_hyun_rok_cannon",
+			wav: "effect/spirit_handler/sh_hyun_rok_cannon"
+		}],
+		ef_sh_temporary_communion: [{
+			type: "STR",
+			file: "spirit_handler/sh_temporary_communion/temporary_communion/temporary_communion",
+			texturePath: "spirit_handler/sh_temporary_communion/temporary_communion/",
+			min: "spirit_handler/sh_temporary_communion/temporary_communion/min_temporary_communion",
+			wav: "effect/spirit_handler/sh_temporary_communion"
+		}],
+		ef_sh_blessing_of_mystical_creatures: [{
+			type: "STR",
+			file: "spirit_handler/sh_blessing_of_mystical_creatures/blessing_of_mystical_creatures",
+			texturePath: "spirit_handler/sh_blessing_of_mystical_creatures/",
+			min: "spirit_handler/sh_blessing_of_mystical_creatures/min_blessing_of_mystical_creatures",
+			wav: "effect/spirit_handler/sh_blessing_of_mystical_creatures"
+		}],
+		ef_sh_chul_ho_battering: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering/chul_ho_battering",
+			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering/",
+			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering/min_chul_ho_battering",
+			wav: "effect/spirit_handler/sh_chul_ho_battering"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/chul_ho_battering_bottom",
+			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/",
+			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/min_chul_ho_battering_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_sh_chul_ho_battering_cast: [{
+			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
+			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast",
+			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/",
+			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast",
+			wav: "effect/ef_beginspell",
+			yOffset: 10
+		}],
+		ef_sh_chul_ho_battering_hit: [{
+			type: "STR",
+			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/chul_ho_battering_hit",
+			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/",
+			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/min_chul_ho_battering_hit"
+		}],
+		ef_sh_hyun_rok_spirit_power: [{
+			type: "STR",
+			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/hyun_rok_spirit_power",
+			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/",
+			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/min_hyun_rok_spirit_power",
+			wav: "effect/spirit_handler/sh_hyun_rok_spirit_power"
+		}, {
+			type: "STR",
+			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/hyun_rok_spirit_power_bottom",
+			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/",
+			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/min_hyun_rok_spirit_power_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_sh_hyun_rok_spirit_power_cast: [{
+			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
+			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast",
+			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/",
+			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast",
+			wav: "effect/ef_beginspell",
+			yOffset: 10
+		}, {
+			type: "STR",
+			castLoop: true,
+			attachedEntity: true,
+			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom",
+			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/",
+			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom",
+			renderBeforeEntities: true,
+			yOffset: 10
+		}],
+		ef_sh_hyun_rok_spirit_power_hit: [{
+			type: "STR",
+			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/hyun_rok_spirit_power_hit",
+			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/",
+			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/min_hyun_rok_spirit_power_hit"
+		}],
+		841: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 4 }), Params);
+			}
+		}],
+		842: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 5 }), Params);
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Summoner/Summoner.js
+var Summoner_default;
+var init_Summoner = __esmMin((() => {
+	Summoner_default = {
+		ef_su_bite: [{
+			type: "STR",
+			file: "su_bite/su_bite",
+			texturePath: "su_bite/"
+		}],
+		ef_su_scratch: [{
+			type: "STR",
+			file: "su_scratch/su_scratch",
+			texturePath: "su_scratch/",
+			wav: "effect/su_scratch"
+		}],
+		ef_su_sv_stemspear: [{
+			type: "STR",
+			file: "su_sv_stemspear/su_sv_stemspear",
+			texturePath: "su_sv_stemspear/"
+		}],
+		ef_su_scaroftarou: [{
+			type: "STR",
+			file: "su_scaroftarou/su_scaroftarou",
+			texturePath: "su_scaroftarou/",
+			wav: "effect/su_scaroftarou"
+		}],
+		ef_su_pickypeck: [{
+			type: "STR",
+			file: "su_pickypeck/su_pickypeck",
+			texturePath: "su_pickypeck/",
+			wav: "effect/su_pickypeck"
+		}],
+		ef_su_arclousedash: [{
+			type: "STR",
+			file: "su_arclousedash/su_arclousedash",
+			texturePath: "su_arclousedash/"
+		}],
+		ef_su_tunabelly: [{
+			type: "STR",
+			file: "su_tunabelly/su_scratch",
+			texturePath: "su_tunabelly/",
+			wav: "effect/su_tunabelly"
+		}, {
+			type: "STR",
+			file: "su_tunabelly/su_tunabelly",
+			texturePath: "su_tunabelly/"
+		}],
+		ef_su_bunchofshrimp: [{
+			type: "STR",
+			file: "su_bunchofshrimp/su_bunchofshrimp",
+			texturePath: "su_bunchofshrimp/"
+		}],
+		ef_su_freshshrimp: [{
+			type: "STR",
+			file: "su_freshshrimp/su_freshshrimp",
+			texturePath: "su_freshshrimp/"
+		}],
+		ef_su_powerofflock: [{
+			type: "STR",
+			file: "su_powerofflock/su_powerofflock",
+			texturePath: "su_powerofflock/",
+			wav: "effect/su_powerofflock"
+		}],
+		ef_su_svg_spirit: [{
+			type: "STR",
+			file: "su_svg_spirit/su_svg_spirit",
+			texturePath: "su_svg_spirit/",
+			wav: "effect/su_svg_spirit"
+		}],
+		ef_su_hiss: [{
+			type: "STR",
+			file: "su_hiss/su_hiss",
+			texturePath: "su_hiss/",
+			wav: "effect/su_hiss"
+		}],
+		ef_su_nyanggrass: [{
+			type: "STR",
+			file: "su_nyanggrass/su_nyanggrass",
+			texturePath: "su_nyanggrass/",
+			wav: "effect/su_nyanggrass"
+		}],
+		ef_su_grooming: [{
+			type: "STR",
+			file: "su_grooming/su_grooming",
+			texturePath: "su_grooming/",
+			wav: "effect/su_grooming"
+		}],
+		ef_su_chattering: [{
+			type: "STR",
+			file: "su_chattering/su_chattering",
+			texturePath: "su_chattering/",
+			wav: "effect/su_chattering"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Swordman/Crusader.js
+var Crusader_default;
+var init_Crusader = __esmMin((() => {
+	Crusader_default = {
+		222: [{
+			type: "CYLINDER",
+			alphaMax: .6,
+			animation: 1,
+			blendMode: 8,
+			bottomSize: 1.5,
+			topSize: 1.5,
+			duration: 3e3,
+			fade: true,
+			height: 10,
+			rotate: true,
+			textureName: "ring_black",
+			attachedEntity: true
+		}],
+		226: [
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -2
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -3
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -4
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 2
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 3
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 4
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: 1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: 2
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: 3
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: 4
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: -1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: -2
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: -3
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posY: -4
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 1,
+				posY: 1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 1,
+				posY: -1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -1,
+				posY: -1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 4,
+				circleSides: 4,
+				topSize: .7,
+				bottomSize: .7,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 45,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -1,
+				posY: 1
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 20,
+				circleSides: 5,
+				topSize: 3,
+				bottomSize: 3,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: -180,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 3.5,
+				posY: 3.5
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 20,
+				circleSides: 5,
+				topSize: 3,
+				bottomSize: 3,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 90,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: 3.5,
+				posY: -3.5
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 20,
+				circleSides: 5,
+				topSize: 3,
+				bottomSize: 3,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: 0,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -3.5,
+				posY: -3.5
+			},
+			{
+				type: "CYLINDER",
+				alphaMax: .1,
+				animation: 1,
+				attachedEntity: false,
+				blendMode: 2,
+				totalCircleSides: 20,
+				circleSides: 5,
+				topSize: 3,
+				bottomSize: 3,
+				duration: 1e3,
+				fade: true,
+				height: 5,
+				rotate: false,
+				angleY: -90,
+				textureName: "ring_red",
+				duplicate: 3,
+				timeBetweenDupli: 500,
+				posX: -3.5,
+				posY: 3.5
+			},
+			{ wav: "effect/cru_grand cross" }
+		],
+		245: [{
+			type: "STR",
+			file: "holy_cross",
+			wav: "effect/cru_holy cross",
+			attachedEntity: true
+		}],
+		246: [{
+			type: "STR",
+			file: "shield_charge",
+			attachedEntity: true
+		}],
+		248: [{
+			type: "STR",
+			file: "providence",
+			attachedEntity: true
+		}],
+		249: [{ wav: "effect/cru_shield boomerang" }],
+		250: [{
+			type: "STR",
+			file: "twohand",
+			wav: "effect/knight_twohandquicken",
+			head: true,
+			attachedEntity: true
+		}],
+		251: [{
+			type: "STR",
+			file: "devotion",
+			attachedEntity: true
+		}],
+		252: [{
+			type: "CYLINDER",
+			alphaMax: .6,
+			animation: 1,
+			blendMode: 8,
+			bottomSize: 1.5,
+			topSize: 1.5,
+			duration: 3e3,
+			fade: true,
+			height: 10,
+			rotate: true,
+			textureName: "ring_yellow",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Swordman/DragonKnight.js
+var DragonKnight_default;
+var init_DragonKnight = __esmMin((() => {
+	DragonKnight_default = {
+		ef_dk_servantweapon: [{
+			type: "STR",
+			file: "dragon_knight/dk_servantweapon/servantweapon/servantweapon",
+			texturePath: "dragon_knight/dk_servantweapon/servantweapon/",
+			min: "dragon_knight/dk_servantweapon/servantweapon/min_servantweapon",
+			fallback: ["new_servantweapon/new_servantweapon/new_servantweapon"],
+			wav: "effect/dk_servantweapon"
+		}],
+		ef_dk_servantweapon_cast: [{
+			type: "STR",
+			file: "dragon_knight/dk_servantweapon/servantweapon_cast/servantweapon_cast",
+			texturePath: "dragon_knight/dk_servantweapon/servantweapon_cast/",
+			min: "dragon_knight/dk_servantweapon/servantweapon_cast/min_servantweapon_cast",
+			fallback: ["new_servantweapon/new_servantweapon_cast/new_servantweapon_cast"]
+		}],
+		ef_dk_servantweapon_hit: [{
+			type: "STR",
+			file: "dragon_knight/dk_servantweapon/servantweapon_hit/servantweapon_hit",
+			texturePath: "dragon_knight/dk_servantweapon/servantweapon_hit/",
+			min: "dragon_knight/dk_servantweapon/servantweapon_hit/min_servantweapon_hit",
+			fallback: ["new_servantweapon/new_servantweapon_hit/new_servantweapon_hit"]
+		}, {
+			type: "STR",
+			file: "dragon_knight/dk_servantweapon/servantweapon_hit_bottom/servantweapon_hit_bottom",
+			texturePath: "dragon_knight/dk_servantweapon/servantweapon_hit_bottom/",
+			min: "dragon_knight/dk_servantweapon/servantweapon_hit_bottom/min_servantweapon_hit_bottom",
+			fallback: ["new_servantweapon/new_servantweapon_hit_bottom/new_servantweapon_hit_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_dk_servantweapon_atk: [{
+			type: "STR",
+			file: "new_servantweapon/new_servantweapon_hit/new_servantweapon_hit",
+			texturePath: "new_servantweapon/new_servantweapon_hit/",
+			min: "new_servantweapon/new_servantweapon_hit/min_new_servantweapon_hit"
+		}, {
+			type: "STR",
+			file: "new_servantweapon/new_servantweapon_hit_bottom/new_servantweapon_hit_bottom",
+			texturePath: "new_servantweapon/new_servantweapon_hit_bottom/",
+			min: "new_servantweapon/new_servantweapon_hit_bottom/min_new_servantweapon_hit_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_dk_servant_w_sign: [{
+			wav: "effect/dk_servant_w_sign",
+			attachedEntity: true
+		}],
+		ef_dk_servant_w_phantom: [{
+			type: "STR",
+			file: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub/servant_phantom_sub",
+			texturePath: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub/",
+			min: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub/min_servant_phantom_sub",
+			fallback: ["servant_phantom/servant_phantom_sub/servant_phantom_sub"],
+			wav: "effect/dk_servant_w_phantom"
+		}, {
+			type: "STR",
+			file: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/servant_phantom_sub_bottom",
+			texturePath: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/",
+			min: "dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/min_servant_phantom_sub_bottom",
+			fallback: ["servant_phantom/servant_phantom_sub_bottom/servant_phantom_sub_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_dk_servant_w_demol_hit: [{
+			type: "STR",
+			file: "dragon_knight/dk_servant_w_demol/servant_demolition_hit/servant_demolition_hit",
+			texturePath: "dragon_knight/dk_servant_w_demol/servant_demolition_hit/",
+			min: "dragon_knight/dk_servant_w_demol/servant_demolition_hit/min_servant_demolition_hit",
+			fallback: ["servant_demolition/servant_demolition_hit/servant_demolition_hit"],
+			wav: "effect/dk_servant_w_demol"
+		}],
+		ef_dk_chargingpierce_cast: [{
+			type: "STR",
+			file: "dragon_knight/dk_chargingpierce/chargingpierce_cast/chargingpierce_cast",
+			texturePath: "dragon_knight/dk_chargingpierce/chargingpierce_cast/",
+			fallback: ["new_chargingpierce/new_chargingpierce_cast/new_chargingpierce_cast"],
+			wav: "effect/dk_chargingpierce1"
+		}, {
+			type: "STR",
+			file: "dragon_knight/dk_chargingpierce/chargingpierce_cast_bottom/chargingpierce_cast_bottom",
+			texturePath: "dragon_knight/dk_chargingpierce/chargingpierce_cast_bottom/",
+			fallback: ["new_chargingpierce/new_chargingpierce_cast_bottom/new_chargingpierce_cast_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_dk_chargingpierce_hit: [{
+			type: "STR",
+			file: "dragon_knight/dk_chargingpierce/chargingpierce_hit/chargingpierce_hit",
+			texturePath: "dragon_knight/dk_chargingpierce/chargingpierce_hit/",
+			fallback: ["new_chargingpierce/new_chargingpierce_hit/new_chargingpierce_hit"],
+			wav: "effect/dk_chargingpierce2"
+		}],
+		ef_dk_hackandslasher: [{
+			type: "STR",
+			file: "dragon_knight/dk_hackandslasher/hackandslash/hackandslash",
+			texturePath: "dragon_knight/dk_hackandslasher/hackandslash/",
+			min: "dragon_knight/dk_hackandslasher/hackandslash/min_hackandslash",
+			fallback: ["hackandslash/hackandslash/hackandslash"],
+			wav: "effect/dk_hackandslasher"
+		}, {
+			type: "STR",
+			file: "dragon_knight/dk_hackandslasher/hackandslash_bottom/hackandslash_bottom",
+			texturePath: "dragon_knight/dk_hackandslasher/hackandslash_bottom/",
+			min: "dragon_knight/dk_hackandslasher/hackandslash_bottom/min_hackandslash_bottom",
+			fallback: ["hackandslash/hackandslash_bottom/hackandslash_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_dk_hackandslasher_hit: [{
+			type: "STR",
+			file: "dragon_knight/dk_hackandslasher/hackandslash_hit/hackandslash_hit",
+			texturePath: "dragon_knight/dk_hackandslasher/hackandslash_hit/",
+			min: "dragon_knight/dk_hackandslasher/hackandslash_hit/min_hackandslash_hit",
+			fallback: ["hackandslash/hackandslash_hit/hackandslash_hit"]
+		}],
+		ef_dk_hackandslasher_atk: [{
+			type: "STR",
+			file: "hackandslash/hackandslash_hit/hackandslash_hit",
+			texturePath: "hackandslash/hackandslash_hit/",
+			min: "hackandslash/hackandslash_hit/min_hackandslash_hit"
+		}],
+		ef_dk_dragonic_aura: [{
+			wav: "effect/dk_dragonic_aura1",
+			attachedEntity: true
+		}],
+		ef_dk_madness_crusher: [{
+			type: "STR",
+			file: "dragon_knight/dk_madness_crusher/madness_crusher/madness_crusher",
+			texturePath: "dragon_knight/dk_madness_crusher/madness_crusher/",
+			min: "dragon_knight/dk_madness_crusher/madness_crusher/min_madness_crusher",
+			fallback: ["madness_crusher/madness_crusher/madness_crusher"],
+			wav: "effect/dk_madness_crusher"
+		}, {
+			type: "STR",
+			file: "dragon_knight/dk_madness_crusher/madness_crusher_bottom/madness_crusher_bottom",
+			texturePath: "dragon_knight/dk_madness_crusher/madness_crusher_bottom/",
+			min: "dragon_knight/dk_madness_crusher/madness_crusher_bottom/min_madness_crusher_bottom",
+			fallback: ["madness_crusher/madness_crusher_bottom/madness_crusher_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_dk_vigor: [{
+			wav: "effect/dk_vigor",
+			attachedEntity: true
+		}],
+		ef_dk_vigor_cast: [{
+			type: "STR",
+			file: "dragon_knight/dk_vigor/vigor_cast/vigor_cast",
+			texturePath: "dragon_knight/dk_vigor/vigor_cast/",
+			min: "dragon_knight/dk_vigor/vigor_cast/min_vigor_cast",
+			fallback: ["vigor/vigor_cast/vigor_cast"]
+		}],
+		ef_dk_stormslash_hit: [{
+			type: "STR",
+			file: "dragon_knight/dk_stormslash/stormslash/stormslash_%d",
+			min: "dragon_knight/dk_stormslash/stormslash/min_stormslash_%d",
+			rand: [1, 5],
+			texturePath: "dragon_knight/dk_stormslash/stormslash/",
+			fallback: ["stormslash/stormslash/stormslash_%d"],
+			wav: "effect/dk_stormslash1"
+		}],
+		ef_dk_dragonic_breath: [{
+			type: "STR",
+			file: "dragon_knight/dragonic_breath/dragonic_breath/dragonic_breath",
+			texturePath: "dragon_knight/dragonic_breath/dragonic_breath/",
+			min: "dragon_knight/dragonic_breath/dragonic_breath/min_dragonic_breath",
+			wav: "effect/dk_dragonic_breath"
+		}, {
+			type: "STR",
+			file: "dragon_knight/dragonic_breath/dragonic_breath_bottom/dragonic_breath_bottom",
+			texturePath: "dragon_knight/dragonic_breath/dragonic_breath_bottom/",
+			min: "dragon_knight/dragonic_breath/dragonic_breath_bottom/min_dragonic_breath_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_dk_dragonic_breath_hit: [{
+			type: "STR",
+			file: "dragon_knight/dragonic_breath/dragonic_breath_hit/dragonic_breath_hit",
+			texturePath: "dragon_knight/dragonic_breath/dragonic_breath_hit/",
+			min: "dragon_knight/dragonic_breath/dragonic_breath_hit/min_dragonic_breath_hit"
+		}],
+		ef_dk_dragonic_pierce: [{
+			type: "STR",
+			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_bottom/dragonic_pierce_bottom",
+			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_bottom/",
+			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_bottom/min_dragonic_pierce_bottom",
+			renderBeforeEntities: true,
+			wav: "effect/dk_dragonic_pierce"
+		}],
+		ef_dk_dragonic_pierce_cast: [{
+			type: "STR",
+			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/dragonic_pierce_cast",
+			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/",
+			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_cast/min_dragonic_pierce_cast"
+		}],
+		ef_dk_dragonic_pierce_hit: [{
+			type: "STR",
+			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/dragonic_pierce_hit",
+			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/",
+			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit/min_dragonic_pierce_hit"
+		}, {
+			type: "STR",
+			file: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit_bottom/dragonic_pierce_hit_bottom",
+			texturePath: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit_bottom/",
+			min: "dragon_knight/dk_dragonic_pierce/dragonic_pierce_hit_bottom/min_dragonic_pierce_hit_bottom",
+			renderBeforeEntities: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Swordman/ImperialGuard.js
+var ImperialGuard_default;
+var init_ImperialGuard = __esmMin((() => {
+	ImperialGuard_default = {
 		ef_ig_guard_stance: [{
 			type: "STR",
 			file: "imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance/new_guard_stance",
@@ -289640,237 +289889,521 @@ var init_ef_ig = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_iq.js
-var ef_iq_default;
-var init_ef_iq = __esmMin((() => {
-	ef_iq_default = {
-		ef_iq_powerful_faith: [{
+// src/DB/Effects/Table/Jobs/Swordman/Knight.js
+var Knight_default;
+var init_Knight = __esmMin((() => {
+	Knight_default = {
+		70: [{
+			attachedEntity: false,
+			file: "brandish",
 			type: "STR",
-			file: "powerfulfaith/powerfulfaith/powerfulfaith",
-			texturePath: "powerfulfaith/powerfulfaith/",
-			min: "powerfulfaith/powerfulfaith/min_powerfulfaith"
+			wav: "effect/knight_brandish_spear"
 		}],
-		ef_iq_firm_faith: [{
-			type: "STR",
-			file: "firmfaith/firmfaith/firmfaith",
-			texturePath: "firmfaith/firmfaith/",
-			min: "firmfaith/firmfaith/min_firmfaith"
-		}],
-		ef_iq_oleum_sanctum: [{
-			type: "STR",
-			file: "4ig_oleumsanctum/oleumsanctum/oleumsanctum",
-			texturePath: "4ig_oleumsanctum/oleumsanctum/",
-			min: "4ig_oleumsanctum/oleumsanctum/min_oleumsanctum",
-			wav: "effect/iq_oleum_sanctum"
-		}, {
-			type: "STR",
-			file: "4ig_oleumsanctum/oleumsanctum_bottom/oleumsanctum_bottom",
-			texturePath: "4ig_oleumsanctum/oleumsanctum_bottom/",
-			min: "4ig_oleumsanctum/oleumsanctum_bottom/min_oleumsanctum_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_iq_oleum_sanctum_hit: [{
-			type: "STR",
-			file: "4ig_oleumsanctum/oleumsanctum_hit/oleumsanctum_hit",
-			texturePath: "4ig_oleumsanctum/oleumsanctum_hit/",
-			min: "4ig_oleumsanctum/oleumsanctum_hit/min_oleumsanctum_hit"
-		}],
-		ef_iq_sincere_faith: [{
-			type: "STR",
-			file: "sincerefaith/sincerefaith/sincerefaith",
-			texturePath: "sincerefaith/sincerefaith/",
-			min: "sincerefaith/sincerefaith/min_sincerefaith"
-		}, {
-			type: "STR",
-			file: "sincerefaith/sincerefaith_bottom/sincerefaith_bottom",
-			texturePath: "sincerefaith/sincerefaith_bottom/",
-			min: "sincerefaith/sincerefaith_bottom/min_sincerefaith_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_iq_massive_f_blaster: [{
-			type: "STR",
-			file: "4iq_massivefblaster/massivefblaster/massivefblaster",
-			texturePath: "4iq_massivefblaster/massivefblaster/",
-			min: "4iq_massivefblaster/massivefblaster/min_massivefblaster",
-			wav: "effect/iq_massive_f_blaster"
-		}],
-		ef_iq_massive_f_blaster_hit: [{
-			type: "STR",
-			file: "4iq_massivefblaster/massivefblaster_hit/massivefblaster_hit",
-			texturePath: "4iq_massivefblaster/massivefblaster_hit/",
-			min: "4iq_massivefblaster/massivefblaster_hit/min_massivefblaster_hit"
-		}, {
-			type: "STR",
-			file: "4iq_massivefblaster/massivefblaster_hit_bottom/massivefblaster_hit_bottom",
-			texturePath: "4iq_massivefblaster/massivefblaster_hit_bottom/",
-			min: "4iq_massivefblaster/massivefblaster_hit_bottom/min_massivefblaster_hit_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_iq_exposion_blaster: [{
-			type: "STR",
-			file: "4ig_explosionblaster/explosionblaster/explosionblaster",
-			texturePath: "4ig_explosionblaster/explosionblaster/",
-			min: "4ig_explosionblaster/explosionblaster/min_explosionblaster",
-			wav: "effect/iq_exposion_blaster"
-		}, {
-			type: "STR",
-			file: "4ig_explosionblaster/explosionblaster_bottom/explosionblaster_bottom",
-			texturePath: "4ig_explosionblaster/explosionblaster_bottom/",
-			min: "4ig_explosionblaster/explosionblaster_bottom/min_explosionblaster_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_iq_exposion_blaster_hit: [{
-			type: "STR",
-			file: "4ig_explosionblaster/explosionblaster_hit/explosionblaster_hit",
-			texturePath: "4ig_explosionblaster/explosionblaster_hit/",
-			min: "4ig_explosionblaster/explosionblaster_hit/min_explosionblaster_hit"
-		}],
-		ef_iq_first_brand: [{
-			type: "STR",
-			file: "4ig_firstbrand/firstbrand/firstbrand",
-			texturePath: "4ig_firstbrand/firstbrand/",
-			min: "4ig_firstbrand/firstbrand/min_firstbrand",
-			wav: "effect/iq_first_brand"
-		}],
-		ef_iq_first_brand_hit: [{
-			type: "STR",
-			file: "4ig_firstbrand/firstbrand_hit/firstbrand_hit",
-			texturePath: "4ig_firstbrand/firstbrand_hit/",
-			min: "4ig_firstbrand/firstbrand_hit/min_firstbrand_hit"
-		}],
-		ef_iq_first_faith_power: [{
-			type: "STR",
-			file: "4ig_firstfaithpower/firstfaithpower/firstfaithpower",
-			texturePath: "4ig_firstfaithpower/firstfaithpower/",
-			min: "4ig_firstfaithpower/firstfaithpower/min_firstfaithpower",
-			wav: "effect/iq_first_faith_power"
-		}],
-		ef_iq_first_faith_power_cast: [{
-			type: "STR",
-			file: "4ig_firstfaithpower/firstfaithpower_cast/firstfaithpower_cast",
-			texturePath: "4ig_firstfaithpower/firstfaithpower_cast/",
-			min: "4ig_firstfaithpower/firstfaithpower_cast/min_firstfaithpower_cast"
-		}],
-		ef_iq_judge: [{
-			type: "STR",
-			file: "4ig_judge/judge/judge",
-			texturePath: "4ig_judge/judge/",
-			min: "4ig_judge/judge/min_judge",
-			wav: "effect/iq_judge"
-		}],
-		ef_iq_judge_cast: [{
-			type: "STR",
-			file: "4ig_judge/judge_cast/judge_cast",
-			texturePath: "4ig_judge/judge_cast/",
-			min: "4ig_judge/judge_cast/min_judge_cast"
-		}],
-		ef_iq_second_flame: [{
-			type: "STR",
-			file: "4iq_secondflame/secondflame/secondflame",
-			texturePath: "4iq_secondflame/secondflame/",
-			min: "4iq_secondflame/secondflame/min_secondflame",
-			wav: "effect/iq_second_flame"
-		}, {
-			type: "STR",
-			file: "4iq_secondflame/secondflame_bottom/secondflame_bottom",
-			texturePath: "4iq_secondflame/secondflame_bottom/",
-			min: "4iq_secondflame/secondflame_bottom/min_secondflame_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_iq_second_faith: [{
-			wav: "effect/iq_second_faith",
+		80: [{
+			wav: "effect/ef_fireball",
 			attachedEntity: true
 		}],
-		ef_iq_second_judgement: [{
+		130: [{
 			type: "STR",
-			file: "4iq_secondjudgement/secondjudgement/secondjudgement",
-			texturePath: "4iq_secondjudgement/secondjudgement/",
-			min: "4iq_secondjudgement/secondjudgement/min_secondjudgement",
-			wav: "effect/iq_second_judgement"
+			file: "twohand",
+			wav: "effect/knight_twohandquicken",
+			head: true,
+			attachedEntity: true
 		}],
-		ef_iq_third_punish: [{
+		144: [{
 			type: "STR",
-			file: "4iq_thirdpunish/thirdpunish/thirdpunish",
-			texturePath: "4iq_thirdpunish/thirdpunish/",
-			min: "4iq_thirdpunish/thirdpunish/min_thirdpunish",
-			wav: "effect/iq_third_punish"
-		}, {
-			type: "STR",
-			file: "4iq_thirdpunish/thirdpunish_bottom/thirdpunish_bottom",
-			texturePath: "4iq_thirdpunish/thirdpunish_bottom/",
-			min: "4iq_thirdpunish/thirdpunish_bottom/min_thirdpunish_bottom",
-			renderBeforeEntities: true
+			file: "brandish2",
+			wav: "effect/knight_brandish_spear",
+			attachedEntity: true
 		}],
-		ef_iq_third_flame_bomb: [{
+		148: [{
 			type: "STR",
-			file: "4iq_thirdflamebomb/thirdflamebomb/thirdflamebomb",
-			texturePath: "4iq_thirdflamebomb/thirdflamebomb/",
-			min: "4iq_thirdflamebomb/thirdflamebomb/min_thirdflamebomb",
-			wav: "effect/iq_third_flame_bomb"
-		}, {
-			type: "STR",
-			file: "4iq_thirdflamebomb/thirdflamebomb_bottom/thirdflamebomb_bottom",
-			texturePath: "4iq_thirdflamebomb/thirdflamebomb_bottom/",
-			min: "4iq_thirdflamebomb/thirdflamebomb_bottom/min_thirdflamebomb_bottom",
-			renderBeforeEntities: true
+			file: "pierce",
+			attachedEntity: true
 		}],
-		ef_iq_third_consecration: [{
+		149: [{
 			type: "STR",
-			file: "4iq_thirdconsecration/thirdconsecration/thirdconsecration",
-			texturePath: "4iq_thirdconsecration/thirdconsecration/",
-			min: "4iq_thirdconsecration/thirdconsecration/min_thirdconsecration",
-			wav: "effect/iq_third_consecration"
-		}, {
-			type: "STR",
-			file: "4iq_thirdconsecration/thirdconsecration_bottom/thirdconsecration_bottom",
-			texturePath: "4iq_thirdconsecration/thirdconsecration_bottom/",
-			min: "4iq_thirdconsecration/thirdconsecration_bottom/min_thirdconsecration_bottom",
-			renderBeforeEntities: true
+			file: "bowling",
+			wav: "_enemy_hit_normal1",
+			head: true,
+			attachedEntity: true
 		}],
-		ef_iq_third_exor_flame: [{
+		150: [{
 			type: "STR",
-			file: "4ig_thirdexorflame/thirdexorflame/thirdexorflame",
-			texturePath: "4ig_thirdexorflame/thirdexorflame/",
-			min: "4ig_thirdexorflame/thirdexorflame/min_thirdexorflame",
-			wav: "effect/iq_third_exor_flame"
+			file: "spearstab",
+			wav: "_enemy_hit_normal1",
+			attachedEntity: true
 		}],
-		ef_iq_third_exor_flame_cast: [{
+		151: [{
 			type: "STR",
-			file: "4ig_thirdexorflame/thirdexorflame_cast/thirdexorflame_cast",
-			texturePath: "4ig_thirdexorflame/thirdexorflame_cast/",
-			min: "4ig_thirdexorflame/thirdexorflame_cast/min_thirdexorflame_cast"
+			file: "spearboomerang",
+			wav: "effect/knight_spear_boomerang",
+			head: true,
+			attachedEntity: true
 		}],
-		ef_iq_blazing_flame_blast: [{
-			type: "STR",
-			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast/blazing_flame_blast",
-			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast/",
-			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast/min_blazing_flame_blast",
-			wav: "effect/iq_blazing_flame_blast"
-		}],
-		ef_iq_blazing_flame_blast_cast: [{
-			type: "STR",
-			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/blazing_flame_blast_cast",
-			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/",
-			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast/min_blazing_flame_blast_cast"
-		}, {
-			type: "STR",
-			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast_bottom/blazing_flame_blast_cast_bottom",
-			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast_bottom/",
-			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_cast_bottom/min_blazing_flame_blast_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_iq_blazing_flame_blast_hit: [{
-			type: "STR",
-			file: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/blazing_flame_blast_hit",
-			texturePath: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/",
-			min: "inquisitor/iq_blazing_flame_blast/blazing_flame_blast_hit/min_blazing_flame_blast_hit"
+		ef_spear_projectile: [{
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 140,
+			fadeIn: true,
+			fadeOut: true,
+			spriteName: "Ã¢",
+			playSprite: true,
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			size: 100,
+			zOffset: 1,
+			zIndex: 1
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_lg.js
-var ef_lg_default;
-var init_ef_lg = __esmMin((() => {
-	ef_lg_default = {
+// src/DB/Effects/Table/Jobs/Swordman/LordKnight.js
+var LordKnight_default;
+var init_LordKnight = __esmMin((() => {
+	LordKnight_default = {
+		"339_beforecast": [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity._flashColor[0] = 1;
+				entity._flashColor[1] = 1;
+				entity._flashColor[2] = 1;
+				entity._flashColor[3] = 1;
+				entity.recalculateBlendingColor();
+				entity.animations.add(function(tick) {
+					if (!entity.cast.display) {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					}
+					entity._flashColor[1] = 0 + Math.sin(tick / (6 * Math.PI));
+					entity._flashColor[2] = 0 + Math.sin(tick / (6 * Math.PI));
+					entity.recalculateBlendingColor();
+				});
+			}
+		}],
+		339: [{ wav: "permeter_attack" }, {
+			wav: "effect/ef_magnumbreak",
+			delayWav: 300
+		}],
+		367: [{
+			wav: "effect/¿À¶ó ºí·¹ÀÌµå",
+			attachedEntity: true
+		}],
+		368: [{
+			wav: "effect/¹ö¼­Å©",
+			attachedEntity: true
+		}],
+		369: [{
+			type: "STR",
+			file: "twohand",
+			wav: "effect/knight_twohandquicken",
+			head: true,
+			attachedEntity: true
+		}],
+		399: [
+			{
+				wav: "effect/Çìµå Å©·¯½¬",
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const entity = Params.Init.ownerEntity;
+					entity.animations.add(function(tick) {
+						entity._enableHalo = true;
+						if (tick < 200) {
+							const val = (255 - (tick + 50)) / 255;
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = 1;
+							entity._flashColor[2] = val;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return false;
+						}
+						if (tick < 500) {
+							const val = 5 / 255 + .9803921568627451 * ((tick - 200) / 300);
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = 1;
+							entity._flashColor[2] = val;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+							return false;
+						}
+						entity._enableHalo = false;
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					});
+				}
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				delayStart: 500,
+				duplicate: 6,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				duplicate: 6,
+				delayStart: 500,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 7.2,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
+		400: [
+			{
+				wav: "effect/ºñÆ® Á¶ÀÎÆ®",
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const entity = Params.Init.ownerEntity;
+					entity.animations.add(function(tick) {
+						if (tick >= 150 && tick <= 500) entity._enableHalo = true;
+						else entity._enableHalo = false;
+						return tick > 600;
+					});
+				}
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				delayStart: 500,
+				duplicate: 6,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				duplicate: 6,
+				delayStart: 500,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 7.2,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
+		charge_attack: [{ attachedEntity: true }],
+		spear_hit_sound: [{
+			wav: "_hit_spear",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Swordman/Paladin.js
+var GospelEffects, Paladin_default;
+var init_Paladin = __esmMin((() => {
+	init_Camera();
+	init_Songs();
+	GospelEffects = Songs_default.GospelEffects;
+	Paladin_default = {
+		365: [
+			{
+				type: "3D",
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				duration: 500,
+				rotate: true,
+				angle: 0,
+				toAngle: -611,
+				poszStart: 20,
+				poszEnd: 5,
+				size: 100,
+				zIndex: 1,
+				file: "effect/cross_old.bmp",
+				wav: "effect/ÇÁ·¹¼Å"
+			},
+			{
+				type: "3D",
+				alphaMax: .6,
+				attachedEntity: true,
+				blendMode: 2,
+				duration: 500,
+				delayOffset: 501,
+				fadeOut: true,
+				angle: -611,
+				posz: 5,
+				size: 100,
+				zIndex: 1,
+				file: "effect/cross_old.bmp"
+			},
+			{
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const start = Params.Inst.startTick + 500;
+					Camera.setQuake(start);
+				}
+			}
+		],
+		366: [
+			{
+				wav: "effect/bash3d",
+				type: "FUNC",
+				attachedEntity: true,
+				func: function(Params) {
+					const entity = Params.Init.ownerEntity;
+					entity.animations.add(function(tick) {
+						entity._enableHalo = tick >= 150 && tick <= 450;
+						if (tick >= 150 && tick <= 450) {
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = .78;
+							entity._flashColor[2] = .78;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+						} else {
+							entity._flashColor[0] = 1;
+							entity._flashColor[1] = 1;
+							entity._flashColor[2] = 1;
+							entity._flashColor[3] = 1;
+							entity.recalculateBlendingColor();
+						}
+						return tick > 500;
+					});
+				}
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				delayStart: 200,
+				duplicate: 5,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 4.5,
+				animation: 2,
+				zIndex: 1.1,
+				attachedEntity: true
+			},
+			{
+				type: "CYLINDER",
+				textureName: "alpha_center",
+				alphaMax: .6,
+				duration: 175,
+				duplicate: 5,
+				delayStart: 200,
+				timeBetweenDupli: 0,
+				totalCircleSides: 30,
+				circleSides: 1,
+				fade: true,
+				angleX: -90,
+				angleZRandom: 360,
+				fixedPerspective: true,
+				posZ: 1.5,
+				height: 0,
+				bottomSize: .01,
+				topSize: 7.2,
+				animation: 2,
+				zIndex: 1.2,
+				attachedEntity: true
+			}
+		],
+		370: [{
+			wav: "effect/°¡½ºÆç",
+			attachedEntity: true
+		}],
+		"370_ground": [{
+			type: "FUNC",
+			attachedEntity: false,
+			func: function(Params) {
+				const self = this;
+				GospelEffects.forEach(function(effect) {
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
+				});
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Swordman/RoyalGuard.js
+var RoyalGuard_default;
+var init_RoyalGuard = __esmMin((() => {
+	init_Events();
+	RoyalGuard_default = {
+		906: [{
+			type: "3D",
+			alphaMax: .6,
+			attachedEntity: true,
+			blendMode: 2,
+			duration: 500,
+			rotate: true,
+			angle: 0,
+			toAngle: -611,
+			poszStart: 20,
+			poszEnd: 5,
+			size: 100,
+			zIndex: 1,
+			file: "effect/shield.bmp",
+			wav: "effect/ÇÁ·¹¼Å"
+		}, {
+			type: "3D",
+			alphaMax: .6,
+			attachedEntity: true,
+			blendMode: 2,
+			duration: 500,
+			delayOffset: 501,
+			fadeOut: true,
+			angle: -611,
+			posz: 5,
+			size: 100,
+			zIndex: 1,
+			file: "effect/shield.bmp",
+			delayWav: 500,
+			wav: "effect/lg_shieldpress"
+		}],
+		908: [{ wav: "effect/lg_prestige" }],
+		909: [{ wav: "effect/lg_banding" }],
+		910: [{ wav: "effect/lg_inspiration" }],
+		ef_banishingpoint: [{
+			wav: "effect/lg_banishingpoint",
+			attachedEntity: true
+		}],
+		ef_cannonspear: [{
+			wav: "effect/lg_cannonspear",
+			attachedEntity: true
+		}],
+		ef_earthdrive: [{
+			wav: "effect/lg_earthdrive",
+			attachedEntity: true
+		}],
+		ef_exceedbreak: [{
+			wav: "effect/lg_exceedbreak",
+			attachedEntity: true
+		}],
+		ef_hesperuslit: [{
+			wav: "effect/lg_hesperuslit",
+			attachedEntity: true
+		}],
+		ef_kings_grace: [{
+			wav: "effect/lg_kings_grace",
+			attachedEntity: true
+		}],
+		ef_moonslasher: [{
+			wav: "effect/lg_moonslasher",
+			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				const duration = 500;
+				const count = 8;
+				const delay = duration / count;
+				for (let i = 0; i < count; i++) {
+					const delta = 1;
+					Events.setTimeout(function() {
+						entity.direction = Math.floor(entity.direction + delta) % 8;
+					}, delay * i);
+				}
+			}
+		}],
+		ef_overbrand: [{
+			wav: "effect/lg_overbrand",
+			attachedEntity: true
+		}],
+		ef_piety: [{
+			wav: "effect/lg_piety",
+			attachedEntity: true
+		}],
+		ef_pinpointattack: [{
+			wav: "effect/lg_pinpointattack",
+			attachedEntity: true
+		}],
+		ef_rageburst: [{
+			wav: "effect/lg_rageburst",
+			attachedEntity: true
+		}],
+		ef_rayofgenesis: [{
+			wav: "effect/lg_rayofgenesis",
+			attachedEntity: true
+		}],
+		ef_reflectdamage: [{
+			wav: "effect/lg_reflectdamage",
+			attachedEntity: true
+		}],
+		ef_shieldspell: [{
+			wav: "effect/lg_shieldspell",
+			attachedEntity: true
+		}],
+		ef_trample: [{
+			wav: "effect/lg_trample",
+			attachedEntity: true
+		}],
 		ef_lg_cannonspear: [{
 			type: "STR",
 			file: "new_cannon_spear/new_cannon_spear_bottom/new_cannon_spear_bottom",
@@ -289969,891 +290502,311 @@ var init_ef_lg = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_mt.js
-var ef_mt_default;
-var init_ef_mt = __esmMin((() => {
-	ef_mt_default = {
-		ef_mt_axe_stomp: [{
-			type: "STR",
-			file: "new_axe_stomp/new_axe_stomp/new_axe_stomp",
-			texturePath: "new_axe_stomp/new_axe_stomp/",
-			min: "new_axe_stomp/new_axe_stomp/min_new_axe_stomp",
-			wav: "effect/mt_axe_stomp"
-		}, {
-			type: "STR",
-			file: "new_axe_stomp/new_axe_stomp_bottom/new_axe_stomp_bottom",
-			texturePath: "new_axe_stomp/new_axe_stomp_bottom/",
-			min: "new_axe_stomp/new_axe_stomp_bottom/min_new_axe_stomp_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_mt_axe_stomp_hit: [{
-			type: "STR",
-			file: "new_axe_stomp/new_axe_stomp_hit/new_axe_stomp_hit",
-			texturePath: "new_axe_stomp/new_axe_stomp_hit/",
-			min: "new_axe_stomp/new_axe_stomp_hit/min_new_axe_stomp_hit"
-		}],
-		ef_mt_rush_quake: [{
-			type: "STR",
-			file: "new_rush_quake/new_rush_quake/new_rush_quake",
-			texturePath: "new_rush_quake/new_rush_quake/",
-			min: "new_rush_quake/new_rush_quake/min_new_rush_quake",
-			wav: "effect/mt_rush_quake"
-		}],
-		ef_mt_rush_quake_hit: [{
-			type: "STR",
-			file: "new_rush_quake/new_rush_quake_hit/new_rush_quake_hit",
-			texturePath: "new_rush_quake/new_rush_quake_hit/",
-			min: "new_rush_quake/new_rush_quake_hit/min_new_rush_quake_hit"
-		}],
-		ef_mt_a_machine: [{
-			type: "STR",
-			file: "new_a_machine/new_a_machine/new_a_machine",
-			texturePath: "new_a_machine/new_a_machine/",
-			wav: "effect/mt_a_machine"
-		}],
-		ef_mt_a_machine_cast: [{
-			type: "STR",
-			file: "new_a_machine/new_a_machine_cast/new_a_machine_cast",
-			texturePath: "new_a_machine/new_a_machine_cast/"
-		}, {
-			type: "STR",
-			file: "new_a_machine/new_a_machine_cast_bottom/new_a_machine_cast_bottom",
-			texturePath: "new_a_machine/new_a_machine_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_mt_a_machine_hit: [{
-			type: "STR",
-			file: "new_a_machine/new_a_machine_attack/new_a_machine_attack",
-			texturePath: "new_a_machine/new_a_machine_attack/"
-		}, {
-			type: "STR",
-			file: "new_a_machine/new_a_machine_hit/new_a_machine_hit",
-			texturePath: "new_a_machine/new_a_machine_hit/"
-		}],
-		ef_mt_d_machine: [{
-			type: "STR",
-			file: "new_d_machine/new_d_machine/new_d_machine",
-			texturePath: "new_d_machine/new_d_machine/",
-			min: "new_d_machine/new_d_machine/min_new_d_machine",
-			wav: "effect/mt_d_machine"
-		}],
-		ef_mt_d_machine_cast: [{
-			type: "STR",
-			file: "new_d_machine/new_d_machine_cast/new_d_machine_cast",
-			texturePath: "new_d_machine/new_d_machine_cast/",
-			min: "new_d_machine/new_d_machine_cast/min_new_d_machine_cast"
-		}, {
-			type: "STR",
-			file: "new_d_machine/new_d_machine_cast_bottom/new_d_machine_cast_bottom",
-			texturePath: "new_d_machine/new_d_machine_cast_bottom/",
-			min: "new_d_machine/new_d_machine_cast_bottom/min_new_d_machine_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_mt_summon_abr_battle_warior: [{
-			wav: "effect/mt_summon_abr_battle_warior",
-			attachedEntity: true
-		}],
-		ef_mt_summon_abr_dual_cannon: [{
-			wav: "effect/mt_summon_abr_dual_cannon",
-			attachedEntity: true
-		}],
-		ef_mt_summon_abr_infinity: [{
-			type: "STR",
-			file: "new_abr_infinity/new_abr_infinity/new_abr_infinity",
-			texturePath: "new_abr_infinity/new_abr_infinity/",
-			min: "new_abr_infinity/new_abr_infinity/min_new_abr_infinity",
-			wav: "effect/mt_summon_abr_infinity"
-		}, {
-			type: "STR",
-			file: "new_abr_infinity/new_abr_infinity_bottom/new_abr_infinity_bottom",
-			texturePath: "new_abr_infinity/new_abr_infinity_bottom/",
-			min: "new_abr_infinity/new_abr_infinity_bottom/min_new_abr_infinity_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_mt_summon_abr_infinity_cast: [{
-			type: "STR",
-			file: "new_abr_infinity/new_abr_infinity_cast/new_abr_infinity_cast",
-			texturePath: "new_abr_infinity/new_abr_infinity_cast/",
-			min: "new_abr_infinity/new_abr_infinity_cast/min_new_abr_infinity_cast"
-		}],
-		ef_mt_summon_abr_infinity_hit: [{
-			type: "STR",
-			file: "new_abr_infinity/new_abr_infinity_hit/new_abr_infinity_hit",
-			texturePath: "new_abr_infinity/new_abr_infinity_hit/",
-			min: "new_abr_infinity/new_abr_infinity_hit/min_new_abr_infinity_hit"
-		}],
-		ef_mt_spark_blaster: [{
-			type: "STR",
-			file: "meister/spark_blaster/spark_blaster/spark_blaster",
-			texturePath: "meister/spark_blaster/spark_blaster/",
-			min: "meister/spark_blaster/spark_blaster/min_spark_blaster",
-			wav: "effect/mt_spark_blaster"
-		}, {
-			type: "STR",
-			file: "meister/spark_blaster/spark_blaster_bottom/spark_blaster_bottom",
-			texturePath: "meister/spark_blaster/spark_blaster_bottom/",
-			min: "meister/spark_blaster/spark_blaster_bottom/min_spark_blaster_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_mt_triple_laser: [{
-			type: "STR",
-			file: "meister/triple_laser/triple_laser/triple_laser",
-			texturePath: "meister/triple_laser/triple_laser/",
-			min: "meister/triple_laser/triple_laser/min_triple_laser",
-			wav: "effect/mt_triple_laser"
-		}],
-		ef_mt_mighty_smash: [{
-			type: "STR",
-			file: "meister/mighty_smash/mighty_smash/mighty_smash",
-			texturePath: "meister/mighty_smash/mighty_smash/",
-			min: "meister/mighty_smash/mighty_smash/min_mighty_smash",
-			wav: "effect/mt_mighty_smash"
-		}],
-		ef_mt_rush_strike: [{
-			type: "STR",
-			file: "meister/mt_rush_strike/rush_strike/rush_strike",
-			texturePath: "meister/mt_rush_strike/rush_strike/",
-			min: "meister/mt_rush_strike/rush_strike/min_rush_strike",
-			wav: "effect/mt_rush_strike"
-		}, {
-			type: "STR",
-			file: "meister/mt_rush_strike/rush_strike_bottom/rush_strike_bottom",
-			texturePath: "meister/mt_rush_strike/rush_strike_bottom/",
-			min: "meister/mt_rush_strike/rush_strike_bottom/min_rush_strike_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_mt_powerful_swing: [{
-			type: "STR",
-			file: "meister/mt_powerful_swing/powerful_swing/powerful_swing",
-			texturePath: "meister/mt_powerful_swing/powerful_swing/",
-			min: "meister/mt_powerful_swing/powerful_swing/min_powerful_swing",
-			wav: "effect/mt_powerful_swing"
-		}, {
-			type: "STR",
-			file: "meister/mt_powerful_swing/powerful_swing_bottom/powerful_swing_bottom",
-			texturePath: "meister/mt_powerful_swing/powerful_swing_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_mt_powerful_swing_hit: [{
-			type: "STR",
-			file: "meister/mt_powerful_swing/powerful_swing_hit/powerful_swing_hit",
-			texturePath: "meister/mt_powerful_swing/powerful_swing_hit/",
-			min: "meister/mt_powerful_swing/powerful_swing_hit/min_powerful_swing_hit"
-		}],
-		ef_mt_energy_cannonade: [{
-			type: "STR",
-			file: "meister/mt_energy_cannonade/energy_cannonade/energy_cannonade",
-			texturePath: "meister/mt_energy_cannonade/energy_cannonade/",
-			min: "meister/mt_energy_cannonade/energy_cannonade/min_energy_cannonade",
-			wav: "effect/mt_energy_cannonade"
-		}],
-		ef_mt_energy_cannonade_cast: [{
-			type: "STR",
-			file: "meister/mt_energy_cannonade/energy_cannonade_cast/energy_cannonade_cast",
-			texturePath: "meister/mt_energy_cannonade/energy_cannonade_cast/",
-			min: "meister/mt_energy_cannonade/energy_cannonade_cast/min_energy_cannonade_cast"
-		}, {
-			type: "STR",
-			file: "meister/mt_energy_cannonade/energy_cannonade_cast_bottom/energy_cannonade_cast_bottom",
-			texturePath: "meister/mt_energy_cannonade/energy_cannonade_cast_bottom/",
-			min: "meister/mt_energy_cannonade/energy_cannonade_cast_bottom/min_energy_cannonade_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_mt_energy_cannonade_hit: [{
-			type: "STR",
-			file: "meister/mt_energy_cannonade/energy_cannonade_hit/energy_cannonade_hit",
-			texturePath: "meister/mt_energy_cannonade/energy_cannonade_hit/",
-			min: "meister/mt_energy_cannonade/energy_cannonade_hit/min_energy_cannonade_hit"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_nc.js
-var ef_nc_default;
-var init_ef_nc = __esmMin((() => {
-	ef_nc_default = {
-		ef_nc_vulcanarm: [{
-			type: "STR",
-			file: "new_vulcanarm/new_vulcanarm/new_vulcanarm",
-			texturePath: "new_vulcanarm/new_vulcanarm/"
-		}, {
-			type: "STR",
-			file: "new_vulcanarm/new_vulcanarm_bottom/new_vulcanarm_bottom",
-			texturePath: "new_vulcanarm/new_vulcanarm_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_nc_armscannon_cast: [{
-			type: "STR",
-			file: "new_armscannon/new_armscannon_cast/new_armscannon_cast",
-			texturePath: "new_armscannon/new_armscannon_cast/"
-		}, {
-			type: "STR",
-			file: "new_armscannon/new_armscannon_cast_bottom/new_armscannon_cast_bottom",
-			texturePath: "new_armscannon/new_armscannon_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_nc_repair: [{
-			type: "STR",
-			file: "repair weapon",
-			texturePath: ""
-		}, {
-			type: "STR",
-			file: "repairweapon",
-			texturePath: ""
-		}],
-		ef_nc_axeboomerang: [{
-			type: "STR",
-			file: "new_axeboomerang/new_axeboomerang/new_axeboomerang",
-			texturePath: "new_axeboomerang/new_axeboomerang/"
-		}],
-		ef_nc_axeboomerang_cast: [{
-			type: "STR",
-			file: "new_axeboomerang/new_axeboomerang_cast/new_axeboomerang_cast",
-			texturePath: "new_axeboomerang/new_axeboomerang_cast/"
-		}, {
-			type: "STR",
-			file: "new_axeboomerang/new_axeboomerang_cast_bottom/new_axeboomerang_cast_bottom",
-			texturePath: "new_axeboomerang/new_axeboomerang_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_nc_axeboomerang_hit: [{
-			type: "STR",
-			file: "new_axeboomerang/new_axeboomerang_hit/new_axeboomerang_hit",
-			texturePath: "new_axeboomerang/new_axeboomerang_hit/"
-		}],
-		ef_nc_axetornado: [{
-			type: "STR",
-			file: "new_axetornado/new_axetornado/new_axetornado",
-			texturePath: "new_axetornado/new_axetornado/"
-		}, {
-			type: "STR",
-			file: "new_axetornado/new_axetornado_bottom/new_axetornado_bottom",
-			texturePath: "new_axetornado/new_axetornado_bottom/",
-			renderBeforeEntities: true
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_nw.js
-var ef_nw_default;
-var init_ef_nw = __esmMin((() => {
-	ef_nw_default = {
-		ef_nw_intensive_aim: [{
-			type: "STR",
-			file: "night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full",
-			texturePath: "night_watch/nw_intensive_aim/intensive_aim_full/",
-			min: "night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full",
-			wav: "effect/night_watch/nw_intensive_aim"
-		}],
-		ef_nw_grenade_fragment: [{
-			type: "STR",
-			file: "night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire",
-			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_fire/",
-			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire"
-		}],
-		ef_nw_the_vigilante_at_night: [{
-			type: "STR",
-			file: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/the_vigilante_at_night_bottom",
-			texturePath: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/",
-			min: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/min_the_vigilante_at_night_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_nw_only_one_bullet: [{
-			type: "STR",
-			file: "night_watch/nw_only_one_bullet/only_one_bullet/only_one_bullet",
-			texturePath: "night_watch/nw_only_one_bullet/only_one_bullet/",
-			min: "night_watch/nw_only_one_bullet/only_one_bullet/min_only_one_bullet",
-			wav: "effect/night_watch/nw_only_one_bullet"
-		}],
-		ef_nw_only_one_bullet_hit: [{
-			type: "STR",
-			file: "night_watch/nw_only_one_bullet/only_one_bullet_hit/only_one_bullet_hit",
-			texturePath: "night_watch/nw_only_one_bullet/only_one_bullet_hit/",
-			min: "night_watch/nw_only_one_bullet/only_one_bullet_hit/min_only_one_bullet_hit"
-		}],
-		ef_nw_spiral_shooting: [{
-			type: "STR",
-			file: "night_watch/nw_spiral_shooting/spiral_shooting",
-			texturePath: "night_watch/nw_spiral_shooting/",
-			min: "night_watch/nw_spiral_shooting/min_spiral_shooting",
-			wav: "effect/night_watch/nw_spiral_shooting"
-		}],
-		ef_nw_magazine_for_one: [{
-			type: "STR",
-			file: "night_watch/nw_magazine_for_one/magazine_for_one",
-			texturePath: "night_watch/nw_magazine_for_one/",
-			min: "night_watch/nw_magazine_for_one/min_magazine_for_one",
-			wav: "effect/night_watch/nw_magazine_for_one"
-		}],
-		ef_nw_wild_fire: [{
-			type: "STR",
-			file: "night_watch/nw_wild_fire/wild_fire/wild_fire",
-			texturePath: "night_watch/nw_wild_fire/wild_fire/",
-			min: "night_watch/nw_wild_fire/wild_fire/min_wild_fire",
-			wav: "effect/night_watch/nw_wild_fire"
-		}, {
-			type: "STR",
-			file: "night_watch/nw_wild_fire/wild_fire_bottom/wild_fire_bottom",
-			texturePath: "night_watch/nw_wild_fire/wild_fire_bottom/",
-			min: "night_watch/nw_wild_fire/wild_fire_bottom/min_wild_fire_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_nw_basic_grenade: [{
-			type: "STR",
-			file: "night_watch/nw_basic_grenade/basic_grenade/basic_grenade",
-			texturePath: "night_watch/nw_basic_grenade/basic_grenade/",
-			min: "night_watch/nw_basic_grenade/basic_grenade/min_basic_grenade",
-			wav: "effect/night_watch/nw_basic_grenade"
-		}, {
-			type: "STR",
-			file: "night_watch/nw_basic_grenade/basic_grenade_bottom/basic_grenade_bottom",
-			texturePath: "night_watch/nw_basic_grenade/basic_grenade_bottom/",
-			min: "night_watch/nw_basic_grenade/basic_grenade_bottom/min_basic_grenade_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_nw_grenades_dropping: [{
-			type: "STR",
-			file: "night_watch/nw_grenades_dropping/grenades_dropping/grenades_dropping",
-			texturePath: "night_watch/nw_grenades_dropping/grenades_dropping/",
-			min: "night_watch/nw_grenades_dropping/grenades_dropping/min_grenades_dropping"
-		}, {
-			type: "STR",
-			file: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/grenades_dropping_bottom",
-			texturePath: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/",
-			min: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/min_grenades_dropping_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_nw_auto_firing_launcher: [{
-			type: "STR",
-			file: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/auto_firing_launcher",
-			texturePath: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/",
-			min: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/min_auto_firing_launcher",
-			wav: "effect/night_watch/nw_auto_firing_launcher"
-		}, {
-			type: "STR",
-			file: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/auto_firing_launcher_bottom",
-			texturePath: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/",
-			min: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/min_auto_firing_launcher_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_nw_hidden_card: [{
-			type: "STR",
-			file: "night_watch/nw_hidden_card/hidden_card/hiddencard",
-			texturePath: "night_watch/nw_hidden_card/hidden_card/",
-			min: "night_watch/nw_hidden_card/hidden_card/min_hiddencard",
-			wav: "effect/night_watch/nw_hidden_card"
-		}],
-		ef_nw_mission_bombard_hit: [{
-			type: "STR",
-			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
-			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
-			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
-		}],
-		ef_nw_mission_bombard_field: [{
-			type: "AREA_SPAWN",
-			spawnEffectId: "ef_nw_mission_bombard_drop",
-			interval: 250,
-			count: 3,
-			areaByLevel: [9],
-			area: 9,
-			scaleRange: [.5, 1]
-		}],
-		ef_nw_mission_bombard_drop: [{
-			type: "STR",
-			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
-			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
-			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
-		}],
-		ef_nw_wild_shot: [{
-			type: "STR",
-			file: "night_watch/nw_wild_shot/wild_shot/wild_shot",
-			texturePath: "night_watch/nw_wild_shot/wild_shot/",
-			min: "night_watch/nw_wild_shot/wild_shot/min_wild_shot"
-		}],
-		ef_nw_wild_shot_cast: [{
-			type: "STR",
-			castLoop: true,
-			attachedEntity: true,
-			file: "night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast",
-			texturePath: "night_watch/nw_wild_shot/wild_shot_cast/",
-			min: "night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast",
-			wav: "effect/ef_beginspell",
-			renderBeforeEntities: true,
-			yOffset: 11
-		}],
-		ef_nw_wild_shot_hit: [{
-			type: "STR",
-			file: "night_watch/nw_wild_shot/wild_shot_hit/wild_shot_hit",
-			texturePath: "night_watch/nw_wild_shot/wild_shot_hit/",
-			min: "night_watch/nw_wild_shot/wild_shot_hit/min_wild_shot_hit"
-		}],
-		ef_nw_midnight_fallen: [{
-			type: "STR",
-			file: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/midnight_fallen_bottom",
-			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/",
-			min: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/min_midnight_fallen_bottom",
-			renderBeforeEntities: true,
-			wav: "effect/night_watch/nw_midnight_fallen"
-		}],
-		ef_nw_midnight_fallen_cast: [{
-			type: "STR",
-			castLoop: true,
-			attachedEntity: true,
-			file: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom",
-			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/",
-			min: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom",
-			wav: "effect/ef_beginspell",
-			renderBeforeEntities: true,
-			xOffset: 1,
-			yOffset: 11
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_oldtrap.js
-var ef_oldtrap_default;
-var init_ef_oldtrap = __esmMin((() => {
-	ef_oldtrap_default = {
-		ef_oldtrap_default: [{
+// src/DB/Effects/Table/Jobs/Swordman/RuneKnight.js
+var RuneKnight_default;
+var init_RuneKnight = __esmMin((() => {
+	RuneKnight_default = {
+		587: [{
 			type: "SPR",
-			file: "±âº»Æ®·¦",
+			file: "m_ef05",
+			wav: "dragon_breath",
 			attachedEntity: true
 		}],
-		ef_oldtrap_yellow: [{
+		722: [{
+			type: "STR",
+			file: "ÀÌ±×´Ï¼Çºê·¹ÀÌÅ©",
+			wav: "effect/wl_jackfrost",
+			attachedEntity: true
+		}],
+		731: [{
+			type: "STR",
+			file: "dragon_h",
+			wav: "dragon_h",
+			attachedEntity: true
+		}],
+		749: [{
+			type: "STR",
+			file: "mil_shield",
+			attachedEntity: true
+		}],
+		756: [{
+			type: "STR",
+			file: "¹ö¼­Å©",
+			attachedEntity: true
+		}],
+		832: [{ wav: "effect/±â°øÆ÷" }],
+		1044: [{
+			type: "STR",
+			file: "rk_luxanima",
+			attachedEntity: true
+		}],
+		ef_dragonbreath_water: [{
 			type: "SPR",
-			file: "´ãÈ²»öÆ®·¦",
+			file: "rk_dragonbreath_water",
+			wav: "dragon_breath",
 			attachedEntity: true
 		}],
-		ef_oldtrap_blue: [{
-			type: "SPR",
-			file: "¾ÏÃ»»öÆ®·¦",
+		ef_rk_windcutter: [{
+			type: "STR",
+			file: "new_windcutter/new_windcutter/new_windcutter",
+			texturePath: "new_windcutter/new_windcutter/"
+		}]
+	};
+}));
+// src/Renderer/Effects/EndureSim.js
+/**
+* Alpha (0-254) after k ticks of a prim's life.
+*
+* @param {number} k
+* @param {number} life
+* @return {number}
+*/
+function primAlpha(k, life) {
+	const fadeStart = life - Math.floor(life / 3);
+	const rise = (alpha) => Math.min(ENDURE.alphaMax / ENDURE.fadeIn * alpha, ENDURE.alphaMax);
+	if (k < fadeStart) return rise(k);
+	return Math.max(rise(fadeStart) * (life - k) / (life - fadeStart), 0);
+}
+/**
+* Half size of endure.tga after k ticks.
+*
+* @param {number} k
+* @return {number}
+*/
+function ringHalfSize(k) {
+	const { half, speed, shrinkTicks } = ENDURE.ring;
+	const n = Math.min(k, shrinkTicks);
+	const accel = -speed / shrinkTicks;
+	return half + speed * n + accel * n * (n + 1) / 2;
+}
+/**
+* endure.tga `age` ticks after the effect started, or null outside its life.
+*
+* @param {number} age
+* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
+*/
+function ringAt(age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= ENDURE.life) return null;
+	const size = ringHalfSize(k) * 2;
+	return {
+		offsetX: 0,
+		offsetY: -ENDURE.lift,
+		sizeX: size,
+		sizeY: size,
+		alpha: primAlpha(k, ENDURE.life),
+		angle: 0
+	};
+}
+/**
+* The streaks that show (born on ticks 0-41).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} { spawn, angle, dist, halfWidth, halfLength }
+*/
+function planStreaks(random = Math.random) {
+	const streaks = [];
+	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
+		const streak = {
+			spawn,
+			angle: r(random, 360),
+			dist: 100 + r(random, 40),
+			halfWidth: (60 + r(random, 100)) / 100,
+			halfLength: 30 + r(random, 20)
+		};
+		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
+	}
+	return streaks;
+}
+/**
+* Distance a streak has slid back after k ticks.
+*
+* @param {number} k
+* @return {number}
+*/
+function streakSlide(k) {
+	const { speed, accel } = ENDURE.streak;
+	return -(speed * k + accel * k * (k + 1) / 2);
+}
+/**
+* A streak `age` ticks after its spawn, or null outside its life.
+*
+* @param {object} streak from planStreaks
+* @param {number} age
+* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
+*/
+function streakAt(streak, age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= ENDURE.streak.life) return null;
+	const dist = streak.dist - streakSlide(k);
+	return {
+		offsetX: Math.sin(rad(streak.angle)) * dist,
+		offsetY: -Math.cos(rad(streak.angle)) * dist - ENDURE.lift,
+		sizeX: streak.halfWidth * 2,
+		sizeY: streak.halfLength * 2,
+		alpha: primAlpha(k, ENDURE.streak.life),
+		angle: streak.angle
+	};
+}
+var ENDURE, r, rad;
+var init_EndureSim = __esmMin((() => {
+	ENDURE = {
+		life: 80,
+		lift: 20,
+		alphaMax: 254,
+		fadeIn: 20,
+		ring: {
+			half: 150,
+			speed: -5,
+			shrinkTicks: 45
+		},
+		streak: {
+			ticks: 50,
+			life: 40,
+			speed: -4,
+			accel: .1
+		}
+	};
+	r = (random, k) => Math.floor(random() * k);
+	rad = (deg) => deg * Math.PI / 180;
+}));
+// src/DB/Effects/EndureEffect.js
+/**
+* A 3D row drawing one prim on the caster from a sampler.
+*
+* @param {string} file texture
+* @param {number} life ticks
+* @param {function} at age -> sample in client numbers, or null
+* @return {object}
+*/
+function primEffect(file, life, at) {
+	return {
+		type: "3D",
+		file,
+		sharedTexture: true,
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: life * PRIM_TICK_MS,
+		zIndex: 10,
+		track(age) {
+			const p = at(age);
+			if (!p) return null;
+			return {
+				x: 0,
+				y: 0,
+				z: 0,
+				offsetX: p.offsetX,
+				offsetY: p.offsetY,
+				sizeX: p.sizeX,
+				sizeY: p.sizeY,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+/**
+* The row of one streak. It starts on the streak's own tick.
+*
+* @param {object} streak from planStreaks
+* @return {object}
+*/
+function endureStreakEffect(streak) {
+	return primEffect("effect/alpha_down.tga", ENDURE.streak.life, (age) => streakAt(streak, age));
+}
+var endureRingEffect, endureEffect;
+var init_EndureEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_EndureSim();
+	endureRingEffect = primEffect("effect/endure.tga", ENDURE.life, ringAt);
+	endureEffect = [{
+		...endureRingEffect,
+		wav: "effect/ef_endure"
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planStreaks().forEach((streak, i) => {
+				this.spamEffect({
+					effect: endureStreakEffect(streak),
+					Inst: {
+						effectID: 11,
+						duplicateID: i + 1,
+						startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}];
+}));
+// src/DB/Effects/Table/Jobs/Swordman/Swordman.js
+var Swordman_default;
+var init_Swordman = __esmMin((() => {
+	init_EndureEffect();
+	Swordman_default = {
+		11: [...endureEffect],
+		17: [
+			{
+				type: "PRIM",
+				prim: "ring",
+				texture: "ring_yellow",
+				attachedEntity: false,
+				duration: 500,
+				frames: 30,
+				radiusSpeed: 1.75,
+				radiusAccel: -.029166666666666667,
+				width: 12,
+				alpha: 0,
+				alphaSpeed: 254 / 15,
+				fadeOutFrame: 15,
+				wav: "effect/ef_magnumbreak"
+			},
+			{
+				type: "PRIM",
+				prim: "sphere",
+				texture: "´ëÆø¹ß",
+				attachedEntity: false,
+				duration: 500,
+				frames: 30,
+				radiusSpeed: 1.15,
+				radiusAccel: -.019166666666666665,
+				spin: 3,
+				alpha: 0,
+				alphaSpeed: 254 / 15,
+				fadeOutFrame: 15
+			},
+			{
+				type: "PRIM",
+				prim: "ring",
+				texture: "ring_yellow",
+				attachedEntity: false,
+				duration: 500,
+				frames: 30,
+				radiusSpeed: 1.75,
+				radiusAccel: -.029166666666666667,
+				width: 12,
+				alpha: 0,
+				alphaSpeed: 254 / 15,
+				fadeOutFrame: 15
+			}
+		],
+		67: [{
+			type: "STR",
+			file: "provoke",
+			wav: "effect/swordman_provoke",
+			delayWav: 83,
 			attachedEntity: true
-		}],
-		ef_oldtrap_red: [{
-			type: "SPR",
-			file: "ÀÚÈ«»öÆ®·¦",
-			attachedEntity: true
-		}],
-		ef_oldtrap_green: [{
-			type: "SPR",
-			file: "Ã»·Ï»öÆ®·¦",
-			attachedEntity: true
+		}, {
+			wav: "effect/swordman_provoke",
+			delayWav: 500
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_rl.js
-var ef_rl_default;
-var init_ef_rl = __esmMin((() => {
-	ef_rl_default = {
-		ef_rl_e_chain: [{
-			type: "STR",
-			file: "rl_e_chain/eternal",
-			texturePath: "rl_e_chain/"
-		}],
-		ef_rl_firedance: [{
-			type: "STR",
-			file: "rl_fire_dance/firedance",
-			texturePath: "rl_fire_dance/"
-		}],
-		ef_rl_h_mine: [{
-			type: "STR",
-			file: "rl_h_mine/mine",
-			texturePath: "rl_h_mine/",
-			wav: "effect/rl_h_mine"
-		}],
-		ef_rl_p_alter: [{
-			type: "STR",
-			file: "rl_p_alter/platinum",
-			texturePath: "rl_p_alter/"
-		}],
-		ef_rl_fallen_angel: [{
-			type: "STR",
-			file: "rl_fallen_angel/penne",
-			texturePath: "rl_fallen_angel/"
-		}],
-		ef_rl_d_tail: [{
-			type: "STR",
-			file: "rl_d_tail/dtdt",
-			texturePath: "rl_d_tail/",
-			wav: "effect/rl_d_tail"
-		}],
-		ef_rl_fire_rain: [{
-			type: "STR",
-			file: "rl_fire_rain/fire_rain",
-			texturePath: "rl_fire_rain/",
-			wav: "effect/rl_fire_rain"
-		}],
-		ef_rl_heat_barrel: [{
-			type: "STR",
-			file: "rl_heat_barrel/htb",
-			texturePath: "rl_heat_barrel/"
-		}],
-		ef_rl_slugshot: [{
-			type: "STR",
-			file: "rl_slugshot/slug",
-			texturePath: "rl_slugshot/",
-			wav: "effect/rl_slugshot"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_sh.js
-var ef_sh_default;
-var init_ef_sh = __esmMin((() => {
-	ef_sh_default = {
-		ef_sh_chul_ho_sonic_claw: [{
-			type: "STR",
-			file: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/chul_ho_sonic_claw",
-			texturePath: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/",
-			min: "spirit_handler/sh_chul_ho_sonic_claw/chul_ho_sonic_claw/min_chul_ho_sonic_claw",
-			wav: "effect/spirit_handler/sh_chul_ho_sonic_claw"
-		}],
-		ef_sh_howling_of_chul_ho: [{
-			type: "STR",
-			file: "spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/howling_of_chul_ho",
-			texturePath: "spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/",
-			min: "spirit_handler/sh_howling_of_chul_ho/howling_of_chul_ho/min_howling_of_chul_ho",
-			wav: "effect/spirit_handler/sh_howling_of_chul_ho"
-		}],
-		ef_sh_hogogong_strike: [{
-			type: "STR",
-			file: "spirit_handler/sh_hogogong_strike/hogogong_strike",
-			texturePath: "spirit_handler/sh_hogogong_strike/",
-			min: "spirit_handler/sh_hogogong_strike/min_hogogong_strike",
-			wav: "effect/spirit_handler/sh_hogogong_strike"
-		}],
-		ef_sh_ki_sul_water_spraying: [{
-			type: "STR",
-			file: "spirit_handler/sh_ki_sul_water_spraying/ki_sul_water_spraying",
-			texturePath: "spirit_handler/sh_ki_sul_water_spraying/",
-			min: "spirit_handler/sh_ki_sul_water_spraying/min_ki_sul_water_spraying",
-			wav: "effect/spirit_handler/sh_ki_sul_water_spraying"
-		}],
-		ef_sh_marine_festival_of_ki_sul: [{
-			type: "STR",
-			file: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/marine_festival_of_ki_sul",
-			texturePath: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/",
-			min: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul/min_marine_festival_of_ki_sul",
-			wav: "effect/spirit_handler/sh_marine_festival_of_ki_sul"
-		}, {
-			type: "STR",
-			file: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/marine_festival_of_ki_sul_bottom",
-			texturePath: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/",
-			min: "spirit_handler/sh_marine_festival_of_ki_sul/marine_festival_of_ki_sul_bottom/min_marine_festival_of_ki_sul_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_sh_sandy_festival_of_ki_sul: [{
-			type: "STR",
-			file: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/sandy_festival_of_ki_sul",
-			texturePath: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/",
-			min: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul/min_sandy_festival_of_ki_sul",
-			wav: "effect/spirit_handler/sh_sandy_festival_of_ki_sul"
-		}, {
-			type: "STR",
-			file: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/sandy_festival_of_ki_sul_bottom",
-			texturePath: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/",
-			min: "spirit_handler/sh_sandy_festival_of_ki_sul/sandy_festival_of_ki_sul_bottom/min_sandy_festival_of_ki_sul_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_sh_ki_sul_rampage: [{
-			type: "STR",
-			file: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/ki_sul_rampage",
-			texturePath: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/",
-			min: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage/min_ki_sul_rampage",
-			wav: "effect/spirit_handler/sh_ki_sul_rampage"
-		}, {
-			type: "STR",
-			file: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/ki_sul_rampage_bottom",
-			texturePath: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/",
-			min: "spirit_handler/sh_ki_sul_rampage/ki_sul_rampage_bottom/min_ki_sul_rampage_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_sh_colors_of_hyun_rok: [{
-			type: "STR",
-			file: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/colors_of_hyun_rok_fire",
-			texturePath: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/",
-			min: "spirit_handler/sh_colors_of_hyun_rok/colors_of_hyun_rok_fire/min_colors_of_hyun_rok_fire",
-			wav: "effect/spirit_handler/sh_colors_of_hyun_rok"
-		}],
-		ef_sh_hyun_roks_breeze: [{
-			type: "STR",
-			file: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/hyun_roks_breeze",
-			texturePath: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/",
-			min: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze/min_hyun_roks_breeze",
-			wav: "effect/spirit_handler/sh_hyun_roks_breeze"
-		}, {
-			type: "STR",
-			file: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/hyun_roks_breeze_bottom",
-			texturePath: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/",
-			min: "spirit_handler/sh_hyun_roks_breeze/hyun_roks_breeze_bottom/min_hyun_roks_breeze_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_sh_hyun_rok_cannon: [{
-			type: "STR",
-			file: "spirit_handler/skid_sh_hyun_rok_cannon/hyun_rok_cannon",
-			texturePath: "spirit_handler/skid_sh_hyun_rok_cannon/",
-			min: "spirit_handler/skid_sh_hyun_rok_cannon/min_hyun_rok_cannon",
-			wav: "effect/spirit_handler/sh_hyun_rok_cannon"
-		}],
-		ef_sh_temporary_communion: [{
-			type: "STR",
-			file: "spirit_handler/sh_temporary_communion/temporary_communion/temporary_communion",
-			texturePath: "spirit_handler/sh_temporary_communion/temporary_communion/",
-			min: "spirit_handler/sh_temporary_communion/temporary_communion/min_temporary_communion",
-			wav: "effect/spirit_handler/sh_temporary_communion"
-		}],
-		ef_sh_blessing_of_mystical_creatures: [{
-			type: "STR",
-			file: "spirit_handler/sh_blessing_of_mystical_creatures/blessing_of_mystical_creatures",
-			texturePath: "spirit_handler/sh_blessing_of_mystical_creatures/",
-			min: "spirit_handler/sh_blessing_of_mystical_creatures/min_blessing_of_mystical_creatures",
-			wav: "effect/spirit_handler/sh_blessing_of_mystical_creatures"
-		}],
-		ef_sh_chul_ho_battering: [{
-			type: "STR",
-			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering/chul_ho_battering",
-			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering/",
-			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering/min_chul_ho_battering",
-			wav: "effect/spirit_handler/sh_chul_ho_battering"
-		}, {
-			type: "STR",
-			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/chul_ho_battering_bottom",
-			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/",
-			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_bottom/min_chul_ho_battering_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_sh_chul_ho_battering_cast: [{
-			type: "STR",
-			castLoop: true,
-			attachedEntity: true,
-			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast",
-			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/",
-			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast",
-			wav: "effect/ef_beginspell",
-			yOffset: 10
-		}],
-		ef_sh_chul_ho_battering_hit: [{
-			type: "STR",
-			file: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/chul_ho_battering_hit",
-			texturePath: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/",
-			min: "spirit_handler/sh_chul_ho_battering/chul_ho_battering_hit/min_chul_ho_battering_hit"
-		}],
-		ef_sh_hyun_rok_spirit_power: [{
-			type: "STR",
-			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/hyun_rok_spirit_power",
-			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/",
-			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power/min_hyun_rok_spirit_power",
-			wav: "effect/spirit_handler/sh_hyun_rok_spirit_power"
-		}, {
-			type: "STR",
-			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/hyun_rok_spirit_power_bottom",
-			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/",
-			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_bottom/min_hyun_rok_spirit_power_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_sh_hyun_rok_spirit_power_cast: [{
-			type: "STR",
-			castLoop: true,
-			attachedEntity: true,
-			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast",
-			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/",
-			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast",
-			wav: "effect/ef_beginspell",
-			yOffset: 10
-		}, {
-			type: "STR",
-			castLoop: true,
-			attachedEntity: true,
-			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom",
-			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/",
-			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom",
-			renderBeforeEntities: true,
-			yOffset: 10
-		}],
-		ef_sh_hyun_rok_spirit_power_hit: [{
-			type: "STR",
-			file: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/hyun_rok_spirit_power_hit",
-			texturePath: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/",
-			min: "spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/min_hyun_rok_spirit_power_hit"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_shc.js
-var ef_shc_default;
-var init_ef_shc = __esmMin((() => {
-	ef_shc_default = {
-		ef_shc_shadow_exceed_cast: [{
-			type: "STR",
-			file: "shadow_cross/shc_shadow_exceed/shadow_exceed_cast/shadow_exceed_cast",
-			texturePath: "shadow_cross/shc_shadow_exceed/shadow_exceed_cast/",
-			min: "shadow_cross/shc_shadow_exceed/shadow_exceed_cast/min_shadow_exceed_cast",
-			fallback: ["shadow_exceed/shadow_exceed_cast/shadow_exceed_cast"],
-			wav: "effect/shc_shadow_exceed"
-		}],
-		ef_shc_dancing_knife_cast: [{
-			type: "STR",
-			file: "shadow_cross/shc_dancing_knife/dancing_knife_cast/dancing_knife_cast",
-			texturePath: "shadow_cross/shc_dancing_knife/dancing_knife_cast/",
-			fallback: ["dancing_knife/dancing_knife_cast/dancing_knife_cast"],
-			wav: "effect/shc_dancing_knife"
-		}, {
-			type: "STR",
-			file: "shadow_cross/shc_dancing_knife/dancing_knife_cast_bottom/dancing_knife_cast_bottom",
-			texturePath: "shadow_cross/shc_dancing_knife/dancing_knife_cast_bottom/",
-			fallback: ["dancing_knife/dancing_knife_cast_bottom/dancing_knife_cast_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_shc_savage_impact: [{
-			type: "STR",
-			file: "savage_impact/savage_impact/savage_impact",
-			texturePath: "savage_impact/savage_impact/",
-			min: "savage_impact/savage_impact/min_savage_impact",
-			wav: "effect/shc_savage_impact"
-		}],
-		ef_shc_savage_impact_hit: [{
-			type: "STR",
-			file: "savage_impact/savage_impact_hit/savage_impact_hit",
-			texturePath: "savage_impact/savage_impact_hit/",
-			min: "savage_impact/savage_impact_hit/min_savage_impact_hit"
-		}],
-		ef_shc_eternal_slash: [{
-			type: "STR",
-			file: "eternal_slash/eternal_slash/eternal_slash",
-			texturePath: "eternal_slash/eternal_slash/",
-			min: "eternal_slash/eternal_slash/min_eternal_slash",
-			wav: "effect/shc_eternal_slash"
-		}, {
-			type: "STR",
-			file: "eternal_slash/eternal_slash_bottom/eternal_slash_bottom",
-			texturePath: "eternal_slash/eternal_slash_bottom/",
-			min: "eternal_slash/eternal_slash_bottom/min_eternal_slash_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_shc_eternal_slash_hit: [{
-			type: "STR",
-			file: "eternal_slash/eternal_slash_hit/eternal_slash_hit",
-			texturePath: "eternal_slash/eternal_slash_hit/",
-			min: "eternal_slash/eternal_slash_hit/min_eternal_slash_hit"
-		}],
-		ef_shc_potent_venom: [{
-			type: "STR",
-			file: "new_potent_venom/new_potent_venom",
-			texturePath: "new_potent_venom/",
-			min: "new_potent_venom/min_new_potent_venom",
-			wav: "effect/shc_potent_venom"
-		}],
-		ef_shc_shadow_stab: [{
-			type: "STR",
-			file: "shadow_cross/shc_shadow_stab/shadow_stab/shadow_stab",
-			texturePath: "shadow_cross/shc_shadow_stab/shadow_stab/",
-			fallback: ["shadow_stab/shadow_stab/shadow_stab"],
-			wav: "effect/shc_shadow_stab"
-		}],
-		ef_shc_impact_crater: [{
-			type: "STR",
-			file: "shadow_cross/shc_impact_crater/impact_crater/impact_crater",
-			texturePath: "shadow_cross/shc_impact_crater/impact_crater/",
-			min: "shadow_cross/shc_impact_crater/impact_crater/min_impact_crater",
-			fallback: ["impact_crater/impact_crater/impact_crater"],
-			wav: "effect/shc_impact_crater"
-		}, {
-			type: "STR",
-			file: "shadow_cross/shc_impact_crater/impact_crater_bottom/impact_crater_bottom",
-			texturePath: "shadow_cross/shc_impact_crater/impact_crater_bottom/",
-			min: "shadow_cross/shc_impact_crater/impact_crater_bottom/min_impact_crater_bottom",
-			fallback: ["impact_crater/impact_crater_bottom/impact_crater_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_shc_impact_crater_hit: [{
-			type: "STR",
-			file: "shadow_cross/shc_impact_crater/impact_crater_hit/impact_crater_hit",
-			texturePath: "shadow_cross/shc_impact_crater/impact_crater_hit/",
-			min: "shadow_cross/shc_impact_crater/impact_crater_hit/min_impact_crater_hit",
-			fallback: ["impact_crater/impact_crater_hit/impact_crater_hit"]
-		}],
-		ef_shc_enchanting_shadow: [{
-			type: "STR",
-			file: "shadow_cross/shc_enchanting_shadow/enchanting_shadow/enchanting_shadow",
-			texturePath: "shadow_cross/shc_enchanting_shadow/enchanting_shadow/",
-			min: "shadow_cross/shc_enchanting_shadow/enchanting_shadow/min_enchanting_shadow",
-			fallback: ["enchanting_shadow/enchanting_shadow/new_enchanting_shadow"]
-		}, {
-			type: "STR",
-			file: "shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/enchanting_shadow_bottom",
-			texturePath: "shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/",
-			min: "shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/min_enchanting_shadow_bottom",
-			fallback: ["enchanting_shadow/enchanting_shadow_bottom/new_enchanting_shadow_bottom"],
-			renderBeforeEntities: true
-		}],
-		ef_shc_fatal_shadow_crow: [{
-			type: "STR",
-			file: "fatal_shadow_crow/fatal_shadow_crow/fatal_shadow_crow",
-			texturePath: "fatal_shadow_crow/fatal_shadow_crow/",
-			min: "fatal_shadow_crow/fatal_shadow_crow/min_fatal_shadow_crow",
-			wav: "effect/shc_fatal_shadow_crow"
-		}, {
-			type: "STR",
-			file: "fatal_shadow_crow/fatal_shadow_crow_bottom/fatal_shadow_crow_bottom",
-			texturePath: "fatal_shadow_crow/fatal_shadow_crow_bottom/",
-			min: "fatal_shadow_crow/fatal_shadow_crow_bottom/min_fatal_shadow_crow_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_shc_fatal_shadow_crow_hit: [{
-			type: "STR",
-			file: "fatal_shadow_crow/fatal_shadow_crow_hit/fatal_shadow_crow_hit",
-			texturePath: "fatal_shadow_crow/fatal_shadow_crow_hit/",
-			min: "fatal_shadow_crow/fatal_shadow_crow_hit/min_fatal_shadow_crow_hit"
-		}],
-		ef_shc_cross_slash: [{
-			type: "STR",
-			file: "shadow_cross/shc_cross_slash/cross_slash/cross_slash",
-			texturePath: "shadow_cross/shc_cross_slash/cross_slash/",
-			min: "shadow_cross/shc_cross_slash/cross_slash/min_cross_slash",
-			wav: "effect/shc_cross_slash"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_sj.js
-var ef_sj_default;
-var init_ef_sj = __esmMin((() => {
-	ef_sj_default = {
-		ef_sj_fullmoonkick: [{
-			type: "STR",
-			file: "fullmoon_kick/fullmoon_kick",
-			texturePath: "fullmoon_kick/"
-		}],
-		ef_sj_newmoonkick: [{
-			type: "STR",
-			file: "newmoon_kick/newmoon_kick",
-			texturePath: "newmoon_kick/"
-		}],
-		ef_sj_flashkick: [{
-			type: "STR",
-			file: "flash_kick/flash_kick",
-			texturePath: "flash_kick/"
-		}],
-		ef_sj_fallingstar: [{
-			type: "STR",
-			file: "falling_star/falling_star",
-			texturePath: "falling_star/"
-		}],
-		ef_sj_document: [{
-			type: "STR",
-			file: "sj_document/sj_document",
-			texturePath: "sj_document/"
-		}],
-		ef_sj_solarburst: [{
-			type: "STR",
-			file: "solar_burst/solar_burst",
-			texturePath: "solar_burst/"
-		}],
-		ef_sj_prominencekick: [{
-			type: "STR",
-			file: "prominence_kick/prominence_kick",
-			texturePath: "prominence_kick/"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_ske.js
-var ef_ske_default;
-var init_ef_ske = __esmMin((() => {
-	ef_ske_default = {
+// src/DB/Effects/Table/Jobs/Taekwon/SkyEmperor.js
+var SkyEmperor_default;
+var init_SkyEmperor = __esmMin((() => {
+	SkyEmperor_default = {
 		ef_ske_rising_sun: [{
 			type: "STR",
 			file: "sky_emperor/ske_rising_sun/ske_rising_sun",
@@ -290994,71 +290947,12 @@ var init_ef_ske = __esmMin((() => {
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_so.js
-var ef_so_default;
-var init_ef_so = __esmMin((() => {
-	ef_so_default = {
-		ef_so_earthgrave: [{
-			type: "STR",
-			file: "new_earthgrave/new_earthgrave/new_earthgrave",
-			texturePath: "new_earthgrave/new_earthgrave/"
-		}, {
-			type: "STR",
-			file: "new_earthgrave/new_earthgrave_bottom/new_earthgrave_bottom",
-			texturePath: "new_earthgrave/new_earthgrave_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_so_earthgrave_hit: [{
-			type: "STR",
-			file: "new_earthgrave/new_earthgrave_hit/new_earthgrave_hit",
-			texturePath: "new_earthgrave/new_earthgrave_hit/"
-		}],
-		ef_so_diamonddust: [{
-			type: "STR",
-			file: "new_diamonddust/new_diamonddust/new_diamonddust",
-			texturePath: "new_diamonddust/new_diamonddust/"
-		}, {
-			type: "STR",
-			file: "new_diamonddust/new_diamonddust_bottom/new_diamonddust_bottom",
-			texturePath: "new_diamonddust/new_diamonddust_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_so_diamonddust_cast: [{
-			type: "STR",
-			file: "new_diamonddust/new_diamonddust_cast/new_diamonddust_cast",
-			texturePath: "new_diamonddust/new_diamonddust_cast/"
-		}],
-		ef_so_poison_buster: [{
-			type: "STR",
-			file: "poison",
-			texturePath: ""
-		}],
-		ef_so_psychic_wave: [{
-			type: "STR",
-			file: "new_psychicwave/new_psychicwave/new_psychicwave",
-			texturePath: "new_psychicwave/new_psychicwave/"
-		}, {
-			type: "STR",
-			file: "new_psychicwave/new_psychicwave_bottom/new_psychicwave_bottom",
-			texturePath: "new_psychicwave/new_psychicwave_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_so_psychic_wave_cast: [{
-			type: "STR",
-			file: "new_psychicwave/new_psychicwave_cast/new_psychicwave_cast",
-			texturePath: "new_psychicwave/new_psychicwave_cast/"
-		}],
-		ef_so_el_cure: [{
-			type: "STR",
-			file: "cure",
-			texturePath: ""
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_soa.js
-var ef_soa_default;
-var init_ef_soa = __esmMin((() => {
-	ef_soa_default = {
+// src/DB/Effects/Table/Jobs/Taekwon/SoulAscetic.js
+var SoulAscetic_default;
+var init_SoulAscetic = __esmMin((() => {
+	init_CastCone();
+	init_CastRing();
+	SoulAscetic_default = {
 		ef_soa_talisman_of_protection: [{
 			type: "STR",
 			file: "soul_ascetic/soa_talisman_of_protection/talisman_of_protection",
@@ -291176,1098 +291070,1438 @@ var init_ef_soa = __esmMin((() => {
 			texturePath: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/",
 			min: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth",
 			wav: "effect/soul_ascetic/soa_soul_of_heaven_and_earth"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_sr.js
-var ef_sr_default;
-var init_ef_sr = __esmMin((() => {
-	ef_sr_default = {
-		ef_sr_fallenempire: [{
-			type: "STR",
-			file: "new_fallenempire/new_fallenempire/new_fallenempire",
-			texturePath: "new_fallenempire/new_fallenempire/",
-			wav: "effect/sr_fallenempire"
-		}, {
-			type: "STR",
-			file: "new_fallenempire/new_fallenempire_bottom/new_fallenempire_bottom",
-			texturePath: "new_fallenempire/new_fallenempire_bottom/",
-			renderBeforeEntities: true
 		}],
-		ef_sr_fallenempire_hit: [{
-			type: "STR",
-			file: "new_fallenempire/new_fallenempire_hit/new_fallenempire_hit",
-			texturePath: "new_fallenempire/new_fallenempire_hit/"
-		}],
-		ef_sr_tigercannon: [{
-			type: "STR",
-			file: "new_tigercannon/new_tigercannon",
-			texturePath: "new_tigercannon/",
-			wav: "effect/sr_tigercannon"
-		}],
-		ef_sr_rampageblaster: [{
-			type: "STR",
-			file: "new_rampageblaster/new_rampageblaster/new_rampageblaster",
-			texturePath: "new_rampageblaster/new_rampageblaster/",
-			wav: "effect/sr_rampageblaster"
-		}, {
-			type: "STR",
-			file: "new_rampageblaster/new_rampageblaster_bottom/new_rampageblaster_bottom",
-			texturePath: "new_rampageblaster/new_rampageblaster_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sr_lightningwalk: [{
-			type: "STR",
-			file: "lightning",
-			texturePath: "",
-			wav: "effect/sr_lightningwalk"
-		}],
-		ef_sr_gateofhell_cast: [{
-			type: "STR",
-			file: "new_gateofhell/new_gateofhell_cast/new_gateofhell_cast",
-			texturePath: "new_gateofhell/new_gateofhell_cast/",
-			wav: "effect/sr_gateofhell"
-		}],
-		ef_sr_howlingoflion: [{
-			type: "STR",
-			file: "new_howlingoflion/new_howlingoflion/new_howlingoflion",
-			texturePath: "new_howlingoflion/new_howlingoflion/",
-			wav: "effect/sr_howlingoflion"
-		}, {
-			type: "STR",
-			file: "new_howlingoflion/new_howlingoflion_bottom/new_howlingoflion_bottom",
-			texturePath: "new_howlingoflion/new_howlingoflion_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sr_howlingoflion_cast: [{
-			type: "STR",
-			file: "new_howlingoflion/new_howlingoflion_cast/new_howlingoflion_cast",
-			texturePath: "new_howlingoflion/new_howlingoflion_cast/"
-		}, {
-			type: "STR",
-			file: "new_howlingoflion/new_howlingoflion_cast_bottom/new_howlingoflion_cast_bottom",
-			texturePath: "new_howlingoflion/new_howlingoflion_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_sr_howlingoflion_hit: [{
-			type: "STR",
-			file: "new_howlingoflion/new_howlingoflion_hit/new_howlingoflion_hit",
-			texturePath: "new_howlingoflion/new_howlingoflion_hit/"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_ss.js
-var ef_ss_default;
-var init_ef_ss = __esmMin((() => {
-	ef_ss_default = {
-		ef_ss_tokedasu: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_tokedasu/tokedasu/tokedasu",
-			texturePath: "shinkiro_shiranui/ss_tokedasu/tokedasu/",
-			min: "shinkiro_shiranui/ss_tokedasu/tokedasu/min_tokedasu",
-			wav: "effect/shinkiro_shiranui/ss_tokedasu"
-		}],
-		ef_ss_shimiru: [{
-			wav: "effect/shinkiro_shiranui/ss_shimiru",
-			attachedEntity: true
-		}],
-		ef_ss_akumukesu: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_akumukesu/akumukesu",
-			texturePath: "shinkiro_shiranui/ss_akumukesu/",
-			min: "shinkiro_shiranui/ss_akumukesu/min_akumukesu",
-			wav: "effect/shinkiro_shiranui/ss_akumukesu"
-		}],
-		ef_ss_kagegari: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kagegari/kagegari",
-			texturePath: "shinkiro_shiranui/ss_kagegari/",
-			min: "shinkiro_shiranui/ss_kagegari/min_kagegari",
-			wav: "effect/shinkiro_shiranui/ss_kagegari"
-		}],
-		ef_ss_kagenomai: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kagenomai/kagenomai",
-			texturePath: "shinkiro_shiranui/ss_kagenomai/",
-			min: "shinkiro_shiranui/ss_kagenomai/min_kagenomai"
-		}],
-		ef_ss_kagegissen: [
-			{
-				type: "STR",
-				file: "shinkiro_shiranui/ss_kagegissen/kagegissen",
-				texturePath: "shinkiro_shiranui/ss_kagegissen/",
-				min: "shinkiro_shiranui/ss_kagegissen/min_kagegissen",
-				wav: "effect/shinkiro_shiranui/ss_kagegissen"
-			},
-			{
-				type: "STR",
-				file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen/new_kagegissen",
-				texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen/"
-			},
-			{
-				type: "STR",
-				file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/new_kagegissen_bottom",
-				texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/",
-				renderBeforeEntities: true
-			}
-		],
-		ef_ss_kagegissen_hit: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/new_kagegissen_hit",
-			texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/"
-		}],
-		ef_ss_fuumashouaku: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/fuumashouaku",
-			texturePath: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/",
-			min: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/min_fuumashouaku",
-			wav: "effect/shinkiro_shiranui/ss_fuumashouaku"
-		}],
-		ef_ss_fuumakouchiku: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/fuumakouchiku",
-			texturePath: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/",
-			min: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/min_fuumakouchiku",
-			wav: "effect/shinkiro_shiranui/ss_fuumakouchiku"
-		}, {
-			type: "STR",
-			file: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/new_fuumakouchiku",
-			texturePath: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/",
-			min: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/min_new_fuumakouchiku"
-		}],
-		ef_ss_kunaiwaikyoku: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kunaiwaikyoku/kunaiwaikyoku",
-			texturePath: "shinkiro_shiranui/ss_kunaiwaikyoku/",
-			min: "shinkiro_shiranui/ss_kunaiwaikyoku/min_kunaiwaikyoku",
-			wav: "effect/shinkiro_shiranui/ss_kunaiwaikyoku"
-		}],
-		ef_ss_kunaikaiten: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/kunaikaiten_bottom",
-			texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/",
-			min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/min_kunaikaiten_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_ss_kunaikussetsu: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/kunaikussetsu",
-			texturePath: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/",
-			min: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/min_kunaikussetsu",
-			wav: "effect/shinkiro_shiranui/ss_kunaikussetsu"
-		}, {
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/kunaikussetsu_bottom",
-			texturePath: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_ss_sekienhou: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_sekienhou/sekienhou",
-			texturePath: "shinkiro_shiranui/ss_sekienhou/",
-			min: "shinkiro_shiranui/ss_sekienhou/min_sekienhou",
-			wav: "effect/shinkiro_shiranui/ss_sekienhou"
-		}],
-		ef_ss_reiketsuhou: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/reiketsuhou",
-			texturePath: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/",
-			min: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/min_reiketsuhou",
-			wav: "effect/shinkiro_shiranui/ss_reiketsuhou"
-		}, {
-			type: "STR",
-			file: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/reiketsuhou_bottom",
-			texturePath: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/",
-			min: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/min_reiketsuhou_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_ss_raidenpou: [
-			{
-				type: "STR",
-				file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/new_raidenpou",
-				texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/",
-				min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/min_new_raidenpou",
-				wav: "effect/shinkiro_shiranui/ss_raidenpou"
-			},
-			{
-				type: "STR",
-				file: "shinkiro_shiranui/ss_raidenpou/raidenpou",
-				texturePath: "shinkiro_shiranui/ss_raidenpou/",
-				min: "shinkiro_shiranui/ss_raidenpou/min_raidenpou"
-			},
-			{
-				type: "STR",
-				file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/new_raidenpou_bottom",
-				texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/",
-				renderBeforeEntities: true
-			}
-		],
-		ef_ss_raidenpou_cast: [{
-			type: "STR",
-			castLoop: true,
+		843: [{
+			type: "FUNC",
 			attachedEntity: true,
-			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast",
-			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/",
-			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast",
 			wav: "effect/ef_beginspell",
-			yOffset: 8
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 6 }), Params);
+			}
 		}],
-		ef_ss_raidenpou_hit: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/new_raidenpou_hit",
-			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/",
-			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/min_new_raidenpou_hit"
+		911: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_white.tga", [15, 15]), Params);
+			}
 		}],
-		ef_ss_kinryuuhou: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/kinryuuhou",
-			texturePath: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/",
-			min: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/min_kinryuuhou",
-			wav: "effect/shinkiro_shiranui/ss_kinryuuhou"
+		1556: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_blue.tga", [20, 21]), Params);
+			}
 		}],
-		ef_ss_kinryuuhou_hit: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/kinryuuhou_hit",
-			texturePath: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/",
-			min: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/min_kinryuuhou_hit"
+		1565: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "ring_yellow.tga", [23, 23]), Params);
+			}
 		}],
-		ef_ss_antenpou: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_antenpou/antenpou",
-			texturePath: "shinkiro_shiranui/ss_antenpou/",
-			min: "shinkiro_shiranui/ss_antenpou/min_antenpou",
-			wav: "effect/shinkiro_shiranui/ss_antenpou"
-		}],
-		ef_ss_kageakumu: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_kageakumu/kageakumu",
-			texturePath: "shinkiro_shiranui/ss_kageakumu/",
-			min: "shinkiro_shiranui/ss_kageakumu/min_kageakumu"
-		}],
-		ef_ss_hitouakumu: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/hitouakumu",
-			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/",
-			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/min_hitouakumu",
-			wav: "effect/shinkiro_shiranui/ss_hitouakumu"
-		}],
-		ef_ss_ankokuryuuakumu: [{
-			wav: "effect/shinkiro_shiranui/ss_ankokuryuuakumu",
-			attachedEntity: true
-		}],
-		ef_ss_four_charm: [{
-			type: "STR",
-			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice",
-			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice/",
-			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice",
-			wav: "effect/shinkiro_shiranui/ss_four_charm"
-		}, {
-			type: "STR",
-			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/four_charm_ice_bottom",
-			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/",
-			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/min_four_charm_ice_bottom",
-			renderBeforeEntities: true
+		2368: [{
+			type: "FUNC",
+			attachedEntity: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, { variant: 11 }), Params);
+			}
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_su.js
-var ef_su_default;
-var init_ef_su = __esmMin((() => {
-	ef_su_default = {
-		ef_su_bite: [{
-			type: "STR",
-			file: "su_bite/su_bite",
-			texturePath: "su_bite/"
+// src/DB/Effects/Table/Jobs/Taekwon/SoulLinker.js
+var SoulLinker_default;
+var init_SoulLinker = __esmMin((() => {
+	SoulLinker_default = {
+		420: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function EffectSmallTransition(Params) {
+				const entity = Params.Init.ownerEntity;
+				const xSize = entity.xSize;
+				const ySize = entity.ySize;
+				entity.animations.add(function(tick) {
+					entity.xSize = xSize + (2.5 - xSize) * (Math.min(tick, 300) / 300);
+					entity.ySize = ySize + (2.5 - ySize) * (Math.min(tick, 300) / 300);
+					return tick > 300;
+				});
+			}
 		}],
-		ef_su_scratch: [{
-			type: "STR",
-			file: "su_scratch/su_scratch",
-			texturePath: "su_scratch/",
-			wav: "effect/su_scratch"
+		543: [{ wav: "effect/t_º¸Á¶¸¶¹ý" }],
+		547: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
+		553: [{
+			duplicate: 5,
+			timeBetweenDupli: 200,
+			wav: "effect/t_³¯¶óÂ÷±â"
 		}],
-		ef_su_sv_stemspear: [{
-			type: "STR",
-			file: "su_sv_stemspear/su_sv_stemspear",
-			texturePath: "su_sv_stemspear/"
-		}],
-		ef_su_scaroftarou: [{
-			type: "STR",
-			file: "su_scaroftarou/su_scaroftarou",
-			texturePath: "su_scaroftarou/",
-			wav: "effect/su_scaroftarou"
-		}],
-		ef_su_pickypeck: [{
-			type: "STR",
-			file: "su_pickypeck/su_pickypeck",
-			texturePath: "su_pickypeck/",
-			wav: "effect/su_pickypeck"
-		}],
-		ef_su_arclousedash: [{
-			type: "STR",
-			file: "su_arclousedash/su_arclousedash",
-			texturePath: "su_arclousedash/"
-		}],
-		ef_su_tunabelly: [{
-			type: "STR",
-			file: "su_tunabelly/su_scratch",
-			texturePath: "su_tunabelly/",
-			wav: "effect/su_tunabelly"
-		}, {
-			type: "STR",
-			file: "su_tunabelly/su_tunabelly",
-			texturePath: "su_tunabelly/"
-		}],
-		ef_su_bunchofshrimp: [{
-			type: "STR",
-			file: "su_bunchofshrimp/su_bunchofshrimp",
-			texturePath: "su_bunchofshrimp/"
-		}],
-		ef_su_freshshrimp: [{
-			type: "STR",
-			file: "su_freshshrimp/su_freshshrimp",
-			texturePath: "su_freshshrimp/"
-		}],
-		ef_su_powerofflock: [{
-			type: "STR",
-			file: "su_powerofflock/su_powerofflock",
-			texturePath: "su_powerofflock/",
-			wav: "effect/su_powerofflock"
-		}],
-		ef_su_svg_spirit: [{
-			type: "STR",
-			file: "su_svg_spirit/su_svg_spirit",
-			texturePath: "su_svg_spirit/",
-			wav: "effect/su_svg_spirit"
-		}],
-		ef_su_hiss: [{
-			type: "STR",
-			file: "su_hiss/su_hiss",
-			texturePath: "su_hiss/",
-			wav: "effect/su_hiss"
-		}],
-		ef_su_nyanggrass: [{
-			type: "STR",
-			file: "su_nyanggrass/su_nyanggrass",
-			texturePath: "su_nyanggrass/",
-			wav: "effect/su_nyanggrass"
-		}],
-		ef_su_grooming: [{
-			type: "STR",
-			file: "su_grooming/su_grooming",
-			texturePath: "su_grooming/",
-			wav: "effect/su_grooming"
-		}],
-		ef_su_chattering: [{
-			type: "STR",
-			file: "su_chattering/su_chattering",
-			texturePath: "su_chattering/",
-			wav: "effect/su_chattering"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_tr.js
-var ef_tr_default;
-var init_ef_tr = __esmMin((() => {
-	ef_tr_default = {
-		ef_tr_mystic_symphony: [{
-			type: "STR",
-			file: "mysticsymphony/mysticsymphony/mysticsymphony",
-			texturePath: "mysticsymphony/mysticsymphony/",
-			min: "mysticsymphony/mysticsymphony/min_mysticsymphony",
-			wav: "effect/tr_mystic_symphony"
-		}],
-		ef_tr_mystic_symphony_cast: [{
-			type: "STR",
-			file: "mysticsymphony/mysticsymphony_cast/mysticsymphony_cast",
-			texturePath: "mysticsymphony/mysticsymphony_cast/",
-			min: "mysticsymphony/mysticsymphony_cast/min_mysticsymphony_cast"
-		}],
-		ef_tr_kvasir_sonata: [{
-			type: "STR",
-			file: "4tr_kvasirsonata/kvasirsonata/kvasirsonata",
-			texturePath: "4tr_kvasirsonata/kvasirsonata/",
-			min: "4tr_kvasirsonata/kvasirsonata/min_kvasirsonata",
-			wav: "effect/tr_kvasir_sonata"
-		}],
-		ef_tr_kvasir_sonata_cast: [{
-			type: "STR",
-			file: "4tr_kvasirsonata/kvasirsonata_cast/kvasirsonata_cast",
-			texturePath: "4tr_kvasirsonata/kvasirsonata_cast/",
-			min: "4tr_kvasirsonata/kvasirsonata_cast/min_kvasirsonata_cast"
-		}, {
-			type: "STR",
-			file: "4tr_kvasirsonata/kvasirsonata_cast_bottom/kvasirsonata_cast_bottom",
-			texturePath: "4tr_kvasirsonata/kvasirsonata_cast_bottom/",
-			min: "4tr_kvasirsonata/kvasirsonata_cast_bottom/min_kvasirsonata_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_roseblossom_cast: [{
-			type: "STR",
-			file: "roseblossom/roseblossom_cast/roseblossom_cast",
-			texturePath: "roseblossom/roseblossom_cast/",
-			min: "roseblossom/roseblossom_cast/min_roseblossom_cast"
-		}, {
-			type: "STR",
-			file: "roseblossom/roseblossom_cast_bottom/roseblossom_cast_bottom",
-			texturePath: "roseblossom/roseblossom_cast_bottom/",
-			min: "roseblossom/roseblossom_cast_bottom/min_roseblossom_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_roseblossom_hit: [{
-			type: "STR",
-			file: "roseblossom/roseblossom_hit/roseblossom_hit",
-			texturePath: "roseblossom/roseblossom_hit/",
-			min: "roseblossom/roseblossom_hit/min_roseblossom_hit"
-		}],
-		ef_tr_roseblossom_atk: [{
-			type: "STR",
-			file: "roseblossom/roseblossom_hit/roseblossom_hit",
-			texturePath: "roseblossom/roseblossom_hit/",
-			min: "roseblossom/roseblossom_hit/min_roseblossom_hit"
-		}],
-		ef_tr_rhythmshooting_cast: [{
-			type: "STR",
-			file: "rhythmshooting/rhythmshooting_cast/rhythmshooting_cast",
-			texturePath: "rhythmshooting/rhythmshooting_cast/",
-			min: "rhythmshooting/rhythmshooting_cast/min_rhythmshooting_cast",
-			wav: "effect/tr_rhythmshooting"
-		}, {
-			type: "STR",
-			file: "rhythmshooting/rhythmshooting_cast_bottom/rhythmshooting_cast_bottom",
-			texturePath: "rhythmshooting/rhythmshooting_cast_bottom/",
-			min: "rhythmshooting/rhythmshooting_cast_bottom/min_rhythmshooting_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_rhythmshooting_hit: [{
-			type: "STR",
-			file: "rhythmshooting/rhythmshooting_hit/rhythmshooting_hit",
-			texturePath: "rhythmshooting/rhythmshooting_hit/",
-			min: "rhythmshooting/rhythmshooting_hit/min_rhythmshooting_hit"
-		}],
-		ef_tr_metalic_fury: [{
-			type: "STR",
-			file: "metalicfury/metalicfury/metalicfury",
-			texturePath: "metalicfury/metalicfury/",
-			min: "metalicfury/metalicfury/min_metalicfury",
-			wav: "effect/tr_metalic_fury"
-		}],
-		ef_tr_soundblend: [{
-			type: "STR",
-			file: "soundblend/soundblend/soundblend",
-			texturePath: "soundblend/soundblend/",
-			min: "soundblend/soundblend/min_soundblend"
-		}],
-		ef_tr_soundblend_cast: [{
-			type: "STR",
-			file: "soundblend/soundblend_cast/soundblend_cast",
-			texturePath: "soundblend/soundblend_cast/",
-			min: "soundblend/soundblend_cast/min_soundblend_cast"
-		}, {
-			type: "STR",
-			file: "soundblend/soundblend_cast_bottom/soundblend_cast_bottom",
-			texturePath: "soundblend/soundblend_cast_bottom/",
-			min: "soundblend/soundblend_cast_bottom/min_soundblend_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_gef_nocturn: [{
-			type: "STR",
-			file: "gef_nocturn/gef_nocturn/gef_nocturn",
-			texturePath: "gef_nocturn/gef_nocturn/",
-			min: "gef_nocturn/gef_nocturn/min_gef_nocturn",
-			wav: "effect/tr_gef_nocturn"
-		}],
-		ef_tr_gef_nocturn_cast: [{
-			type: "STR",
-			file: "gef_nocturn/gef_nocturn_cast/gef_nocturn_cast",
-			texturePath: "gef_nocturn/gef_nocturn_cast/",
-			min: "gef_nocturn/gef_nocturn_cast/min_gef_nocturn_cast"
-		}, {
-			type: "STR",
-			file: "gef_nocturn/gef_nocturn_cast_bottom/gef_nocturn_cast_bottom",
-			texturePath: "gef_nocturn/gef_nocturn_cast_bottom/",
-			min: "gef_nocturn/gef_nocturn_cast_bottom/min_gef_nocturn_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_roki_capriccio: [{
-			type: "STR",
-			file: "roki_capriccio/roki_capriccio/roki_capriccio",
-			texturePath: "roki_capriccio/roki_capriccio/",
-			min: "roki_capriccio/roki_capriccio/min_roki_capriccio",
-			wav: "effect/tr_roki_capriccio"
-		}],
-		ef_tr_roki_capriccio_cast: [{
-			type: "STR",
-			file: "roki_capriccio/roki_capriccio_cast/roki_capriccio_cast",
-			texturePath: "roki_capriccio/roki_capriccio_cast/",
-			min: "roki_capriccio/roki_capriccio_cast/min_roki_capriccio_cast"
-		}, {
-			type: "STR",
-			file: "roki_capriccio/roki_capriccio_cast_bottom/roki_capriccio_cast_bottom",
-			texturePath: "roki_capriccio/roki_capriccio_cast_bottom/",
-			min: "roki_capriccio/roki_capriccio_cast_bottom/min_roki_capriccio_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_ain_rhapsody: [{
-			type: "STR",
-			file: "ain_rhapsody/ain_rhapsody/ain_rhapsody",
-			texturePath: "ain_rhapsody/ain_rhapsody/",
-			min: "ain_rhapsody/ain_rhapsody/min_ain_rhapsody",
-			wav: "effect/tr_ain_rhapsody"
-		}],
-		ef_tr_ain_rhapsody_cast: [{
-			type: "STR",
-			file: "ain_rhapsody/ain_rhapsody_cast/ain_rhapsody_cast",
-			texturePath: "ain_rhapsody/ain_rhapsody_cast/",
-			min: "ain_rhapsody/ain_rhapsody_cast/min_ain_rhapsody_cast"
-		}],
-		ef_tr_musical_interlude: [{
-			type: "STR",
-			file: "musical_interlude/musical_interlude/musical_interlude",
-			texturePath: "musical_interlude/musical_interlude/",
-			min: "musical_interlude/musical_interlude/min_musical_interlude",
-			wav: "effect/tr_musical_interlude"
-		}],
-		ef_tr_musical_interlude_cast: [{
-			type: "STR",
-			file: "musical_interlude/musical_interlude_cast/musical_interlude_cast",
-			texturePath: "musical_interlude/musical_interlude_cast/",
-			min: "musical_interlude/musical_interlude_cast/min_musical_interlude_cast"
-		}],
-		ef_tr_jawaii_serenade: [{
-			type: "STR",
-			file: "jawaii_serenade/jawaii_serenade/jawaii_serenade",
-			texturePath: "jawaii_serenade/jawaii_serenade/",
-			min: "jawaii_serenade/jawaii_serenade/min_jawaii_serenade",
-			wav: "effect/tr_jawaii_serenade"
-		}],
-		ef_tr_jawaii_serenade_cast: [{
-			type: "STR",
-			file: "jawaii_serenade/jawaii_serenade_cast/jawaii_serenade_cast",
-			texturePath: "jawaii_serenade/jawaii_serenade_cast/",
-			min: "jawaii_serenade/jawaii_serenade_cast/min_jawaii_serenade_cast"
-		}, {
-			type: "STR",
-			file: "jawaii_serenade/jawaii_serenade_cast_bottom/jawaii_serenade_cast_bottom",
-			texturePath: "jawaii_serenade/jawaii_serenade_cast_bottom/",
-			min: "jawaii_serenade/jawaii_serenade_cast_bottom/min_jawaii_serenade_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_nipelheim_requiem: [{
-			type: "STR",
-			file: "nipelheim/nipelheim/nipelheim",
-			texturePath: "nipelheim/nipelheim/",
-			min: "nipelheim/nipelheim/min_nipelheim",
-			wav: "effect/tr_nipelheim_requiem"
-		}],
-		ef_tr_nipelheim_requiem_cast: [{
-			type: "STR",
-			file: "nipelheim/nipelheim_cast/nipelheim_cast",
-			texturePath: "nipelheim/nipelheim_cast/",
-			min: "nipelheim/nipelheim_cast/min_nipelheim_cast"
-		}],
-		ef_tr_pron_march: [{
-			type: "STR",
-			file: "pronmarch/pronmarch/pronmarch",
-			texturePath: "pronmarch/pronmarch/",
-			min: "pronmarch/pronmarch/min_pronmarch",
-			wav: "effect/tr_pron_march"
-		}],
-		ef_tr_pron_march_cast: [{
-			type: "STR",
-			file: "pronmarch/pronmarch_cast/pronmarch_cast",
-			texturePath: "pronmarch/pronmarch_cast/",
-			min: "pronmarch/pronmarch_cast/min_pronmarch_cast"
-		}, {
-			type: "STR",
-			file: "pronmarch/pronmarch_cast_bottom/pronmarch_cast_bottom",
-			texturePath: "pronmarch/pronmarch_cast_bottom/",
-			min: "pronmarch/pronmarch_cast_bottom/min_pronmarch_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_rhythmical_wave: [{
-			type: "STR",
-			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/rhythmical_wave",
-			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/",
-			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/min_rhythmical_wave"
-		}, {
-			type: "STR",
-			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/rhythmical_wave_bottom",
-			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/",
-			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/min_rhythmical_wave_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_rhythmical_wave_cast: [{
-			type: "STR",
-			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/rhythmical_wave_cast",
-			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/",
-			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/min_rhythmical_wave_cast"
-		}, {
-			type: "STR",
-			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/rhythmical_wave_cast_bottom",
-			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/",
-			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/min_rhythmical_wave_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_tr_rhythmical_wave_hit: [{
-			type: "STR",
-			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/rhythmical_wave_hit",
-			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/",
-			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/min_rhythmical_wave_hit"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_trap.js
-var ef_trap_default;
-var init_ef_trap = __esmMin((() => {
-	ef_trap_default = {
-		ef_trap_01: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦01",
+		555: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
+		589: [{
+			type: "SPR",
+			file: "m_ef07",
+			wav: "effect/t_º¸Á¶¸¶¹ý",
 			attachedEntity: true
 		}],
-		ef_trap_02: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦02",
-			attachedEntity: true
-		}],
-		ef_trap_03: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03",
-			attachedEntity: true
-		}],
-		ef_trap_03_2: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_2",
-			attachedEntity: true
-		}],
-		ef_trap_03_3: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_3",
-			attachedEntity: true
-		}],
-		ef_trap_03_4: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_4",
-			attachedEntity: true
-		}],
-		ef_trap_03_5: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_5",
-			attachedEntity: true
-		}],
-		ef_trap_03_6: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦03_6",
-			attachedEntity: true
-		}],
-		ef_trap_04: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦04",
-			attachedEntity: true
-		}],
-		ef_trap_05: [{
-			type: "RSM",
-			file: "¿ÜºÎ¼ÒÇ°\\Æ®·¦05",
-			attachedEntity: true
-		}],
-		ef_trap_3_thorn: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_°¡½Ã01",
-			attachedEntity: true
-		}],
-		ef_trap_3_cobalt: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_º¯¼ö01",
-			attachedEntity: true
-		}],
-		ef_trap_3_maze: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_º¯Áö01",
-			attachedEntity: true
-		}],
-		ef_trap_3_verdure: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_º¯Ç³01",
-			attachedEntity: true
-		}],
-		ef_trap_3_magenta: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_º¯È­01",
-			attachedEntity: true
-		}],
-		ef_trap_3_ice: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_¼ö01",
-			attachedEntity: true
-		}],
-		ef_trap_3_cluster: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_Áö01",
-			attachedEntity: true
-		}],
-		ef_trap_3_shock: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_Ç³01",
-			attachedEntity: true
-		}],
-		ef_trap_3_fire: [{
-			type: "RSM",
-			file: "event/3Â÷Æ®·¦_È­01",
-			attachedEntity: true
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_wh.js
-var ef_wh_default;
-var init_ef_wh = __esmMin((() => {
-	ef_wh_default = {
-		ef_wh_wind_sign: [{
+		590: [{ wav: "effect/priest_resurrection" }],
+		ef_sl_assasin: [{
 			type: "STR",
-			file: "windsign/windsign/windsign",
-			texturePath: "windsign/windsign/",
-			min: "windsign/windsign/min_windsign",
-			wav: "effect/wh_wind_sign"
-		}],
-		ef_wh_hawkrush: [{
-			type: "STR",
-			file: "hawkrush/hawkrush/hawkrush",
-			texturePath: "hawkrush/hawkrush/",
-			wav: "effect/wh_hawkrush"
-		}],
-		ef_wh_calamitygale_cast: [{
-			type: "STR",
-			file: "windhawk/calamitygale/calumitygale_cast/calumitygale_cast",
-			texturePath: "windhawk/calamitygale/calumitygale_cast/",
-			min: "windhawk/calamitygale/calumitygale_cast/min_calumitygale_cast",
-			fallback: ["4wh_calumitygale/calumitygale_cast/calumitygale_cast"],
-			wav: "effect/wh_calamitygale"
-		}],
-		ef_wh_hawkboomerang: [{
-			wav: "effect/wh_hawkboomerang",
-			attachedEntity: true
-		}],
-		ef_wh_galestorm: [{
-			type: "STR",
-			file: "galestorm/galestorm/galestorm",
-			texturePath: "galestorm/galestorm/",
-			min: "galestorm/galestorm/min_galestorm",
-			wav: "effect/wh_galestorm"
-		}],
-		ef_wh_galestorm_cast: [{
-			type: "STR",
-			file: "galestorm/galestorm_cast/galestorm_cast",
-			texturePath: "galestorm/galestorm_cast/",
-			min: "galestorm/galestorm_cast/min_galestorm_cast"
-		}],
-		ef_wh_galestorm_hit: [{
-			type: "STR",
-			file: "galestorm/galestorm_hit/galestorm_hit",
-			texturePath: "galestorm/galestorm_hit/",
-			min: "galestorm/galestorm_hit/min_galestorm_hit"
-		}],
-		ef_wh_deepblindtrap: [{
-			type: "STR",
-			file: "deepblindtrap/deepblindtrap/deepblindtrap",
-			texturePath: "deepblindtrap/deepblindtrap/",
-			min: "deepblindtrap/deepblindtrap/min_deepblindtrap"
-		}, {
-			type: "STR",
-			file: "deepblindtrap/deepblindtrap_bottom/deepblindtrap_bottom",
-			texturePath: "deepblindtrap/deepblindtrap_bottom/",
-			min: "deepblindtrap/deepblindtrap_bottom/min_deepblindtrap_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_wh_deepblindtrap_cast: [{
-			type: "STR",
-			file: "deepblindtrap/deepblindtrap_cast/deepblindtrap_cast",
-			texturePath: "deepblindtrap/deepblindtrap_cast/",
-			min: "deepblindtrap/deepblindtrap_cast/min_deepblindtrap_cast"
-		}],
-		ef_wh_deepblindtrap_hit: [{
-			type: "STR",
-			file: "deepblindtrap/deepblindtrap_hit/deepblindtrap_hit",
-			texturePath: "deepblindtrap/deepblindtrap_hit/",
-			min: "deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit"
-		}],
-		ef_wh_solidtrap: [{
-			type: "STR",
-			file: "solidtrap/solidtrap/solidtrap",
-			texturePath: "solidtrap/solidtrap/",
-			min: "solidtrap/solidtrap/min_solidtrap"
-		}, {
-			type: "STR",
-			file: "solidtrap/solidtrap_bottom/solidtrap_bottom",
-			texturePath: "solidtrap/solidtrap_bottom/",
-			min: "solidtrap/solidtrap_bottom/min_solidtrap_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_wh_solidtrap_cast: [{
-			type: "STR",
-			file: "solidtrap/solidtrap_cast/solidtrap_cast",
-			texturePath: "solidtrap/solidtrap_cast/",
-			min: "solidtrap/solidtrap_cast/min_solidtrap_cast"
-		}, {
-			type: "STR",
-			file: "solidtrap/solidtrap_cast_bottom/solidtrap_cast_bottom",
-			texturePath: "solidtrap/solidtrap_cast_bottom/",
-			min: "solidtrap/solidtrap_cast_bottom/min_solidtrap_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_wh_solidtrap_hit: [{
-			type: "STR",
-			file: "solidtrap/solidtrap_hit/solidtrap_hit",
-			texturePath: "solidtrap/solidtrap_hit/",
-			min: "solidtrap/solidtrap_hit/min_solidtrap_hit"
-		}],
-		ef_wh_swifttrap: [{
-			type: "STR",
-			file: "swifttrap/swifttrap/swifttrap",
-			texturePath: "swifttrap/swifttrap/",
-			min: "swifttrap/swifttrap/min_swifttrap"
-		}, {
-			type: "STR",
-			file: "swifttrap/swifttrap_bottom/swifttrap_bottom",
-			texturePath: "swifttrap/swifttrap_bottom/",
-			min: "swifttrap/swifttrap_bottom/min_swifttrap_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_wh_swifttrap_cast: [{
-			type: "STR",
-			file: "swifttrap/swifttrap_cast/swifttrap_cast",
-			texturePath: "swifttrap/swifttrap_cast/",
-			min: "swifttrap/swifttrap_cast/min_swifttrap_cast"
-		}],
-		ef_wh_swifttrap_hit: [{
-			type: "STR",
-			file: "swifttrap/swifttrap_hit/swifttrap_hit",
-			texturePath: "swifttrap/swifttrap_hit/",
-			min: "swifttrap/swifttrap_hit/min_swifttrap_hit"
-		}],
-		ef_wh_crescive_bolt: [{
-			type: "STR",
-			file: "crescivebolt/crescivebolt/crescivebolt",
-			texturePath: "crescivebolt/crescivebolt/",
-			min: "crescivebolt/crescivebolt/min_crescivebolt",
-			wav: "effect/wh_crescive_bolt"
-		}],
-		ef_wh_crescive_bolt_cast: [{
-			type: "STR",
-			file: "crescivebolt/crescivebolt_cast/crescivebolt_cast",
-			texturePath: "crescivebolt/crescivebolt_cast/",
-			min: "crescivebolt/crescivebolt_cast/min_crescivebolt_cast"
-		}],
-		ef_wh_crescive_bolt_hit: [{
-			type: "STR",
-			file: "crescivebolt/crescivebolt_hit/crescivebolt_hit",
-			texturePath: "crescivebolt/crescivebolt_hit/",
-			min: "crescivebolt/crescivebolt_hit/min_crescivebolt_hit"
-		}],
-		ef_wh_flametrap: [{
-			type: "STR",
-			file: "flametrap/flametrap/flametrap",
-			texturePath: "flametrap/flametrap/",
-			min: "flametrap/flametrap/min_flametrap"
-		}, {
-			type: "STR",
-			file: "flametrap/flametrap_bottom/flametrap_bottom",
-			texturePath: "flametrap/flametrap_bottom/",
-			min: "flametrap/flametrap_bottom/min_flametrap_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_wh_flametrap_cast: [{
-			type: "STR",
-			file: "flametrap/flametrap_cast/flametrap_cast",
-			texturePath: "flametrap/flametrap_cast/",
-			min: "flametrap/flametrap_cast/min_flametrap_cast"
-		}],
-		ef_wh_flametrap_hit: [{
-			type: "STR",
-			file: "flametrap/flametrap_hit/flametrap_hit",
-			texturePath: "flametrap/flametrap_hit/",
-			min: "flametrap/flametrap_hit/min_flametrap_hit"
-		}],
-		ef_wh_wild_walk: [{
-			type: "STR",
-			file: "windhawk/wh_wild_walk/wild_walk/wild_walk",
-			texturePath: "windhawk/wh_wild_walk/wild_walk/",
-			min: "windhawk/wh_wild_walk/wild_walk/min_wild_walk",
-			wav: "effect/wh_wild_walk"
-		}],
-		ef_wh_wild_walk_cast: [{
-			type: "STR",
-			file: "windhawk/wh_wild_walk/wild_walk_cast/wild_walk_cast",
-			texturePath: "windhawk/wh_wild_walk/wild_walk_cast/",
-			min: "windhawk/wh_wild_walk/wild_walk_cast/min_wild_walk_cast"
-		}, {
-			type: "STR",
-			file: "windhawk/wh_wild_walk/wild_walk_cast_bottom/wild_walk_cast_bottom",
-			texturePath: "windhawk/wh_wild_walk/wild_walk_cast_bottom/",
-			min: "windhawk/wh_wild_walk/wild_walk_cast_bottom/min_wild_walk_cast_bottom",
-			renderBeforeEntities: true
-		}],
-		ef_wh_wild_walk_hit: [{
-			type: "STR",
-			file: "windhawk/wh_wild_walk/wild_walk_hit/wild_walk_hit",
-			texturePath: "windhawk/wh_wild_walk/wild_walk_hit/",
-			min: "windhawk/wh_wild_walk/wild_walk_hit/min_wild_walk_hit"
-		}]
-	};
-}));
-// src/DB/Effects/Table/ef_wl.js
-var ef_wl_default;
-var init_ef_wl = __esmMin((() => {
-	ef_wl_default = {
-		ef_wl_soulexpansion_cast: [{
-			type: "STR",
-			file: "new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
-			texturePath: "new_soulexpansion/new_soulexpansion_cast/"
-		}, {
-			type: "STR",
-			file: "new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom",
-			texturePath: "new_soulexpansion/new_soulexpansion_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_soulexpansion_hit: [{
-			type: "STR",
-			file: "new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit",
-			texturePath: "new_soulexpansion/new_soulexpansion_hit/"
-		}, {
-			type: "STR",
-			file: "new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom",
-			texturePath: "new_soulexpansion/new_soulexpansion_hit_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_hellinferno: [{
-			type: "STR",
-			file: "new_hellinferno/new_hellinferno/new_hellinferno",
-			texturePath: "new_hellinferno/new_hellinferno/"
-		}, {
-			type: "STR",
-			file: "new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom",
-			texturePath: "new_hellinferno/new_hellinferno_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_hellinferno_cast: [{
-			type: "STR",
-			file: "new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom",
-			texturePath: "new_hellinferno/new_hellinferno_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_comet: [{
-			type: "STR",
-			file: "new_comet/new_comet/new_comet",
-			texturePath: "new_comet/new_comet/"
-		}, {
-			type: "STR",
-			file: "new_comet/new_comet_bottom/new_comet_bottom",
-			texturePath: "new_comet/new_comet_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_comet_cast: [{
-			type: "STR",
-			file: "new_comet/new_comet_cast/new_comet_cast",
-			texturePath: "new_comet/new_comet_cast/"
-		}, {
-			type: "STR",
-			file: "new_comet/new_comet_cast_bottom/new_comet_cast_bottom",
-			texturePath: "new_comet/new_comet_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_chainlightning_cast: [{
-			type: "STR",
-			file: "new_chainlightning/new_chainlightning_cast/new_chainlightning_cast",
-			texturePath: "new_chainlightning/new_chainlightning_cast/"
-		}, {
-			type: "STR",
-			file: "new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom",
-			texturePath: "new_chainlightning/new_chainlightning_cast_bottom/",
-			renderBeforeEntities: true
-		}],
-		ef_wl_tetravortex_fire: [{
-			type: "STR",
-			file: "mineffect/new_tetravortex/new_tetravortex_fire/new_tetravortex_fire",
-			texturePath: "mineffect/new_tetravortex/new_tetravortex_fire/"
-		}],
-		ef_wl_tetravortex_water: [{
-			type: "STR",
-			file: "mineffect/new_tetravortex/new_tetravortex_water/new_tetravortex_water",
-			texturePath: "mineffect/new_tetravortex/new_tetravortex_water/"
-		}],
-		ef_wl_tetravortex_wind: [{
-			type: "STR",
-			file: "mineffect/new_tetravortex/new_tetravortex_wind/new_tetravortex_wind",
-			texturePath: "mineffect/new_tetravortex/new_tetravortex_wind/"
-		}],
-		ef_wl_summon_atk_fire: [{
-			type: "STR",
-			file: "fire",
+			file: "assasin_poisonreact",
 			texturePath: ""
+		}, {
+			type: "STR",
+			file: "assasin_poisonreact_1st",
+			texturePath: ""
+		}],
+		ef_sl_hunter: [
+			{
+				type: "STR",
+				file: "hunter_loud",
+				texturePath: ""
+			},
+			{
+				type: "STR",
+				file: "hunter_poison",
+				texturePath: ""
+			},
+			{
+				type: "STR",
+				file: "hunter_shockwave_blue",
+				texturePath: ""
+			}
+		],
+		ef_sl_stun: [{
+			type: "STR",
+			file: "stun",
+			texturePath: "",
+			wav: "effect/_stun"
 		}]
 	};
 }));
-// src/DB/Effects/Table/ef_wm.js
-var ef_wm_default;
-var init_ef_wm = __esmMin((() => {
-	ef_wm_default = {
-		ef_wm_metalicsound: [{
+// src/DB/Effects/Table/Jobs/Taekwon/SoulReaper.js
+var SoulReaper_default;
+var init_SoulReaper = __esmMin((() => {
+	SoulReaper_default = {
+		ef_sp_soulgolem: [{
 			type: "STR",
-			file: "new_metalicsound/new_metalicsound/new_metalicsound",
-			texturePath: "new_metalicsound/new_metalicsound/"
+			file: "soul_golem/soul_golem",
+			texturePath: "soul_golem/"
+		}],
+		ef_sp_soulcurse: [{
+			type: "STR",
+			file: "soul_curse/soul_curse",
+			texturePath: "soul_curse/"
+		}],
+		ef_sp_soulrevolve: [{
+			type: "STR",
+			file: "soul_revolve/soul_revolve",
+			texturePath: "soul_revolve/"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Taekwon/StarEmperor.js
+var StarEmperor_default;
+var init_StarEmperor = __esmMin((() => {
+	StarEmperor_default = {
+		ef_sj_fullmoonkick: [{
+			type: "STR",
+			file: "fullmoon_kick/fullmoon_kick",
+			texturePath: "fullmoon_kick/"
+		}],
+		ef_sj_newmoonkick: [{
+			type: "STR",
+			file: "newmoon_kick/newmoon_kick",
+			texturePath: "newmoon_kick/"
+		}],
+		ef_sj_flashkick: [{
+			type: "STR",
+			file: "flash_kick/flash_kick",
+			texturePath: "flash_kick/"
+		}],
+		ef_sj_fallingstar: [{
+			type: "STR",
+			file: "falling_star/falling_star",
+			texturePath: "falling_star/"
+		}],
+		ef_sj_document: [{
+			type: "STR",
+			file: "sj_document/sj_document",
+			texturePath: "sj_document/"
+		}],
+		ef_sj_solarburst: [{
+			type: "STR",
+			file: "solar_burst/solar_burst",
+			texturePath: "solar_burst/"
+		}],
+		ef_sj_prominencekick: [{
+			type: "STR",
+			file: "prominence_kick/prominence_kick",
+			texturePath: "prominence_kick/"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Taekwon/Taekwon.js
+var Taekwon_default;
+var init_Taekwon = __esmMin((() => {
+	Taekwon_default = {
+		445: [{
+			wav: "effect/t_È¸ÇÇ2",
+			attachedEntity: true
+		}],
+		457: [{
+			wav: "effect/t_³¯¶óÂ÷±â",
+			attachedEntity: true
+		}],
+		ef_tk_counter: [{
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash/new_counter_slash",
+			texturePath: "new_counter_slash/new_counter_slash/"
 		}, {
 			type: "STR",
-			file: "new_metalicsound/new_metalicsound_bottom/new_metalicsound_bottom",
-			texturePath: "new_metalicsound/new_metalicsound_bottom/",
+			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
+			texturePath: "new_counter_slash/new_counter_slash_bottom/",
 			renderBeforeEntities: true
-		}],
-		ef_wm_metalicsound_hit: [{
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/AbyssChaser.js
+var AbyssChaser_default;
+var init_AbyssChaser = __esmMin((() => {
+	AbyssChaser_default = {
+		ef_abc_abyss_dagger: [{
 			type: "STR",
-			file: "new_metalicsound/new_metalicsound_hit/new_metalicsound_hit",
-			texturePath: "new_metalicsound/new_metalicsound_hit/"
+			file: "abyss_dagger/abyss_dagger/abyss_dagger",
+			texturePath: "abyss_dagger/abyss_dagger/",
+			min: "abyss_dagger/abyss_dagger/min_abyss_dagger",
+			wav: "effect/abc_abyss_dagger"
 		}],
-		ef_wm_reverberation_magic_hit: [{
+		ef_abc_abyss_dagger_hit: [{
 			type: "STR",
-			file: "new_reverberation/new_reverberation_hit/new_reverberation_hit",
-			texturePath: "new_reverberation/new_reverberation_hit/"
+			file: "abyss_dagger/abyss_dagger_hit/abyss_dagger_hit",
+			texturePath: "abyss_dagger/abyss_dagger_hit/",
+			min: "abyss_dagger/abyss_dagger_hit/min_abyss_dagger_hit"
 		}],
-		ef_wm_severe_rainstorm: [{
+		ef_abc_unlucky_rush: [{
 			type: "STR",
-			file: "new_severerainstorm/new_severerainstorm/new_severerainstorm",
-			texturePath: "new_severerainstorm/new_severerainstorm/"
+			file: "unlucky_rush/unlucky_rush/unlucky_rush",
+			texturePath: "unlucky_rush/unlucky_rush/",
+			min: "unlucky_rush/unlucky_rush/min_unlucky_rush",
+			wav: "effect/abc_unlucky_rush"
 		}],
-		ef_wm_severe_rainstorm_cast: [{
+		ef_abc_unlucky_rush_cast: [{
 			type: "STR",
-			file: "new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast",
-			texturePath: "new_severerainstorm/new_severerainstorm_cast/"
+			file: "unlucky_rush/unlucky_rush_cast/unlucky_rush_cast",
+			texturePath: "unlucky_rush/unlucky_rush_cast/",
+			min: "unlucky_rush/unlucky_rush_cast/min_unlucky_rush_cast"
 		}],
-		ef_wm_sound_of_destruction_cast: [{
+		ef_abc_unlucky_rush_hit: [{
 			type: "STR",
-			file: "new_soundofdestruction/new_soundofdestruction_cast/new_soundofdestruction_cast",
-			texturePath: "new_soundofdestruction/new_soundofdestruction_cast/"
+			file: "unlucky_rush/unlucky_rush_hit/unlucky_rush_hit",
+			texturePath: "unlucky_rush/unlucky_rush_hit/",
+			min: "unlucky_rush/unlucky_rush_hit/min_unlucky_rush_hit"
+		}],
+		ef_abc_chain_reaction_shot: [{
+			type: "STR",
+			file: "chain_reaction_shot/chain_reaction_shot/chain_reaction_shot",
+			texturePath: "chain_reaction_shot/chain_reaction_shot/",
+			min: "chain_reaction_shot/chain_reaction_shot/min_chain_reaction_shot",
+			wav: "effect/abc_chain_reaction_shot"
+		}],
+		ef_abc_chain_reaction_shot_cast: [{
+			type: "STR",
+			file: "chain_reaction_shot/chain_reaction_shot_cast/chain_reaction_shot_cast",
+			texturePath: "chain_reaction_shot/chain_reaction_shot_cast/",
+			min: "chain_reaction_shot/chain_reaction_shot_cast/min_chain_reaction_shot_cast"
 		}, {
 			type: "STR",
-			file: "new_soundofdestruction/new_soundofdestruction_cast_bottom/new_soundofdestruction_cast_bottom",
-			texturePath: "new_soundofdestruction/new_soundofdestruction_cast_bottom/",
+			file: "chain_reaction_shot/chain_reaction_shot_cast_bottom/chain_reaction_shot_cast_bottom",
+			texturePath: "chain_reaction_shot/chain_reaction_shot_cast_bottom/",
+			min: "chain_reaction_shot/chain_reaction_shot_cast_bottom/min_chain_reaction_shot_cast_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_wm_unlimited_humming_voice: [{
+		ef_abc_chain_reaction_shot_hit: [{
 			type: "STR",
-			file: "new_unlimit/new_unlimit/new_unlimit",
-			texturePath: "new_unlimit/new_unlimit/"
+			file: "chain_reaction_shot/chain_reaction_shot_hit/chain_reaction_shot_hit",
+			texturePath: "chain_reaction_shot/chain_reaction_shot_hit/",
+			min: "chain_reaction_shot/chain_reaction_shot_hit/min_chain_reaction_shot_hit"
+		}],
+		ef_abc_from_the_abyss_hit: [{
+			type: "STR",
+			file: "from_the_abyss/from_the_abyss_attack/from_the_abyss_attack",
+			texturePath: "from_the_abyss/from_the_abyss_attack/",
+			wav: "effect/abc_from_the_abyss"
+		}],
+		ef_abc_abyss_slayer: [{
+			type: "STR",
+			file: "4abc_abyss_slayer/abyss_slayer/abyss_slayer",
+			texturePath: "4abc_abyss_slayer/abyss_slayer/",
+			min: "4abc_abyss_slayer/abyss_slayer/min_abyss_slayer",
+			wav: "effect/abc_abyss_slayer"
+		}],
+		ef_abc_abyss_slayer_cast: [{
+			type: "STR",
+			file: "4abc_abyss_slayer/abyss_slayer_cast/abyss_slayer_cast",
+			texturePath: "4abc_abyss_slayer/abyss_slayer_cast/",
+			min: "4abc_abyss_slayer/abyss_slayer_cast/min_abyss_slayer_cast"
 		}, {
 			type: "STR",
-			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
-			texturePath: "new_unlimit/new_unlimit_bottom/",
+			file: "4abc_abyss_slayer/abyss_slayer_cast_bottom/abyss_slayer_cast_bottom",
+			texturePath: "4abc_abyss_slayer/abyss_slayer_cast_bottom/",
+			min: "4abc_abyss_slayer/abyss_slayer_cast_bottom/min_abyss_slayer_cast_bottom",
 			renderBeforeEntities: true
 		}],
-		ef_wm_severe_rainstorm_melee: [{
+		ef_abc_abyss_strike: [{
 			type: "STR",
-			file: "new_severerainstorm/new_severerainstorm/new_severerainstorm",
-			texturePath: "new_severerainstorm/new_severerainstorm/"
+			file: "abyss_strike/abyss_strike/abyss_strike",
+			texturePath: "abyss_strike/abyss_strike/",
+			min: "abyss_strike/abyss_strike/min_abyss_strike",
+			wav: "effect/abc_abyss_strike"
+		}, {
+			type: "STR",
+			file: "abyss_strike/abyss_strike_bottom/abyss_strike_bottom",
+			texturePath: "abyss_strike/abyss_strike_bottom/",
+			min: "abyss_strike/abyss_strike_bottom/min_abyss_strike_bottom",
+			renderBeforeEntities: true
 		}],
-		ef_wm_severe_rainstorm_melee_cast: [{
+		ef_abc_abyss_strike_cast: [{
 			type: "STR",
-			file: "new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast",
-			texturePath: "new_severerainstorm/new_severerainstorm_cast/"
+			file: "abyss_strike/abyss_strike_cast/abyss_strike_cast",
+			texturePath: "abyss_strike/abyss_strike_cast/",
+			min: "abyss_strike/abyss_strike_cast/min_abyss_strike_cast"
+		}, {
+			type: "STR",
+			file: "abyss_strike/abyss_strike_cast_bottom/abyss_strike_cast_bottom",
+			texturePath: "abyss_strike/abyss_strike_cast_bottom/",
+			min: "abyss_strike/abyss_strike_cast_bottom/min_abyss_strike_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_abc_abyss_strike_hit: [{
+			type: "STR",
+			file: "abyss_strike/abyss_strike_hit/abyss_strike_hit",
+			texturePath: "abyss_strike/abyss_strike_hit/",
+			min: "abyss_strike/abyss_strike_hit/min_abyss_strike_hit"
+		}],
+		ef_abc_deft_stab: [{
+			type: "STR",
+			file: "deft_stab/deft_stab/deft_stab",
+			texturePath: "deft_stab/deft_stab/",
+			min: "deft_stab/deft_stab/min_deft_stab"
+		}],
+		ef_abc_abyss_square: [{
+			type: "STR",
+			file: "abyss_square/abyss_square/abyss_square",
+			texturePath: "abyss_square/abyss_square/",
+			min: "abyss_square/abyss_square/min_abyss_square",
+			wav: "effect/abc_abyss_square"
+		}, {
+			type: "STR",
+			file: "abyss_square/abyss_square_bottom/abyss_square_bottom",
+			texturePath: "abyss_square/abyss_square_bottom/",
+			min: "abyss_square/abyss_square_bottom/min_abyss_square_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_abc_abyss_square_hit: [{
+			type: "STR",
+			file: "abyss_square/abyss_square_hit/abyss_square_hit",
+			texturePath: "abyss_square/abyss_square_hit/"
+		}],
+		ef_abc_frenzy_shot: [{
+			type: "STR",
+			file: "frenzy_shot/frenzy_shot/frenzy_shot",
+			texturePath: "frenzy_shot/frenzy_shot/",
+			min: "frenzy_shot/frenzy_shot/min_frenzy_shot",
+			wav: "effect/abc_frenzy_shot"
+		}],
+		ef_abc_frenzy_shot_hit: [{
+			type: "STR",
+			file: "frenzy_shot/frenzy_shot_hit/frenzy_shot_hit",
+			texturePath: "frenzy_shot/frenzy_shot_hit/",
+			min: "frenzy_shot/frenzy_shot_hit/min_frenzy_shot_hit"
+		}],
+		ef_abc_chain_reaction_shot_atk: [{
+			type: "STR",
+			file: "chain_reaction_shot/chain_reaction_shot_hit/chain_reaction_shot_hit",
+			texturePath: "chain_reaction_shot/chain_reaction_shot_hit/",
+			min: "chain_reaction_shot/chain_reaction_shot_hit/min_chain_reaction_shot_hit"
+		}],
+		ef_abc_from_the_abyss_atk: [{
+			type: "STR",
+			file: "from_the_abyss/from_the_abyss_attack/from_the_abyss_attack",
+			texturePath: "from_the_abyss/from_the_abyss_attack/"
+		}],
+		ef_abc_chasing_break: [{
+			type: "STR",
+			file: "abyss_chaser/abc_chasing_break/chasing_break/chasing_break",
+			texturePath: "abyss_chaser/abc_chasing_break/chasing_break/",
+			min: "abyss_chaser/abc_chasing_break/chasing_break/min_chasing_break",
+			wav: "effect/abc_chasing_break"
+		}],
+		ef_abc_chasing_shot_cast: [{
+			type: "STR",
+			file: "abyss_chaser/abc_chasing_shot/chasing_shot_cast/chasing_shot_cast",
+			texturePath: "abyss_chaser/abc_chasing_shot/chasing_shot_cast/",
+			min: "abyss_chaser/abc_chasing_shot/chasing_shot_cast/min_chasing_shot_cast",
+			wav: "effect/abc_chasing_shot"
+		}, {
+			type: "STR",
+			file: "abyss_chaser/abc_chasing_shot/chasing_shot_cast_bottom/chasing_shot_cast_bottom",
+			texturePath: "abyss_chaser/abc_chasing_shot/chasing_shot_cast_bottom/",
+			min: "abyss_chaser/abc_chasing_shot/chasing_shot_cast_bottom/min_chasing_shot_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_abc_chasing_shot_hit: [{
+			type: "STR",
+			file: "abyss_chaser/abc_chasing_shot/chasing_shot_hit/chasing_shot_hit",
+			texturePath: "abyss_chaser/abc_chasing_shot/chasing_shot_hit/",
+			min: "abyss_chaser/abc_chasing_shot/chasing_shot_hit/min_chasing_shot_hit"
+		}],
+		ef_abc_abyss_flame: [{
+			type: "STR",
+			file: "abyss_chaser/abc_abyss_flame/abyss_flame/abyss_flame",
+			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame/",
+			min: "abyss_chaser/abc_abyss_flame/abyss_flame/min_abyss_flame",
+			wav: "effect/abc_abyss_flame"
+		}],
+		ef_abc_abyss_flame_cast: [{
+			type: "STR",
+			file: "abyss_chaser/abc_abyss_flame/abyss_flame_cast/abyss_flame_cast",
+			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_cast/",
+			min: "abyss_chaser/abc_abyss_flame/abyss_flame_cast/min_abyss_flame_cast"
+		}, {
+			type: "STR",
+			file: "abyss_chaser/abc_abyss_flame/abyss_flame_cast_bottom/abyss_flame_cast_bottom",
+			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_cast_bottom/",
+			min: "abyss_chaser/abc_abyss_flame/abyss_flame_cast_bottom/min_abyss_flame_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_abc_abyss_flame_hit: [{
+			type: "STR",
+			file: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/abyss_flame_hit",
+			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/",
+			min: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/min_abyss_flame_hit"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/Assassin.js
+var Assassin_default;
+var init_Assassin = __esmMin((() => {
+	init_Renderer();
+	Assassin_default = {
+		120: [{ wav: "effect/assasin_cloaking" }],
+		121: [{
+			type: "3D",
+			blendMode: 2,
+			duration: 400,
+			alphaMax: 1,
+			fadeOut: true,
+			sizeStart: 100,
+			sizeEnd: 300,
+			file: "effect/ring2.bmp",
+			wav: "effect/ef_stonecurse",
+			zIndex: 10,
+			attachedEntity: true
+		}],
+		122: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				const delay = Params.Inst.startTick - Renderer.tick;
+				entity.animations.add(function(tick) {
+					if (tick >= delay) {
+						entity.direction = (entity.direction + 2) % 8;
+						return true;
+					}
+				});
+			}
+		}],
+		123: [{
+			wav: "effect/ef_frostdiver",
+			attachedEntity: true
+		}, {
+			type: "TRAIL",
+			attachedEntity: false,
+			duration: 2500,
+			speed: 24,
+			interval: 50,
+			stopAtTarget: true,
+			overshoot: 3,
+			spawn: [{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 670,
+				height: [.6, 1],
+				offsetX: 0,
+				offsetY: 0,
+				offsetZ: 0,
+				bottomSize: [.05, .1],
+				blendMode: 8,
+				rotateX: [-15, 15],
+				rotateY: [0, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 4,
+				animationSpeed: 330,
+				riseDistance: .8,
+				fadeOut: 170
+			}]
+		}],
+		124: [{
+			type: "STR",
+			file: "venomdust",
+			wav: "effect/assasin_poisonreact",
+			attachedEntity: false
+		}],
+		126: [{
+			type: "STR",
+			file: "poisonreact_1st",
+			wav: "effect/assasin_poisonreact",
+			attachedEntity: true
+		}],
+		127: [{
+			type: "STR",
+			file: "poisonreact",
+			wav: "effect/assasin_poisonreact",
+			attachedEntity: true
+		}],
+		129: [{
+			type: "STR",
+			file: "venomsplasher",
+			wav: "effect/assasin_venomsplasher",
+			attachedEntity: true
+		}],
+		132: [
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 15e3,
+				height: 2.5,
+				offsetX: .5,
+				offsetY: .4,
+				offsetZ: -.2,
+				bottomSize: .15,
+				blendMode: 1,
+				rotateX: -15,
+				rotateY: 0,
+				rotateZ: 0,
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 3,
+				animationSpeed: 120,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 15e3,
+				height: 2.5,
+				offsetY: .5,
+				bottomSize: .15,
+				blendMode: 1,
+				rotateX: 5,
+				rotateY: 45,
+				rotateZ: -15,
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 3,
+				animationSpeed: 120,
+				animationOut: true
+			},
+			{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 15e3,
+				height: 2.5,
+				offsetX: .5,
+				offsetY: .5,
+				offsetZ: 0,
+				bottomSize: .15,
+				blendMode: 1,
+				rotateX: 5,
+				rotateY: 45,
+				rotateZ: 15,
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 3,
+				animationSpeed: 120,
+				animationOut: true
+			}
+		],
+		143: [{
+			type: "STR",
+			file: "sonicblow",
+			attachedEntity: true
+		}],
+		171: [{
+			type: "3D",
+			spriteName: "particle3",
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 100,
+			size: 80,
+			poszStart: 0,
+			poszEnd: .5,
+			repeat: true
+		}],
+		600: [{
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 200,
+			fadeIn: true,
+			fadeOut: true,
+			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/º£³Ñ³ªÀÌÇÁ.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: 1,
+			size: 30,
+			zOffset: 1,
+			zIndex: 1
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/AssassinCross.js
+var AssassinCross_default;
+var init_AssassinCross = __esmMin((() => {
+	AssassinCross_default = {
+		361: [{
+			type: "3D",
+			file: "effect/purpleslash.tga",
+			alphaMax: .4,
+			duration: 500,
+			fadeIn: true,
+			fadeOut: true,
+			zIndex: 10,
+			toSrc: true,
+			rotateWithCamera: true,
+			rotateToTarget: true,
+			angle: 90,
+			posz: 2,
+			sizeStart: 100,
+			sizeEnd: 200,
+			wav: "effect/±â°øÆ÷",
+			attachedEntity: true
+		}],
+		409: [
+			{ wav: "effect/¸ÞÅ×¿À ¾î½äÆ®" },
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: -1,
+				posxEnd: -5,
+				posyStart: 0,
+				posyEnd: 0,
+				rotateWithCamera: true,
+				angle: 0
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: -.7,
+				posxEnd: -3.53,
+				posyStart: -.7,
+				posyEnd: -3.53,
+				rotateWithCamera: true,
+				angle: -45
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: 0,
+				posxEnd: 0,
+				posyStart: -1,
+				posyEnd: -5,
+				rotateWithCamera: true,
+				angle: -90
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: .7,
+				posxEnd: 3.53,
+				posyStart: -.7,
+				posyEnd: -3.53,
+				rotateWithCamera: true,
+				angle: -135
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: 1,
+				posxEnd: 5,
+				posyStart: 0,
+				posyEnd: 0,
+				rotateWithCamera: true,
+				angle: -180
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: .7,
+				posxEnd: 3.53,
+				posyStart: .7,
+				posyEnd: 3.53,
+				rotateWithCamera: true,
+				angle: -225
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: 0,
+				posxEnd: 0,
+				posyStart: 1,
+				posyEnd: 5,
+				rotateWithCamera: true,
+				angle: -270
+			},
+			{
+				type: "3D",
+				file: "effect/purpleslash.tga",
+				alphaMax: .6,
+				duration: 500,
+				fadeOut: true,
+				zIndex: 10,
+				sizeStart: 100,
+				sizeEnd: 200,
+				posxStart: -.7,
+				posxEnd: -3.53,
+				posyStart: .7,
+				posyEnd: 3.53,
+				rotateWithCamera: true,
+				angle: -315
+			}
+		],
+		493: [{
+			wav: "effect/assasin_cloaking",
+			attachedEntity: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/GuillotineCross.js
+var GuillotineCross_default;
+var init_GuillotineCross = __esmMin((() => {
+	init_Events();
+	GuillotineCross_default = {
+		775: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				const duration = 500;
+				const count = 8;
+				const delay = duration / count;
+				for (let i = 0; i < count; i++) {
+					const delta = 1;
+					Events.setTimeout(function() {
+						entity.direction = Math.floor(entity.direction + delta) % 8;
+					}, delay * i);
+				}
+			}
+		}],
+		1040: [{
+			type: "STR",
+			file: "gc_darkcrow",
+			attachedEntity: true
+		}],
+		ef_hallucinationwalk: [{
+			wav: "effect/hallucinationwalk",
+			attachedEntity: true
+		}],
+		ef_gc_crossimpact: [{
+			type: "STR",
+			file: "new_crossimpact/new_crossimpact/new_crossimpact",
+			texturePath: "new_crossimpact/new_crossimpact/"
+		}],
+		ef_gc_poisoningweapon: [{
+			type: "STR",
+			file: "poison",
+			texturePath: ""
+		}],
+		ef_gc_counterslash: [{
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash/new_counter_slash",
+			texturePath: "new_counter_slash/new_counter_slash/"
+		}, {
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
+			texturePath: "new_counter_slash/new_counter_slash_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gc_poisonsmoke: [{
+			type: "STR",
+			file: "new_poisonsmoke/new_poisonsmoke/new_poisonsmoke_%d",
+			rand: [1, 2],
+			texturePath: "new_poisonsmoke/new_poisonsmoke/"
+		}],
+		ef_gc_crossripperslasher: [{
+			type: "STR",
+			file: "new_crossripperslasher/new_crossripperslasher/new_crossripperslasher",
+			texturePath: "new_crossripperslasher/new_crossripperslasher/"
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/Rogue.js
+var Rogue_default;
+var init_Rogue = __esmMin((() => {
+	Rogue_default = {
+		227: [{
+			wav: "effect/rog_intimidate",
+			attachedEntity: true
+		}],
+		268: [{
+			type: "STR",
+			file: "steal_coin",
+			attachedEntity: true
+		}],
+		269: [{
+			type: "STR",
+			file: "strip_weapon",
+			wav: "effect/t_º®Æ¨±è",
+			attachedEntity: true
+		}],
+		270: [{
+			type: "STR",
+			file: "strip_shield",
+			wav: "effect/t_º®Æ¨±è",
+			attachedEntity: true
+		}],
+		271: [{
+			type: "STR",
+			file: "strip_armor",
+			wav: "effect/t_º®Æ¨±è",
+			attachedEntity: true
+		}],
+		272: [{
+			type: "STR",
+			file: "strip_helm",
+			wav: "effect/t_º®Æ¨±è",
+			attachedEntity: true
+		}],
+		274: [{
+			type: "2D",
+			overlay: true,
+			file: "effect/coin_a.bmp",
+			blendMode: 2,
+			alphaMax: .8,
+			duplicate: 30,
+			timeBetweenDupli: 50,
+			duration: 1500,
+			fadeOut: true,
+			posxEndRand: 10,
+			posyEndRand: 10,
+			posz: 2,
+			size: 20,
+			rotateToTarget: true,
+			attachedEntity: true
+		}, { wav: "effect/rog_steal coin" }],
+		275: [{
+			wav: "effect/rog_back stap",
+			attachedEntity: true
+		}],
+		276: [{
+			type: "3D",
+			duplicate: 20,
+			timeBetweenDupli: 0,
+			file: "effect/lens1.tga",
+			delayStart: 100,
+			duration: 550,
+			alphaMax: .8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			red: .1,
+			green: .1,
+			blue: 1,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}],
+		604: [{
+			type: "SPR",
+			file: "cconfine",
+			attachedEntity: true,
+			wav: "effect/ef_hit6",
+			stopAtEnd: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/ShadowChaser.js
+var ShadowChaser_default;
+var init_ShadowChaser = __esmMin((() => {
+	ShadowChaser_default = {
+		811: [{ wav: "effect/bodypaint" }],
+		813: [{
+			type: "STR",
+			file: "enervation",
+			attachedEntity: true
+		}],
+		814: [{
+			type: "STR",
+			file: "groomy",
+			attachedEntity: true
+		}],
+		815: [{
+			type: "STR",
+			file: "ignorance",
+			attachedEntity: true
+		}],
+		816: [{
+			type: "STR",
+			file: "laziness",
+			wav: "effect/laziness",
+			attachedEntity: true
+		}],
+		817: [{
+			type: "STR",
+			file: "unlucky",
+			attachedEntity: true
+		}],
+		818: [{
+			type: "STR",
+			file: "weakness",
+			attachedEntity: true
+		}],
+		822: [{ wav: "effect/dimension" }],
+		823: [{ wav: "effect/manhole" }],
+		825: [{ wav: "effect/dimension" }],
+		827: [{ wav: "effect/chaospanic" }],
+		828: [{ wav: "effect/maelstrom" }],
+		829: [{ wav: "effect/bloodylust" }],
+		ef_sc_fatalmenace: [{
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace/new_fatal_menace",
+			texturePath: "new_fatal_menace/new_fatal_menace/"
+		}, {
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom",
+			texturePath: "new_fatal_menace/new_fatal_menace_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_fatalmenace_cast: [{
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace_cast/new_fatal_menace_cast",
+			texturePath: "new_fatal_menace/new_fatal_menace_cast/"
+		}, {
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace_cast_bottom/new_fatal_menace_cast_bottom",
+			texturePath: "new_fatal_menace/new_fatal_menace_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_reproduce: [{
+			type: "STR",
+			file: "new_reproduce/new_reproduce/new_reproduce",
+			texturePath: "new_reproduce/new_reproduce/",
+			wav: "effect/reproduce"
+		}, {
+			type: "STR",
+			file: "new_reproduce/new_reproduce_bottom/new_reproduce_bottom",
+			texturePath: "new_reproduce/new_reproduce_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_autoshadowspell: [{
+			type: "STR",
+			file: "new_autoshadowspell/new_autoshadowspell/new_autoshadowspell",
+			texturePath: "new_autoshadowspell/new_autoshadowspell/"
+		}, {
+			type: "STR",
+			file: "new_autoshadowspell/new_autoshadowspell_bottom/new_autoshadowspell_bottom",
+			texturePath: "new_autoshadowspell/new_autoshadowspell_bottom/",
+			renderBeforeEntities: true
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/ShadowCross.js
+var ShadowCross_default;
+var init_ShadowCross = __esmMin((() => {
+	ShadowCross_default = {
+		ef_shc_shadow_exceed_cast: [{
+			type: "STR",
+			file: "shadow_cross/shc_shadow_exceed/shadow_exceed_cast/shadow_exceed_cast",
+			texturePath: "shadow_cross/shc_shadow_exceed/shadow_exceed_cast/",
+			min: "shadow_cross/shc_shadow_exceed/shadow_exceed_cast/min_shadow_exceed_cast",
+			fallback: ["shadow_exceed/shadow_exceed_cast/shadow_exceed_cast"],
+			wav: "effect/shc_shadow_exceed"
+		}],
+		ef_shc_dancing_knife_cast: [{
+			type: "STR",
+			file: "shadow_cross/shc_dancing_knife/dancing_knife_cast/dancing_knife_cast",
+			texturePath: "shadow_cross/shc_dancing_knife/dancing_knife_cast/",
+			fallback: ["dancing_knife/dancing_knife_cast/dancing_knife_cast"],
+			wav: "effect/shc_dancing_knife"
+		}, {
+			type: "STR",
+			file: "shadow_cross/shc_dancing_knife/dancing_knife_cast_bottom/dancing_knife_cast_bottom",
+			texturePath: "shadow_cross/shc_dancing_knife/dancing_knife_cast_bottom/",
+			fallback: ["dancing_knife/dancing_knife_cast_bottom/dancing_knife_cast_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_shc_savage_impact: [{
+			type: "STR",
+			file: "savage_impact/savage_impact/savage_impact",
+			texturePath: "savage_impact/savage_impact/",
+			min: "savage_impact/savage_impact/min_savage_impact",
+			wav: "effect/shc_savage_impact"
+		}],
+		ef_shc_savage_impact_hit: [{
+			type: "STR",
+			file: "savage_impact/savage_impact_hit/savage_impact_hit",
+			texturePath: "savage_impact/savage_impact_hit/",
+			min: "savage_impact/savage_impact_hit/min_savage_impact_hit"
+		}],
+		ef_shc_eternal_slash: [{
+			type: "STR",
+			file: "eternal_slash/eternal_slash/eternal_slash",
+			texturePath: "eternal_slash/eternal_slash/",
+			min: "eternal_slash/eternal_slash/min_eternal_slash",
+			wav: "effect/shc_eternal_slash"
+		}, {
+			type: "STR",
+			file: "eternal_slash/eternal_slash_bottom/eternal_slash_bottom",
+			texturePath: "eternal_slash/eternal_slash_bottom/",
+			min: "eternal_slash/eternal_slash_bottom/min_eternal_slash_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_shc_eternal_slash_hit: [{
+			type: "STR",
+			file: "eternal_slash/eternal_slash_hit/eternal_slash_hit",
+			texturePath: "eternal_slash/eternal_slash_hit/",
+			min: "eternal_slash/eternal_slash_hit/min_eternal_slash_hit"
+		}],
+		ef_shc_potent_venom: [{
+			type: "STR",
+			file: "new_potent_venom/new_potent_venom",
+			texturePath: "new_potent_venom/",
+			min: "new_potent_venom/min_new_potent_venom",
+			wav: "effect/shc_potent_venom"
+		}],
+		ef_shc_shadow_stab: [{
+			type: "STR",
+			file: "shadow_cross/shc_shadow_stab/shadow_stab/shadow_stab",
+			texturePath: "shadow_cross/shc_shadow_stab/shadow_stab/",
+			fallback: ["shadow_stab/shadow_stab/shadow_stab"],
+			wav: "effect/shc_shadow_stab"
+		}],
+		ef_shc_impact_crater: [{
+			type: "STR",
+			file: "shadow_cross/shc_impact_crater/impact_crater/impact_crater",
+			texturePath: "shadow_cross/shc_impact_crater/impact_crater/",
+			min: "shadow_cross/shc_impact_crater/impact_crater/min_impact_crater",
+			fallback: ["impact_crater/impact_crater/impact_crater"],
+			wav: "effect/shc_impact_crater"
+		}, {
+			type: "STR",
+			file: "shadow_cross/shc_impact_crater/impact_crater_bottom/impact_crater_bottom",
+			texturePath: "shadow_cross/shc_impact_crater/impact_crater_bottom/",
+			min: "shadow_cross/shc_impact_crater/impact_crater_bottom/min_impact_crater_bottom",
+			fallback: ["impact_crater/impact_crater_bottom/impact_crater_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_shc_impact_crater_hit: [{
+			type: "STR",
+			file: "shadow_cross/shc_impact_crater/impact_crater_hit/impact_crater_hit",
+			texturePath: "shadow_cross/shc_impact_crater/impact_crater_hit/",
+			min: "shadow_cross/shc_impact_crater/impact_crater_hit/min_impact_crater_hit",
+			fallback: ["impact_crater/impact_crater_hit/impact_crater_hit"]
+		}],
+		ef_shc_enchanting_shadow: [{
+			type: "STR",
+			file: "shadow_cross/shc_enchanting_shadow/enchanting_shadow/enchanting_shadow",
+			texturePath: "shadow_cross/shc_enchanting_shadow/enchanting_shadow/",
+			min: "shadow_cross/shc_enchanting_shadow/enchanting_shadow/min_enchanting_shadow",
+			fallback: ["enchanting_shadow/enchanting_shadow/new_enchanting_shadow"]
+		}, {
+			type: "STR",
+			file: "shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/enchanting_shadow_bottom",
+			texturePath: "shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/",
+			min: "shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/min_enchanting_shadow_bottom",
+			fallback: ["enchanting_shadow/enchanting_shadow_bottom/new_enchanting_shadow_bottom"],
+			renderBeforeEntities: true
+		}],
+		ef_shc_fatal_shadow_crow: [{
+			type: "STR",
+			file: "fatal_shadow_crow/fatal_shadow_crow/fatal_shadow_crow",
+			texturePath: "fatal_shadow_crow/fatal_shadow_crow/",
+			min: "fatal_shadow_crow/fatal_shadow_crow/min_fatal_shadow_crow",
+			wav: "effect/shc_fatal_shadow_crow"
+		}, {
+			type: "STR",
+			file: "fatal_shadow_crow/fatal_shadow_crow_bottom/fatal_shadow_crow_bottom",
+			texturePath: "fatal_shadow_crow/fatal_shadow_crow_bottom/",
+			min: "fatal_shadow_crow/fatal_shadow_crow_bottom/min_fatal_shadow_crow_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_shc_fatal_shadow_crow_hit: [{
+			type: "STR",
+			file: "fatal_shadow_crow/fatal_shadow_crow_hit/fatal_shadow_crow_hit",
+			texturePath: "fatal_shadow_crow/fatal_shadow_crow_hit/",
+			min: "fatal_shadow_crow/fatal_shadow_crow_hit/min_fatal_shadow_crow_hit"
+		}],
+		ef_shc_cross_slash: [{
+			type: "STR",
+			file: "shadow_cross/shc_cross_slash/cross_slash/cross_slash",
+			texturePath: "shadow_cross/shc_cross_slash/cross_slash/",
+			min: "shadow_cross/shc_cross_slash/cross_slash/min_cross_slash",
+			wav: "effect/shc_cross_slash"
+		}]
+	};
+}));
+// src/Renderer/Effects/MagicRing.vs?raw
+var MagicRing_default$1;
+var init_MagicRing$2 = __esmMin((() => {
+	MagicRing_default$1 = "#version 300 es\r\n#pragma vscode_glsllint_stage : vert\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uRotationMat;\r\n\r\nuniform vec3 uPosition;\r\nuniform float uTopSize;\r\nuniform float uBottomSize;\r\nuniform float uHeight;\r\n\r\nvoid main(void) {\r\n    float size, height;\r\n\r\n    if (aPosition.z == 1.0) {\r\n        size   = uTopSize;\r\n        height = uHeight;\r\n    }\r\n    else {\r\n        size   = uBottomSize;\r\n        height = 0.0;\r\n    }\r\n\r\n    vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - height, uPosition.y + 0.5, 1.0);\r\n    position      += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0) * uRotationMat;\r\n\r\n    gl_Position    = uProjectionMat * uModelViewMat * position;\r\n    vTextureCoord  = aTextureCoord;\r\n}";
+}));
+// src/Renderer/Effects/MagicRing.fs?raw
+var MagicRing_default;
+var init_MagicRing$1 = __esmMin((() => {
+	MagicRing_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {\r\n        discard;\r\n    }\r\n    textureSample.a = 0.7;\r\n    fragColor = textureSample;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+}));
+// src/Renderer/Effects/MagicRing.js
+/**
+* Generate a generic MagicRing
+*
+* @returns {Float32Array} buffer array
+*/
+function generateMagicRing() {
+	let i, a, b;
+	const total = 20;
+	const bottom = [];
+	const top = [];
+	const mesh = [];
+	for (i = 0; i <= total; i++) {
+		a = (i + 0) / total;
+		b = (i + .5) / total;
+		bottom[i] = [
+			Math.sin(a * Math.PI * 2),
+			Math.cos(a * Math.PI * 2),
+			0,
+			a,
+			1
+		];
+		top[i] = [
+			Math.sin(b * Math.PI * 2),
+			Math.cos(b * Math.PI * 2),
+			1,
+			b,
+			0
+		];
+	}
+	for (i = 0; i <= total; i++) {
+		mesh.push.apply(mesh, bottom[i + 0]);
+		mesh.push.apply(mesh, top[i + 0]);
+		mesh.push.apply(mesh, bottom[i + 1]);
+		mesh.push.apply(mesh, top[i + 0]);
+		mesh.push.apply(mesh, bottom[i + 1]);
+		mesh.push.apply(mesh, top[i + 1]);
+	}
+	return new Float32Array(mesh);
+}
+var _program, _buffer, mat4$3, _matrix$1, _verticeCount, MagicRing;
+var init_MagicRing = __esmMin((() => {
+	init_WebGL();
+	init_gl_matrix();
+	init_Client();
+	init_MagicRing$2();
+	init_MagicRing$1();
+	mat4$3 = gl_matrix_default.mat4;
+	_matrix$1 = mat4$3.create();
+	_verticeCount = 0;
+	MagicRing = class {
+		constructor(target, topSize, bottomSize, height, textureName, endTick) {
+			this.target = target;
+			this.topSize = topSize;
+			this.bottomSize = bottomSize;
+			this.textureName = textureName;
+			this.height = height;
+			this.endTick = endTick;
+		}
+		/**
+		* Preparing for render
+		*
+		* @param {object} webgl context
+		*/
+		init(gl) {
+			Client.loadFile(`data/texture/effect/${this.textureName}.tga`, (buffer) => {
+				WebGL_default.texture(gl, buffer, (texture) => {
+					this.texture = texture;
+					this.ready = true;
+				});
+			});
+		}
+		/**
+		* Destroying data
+		*
+		* @param {object} webgl context
+		*/
+		free(gl) {
+			this.ready = false;
+		}
+		/**
+		* Rendering cast
+		*
+		* @param {object} wegl context
+		*/
+		render(gl, tick) {
+			const uniform = _program.uniform;
+			const attribute = _program.attribute;
+			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			gl.uniform3fv(uniform.uPosition, this.target.position);
+			gl.uniform1f(uniform.uBottomSize, this.bottomSize);
+			gl.uniform1f(uniform.uTopSize, this.topSize);
+			gl.uniform1f(uniform.uHeight, this.height);
+			gl.drawArrays(gl.TRIANGLES, 0, _verticeCount);
+			this.needCleanUp = this.endTick < tick;
+			if (!this.target.cast.display) this.needCleanUp = true;
+		}
+		/**
+		* Initialize effect
+		*
+		* @param {object} webgl context
+		*/
+		static init(gl) {
+			const vertices = generateMagicRing();
+			_verticeCount = vertices.length / 5;
+			_program = WebGL_default.createShaderProgram(gl, MagicRing_default$1, MagicRing_default);
+			_buffer = gl.createBuffer();
+			this.ready = true;
+			this.renderBeforeEntities = false;
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+		}
+		/**
+		* Destroy objects
+		*
+		* @param {object} webgl context
+		*/
+		static free(gl) {
+			if (_program) {
+				gl.deleteProgram(_program);
+				_program = null;
+			}
+			if (_buffer) gl.deleteBuffer(_buffer);
+			this.ready = false;
+		}
+		/**
+		* Before render, set up program
+		*
+		* @param {object} webgl context
+		*/
+		static beforeRender(gl, modelView, projection, fog, tick) {
+			const uniform = _program.uniform;
+			mat4$3.identity(_matrix$1);
+			mat4$3.rotateY(_matrix$1, _matrix$1, tick / 4 / 180 * Math.PI);
+			gl.useProgram(_program);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$1);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+		}
+		/**
+		* After render, clean attributes
+		*
+		* @param {object} webgl context
+		*/
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program.attribute.aPosition);
+			gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+		}
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/Stalker.js
+var Stalker_default;
+var init_Stalker = __esmMin((() => {
+	init_Events();
+	init_MagicRing();
+	Stalker_default = {
+		392: [{
+			type: "STR",
+			file: "sword",
+			wav: "effect/kyrie_guard",
+			attachedEntity: true
+		}],
+		"496_beforecast": [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				this.add(new MagicRing(entity, 2.45, .8, 2.8, "ring_jadu", Params.Inst.startTick + 1e4), Params);
+			}
+		}],
+		496: [{ wav: "effect/black_maximize_power_sword_bic" }],
+		501: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const entity = Params.Init.ownerEntity;
+				const duration = 500;
+				const count = 50;
+				const delay = duration / count;
+				for (let i = 0; i < count; i++) {
+					let delta = 1;
+					if (i <= 15) delta = 12 * (8 / 360);
+					else if (i <= 30) delta = .4;
+					else if (i <= 40) delta = 24 * (8 / 360);
+					else delta = 48 * (8 / 360);
+					Events.setTimeout(function() {
+						entity.direction = Math.floor(entity.direction + delta) % 8;
+					}, delay * i);
+				}
+			}
+		}]
+	};
+}));
+// src/DB/Effects/Table/Jobs/Thief/Thief.js
+var Thief_default;
+var init_Thief = __esmMin((() => {
+	Thief_default = {
+		18: [{
+			alphaMax: 1,
+			attachedEntity: false,
+			red: 1,
+			green: 1,
+			blue: .85,
+			duration: 500,
+			duplicate: 7,
+			timeBetweenDupli: 0,
+			fadeOut: true,
+			file: "effect/pok1.tga",
+			posxEndRand: 3.5,
+			posyEndRand: 3.5,
+			poszEndRand: 1,
+			poszEndRandMiddle: 3,
+			sizeEnd: 10,
+			sizeStart: 200,
+			type: "3D",
+			zIndex: 10
+		}, { wav: "effect/ef_steal" }],
+		21: [{
+			alphaMax: 1,
+			attachedEntity: true,
+			blue: 1,
+			duration: 1e3,
+			duplicate: 10,
+			fadeIn: true,
+			fadeOut: true,
+			file: "effect/pok1.tga",
+			green: 1,
+			posxRand: 1,
+			posyRand: 1,
+			poszEnd: 5,
+			poszStart: 0,
+			red: .7,
+			size: 100,
+			sizeRand: 20,
+			type: "3D",
+			zIndex: 1
+		}, {
+			attachedEntity: true,
+			wav: "effect/ef_detoxication"
+		}],
+		308: [{
+			type: "3D",
+			alphaMax: 1,
+			angle: 180,
+			attachedEntity: true,
+			duration: 200,
+			fadeIn: true,
+			fadeOut: true,
+			file: "À¯ÀúÀÎÅÍÆäÀÌ½º/item/µ¹.bmp",
+			toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			rotate: true,
+			nbOfRotation: .5,
+			size: 20,
+			zOffset: 1,
+			zIndex: 1
 		}]
 	};
 }));
@@ -292288,44 +292522,81 @@ var init_EffectTable = __esmMin((() => {
 	init_Effects1000();
 	init_Effects1100();
 	init_Effects1200();
-	init_Effects1400();
-	init_Effects1500();
-	init_Effects1700();
 	init_Effects1800();
-	init_Effects1900();
-	init_Effects2200();
 	init_Effects2300();
-	init_ef_abc();
-	init_ef_ag();
-	init_ef_bo();
-	init_ef_cd();
-	init_ef_dk();
-	init_ef_em();
-	init_ef_gc();
-	init_ef_gn();
-	init_ef_hn();
-	init_ef_ig();
-	init_ef_iq();
-	init_ef_lg();
-	init_ef_mt();
-	init_ef_nc();
-	init_ef_nw();
-	init_ef_oldtrap();
-	init_ef_rl();
-	init_ef_sh();
-	init_ef_shc();
-	init_ef_sj();
-	init_ef_ske();
-	init_ef_so();
-	init_ef_soa();
-	init_ef_sr();
-	init_ef_ss();
-	init_ef_su();
-	init_ef_tr();
-	init_ef_trap();
-	init_ef_wh();
-	init_ef_wl();
-	init_ef_wm();
+	init_Named();
+	init_Acolyte();
+	init_ArchBishop();
+	init_Cardinal();
+	init_Champion();
+	init_HighPriest();
+	init_Inquisitor();
+	init_Monk();
+	init_Priest();
+	init_Sura();
+	init_Archer();
+	init_Bard();
+	init_BardDancer();
+	init_ClownGypsy();
+	init_Dancer();
+	init_Hunter();
+	init_MinstrelWanderer();
+	init_Ranger();
+	init_Sniper();
+	init_TroubadourTrouvere();
+	init_Windhawk();
+	init_Gunslinger();
+	init_NightWatch();
+	init_Rebellion();
+	init_ArchMage();
+	init_ElementalMaster();
+	init_HighWizard();
+	init_Mage();
+	init_Professor();
+	init_Sage();
+	init_Sorcerer();
+	init_Warlock();
+	init_Wizard();
+	init_Alchemist();
+	init_Biolo();
+	init_Blacksmith();
+	init_Creator();
+	init_Genetic();
+	init_Mechanic();
+	init_Meister();
+	init_Merchant();
+	init_Whitesmith();
+	init_KagerouOboro();
+	init_Ninja();
+	init_ShinkiroShiranui();
+	init_HyperNovice();
+	init_Novice();
+	init_SpiritHandler();
+	init_Summoner();
+	init_Crusader();
+	init_DragonKnight();
+	init_ImperialGuard();
+	init_Knight();
+	init_LordKnight();
+	init_Paladin();
+	init_RoyalGuard();
+	init_RuneKnight();
+	init_Swordman();
+	init_SkyEmperor();
+	init_SoulAscetic();
+	init_SoulLinker();
+	init_SoulReaper();
+	init_StarEmperor();
+	init_Taekwon();
+	init_AbyssChaser();
+	init_Assassin();
+	init_AssassinCross();
+	init_GuillotineCross();
+	init_Rogue();
+	init_ShadowChaser();
+	init_ShadowCross();
+	init_Stalker();
+	init_Thief();
 	EffectTable_default = {
 		...Effects0000_default,
 		...Effects0100_default,
@@ -292340,44 +292611,81 @@ var init_EffectTable = __esmMin((() => {
 		...Effects1000_default,
 		...Effects1100_default,
 		...Effects1200_default,
-		...Effects1400_default,
-		...Effects1500_default,
-		...Effects1700_default,
 		...Effects1800_default,
-		...Effects1900_default,
-		...Effects2200_default,
 		...Effects2300_default,
-		...ef_abc_default,
-		...ef_ag_default,
-		...ef_bo_default,
-		...ef_cd_default,
-		...ef_dk_default,
-		...ef_em_default,
-		...ef_gc_default,
-		...ef_gn_default,
-		...ef_hn_default,
-		...ef_ig_default,
-		...ef_iq_default,
-		...ef_lg_default,
-		...ef_mt_default,
-		...ef_nc_default,
-		...ef_nw_default,
-		...ef_oldtrap_default,
-		...ef_rl_default,
-		...ef_sh_default,
-		...ef_shc_default,
-		...ef_sj_default,
-		...ef_ske_default,
-		...ef_so_default,
-		...ef_soa_default,
-		...ef_sr_default,
-		...ef_ss_default,
-		...ef_su_default,
-		...ef_tr_default,
-		...ef_trap_default,
-		...ef_wh_default,
-		...ef_wl_default,
-		...ef_wm_default
+		...Named_default,
+		...Acolyte_default,
+		...ArchBishop_default,
+		...Cardinal_default,
+		...Champion_default,
+		...HighPriest_default,
+		...Inquisitor_default,
+		...Monk_default,
+		...Priest_default,
+		...Sura_default,
+		...Archer_default,
+		...Bard_default,
+		...BardDancer_default,
+		...ClownGypsy_default,
+		...Dancer_default,
+		...Hunter_default,
+		...MinstrelWanderer_default,
+		...Ranger_default,
+		...Sniper_default,
+		...TroubadourTrouvere_default,
+		...Windhawk_default,
+		...Gunslinger_default,
+		...NightWatch_default,
+		...Rebellion_default,
+		...ArchMage_default,
+		...ElementalMaster_default,
+		...HighWizard_default,
+		...Mage_default,
+		...Professor_default,
+		...Sage_default,
+		...Sorcerer_default,
+		...Warlock_default,
+		...Wizard_default,
+		...Alchemist_default,
+		...Biolo_default,
+		...Blacksmith_default,
+		...Creator_default,
+		...Genetic_default,
+		...Mechanic_default,
+		...Meister_default,
+		...Merchant_default,
+		...Whitesmith_default,
+		...KagerouOboro_default,
+		...Ninja_default,
+		...ShinkiroShiranui_default,
+		...HyperNovice_default,
+		...Novice_default,
+		...SpiritHandler_default,
+		...Summoner_default,
+		...Crusader_default,
+		...DragonKnight_default,
+		...ImperialGuard_default,
+		...Knight_default,
+		...LordKnight_default,
+		...Paladin_default,
+		...RoyalGuard_default,
+		...RuneKnight_default,
+		...Swordman_default,
+		...SkyEmperor_default,
+		...SoulAscetic_default,
+		...SoulLinker_default,
+		...SoulReaper_default,
+		...StarEmperor_default,
+		...Taekwon_default,
+		...AbyssChaser_default,
+		...Assassin_default,
+		...AssassinCross_default,
+		...GuillotineCross_default,
+		...Rogue_default,
+		...ShadowChaser_default,
+		...ShadowCross_default,
+		...Stalker_default,
+		...Thief_default
 	};
 }));
 // src/Vendors/liblua5.1.wasm?url
