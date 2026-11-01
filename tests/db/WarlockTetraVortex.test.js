@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+const quakes = vi.hoisted(() => []);
+vi.mock('Renderer/Camera.js', () => ({ default: { setQuake: start => quakes.push(start) } }));
+
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
@@ -56,6 +60,9 @@ describe('Tetra Vortex cast and element blasts as the official client plays them
 			['effect/wl_tetravortex', 833],
 			['effect/wl_tetravortex', 1333]
 		]);
-		expect(rows[rows.length - 1].type).toBe('FUNC');
+		rows.filter(r => r.type === 'FUNC').forEach(r =>
+			r.func.call({ spamEffect: () => {} }, { Init: {}, Inst: { startTick: 1000 } })
+		);
+		expect(quakes.map(t => Math.round(t))).toEqual([1000, 1667, 2333]);
 	});
 });
