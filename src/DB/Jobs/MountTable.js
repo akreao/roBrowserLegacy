@@ -43,6 +43,13 @@ MountTable[JobId.MECHANIC_H] = JobId.MECHANIC2_H;
 MountTable[JobId.MECHANIC_B] = JobId.MECHANIC2_B;
 MountTable[JobId.MECHANIC_2ND] = JobId.MECHANIC2_2ND;
 
+// Star Gladiator Union (SG_FUSION): with the flying option (0x8000) the official client
+// draws the flying body (kRO 2025-07-16, 0xc43b10: 4047 -> 4048, 4226 -> 4238, 4302 -> 4316).
+// EntityState switches to it on EffectState.FLYING, not on the riding bits.
+MountTable[JobId.STAR] = JobId.STAR2;
+MountTable[JobId.STAR_B] = JobId.STAR2_B;
+MountTable[JobId.SKY_EMPEROR] = JobId.SKY_EMPEROR2;
+
 // 4th job
 MountTable[JobId.WINDHAWK] = JobId.WINDHAWK2;
 MountTable[JobId.MEISTER] = JobId.MEISTER2;

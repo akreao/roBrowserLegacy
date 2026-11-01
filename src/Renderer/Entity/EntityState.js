@@ -22,6 +22,7 @@ import Sound from 'Audio/SoundManager.js';
 import StatusConst from 'DB/Status/StatusState.js';
 import MountTable from 'DB/Jobs/MountTable.js';
 import AllMountTable from 'DB/Jobs/AllMountTable.js';
+import JobId from 'DB/Jobs/JobConst.js';
 import Session from 'Engine/SessionStorage.js';
 import Emotions from 'DB/Emotions.js';
 
@@ -57,6 +58,11 @@ function recalculateBlendingColor() {
 		this._virtueColor[3] *
 		this._flashColor[3];
 }
+
+/**
+ * Jobs whose body changes with the flying option (Star Gladiator Union).
+ */
+const FLYING_JOBS = new Set([JobId.STAR, JobId.STAR_B, JobId.SKY_EMPEROR]);
 
 const _stateToVirtue = {};
 _stateToVirtue[StatusConst.Status.TWOHANDQUICKEN] = StatusConst.OPT3.QUICKEN;
@@ -403,6 +409,11 @@ function updateEffectState(value) {
 		if (this._job in MountTable) {
 			costume = MountTable[this._job];
 		}
+	}
+
+	// Star Gladiator Union: the flying option draws the flying body (official 0xc43b10)
+	if (value & StatusConst.EffectState.FLYING && FLYING_JOBS.has(this._job)) {
+		costume = MountTable[this._job];
 	}
 
 	// ------------------------
