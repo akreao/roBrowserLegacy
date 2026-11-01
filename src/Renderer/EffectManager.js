@@ -1477,6 +1477,10 @@ class EffectManager {
 		// the official client's damage-arrival effects
 		play('arrivalEffectIdOnCaster', srcAID, destAID, arrivalTick);
 		play('arrivalEffectIdOnTarget', destAID, srcAID, arrivalTick);
+		// The same, only on a target that is not the caster (Arrow Storm's rain)
+		if (destAID !== srcAID) {
+			play('arrivalEffectIdOnOtherTarget', destAID, srcAID, arrivalTick);
+		}
 
 		// One of four effects on the caster by its facing on screen
 		// (ScreenDirection.facingQuarter), once: not again while the caster
@@ -1490,6 +1494,23 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: srcAID,
 					startTick: tick,
+					otherAID: destAID
+				});
+			}
+		}
+
+		// One of four effects on the caster by its facing on screen
+		// (ScreenDirection.facingQuarter), when the packet's damage is due.
+		// Aimed Bolt's shot.
+		const arrivalByFacing = skill.arrivalEffectIdOnCasterByFacing;
+		const shooter = arrivalByFacing && srcAID ? EntityManager.get(srcAID) : null;
+		if (shooter) {
+			const effectId = arrivalByFacing[facingQuarter(facingAngle(shooter.direction))];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: arrivalTick,
 					otherAID: destAID
 				});
 			}
@@ -1781,8 +1802,9 @@ class EffectManager {
 			}
 		}
 
-		// Played on the skill's target (srcAID here) when the cast starts.
-		// Without a known target nothing plays, like the official client.
+		// Played on the skill's target (srcAID here) when the cast starts; rows
+		// marked castLoop last for the cast time. Without a known target nothing
+		// plays, like the official client.
 		if (SkillEffect[skillId].beginCastTargetEffectId && srcAID && EntityManager.get(srcAID)) {
 			effects = Array.isArray(SkillEffect[skillId].beginCastTargetEffectId)
 				? SkillEffect[skillId].beginCastTargetEffectId
@@ -1793,7 +1815,10 @@ class EffectManager {
 					effectId: effectId,
 					ownerAID: srcAID,
 					startTick: tick,
-					otherAID: destAID
+					otherAID: destAID,
+					castEndTick: castEndTick,
+					// removed with the caster's own cast loops if the cast is cancelled
+					castTargetOf: destAID
 				};
 
 				EffectManager.spam(EF_Init_Par);
@@ -1803,7 +1828,7 @@ class EffectManager {
 
 	/**
 	 * Remove the cast effects (rows marked castLoop) still playing on an entity,
-	 * when its cast is cancelled.
+	 * and those its cast put on its target, when its cast is cancelled.
 	 *
 	 * @param {number} aid
 	 */
@@ -1812,7 +1837,12 @@ class EffectManager {
 			const list = _list[name];
 			for (let i = list.length - 1; i >= 0; --i) {
 				const Params = list[i]._Params;
-				if (Params && Params.effect && Params.effect.castLoop && Params.Init.ownerAID === AID) {
+				if (
+					Params &&
+					Params.effect &&
+					Params.effect.castLoop &&
+					(Params.Init.ownerAID === AID || Params.Init.castTargetOf === AID)
+				) {
 					if (list[i].free) {
 						list[i].free(_gl);
 					}
