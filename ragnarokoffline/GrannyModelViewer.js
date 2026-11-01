@@ -217384,7 +217384,7 @@ function init$12(gl, water) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
-		_textures$27[index] = texture;
+		_textures$29[index] = texture;
 	}
 	for (let i = 0; i < 32; ++i) WebGL_default.texture(gl, water.images[i], onTextureLoaded, i);
 }
@@ -217421,7 +217421,7 @@ function render$15(gl, modelView, projection, fog, light, tick) {
 	gl.uniform1f(uniform.uOpacity, _waterOpacity);
 	gl.uniform1f(uniform.uWavePitch, _wavePitch);
 	gl.uniform1f(uniform.uWaterOffset, frame * _waveSpeed % 360 - 180);
-	gl.bindTexture(gl.TEXTURE_2D, _textures$27[frame / _animSpeed % 32 | 0]);
+	gl.bindTexture(gl.TEXTURE_2D, _textures$29[frame / _animSpeed % 32 | 0]);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	SpriteRenderer.runWithDepth(true, false, false, function() {
 		gl.drawArrays(gl.TRIANGLES, 0, _vertCount);
@@ -217444,9 +217444,9 @@ function free$7(gl) {
 		gl.deleteProgram(_program$44);
 		_program$44 = null;
 	}
-	for (i = 0; i < 32; ++i) if (_textures$27[i]) {
-		gl.deleteTexture(_textures$27[i]);
-		_textures$27[i] = null;
+	for (i = 0; i < 32; ++i) if (_textures$29[i]) {
+		gl.deleteTexture(_textures$29[i]);
+		_textures$29[i] = null;
 	}
 	_vertCount = 0;
 }
@@ -217483,7 +217483,7 @@ function state() {
 	return {
 		buffer: _buffer$19,
 		vertCount: _vertCount,
-		textures: _textures$27,
+		textures: _textures$29,
 		level: _waterLevel,
 		waveHeight: _waveHeight,
 		waveSpeed: _waveSpeed,
@@ -217492,7 +217492,7 @@ function state() {
 		opacity: _waterOpacity
 	};
 }
-var _program$44, _buffer$19, _vertCount, _textures$27, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
+var _program$44, _buffer$19, _vertCount, _textures$29, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -217502,7 +217502,7 @@ var init_Water = __esmMin((() => {
 	_program$44 = null;
 	_buffer$19 = null;
 	_vertCount = 0;
-	_textures$27 = new Array(32);
+	_textures$29 = new Array(32);
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
@@ -231778,20 +231778,41 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, bigMap = null
 			break;
 		}
 	};
-	if (coordinates)
- /**
-	* Update Coords Values
-	*
-	* @param {number} x increment
-	* @param {number} y increment
-	*/
-	MiniMap.updateCoordinates = function updateCoordinates(x, y) {
-		const root = this.getRoot();
-		const coordX = root.querySelector(".coordinates .coord.x");
-		const coordY = root.querySelector(".coordinates .coord.y");
-		if (coordX) coordX.textContent = Math.floor(x);
-		if (coordY) coordY.textContent = Math.floor(y);
-	};
+	if (coordinates) {
+		const _coordX = {
+			element: null,
+			shown: null
+		};
+		const _coordY = {
+			element: null,
+			shown: null
+		};
+		const showCoordinate = (coord, value) => {
+			if (coord.element && coord.shown !== value) {
+				coord.element.textContent = value;
+				coord.shown = value;
+			}
+		};
+		/**
+		* Update Coords Values
+		*
+		* @param {number} x increment
+		* @param {number} y increment
+		*/
+		MiniMap.updateCoordinates = function updateCoordinates(x, y) {
+			const root = this.getRoot();
+			if (!_coordX.element || !root.contains(_coordX.element)) {
+				_coordX.element = root.querySelector(".coordinates .coord.x");
+				_coordX.shown = null;
+			}
+			if (!_coordY.element || !root.contains(_coordY.element)) {
+				_coordY.element = root.querySelector(".coordinates .coord.y");
+				_coordY.shown = null;
+			}
+			showCoordinate(_coordX, Math.floor(x));
+			showCoordinate(_coordY, Math.floor(y));
+		};
+	}
 	/**
 	* Change zoom
 	*
@@ -277169,18 +277190,18 @@ var init_EffectPrim$1 = __esmMin((() => {
 * @param {object} gl context
 * @param {string} name file in data/texture/effect/
 */
-function releaseSharedTexture$1(gl, name) {
-	const users = (_sharedUsers$1.get(name) || 0) - 1;
+function releaseSharedTexture(gl, name) {
+	const users = (_sharedUsers.get(name) || 0) - 1;
 	if (users > 0) {
-		_sharedUsers$1.set(name, users);
+		_sharedUsers.set(name, users);
 		return;
 	}
-	_sharedUsers$1.delete(name);
-	const entry = _sharedTextures$1.get(name);
+	_sharedUsers.delete(name);
+	const entry = _sharedTextures.get(name);
 	if (entry && entry.texture) gl.deleteTexture(entry.texture);
-	_sharedTextures$1.delete(name);
+	_sharedTextures.delete(name);
 }
-var _program$38, _fogColor$1, BLACK$4, _sharedTextures$1, _sharedUsers$1, EffectPrim;
+var _program$38, _fogColor$1, BLACK$4, _sharedTextures, _sharedUsers, EffectPrim;
 var init_EffectPrim = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -277191,8 +277212,8 @@ var init_EffectPrim = __esmMin((() => {
 	_program$38 = null;
 	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
 	BLACK$4 = /* @__PURE__ */ new Float32Array(3);
-	_sharedTextures$1 = /* @__PURE__ */ new Map();
-	_sharedUsers$1 = /* @__PURE__ */ new Map();
+	_sharedTextures = /* @__PURE__ */ new Map();
+	_sharedUsers = /* @__PURE__ */ new Map();
 	EffectPrim = class {
 		/**
 		* @param {object} effect description
@@ -277230,8 +277251,8 @@ var init_EffectPrim = __esmMin((() => {
 		init(gl) {
 			this.buffer = gl.createBuffer();
 			this.textureName = /\.\w+$/.test(this.effect.texture) ? this.effect.texture : `${this.effect.texture}.tga`;
-			_sharedUsers$1.set(this.textureName, (_sharedUsers$1.get(this.textureName) || 0) + 1);
-			sharedTexture(_sharedTextures$1, gl, this.textureName, (texture) => {
+			_sharedUsers.set(this.textureName, (_sharedUsers.get(this.textureName) || 0) + 1);
+			sharedTexture(_sharedTextures, gl, this.textureName, (texture) => {
 				if (this.freed) return;
 				this.texture = texture;
 				this.ready = true;
@@ -277248,7 +277269,7 @@ var init_EffectPrim = __esmMin((() => {
 				this.buffer = null;
 			}
 			if (this.textureName) {
-				releaseSharedTexture$1(gl, this.textureName);
+				releaseSharedTexture(gl, this.textureName);
 				this.textureName = null;
 			}
 			this.texture = null;
@@ -277304,8 +277325,8 @@ var init_EffectPrim = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static free(gl) {
-			freeSharedTextures(_sharedTextures$1, gl);
-			_sharedUsers$1.clear();
+			freeSharedTextures(_sharedTextures, gl);
+			_sharedUsers.clear();
 			if (_program$38) {
 				gl.deleteProgram(_program$38);
 				_program$38 = null;
@@ -279448,6 +279469,87 @@ var init_RsmEffect = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/SharedEffectTextures.js
+var SharedEffectTextures;
+var init_SharedEffectTextures = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	SharedEffectTextures = class {
+		constructor() {
+			this.entries = /* @__PURE__ */ new Map();
+		}
+		/**
+		* Start using the texture of a file.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {string} path - whole path, e.g. data/texture/effect/ring_blue.tga
+		* @param {function} onload - gets the texture, now or once it is loaded
+		* @param {function} [onerror] - the file is missing
+		* @return {object} handle to give back to release()
+		*/
+		acquire(gl, path, onload, onerror) {
+			let entry = this.entries.get(path);
+			if (!entry) {
+				entry = {
+					path,
+					texture: null,
+					failed: false,
+					waiting: [],
+					users: 0
+				};
+				this.entries.set(path, entry);
+				Client.loadFile(path, (buffer) => {
+					WebGL_default.texture(gl, buffer, (texture) => {
+						if (this.entries.get(path) !== entry) {
+							gl.deleteTexture(texture);
+							return;
+						}
+						entry.texture = texture;
+						const waiting = entry.waiting;
+						entry.waiting = [];
+						waiting.forEach((w) => w.onload(texture));
+					});
+				}, () => {
+					entry.failed = true;
+					const waiting = entry.waiting;
+					entry.waiting = [];
+					waiting.forEach((w) => w.onerror && w.onerror());
+				});
+			}
+			entry.users++;
+			if (entry.texture) onload(entry.texture);
+			else if (entry.failed) {
+				if (onerror) onerror();
+			} else entry.waiting.push({
+				onload,
+				onerror
+			});
+			return entry;
+		}
+		/**
+		* Stop using a texture. A handle from before clear() does nothing.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {object} entry - from acquire()
+		*/
+		release(gl, entry) {
+			if (!entry || this.entries.get(entry.path) !== entry) return;
+			entry.users--;
+			if (entry.users > 0) return;
+			this.entries.delete(entry.path);
+			if (entry.texture) gl.deleteTexture(entry.texture);
+		}
+		/**
+		* Delete every texture (the class is freed).
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		clear(gl) {
+			for (const entry of this.entries.values()) if (entry.texture) gl.deleteTexture(entry.texture);
+			this.entries.clear();
+		}
+	};
+}));
 // src/Renderer/Effects/TwoDEffect.js
 function getRandomIntInclusive(min, max) {
 	min = Math.ceil(min);
@@ -279479,13 +279581,13 @@ function twoDPulse(fx, start) {
 	const phase = fx.pulsePhase + start / (1e3 / 60) * fx.sizePulse.degPerTick;
 	return 1 + fx.sizePulse.amount * Math.sin(phase * Math.PI / 180);
 }
-var blendMode$2, shadow_index, TwoDEffect;
+var blendMode$2, _textures$28, shadow_index, TwoDEffect;
 var init_TwoDEffect = __esmMin((() => {
-	init_WebGL();
-	init_Client();
 	init_SpriteRenderer();
 	init_Camera();
+	init_SharedEffectTextures();
 	blendMode$2 = {};
+	_textures$28 = new SharedEffectTextures();
 	shadow_index = 0;
 	TwoDEffect = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
@@ -279721,15 +279823,17 @@ var init_TwoDEffect = __esmMin((() => {
 			this.endTick = endTick;
 		}
 		init(gl) {
-			Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
-				WebGL_default.texture(gl, buffer, (texture) => {
-					this.texture = texture;
-					this.ready = true;
-				});
+			this.textureHandle = _textures$28.acquire(gl, `data/texture/${this.textureName}`, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, () => {
+				this.needCleanUp = true;
 			});
 		}
 		free(gl) {
 			this.ready = false;
+			_textures$28.release(gl, this.textureHandle);
+			this.textureHandle = null;
 		}
 		render(gl, tick) {
 			if (this.startTick > tick) return;
@@ -279892,6 +279996,7 @@ var init_TwoDEffect = __esmMin((() => {
 		}
 		static free(gl) {
 			this.ready = false;
+			_textures$28.clear(gl);
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -279920,23 +280025,6 @@ function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 }
 /**
-* One instance stops using a shared texture; the last one deletes it.
-*
-* @param {WebGL2RenderingContext} gl
-* @param {string} name
-*/
-function releaseSharedTexture(gl, name) {
-	const users = (_sharedUsers.get(name) || 0) - 1;
-	if (users > 0) {
-		_sharedUsers.set(name, users);
-		return;
-	}
-	_sharedUsers.delete(name);
-	const entry = _sharedTextures.get(name);
-	if (entry && entry.texture) gl.deleteTexture(entry.texture);
-	_sharedTextures.delete(name);
-}
-/**
 * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
 *
 * @param {number} startTick
@@ -279946,19 +280034,17 @@ function releaseSharedTexture(gl, name) {
 function trackAge(startTick, tick) {
 	return (tick - startTick) * 60 / 1e3;
 }
-var blendMode$1, _sharedTextures, _sharedUsers, _soulStrikeFirstEffect, ThreeDEffect;
+var blendMode$1, _textures$27, _soulStrikeFirstEffect, ThreeDEffect;
 var init_ThreeDEffect = __esmMin((() => {
-	init_WebGL();
 	init_Client();
 	init_SpriteRenderer();
 	init_EntityManager();
 	init_Altitude();
 	init_Camera();
 	init_Entity$1();
-	init_AuraBatch();
+	init_SharedEffectTextures();
 	blendMode$1 = {};
-	_sharedTextures = /* @__PURE__ */ new Map();
-	_sharedUsers = /* @__PURE__ */ new Map();
+	_textures$27 = new SharedEffectTextures();
 	_soulStrikeFirstEffect = null;
 	ThreeDEffect = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
@@ -279971,9 +280057,7 @@ var init_ThreeDEffect = __esmMin((() => {
 			this.ownerEntity = EF_Init_Par.ownerEntity;
 			this.otherEntity = EF_Init_Par.otherEntity;
 			this.textureName = effect.file;
-			this.sharedTexture = !!effect.sharedTexture && !!effect.file;
 			this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
-			this.sharedFileList = !!effect.sharedTexture && this.textureNameList.length > 0 && this.textureNameList.every((name) => /^effect\//.test(name));
 			this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
 			this.fadeOut = effect.fadeOut ? true : false;
@@ -280233,54 +280317,30 @@ var init_ThreeDEffect = __esmMin((() => {
 		init(gl) {
 			this.loadedTextures = 0;
 			this.textureList = [];
-			if (this.sharedFileList) {
+			this.textureHandles = [];
+			const missing = () => {
+				this.needCleanUp = true;
+			};
+			if (this.textureNameList.length > 0) {
 				const textureCount = this.textureNameList.length;
-				this.sharedTextureNames = this.textureNameList.map((name) => name.slice(7));
-				this.sharedTextureNames.forEach((name, i) => {
-					_sharedUsers.set(name, (_sharedUsers.get(name) || 0) + 1);
-					sharedTexture(_sharedTextures, gl, name, (texture) => {
+				this.textureNameList.forEach((name, i) => {
+					this.textureHandles.push(_textures$27.acquire(gl, `data/texture/${name}`, (texture) => {
 						this.textureList[i] = texture;
 						this.loadedTextures++;
 						if (this.loadedTextures == textureCount) this.ready = true;
-					}, () => {
-						this.needCleanUp = true;
-					});
+					}, missing));
 				});
-			} else if (this.textureNameList.length > 0) {
-				const textureCount = this.textureNameList.length;
-				for (let i = 0; i < textureCount; i++) Client.loadFile(`data/texture/${this.textureNameList[i]}`, (buffer) => {
-					WebGL_default.texture(gl, buffer, (texture) => {
-						this.textureList[i] = texture;
-						this.loadedTextures++;
-						if (this.loadedTextures == textureCount) this.ready = true;
-					});
-				});
-			} else if (this.sharedTexture) {
-				this.sharedTextureName = /^effect\//.test(this.textureName) ? this.textureName.slice(7) : `data/texture/${this.textureName}`;
-				_sharedUsers.set(this.sharedTextureName, (_sharedUsers.get(this.sharedTextureName) || 0) + 1);
-				sharedTexture(_sharedTextures, gl, this.sharedTextureName, (texture) => {
-					this.texture = texture;
-					this.ready = true;
-				}, () => {
-					this.needCleanUp = true;
-				});
-			} else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
-				WebGL_default.texture(gl, buffer, (texture) => {
-					this.texture = texture;
-					this.ready = true;
-				});
-			});
+			} else if (this.textureName) this.textureHandles.push(_textures$27.acquire(gl, `data/texture/${this.textureName}`, (texture) => {
+				this.texture = texture;
+				this.ready = true;
+			}, missing));
 			else this.ready = true;
 		}
 		free(gl) {
 			this.ready = false;
-			if (this.sharedTextureName) {
-				releaseSharedTexture(gl, this.sharedTextureName);
-				this.sharedTextureName = null;
-			}
-			if (this.sharedTextureNames) {
-				this.sharedTextureNames.forEach((name) => releaseSharedTexture(gl, name));
-				this.sharedTextureNames = null;
+			if (this.textureHandles) {
+				this.textureHandles.forEach((handle) => _textures$27.release(gl, handle));
+				this.textureHandles = null;
 				this.textureList = [];
 			}
 		}
@@ -280564,8 +280624,7 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 		static free(gl) {
 			this.ready = false;
-			freeSharedTextures(_sharedTextures, gl);
-			_sharedUsers.clear();
+			_textures$27.clear(gl);
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
