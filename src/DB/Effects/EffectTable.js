@@ -63,7 +63,7 @@ import { arrowFlightBetween } from 'Renderer/Effects/ArrowFlight.js';
 import { servantDemolitionEffects } from 'DB/Effects/ServantDemolitionEffect.js';
 import { startBlinkBody } from 'Renderer/Effects/BlinkBody.js';
 import { hastyFireInTheHoleEffects } from 'DB/Effects/HastyFireInTheHoleEffect.js';
-import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
+import WarlockSphereEffect from 'DB/Effects/WarlockSphereEffect.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
@@ -25058,36 +25058,6 @@ export default {
 		}
 	],
 
-	temporary_warlock_sphere: [
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				const entity = Params.Init.ownerEntity;
-				const spheres = [];
-				if (entity.Summon1) {
-					spheres.push(entity.Summon1);
-				}
-				if (entity.Summon2) {
-					spheres.push(entity.Summon2);
-				}
-				if (entity.Summon3) {
-					spheres.push(entity.Summon3);
-				}
-				if (entity.Summon4) {
-					spheres.push(entity.Summon4);
-				}
-				if (entity.Summon5) {
-					spheres.push(entity.Summon5);
-				}
-
-				const wl_spheres = new WarlockSphere(entity, spheres);
-
-				this.add(wl_spheres, Params);
-			}
-		}
-	],
-
 	quake: [
 		{
 			type: 'FUNC',
@@ -30272,6 +30242,9 @@ export default {
 
 	// Sight Blaster's ring (601), held while the status is on: SightBlasterEffect.js.
 	...SightBlasterEffect,
+
+	// A Warlock's summoned spheres (1262-1265, CTetraBallEffect), one looping ball a slot: WarlockSphereEffect.js.
+	...WarlockSphereEffect,
 
 	// Light of the Sun / Moon / Stars spheres (1197-1199, CLightSphereEffect): LightSphereEffect.js.
 	...LightSphereEffect,

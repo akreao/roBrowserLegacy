@@ -177,6 +177,14 @@ function spamSTR(Params) {
 	if (Params.Init.flipY) {
 		str.flipY = true;
 	}
+	// A row that loops until it is removed (Warlock spheres), started some
+	// frames in (Init.strLead, seconds of the file's own frames)
+	if (Params.effect.loop) {
+		str.persistent = true;
+	}
+	if (Params.Init.strLead > 0) {
+		str.lead = Params.Init.strLead;
+	}
 	if (Params.effect.tilt) {
 		str.tilt = Params.effect.tilt;
 	}
