@@ -216460,7 +216460,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE$1, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE$1, base + 80);
 }
-var mat4$22, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$42, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$1, _fogBlack$1, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$42, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$2, _viewModel, _projection, _fogColor$2, _fogBlack$1, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -216523,7 +216523,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_modelView$2 = /* @__PURE__ */ new Float32Array(16);
 	_viewModel = /* @__PURE__ */ new Float32Array(16);
 	_projection = /* @__PURE__ */ new Float32Array(16);
-	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
+	_fogColor$2 = /* @__PURE__ */ new Float32Array(3);
 	_fogBlack$1 = /* @__PURE__ */ new Float32Array(3);
 	_frame = {
 		fogUse: false,
@@ -216571,7 +216571,7 @@ var init_SpriteBatch = __esmMin((() => {
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
-			_fogColor$1.set(fog.color);
+			_fogColor$2.set(fog.color);
 			_frame.zoom = zoom;
 		}
 		/**
@@ -216715,7 +216715,7 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.uniform1i(uniform.uFogUse, _frame.fogUse);
 			gl.uniform1f(uniform.uFogNear, _frame.fogNear);
 			gl.uniform1f(uniform.uFogFar, _frame.fogFar);
-			gl.uniform3fv(uniform.uFogColor, _fogColor$1);
+			gl.uniform3fv(uniform.uFogColor, _fogColor$2);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.uniform1i(uniform.uPalette, 1);
 			gl.uniform1i(uniform.uIndexAtlas, SpriteAtlas.UNIT_INDEX);
@@ -216746,7 +216746,7 @@ var init_SpriteBatch = __esmMin((() => {
 					}
 					if (run.fogBlack !== fogBlack) {
 						fogBlack = run.fogBlack;
-						gl.uniform3fv(uniform.uFogColor, fogBlack ? _fogBlack$1 : _fogColor$1);
+						gl.uniform3fv(uniform.uFogColor, fogBlack ? _fogBlack$1 : _fogColor$2);
 					}
 					if (run.noCorrection !== noCorrection) gl.uniform1i(uniform.uDisableDepthCorrection, noCorrection = run.noCorrection);
 					if (run.palette !== null && run.palette !== palette) {
@@ -217005,12 +217005,12 @@ function setDepth(depthTest, depthMask) {
 */
 function syncAfterBatch() {
 	_gl$3.useProgram(_program$41);
-	_gl$3.uniform3fv(_program$41.uniform.uFogColor, _fogToBlack ? _fogBlack : _fogColor);
+	_gl$3.uniform3fv(_program$41.uniform.uFogColor, _fogToBlack ? _fogBlack : _fogColor$1);
 	_gl$3.activeTexture(_gl$3.TEXTURE0);
 	_texture$9 = null;
 	_groupId++;
 }
-var mat4$21, RenderCanvas2D, _program$41, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$21, RenderCanvas2D, _program$41, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor$1, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -217101,7 +217101,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_blendOne = null;
 	_texture$9 = null;
 	_usepal = null;
-	_fogColor = /* @__PURE__ */ new Float32Array(3);
+	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
 	_fogBlack = /* @__PURE__ */ new Float32Array(3);
 	_fogToBlack = false;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
@@ -217234,7 +217234,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
-			_fogColor.set(fog.color);
+			_fogColor$1.set(fog.color);
 			_fogToBlack = false;
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
@@ -217267,7 +217267,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		static fogToBlack(on) {
 			if (!_gl$3 || _fogToBlack === on) return;
 			_fogToBlack = on;
-			if (!SpriteBatch.active) _gl$3.uniform3fv(_program$41.uniform.uFogColor, on ? _fogBlack : _fogColor);
+			if (!SpriteBatch.active) _gl$3.uniform3fv(_program$41.uniform.uFogColor, on ? _fogBlack : _fogColor$1);
 		}
 		/**
 		* Unbind 3D Context
@@ -224512,7 +224512,7 @@ var init_SkillEffect = __esmMin((() => {
 		successEffectIdOnCaster: "ef_wl_recognizedspell_sound",
 		castAuraEffectId: 58
 	};
-	SkillEffect[SkillConst_default.WL_SIENNAEXECRATE] = { effectId: "ef_siennaexecrate" };
+	SkillEffect[SkillConst_default.WL_SIENNAEXECRATE] = { successEffectId: 797 };
 	SkillEffect[SkillConst_default.WL_STASIS] = {
 		successEffectIdOnCaster: 799,
 		castAuraEffectId: 441
@@ -224537,7 +224537,7 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 728
 	};
 	SkillEffect[SkillConst_default.WL_COMET] = {
-		hideCastAura: true,
+		castAuraEffectId: 1418,
 		beginCastEffectId: [1415, 1421],
 		damageEffectIdOnTarget: [1413, 1414]
 	};
@@ -280328,6 +280328,7 @@ var init_ThreeDEffect = __esmMin((() => {
 				if (sample.x !== void 0) SpriteRenderer.position[0] = this.position[0] + sample.x;
 				if (sample.y !== void 0) SpriteRenderer.position[1] = this.position[1] + sample.y;
 				if (sample.z !== void 0) SpriteRenderer.position[2] = this.position[2] + sample.z;
+				else if (this.shadowTexture && (sample.x !== void 0 || sample.y !== void 0)) SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1]);
 				if (sample.size !== void 0) {
 					sizeX = sample.size;
 					sizeY = sample.size;
@@ -281769,6 +281770,7 @@ function spamSprite(Params) {
 	entity.attachments.add({
 		uid,
 		file: Params.effect.file,
+		completeFile: Params.effect.completeFile,
 		head: !!Params.effect.head,
 		direction: !!Params.effect.direction,
 		repeat: Params.effect.repeat || Params.Inst.persistent,
@@ -296757,6 +296759,427 @@ var init_AgilityEffect = __esmMin((() => {
 		}
 	}];
 }));
+// src/Renderer/Effects/StreakLinesSim.js
+/**
+* A tint's vertex colour (0..255).
+*
+* @param {number} tint
+* @return {number[]}
+*/
+function tintColor(tint) {
+	if (tint in TINT_COLOR) return TINT_COLOR[tint];
+	const grey = TINT_GREY[tint] !== void 0 ? TINT_GREY[tint] : 255;
+	return [
+		grey,
+		grey,
+		grey
+	];
+}
+/**
+* One streak of the kRO 2025-07-16 streak builder (0xbdf6e0) by its variant:
+* side -1 for variants ending in 0, +1 for those ending in 1 (offset 15 + r(11));
+* variants 0-9 (line3.tga): half width 0.3 + 0.1 r(4), length 20 + r(31), tint
+* r(3), speed 1.5 + 0.1 r(21); 10-19 (line3y.tga): as Quill Spear's, tint
+* 10 + r(3); 20 and up (line3y.tga): half width 0.4 + 0.1 r(4), length
+* 30 + r(31), tint 20 + r(3), speed 1.5 + 0.1 r(21).
+*
+* @param {number} variant
+* @param {function} rand (n) => 0..n-1
+* @return {object}
+*/
+function createVariantStreak(variant, rand = randomInt$2) {
+	const side = variant % 10 === 0 ? -1 : 1;
+	const offset = (15 + rand(11)) * side;
+	const position = rand(200);
+	let halfWidth, length, tint, speed;
+	if (variant < 10) {
+		halfWidth = .3 + .1 * rand(4);
+		length = 20 + rand(31);
+		tint = rand(3);
+		speed = 1.5 + .1 * rand(21);
+	} else if (variant < 20) {
+		halfWidth = .5 + .1 * rand(6);
+		length = 40 + rand(31);
+		tint = 10 + rand(3);
+		speed = 1 + .1 * rand(11);
+	} else {
+		halfWidth = .4 + .1 * rand(4);
+		length = 30 + rand(31);
+		tint = 20 + rand(3);
+		speed = 1.5 + .1 * rand(21);
+	}
+	return {
+		age: 0,
+		alpha: 0,
+		halfWidth,
+		tint,
+		offset,
+		position,
+		length,
+		speed,
+		texture: variant < 10 ? "line3" : "line3y"
+	};
+}
+/**
+* The streaks of a list of builder calls (4 streaks a call).
+*
+* @param {number[]} variants
+* @param {function} rand
+* @return {Array<object>}
+*/
+function createVariantSets(variants, rand = randomInt$2) {
+	const streaks = [];
+	for (const variant of variants) for (let i = 0; i < 4; i++) streaks.push(createVariantStreak(variant, rand));
+	return streaks;
+}
+/**
+* Random whole number from 0 to n - 1, like the client's rand() % n
+*
+* @param {number} n
+* @return {number}
+*/
+function randomInt$2(n) {
+	return Math.floor(Math.random() * n);
+}
+/**
+* Direction from one ground point to another, in whole degrees (0..359), as
+* the client measures it: the smallest angle up to 180 whose cosine is at
+* most the x share, mirrored to 360 - angle when the other axis is negative.
+* Both points on the same spot give 180.
+*
+* @param {number} dx
+* @param {number} dy
+* @return {number}
+*/
+function streakAngle(dx, dy) {
+	const length = Math.sqrt(dx * dx + dy * dy);
+	if (!(length > 0)) return 180;
+	const c = dx / length;
+	for (let a = 0; a <= 180; a++) if (Math.cos(a * Math.PI / 180) <= c + 1e-9) return dy / length < 0 && a !== 0 ? 360 - a : a;
+	return 180;
+}
+/**
+* One streak's starting values
+*
+* @param {number} side +1 or -1
+* @param {function} rand (n) => 0..n-1
+* @return {object}
+*/
+function createStreak$1(side, rand = randomInt$2) {
+	return {
+		age: 0,
+		alpha: 0,
+		halfWidth: .5 + .1 * rand(6),
+		tint: 125 + rand(3),
+		offset: (15 + rand(11)) * side,
+		position: rand(200),
+		length: 40 + rand(31),
+		speed: 1 + .1 * rand(11)
+	};
+}
+/**
+* All streaks of effect 2442, in build (and draw) order
+*
+* @param {function} rand (n) => 0..n-1
+* @return {Array<object>} streaks, each with its set's texture key
+*/
+function createStreakSets(rand = randomInt$2) {
+	const streaks = [];
+	for (let round = 0; round < 2; round++) for (const set of SET_ORDER) for (let i = 0; i < 4; i++) {
+		const streak = createStreak$1(set.side, rand);
+		streak.texture = set.texture;
+		streaks.push(streak);
+	}
+	return streaks;
+}
+/**
+* Advance a streak by one tick
+*
+* @param {object} streak
+*/
+function stepStreak$1(streak) {
+	streak.age++;
+	const slow = streak.tint < 10;
+	if (streak.age < 11) streak.alpha += slow ? 12 : 20;
+	if (!slow) streak.speed += .05;
+	streak.position += streak.speed;
+	if (streak.position >= 200) streak.position -= 200;
+	if (streak.age > 20) streak.alpha = Math.max(0, streak.alpha - (slow ? 4 : 2));
+}
+/**
+* Advance streaks up to the given tick count (never past the lifetime)
+*
+* @param {Array<object>} streaks
+* @param {number} frame ticks done
+* @return {boolean} whether anything moved
+*/
+function advanceStreaks(streaks, frame) {
+	const target = Math.min(frame, 300);
+	let changed = false;
+	for (const streak of streaks) while (streak.age < target) {
+		stepStreak$1(streak);
+		changed = true;
+	}
+	return changed;
+}
+/**
+* Write one vertex in roBrowser's GL space
+* (x, y on the map, up above the ground; GL keeps the map plane in x/z and points y down)
+*/
+function vertex$6(out, i, center, x, y, up, u, v) {
+	out[i + 0] = center[0] + .5 + x / 5;
+	out[i + 1] = -center[2] - up / 5;
+	out[i + 2] = center[1] + .5 + y / 5;
+	out[i + 3] = u;
+	out[i + 4] = v;
+	return i + 5;
+}
+/**
+* Write one streak's quad: flat, STREAK_HEIGHT up, from position - TRACK_BACK
+* to that plus its length along the angle, offset +/- half width across
+* (across = angle - 90). U is 0 at the front end and 1 at the back;
+* V is 0 on the outer edge (offset + half width) and 1 on the inner one.
+*
+* @param {Float32Array} out
+* @param {number} o first float to write
+* @param {object} streak
+* @param {number} angle degrees
+* @param {Array} center set position, in cells
+* @return {number} next float
+*/
+function buildStreak(out, o, streak, angle, center) {
+	const a = angle * Math.PI / 180;
+	const fx = Math.cos(a), fy = Math.sin(a);
+	const ax = fy, ay = -fx;
+	const back = streak.position - 100;
+	const front = back + streak.length;
+	const outer = streak.offset + streak.halfWidth;
+	const inner = streak.offset - streak.halfWidth;
+	const p = (along, across) => [fx * along + ax * across, fy * along + ay * across];
+	const frontInner = p(front, inner);
+	const backInner = p(back, inner);
+	const backOuter = p(back, outer);
+	const frontOuter = p(front, outer);
+	const h = 6;
+	o = vertex$6(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
+	o = vertex$6(out, o, center, backInner[0], backInner[1], h, 1, 1);
+	o = vertex$6(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
+	o = vertex$6(out, o, center, frontOuter[0], frontOuter[1], h, 0, 0);
+	o = vertex$6(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
+	o = vertex$6(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
+	return o;
+}
+var STREAK_TICK_MS, SET_ORDER, TINT_GREY, TINT_COLOR;
+var init_StreakLinesSim = __esmMin((() => {
+	STREAK_TICK_MS = 1e3 / 60;
+	SET_ORDER = [
+		{
+			texture: "black",
+			side: 1
+		},
+		{
+			texture: "black",
+			side: -1
+		},
+		{
+			texture: "color",
+			side: 1
+		},
+		{
+			texture: "color",
+			side: -1
+		}
+	];
+	TINT_GREY = {
+		125: 255,
+		126: 215,
+		127: 185
+	};
+	TINT_COLOR = {
+		0: [
+			225,
+			225,
+			255
+		],
+		1: [
+			205,
+			205,
+			255
+		],
+		2: [
+			185,
+			185,
+			255
+		],
+		10: [
+			255,
+			255,
+			225
+		],
+		11: [
+			255,
+			255,
+			205
+		],
+		12: [
+			255,
+			255,
+			185
+		],
+		20: [
+			225,
+			255,
+			225
+		],
+		21: [
+			205,
+			255,
+			205
+		],
+		22: [
+			185,
+			255,
+			185
+		]
+	};
+}));
+// src/Renderer/Effects/StreakLines.js
+function loadTexture$8(gl, name) {
+	if (_textures$9.has(name)) return;
+	_textures$9.set(name, null);
+	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+		WebGL_default.texture(gl, buffer, (texture) => {
+			if (!_textures$9.has(name)) {
+				gl.deleteTexture(texture);
+				return;
+			}
+			_textures$9.set(name, texture);
+		});
+	});
+}
+var _program$11, _textures$9, StreakLines;
+var init_StreakLines = __esmMin((() => {
+	init_WebGL();
+	init_Client();
+	init_SpriteRenderer();
+	init_StreakLinesSim();
+	init_EffectPrim$2();
+	init_EffectPrim$1();
+	_program$11 = null;
+	_textures$9 = /* @__PURE__ */ new Map();
+	StreakLines = class {
+		/**
+		* @param {vec3} position caster position (copied: the sets stay where they start)
+		* @param {vec3} target target position, sets the direction once
+		* @param {number} startTick
+		* @param {object} textures texture files under data/texture/effect/ by key ({ black, color } for
+		*   Quill Spear, { line3, line3y } for the builder's variants)
+		* @param {number[]} [variants] the 2025 builder's variants (0xbdf6e0), one set of 4 streaks each;
+		*   Quill Spear's 8 sets without
+		*/
+		constructor(position, target, startTick, textures, variants) {
+			this.position = [
+				position[0],
+				position[1],
+				position[2]
+			];
+			this.angle = streakAngle(target[0] - position[0], target[1] - position[1]);
+			this.startTick = startTick || 0;
+			this.endTick = this.startTick + 300 * STREAK_TICK_MS;
+			this.textures = textures;
+			this.streaks = variants ? createVariantSets(variants) : createStreakSets();
+			this.vertices = new Float32Array(this.streaks.length * 6 * 5);
+			this.color = new Float32Array([
+				1,
+				1,
+				1,
+				1
+			]);
+		}
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			Object.values(this.textures).forEach((name) => loadTexture$8(gl, name));
+			this.ready = true;
+		}
+		free(gl) {
+			this.ready = false;
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+		}
+		render(gl, tick) {
+			if (tick < this.startTick) return;
+			if (tick > this.endTick) {
+				this.needCleanUp = true;
+				return;
+			}
+			advanceStreaks(this.streaks, Math.floor((tick - this.startTick) / STREAK_TICK_MS) + 1);
+			const streaks = this.streaks;
+			let o = 0;
+			for (const streak of streaks) o = buildStreak(this.vertices, o, streak, this.angle, this.position);
+			const attribute = _program$11.attribute;
+			const self = this;
+			SpriteRenderer.runWithDepth(true, false, false, function() {
+				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
+				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+				let bound = null;
+				for (let i = 0; i < streaks.length; i++) {
+					const streak = streaks[i];
+					const texture = _textures$9.get(self.textures[streak.texture]);
+					if (streak.alpha <= 0 || !texture) continue;
+					if (texture !== bound) {
+						gl.bindTexture(gl.TEXTURE_2D, texture);
+						bound = texture;
+					}
+					const [r, g, b] = tintColor(streak.tint);
+					self.color[0] = r / 255;
+					self.color[1] = g / 255;
+					self.color[2] = b / 255;
+					self.color[3] = streak.alpha / 255;
+					gl.uniform4fv(_program$11.uniform.uColor, self.color);
+					gl.drawArrays(gl.TRIANGLES, i * 6, 6);
+				}
+			});
+		}
+		static init(gl) {
+			_program$11 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			this.ready = true;
+			this.renderBeforeEntities = false;
+		}
+		static free(gl) {
+			if (_program$11) {
+				gl.deleteProgram(_program$11);
+				_program$11 = null;
+			}
+			for (const texture of _textures$9.values()) if (texture) gl.deleteTexture(texture);
+			_textures$9.clear();
+			this.ready = false;
+		}
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$11.uniform;
+			const attribute = _program$11.attribute;
+			gl.useProgram(_program$11);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program$11.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$11.attribute.aTextureCoord);
+		}
+	};
+}));
 // src/DB/Effects/HundredSpearEffect.js
 /**
 * The client's whole-degree heading of a vector (dx, dz): the first angle c
@@ -296789,17 +297212,19 @@ function hundredSpearAction(caster, target, cameraTurn = Camera.angle[1]) {
 	if (angle < 90) return 2;
 	return 3;
 }
-var SPRITE, hundredSpearEffect, hundredSpearDashEffect;
-var init_HundredSpearEffect = __esmMin((() => {
-	init_Camera();
-	init_Renderer();
-	init_CasterMarks();
-	init_EffectPrimSim();
-	SPRITE = "Çåµå·¹µå½ºÇÇ¾î";
-	hundredSpearEffect = [{
-		wav: "hundred",
-		attachedEntity: true
-	}, {
+/**
+* The sprite primitive of the client's builder 0xbdfcc0 as an EffectTable
+* part: the sprite stands at the target's position at launch, its action
+* picked by hundredSpearAction, a frame every `frameTicks` ticks, cut at
+* the effect's lifetime.
+*
+* @param {number} effectId
+* @param {string} file sprite under data/sprite/이팩트
+* @param {object} options frameTicks, lifeTicks, scale, alpha (0-255), loop
+* @return {object}
+*/
+function aimedSprite(effectId, file, options) {
+	return {
 		type: "FUNC",
 		attachedEntity: false,
 		func: function(Params) {
@@ -296814,12 +297239,17 @@ var init_HundredSpearEffect = __esmMin((() => {
 			this.spamEffect({
 				effect: {
 					type: "SPR",
-					file: SPRITE,
+					file,
 					frame: hundredSpearAction(caster.position, target.position),
+					delayFrame: options.frameTicks * PRIM_TICK_MS,
+					duration: options.lifeTicks * PRIM_TICK_MS,
+					repeat: !!options.loop,
+					scale: options.scale,
+					opacity: options.alpha !== void 0 ? options.alpha / 255 : void 0,
 					delayStart: Math.max(0, Params.Inst.startTick - (Renderer.tick || 0))
 				},
 				Inst: {
-					effectID: 723,
+					effectID: effectId,
 					startTick: Params.Inst.startTick
 				},
 				Init: {
@@ -296830,13 +297260,44 @@ var init_HundredSpearEffect = __esmMin((() => {
 				}
 			});
 		}
-	}];
+	};
+}
+var SPRITE, hundredSpearEffect, hundredSpearDashEffect;
+var init_HundredSpearEffect = __esmMin((() => {
+	init_Camera();
+	init_Renderer();
+	init_CasterMarks();
+	init_StreakLines();
+	init_EffectPrimSim();
+	SPRITE = "Çåµå·¹µå½ºÇÇ¾î";
+	hundredSpearEffect = [{
+		wav: "hundred",
+		attachedEntity: true
+	}, aimedSprite(723, SPRITE, {
+		frameTicks: 6,
+		lifeTicks: 100
+	})];
 	hundredSpearDashEffect = [{
 		type: "FUNC",
 		attachedEntity: true,
 		func: function(Params) {
 			Camera.setQuake(Params.Inst.startTick + 44 * PRIM_TICK_MS);
 			this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 101, 835), Params);
+			const caster = Params.Init.ownerEntity;
+			const target = Params.Init.otherEntity;
+			if (caster && target && target !== caster) this.add(new StreakLines(caster.position, target.position, Params.Inst.startTick, {
+				line3: "line3.tga",
+				line3y: "line3y.tga"
+			}, [
+				10,
+				11,
+				10,
+				11,
+				10,
+				11,
+				10,
+				11
+			]), Params);
 		}
 	}];
 }));
@@ -296930,7 +297391,7 @@ function pointHeight$1(variant, j, age) {
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$6(out, o, center, x, y, up, u, v) {
+function vertex$5(out, o, center, x, y, up, u, v) {
 	out[o + 0] = center[0] + .5 + x / 5;
 	out[o + 1] = -center[2] - up / 5;
 	out[o + 2] = center[1] + .5 + y / 5;
@@ -296972,12 +297433,12 @@ function buildRing$1(out, o, state, variant, heading, center) {
 		if (prev) {
 			const u0 = (j - 1) / 21;
 			const u1 = j / 21;
-			o = vertex$6(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-			o = vertex$6(out, o, center, point.fx, point.fy, 0, u1, 1);
-			o = vertex$6(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$6(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-			o = vertex$6(out, o, center, point.tx, point.ty, point.up, u1, 0);
-			o = vertex$6(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+			o = vertex$5(out, o, center, point.fx, point.fy, 0, u1, 1);
+			o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$5(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+			o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
+			o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 		}
 		prev = point;
 	}
@@ -297026,7 +297487,7 @@ var init_SonicWaveSim = __esmMin((() => {
 	].map((i) => simulateRing(i, variant).length)));
 }));
 // src/Renderer/Effects/SonicWave.js
-var _program$11, _textures$9, _generation$2, RINGS, SonicWave;
+var _program$10, _textures$8, _generation$2, RINGS, SonicWave;
 var init_SonicWave = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -297035,8 +297496,8 @@ var init_SonicWave = __esmMin((() => {
 	init_SonicWaveSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$11 = null;
-	_textures$9 = [null, null];
+	_program$10 = null;
+	_textures$8 = [null, null];
 	_generation$2 = 0;
 	RINGS = 4;
 	SonicWave = class {
@@ -297101,9 +297562,9 @@ var init_SonicWave = __esmMin((() => {
 				this.needCleanUp = true;
 				return;
 			}
-			const texture = _textures$9[this.variant];
+			const texture = _textures$8[this.variant];
 			if (!texture) return;
-			const attribute = _program$11.attribute;
+			const attribute = _program$10.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
@@ -297116,13 +297577,13 @@ var init_SonicWave = __esmMin((() => {
 					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 					self.color[3] = state.alpha / 255;
-					gl.uniform4fv(_program$11.uniform.uColor, self.color);
+					gl.uniform4fv(_program$10.uniform.uColor, self.color);
 					gl.drawArrays(gl.TRIANGLES, 0, end / 5);
 				}
 			});
 		}
 		static init(gl) {
-			_program$11 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
+			_program$10 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
 			const generation = ++_generation$2;
 			WAVE_TEXTURES.forEach((file, variant) => {
 				Client.loadFile(file, (buffer) => {
@@ -297131,8 +297592,8 @@ var init_SonicWave = __esmMin((() => {
 							gl.deleteTexture(texture);
 							return;
 						}
-						if (_textures$9[variant]) gl.deleteTexture(_textures$9[variant]);
-						_textures$9[variant] = texture;
+						if (_textures$8[variant]) gl.deleteTexture(_textures$8[variant]);
+						_textures$8[variant] = texture;
 					});
 				});
 			});
@@ -297141,22 +297602,22 @@ var init_SonicWave = __esmMin((() => {
 		}
 		static free(gl) {
 			_generation$2++;
-			if (_program$11) {
-				gl.deleteProgram(_program$11);
-				_program$11 = null;
+			if (_program$10) {
+				gl.deleteProgram(_program$10);
+				_program$10 = null;
 			}
-			_textures$9.forEach((texture, variant) => {
+			_textures$8.forEach((texture, variant) => {
 				if (texture) {
 					gl.deleteTexture(texture);
-					_textures$9[variant] = null;
+					_textures$8[variant] = null;
 				}
 			});
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$11.uniform;
-			const attribute = _program$11.attribute;
-			gl.useProgram(_program$11);
+			const uniform = _program$10.uniform;
+			const attribute = _program$10.attribute;
+			gl.useProgram(_program$10);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -297170,8 +297631,8 @@ var init_SonicWave = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$11.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$11.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$10.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$10.attribute.aTextureCoord);
 		}
 	};
 }));
@@ -297843,7 +298304,7 @@ function carrotBeatSize(level) {
 */
 function planCarrots(level, random = Math.random) {
 	const n = carrotBeatSize(level);
-	const span = n * UNITS_PER_CELL$2;
+	const span = n * UNITS_PER_CELL$1;
 	const half = Math.floor(span / 2);
 	const step = Math.trunc(105 / (2 * n));
 	const carrots = [];
@@ -297851,8 +298312,8 @@ function planCarrots(level, random = Math.random) {
 		const x = Math.floor(random() * span) - half;
 		const y = Math.floor(random() * span) - half;
 		carrots.push({
-			x: x / UNITS_PER_CELL$2,
-			y: y / UNITS_PER_CELL$2,
+			x: x / UNITS_PER_CELL$1,
+			y: y / UNITS_PER_CELL$1,
 			delay: i * step
 		});
 	}
@@ -297912,12 +298373,12 @@ function carrot(opacity) {
 		}
 	}];
 }
-var TICK_MS, UNITS_PER_CELL$2, carrotBeatEffects;
+var TICK_MS, UNITS_PER_CELL$1, carrotBeatEffects;
 var init_CarrotBeatEffect = __esmMin((() => {
 	init_Camera();
 	init_Events();
 	TICK_MS = 1e3 / 60;
-	UNITS_PER_CELL$2 = 5;
+	UNITS_PER_CELL$1 = 5;
 	carrotBeatEffects = {
 		ef_su_lunaticcarrotbeat: [carrotShower("ef_su_lunaticcarrotbeat_carrot")],
 		ef_su_lunaticcarrotbeat_carrot: carrot(100 / 255),
@@ -298176,7 +298637,7 @@ function stepRing(ring) {
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
 */
-function vertex$5(out, i, center, x, y, up, u, v) {
+function vertex$4(out, i, center, x, y, up, u, v) {
 	out[i + 0] = center[0] + .5 + x / 5;
 	out[i + 1] = -center[2] - up / 5;
 	out[i + 2] = center[1] + .5 + y / 5;
@@ -298213,12 +298674,12 @@ function buildRing(out, ring, center) {
 			if (prev) {
 				const u0 = (j - 1) / 21;
 				const u1 = j / 21;
-				o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
-				o = vertex$5(out, o, center, point.fx, point.fy, 0, u1, 1);
-				o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$5(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
-				o = vertex$5(out, o, center, point.tx, point.ty, point.up, u1, 0);
-				o = vertex$5(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex$4(out, o, center, prev.fx, prev.fy, 0, u0, 1);
+				o = vertex$4(out, o, center, point.fx, point.fy, 0, u1, 1);
+				o = vertex$4(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex$4(out, o, center, prev.tx, prev.ty, prev.up, u0, 0);
+				o = vertex$4(out, o, center, point.tx, point.ty, point.up, u1, 0);
+				o = vertex$4(out, o, center, prev.fx, prev.fy, 0, u0, 1);
 			}
 			prev = point;
 		}
@@ -298458,20 +298919,20 @@ var init_CastRingSim = __esmMin((() => {
 	];
 }));
 // src/Renderer/Effects/CastRing.js
-function loadTexture$8(gl, name) {
-	if (_textures$8.has(name)) return;
-	_textures$8.set(name, null);
+function loadTexture$7(gl, name) {
+	if (_textures$7.has(name)) return;
+	_textures$7.set(name, null);
 	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
 		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$8.has(name)) {
+			if (!_textures$7.has(name)) {
 				gl.deleteTexture(texture);
 				return;
 			}
-			_textures$8.set(name, texture);
+			_textures$7.set(name, texture);
 		});
 	});
 }
-var _program$10, _textures$8, SIZES, CastRing;
+var _program$9, _textures$7, SIZES, CastRing;
 var init_CastRing = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -298479,8 +298940,8 @@ var init_CastRing = __esmMin((() => {
 	init_CastRingSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	_program$10 = null;
-	_textures$8 = /* @__PURE__ */ new Map();
+	_program$9 = null;
+	_textures$7 = /* @__PURE__ */ new Map();
 	SIZES = [45, 25];
 	CastRing = class {
 		/**
@@ -298489,17 +298950,22 @@ var init_CastRing = __esmMin((() => {
 		* @param {number} castTime cast time, ms
 		* @param {string} texture file under data/texture/effect/
 		* @param {number[]} args the size-45 ring's argument, then the size-25 ring's
-		* @param {boolean} [cycle] build the colour-cycling twin (client primitive 139)
+		* @param {boolean|object} [cycle] build the colour-cycling twin (client primitive 139); or options:
+		*   { cycle, sizes: the rings' sizes (default 45 and 25), textures: one file per ring (default `texture`
+		*   for all), castTimeOnly: live castTime / 16 ticks,
+		*   without the 56-tick minimum (an effect that does not raise its own lifetime) }
 		*/
 		constructor(position, startTick, castTime, texture, args, cycle = false) {
+			const options = typeof cycle === "object" && cycle ? cycle : { cycle };
 			this.position = position;
 			this.startTick = startTick || 0;
-			this.frames = ringFrames(castTime);
+			this.frames = options.castTimeOnly ? Math.max(1, Math.floor((castTime || 0) / 16)) : ringFrames(castTime);
 			this.endTick = this.startTick + this.frames * PRIM_TICK_MS;
 			this.texture = texture;
+			this.textures = options.textures || null;
 			this.ticks = 0;
-			this.rings = SIZES.map((size, i) => ({
-				sim: createRing(size, args[i], this.frames, cycle),
+			this.rings = (options.sizes || SIZES).map((size, i) => ({
+				sim: createRing(size, args[i], this.frames, !!options.cycle),
 				vertices: new Float32Array(RING_VERTICES$1 * 5),
 				color: /* @__PURE__ */ new Float32Array(4),
 				buffer: null
@@ -298507,7 +298973,7 @@ var init_CastRing = __esmMin((() => {
 		}
 		init(gl) {
 			for (const ring of this.rings) ring.buffer = gl.createBuffer();
-			loadTexture$8(gl, this.texture);
+			(this.textures || [this.texture]).forEach((name) => loadTexture$7(gl, name));
 			this.ready = true;
 		}
 		free(gl) {
@@ -298528,13 +298994,13 @@ var init_CastRing = __esmMin((() => {
 				for (const ring of this.rings) stepRing(ring.sim);
 				this.ticks++;
 			}
-			const texture = _textures$8.get(this.texture);
-			if (!texture) return;
-			const attribute = _program$10.attribute;
+			const textures = (this.textures || this.rings.map(() => this.texture)).map((name) => _textures$7.get(name));
+			if (textures.some((texture) => !texture)) return;
+			const attribute = _program$9.attribute;
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
-				gl.bindTexture(gl.TEXTURE_2D, texture);
-				for (const ring of self.rings) {
+				self.rings.forEach((ring, i) => {
+					gl.bindTexture(gl.TEXTURE_2D, textures[i]);
 					buildRing(ring.vertices, ring.sim, self.position);
 					gl.bindBuffer(gl.ARRAY_BUFFER, ring.buffer);
 					gl.bufferData(gl.ARRAY_BUFFER, ring.vertices, gl.DYNAMIC_DRAW);
@@ -298549,310 +299015,11 @@ var init_CastRing = __esmMin((() => {
 						const alpha = Math.min(255, band.alpha);
 						if (alpha <= 0) return;
 						ring.color[3] = alpha / 255;
-						gl.uniform4fv(_program$10.uniform.uColor, ring.color);
+						gl.uniform4fv(_program$9.uniform.uColor, ring.color);
 						gl.drawArrays(gl.TRIANGLES, b * 20 * 6, 120);
 					});
-				}
+				});
 				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			});
-		}
-		static init(gl) {
-			_program$10 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
-			this.ready = true;
-			this.renderBeforeEntities = false;
-		}
-		static free(gl) {
-			if (_program$10) {
-				gl.deleteProgram(_program$10);
-				_program$10 = null;
-			}
-			for (const texture of _textures$8.values()) if (texture) gl.deleteTexture(texture);
-			_textures$8.clear();
-			this.ready = false;
-		}
-		static beforeRender(gl, modelView, projection, fog) {
-			const uniform = _program$10.uniform;
-			const attribute = _program$10.attribute;
-			gl.useProgram(_program$10);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-			gl.uniform1f(uniform.uFogNear, fog.near);
-			gl.uniform1f(uniform.uFogFar, fog.far);
-			gl.uniform3fv(uniform.uFogColor, fog.color);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.uniform1i(uniform.uDiffuse, 0);
-			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
-		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$10.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$10.attribute.aTextureCoord);
-		}
-	};
-}));
-// src/Renderer/Effects/StreakLinesSim.js
-/**
-* Random whole number from 0 to n - 1, like the client's rand() % n
-*
-* @param {number} n
-* @return {number}
-*/
-function randomInt$2(n) {
-	return Math.floor(Math.random() * n);
-}
-/**
-* Direction from one ground point to another, in whole degrees (0..359), as
-* the client measures it: the smallest angle up to 180 whose cosine is at
-* most the x share, mirrored to 360 - angle when the other axis is negative.
-* Both points on the same spot give 180.
-*
-* @param {number} dx
-* @param {number} dy
-* @return {number}
-*/
-function streakAngle(dx, dy) {
-	const length = Math.sqrt(dx * dx + dy * dy);
-	if (!(length > 0)) return 180;
-	const c = dx / length;
-	for (let a = 0; a <= 180; a++) if (Math.cos(a * Math.PI / 180) <= c + 1e-9) return dy / length < 0 && a !== 0 ? 360 - a : a;
-	return 180;
-}
-/**
-* One streak's starting values
-*
-* @param {number} side +1 or -1
-* @param {function} rand (n) => 0..n-1
-* @return {object}
-*/
-function createStreak$1(side, rand = randomInt$2) {
-	return {
-		age: 0,
-		alpha: 0,
-		halfWidth: .5 + .1 * rand(6),
-		tint: 125 + rand(3),
-		offset: (15 + rand(11)) * side,
-		position: rand(200),
-		length: 40 + rand(31),
-		speed: 1 + .1 * rand(11)
-	};
-}
-/**
-* All streaks of effect 2442, in build (and draw) order
-*
-* @param {function} rand (n) => 0..n-1
-* @return {Array<object>} streaks, each with its set's texture key
-*/
-function createStreakSets(rand = randomInt$2) {
-	const streaks = [];
-	for (let round = 0; round < 2; round++) for (const set of SET_ORDER) for (let i = 0; i < 4; i++) {
-		const streak = createStreak$1(set.side, rand);
-		streak.texture = set.texture;
-		streaks.push(streak);
-	}
-	return streaks;
-}
-/**
-* Advance a streak by one tick
-*
-* @param {object} streak
-*/
-function stepStreak$1(streak) {
-	streak.age++;
-	if (streak.age < 11) streak.alpha += 20;
-	streak.speed += .05;
-	streak.position += streak.speed;
-	if (streak.position >= 200) streak.position -= 200;
-	if (streak.age > 20) streak.alpha = Math.max(0, streak.alpha - 2);
-}
-/**
-* Advance streaks up to the given tick count (never past the lifetime)
-*
-* @param {Array<object>} streaks
-* @param {number} frame ticks done
-* @return {boolean} whether anything moved
-*/
-function advanceStreaks(streaks, frame) {
-	const target = Math.min(frame, 300);
-	let changed = false;
-	for (const streak of streaks) while (streak.age < target) {
-		stepStreak$1(streak);
-		changed = true;
-	}
-	return changed;
-}
-/**
-* Write one vertex in roBrowser's GL space
-* (x, y on the map, up above the ground; GL keeps the map plane in x/z and points y down)
-*/
-function vertex$4(out, i, center, x, y, up, u, v) {
-	out[i + 0] = center[0] + .5 + x / 5;
-	out[i + 1] = -center[2] - up / 5;
-	out[i + 2] = center[1] + .5 + y / 5;
-	out[i + 3] = u;
-	out[i + 4] = v;
-	return i + 5;
-}
-/**
-* Write one streak's quad: flat, STREAK_HEIGHT up, from position - TRACK_BACK
-* to that plus its length along the angle, offset +/- half width across
-* (across = angle - 90). U is 0 at the front end and 1 at the back;
-* V is 0 on the outer edge (offset + half width) and 1 on the inner one.
-*
-* @param {Float32Array} out
-* @param {number} o first float to write
-* @param {object} streak
-* @param {number} angle degrees
-* @param {Array} center set position, in cells
-* @return {number} next float
-*/
-function buildStreak(out, o, streak, angle, center) {
-	const a = angle * Math.PI / 180;
-	const fx = Math.cos(a), fy = Math.sin(a);
-	const ax = fy, ay = -fx;
-	const back = streak.position - 100;
-	const front = back + streak.length;
-	const outer = streak.offset + streak.halfWidth;
-	const inner = streak.offset - streak.halfWidth;
-	const p = (along, across) => [fx * along + ax * across, fy * along + ay * across];
-	const frontInner = p(front, inner);
-	const backInner = p(back, inner);
-	const backOuter = p(back, outer);
-	const frontOuter = p(front, outer);
-	const h = 6;
-	o = vertex$4(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
-	o = vertex$4(out, o, center, backInner[0], backInner[1], h, 1, 1);
-	o = vertex$4(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
-	o = vertex$4(out, o, center, frontOuter[0], frontOuter[1], h, 0, 0);
-	o = vertex$4(out, o, center, backOuter[0], backOuter[1], h, 1, 0);
-	o = vertex$4(out, o, center, frontInner[0], frontInner[1], h, 0, 1);
-	return o;
-}
-var STREAK_TICK_MS, SET_ORDER, TINT_GREY;
-var init_StreakLinesSim = __esmMin((() => {
-	STREAK_TICK_MS = 1e3 / 60;
-	SET_ORDER = [
-		{
-			texture: "black",
-			side: 1
-		},
-		{
-			texture: "black",
-			side: -1
-		},
-		{
-			texture: "color",
-			side: 1
-		},
-		{
-			texture: "color",
-			side: -1
-		}
-	];
-	TINT_GREY = {
-		125: 255,
-		126: 215,
-		127: 185
-	};
-}));
-// src/Renderer/Effects/StreakLines.js
-function loadTexture$7(gl, name) {
-	if (_textures$7.has(name)) return;
-	_textures$7.set(name, null);
-	Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
-		WebGL_default.texture(gl, buffer, (texture) => {
-			if (!_textures$7.has(name)) {
-				gl.deleteTexture(texture);
-				return;
-			}
-			_textures$7.set(name, texture);
-		});
-	});
-}
-var _program$9, _textures$7, StreakLines;
-var init_StreakLines = __esmMin((() => {
-	init_WebGL();
-	init_Client();
-	init_SpriteRenderer();
-	init_StreakLinesSim();
-	init_EffectPrim$2();
-	init_EffectPrim$1();
-	_program$9 = null;
-	_textures$7 = /* @__PURE__ */ new Map();
-	StreakLines = class {
-		/**
-		* @param {vec3} position caster position (copied: the sets stay where they start)
-		* @param {vec3} target target position, sets the direction once
-		* @param {number} startTick
-		* @param {object} textures { black, color } files under data/texture/effect/
-		*/
-		constructor(position, target, startTick, textures) {
-			this.position = [
-				position[0],
-				position[1],
-				position[2]
-			];
-			this.angle = streakAngle(target[0] - position[0], target[1] - position[1]);
-			this.startTick = startTick || 0;
-			this.endTick = this.startTick + 300 * STREAK_TICK_MS;
-			this.textures = textures;
-			this.streaks = createStreakSets();
-			this.vertices = new Float32Array(this.streaks.length * 6 * 5);
-			this.color = new Float32Array([
-				1,
-				1,
-				1,
-				1
-			]);
-		}
-		init(gl) {
-			this.buffer = gl.createBuffer();
-			loadTexture$7(gl, this.textures.black);
-			loadTexture$7(gl, this.textures.color);
-			this.ready = true;
-		}
-		free(gl) {
-			this.ready = false;
-			if (this.buffer) {
-				gl.deleteBuffer(this.buffer);
-				this.buffer = null;
-			}
-		}
-		render(gl, tick) {
-			if (tick < this.startTick) return;
-			if (tick > this.endTick) {
-				this.needCleanUp = true;
-				return;
-			}
-			advanceStreaks(this.streaks, Math.floor((tick - this.startTick) / STREAK_TICK_MS) + 1);
-			const streaks = this.streaks;
-			let o = 0;
-			for (const streak of streaks) o = buildStreak(this.vertices, o, streak, this.angle, this.position);
-			const attribute = _program$9.attribute;
-			const self = this;
-			SpriteRenderer.runWithDepth(true, false, false, function() {
-				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-				gl.bufferData(gl.ARRAY_BUFFER, self.vertices, gl.DYNAMIC_DRAW);
-				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
-				let bound = null;
-				for (let i = 0; i < streaks.length; i++) {
-					const streak = streaks[i];
-					const texture = _textures$7.get(self.textures[streak.texture]);
-					if (streak.alpha <= 0 || !texture) continue;
-					if (texture !== bound) {
-						gl.bindTexture(gl.TEXTURE_2D, texture);
-						bound = texture;
-					}
-					const grey = TINT_GREY[streak.tint] / 255;
-					self.color[0] = grey;
-					self.color[1] = grey;
-					self.color[2] = grey;
-					self.color[3] = streak.alpha / 255;
-					gl.uniform4fv(_program$9.uniform.uColor, self.color);
-					gl.drawArrays(gl.TRIANGLES, i * 6, 6);
-				}
 			});
 		}
 		static init(gl) {
@@ -302711,7 +302878,24 @@ var init_IceSpikesSim = __esmMin((() => {
 	];
 }));
 // src/Renderer/Effects/IceSpikes.js
-var TEXTURE$1, _program$3, _texture$1, _loading$1, _generation, IceSpikes;
+/**
+* The flickering colour of a glowing spike: red and green 40-50, blue 255
+* (the client's ((r(11) << 8) + r(11)) << 8, minus 0xd7d701, as ARGB).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {number[]} [r, g, b]
+*/
+function glowColor(random = Math.random) {
+	const a = Math.floor(random() * 11);
+	const b = Math.floor(random() * 11);
+	const c = ((a << 8) + b << 8) - 14145281;
+	return [
+		c >> 16 & 255,
+		c >> 8 & 255,
+		c & 255
+	];
+}
+var TEXTURE$1, _program$3, _fogColor, BLACK, _texture$1, _loading$1, _generation, IceSpikes;
 var init_IceSpikes = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -302721,6 +302905,12 @@ var init_IceSpikes = __esmMin((() => {
 	init_EffectPrim$1();
 	TEXTURE$1 = "ice.tga";
 	_program$3 = null;
+	_fogColor = null;
+	BLACK = new Float32Array([
+		0,
+		0,
+		0
+	]);
 	_texture$1 = null;
 	_loading$1 = false;
 	_generation = 0;
@@ -302730,11 +302920,14 @@ var init_IceSpikes = __esmMin((() => {
 		* @param {number} startTick
 		* @param {Array} spikes from planPath or planShards
 		* @param {number} life effect lifetime in ticks
+		* @param {object} [options] glow: drawn adding light in a flickering deep blue (Jack Frost's 801,
+		*   the builder's variant 3)
 		*/
-		constructor(position, startTick, spikes, life) {
+		constructor(position, startTick, spikes, life, options = {}) {
 			this.position = position;
 			this.startTick = startTick || 0;
 			this.spikes = spikes;
+			this.glow = !!options.glow;
 			this.endTick = this.startTick + life * PRIM_TICK_MS;
 			this.vertices = /* @__PURE__ */ new Float32Array(60);
 			this.color = new Float32Array([
@@ -302778,6 +302971,14 @@ var init_IceSpikes = __esmMin((() => {
 			const frame = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
 			const attribute = _program$3.attribute;
 			const self = this;
+			if (this.glow) {
+				const [r, g, b] = glowColor();
+				this.color[0] = r / 255;
+				this.color[1] = g / 255;
+				this.color[2] = b / 255;
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+				gl.uniform3fv(_program$3.uniform.uFogColor, BLACK);
+			}
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
 				gl.bindTexture(gl.TEXTURE_2D, _texture$1);
@@ -302793,6 +302994,10 @@ var init_IceSpikes = __esmMin((() => {
 					gl.drawArrays(gl.TRIANGLES, 0, 12);
 				});
 			});
+			if (this.glow) {
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+				if (_fogColor) gl.uniform3fv(_program$3.uniform.uFogColor, _fogColor);
+			}
 		}
 		static init(gl) {
 			_program$3 = WebGL_default.createShaderProgram(gl, EffectPrim_default$1, EffectPrim_default);
@@ -302822,6 +303027,7 @@ var init_IceSpikes = __esmMin((() => {
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
+			_fogColor = fog.color;
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
@@ -303194,6 +303400,146 @@ var init_FacingTurn = __esmMin((() => {
 		}
 	};
 }));
+// src/DB/Effects/SightEffect.js
+/**
+* The orbit point of a pair spawned on cycle tick `age`.
+*
+* @param {number} age even tick of the cycle
+* @return {{x: number, y: number}} cells from the actor
+*/
+function orbitPoint(age) {
+	const a = -5 * age * Math.PI / 180;
+	return {
+		x: 15 * Math.sin(a) / 5,
+		y: -15 * Math.cos(a) / 5
+	};
+}
+/**
+* The sight sprite on its tick `t` (0 on the first).
+*
+* @param {number} t
+* @return {{up: number, scale: number, alpha: number}|null} up in client units, alpha 0-255
+*/
+function sightAt(t) {
+	if (t >= 20) return null;
+	return {
+		up: 20 - .1 * t,
+		scale: 2.5 - .1 * t,
+		alpha: Math.max(0, 150 - 3 * t)
+	};
+}
+/**
+* The shadow on its tick `t`.
+*
+* @param {number} t
+* @return {{scale: number, alpha: number}|null}
+*/
+function shadowAt(t) {
+	if (t >= 20) return null;
+	return {
+		scale: 1.5 - .06 * t,
+		alpha: Math.max(0, 120 - t)
+	};
+}
+function sightSprite(point) {
+	return {
+		type: "3D",
+		spriteName: "sight",
+		attachedEntity: true,
+		alphaMax: 1,
+		blendMode: 8,
+		playSprite: true,
+		sprDelay: 3 * PRIM_TICK_MS,
+		duration: 20 * PRIM_TICK_MS,
+		track(t) {
+			const s = sightAt(t);
+			return s && {
+				x: point.x,
+				y: point.y,
+				z: s.up / 5,
+				size: s.scale * 100,
+				alpha: s.alpha / 255
+			};
+		}
+	};
+}
+function shadowSprite(point) {
+	return {
+		type: "3D",
+		shadowTexture: true,
+		attachedEntity: true,
+		alphaMax: 1,
+		blendMode: 8,
+		playSprite: true,
+		sprDelay: 2 * PRIM_TICK_MS,
+		duration: 20 * PRIM_TICK_MS,
+		track(t) {
+			const s = shadowAt(t);
+			return s && {
+				x: point.x,
+				y: point.y,
+				size: s.scale * 100,
+				alpha: s.alpha / 255
+			};
+		}
+	};
+}
+var SightEmitter, sightEffect;
+var init_SightEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	SightEmitter = class {
+		static ready = true;
+		static renderBeforeEntities = true;
+		static beforeRender() {}
+		static afterRender() {}
+		/**
+		* @param {object} manager EffectManager
+		* @param {object} Params the effect's params
+		*/
+		constructor(manager, Params) {
+			this.manager = manager;
+			this.Params = Params;
+			this.startTick = Params.Inst.startTick;
+			this.next = 0;
+			this.ready = true;
+		}
+		/**
+		* Spawn every pair due by `tick`.
+		*
+		* @param {number} tick
+		*/
+		emit(tick) {
+			while (this.next < 600 && this.startTick + (this.next + 20) * 16.666666666666668 <= tick) this.next += 2;
+			while (this.next < 600 && this.startTick + this.next * 16.666666666666668 <= tick) {
+				const point = orbitPoint(this.next % 270);
+				const startTick = this.startTick + this.next * PRIM_TICK_MS;
+				[sightSprite(point), shadowSprite(point)].forEach((effect, i) => {
+					this.manager.spamEffect({
+						effect,
+						Inst: {
+							effectID: 22,
+							duplicateID: this.next + i,
+							startTick
+						},
+						Init: this.Params.Init
+					});
+				});
+				this.next += 2;
+			}
+			if (this.next >= 600) this.needCleanUp = true;
+		}
+		render(gl, tick) {
+			this.emit(tick);
+		}
+	};
+	sightEffect = [{
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			this.add(new SightEmitter(this, Params), Params);
+		}
+	}, { wav: "effect/ef_sight" }];
+}));
 // src/DB/Effects/JackFrostEffect.js
 /**
 * The three shards of one damage packet.
@@ -303241,7 +303587,7 @@ var init_JackFrostEffect = __esmMin((() => {
 }));
 // src/DB/Effects/EffectTable.js
 var EffectTable_exports = /* @__PURE__ */ __exportAll({ default: () => EffectTable_default });
-var ServiceEffects, getBragiSpellNote, DissonanceEffects, LullabyEffects, MrKimEffects, EtChaosEffects, DrumEffects, NibelungEffects, LokiEffects, AbyssEffects, SiegfiedEffects, WhistleEffects, SinEffects, AppleEffects, UglyEffects, HummingEffects, ForgetEffects, FortuneEffects, GospelEffects, FogEffects, GravityEffects, EvillandEffects, EffectTable_default;
+var STREAK_LINE3, ServiceEffects, getBragiSpellNote, DissonanceEffects, LullabyEffects, MrKimEffects, EtChaosEffects, DrumEffects, NibelungEffects, LokiEffects, AbyssEffects, SiegfiedEffects, WhistleEffects, SinEffects, AppleEffects, UglyEffects, HummingEffects, ForgetEffects, FortuneEffects, GospelEffects, FogEffects, GravityEffects, EvillandEffects, EffectTable_default;
 var init_EffectTable = __esmMin((() => {
 	init_RainWeather();
 	init_SnowWeather();
@@ -303332,6 +303678,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastFunnelSim();
 	init_BoltRain();
 	init_IceSpikes();
+	init_Map();
 	init_IceSpikesSim();
 	init_CasterMarks();
 	init_EffectPrimSim();
@@ -303340,7 +303687,12 @@ var init_EffectTable = __esmMin((() => {
 	init_Altitude();
 	init_Renderer();
 	init_ChatBox();
+	init_SightEffect();
 	init_JackFrostEffect();
+	STREAK_LINE3 = {
+		line3: "line3.tga",
+		line3y: "line3y.tga"
+	};
 	ServiceEffects = Songs_default.ServiceEffects;
 	getBragiSpellNote = Songs_default.getBragiSpellNote;
 	DissonanceEffects = Songs_default.DissonanceEffects;
@@ -304048,52 +304400,7 @@ var init_EffectTable = __esmMin((() => {
 		18: [...stealEffect],
 		20: [...poisonAttackEffect(20)],
 		21: [...detoxifyEffect],
-		22: [
-			{
-				type: "3D",
-				shadowTexture: true,
-				alphaMax: .5,
-				attachedEntity: true,
-				blendMode: 8,
-				duration: 12200,
-				duplicate: 10,
-				timeBetweenDupli: 0,
-				nbOfRotation: 10,
-				posx: -2,
-				posz: 4,
-				playSprite: true,
-				rotateLate: .9,
-				rotateLateDelta: -.1,
-				rotatePosX: 3,
-				rotatePosY: 3,
-				rotationClockwise: true,
-				size: 30,
-				sizeDelta: 10
-			},
-			{
-				type: "3D",
-				spriteName: "sight",
-				alphaMax: 123 / 255,
-				alphaMaxDelta: 3 / 255,
-				attachedEntity: true,
-				blendMode: 8,
-				duration: 12200,
-				duplicate: 10,
-				timeBetweenDupli: 0,
-				nbOfRotation: 10,
-				posx: -2,
-				posz: 4,
-				playSprite: true,
-				rotateLate: .9,
-				rotateLateDelta: -.1,
-				rotatePosX: 3,
-				rotatePosY: 3,
-				rotationClockwise: true,
-				size: 60,
-				sizeDelta: 20
-			},
-			{ wav: "effect/ef_sight" }
-		],
+		22: sightEffect,
 		23: [{
 			type: "STR",
 			file: "stonecurse",
@@ -304527,23 +304834,24 @@ var init_EffectTable = __esmMin((() => {
 				zIndex: 1
 			},
 			{
-				alphaMax: .3,
-				attachedEntity: false,
-				blendMode: 2,
-				blue: 1,
+				type: "PRIM",
+				prim: "ring",
+				texture: "alpha_down",
+				attachedEntity: true,
 				duration: 2500,
-				fadeIn: true,
-				fadeOut: true,
-				file: "effect/pok2.tga",
-				green: .75,
-				posx: 0,
-				posy: 0,
-				posz: 0,
-				red: .1,
-				size: 140,
-				type: "3D",
-				wav: "effect/ef_blessing",
-				zIndex: 10
+				frames: 150,
+				radius: 10,
+				width: 10,
+				color: [
+					32,
+					176,
+					232
+				],
+				alpha: 0,
+				alphaSpeed: 100 / 30,
+				alphaMax: 100,
+				fadeOutFrame: 120,
+				wav: "effect/ef_blessing"
 			}
 		],
 		43: [{
@@ -306315,6 +306623,12 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		130: [{
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				this.remove(null, Params.Init.ownerAID, 130);
+			}
+		}, {
 			type: "STR",
 			file: "twohand",
 			wav: "effect/knight_twohandquicken",
@@ -308072,7 +308386,13 @@ var init_EffectTable = __esmMin((() => {
 			rotateToTarget: true,
 			rotateWithCamera: true
 		}],
-		267: [{ wav: "effect/mon_Ä§Åõ°æ" }],
+		267: [{ wav: "effect/mon_Ä§Åõ°æ" }, aimedSprite(267, "Ä§Åõ°æ_", {
+			frameTicks: 2,
+			lifeTicks: 16,
+			scale: 2.5,
+			alpha: 200,
+			loop: true
+		})],
 		268: [{
 			type: "STR",
 			file: "steal_coin",
@@ -310203,6 +310523,13 @@ var init_EffectTable = __esmMin((() => {
 		367: [{
 			wav: "effect/¿À¶ó ºí·¹ÀÌµå",
 			attachedEntity: true
+		}, {
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				if (!Params.Init.ownerEntity) return;
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, 960, "ring_white.tga", [22, 22], { textures: ["ring_white.tga", "ring_yellow.tga"] }), Params);
+			}
 		}],
 		368: [{
 			wav: "effect/¹ö¼­Å©",
@@ -313550,6 +313877,23 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ÇÇ¾î½Ì¼¦",
 			delayWav: 467,
 			attachedEntity: true
+		}, {
+			type: "FUNC",
+			func: function(Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!caster || !target || target === caster) return;
+				this.add(new StreakLines(caster.position, target.position, Params.Inst.startTick, STREAK_LINE3, [
+					20,
+					21,
+					20,
+					21,
+					20,
+					21,
+					20,
+					21
+				]), Params);
+			}
 		}],
 		624: [{
 			wav: "effect/t_¹Ù¶÷¹æÃâ",
@@ -315403,6 +315747,16 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "powerswing",
 			attachedEntity: true
+		}],
+		797: [{
+			type: "SPR",
+			completeFile: "data/sprite/¸ó½ºÅÍ/stapo",
+			frame: [0, 1],
+			delayFrame: 4 * (1e3 / 60),
+			yOffset: -56,
+			stackable: true,
+			attachedEntity: true,
+			wav: "effect/wl_siennaexecrate"
 		}],
 		799: [{ wav: "effect/wl_stasis" }],
 		802: [
@@ -319066,51 +319420,22 @@ var init_EffectTable = __esmMin((() => {
 			wav: "jack_frost",
 			attachedEntity: true
 		}, {
-			type: "TRAIL",
-			attachedEntity: false,
-			duration: 1e3,
-			speed: 24,
-			interval: 34,
-			startOffset: 1,
-			angles: [
-				0,
-				45,
-				90,
-				135,
-				180,
-				225,
-				270,
-				315
-			],
-			spread: [.1, .4],
-			spawn: [{
-				type: "QuadHorn",
-				textureFile: "effect/ice.tga",
-				attachedEntity: false,
-				duration: 670,
-				height: [.2, 1.8],
-				offsetX: 0,
-				offsetY: 0,
-				offsetZ: 0,
-				bottomSize: [.06, .22],
-				blendMode: 8,
-				rotateX: [-15, 15],
-				rotateY: [0, 360],
-				color: [
-					1,
-					1,
-					1,
-					1
-				],
-				animation: 4,
-				animationSpeed: 330,
-				riseDistance: 2,
-				fadeOut: 170
-			}]
-		}],
-		ef_siennaexecrate: [{
-			wav: "effect/wl_siennaexecrate",
-			attachedEntity: true
+			type: "FUNC",
+			attachedEntity: true,
+			func: function(Params) {
+				const caster = Params.Init.ownerEntity;
+				if (!caster || Map_default.mineffect) return;
+				const at = [
+					caster.position[0],
+					caster.position[1],
+					caster.position[2]
+				];
+				for (let i = 0; i < 10; i++) {
+					const angle = (i * 36 + Math.floor(Math.random() * 36)) * Math.PI / 180;
+					const spikes = planPath(80 * Math.cos(angle), 80 * Math.sin(angle));
+					this.add(new IceSpikes(at, Params.Inst.startTick, spikes, PATH.life, { glow: true }), Params);
+				}
+			}
 		}],
 		ef_ag_deadly_projection_cast: [{
 			type: "STR",
@@ -322849,6 +323174,18 @@ var init_EffectTable = __esmMin((() => {
 			minTexturePath: "mineffect/new_hellinferno/new_hellinferno_sub_bottom/",
 			renderBeforeEntities: true,
 			attachedEntity: false
+		}],
+		1418: [{
+			type: "FUNC",
+			attachedEntity: true,
+			castLoop: true,
+			wav: "effect/ef_beginspell",
+			func: function(Params) {
+				this.add(new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, "new_comet/new_comet_cast_ring/ring_rainbow.tga", [20], {
+					sizes: [45],
+					castTimeOnly: true
+				}), Params);
+			}
 		}],
 		1415: [{
 			type: "STR",
