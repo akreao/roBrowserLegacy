@@ -22,6 +22,7 @@ import Sound from 'Audio/SoundManager.js';
 import StatusConst from 'DB/Status/StatusState.js';
 import MountTable from 'DB/Jobs/MountTable.js';
 import AllMountTable from 'DB/Jobs/AllMountTable.js';
+import JobId from 'DB/Jobs/JobConst.js';
 import Session from 'Engine/SessionStorage.js';
 import Emotions from 'DB/Emotions.js';
 
@@ -56,6 +57,40 @@ function recalculateBlendingColor() {
 		this._effectStateColor[3] *
 		this._virtueColor[3] *
 		this._flashColor[3];
+}
+
+/**
+ * Jobs whose body changes with the flying option (Star Gladiator Union).
+ */
+const FLYING_JOBS = new Set([JobId.STAR, JobId.STAR_B, JobId.SKY_EMPEROR]);
+
+/**
+ * Options that put a job on its mount body.
+ */
+const RIDING_OPTIONS =
+	StatusConst.EffectState.RIDING |
+	StatusConst.EffectState.DRAGON1 |
+	StatusConst.EffectState.DRAGON2 |
+	StatusConst.EffectState.DRAGON3 |
+	StatusConst.EffectState.DRAGON4 |
+	StatusConst.EffectState.DRAGON5 |
+	StatusConst.EffectState.WUGRIDER |
+	StatusConst.EffectState.MADOGEAR;
+
+/**
+ * Body a job takes for its mount, or Union's flying body, or 0 for none.
+ * Star Gladiators change body only with the flying option (official 0xc43b10);
+ * riding alone leaves them as they are.
+ *
+ * @param {number} job
+ * @param {number} value effect state
+ * @return {number} body id, or 0
+ */
+function mountCostume(job, value) {
+	if (FLYING_JOBS.has(job)) {
+		return value & StatusConst.EffectState.FLYING ? MountTable[job] : 0;
+	}
+	return value & RIDING_OPTIONS && job in MountTable ? MountTable[job] : 0;
 }
 
 const _stateToVirtue = {};
@@ -389,20 +424,9 @@ function updateEffectState(value) {
 	// Riding
 	// ------------------------
 
-	const RIDING =
-		StatusConst.EffectState.RIDING |
-		StatusConst.EffectState.DRAGON1 |
-		StatusConst.EffectState.DRAGON2 |
-		StatusConst.EffectState.DRAGON3 |
-		StatusConst.EffectState.DRAGON4 |
-		StatusConst.EffectState.DRAGON5 |
-		StatusConst.EffectState.WUGRIDER |
-		StatusConst.EffectState.MADOGEAR;
-
-	if (value & RIDING) {
-		if (this._job in MountTable) {
-			costume = MountTable[this._job];
-		}
+	const mount = mountCostume(this._job, value);
+	if (mount) {
+		costume = mount;
 	}
 
 	// ------------------------
