@@ -89,6 +89,9 @@ export function streakAlpha(age, streak = STREAK) {
  * @return {number}
  */
 export function streakHeight(streak, age) {
+	if (streak.rising && streak.accel) {
+		return streak.start + (streak.accel * age * (age + 1)) / 2;
+	}
 	if (streak.rising) {
 		return streak.speed * age;
 	}
@@ -127,6 +130,53 @@ export function billboardAlpha(age) {
 	return Math.max(0, (200 * (LIFE - age)) / 15);
 }
 
+/**
+ * Eternal Chaos / Loki's Veil's streaks (864, kRO 2025-07-16 builders 0xc0be80(2)
+ * and 0xc08bb0(6)): every even tick of 864's 100, one streak rising from 5 units
+ * up, faster each tick (tinted (c, c, 255), c = r(256)), and one falling from 20
+ * units up as 38's (each channel 255 one time in three, else 140); both 3 to 9
+ * units from the actor, half length 3 to 8.9, life 50.
+ *
+ * @param {function} [random] returns a number in [0, 1)
+ * @return {Array<object>}
+ */
+export function planChaosStreaks(random = Math.random) {
+	const streaks = [];
+	const place = () => {
+		const heading = (r(random, 360) * Math.PI) / 180;
+		const dist = 3 + r(random, 7);
+		return { x: Math.sin(heading) * dist, y: Math.cos(heading) * dist };
+	};
+	const shared = () => ({
+		halfLength: (30 + r(random, 60)) / 10,
+		halfWidth: STREAK.halfWidth,
+		alphaMax: 200,
+		alphaStep: 10
+	});
+	for (let i = 0; i < STREAK.count; i++) {
+		const c = r(random, 256);
+		streaks.push({
+			spawn: i * STREAK.every,
+			...place(),
+			...shared(),
+			rising: true,
+			start: 5,
+			accel: 0.015,
+			speed: 0,
+			color: [c, c, 255]
+		});
+		const channel = () => (r(random, 3) === 0 ? 255 : 140);
+		streaks.push({
+			spawn: i * STREAK.every,
+			...place(),
+			...shared(),
+			rising: false,
+			color: [channel(), channel(), channel()]
+		});
+	}
+	return streaks;
+}
+
 function streakEffect(streak) {
 	return {
 		type: '3D',
@@ -147,10 +197,27 @@ function streakEffect(streak) {
 				z: streakHeight(streak, age) / UNITS_PER_CELL,
 				sizeX: 2 * streak.halfWidth * PX,
 				sizeY: 2 * streak.halfLength * PX,
-				alpha: streakAlpha(age, streak) / 255
+				alpha: streakAlpha(age, streak) / 255,
+				color: streak.color && streak.color.map(v => v / 255)
 			};
 		}
 	};
+}
+
+/**
+ * Spawn Eternal Chaos / Loki's Veil's streaks round the actor (864).
+ *
+ * @param {object} manager EffectManager
+ * @param {object} Params the effect's params
+ */
+export function spamChaosStreaks(manager, Params) {
+	planChaosStreaks().forEach((streak, i) => {
+		manager.spamEffect({
+			effect: streakEffect(streak),
+			Inst: { effectID: 864, duplicateID: i + 1, startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS },
+			Init: Params.Init
+		});
+	});
 }
 
 function billboardEffect(effectId) {
