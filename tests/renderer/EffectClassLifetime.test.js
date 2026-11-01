@@ -112,4 +112,26 @@ describe('effect classes after a lost WebGL context', () => {
 		EffectManager.render({}, null, null, {}, 0, false);
 		assert.deepEqual({ ...counts }, { init: 2, free: 1 });
 	});
+
+	it('keeps a class with nothing on the GPU drawing', () => {
+		const { EffectManager, Renderer, list } = manager();
+		let frames = 0;
+		class Glow {
+			static ready = true;
+			static beforeRender() {}
+			static afterRender() {}
+			constructor() {
+				this.ready = true;
+			}
+			render() {
+				frames++;
+			}
+		}
+		EffectManager.add(new Glow(), {});
+		EffectManager.render({}, null, null, {}, 0, false);
+		Renderer.contextGeneration = 1;
+		EffectManager.render({}, null, null, {}, 0, false);
+		assert.equal(frames, 2);
+		assert.equal(list.Glow.length, 1);
+	});
 });

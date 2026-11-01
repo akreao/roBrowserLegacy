@@ -89,13 +89,17 @@ function resetClassesAfterContextLoss(gl) {
 	}
 	_contextGeneration = generation;
 	_classes.forEach(constructor => {
+		// A class with no static init has nothing on the GPU, and stays ready
+		if (!constructor.init) {
+			return;
+		}
 		if (constructor.free) {
 			constructor.free(gl);
 		}
 		constructor.ready = false;
 		constructor.needInit = true;
+		_classes.delete(constructor);
 	});
-	_classes.clear();
 }
 
 /**
