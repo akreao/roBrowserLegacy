@@ -32,6 +32,94 @@ const dpr = window.devicePixelRatio || 1;
 const procCanvas = document.createElement('canvas');
 const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
+/**
+ * Number textures, shared by every damage showing the same text in the same
+ * skin. A pack of monsters hit by one skill mostly takes the same few numbers,
+ * and making and uploading a texture per hit was a large part of a busy frame.
+ * A texture no damage shows any more waits among the IDLE_TEXTURES most
+ * recent before it is deleted, for the next hit to use it again.
+ *
+ * @type {Map<string, {texture: WebGLTexture, width: number, height: number, users: number}>}
+ */
+const _numberTextures = new Map();
+const IDLE_TEXTURES = 64;
+
+/**
+ * Keys of the textures no damage shows, oldest first
+ *
+ * @type {Set<string>}
+ */
+const _idleTextures = new Set();
+
+/**
+ * Renderer.contextGeneration the cached textures were made on
+ *
+ * @type {number}
+ */
+let _textureGeneration = 0;
+
+/**
+ * An id for each set of number frames, so a texture is cached by the frames
+ * it was drawn from: the skin shown, a fallback skin, or a skin loaded again
+ *
+ * @type {WeakMap<object, number>}
+ */
+const _framesIds = new WeakMap();
+let _nextFramesId = 0;
+
+/**
+ * @param {object} numbersData a skin's number frames
+ * @return {number}
+ */
+function framesId(numbersData) {
+	let id = _framesIds.get(numbersData);
+	if (id === undefined) {
+		id = ++_nextFramesId;
+		_framesIds.set(numbersData, id);
+	}
+	return id;
+}
+
+/**
+ * A damage stops showing its number texture
+ *
+ * @param {object} gl
+ * @param {Damage} damage
+ */
+function releaseNumberTexture(gl, damage) {
+	const entry = damage.textureEntry;
+	damage.textureEntry = null;
+	// An entry from before a lost context is no longer counted
+	if (!entry || _numberTextures.get(entry.key) !== entry || --entry.users > 0) {
+		return;
+	}
+	_idleTextures.add(entry.key);
+	if (_idleTextures.size > IDLE_TEXTURES) {
+		const oldest = _idleTextures.values().next().value;
+		_idleTextures.delete(oldest);
+		gl.deleteTexture(_numberTextures.get(oldest).texture);
+		_numberTextures.delete(oldest);
+	}
+}
+
+/**
+ * Delete every number texture
+ *
+ * @param {object} gl
+ */
+function freeNumberTextures(gl) {
+	_numberTextures.forEach(entry => gl.deleteTexture(entry.texture));
+	_numberTextures.clear();
+	_idleTextures.clear();
+}
+
+/**
+ * Draw the bound sprite (one function for every damage, not one a frame each)
+ */
+function renderSprite() {
+	SpriteRenderer.render();
+}
+
 let _skin = 0;
 const _damageSkins = {
 	0: {
@@ -332,6 +420,15 @@ class Damage {
 		let width = 0;
 		let height = 0;
 		const gl = Renderer.gl;
+		const textureKey = `${framesId(numbersData)}:${numbers.join(',')}`;
+
+		// Textures made before a lost context came back are gone with it
+		const generation = Renderer.contextGeneration || 0;
+		if (generation !== _textureGeneration) {
+			_textureGeneration = generation;
+			_numberTextures.clear();
+			_idleTextures.clear();
+		}
 
 		const obj = new Damage();
 
@@ -383,7 +480,6 @@ class Damage {
 			bgObj.width = msgData.critbg.canvas.width * 0.6;
 			bgObj.height = msgData.critbg.canvas.height * 0.6;
 			bgObj.offset = [0.0, -6.0];
-			bgObj.isDisposable = false;
 			_list.push(bgObj);
 
 			// Add hit effect
@@ -411,7 +507,6 @@ class Damage {
 			bgObj.width = msgBlueData.critbg.canvas.width * 0.6;
 			bgObj.height = msgBlueData.critbg.canvas.height * 0.6;
 			bgObj.offset = [0.0, -6.0];
-			bgObj.isDisposable = false;
 			_list.push(bgObj);
 		} else {
 			// white
@@ -426,57 +521,64 @@ class Damage {
 				obj.texture = msgData.miss.texture;
 				obj.width = msgData.miss.canvas.width;
 				obj.height = msgData.miss.canvas.height;
-				obj.isDisposable = false;
 				_list.push(obj);
 			}
 			return;
 		}
 
-		// Calculate canvas width and height
-		for (i = 0, count = numbers.length; i < count; ++i) {
-			frame = numbersData[numbers[i]];
-			width += frame.width + PADDING;
-			height = Math.max(height, frame.height);
+		let entry = _numberTextures.get(textureKey);
+		if (!entry) {
+			// Calculate canvas width and height
+			for (i = 0, count = numbers.length; i < count; ++i) {
+				frame = numbersData[numbers[i]];
+				width += frame.width + PADDING;
+				height = Math.max(height, frame.height);
+			}
+
+			// Set canvas size (pow of 2 for webgl).
+			const finalWidth = WebGL.toPowerOfTwo(width) * dpr;
+			const finalHeight = WebGL.toPowerOfTwo(height) * dpr;
+
+			if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight) {
+				procCanvas.width = finalWidth;
+				procCanvas.height = finalHeight;
+			} else {
+				procCtx.clearRect(0, 0, finalWidth, finalHeight);
+			}
+
+			// find where to start to get the image at the center
+			const start_x = (finalWidth - width) >> 1;
+			const start_y = (finalHeight - height) >> 1;
+
+			// build texture
+			width = 0;
+			for (i = 0, count = numbers.length; i < count; ++i) {
+				frame = numbersData[numbers[i]];
+				procCtx.drawImage(frame, start_x + width, start_y + ((height - frame.height) >> 1));
+				width += frame.width + PADDING;
+			}
+
+			const texture = gl.createTexture();
+
+			const enableMipmap = Configs.get('enableMipmap');
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			if (enableMipmap) {
+				gl.generateMipmap(gl.TEXTURE_2D);
+			}
+
+			entry = { key: textureKey, texture, width: finalWidth, height: finalHeight, users: 0 };
+			_numberTextures.set(textureKey, entry);
 		}
+		entry.users++;
+		_idleTextures.delete(textureKey);
 
-		// Set canvas size (pow of 2 for webgl).
-		const finalWidth = WebGL.toPowerOfTwo(width) * dpr;
-		const finalHeight = WebGL.toPowerOfTwo(height) * dpr;
-
-		if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight) {
-			procCanvas.width = finalWidth;
-			procCanvas.height = finalHeight;
-		} else {
-			procCtx.clearRect(0, 0, finalWidth, finalHeight);
-		}
-
-		// find where to start to get the image at the center
-		const start_x = (finalWidth - width) >> 1;
-		const start_y = (finalHeight - height) >> 1;
-
-		// build texture
-		width = 0;
-		for (i = 0, count = numbers.length; i < count; ++i) {
-			frame = numbersData[numbers[i]];
-			procCtx.drawImage(frame, start_x + width, start_y + ((height - frame.height) >> 1));
-			width += frame.width + PADDING;
-		}
-
-		const texture = gl.createTexture();
-
-		const enableMipmap = Configs.get('enableMipmap');
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		if (enableMipmap) {
-			gl.generateMipmap(gl.TEXTURE_2D);
-		}
-
-		obj.texture = texture;
-		obj.width = finalWidth;
-		obj.height = finalHeight;
-		obj.isDisposable = true;
+		obj.texture = entry.texture;
+		obj.width = entry.width;
+		obj.height = entry.height;
+		obj.textureEntry = entry;
 
 		let hitSound;
 		if (entity.objecttype === Entity.TYPE_PC) {
@@ -500,13 +602,8 @@ class Damage {
 	 * @param {object} gl context
 	 */
 	static free(gl) {
-		_list.forEach(item => {
-			if (item.isDisposable) {
-				gl.deleteTexture(item.texture);
-			}
-		});
-
 		_list.length = 0;
+		freeNumberTextures(gl);
 	}
 
 	/**
@@ -551,8 +648,8 @@ class Damage {
 
 			// Remove it from list, time passed.
 			if (damage.startTick + damage.delay < tick) {
-				if (damage.isDisposable) {
-					gl.deleteTexture(damage.texture);
+				if (damage.textureEntry) {
+					releaseNumberTexture(gl, damage);
 				}
 				_list.splice(i, 1);
 				count--;
@@ -671,9 +768,7 @@ class Damage {
 
 			SpriteRenderer.color.set(damage.color);
 			SpriteRenderer.image.texture = damage.texture;
-			SpriteRenderer.runWithDepth(false, false, true, () => {
-				SpriteRenderer.render();
-			});
+			SpriteRenderer.runWithDepth(false, false, true, renderSprite);
 		}
 
 		// Restore GL state
