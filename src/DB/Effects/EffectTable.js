@@ -133,6 +133,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import { sightEffect } from 'DB/Effects/SightEffect.js';
 import { releaseEffect } from 'DB/Effects/ReleaseEffect.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
+import { judexLightsEffect } from 'DB/Effects/JudexEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
 const getBragiSpellNote = SongEffects.getBragiSpellNote;
@@ -14433,10 +14434,13 @@ export default {
 		}
 	],
 
+	// Renovatio (AB_RENOVATIO): on the target when the use packet succeeds, which also plays AB_renovatio.wav. The client's
+	// 719 itself is a cloud11.tga cloud set (prim 66, not ported). See effect-port/arch-bishop-skills.md.
 	719: [
 		{
 			//EF_FORESTLIGHT5	   Renovatio (light beam)
-			wav: 'effect/ab_renovation'
+			wav: 'effect/ab_renovatio',
+			attachedEntity: true
 		}
 	],
 	//720: [{}],	//EF_SOULBREAKER3	   Yellow version of Soul Breaker
@@ -19701,10 +19705,30 @@ export default {
 		}
 	],
 
+	// Ancilla (AB_ANCILLA): the official client plays AB_ancilla.wav and 441 (the blue cast aura, life 60 ticks) on the
+	// target when the use packet succeeds. See effect-port/arch-bishop-skills.md.
 	ef_ancilla: [
 		{
 			wav: 'effect/ab_ancilla',
 			attachedEntity: true
+		},
+		{
+			// 441 (EF_BLUECASTING) for its client lifetime, 60 ticks
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			duration: 1000,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER'
 		}
 	],
 
@@ -25349,15 +25373,6 @@ export default {
 		}
 	],
 
-	// Secrament (AB_SECRAMENT), from the client's own effect folders.
-	ef_ab_secrament: [
-		{
-			type: 'STR',
-			file: 'new_secrament/new_secrament/new_secrament',
-			texturePath: 'new_secrament/new_secrament/'
-		}
-	],
-
 	// Vulcan Arm (NC_VULCANARM), from the client's own effect folders.
 	ef_nc_vulcanarm: [
 		{
@@ -27458,6 +27473,311 @@ export default {
 	ef_ra_sensitivekeen_sound: [
 		{
 			wav: 'were_wolf_attack',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX) cast, with 1630: on the caster for the cast time, EF_BeginSpell.wav on its first frame. See effect-port/arch-bishop-skills.md.
+	1629: [
+		{
+			//(1629): CEZ2STREffect, new_judex\\new_judex_cast_loop\\new_judex_cast_loop.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast_loop/new_judex_cast_loop',
+			texturePath: 'new_judex/new_judex_cast_loop/',
+			min: 'mineffect/new_judex/new_judex_cast_loop/new_judex_cast_loop',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast_loop/',
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX) cast floor, with 1629. See effect-port/arch-bishop-skills.md.
+	1630: [
+		{
+			//(1630): CEZ2STREffect, new_judex\\new_judex_cast_loop_bottom\\new_judex_cast_loop_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast_loop_bottom/new_judex_cast_loop_bottom',
+			texturePath: 'new_judex/new_judex_cast_loop_bottom/',
+			min: 'mineffect/new_judex/new_judex_cast_loop_bottom/new_judex_cast_loop_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast_loop_bottom/',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): on the caster as each damage packet's damage arrives, with 1628. See effect-port/arch-bishop-skills.md.
+	1627: [
+		{
+			//(1627): CEZ2STREffect, new_judex\\new_judex_cast\\new_judex_cast.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast/new_judex_cast',
+			texturePath: 'new_judex/new_judex_cast/',
+			min: 'mineffect/new_judex/new_judex_cast/new_judex_cast',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast/',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): floor of 1627. See effect-port/arch-bishop-skills.md.
+	1628: [
+		{
+			//(1628): CEZ2STREffect, new_judex\\new_judex_cast_bottom\\new_judex_cast_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_cast_bottom/new_judex_cast_bottom',
+			texturePath: 'new_judex/new_judex_cast_bottom/',
+			min: 'mineffect/new_judex/new_judex_cast_bottom/new_judex_cast_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_cast_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): on the target as each damage packet's damage arrives, with 1632. See effect-port/arch-bishop-skills.md.
+	1631: [
+		{
+			//(1631): CEZ2STREffect, new_judex\\new_judex_target\\new_judex_target.str
+			type: 'STR',
+			file: 'new_judex/new_judex_target/new_judex_target',
+			texturePath: 'new_judex/new_judex_target/',
+			min: 'mineffect/new_judex/new_judex_target/new_judex_target',
+			minTexturePath: 'mineffect/new_judex/new_judex_target/',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): floor of 1631. See effect-port/arch-bishop-skills.md.
+	1632: [
+		{
+			//(1632): CEZ2STREffect, new_judex\\new_judex_target_bottom\\new_judex_target_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_target_bottom/new_judex_target_bottom',
+			texturePath: 'new_judex/new_judex_target_bottom/',
+			min: 'mineffect/new_judex/new_judex_target_bottom/new_judex_target_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_target_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): one falling light, placed round the target by ef_ab_judex_lights. See effect-port/arch-bishop-skills.md.
+	1633: [
+		{
+			//(1633): CEZ2STREffect, new_judex\\new_judex_light\\new_judex_light.str
+			type: 'STR',
+			file: 'new_judex/new_judex_light/new_judex_light',
+			texturePath: 'new_judex/new_judex_light/',
+			min: 'mineffect/new_judex/new_judex_light/new_judex_light',
+			minTexturePath: 'mineffect/new_judex/new_judex_light/',
+			attachedEntity: false
+		}
+	],
+
+	// Judex (AB_JUDEX): floor of 1633. See effect-port/arch-bishop-skills.md.
+	1634: [
+		{
+			//(1634): CEZ2STREffect, new_judex\\new_judex_light_bottom\\new_judex_light_bottom.str
+			type: 'STR',
+			file: 'new_judex/new_judex_light_bottom/new_judex_light_bottom',
+			texturePath: 'new_judex/new_judex_light_bottom/',
+			min: 'mineffect/new_judex/new_judex_light_bottom/new_judex_light_bottom',
+			minTexturePath: 'mineffect/new_judex/new_judex_light_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: false
+		}
+	],
+
+	// Judex (AB_JUDEX): AB_judex.wav as each damage packet's damage arrives. See effect-port/arch-bishop-skills.md.
+	ef_ab_judex_sound: [
+		{
+			wav: 'effect/ab_judex',
+			attachedEntity: true
+		}
+	],
+
+	// Judex (AB_JUDEX): twelve 1633 + 1634 pairs round the target as each damage arrives (JudexEffect.js). See effect-port/arch-bishop-skills.md.
+	ef_ab_judex_lights: judexLightsEffect,
+
+	// Adoramus (AB_ADORAMUS): AB_adoramus.wav as each damage packet's damage arrives. See effect-port/arch-bishop-skills.md.
+	ef_ab_adoramus_sound: [
+		{
+			wav: 'effect/ab_adoramus',
+			attachedEntity: true
+		}
+	],
+
+	// Adoramus (AB_ADORAMUS): on the target as each damage packet's damage arrives, with 1259; 1428 under /mineffect. See effect-port/arch-bishop-skills.md.
+	1258: [
+		{
+			//(1258): CEZ2STREffect, new_adoramus\\new_adoramus\\new_adoramus.str
+			type: 'STR',
+			file: 'new_adoramus/new_adoramus/new_adoramus',
+			texturePath: 'new_adoramus/new_adoramus/',
+			min: 'mineffect/new_adoramus/new_adoramus/new_adoramus',
+			minTexturePath: 'mineffect/new_adoramus/new_adoramus/',
+			attachedEntity: true
+		}
+	],
+
+	// Adoramus (AB_ADORAMUS): floor of 1258; 1429 under /mineffect. See effect-port/arch-bishop-skills.md.
+	1259: [
+		{
+			//(1259): CEZ2STREffect, new_adoramus\\new_adoramus_bottom\\new_adoramus_bottom.str
+			type: 'STR',
+			file: 'new_adoramus/new_adoramus_bottom/new_adoramus_bottom',
+			texturePath: 'new_adoramus/new_adoramus_bottom/',
+			min: 'mineffect/new_adoramus/new_adoramus_bottom/new_adoramus_bottom',
+			minTexturePath: 'mineffect/new_adoramus/new_adoramus_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Epiclesis (AB_EPICLESIS) unit: the tree, once when the unit appears (EF_GlassWall.wav on frame 30). See effect-port/arch-bishop-skills.md.
+	1654: [
+		{
+			//(1654): CEZ2STREffect, new_epiclesis\\new_epiclesis_combine\\new_epiclesis_combine.str
+			type: 'STR',
+			file: 'new_epiclesis/new_epiclesis_combine/new_epiclesis_combine',
+			texturePath: 'new_epiclesis/new_epiclesis_combine/',
+			min: 'mineffect/new_epiclesis/new_epiclesis_combine',
+			minTexturePath: 'mineffect/new_epiclesis/',
+			wav: 'effect/ef_glasswall',
+			delayWav: 500,
+			repeat: false,
+			attachedEntity: true
+		}
+	],
+
+	// Oratio (AB_ORATIO): 725 on the caster when the use packet succeeds. The client draws it with Detect's burst helper
+	// (variant 2): priest_benedictio.wav on tick 0 and the same white fashasha.tga square as Detect (119), same timing,
+	// no tint. See effect-port/arch-bishop-skills.md.
+	725: [
+		{
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
+			wav: 'effect/priest_benedictio',
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 17,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 40
+		}
+	],
+
+	// Lauda Agnus / Lauda Ramus (AB_LAUDAAGNUS, AB_LAUDARAMUS): lauagnus.wav (data\wav) on the target on success. See effect-port/arch-bishop-skills.md.
+	ef_ab_lauda_sound: [
+		{
+			wav: 'lauagnus',
+			attachedEntity: true
+		}
+	],
+
+	// Clearance (AB_CLEARANCE) cast aura: EF_BeginSpell.wav and two cast-aura rings (builder 0xbfa8b0), size 45 and 25, both
+	// ring_white.tga, argument 22, for the cast time but at least 56 ticks. See effect-port/arch-bishop-skills.md.
+	1560: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				if (!Params.Init.ownerEntity) {
+					return;
+				}
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Math.max(Params.Init.duration || 0, (56 * 1000) / 60),
+						'ring_white.tga',
+						[22, 22]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Clearance (AB_CLEARANCE) cast: on the caster for the cast time. See effect-port/arch-bishop-skills.md.
+	1559: [
+		{
+			//(1559): CEZ2STREffect, new_clearence\\new_clearence_cast\\new_clearence_cast.str
+			type: 'STR',
+			file: 'new_clearence/new_clearence_cast/new_clearence_cast',
+			texturePath: 'new_clearence/new_clearence_cast/',
+			min: 'mineffect/new_clearence/new_clearence_cast/new_clearence_cast',
+			minTexturePath: 'mineffect/new_clearence/new_clearence_cast/',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	// Clearance (AB_CLEARANCE): on the target when the use packet succeeds, with 1558; its EZ2 sound list plays 샤프슈팅.wav and 흡기.wav on frame 0. See effect-port/arch-bishop-skills.md.
+	1557: [
+		{
+			//(1557): CEZ2STREffect, new_clearence\\new_clearence\\new_clearence.str
+			type: 'STR',
+			file: 'new_clearence/new_clearence/new_clearence',
+			texturePath: 'new_clearence/new_clearence/',
+			min: 'mineffect/new_clearence/new_clearence/new_clearence',
+			minTexturePath: 'mineffect/new_clearence/new_clearence/',
+			wav: 'effect/\xbb\xfe\xc7\xc1\xbd\xb4\xc6\xc3', // effect/샤프슈팅
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/\xc8\xed\xb1\xe2', // effect/흡기
+			attachedEntity: true
+		}
+	],
+
+	// Clearance (AB_CLEARANCE): floor of 1557. See effect-port/arch-bishop-skills.md.
+	1558: [
+		{
+			//(1558): CEZ2STREffect, new_clearence\\new_clearence_bottom\\new_clearence_bottom.str
+			type: 'STR',
+			file: 'new_clearence/new_clearence_bottom/new_clearence_bottom',
+			texturePath: 'new_clearence/new_clearence_bottom/',
+			min: 'mineffect/new_clearence/new_clearence_bottom/new_clearence_bottom',
+			minTexturePath: 'mineffect/new_clearence/new_clearence_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
+	// Expiatio (AB_EXPIATIO): 바실리카.wav when the use packet succeeds. See effect-port/arch-bishop-skills.md.
+	ef_ab_expiatio_sound: [
+		{
+			wav: 'effect/\xb9\xd9\xbd\xc7\xb8\xae\xc4\xab', // effect/바실리카
+			attachedEntity: true
+		}
+	],
+
+	// Sacrament (AB_SECRAMENT): priest_suffragium.wav on the target when the use packet succeeds. See effect-port/arch-bishop-skills.md.
+	ef_ab_secrament_sound: [
+		{
+			wav: 'effect/priest_suffragium',
+			attachedEntity: true
+		}
+	],
+
+	// Sacrament (AB_SECRAMENT): on the target when the use packet succeeds; 1453 under /mineffect. See effect-port/arch-bishop-skills.md.
+	1287: [
+		{
+			//(1287): CEZ2STREffect, new_secrament\\new_secrament\\new_secrament.str
+			type: 'STR',
+			file: 'new_secrament/new_secrament/new_secrament',
+			texturePath: 'new_secrament/new_secrament/',
+			min: 'mineffect/new_secrament/new_secrament/new_secrament',
+			minTexturePath: 'mineffect/new_secrament/new_secrament/',
 			attachedEntity: true
 		}
 	],

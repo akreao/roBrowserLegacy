@@ -1044,26 +1044,26 @@ SkillEffect[SK.GC_HALLUCINATIONWALK] = { effectId: 'ef_hallucinationwalk' }; //H
 SkillEffect[SK.GC_ROLLINGCUTTER] = { effectId: 775 }; //Rolling Cutter
 SkillEffect[SK.GC_CROSSRIPPERSLASHER] = { effectId: 'ef_gc_crossripperslasher' }; //Cross Ripper Slasher
 // AB Arch Bishop
-SkillEffect[SK.AB_JUDEX] = { effectId: 718, hitEffectId: 152 }; //Judex
-SkillEffect[SK.AB_ANCILLA] = { effectId: 'ef_ancilla' }; //Ancilla
-SkillEffect[SK.AB_ADORAMUS] = { effectId: 721 }; //Adoramus
-SkillEffect[SK.AB_CLEMENTIA] = {}; //Crementia
-SkillEffect[SK.AB_CANTO] = {}; //Canto Candidus
-SkillEffect[SK.AB_CHEAL] = { effectId: 313 }; //Coluceo Heal
-SkillEffect[SK.AB_EPICLESIS] = { effectId: 883, groundEffectId: 754 }; //Epiclesis
-SkillEffect[SK.AB_PRAEFATIO] = {}; //Praefatio
-SkillEffect[SK.AB_ORATIO] = { effectId: 755 /*effectId: 725*/ }; //Oratio
-SkillEffect[SK.AB_LAUDAAGNUS] = {}; //Lauda Agnus
-SkillEffect[SK.AB_LAUDARAMUS] = {}; //Lauda Ramus
-SkillEffect[SK.AB_RENOVATIO] = {}; //Renovatio
-SkillEffect[SK.AB_HIGHNESSHEAL] = { effectId: 325, hitEffectId: 320 }; //Highness Heal //CHECK Info shows this has magic attack.
-SkillEffect[SK.AB_CLEARANCE] = { effectId: 753 }; //Clearance
-SkillEffect[SK.AB_EXPIATIO] = {}; //Expiatio //CHECK Does this also give the buff to party members?
-SkillEffect[SK.AB_DUPLELIGHT] = { effectId: 'ef_duplelight' }; //Duple Light //CHECK Had issues adding a skill level check to make the % go higher with the skills level. Will do later.
-SkillEffect[SK.AB_DUPLELIGHT_MELEE] = {}; //Duple Light Melee
-SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = {}; //Duple Light Magic
-SkillEffect[SK.AB_SILENTIUM] = {}; //Silentium //CHECk Marked magic attack as well. Hmmmm....
-SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
+SkillEffect[SK.AB_JUDEX] = { hideCastAura: true, beginCastEffectId: [1629, 1630], arrivalEffectIdOnCaster: [1627, 1628], arrivalEffectIdOnTarget: ['ef_ab_judex_sound', 1631, 1632, 'ef_ab_judex_lights'] }; //Judex: no aura, 1629 + 1630 while casting; as each damage arrives 1627 + 1628 on the caster, AB_judex.wav, 1631 + 1632 and twelve falling lights on the target
+SkillEffect[SK.AB_ANCILLA] = { castAuraEffectId: 441, successEffectId: 'ef_ancilla' }; //Ancilla: blue cast aura; AB_ancilla.wav + 441 on the target on success
+SkillEffect[SK.AB_ADORAMUS] = { arrivalEffectIdOnTarget: ['ef_ab_adoramus_sound', 1258, 1259] }; //Adoramus: AB_adoramus.wav, 1258 + 1259 on the target as each damage arrives
+SkillEffect[SK.AB_CLEMENTIA] = { castAuraEffectId: 830, successEffectId: 42 }; //Crementia: cast aura 830; 42 (Blessing) on each target on success
+SkillEffect[SK.AB_CANTO] = { castAuraEffectId: 830, successEffectId: 37 }; //Canto Candidus: cast aura 830; 37 (Increase AGI) on each target on success
+SkillEffect[SK.AB_CHEAL] = { successEffectId: healEffectByAmount }; //Coluceo Heal: the Heal effect for the healed amount on each target on success
+SkillEffect[SK.AB_EPICLESIS] = {}; //Epiclesis: nothing from the ground packet; the unit plays 1654 (SkillUnit.js)
+SkillEffect[SK.AB_PRAEFATIO] = { castAuraEffectId: 830, successEffectId: 112 }; //Praefatio: cast aura 830; 112 (Kyrie Eleison) on each target on success
+SkillEffect[SK.AB_ORATIO] = { successEffectIdOnCaster: 725 }; //Oratio: 725 (priest_benedictio.wav, white burst) on the caster on success
+SkillEffect[SK.AB_LAUDAAGNUS] = { castAuraEffectId: 830, successEffectId: [66, 'ef_ab_lauda_sound'] }; //Lauda Agnus: cast aura 830; 66 (Cure) + lauagnus.wav on each target on success
+SkillEffect[SK.AB_LAUDARAMUS] = { castAuraEffectId: 830, successEffectId: [66, 'ef_ab_lauda_sound'] }; //Lauda Ramus: cast aura 830; 66 (Cure) + lauagnus.wav on each target on success
+SkillEffect[SK.AB_RENOVATIO] = { castAuraEffectId: 58, successEffectId: 719 }; //Renovatio: cast aura 58; AB_renovatio.wav + 719 on each target on success
+SkillEffect[SK.AB_HIGHNESSHEAL] = { successEffectId: healEffectByAmount }; //Highness Heal: the Heal effect for the healed amount on each target on success
+SkillEffect[SK.AB_CLEARANCE] = { castAuraEffectId: 1560, beginCastEffectId: 1559, successEffectId: [1557, 1558] }; //Clearance: cast aura 1560 (white rings) + 1559 while casting; 1557 + 1558 on each target on success
+SkillEffect[SK.AB_EXPIATIO] = { successEffectIdOnCaster: 'ef_ab_expiatio_sound' }; //Expiatio: 바실리카.wav on the caster on success
+SkillEffect[SK.AB_DUPLELIGHT] = { successEffectId: 'ef_duplelight' }; //Duple Light: AB_duplelight.wav on the target on success (833 not ported)
+SkillEffect[SK.AB_DUPLELIGHT_MELEE] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Melee: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
+SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = { arrivalEffectIdOnCaster: 265 }; //Duple Light Magic: 265 (blue_ivy.bmp) from the caster to the target as each damage arrives
+SkillEffect[SK.AB_SILENTIUM] = { successEffectId: 87 }; //Silentium: 87 (Lex Divina) on each target on success
+SkillEffect[SK.AB_SECRAMENT] = { castAuraEffectId: 58, successEffectId: ['ef_ab_secrament_sound', 1287] }; //Sacrament: cast aura 58; priest_suffragium.wav + 1287 on each target on success
 // RA Ranger
 SkillEffect[SK.RA_ARROWSTORM] = { arrivalEffectIdOnOtherTarget: ['ef_ra_arrowstorm_sound', 1293, 1294] }; //Arrow Storm: arrowstorm.wav + 1293, then 1294 three times (600 / 800 / 1000 ms), on each target but the caster as the damage arrives
 SkillEffect[SK.RA_FEARBREEZE] = { successEffectIdOnCaster: 1549 }; //Fear Breeze: 1549 on the caster on success
@@ -1856,7 +1856,9 @@ SkillEffect[6515 /* ABC_ABYSS_FLAME */] = {
 	effectIdOnCaster: 'ef_abc_abyss_flame_cast',
 	hitEffectId: 'ef_abc_abyss_flame_hit'
 }; //Abyss Flame
-SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
+SkillEffect[SK.AB_OFFERTORIUM] = { successEffectIdOnCaster: 1047 }; //Offertorium: 1047 on the caster on success
+SkillEffect[SK.AB_VITUPERATUM] = { castAuraEffectId: 830, successEffectId: 85 }; //Vituperatum: cast aura 830; 85 (Lex Aeterna) on each target on success
+SkillEffect[SK.AB_CONVENIO] = { castAuraEffectId: 58 }; //Convenio: cast aura 58
 SkillEffect[SK.CD_REPARATIO] = { effectId: 'ef_cd_reparatio', effectIdOnCaster: 'ef_cd_reparatio_cast' }; //Reparatio
 SkillEffect[SK.CD_MEDIALE_VOTUM] = { effectId: 'ef_cd_mediale_votum', effectIdOnCaster: 'ef_cd_mediale_votum_cast' }; //Mediale Votum
 SkillEffect[SK.CD_ARGUTUS_VITA] = { effectId: 'ef_cd_argutus_vita', effectIdOnCaster: 'ef_cd_argutus_vita_cast' }; //Argutus Vita

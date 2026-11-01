@@ -25,7 +25,6 @@ import JobId from 'DB/Jobs/JobConst.js';
 import { hitHasEffects } from 'DB/Skills/SplashHit.js';
 import { packetLaunchesSkill } from 'DB/Skills/SkillMotionEffect.js';
 import AttackEffect from 'DB/Monsters/AttackEffectTable.js';
-import Sound from 'Audio/SoundManager.js';
 import Configs from 'Core/Configs.js';
 import Events from 'Core/Events.js';
 import Guild from 'Engine/MapEngine/Guild.js';
@@ -1580,10 +1579,7 @@ function onEntityUseSkill(pkt) {
 		// In healing skill, the level parameter stored the healed value
 		if (pkt.SKID === SkillId.AL_HEAL || pkt.SKID === SkillId.AB_HIGHNESSHEAL || pkt.SKID === SkillId.AB_CHEAL) {
 			Damage.add(pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL);
-			// Heal's effect plays the sound itself, as in the official client
-			if (pkt.SKID !== SkillId.AL_HEAL) {
-				Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
-			}
+			// The heal effect (SkillEffect successEffectId) plays the sound itself, as in the official client
 		}
 
 		// Steal Coin zeny
@@ -2058,7 +2054,7 @@ function onEntityCastCancel(pkt) {
 		entity.cast.clean();
 
 		// Cancel effects
-		EffectManager.remove(null, entity.GID, [12, 1709, 54, 55, 56, 57, 58, 59, 441, 830, 2368, 454, 60, 513, 831, 840, 841, 842, 843, 845]);
+		EffectManager.remove(null, entity.GID, [12, 1709, 1560, 54, 55, 56, 57, 58, 59, 441, 830, 2368, 454, 60, 513, 831, 840, 841, 842, 843, 845]);
 		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
