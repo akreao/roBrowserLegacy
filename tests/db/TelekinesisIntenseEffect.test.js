@@ -16,7 +16,7 @@ describe('Telekinesis Intense', () => {
 	});
 
 	it('draws 1048 while the status is on, without a sound', () => {
-		expect(StatusEffectTable[SC.TELEKINESIS_INTENSE]).toEqual({ restart: [1048], stop: [1048] });
+		expect(StatusEffectTable[SC.TELEKINESIS_INTENSE]).toEqual({ restartLoop: [1048] });
 		expect(EffectTable[1048][0].wav).toBeUndefined();
 		expect(EffectTable[1048][0].file).toBe('wl_telekinesis_intense');
 	});
