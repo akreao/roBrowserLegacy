@@ -49,6 +49,11 @@ import {
 	SHARDS as ICE_SHARDS
 } from 'Renderer/Effects/IceSpikesSim.js';
 import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
+import { increaseAgilityEffect, decreaseAgilityEffect } from 'DB/Effects/AgilityEffect.js';
+import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
+import HealCylinders from 'Renderer/Effects/HealCylinders.js';
+import { HEAL_LIFE } from 'Renderer/Effects/HealSim.js';
+import { readySparksRow } from 'DB/Effects/ReadySparkEffect.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
@@ -1705,126 +1710,9 @@ export default {
 
 	//36: [{}],	//EF_PORTAL	//warp portal unit
 
-	37: [
-		{
-			//EF_INCAGILITY	AGI Up
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			delayLate: 500,
-			duplicate: 7,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 0.75,
-			attachedEntity: true,
-			duration: 1000,
-			delayOffset: 400,
-			duplicate: 3,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			duplicate: 10,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/agi_up.bmp',
-			poszEnd: 3,
-			poszStart: 0.4,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: '3D',
-			wav: 'effect/ef_incagility',
-			overlay: true,
-			zIndex: 10
-		}
-	],
+	37: increaseAgilityEffect,
 
-	38: [
-		{
-			//EF_DECAGILITY	AGI Down
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			duplicate: 20,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 1,
-			poszStartRand: 1,
-			poszStartRandMiddle: 6,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/slow.bmp',
-			poszEnd: 0.4,
-			poszStart: 2.8,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: '3D',
-			wav: 'effect/ef_decagility',
-			zIndex: 10
-		}
-	],
+	38: decreaseAgilityEffect,
 
 	39: [
 		{
@@ -1840,9 +1728,80 @@ export default {
 	40: [
 		{
 			//EF_SIGNUM	Signum Crucis
+			// Official client: the cross STR from the start; on tick 30 (500 ms) EF_Signum.wav, EF_Bash.wav
+			// and a bash burst (effect 16's look).
 			type: 'STR',
 			file: 'cross',
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/ef_signum',
+			delayWav: 500
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_down',
+			alphaMax: 0.6,
+			duration: 1000,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.1,
+			topSize: 2,
+			animation: 2,
+			zIndex: 1,
+			wav: 'effect/ef_bash',
+			delayWav: 500,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 10,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 2.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			delayStart: 500,
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 1000,
+			duplicate: 8,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			rotate: true,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4,
+			animation: 2,
+			zIndex: 1.2,
 			attachedEntity: true
 		}
 	],
@@ -1916,23 +1875,23 @@ export default {
 			zIndex: 1
 		},
 		{
-			alphaMax: 0.3,
-			attachedEntity: false,
-			blendMode: 2,
-			blue: 1,
+			// Official client (kRO 2025-07-16, 0xba43f0): a flat prim-12 disc of alpha_down.tga, radius 10
+			// (band as wide as the radius), tinted (32, 176, 232), alpha 0 rising 100 / 30 a tick to 100,
+			// fading out over the last 30 of the effect's 150 ticks. Sound on tick 0.
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'alpha_down',
+			attachedEntity: true,
 			duration: 2500,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok2.tga',
-			green: 0.75,
-			posx: 0,
-			posy: 0,
-			posz: 0,
-			red: 0.1,
-			size: 140,
-			type: '3D',
-			wav: 'effect/ef_blessing',
-			zIndex: 10
+			frames: 150,
+			radius: 10,
+			width: 10,
+			color: [32, 176, 232],
+			alpha: 0,
+			alphaSpeed: 100 / 30,
+			alphaMax: 100,
+			fadeOutFrame: 120,
+			wav: 'effect/ef_blessing'
 		}
 	],
 
@@ -6802,89 +6761,20 @@ export default {
 
 	312: [
 		{
-			//EF_HEAL	   Heal Effect
-			alphaMax: 0.2,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 0.7,
-			bottomSize: 0.95,
-			duration: 1500,
-			fade: true,
-			green: 1,
-			height: 8,
-			red: 0.7,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 0.95,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			//EF_HEAL	   Heal Effect: the official client's 0xbee690 (variant 0, kRO 2025-07-16): _heal_effect.wav, two upright
+			// alpha_down.tga bands (HealCylinders.js) and rising pok1 sparks (ReadySparkEffect.js).
+			wav: '_heal_effect',
+			attachedEntity: true
 		},
 		{
-			alphaMax: 0.2,
-			animation: 1,
+			type: 'FUNC',
 			attachedEntity: true,
-			blendMode: 2,
-			blue: 0.7,
-			bottomSize: 1,
-			duration: 1500,
-			fade: true,
-			green: 1,
-			height: 8,
-			red: 0.7,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 1,
-			type: 'CYLINDER'
+			duration: HEAL_LIFE * PRIM_TICK_MS,
+			func: function (Params) {
+				this.add(new HealCylinders(312, Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
 		},
-		{
-			alphaMax: 0.6,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 1300,
-			delayOffset: 400,
-			duplicate: 15,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1.5,
-			posyRand: 1.5,
-			poszEndRand: 2,
-			poszEndRandMiddle: 6,
-			poszStart: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			timeBetweenDupli: 10,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			alphaMax: 0.6,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 1100,
-			delayLate: 200,
-			duplicate: 7,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStartRand: 1,
-			poszStartRandMiddle: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			timeBetweenDupli: 50,
-			type: '3D',
-			zIndex: 1
-		}
+		readySparksRow(312)
 	],
 
 	313: [
@@ -6922,8 +6812,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,
@@ -7168,6 +7057,8 @@ export default {
 	317: [
 		{
 			//Warp Portal Animation 2	//EF_PORTAL2	Warp Portal Animation 2
+			// Official client: the open portal plays EF_Portal.wav once when it appears and no
+			// EF_ReadyPortal.wav (that is the waiting portal, 316).
 			alphaMax: 0.4,
 			animation: 4,
 			attachedEntity: true,
@@ -7186,7 +7077,6 @@ export default {
 			repeat: true,
 			repeatDelay: -300,
 			topSize: 3.9,
-			wav: 'effect/ef_readyportal',
 			type: 'CYLINDER'
 		},
 		{
@@ -7431,93 +7321,20 @@ export default {
 
 	320: [
 		{
-			//EF_HEAL3	   Offensive Heal
-			alphaMax: 0.2,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			bottomSize: 0.95,
-			duration: 1000,
-			fade: true,
-			green: 1,
-			height: 10,
-			red: 1,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 0.95,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			//EF_HEAL3	   Offensive Heal: the official client's 0xbee690 (variant 1, kRO 2025-07-16): _heal_effect.wav, two upright
+			// alpha_down.tga bands (HealCylinders.js) and rising pok1 sparks (ReadySparkEffect.js).
+			wav: '_heal_effect',
+			attachedEntity: true
 		},
 		{
-			alphaMax: 0.2,
-			animation: 1,
+			type: 'FUNC',
 			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			bottomSize: 1,
-			duration: 1000,
-			fade: true,
-			green: 1,
-			height: 9,
-			red: 1,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 1,
-			type: 'CYLINDER'
+			duration: HEAL_LIFE * PRIM_TICK_MS,
+			func: function (Params) {
+				this.add(new HealCylinders(320, Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
 		},
-		{
-			alphaMax: 0.8,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 1000,
-			delayOffset: 400,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1.5,
-			posyRand: 1.5,
-			poszEndRand: 3,
-			poszEndRandMiddle: 6,
-			poszStart: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			sparkling: true,
-			sparkNumber: 2,
-			timeBetweenDupli: 10,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			alphaMax: 0.8,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 900,
-			delayLate: 200,
-			duplicate: 5,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			sparkling: true,
-			sparkNumber: 2,
-			timeBetweenDupli: 50,
-			type: '3D',
-			zIndex: 1
-		}
+		readySparksRow(320)
 	],
 
 	321: [
@@ -7629,8 +7446,7 @@ export default {
 			rotate: true,
 			textureName: 'ring_white',
 			topSize: 1,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			type: 'CYLINDER'
 		},
 		{
 			alphaMax: 0.3,

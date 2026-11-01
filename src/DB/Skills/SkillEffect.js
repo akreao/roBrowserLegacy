@@ -137,18 +137,33 @@ SkillEffect[SK.MG_LIGHTNINGBOLT] = { damageEffectIdOnTarget: 29, hitEffectId: 52
 // the one entry), nothing from the skill unit; the unit's damage plays the standard hit flash (0) per hit.
 SkillEffect[SK.MG_THUNDERSTORM] = { groundEffectIdByLevel: [30], hitEffectId: [0] }; //Thunderstorm
 // Acolyte
-SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwach
+// Official client: nothing at use; each hit on a revealed enemy plays 0 (hit flash), and 1 (EF_HIT2)
+// with the first hit of the packet. Each damage packet also plays 12 (EF_BEGINSPELL) on the caster
+// (the client's per-skill motion effect). The status look (33) comes from the effect state.
+SkillEffect[SK.AL_RUWACH] = { damageEffectIdOnCaster: 12, hitEffectId: 0, firstHitEffectId: 1 }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
 SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
 SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
-SkillEffect[SK.AL_HEAL] = { effectId: 312, hitEffectId: 320 }; //Heal
-SkillEffect[SK.AL_INCAGI] = { effectId: 37 }; //Increase AGI
-SkillEffect[SK.AL_DECAGI] = { effectId: 38 }; //Decrease AGI
-SkillEffect[SK.AL_HOLYWATER] = { effectId: 39 }; //Aqua Benedicta
-SkillEffect[SK.AL_CRUCIS] = { effectId: 40 }; //Signum Crucis
-SkillEffect[SK.AL_ANGELUS] = { effectId: 41 }; //Angelus
-SkillEffect[SK.AL_BLESSING] = { effectId: 42 }; //Blessing
-SkillEffect[SK.AL_CURE] = { effectId: 66 }; //Cure
+// Official client: the use packet picks the heal effect by the healed amount (the packet's level
+// field) on the target, which plays the heal sound; on an undead, 320 on the target as the damage
+// packet arrives, then 0 on every hit and 1 with the first one.
+const healEffectByAmount = amount => (amount >= 4000 ? 325 : amount >= 2000 ? 313 : amount >= 200 ? 312 : 7);
+SkillEffect[SK.AL_HEAL] = {
+	successEffectId: healEffectByAmount,
+	damageEffectIdOnTarget: 320,
+	hitEffectId: 0,
+	firstHitEffectId: 1
+}; //Heal
+// Official client: the use packet shows these only when its result is set (a resisted Decrease AGI
+// shows nothing). On a player under Change Undead, Increase AGI and Blessing also deal damage: 0 on
+// every hit and 1 (EF_HIT2) with the first, like any Acolyte hit.
+SkillEffect[SK.AL_INCAGI] = { successEffectId: 37, hitEffectId: 0, firstHitEffectId: 1 }; //Increase AGI
+SkillEffect[SK.AL_DECAGI] = { successEffectId: 38 }; //Decrease AGI
+SkillEffect[SK.AL_HOLYWATER] = { successEffectId: 39 }; //Aqua Benedicta
+SkillEffect[SK.AL_CRUCIS] = { successEffectId: 40 }; //Signum Crucis
+SkillEffect[SK.AL_ANGELUS] = { successEffectId: 41 }; //Angelus
+SkillEffect[SK.AL_BLESSING] = { successEffectId: 42, hitEffectId: 0, firstHitEffectId: 1 }; //Blessing
+SkillEffect[SK.AL_CURE] = { successEffectId: 66 }; //Cure
 // Merchant
 SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
 SkillEffect[SK.MC_VENDING] = {}; //Vending
@@ -289,7 +304,9 @@ SkillEffect[SK.TF_THROWSTONE] = { beforeHitEffectId: 308 }; //Stone Fling
 SkillEffect[SK.MC_CARTREVOLUTION] = { beginCastEffectId: 170, hitEffectId: 170 }; //Cart Revolution
 SkillEffect[SK.MC_CHANGECART] = {}; //Change Cart
 SkillEffect[SK.MC_LOUD] = { effectId: 311 }; //Crazy Uproar
-SkillEffect[SK.AL_HOLYLIGHT] = { effectId: 152 }; //Holy Light
+// Official client: nothing at cast or as the packet arrives; when the damage lands, 0 (hit flash) on
+// every hit and 152 (HolyHit.str) with the first one, nothing on a miss.
+SkillEffect[SK.AL_HOLYLIGHT] = { hitEffectId: 0, firstHitEffectId: 152 }; //Holy Light
 // Official client: 169 (EnergyCoat.str) on the caster from the use packet, only when its result is set.
 SkillEffect[SK.MG_ENERGYCOAT] = { successEffectIdOnCaster: 169 }; //Energy Coat
 // NPC Skills
