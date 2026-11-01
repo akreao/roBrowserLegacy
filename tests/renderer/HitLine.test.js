@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
 	HITLINE,
+	HITLINE_KINDS,
+	hitLineLastTick,
+	tableHeading,
 	planHitLines,
 	sweptTicks,
 	headAngle,
@@ -10,7 +13,7 @@ import {
 	coreColor
 } from 'Renderer/Effects/HitLineSim.js';
 import { segmentVertices } from 'Renderer/Effects/HitLine.js';
-import { hitLine4Effect } from 'DB/Effects/HitLineEffect.js';
+import { hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
 import EffectTable from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SK from 'DB/Skills/SkillConst.js';
@@ -104,5 +107,82 @@ describe('Kick hit lines (429)', () => {
 		expect(line.needCleanUp).toBeFalsy();
 		line.render({}, 300 * (1000 / 60));
 		expect(line.needCleanUp).toBe(true);
+	});
+});
+
+// EF_HITLINE5 (430, 0xbf0400) and EF_HITLINE6 (431, 0xbef9f0), both with mode 3: effect-port/hit-lines.md.
+describe('Kick hit lines (430, 431)', () => {
+	it('is played on the target by the Taekwon kicks and Esma', () => {
+		expect(EffectTable[430]).toBe(hitLine5Effect);
+		expect(EffectTable[431]).toBe(hitLine6Effect);
+		expect(SkillEffect[SK.TK_TURNKICK].damageEffectIdOnTarget).toEqual([466, 429]);
+		expect(SkillEffect[SK.TK_COUNTER].damageEffectIdOnTarget).toEqual([415, 430]);
+		expect(SkillEffect[SK.TK_DOWNKICK].damageEffectIdOnTarget).toEqual([413, 431]);
+		expect(SkillEffect[SK.SL_SMA].damageEffectIdOnTarget).toContain(431);
+	});
+
+	it('430 makes 12 lines on ticks 0 to 2, waiting 25 to 45 ticks, aimed from the caster', () => {
+		const kind = HITLINE_KINDS[430];
+		const low = planHitLines(fixed(0), kind, 90);
+		expect(low).toHaveLength(12);
+		expect(low.map(l => l.spawn)).toEqual([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2]);
+		expect(low[0]).toEqual({ spawn: 0, wait: 25, alpha: 125, heading: 30, radius: 6, stretch: 0.8 });
+		const high = planHitLines(fixed(0.999), kind, 330)[0];
+		expect(high).toMatchObject({ wait: 45, alpha: 245, heading: 30, radius: 12 });
+		expect(kind.segments).toBe(3);
+		expect(kind.core).toBe(0.06);
+		expect(hitLineLastTick(kind)).toBe(202);
+	});
+
+	it('431 makes 20 lines on ticks 0 to 4, waiting 30 to 70 ticks', () => {
+		const kind = HITLINE_KINDS[431];
+		const low = planHitLines(fixed(0), kind);
+		expect(low).toHaveLength(20);
+		expect(low[19].spawn).toBe(4);
+		expect(low[0]).toEqual({ spawn: 0, wait: 30, alpha: 125, heading: 0, radius: 6, stretch: 0.6 });
+		const high = planHitLines(fixed(0.999), kind)[0];
+		expect(high).toMatchObject({ wait: 70, radius: 11 });
+		expect(high.stretch).toBeCloseTo(1.2);
+		expect(kind.segments).toBe(4);
+		expect(kind.core).toBe(0.07);
+		expect(trailAngles(2, 3)).toEqual([12, 12, 6, 0]);
+	});
+
+	it('takes the heading with the client helper (whole degrees, 360 less below the axis)', () => {
+		expect(tableHeading(1, 0)).toBe(0);
+		expect(tableHeading(0, 1)).toBe(90);
+		expect(tableHeading(-1, 0)).toBe(180);
+		expect(tableHeading(0, -1)).toBe(270);
+		expect(tableHeading(1, 1)).toBe(45);
+	});
+
+	it('aims 430 from the caster and runs out', () => {
+		const added = [];
+		const owner = { position: [3, 4, 0] };
+		const caster = { position: [3, 0, 0] };
+		hitLine5Effect[0].func.call(
+			{ add: e => added.push(e) },
+			{ Inst: { startTick: 0 }, Init: { ownerEntity: owner, otherEntity: caster } }
+		);
+		expect(added).toHaveLength(1);
+		const lines = added[0];
+		// the caster stands below the target: heading 90, so every line is 30 to 150
+		for (const line of lines.lines) {
+			expect(line.heading).toBeGreaterThanOrEqual(30);
+			expect(line.heading).toBeLessThanOrEqual(150);
+		}
+		lines.init({});
+		lines.render({}, 210 * (1000 / 60));
+		expect(lines.needCleanUp).toBe(true);
+	});
+
+	it('adds one 431 renderer', () => {
+		const added = [];
+		hitLine6Effect[0].func.call(
+			{ add: e => added.push(e) },
+			{ Inst: { startTick: 0 }, Init: { ownerEntity: { position: [0, 0, 0] } } }
+		);
+		expect(added[0].lines).toHaveLength(20);
+		expect(hitLine6Effect[0].duration).toBeGreaterThan(204 * (1000 / 60));
 	});
 });

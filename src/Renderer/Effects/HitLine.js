@@ -1,8 +1,8 @@
 /**
  * Renderer/Effects/HitLine.js
  *
- * Draws the kick hit lines (effect 429, EF_HITLINE4): 16 thin arcs of
- * white02.bmp sweeping out from the target, each a grey core and a blue glow,
+ * Draws the kick hit lines (effects 429, 430 and 431; 429 has 16 thin arcs of
+ * white02.bmp sweeping out from the target), each a grey core and a blue glow,
  * added, through AuraBatch.js. The numbers are in HitLineSim.js.
  *
  * Effect table entry:
@@ -18,7 +18,8 @@ import { BLEND_ADD } from 'Renderer/Effects/AuraBlend.js';
 import { PRIM_TICK_MS, UNITS_PER_CELL } from 'Renderer/Effects/EffectPrimSim.js';
 import {
 	HITLINE,
-	HITLINE_LAST_TICK,
+	hitLineLastTick,
+	tableHeading,
 	planHitLines,
 	sweptTicks,
 	trailAngles,
@@ -87,12 +88,17 @@ class HitLine {
 	 * @param {object} owner the entity hit; the lines follow it
 	 * @param {number} startTick
 	 * @param {function} [random] returns a number in [0, 1)
+	 * @param {object} [kind] from HITLINE_KINDS (429 by default)
+	 * @param {Array} [source] the caster's position, for 430's aimed lines
 	 */
-	constructor(owner, startTick, random = Math.random) {
+	constructor(owner, startTick, random = Math.random, kind = HITLINE, source = null) {
 		this.owner = owner;
 		this.startTick = startTick || 0;
-		this.lines = planHitLines(random);
+		this.kind = kind;
+		this.lastTick = hitLineLastTick(kind);
 		this.position = owner && owner.position ? [owner.position[0], owner.position[1], owner.position[2]] : [0, 0, 0];
+		const aim = source ? tableHeading(this.position[0] - source[0], this.position[1] - source[1]) : 0;
+		this.lines = planHitLines(random, kind, aim);
 		this.core = new Float32Array(TUBE_VERTICES * 5);
 		this.glow = new Float32Array(TUBE_VERTICES * 5);
 	}
@@ -123,7 +129,7 @@ class HitLine {
 			return;
 		}
 		const t = Math.floor((tick - this.startTick) / PRIM_TICK_MS);
-		if (t > HITLINE_LAST_TICK) {
+		if (t > this.lastTick) {
 			this.needCleanUp = true;
 			return;
 		}
@@ -148,8 +154,9 @@ class HitLine {
 			if (alpha <= 0) {
 				continue;
 			}
-			const angles = trailAngles(c);
-			for (let i = 0; i < HITLINE.segments; i++) {
+			const kind = this.kind;
+			const angles = trailAngles(c, kind.segments);
+			for (let i = 0; i < kind.segments; i++) {
 				const a = alpha - HITLINE.segmentFade * i;
 				if (a <= 0 || angles[i] === angles[i + 1]) {
 					continue;
@@ -157,7 +164,7 @@ class HitLine {
 				const from = arcPoint(line, angles[i]);
 				const to = arcPoint(line, angles[i + 1]);
 				const [cr, cg, cb] = coreColor(i);
-				segmentVertices(from, to, line.heading, HITLINE.core, this.core);
+				segmentVertices(from, to, line.heading, kind.core, this.core);
 				_batch.mesh(
 					this.texture,
 					BLEND_ADD,
@@ -175,7 +182,7 @@ class HitLine {
 				);
 				const glow = Math.trunc(a * 0.5);
 				if (glow > 0) {
-					segmentVertices(from, to, line.heading, HITLINE.core * HITLINE.glow, this.glow);
+					segmentVertices(from, to, line.heading, kind.core * kind.glow, this.glow);
 					_batch.mesh(
 						this.texture,
 						BLEND_ADD,

@@ -21,6 +21,7 @@ import TaekwonBodyEffects from 'DB/Effects/TaekwonBodyEffects.js';
 import GunslingerBodyEffects from 'DB/Effects/GunslingerBodyEffects.js';
 import ChampionMonsterEffects from 'DB/Effects/ChampionMonsterEffects.js';
 import SoulBodyEffects from 'DB/Effects/SoulBodyEffects.js';
+import FrostMistyEffect from 'DB/Effects/FrostMistyEffect.js';
 import RecognizedSpellEffect from 'DB/Effects/RecognizedSpellEffect.js';
 import StarEmperorStatusEffects from 'DB/Effects/StarEmperorStatusEffects.js';
 import SightBlasterEffect from 'DB/Effects/SightBlasterEffect.js';
@@ -41,7 +42,7 @@ import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import Poison from 'Renderer/Effects/PoisonEffect.js';
 import ColdHit from 'Renderer/Effects/ColdHit.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
-import { hitLine4Effect } from 'DB/Effects/HitLineEffect.js';
+import { hitLine4Effect, hitLine5Effect, hitLine6Effect } from 'DB/Effects/HitLineEffect.js';
 import FieldBand from 'Renderer/Effects/FieldBand.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
@@ -65,7 +66,12 @@ import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
 import { spamTetraSubExplosions } from 'DB/Effects/TetraVortexEffect.js';
-import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
+import {
+	increaseAgilityEffect,
+	decreaseAgilityEffect,
+	increasingAccuracyEffect,
+	spamChaosStreaks
+} from 'DB/Effects/AgilityEffect.js';
 import { hundredSpearEffect, hundredSpearDashEffect, aimedSprite } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
@@ -123,6 +129,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import { sightEffect } from 'DB/Effects/SightEffect.js';
+import { releaseEffect } from 'DB/Effects/ReleaseEffect.js';
 import { jackFrostShardsEffect } from 'DB/Effects/JackFrostEffect.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
@@ -9886,10 +9893,10 @@ export default {
 
 	//427: [{}],	//EF_ASURABODY_MONSTER	   (Nothing)
 	//428: [{}],	//EF_HITLINE3	   (Nothing)
-	// EF_HITLINE4, the kick hit lines of Prominence Kick and Estun (HitLineEffect.js)
+	// EF_HITLINE4 / 5 / 6, the kick hit lines (HitLineEffect.js, effect-port/hit-lines.md)
 	429: hitLine4Effect,
-	//430: [{}],	//EF_HITLINE5	   Taekwon Kick Hit 2
-	//431: [{}],	//EF_HITLINE6	   Taekwon Kick Hit 3
+	430: hitLine5Effect,
+	431: hitLine6Effect,
 	//432: [{}],	//EF_ELECTRIC	   Solar, Lunar and Stellar Perception (Visual Effect)
 	//433: [{}],	//EF_ELECTRIC2	   Solar, Lunar and Stellar Opposition (Visual Effect)
 	//434: [{}],	//EF_HITLINE7	   Taekwon Kick Hit 4
@@ -14456,12 +14463,7 @@ export default {
 	723: hundredSpearEffect,
 	//724: [{}],	//EF_WINDCUTTER	   Green version of Detecting
 	//725: [{}],	//EF_DETECT2	   Oratorio (like Detecting)
-	726: [
-		{
-			//EF_FROSTMYSTY	   Frost Misty (blue vapor and bubbles)
-			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
-		}
-	],
+	// 726 EF_FROSTMYSTY (Frost Misty): FrostMistyEffect.js.
 
 	727: [
 		{
@@ -14662,7 +14664,8 @@ export default {
 		}
 	],
 
-	//751: [{}],	//EF_FIREBALL2	   Releasing summoned warlock spheres
+	// EF_FIREBALL2, Release: Fire Ball's code with three tinted sets of four fireballs (ReleaseEffect.js)
+	751: releaseEffect,
 	//752: [{}],	//EF_BUNSINJYUTSU2	   Like Energy Coat, but not as dark
 	//753: [{}],	//EF_CLEARTIME	   Clearance
 
@@ -15853,10 +15856,30 @@ export default {
 
 	// 803 EF_RECOGNIZED (Recognized Spell cast): RecognizedSpellEffect.js.
 
+	// EF_TETRA (Tetra Vortex Fire, on the caster as the damage arrives). kRO 2025-07-16, case 0xbbb218 with
+	// 0xc08f50: wizard_meteo.wav and hunter_blastmine.wav at once, wl_tetravortex.wav on ticks 10, 20, 50 and
+	// 80, a screen quake on ticks 0, 40 and 80. Its tv-1..8.bmp pillar (prim 140) and ring_red rings (prim
+	// 137) are not drawn yet. See effect-port/warlock-skills.md.
 	804: [
 		{
-			//EF_TETRA	   Tetra Vortex [S]
-			wav: 'effect/wl_tetravortex'
+			wav: 'effect/wizard_meteo',
+			attachedEntity: true
+		},
+		{
+			wav: 'effect/hunter_blastmine',
+			attachedEntity: true
+		},
+		...[10, 20, 50, 80].map(tick => ({
+			wav: 'effect/wl_tetravortex',
+			delayWav: Math.round((tick * 1000) / 60),
+			attachedEntity: true
+		})),
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				[0, 40, 80].forEach(tick => Camera.setQuake(Params.Inst.startTick + (tick * 1000) / 60));
+			}
 		}
 	],
 
@@ -15864,6 +15887,7 @@ export default {
 		{
 			//EF_TETRACASTING	   Tetra Vortex cast animation (blinking colors)
 			type: 'FUNC',
+			wav: 'effect/ef_beginspell',
 			attachedEntity: true,
 			func: function EffectBodyColor(Params) {
 				const entity = Params.Init.ownerEntity;
@@ -16974,11 +16998,13 @@ export default {
 	864: [
 		{
 			//EF_ENERVATION7	   Purple flicker (Eternal Chaos, Loki's Veil)
-			// The actor flickers purple (added) and white on ticks 4-90 (CasterMarks.js).
+			// The actor flickers purple (added) and white on ticks 4-90 (CasterMarks.js), and every even tick
+			// one ac_center2 streak rises and one falls round it (AgilityEffect.spamChaosStreaks).
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
 				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 100, 864), Params);
+				spamChaosStreaks(this, Params);
 			}
 		}
 	],
@@ -26668,6 +26694,8 @@ export default {
 			min: 'mineffect/new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
 			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_cast/',
 			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -26710,6 +26738,7 @@ export default {
 			min: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
 			minTexturePath: 'mineffect/new_soulexpansion/new_soulexpansion_hit_bottom/',
 			renderBeforeEntities: true,
+			wav: 'effect/\xb8\xc5\xc1\xf7 \xc5\xa9\xb7\xa1\xbd\xac', // effect/매직 크래쉬
 			attachedEntity: true
 		}
 	],
@@ -26753,6 +26782,19 @@ export default {
 		}
 	],
 
+	// Crimson Rock (WL_CRIMSONROCK) sub explosion: on the target with each hit after the first (none under /mineffect).
+	// See effect-port/warlock-skills.md.
+	1298: [
+		{
+			//(1298): CEZ2STREffect, new_crimsonrock\\new_crimsonrock_sub_explosion\\new_crimsonrock_sub_explosion.str
+			type: 'STR',
+			file: 'new_crimsonrock/new_crimsonrock_sub_explosion/new_crimsonrock_sub_explosion',
+			texturePath: 'new_crimsonrock/new_crimsonrock_sub_explosion/',
+			minSkip: true,
+			attachedEntity: true
+		}
+	],
+
 	// Hell Inferno (WL_HELLINFERNO) cast floor: on the caster for the cast time. See effect-port/warlock-skills.md.
 	1552: [
 		{
@@ -26764,6 +26806,8 @@ export default {
 			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno_cast_bottom/',
 			renderBeforeEntities: true,
 			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -26777,6 +26821,7 @@ export default {
 			texturePath: 'new_hellinferno/new_hellinferno/',
 			min: 'mineffect/new_hellinferno/new_hellinferno/new_hellinferno',
 			minTexturePath: 'mineffect/new_hellinferno/new_hellinferno/',
+			wav: 'hell_in',
 			attachedEntity: true
 		}
 	],
@@ -26901,6 +26946,7 @@ export default {
 			type: 'STR',
 			file: 'new_comet/new_comet/new_comet',
 			texturePath: 'new_comet/new_comet/',
+			wav: 'effect/g\xc5\xa9\xb7\xb9\xc0\xcc\xc1\xf6\xc0\xa7\xb5\xe5', // effect/g크레이지위드
 			attachedEntity: true
 		}
 	],
@@ -26917,6 +26963,33 @@ export default {
 		}
 	],
 
+	// Comet (WL_COMET) sub explosion, with 1417: on the target with the 2nd, 4th, 6th ... hit. See effect-port/warlock-skills.md.
+	1416: [
+		{
+			//(1416): CEZ2STREffect, new_comet\\new_comet_sub_explosion\\new_comet_sub_explosion.str
+			type: 'STR',
+			file: 'new_comet/new_comet_sub_explosion/new_comet_sub_explosion',
+			texturePath: 'new_comet/new_comet_sub_explosion/',
+			min: 'mineffect/new_comet/new_comet_sub_explosion/new_comet_sub_explosion',
+			minTexturePath: 'mineffect/new_comet/new_comet_sub_explosion/',
+			attachedEntity: true
+		}
+	],
+
+	// Comet (WL_COMET) sub explosion floor, with 1416. See effect-port/warlock-skills.md.
+	1417: [
+		{
+			//(1417): CEZ2STREffect, new_comet\\new_comet_sub_explosion_bottom\\new_comet_sub_explosion_bottom.str
+			type: 'STR',
+			file: 'new_comet/new_comet_sub_explosion_bottom/new_comet_sub_explosion_bottom',
+			texturePath: 'new_comet/new_comet_sub_explosion_bottom/',
+			min: 'mineffect/new_comet/new_comet_sub_explosion_bottom/new_comet_sub_explosion_bottom',
+			minTexturePath: 'mineffect/new_comet/new_comet_sub_explosion_bottom/',
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}
+	],
+
 	// Chain Lightning (WL_CHAINLIGHTNING) cast, with 1636: on the caster for the cast time. See effect-port/warlock-skills.md.
 	1635: [
 		{
@@ -26927,6 +27000,8 @@ export default {
 			min: 'mineffect/new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
 			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_cast/',
 			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			soundLoop: false,
 			attachedEntity: true
 		}
 	],
@@ -26955,6 +27030,7 @@ export default {
 			texturePath: 'new_chainlightning/new_chainlightning_target/',
 			min: 'mineffect/new_chainlightning/new_chainlightning_target/new_chainlightning_target',
 			minTexturePath: 'mineffect/new_chainlightning/new_chainlightning_target/',
+			wav: 'chainlight',
 			attachedEntity: true
 		}
 	],
@@ -29739,6 +29815,9 @@ export default {
 
 	// Soul Linker / Star Gladiator body looks (Kaite 419, Soul Link 424, Comfort 488, 542, 543): SoulBodyEffects.js.
 	...SoulBodyEffects,
+
+	// Frost Misty's glow and snow (726): FrostMistyEffect.js.
+	...FrostMistyEffect,
 
 	// Recognized Spell's cast icons (803): RecognizedSpellEffect.js.
 	...RecognizedSpellEffect,
