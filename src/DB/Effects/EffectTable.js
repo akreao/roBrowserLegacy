@@ -27099,6 +27099,43 @@ export default {
 		}
 	],
 
+	// Arrow Storm (RA_ARROWSTORM): arrowstorm.wav, with 1293 as the damage arrives. See effect-port/ranger-skills.md.
+	ef_ra_arrowstorm_sound: [
+		{
+			wav: 'arrowstorm',
+			attachedEntity: true
+		}
+	],
+
+	// Arrow Storm (RA_ARROWSTORM) rain, on each target as the damage arrives. See effect-port/ranger-skills.md.
+	1293: [
+		{
+			//(1293): CEZ2STREffect, new_arrowstorm\\new_arrowstorm_00\\new_arrowstorm_00.str
+			type: 'STR',
+			file: 'new_arrowstorm/new_arrowstorm_00/new_arrowstorm_00',
+			texturePath: 'new_arrowstorm/new_arrowstorm_00/',
+			min: 'mineffect/new_arrowstorm/new_arrowstorm_00/new_arrowstorm_00',
+			minTexturePath: 'mineffect/new_arrowstorm/new_arrowstorm_00/',
+			attachedEntity: true
+		}
+	],
+
+	// Arrow Storm (RA_ARROWSTORM) second rain: the client launches it three times with start delays 600, 800 and 1000 ms. See effect-port/ranger-skills.md.
+	1294: [
+		{
+			//(1294): CEZ2STREffect, new_arrowstorm\\new_arrowstorm_01\\new_arrowstorm_01.str
+			type: 'STR',
+			file: 'new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01',
+			texturePath: 'new_arrowstorm/new_arrowstorm_01/',
+			min: 'mineffect/new_arrowstorm/new_arrowstorm_01/new_arrowstorm_01',
+			minTexturePath: 'mineffect/new_arrowstorm/new_arrowstorm_01/',
+			duplicate: 3,
+			timeBetweenDupli: 200,
+			delayStart: 600,
+			attachedEntity: true
+		}
+	],
+
 	// Solar Burst (SJ_SOLARBURST): official effect 1218 (CEZ2STREffect) and g데모닉화이어.wav, on the caster
 	// when the use packet has the result set (skilleffectinfo). See effect-port/star-emperor-soul-reaper-skills.md.
 	ef_sj_solarburst: [
