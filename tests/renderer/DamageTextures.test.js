@@ -24,6 +24,9 @@ function load() {
 		generateMipmap() {}
 	});
 	const canvas = () => ({ width: 0, height: 0, getContext: () => ({ clearRect() {}, drawImage() {} }) });
+	const Renderer = { gl };
+	const PACKETVER = { value: 0 };
+	const GraphicsSettings = { damageSkin: 0 };
 	const SpriteRenderer = {
 		position: new Float32Array(3),
 		size: new Float32Array(2),
@@ -43,10 +46,10 @@ function load() {
 		Set,
 		window: {},
 		document: { createElement: canvas },
-		Renderer: { gl },
+		Renderer,
 		Configs: { get: () => false },
-		GraphicsSettings: { damageSkin: 0 },
-		PACKETVER: { value: 0 },
+		GraphicsSettings,
+		PACKETVER,
 		Entity: { TYPE_PC: 0 },
 		DB: { getWeaponHitSound: () => null, getJobHitSound: () => null },
 		MapPreferences: { miss: true },
@@ -62,7 +65,7 @@ function load() {
 		msg: { miss: { canvas: digit } },
 		msgBlue: { miss: { canvas: digit } }
 	};
-	return { Damage: context.Damage, gl };
+	return { Damage: context.Damage, gl, Renderer, GraphicsSettings, PACKETVER, skins: context.skins };
 }
 
 const monster = () => ({ objecttype: 5, constructor: { TYPE_PC: 0 }, position: [0, 0, 0], GID: 1 });
@@ -105,5 +108,27 @@ describe('damage number textures', () => {
 		assert.equal(gl.created, 100);
 		Damage.add(1000, monster(), 20000);
 		assert.equal(gl.created, 101);
+	});
+});
+
+describe('damage number textures, kept apart', () => {
+	it('makes them again after a lost context comes back', () => {
+		const { Damage, gl, Renderer } = load();
+		Damage.add(1234, monster(), 0);
+		Renderer.contextGeneration = 1;
+		Damage.add(1234, monster(), 0);
+		assert.equal(gl.created, 2);
+		Damage.add(1234, monster(), 0);
+		assert.equal(gl.created, 2);
+	});
+
+	it("keeps a fallback skin's texture apart from the skin shown once it loads", () => {
+		const { Damage, gl, skins, GraphicsSettings, PACKETVER } = load();
+		PACKETVER.value = 20230000;
+		GraphicsSettings.damageSkin = 1;
+		Damage.add(1234, monster(), 0); // skin 1 not loaded: drawn from skin 0
+		skins[1] = { ...skins[0], numbers: { ...skins[0].numbers } };
+		Damage.add(1234, monster(), 0);
+		assert.equal(gl.created, 2);
 	});
 });

@@ -52,6 +52,35 @@ const IDLE_TEXTURES = 64;
 const _idleTextures = new Set();
 
 /**
+ * Renderer.contextGeneration the cached textures were made on
+ *
+ * @type {number}
+ */
+let _textureGeneration = 0;
+
+/**
+ * An id for each set of number frames, so a texture is cached by the frames
+ * it was drawn from: the skin shown, a fallback skin, or a skin loaded again
+ *
+ * @type {WeakMap<object, number>}
+ */
+const _framesIds = new WeakMap();
+let _nextFramesId = 0;
+
+/**
+ * @param {object} numbersData a skin's number frames
+ * @return {number}
+ */
+function framesId(numbersData) {
+	let id = _framesIds.get(numbersData);
+	if (id === undefined) {
+		id = ++_nextFramesId;
+		_framesIds.set(numbersData, id);
+	}
+	return id;
+}
+
+/**
  * A damage stops showing its number texture
  *
  * @param {object} gl
@@ -390,7 +419,15 @@ class Damage {
 		let width = 0;
 		let height = 0;
 		const gl = Renderer.gl;
-		const textureKey = _skin + ':' + numbers.join(',');
+		const textureKey = framesId(numbersData) + ':' + numbers.join(',');
+
+		// Textures made before a lost context came back are gone with it
+		const generation = Renderer.contextGeneration || 0;
+		if (generation !== _textureGeneration) {
+			_textureGeneration = generation;
+			_numberTextures.clear();
+			_idleTextures.clear();
+		}
 
 		const obj = new Damage();
 
