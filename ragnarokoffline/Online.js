@@ -218579,7 +218579,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$16)) return {
+	if (u(s, r$17)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -221005,7 +221005,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$16, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$17, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -221025,7 +221025,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$16 = [
+	r$17 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -224338,7 +224338,7 @@ var init_SkillEffect = __esmMin((() => {
 		damageEffectIdOnTarget: "ef_wl_jackfrost_shards",
 		firstHitEffectId: 51
 	};
-	SkillEffect[SkillConst_default.WL_MARSHOFABYSS] = { successEffectId: 729 };
+	SkillEffect[SkillConst_default.WL_MARSHOFABYSS] = { successEffectId: [729, 466] };
 	SkillEffect[SkillConst_default.WL_RECOGNIZEDSPELL] = {
 		successEffectIdOnCaster: "ef_wl_recognizedspell_sound",
 		castAuraEffectId: 58
@@ -224352,11 +224352,14 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectIdOnCaster: 216,
 		hitEffectOnce: true
 	};
-	SkillEffect[SkillConst_default.WL_CRIMSONROCK] = { arrivalEffectIdOnTarget: [
-		"ef_wl_crimsonrock_sound",
-		1274,
-		1275
-	] };
+	SkillEffect[SkillConst_default.WL_CRIMSONROCK] = {
+		arrivalEffectIdOnTarget: [
+			"ef_wl_crimsonrock_sound",
+			1274,
+			1275
+		],
+		extraHitEffectId: 1298
+	};
 	SkillEffect[SkillConst_default.WL_HELLINFERNO] = {
 		hideCastAura: true,
 		beginCastEffectId: 1552,
@@ -224370,7 +224373,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_COMET] = {
 		castAuraEffectId: 1418,
 		beginCastEffectId: [1415, 1421],
-		damageEffectIdOnTarget: [1413, 1414]
+		damageEffectIdOnTarget: [1413, 1414],
+		extraHitEffectId: [1416, 1417],
+		extraHitEffectEvery: 2
 	};
 	SkillEffect[SkillConst_default.WL_CHAINLIGHTNING] = {
 		hideCastAura: true,
@@ -282615,6 +282620,17 @@ var init_EffectManager = __esmMin((() => {
 					});
 				});
 			}
+			if (!noTargetEffects && hitIndex > 0 && SkillEffect[skillId].extraHitEffectId != null) {
+				const every = SkillEffect[skillId].extraHitEffectEvery || 1;
+				if ((hitIndex - 1) % every === 0) [SkillEffect[skillId].extraHitEffectId].flat().forEach((effectId) => {
+					EffectManager.spam({
+						effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
+					});
+				});
+			}
 			if (SkillEffect[skillId].hitEffectIdOnCaster) {
 				effects = Array.isArray(SkillEffect[skillId].hitEffectIdOnCaster) ? SkillEffect[skillId].hitEffectIdOnCaster : [SkillEffect[skillId].hitEffectIdOnCaster];
 				effects.forEach((effectId) => {
@@ -289436,7 +289452,7 @@ function pressScale(n, random = Math.random) {
 */
 function spinAngle$1(n) {
 	if (n < 0 || n >= 37) return 0;
-	const angle = 180 - Math.cos(5 * n * DEG$13) * 180;
+	const angle = 180 - Math.cos(5 * n * DEG$14) * 180;
 	return angle >= 360 ? angle - 360 : angle;
 }
 /**
@@ -289447,7 +289463,7 @@ function spinAngle$1(n) {
 */
 function kickLift(n) {
 	if (n < 0) return 0;
-	if (n < 19) return .3 * Math.sin(5 * n * DEG$13);
+	if (n < 19) return .3 * Math.sin(5 * n * DEG$14);
 	if (n < 21) return .3;
 	if (n < 24) return (23 - n) * .1;
 	return 0;
@@ -289630,10 +289646,10 @@ function marksOf(entity) {
 function bodyLiftCells(entity) {
 	return liftOf(marksOf(entity)) / 5;
 }
-var DEG$13, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
+var DEG$14, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
 var init_BodyMotionSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$13 = Math.PI / 180;
+	DEG$14 = Math.PI / 180;
 	READY_COLOR = [
 		5,
 		5,
@@ -289851,7 +289867,7 @@ function stepBand(band) {
 */
 function pointHeight$3(band, j) {
 	const h = FIELD_BAND.height;
-	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$12) * Math.sin(band.age % 360 * DEG$12);
+	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$13) * Math.sin(band.age % 360 * DEG$13);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -289873,12 +289889,12 @@ function vertex$10(out, i, center, x, y, up, u, v) {
 * @return {number} vertices written
 */
 function buildBand$2(out, band, center) {
-	const lean = Math.cos(band.lean * DEG$12);
-	const rise = Math.sin(band.lean * DEG$12);
+	const lean = Math.cos(band.lean * DEG$13);
+	const rise = Math.sin(band.lean * DEG$13);
 	let prev = null;
 	let o = 0;
 	for (let j = 0; j <= 10; j++) {
-		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$12;
+		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$13;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$3(band, j);
@@ -289903,10 +289919,10 @@ function buildBand$2(out, band, center) {
 	}
 	return o / 5;
 }
-var DEG$12, f32$1, FIELD_BAND;
+var DEG$13, f32$1, FIELD_BAND;
 var init_FieldBandSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$12 = Math.PI / 180;
+	DEG$13 = Math.PI / 180;
 	f32$1 = Math.fround;
 	FIELD_BAND = {
 		height: 15,
@@ -290101,10 +290117,10 @@ function planSparks$2(effectId, random = Math.random) {
 	const window = SPARK_WINDOWS[effectId];
 	const sparks = [];
 	for (let tick = window.from; tick <= window.to; tick += SPARK$1.every) for (let k = 0; k < SPARK$1.perPrim; k++) {
-		const size = 2 + r$15(random, 10) * .1;
-		const x = r$15(random, SPARK$1.scatter) - 5;
-		const z = r$15(random, SPARK$1.scatter) - 5;
-		const rise = r$15(random, 20) * .01 + .1;
+		const size = 2 + r$16(random, 10) * .1;
+		const x = r$16(random, SPARK$1.scatter) - 5;
+		const z = r$16(random, SPARK$1.scatter) - 5;
+		const rise = r$16(random, 20) * .01 + .1;
 		sparks.push({
 			spawn: tick,
 			k,
@@ -290152,7 +290168,7 @@ function sparkAt$1(spark, age) {
 		alpha
 	};
 }
-var SPARK$1, SPARK_WINDOWS, r$15, SPARK_LIFE;
+var SPARK$1, SPARK_WINDOWS, r$16, SPARK_LIFE;
 var init_ReadySparkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	SPARK$1 = {
@@ -290180,7 +290196,7 @@ var init_ReadySparkSim = __esmMin((() => {
 			to: 120
 		}
 	};
-	r$15 = (random, k) => Math.floor(random() * k);
+	r$16 = (random, k) => Math.floor(random() * k);
 	SPARK_LIFE = (() => {
 		let n = 1;
 		while (sparkAlpha(n) >= 0) n++;
@@ -290286,6 +290302,254 @@ var init_SoulBodyEffects = __esmMin((() => {
 		543: [bodyMotion(543, 500), readySparksRow(543)],
 		546: [readySparksRow(546)]
 	};
+}));
+// src/Renderer/Effects/FrostMistySim.js
+/**
+* Ring j's alpha after `n` updates.
+*
+* @param {number} j 1-10
+* @param {number} n
+* @return {number} 0-247
+*/
+function ringAlpha$1(j, n) {
+	const peak = Math.min(GLOW.fadeIn * GLOW.fadeInEnd, 50 + 20 * j);
+	if (n < GLOW.fadeInEnd + 1) return Math.min(GLOW.fadeIn * Math.max(n, 0), peak);
+	const fadeFrom = j === GLOW.rings ? GLOW.lastRingHold : GLOW.fadeInEnd;
+	return Math.max(0, peak - GLOW.fadeOut * Math.max(0, n - fadeFrom));
+}
+/**
+* The glow's middle ring size (middle to corner, units) after `n` updates.
+*
+* @param {number} n
+* @return {number}
+*/
+function glowSize(n) {
+	const peak = GLOW.fadeIn * GLOW.fadeInEnd;
+	const extra = Math.min(Math.max(n - GLOW.lastRingHold, 0), Math.ceil(peak / GLOW.fadeOut) - 1);
+	return GLOW.size * Math.pow(GLOW.growth, n + extra);
+}
+/**
+* Ring j of the glow on tick `age` (0 on its first draw), or null when it
+* is not seen: height in cells, side in sprite pixels, colour (0-255) and
+* alpha (0-255).
+*
+* @param {number} j 1-10
+* @param {number} age ticks
+* @return {{z: number, size: number, color: Array<number>, alpha: number}|null}
+*/
+function ringAt$1(j, age) {
+	const n = Math.floor(age) + 1;
+	const alpha = ringAlpha$1(j, n);
+	if (alpha <= 0) return null;
+	const half = glowSize(n) + GLOW.spacing * (GLOW.rings - j);
+	return {
+		z: GLOW.height / 5,
+		size: half * Math.SQRT2 * 7,
+		color: j === GLOW.rings ? GLOW.lastRingColor : GLOW.color,
+		alpha
+	};
+}
+/**
+* The flakes, in the order the client makes them: for each, size r(6),
+* reach r(41), direction r(360), height r(31), rise r(20).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} spawn tick, slot k, offsets (units), height, rise, size
+*/
+function planSnow(random = Math.random) {
+	const flakes = [];
+	for (let tick = 0; tick <= SNOW.last; tick += SNOW.every) for (let k = 0; k < SNOW.perBurst; k++) {
+		const size = 1.5 + r$15(random, 6) * .1;
+		const reach = r$15(random, SNOW.reach);
+		const direction = r$15(random, 360) * DEG$12;
+		const height = SNOW.height + r$15(random, SNOW.heightRange);
+		const rise = r$15(random, 20) * .01 + .1;
+		flakes.push({
+			spawn: tick,
+			k,
+			x: reach * Math.cos(direction),
+			z: reach * Math.sin(direction),
+			height,
+			rise,
+			size
+		});
+	}
+	return flakes;
+}
+/**
+* Flake `flake` on tick `age` of its own (0 on its first draw), or null once
+* it is gone: offsets in cells from the cell (x and y on the map, z up), side
+* in sprite pixels, turn in degrees, picture (0 E9_snow03, 1 E9_snow02) and
+* alpha (0-255).
+*
+* @param {object} flake from planSnow
+* @param {number} age ticks
+* @return {{x: number, y: number, z: number, size: number, angle: number, texture: number, alpha: number}|null}
+*/
+function flakeAt(flake, age) {
+	const n = Math.floor(age) + 1;
+	const alpha = sparkAlpha(n);
+	if (alpha < 0) return null;
+	const flash = 36 - 7 * flake.k;
+	return {
+		x: flake.x / 5,
+		y: flake.z / 5,
+		z: (flake.height + flake.rise * n) / 5,
+		size: flake.size * Math.SQRT2 * 7,
+		angle: (SNOW.spin * n % 360 + 360) % 360,
+		texture: n === flash - 1 || n === flash ? 1 : 0,
+		alpha
+	};
+}
+var GLOW, SNOW, r$15, DEG$12, GLOW_LIFE;
+var init_FrostMistySim = __esmMin((() => {
+	init_EffectPrimSim();
+	init_ReadySparkSim();
+	GLOW = {
+		rings: 10,
+		height: 30,
+		size: 24,
+		spacing: 3,
+		growth: 1.01,
+		fadeIn: 13,
+		fadeInEnd: 19,
+		fadeOut: 5,
+		lastRingHold: 100,
+		color: [
+			5,
+			5,
+			255
+		],
+		lastRingColor: [
+			55,
+			55,
+			255
+		]
+	};
+	SNOW = {
+		every: 8,
+		last: 96,
+		perBurst: 4,
+		reach: 41,
+		height: 6,
+		heightRange: 31,
+		spin: -5,
+		color: [
+			150,
+			150,
+			250
+		]
+	};
+	r$15 = (random, k) => Math.floor(random() * k);
+	DEG$12 = Math.PI / 180;
+	GLOW_LIFE = (() => {
+		let n = 1;
+		while (ringAlpha$1(GLOW.rings, n) > 0 || n <= GLOW.fadeInEnd) n++;
+		return n;
+	})();
+}));
+// src/DB/Effects/FrostMistyEffect.js
+/**
+* The 3D effect drawing ring j of the glow.
+*
+* @param {number} j 1-10
+* @return {object}
+*/
+function glowRingEffect(j) {
+	return {
+		type: "3D",
+		fileList: [GLOW_TEXTURE],
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 2,
+		attachedEntity: false,
+		duration: GLOW_LIFE * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const ring = ringAt$1(j, age);
+			if (!ring) return null;
+			return {
+				x: 0,
+				y: 0,
+				z: ring.z,
+				size: ring.size,
+				angle: 0,
+				color: ring.color.map((c) => c / 255),
+				alpha: ring.alpha / 255
+			};
+		}
+	};
+}
+/**
+* The 3D effect drawing one flake. It starts on the flake's own tick.
+*
+* @param {object} flake from planSnow
+* @return {object}
+*/
+function flakeEffect(flake) {
+	return {
+		type: "3D",
+		fileList: SNOW_TEXTURES,
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 2,
+		attachedEntity: false,
+		duration: SPARK_LIFE * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = flakeAt(flake, age);
+			if (!p) return null;
+			return {
+				x: p.x,
+				y: p.y,
+				z: p.z,
+				size: p.size,
+				angle: p.angle,
+				texture: p.texture,
+				color: SNOW_COLOR,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+var GLOW_TEXTURE, SNOW_TEXTURES, SNOW_COLOR, FrostMistyEffect_default;
+var init_FrostMistyEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_FrostMistySim();
+	init_ReadySparkSim();
+	GLOW_TEXTURE = "effect/freeze_a.bmp";
+	SNOW_TEXTURES = ["effect/E9_snow03.tga", "effect/E9_snow02.tga"];
+	SNOW_COLOR = SNOW.color.map((c) => c / 255);
+	FrostMistyEffect_default = { 726: [{
+		wav: "effect/t_¿¡³ÊÁö¹æÃâ",
+		delayWav: Math.round(10 * PRIM_TICK_MS),
+		attachedEntity: false
+	}, {
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			const parts = [];
+			for (let j = 1; j <= GLOW.rings; j++) parts.push({
+				effect: glowRingEffect(j),
+				spawn: 0
+			});
+			planSnow().forEach((flake) => parts.push({
+				effect: flakeEffect(flake),
+				spawn: flake.spawn
+			}));
+			parts.forEach(({ effect, spawn }, i) => {
+				this.spamEffect({
+					effect,
+					Inst: {
+						effectID: 726,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}] };
 }));
 // src/Renderer/Effects/SunStanceSim.js
 /**
@@ -303669,6 +303933,7 @@ var init_EffectTable = __esmMin((() => {
 	init_GunslingerBodyEffects();
 	init_ChampionMonsterEffects();
 	init_SoulBodyEffects();
+	init_FrostMistyEffect();
 	init_StarEmperorStatusEffects();
 	init_SightBlasterEffect();
 	init_LightSphereEffect();
@@ -314677,7 +314942,6 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true
 		}],
 		723: hundredSpearEffect,
-		726: [{ wav: "effect/t_¿¡³ÊÁö¹æÃâ" }],
 		727: [{
 			type: "STR",
 			file: "crimson_r",
@@ -323185,6 +323449,13 @@ var init_EffectTable = __esmMin((() => {
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
+		1298: [{
+			type: "STR",
+			file: "new_crimsonrock/new_crimsonrock_sub_explosion/new_crimsonrock_sub_explosion",
+			texturePath: "new_crimsonrock/new_crimsonrock_sub_explosion/",
+			minSkip: true,
+			attachedEntity: true
+		}],
 		1552: [{
 			type: "STR",
 			file: "new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom",
@@ -323291,6 +323562,23 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "new_comet/new_comet_bottom/new_comet_bottom",
 			texturePath: "new_comet/new_comet_bottom/",
+			renderBeforeEntities: true,
+			attachedEntity: true
+		}],
+		1416: [{
+			type: "STR",
+			file: "new_comet/new_comet_sub_explosion/new_comet_sub_explosion",
+			texturePath: "new_comet/new_comet_sub_explosion/",
+			min: "mineffect/new_comet/new_comet_sub_explosion/new_comet_sub_explosion",
+			minTexturePath: "mineffect/new_comet/new_comet_sub_explosion/",
+			attachedEntity: true
+		}],
+		1417: [{
+			type: "STR",
+			file: "new_comet/new_comet_sub_explosion_bottom/new_comet_sub_explosion_bottom",
+			texturePath: "new_comet/new_comet_sub_explosion_bottom/",
+			min: "mineffect/new_comet/new_comet_sub_explosion_bottom/new_comet_sub_explosion_bottom",
+			minTexturePath: "mineffect/new_comet/new_comet_sub_explosion_bottom/",
 			renderBeforeEntities: true,
 			attachedEntity: true
 		}],
@@ -325188,6 +325476,7 @@ var init_EffectTable = __esmMin((() => {
 		...GunslingerBodyEffects_default,
 		...ChampionMonsterEffects_default,
 		...SoulBodyEffects_default,
+		...FrostMistyEffect_default,
 		...StarEmperorStatusEffects_default,
 		...SightBlasterEffect_default,
 		...LightSphereEffect_default,
