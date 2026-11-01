@@ -17,6 +17,7 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import Water from 'Renderer/Map/Water.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 import EntityComposer from 'Renderer/Entity/EntityComposer.js';
 const _list = [];
