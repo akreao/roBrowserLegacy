@@ -152,6 +152,7 @@ function requestEntityGuildEmblem(entity) {
  */
 function onEntitySpam(pkt) {
 	let entity = EntityManager.get(pkt.GID);
+	const oldBodyState = entity ? entity._bodyState : 0;
 
 	if (entity) {
 		entity.set(pkt);
@@ -190,6 +191,9 @@ function onEntitySpam(pkt) {
 			}
 		}
 	}
+
+	// White Imprison's look for an actor that comes into view (or is updated) imprisoned
+	updateImprisonEffect(entity.GID, oldBodyState, entity._bodyState);
 
 	if (pkt.effectState & StatusState.EffectState.FALCON && DB.isHunter(pkt.job)) {
 		if (!entity.falcon) {

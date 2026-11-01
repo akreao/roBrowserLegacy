@@ -15895,7 +15895,7 @@ export default {
 			alphaMax: 65 / 255,
 			blendMode: 2,
 			rotateWithCamera: true,
-			duration: 20000,
+			duration: 49983, // the official lifetime, 2999 ticks; removed when the imprison ends
 			attachedEntity: true
 		},
 		{
@@ -15911,7 +15911,7 @@ export default {
 			blendMode: 2,
 			rotateWithCamera: true,
 			angleY: 10,
-			duration: 20000,
+			duration: 49983, // the official lifetime, 2999 ticks; removed when the imprison ends
 			attachedEntity: true
 		},
 		{
@@ -15926,7 +15926,7 @@ export default {
 			alphaMax: 15 / 255,
 			blendMode: 2,
 			rotateWithCamera: true,
-			duration: 20000,
+			duration: 49983, // the official lifetime, 2999 ticks; removed when the imprison ends
 			attachedEntity: true
 		},
 		{
@@ -15942,7 +15942,7 @@ export default {
 			blendMode: 2,
 			rotateWithCamera: true,
 			angleY: 53.2,
-			duration: 20000,
+			duration: 49983, // the official lifetime, 2999 ticks; removed when the imprison ends
 			attachedEntity: true
 		},
 		{

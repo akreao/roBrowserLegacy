@@ -22,4 +22,16 @@ describe('White Imprison', () => {
 		expect(fn).toContain('EffectManager.remove(null, AID, EffectConst.EF_BOTTOM_BASILICA2);');
 		expect(fn).toContain('EffectManager.spam({ effectId: EffectConst.EF_BOTTOM_BASILICA2, ownerAID: AID });');
 	});
+
+	it('shows 802 on an actor that comes into view imprisoned, for up to the official 2999 ticks', () => {
+		const spawn = entity.slice(entity.indexOf('function onEntitySpam('));
+		expect(spawn).toContain('const oldBodyState = entity ? entity._bodyState : 0;');
+		expect(spawn.indexOf('updateImprisonEffect(entity.GID, oldBodyState, entity._bodyState);')).toBeGreaterThan(
+			spawn.indexOf('EntityManager.add(entity);')
+		);
+		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+		const row = table.slice(table.indexOf('\t802: ['), table.indexOf('\t803'));
+		expect(row).not.toContain('duration: 20000');
+		expect(row).toContain('duration: 49983');
+	});
 });
