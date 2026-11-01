@@ -63,6 +63,7 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import { slimPotionEffects, slimPitcherSound } from 'DB/Effects/SlimPotionEffect.js';
 import AcidDemonRing from 'Renderer/Effects/AcidDemonRing.js';
+import { increaseAgilityEffect, decreaseAgilityEffect, increasingAccuracyEffect } from 'DB/Effects/AgilityEffect.js';
 import { hundredSpearEffect, hundredSpearDashEffect } from 'DB/Effects/HundredSpearEffect.js';
 import { hellInfernoSubOffsets } from 'DB/Effects/HellInfernoEffect.js';
 import SonicWave from 'Renderer/Effects/SonicWave.js';
@@ -1687,126 +1688,10 @@ export default {
 
 	//36: [{}],	//EF_PORTAL	//warp portal unit
 
-	37: [
-		{
-			//EF_INCAGILITY	AGI Up
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			delayLate: 500,
-			duplicate: 7,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 0.75,
-			attachedEntity: true,
-			duration: 1000,
-			delayOffset: 400,
-			duplicate: 3,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			duplicate: 10,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/agi_up.bmp',
-			poszEnd: 3,
-			poszStart: 0.4,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: '3D',
-			wav: 'effect/ef_incagility',
-			overlay: true,
-			zIndex: 10
-		}
-	],
+	// EF_INCAGILITY / EF_DECAGILITY, Increase / Decrease AGI: the official client's picture and streaks (AgilityEffect.js)
+	37: increaseAgilityEffect,
 
-	38: [
-		{
-			//EF_DECAGILITY	AGI Down
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			duplicate: 20,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 1,
-			poszStartRand: 1,
-			poszStartRandMiddle: 6,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/slow.bmp',
-			poszEnd: 0.4,
-			poszStart: 2.8,
-			sizeEnd: 100,
-			sizeSmooth: true,
-			sizeStart: 100,
-			sizeY: 45,
-			type: '3D',
-			wav: 'effect/ef_decagility',
-			zIndex: 10
-		}
-	],
+	38: decreaseAgilityEffect,
 
 	39: [
 		{
@@ -7783,14 +7668,9 @@ export default {
 		}
 	],
 
-	// Increasing Accuracy (GS_INCREASING): the sound of the official client's effect 456 (its rising
-	// streaks are not ported). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
-	ef_gs_increasing_accuracy: [
-		{
-			wav: 'effect/ef_incagility',
-			attachedEntity: true
-		}
-	],
+	// Increasing Accuracy (GS_INCREASING): the official client's effect 456, its sound and 50 faint rising
+	// streaks (AgilityEffect.js). roBrowser's 456 row is monster Power Up's. See effect-port/gunslinger-skills.md.
+	ef_gs_increasing_accuracy: increasingAccuracyEffect,
 
 	// Cracker (GS_CRACKER): the official client's use-packet sound. See effect-port/gunslinger-skills.md.
 	ef_gs_cracker: [
