@@ -218726,7 +218726,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r$17)) return {
+	if (u(s, r$18)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -221152,7 +221152,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r$17, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$18, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -221172,7 +221172,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r$17 = [
+	r$18 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -289612,7 +289612,7 @@ function pressScale(n, random = Math.random) {
 */
 function spinAngle$1(n) {
 	if (n < 0 || n >= 37) return 0;
-	const angle = 180 - Math.cos(5 * n * DEG$14) * 180;
+	const angle = 180 - Math.cos(5 * n * DEG$15) * 180;
 	return angle >= 360 ? angle - 360 : angle;
 }
 /**
@@ -289623,7 +289623,7 @@ function spinAngle$1(n) {
 */
 function kickLift(n) {
 	if (n < 0) return 0;
-	if (n < 19) return .3 * Math.sin(5 * n * DEG$14);
+	if (n < 19) return .3 * Math.sin(5 * n * DEG$15);
 	if (n < 21) return .3;
 	if (n < 24) return (23 - n) * .1;
 	return 0;
@@ -289806,10 +289806,10 @@ function marksOf(entity) {
 function bodyLiftCells(entity) {
 	return liftOf(marksOf(entity)) / 5;
 }
-var DEG$14, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
+var DEG$15, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
 var init_BodyMotionSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$14 = Math.PI / 180;
+	DEG$15 = Math.PI / 180;
 	READY_COLOR = [
 		5,
 		5,
@@ -290027,7 +290027,7 @@ function stepBand(band) {
 */
 function pointHeight$3(band, j) {
 	const h = FIELD_BAND.height;
-	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$13) * Math.sin(band.age % 360 * DEG$13);
+	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$14) * Math.sin(band.age % 360 * DEG$14);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -290049,12 +290049,12 @@ function vertex$10(out, i, center, x, y, up, u, v) {
 * @return {number} vertices written
 */
 function buildBand$2(out, band, center) {
-	const lean = Math.cos(band.lean * DEG$13);
-	const rise = Math.sin(band.lean * DEG$13);
+	const lean = Math.cos(band.lean * DEG$14);
+	const rise = Math.sin(band.lean * DEG$14);
 	let prev = null;
 	let o = 0;
 	for (let j = 0; j <= 10; j++) {
-		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$13;
+		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$14;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$3(band, j);
@@ -290079,10 +290079,10 @@ function buildBand$2(out, band, center) {
 	}
 	return o / 5;
 }
-var DEG$13, f32$1, FIELD_BAND;
+var DEG$14, f32$1, FIELD_BAND;
 var init_FieldBandSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$13 = Math.PI / 180;
+	DEG$14 = Math.PI / 180;
 	f32$1 = Math.fround;
 	FIELD_BAND = {
 		height: 15,
@@ -290277,10 +290277,10 @@ function planSparks$2(effectId, random = Math.random) {
 	const window = SPARK_WINDOWS[effectId];
 	const sparks = [];
 	for (let tick = window.from; tick <= window.to; tick += SPARK$1.every) for (let k = 0; k < SPARK$1.perPrim; k++) {
-		const size = 2 + r$16(random, 10) * .1;
-		const x = r$16(random, SPARK$1.scatter) - 5;
-		const z = r$16(random, SPARK$1.scatter) - 5;
-		const rise = r$16(random, 20) * .01 + .1;
+		const size = 2 + r$17(random, 10) * .1;
+		const x = r$17(random, SPARK$1.scatter) - 5;
+		const z = r$17(random, SPARK$1.scatter) - 5;
+		const rise = r$17(random, 20) * .01 + .1;
 		sparks.push({
 			spawn: tick,
 			k,
@@ -290328,7 +290328,7 @@ function sparkAt$1(spark, age) {
 		alpha
 	};
 }
-var SPARK$1, SPARK_WINDOWS, r$16, SPARK_LIFE;
+var SPARK$1, SPARK_WINDOWS, r$17, SPARK_LIFE;
 var init_ReadySparkSim = __esmMin((() => {
 	init_EffectPrimSim();
 	SPARK$1 = {
@@ -290356,7 +290356,7 @@ var init_ReadySparkSim = __esmMin((() => {
 			to: 120
 		}
 	};
-	r$16 = (random, k) => Math.floor(random() * k);
+	r$17 = (random, k) => Math.floor(random() * k);
 	SPARK_LIFE = (() => {
 		let n = 1;
 		while (sparkAlpha(n) >= 0) n++;
@@ -290519,11 +290519,11 @@ function ringAt$1(j, age) {
 function planSnow(random = Math.random) {
 	const flakes = [];
 	for (let tick = 0; tick <= SNOW.last; tick += SNOW.every) for (let k = 0; k < SNOW.perBurst; k++) {
-		const size = 1.5 + r$15(random, 6) * .1;
-		const reach = r$15(random, SNOW.reach);
-		const direction = r$15(random, 360) * DEG$12;
-		const height = SNOW.height + r$15(random, SNOW.heightRange);
-		const rise = r$15(random, 20) * .01 + .1;
+		const size = 1.5 + r$16(random, 6) * .1;
+		const reach = r$16(random, SNOW.reach);
+		const direction = r$16(random, 360) * DEG$13;
+		const height = SNOW.height + r$16(random, SNOW.heightRange);
+		const rise = r$16(random, 20) * .01 + .1;
 		flakes.push({
 			spawn: tick,
 			k,
@@ -290561,7 +290561,7 @@ function flakeAt(flake, age) {
 		alpha
 	};
 }
-var GLOW, SNOW, r$15, DEG$12, GLOW_LIFE;
+var GLOW, SNOW, r$16, DEG$13, GLOW_LIFE;
 var init_FrostMistySim = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ReadySparkSim();
@@ -290600,8 +290600,8 @@ var init_FrostMistySim = __esmMin((() => {
 			250
 		]
 	};
-	r$15 = (random, k) => Math.floor(random() * k);
-	DEG$12 = Math.PI / 180;
+	r$16 = (random, k) => Math.floor(random() * k);
+	DEG$13 = Math.PI / 180;
 	GLOW_LIFE = (() => {
 		let n = 1;
 		while (ringAlpha$1(GLOW.rings, n) > 0 || n <= GLOW.fadeInEnd) n++;
@@ -290880,6 +290880,262 @@ var init_StasisEffect = __esmMin((() => {
 			});
 		}
 	}] };
+}));
+// src/Renderer/Effects/TetraFireSim.js
+/**
+* One pillar after `n` updates: picture (0-7) and alpha, or null once it is gone.
+*
+* @param {number} n
+* @return {{picture: number, alpha: number}|null}
+*/
+function pillarState(n) {
+	const steps = Math.floor(Math.max(n, 0) / PILLAR.every);
+	const picture = Math.min(steps, PILLAR.pictures - 1);
+	const fades = Math.max(0, steps - (PILLAR.pictures - 1));
+	const alpha = PILLAR.alpha - PILLAR.fade * fades;
+	if (alpha < 0) return null;
+	return {
+		picture,
+		alpha
+	};
+}
+/**
+* A pillar on tick `age` of its own (0 when it is made): picture, size in
+* sprite pixels, height of its middle in cells and alpha (0-255), or null.
+*
+* @param {number} age ticks
+* @return {{picture: number, width: number, height: number, z: number, alpha: number}|null}
+*/
+function pillarAt(age) {
+	const state = pillarState(Math.floor(age));
+	if (!state) return null;
+	return {
+		picture: state.picture,
+		width: PILLAR.radius * PX_PER_UNIT$2,
+		height: PILLAR.radius * Math.sqrt(3) * PX_PER_UNIT$2,
+		z: PILLAR.height / 5,
+		alpha: state.alpha
+	};
+}
+/**
+* The red lines, in the order the client makes them: start age r(100),
+* reach r(41), direction r(360), radius r(11).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>}
+*/
+function planLines(random = Math.random) {
+	const lines = [];
+	for (let i = 0; i < LINES$1.count; i++) {
+		const start = r$15(random, LINES$1.startRange);
+		const reach = r$15(random, LINES$1.reach);
+		const direction = r$15(random, 360) * DEG$12;
+		const radius = r$15(random, 11) * .015 + .15;
+		lines.push({
+			start,
+			x: reach * Math.cos(direction),
+			z: reach * Math.sin(direction),
+			radius
+		});
+	}
+	return lines;
+}
+/**
+* A line's height (units) and alpha at its age, or null when it does not show.
+*
+* @param {number} age the line's own age (it starts at line.start)
+* @return {{height: number, alpha: number}|null}
+*/
+function lineState(age) {
+	if (age < LINES$1.show) return null;
+	let height = LINES$1.height;
+	let alpha = LINES$1.alpha;
+	if (age < LINES$1.show + LINES$1.rise + 1) height = LINES$1.height * Math.sin(6 * (age - LINES$1.show) * DEG$12);
+	else if (age > LINES$1.hold) {
+		const n = age - LINES$1.hold;
+		height = Math.max(0, LINES$1.height - LINES$1.shrink * n);
+		alpha = Math.max(0, LINES$1.alpha - LINES$1.fade * n);
+	}
+	if (height <= 0 || alpha <= 0) return null;
+	return {
+		height,
+		alpha
+	};
+}
+/**
+* Line `line` on tick `tick` of the effect: offsets in cells from the
+* target (x and y on the map, z up to its middle), size in sprite pixels
+* and alpha (0-255), or null.
+*
+* @param {object} line from planLines
+* @param {number} tick ticks since the effect started
+* @return {{x: number, y: number, z: number, width: number, height: number, alpha: number}|null}
+*/
+function lineAt(line, tick) {
+	const state = lineState(line.start + Math.floor(tick) + 1);
+	if (!state) return null;
+	return {
+		x: line.x / 5,
+		y: line.z / 5,
+		z: state.height / 2 / 5,
+		width: 2 * line.radius * LINES$1.band * PX_PER_UNIT$2,
+		height: state.height * PX_PER_UNIT$2,
+		alpha: state.alpha
+	};
+}
+var PX_PER_UNIT$2, PILLAR, LINES$1, DEG$12, r$15, LINES_END;
+var init_TetraFireSim = __esmMin((() => {
+	init_EffectPrimSim();
+	PX_PER_UNIT$2 = 7;
+	PILLAR = {
+		ticks: [
+			0,
+			25,
+			50,
+			75
+		],
+		radius: 30,
+		height: 35,
+		pictures: 8,
+		every: 3,
+		alpha: 200,
+		fade: 15
+	};
+	LINES$1 = {
+		count: 28,
+		startRange: 100,
+		reach: 41,
+		show: 100,
+		rise: 15,
+		height: 120,
+		hold: 124,
+		shrink: 5,
+		alpha: 150,
+		fade: 15,
+		band: 1.5
+	};
+	DEG$12 = Math.PI / 180;
+	r$15 = (random, k) => Math.floor(random() * k);
+	LINES_END = LINES$1.hold + LINES$1.alpha / LINES$1.fade;
+}));
+// src/DB/Effects/TetraFireEffect.js
+/**
+* The 3D effect drawing one pillar. The client's blend argument for 804 asks
+* for normal alpha blending, which would show the black of the bmp; it is
+* drawn adding light, as the coloured variants (970-973) are.
+*
+* @return {object}
+*/
+function pillarEffect() {
+	return {
+		type: "3D",
+		fileList: PILLAR_TEXTURES,
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 2,
+		attachedEntity: false,
+		duration: PILLAR_LIFE * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = pillarAt(age);
+			return p && {
+				x: 0,
+				y: 0,
+				z: p.z,
+				sizeX: p.width,
+				sizeY: p.height,
+				angle: 0,
+				texture: p.picture,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+/**
+* The 3D effect drawing one red line, from the effect's start.
+*
+* @param {object} line from planLines
+* @return {object}
+*/
+function lineEffect(line) {
+	return {
+		type: "3D",
+		file: LINE_TEXTURE,
+		sharedTexture: true,
+		alphaMax: 1,
+		blendMode: 8,
+		attachedEntity: false,
+		duration: LINES_END * PRIM_TICK_MS,
+		zIndex: 1,
+		track(age) {
+			const p = lineAt(line, age);
+			return p && {
+				x: p.x,
+				y: p.y,
+				z: p.z,
+				sizeX: p.width,
+				sizeY: p.height,
+				angle: 0,
+				alpha: p.alpha / 255
+			};
+		}
+	};
+}
+var PILLAR_TEXTURES, LINE_TEXTURE, PILLAR_LIFE, tetraFireLook;
+var init_TetraFireEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_TetraFireSim();
+	PILLAR_TEXTURES = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8
+	].map((i) => `effect/tv-${i}.bmp`);
+	LINE_TEXTURE = "effect/ring_red.tga";
+	PILLAR_LIFE = (() => {
+		let n = 0;
+		while (pillarAt(n)) n++;
+		return n;
+	})();
+	tetraFireLook = {
+		type: "FUNC",
+		attachedEntity: false,
+		func: function(Params) {
+			if (!Params.Init.otherEntity) return;
+			const at = Params.Init.otherEntity.position;
+			const Init = {
+				...Params.Init,
+				position: [
+					at[0],
+					at[1],
+					at[2]
+				]
+			};
+			const parts = PILLAR.ticks.map((tick) => ({
+				effect: pillarEffect(),
+				spawn: tick
+			}));
+			planLines().forEach((line) => parts.push({
+				effect: lineEffect(line),
+				spawn: 0
+			}));
+			parts.forEach(({ effect, spawn }, i) => {
+				this.spamEffect({
+					effect,
+					Inst: {
+						effectID: 804,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + spawn * PRIM_TICK_MS
+					},
+					Init
+				});
+			});
+		}
+	};
 }));
 // src/Renderer/Effects/SunStanceSim.js
 /**
@@ -304265,6 +304521,7 @@ var init_EffectTable = __esmMin((() => {
 	init_SoulBodyEffects();
 	init_FrostMistyEffect();
 	init_StasisEffect();
+	init_TetraFireEffect();
 	init_StarEmperorStatusEffects();
 	init_SightBlasterEffect();
 	init_LightSphereEffect();
@@ -316514,7 +316771,8 @@ var init_EffectTable = __esmMin((() => {
 						80
 					].forEach((tick) => Camera.setQuake(Params.Inst.startTick + tick * 1e3 / 60));
 				}
-			}
+			},
+			tetraFireLook
 		],
 		805: [{
 			type: "FUNC",
