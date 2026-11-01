@@ -216438,7 +216438,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE$1, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE$1, base + 80);
 }
-var mat4$23, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$42, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$3, _viewModel, _projection, _fogColor$2, _fogBlack$1, _frame, _glState, SpriteBatch;
+var mat4$23, FLOATS$1, STRIDE$1, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$42, _vao, _quad, _instanceBuffer, _upload, _active$4, _queues, _modelView$3, _viewModel, _projection, _fogColor$3, _fogBlack$1, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -216501,7 +216501,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_modelView$3 = /* @__PURE__ */ new Float32Array(16);
 	_viewModel = /* @__PURE__ */ new Float32Array(16);
 	_projection = /* @__PURE__ */ new Float32Array(16);
-	_fogColor$2 = /* @__PURE__ */ new Float32Array(3);
+	_fogColor$3 = /* @__PURE__ */ new Float32Array(3);
 	_fogBlack$1 = /* @__PURE__ */ new Float32Array(3);
 	_frame = {
 		fogUse: false,
@@ -216549,7 +216549,7 @@ var init_SpriteBatch = __esmMin((() => {
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
-			_fogColor$2.set(fog.color);
+			_fogColor$3.set(fog.color);
 			_frame.zoom = zoom;
 		}
 		/**
@@ -216693,7 +216693,7 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.uniform1i(uniform.uFogUse, _frame.fogUse);
 			gl.uniform1f(uniform.uFogNear, _frame.fogNear);
 			gl.uniform1f(uniform.uFogFar, _frame.fogFar);
-			gl.uniform3fv(uniform.uFogColor, _fogColor$2);
+			gl.uniform3fv(uniform.uFogColor, _fogColor$3);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.uniform1i(uniform.uPalette, 1);
 			gl.uniform1i(uniform.uIndexAtlas, SpriteAtlas.UNIT_INDEX);
@@ -216724,7 +216724,7 @@ var init_SpriteBatch = __esmMin((() => {
 					}
 					if (run.fogBlack !== fogBlack) {
 						fogBlack = run.fogBlack;
-						gl.uniform3fv(uniform.uFogColor, fogBlack ? _fogBlack$1 : _fogColor$2);
+						gl.uniform3fv(uniform.uFogColor, fogBlack ? _fogBlack$1 : _fogColor$3);
 					}
 					if (run.noCorrection !== noCorrection) gl.uniform1i(uniform.uDisableDepthCorrection, noCorrection = run.noCorrection);
 					if (run.palette !== null && run.palette !== palette) {
@@ -216983,12 +216983,12 @@ function setDepth(depthTest, depthMask) {
 */
 function syncAfterBatch() {
 	_gl$3.useProgram(_program$41);
-	_gl$3.uniform3fv(_program$41.uniform.uFogColor, _fogToBlack ? _fogBlack : _fogColor$1);
+	_gl$3.uniform3fv(_program$41.uniform.uFogColor, _fogToBlack ? _fogBlack : _fogColor$2);
 	_gl$3.activeTexture(_gl$3.TEXTURE0);
 	_texture$9 = null;
 	_groupId++;
 }
-var mat4$22, RenderCanvas2D, _program$41, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor$1, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$22, RenderCanvas2D, _program$41, _buffer$21, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _fullPlaneDepth, _depthTest, _blendOne, _texture$9, _usepal, _fogColor$2, _fogBlack, _fogToBlack, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -217079,7 +217079,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_blendOne = null;
 	_texture$9 = null;
 	_usepal = null;
-	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
+	_fogColor$2 = /* @__PURE__ */ new Float32Array(3);
 	_fogBlack = /* @__PURE__ */ new Float32Array(3);
 	_fogToBlack = false;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
@@ -217212,7 +217212,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
-			_fogColor$1.set(fog.color);
+			_fogColor$2.set(fog.color);
 			_fogToBlack = false;
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
@@ -217245,7 +217245,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		static fogToBlack(on) {
 			if (!_gl$3 || _fogToBlack === on) return;
 			_fogToBlack = on;
-			if (!SpriteBatch.active) _gl$3.uniform3fv(_program$41.uniform.uFogColor, on ? _fogBlack : _fogColor$1);
+			if (!SpriteBatch.active) _gl$3.uniform3fv(_program$41.uniform.uFogColor, on ? _fogBlack : _fogColor$2);
 		}
 		/**
 		* Unbind 3D Context
@@ -276803,6 +276803,7 @@ function applyTrack(state, effect, frame) {
 	state.trackY = num(sample.y, state.trackY);
 	state.alpha = num(sample.alpha, state.alpha);
 	state.yaw = num(sample.yaw, state.yaw);
+	state.size = num(sample.size, state.size);
 	return true;
 }
 /**
@@ -277069,7 +277070,7 @@ function releaseSharedTexture$1(gl, name) {
 	if (entry && entry.texture) gl.deleteTexture(entry.texture);
 	_sharedTextures$1.delete(name);
 }
-var _program$34, _sharedTextures$1, _sharedUsers$1, EffectPrim;
+var _program$34, _fogColor$1, BLACK$1, _sharedTextures$1, _sharedUsers$1, EffectPrim;
 var init_EffectPrim = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -277078,6 +277079,8 @@ var init_EffectPrim = __esmMin((() => {
 	init_EffectPrim$2();
 	init_EffectPrim$1();
 	_program$34 = null;
+	_fogColor$1 = /* @__PURE__ */ new Float32Array(3);
+	BLACK$1 = /* @__PURE__ */ new Float32Array(3);
 	_sharedTextures$1 = /* @__PURE__ */ new Map();
 	_sharedUsers$1 = /* @__PURE__ */ new Map();
 	EffectPrim = class {
@@ -277116,7 +277119,7 @@ var init_EffectPrim = __esmMin((() => {
 		*/
 		init(gl) {
 			this.buffer = gl.createBuffer();
-			this.textureName = `${this.effect.texture}.tga`;
+			this.textureName = /\.\w+$/.test(this.effect.texture) ? this.effect.texture : `${this.effect.texture}.tga`;
 			_sharedUsers$1.set(this.textureName, (_sharedUsers$1.get(this.textureName) || 0) + 1);
 			sharedTexture(_sharedTextures$1, gl, this.textureName, (texture) => {
 				if (this.freed) return;
@@ -277167,9 +277170,17 @@ var init_EffectPrim = __esmMin((() => {
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			if (this.effect.additive) {
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+				gl.uniform3fv(_program$34.uniform.uFogColor, BLACK$1);
+			}
 			SpriteRenderer.runWithDepth(true, false, true, () => {
 				gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
 			});
+			if (this.effect.additive) {
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+				gl.uniform3fv(_program$34.uniform.uFogColor, _fogColor$1);
+			}
 		}
 		/**
 		* @param {object} gl context
@@ -277207,6 +277218,7 @@ var init_EffectPrim = __esmMin((() => {
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
+			_fogColor$1 = fog.color;
 			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
@@ -290699,6 +290711,176 @@ var init_FrostMistyEffect = __esmMin((() => {
 		}
 	}] };
 }));
+// src/Renderer/Effects/StasisSim.js
+/**
+* The caster's colour on tick `frame` of the effect, out of 255, or null
+* when the effect leaves it alone.
+*
+* @param {number} frame
+* @return {Array<number>|null}
+*/
+function stasisBodyColor(frame) {
+	if (frame < FLASH$1.first) return null;
+	if (frame <= FLASH$1.last) return frame % 2 ? [
+		255,
+		255,
+		255
+	] : FLASH$1.blue;
+	const back = (frame - FLASH$1.last) * FLASH$1.recoverStep;
+	return FLASH$1.blue.map((v) => Math.min(255, v + back));
+}
+/**
+* The squares: texture number (1-6), start tick and height (units).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<{texture: number, start: number, height: number}>}
+*/
+function planSquares(random = Math.random) {
+	const squares = [];
+	for (let k = 0; k < SQUARES$1.count; k++) squares.push({
+		texture: k + 1,
+		start: SQUARES$1.delay + SQUARES$1.stagger * k,
+		height: SQUARES$1.height + Math.floor(random() * SQUARES$1.heightRange)
+	});
+	return squares;
+}
+/**
+* A square's alpha after `n` updates of its own.
+*
+* @param {number} n
+* @return {number}
+*/
+function squareAlpha(n) {
+	if (n <= 0) return 0;
+	if (n <= SQUARES$1.fadeInEnd) return SQUARES$1.fadeIn * n;
+	return Math.max(0, SQUARES$1.fadeIn * SQUARES$1.fadeInEnd - SQUARES$1.fadeOut * (n - SQUARES$1.fadeInEnd));
+}
+/**
+* A square on tick `frame` of its own (0 when it starts, before its first
+* update), or null when it does not show: half side (units) and alpha (0-255).
+*
+* @param {number} frame
+* @return {{size: number, alpha: number}|null}
+*/
+function squareAt(frame) {
+	const n = Math.floor(frame);
+	const alpha = squareAlpha(n);
+	if (alpha <= 0) return null;
+	return {
+		size: SQUARES$1.corner * SQUARES$1.size * Math.pow(SQUARES$1.growth, n) / Math.SQRT2,
+		alpha
+	};
+}
+var FLASH$1, SQUARES$1, SQUARE_LIFE;
+var init_StasisSim = __esmMin((() => {
+	FLASH$1 = {
+		first: 6,
+		last: 40,
+		blue: [
+			0,
+			0,
+			255
+		],
+		recoverStep: 8
+	};
+	SQUARES$1 = {
+		count: 6,
+		delay: 10,
+		stagger: 4,
+		size: 13,
+		corner: .9,
+		growth: 1.07,
+		height: 5,
+		heightRange: 6,
+		fadeIn: 6,
+		fadeInEnd: 10,
+		fadeOut: 1,
+		color: [
+			55,
+			55,
+			255
+		]
+	};
+	SQUARE_LIFE = SQUARES$1.fadeInEnd + SQUARES$1.fadeIn * SQUARES$1.fadeInEnd / SQUARES$1.fadeOut;
+}));
+// src/DB/Effects/StasisEffect.js
+/**
+* Flash the caster through its flash colour until the colour is back, timed
+* from the effect's start.
+*
+* @param {Entity} entity
+* @param {number} startTick the effect's start
+*/
+function startStasisFlash(entity, startTick) {
+	if (!entity || !entity.animations || !entity._flashColor) return;
+	const late = (startTick || Renderer.tick) - Renderer.tick;
+	entity.animations.add((tick) => {
+		const color = stasisBodyColor(Math.floor((tick - late) / PRIM_TICK_MS));
+		if (!color) return false;
+		entity._flashColor[0] = color[0] / 255;
+		entity._flashColor[1] = color[1] / 255;
+		entity._flashColor[2] = color[2] / 255;
+		entity._flashColor[3] = 1;
+		entity.recalculateBlendingColor();
+		return color.every((c) => c >= 255);
+	});
+}
+/**
+* The PRIM row drawing one square, from its start tick.
+*
+* @param {object} square from planSquares
+* @return {object}
+*/
+function squareEffect(square) {
+	return {
+		type: "PRIM",
+		prim: "quad",
+		texture: `thunder_ball_000${square.texture}.bmp`,
+		attachedEntity: true,
+		frames: SQUARE_LIFE + 1,
+		duration: (SQUARE_LIFE + 1) * PRIM_TICK_MS,
+		height: square.height,
+		color: SQUARES$1.color,
+		additive: true,
+		alpha: 0,
+		track(frame) {
+			const p = squareAt(frame);
+			return p && {
+				alpha: p.alpha,
+				size: p.size,
+				yaw: 45
+			};
+		}
+	};
+}
+var StasisEffect_default;
+var init_StasisEffect = __esmMin((() => {
+	init_Renderer();
+	init_EffectPrimSim();
+	init_StasisSim();
+	StasisEffect_default = { 799: [{
+		wav: "effect/wl_stasis",
+		delayWav: Math.round(6 * PRIM_TICK_MS),
+		attachedEntity: true
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			startStasisFlash(Params.Init.ownerEntity, Params.Inst.startTick);
+			planSquares().forEach((square, i) => {
+				this.spamEffect({
+					effect: squareEffect(square),
+					Inst: {
+						effectID: 799,
+						duplicateID: i,
+						startTick: Params.Inst.startTick + square.start * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}] };
+}));
 // src/Renderer/Effects/SunStanceSim.js
 /**
 * Where part `index` is on tick `age` (0 on the first draw), as offsets in
@@ -304082,6 +304264,7 @@ var init_EffectTable = __esmMin((() => {
 	init_ChampionMonsterEffects();
 	init_SoulBodyEffects();
 	init_FrostMistyEffect();
+	init_StasisEffect();
 	init_StarEmperorStatusEffects();
 	init_SightBlasterEffect();
 	init_LightSphereEffect();
@@ -316240,7 +316423,6 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: true,
 			wav: "effect/wl_siennaexecrate"
 		}],
-		799: [{ wav: "effect/wl_stasis" }],
 		802: [
 			{
 				type: "CYLINDER",
@@ -325655,6 +325837,7 @@ var init_EffectTable = __esmMin((() => {
 		...ChampionMonsterEffects_default,
 		...SoulBodyEffects_default,
 		...FrostMistyEffect_default,
+		...StasisEffect_default,
 		...StarEmperorStatusEffects_default,
 		...SightBlasterEffect_default,
 		...LightSphereEffect_default,
