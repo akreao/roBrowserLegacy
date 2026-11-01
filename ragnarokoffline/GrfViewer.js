@@ -289112,7 +289112,7 @@ function loadTexture$13(gl, name) {
 function bubbleName$1(frame) {
 	return `w_bubble${String(frame + 1).padStart(2, "0")}.tga`;
 }
-var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS, RINGS$1, GROUND_RINGS, CORNERS$2, _program$23, _buffer$6, _textures$21, _batch$9, MaxLevelAura;
+var DEG_TO_RAD, BASE_LIFT, BUBBLE_FRAMES$1, FRAME_MS$1, RINGS$1, GROUND_RINGS, CORNERS$2, _program$23, _buffer$6, _textures$21, _batch$9, MaxLevelAura;
 var init_MaxLevelAura = __esmMin((() => {
 	init_Level99Bubble$2();
 	init_Level99Bubble$1();
@@ -289125,7 +289125,7 @@ var init_MaxLevelAura = __esmMin((() => {
 	DEG_TO_RAD = Math.PI / 180;
 	BASE_LIFT = .05;
 	BUBBLE_FRAMES$1 = 27;
-	FRAME_MS = 55;
+	FRAME_MS$1 = 55;
 	RINGS$1 = [
 		{
 			count: 18,
@@ -289311,7 +289311,7 @@ var init_MaxLevelAura = __esmMin((() => {
 			}
 		}
 		renderBubbles(gl, base, elapsed) {
-			const frame = Math.floor(elapsed / FRAME_MS);
+			const frame = Math.floor(elapsed / FRAME_MS$1);
 			for (let r = 0; r < RINGS$1.length; r++) {
 				const ring = RINGS$1[r];
 				const turn = elapsed / 1e3 * ring.spin * DEG_TO_RAD;
@@ -289888,7 +289888,7 @@ function pressScale(n, random = Math.random) {
 */
 function spinAngle$1(n) {
 	if (n < 0 || n >= 37) return 0;
-	const angle = 180 - Math.cos(5 * n * DEG$20) * 180;
+	const angle = 180 - Math.cos(5 * n * DEG$21) * 180;
 	return angle >= 360 ? angle - 360 : angle;
 }
 /**
@@ -289899,7 +289899,7 @@ function spinAngle$1(n) {
 */
 function kickLift(n) {
 	if (n < 0) return 0;
-	if (n < 19) return .3 * Math.sin(5 * n * DEG$20);
+	if (n < 19) return .3 * Math.sin(5 * n * DEG$21);
 	if (n < 21) return .3;
 	if (n < 24) return (23 - n) * .1;
 	return 0;
@@ -290082,10 +290082,10 @@ function marksOf(entity) {
 function bodyLiftCells(entity) {
 	return liftOf(marksOf(entity)) / 5;
 }
-var DEG$20, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
+var DEG$21, READY_COLOR, RED_COLOR, SCHEDULES$1, LINK_COLOR, LINK_SCALES;
 var init_BodyMotionSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$20 = Math.PI / 180;
+	DEG$21 = Math.PI / 180;
 	READY_COLOR = [
 		5,
 		5,
@@ -290303,7 +290303,7 @@ function stepBand(band) {
 */
 function pointHeight$3(band, j) {
 	const h = FIELD_BAND.height;
-	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$19) * Math.sin(band.age % 360 * DEG$19);
+	return h + h * FIELD_BAND.wobble * Math.sin(FIELD_BAND.pointStep * j * DEG$20) * Math.sin(band.age % 360 * DEG$20);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -290325,12 +290325,12 @@ function vertex$11(out, i, center, x, y, up, u, v) {
 * @return {number} vertices written
 */
 function buildBand$2(out, band, center) {
-	const lean = Math.cos(band.lean * DEG$19);
-	const rise = Math.sin(band.lean * DEG$19);
+	const lean = Math.cos(band.lean * DEG$20);
+	const rise = Math.sin(band.lean * DEG$20);
 	let prev = null;
 	let o = 0;
 	for (let j = 0; j <= 10; j++) {
-		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$19;
+		const angle = (j === 10 ? band.angle : (band.angle + j * FIELD_BAND.angleStep) % 360) * DEG$20;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$3(band, j);
@@ -290355,10 +290355,10 @@ function buildBand$2(out, band, center) {
 	}
 	return o / 5;
 }
-var DEG$19, f32$1, FIELD_BAND;
+var DEG$20, f32$1, FIELD_BAND;
 var init_FieldBandSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$19 = Math.PI / 180;
+	DEG$20 = Math.PI / 180;
 	f32$1 = Math.fround;
 	FIELD_BAND = {
 		height: 15,
@@ -290876,7 +290876,7 @@ function planSnow(random = Math.random) {
 	for (let tick = 0; tick <= SNOW.last; tick += SNOW.every) for (let k = 0; k < SNOW.perBurst; k++) {
 		const size = 1.5 + r$17(random, 6) * .1;
 		const reach = r$17(random, SNOW.reach);
-		const direction = r$17(random, 360) * DEG$18;
+		const direction = r$17(random, 360) * DEG$19;
 		const height = SNOW.height + r$17(random, SNOW.heightRange);
 		const rise = r$17(random, 20) * .01 + .1;
 		flakes.push({
@@ -290916,7 +290916,7 @@ function flakeAt(flake, age) {
 		alpha
 	};
 }
-var GLOW, SNOW, r$17, DEG$18, GLOW_LIFE;
+var GLOW, SNOW, r$17, DEG$19, GLOW_LIFE;
 var init_FrostMistySim = __esmMin((() => {
 	init_EffectPrimSim();
 	init_ReadySparkSim();
@@ -290956,7 +290956,7 @@ var init_FrostMistySim = __esmMin((() => {
 		]
 	};
 	r$17 = (random, k) => Math.floor(random() * k);
-	DEG$18 = Math.PI / 180;
+	DEG$19 = Math.PI / 180;
 	GLOW_LIFE = (() => {
 		let n = 1;
 		while (ringAlpha$1(GLOW.rings, n) > 0 || n <= GLOW.fadeInEnd) n++;
@@ -291284,7 +291284,7 @@ function planLines(random = Math.random) {
 	for (let i = 0; i < LINES$1.count; i++) {
 		const start = r$16(random, LINES$1.startRange);
 		const reach = r$16(random, LINES$1.reach);
-		const direction = r$16(random, 360) * DEG$17;
+		const direction = r$16(random, 360) * DEG$18;
 		const radius = r$16(random, 11) * .015 + .15;
 		lines.push({
 			start,
@@ -291305,7 +291305,7 @@ function lineState(age) {
 	if (age < LINES$1.show) return null;
 	let height = LINES$1.height;
 	let alpha = LINES$1.alpha;
-	if (age < LINES$1.show + LINES$1.rise + 1) height = LINES$1.height * Math.sin(6 * (age - LINES$1.show) * DEG$17);
+	if (age < LINES$1.show + LINES$1.rise + 1) height = LINES$1.height * Math.sin(6 * (age - LINES$1.show) * DEG$18);
 	else if (age > LINES$1.hold) {
 		const n = age - LINES$1.hold;
 		height = Math.max(0, LINES$1.height - LINES$1.shrink * n);
@@ -291338,7 +291338,7 @@ function lineAt(line, tick) {
 		alpha: state.alpha
 	};
 }
-var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$17, r$16, LINES_END;
+var PX_PER_UNIT$3, PILLAR, LINES$1, DEG$18, r$16, LINES_END;
 var init_TetraFireSim = __esmMin((() => {
 	init_EffectPrimSim();
 	PX_PER_UNIT$3 = 7;
@@ -291369,7 +291369,7 @@ var init_TetraFireSim = __esmMin((() => {
 		fade: 15,
 		band: 1.5
 	};
-	DEG$17 = Math.PI / 180;
+	DEG$18 = Math.PI / 180;
 	r$16 = (random, k) => Math.floor(random() * k);
 	LINES_END = LINES$1.hold + LINES$1.alpha / LINES$1.fade;
 }));
@@ -296786,7 +296786,7 @@ function buildCone(out, t, center) {
 		const turn = (band.turn + 3 * t) % 360;
 		return {
 			turn,
-			foot: FOOT$1 + Math.sin(turn * DEG$16),
+			foot: FOOT$1 + Math.sin(turn * DEG$17),
 			tilt: band.tilt,
 			length: LENGTH
 		};
@@ -296818,15 +296818,15 @@ function buildBands(out, t, center, bands) {
 	let o = 0;
 	for (let b = 0; b < bands.length; b++) {
 		const { turn, foot, tilt, length: base } = bands[b];
-		const lean = Math.cos(tilt * DEG$16);
-		const rise = Math.sin(tilt * DEG$16);
-		const swell = Math.sin(swellPhase(b, t) * DEG$16);
+		const lean = Math.cos(tilt * DEG$17);
+		const rise = Math.sin(tilt * DEG$17);
+		const swell = Math.sin(swellPhase(b, t) * DEG$17);
 		let prev = null;
 		for (let j = 0; j <= 20; j++) {
-			const angle = (turn + 18 * j) * DEG$16;
+			const angle = (turn + 18 * j) * DEG$17;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
-			const length = base * (1 + .3 * Math.sin(9 * j * DEG$16) * swell);
+			const length = base * (1 + .3 * Math.sin(9 * j * DEG$17) * swell);
 			const point = {
 				fx: foot * cos,
 				fy: foot * sin,
@@ -296864,14 +296864,14 @@ function buildGround(out, t, center) {
 	let o = 0;
 	for (const layer of GROUND.layers) {
 		const pulse = (layer.pulse + 3 * t) % 360;
-		const reach = GROUND.size * (.8 + .1 * (1 + Math.sin(pulse * DEG$16)));
+		const reach = GROUND.size * (.8 + .1 * (1 + Math.sin(pulse * DEG$17)));
 		const corners = [
 			0,
 			1,
 			2,
 			3
 		].map((k) => {
-			const a = (layer.angle + 90 * k) * DEG$16;
+			const a = (layer.angle + 90 * k) * DEG$17;
 			return [Math.cos(a) * reach, Math.sin(a) * reach];
 		});
 		for (const k of [
@@ -296884,10 +296884,10 @@ function buildGround(out, t, center) {
 		]) o = vertex$10(out, o, center, corners[k][0], corners[k][1], 1, uv[k][0], uv[k][1]);
 	}
 }
-var DEG$16, BANDS$2, LENGTH, FOOT$1, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE$1, GROUND, CONE_VERTICES, GROUND_VERTICES;
+var DEG$17, BANDS$2, LENGTH, FOOT$1, VARIANTS, PULSE_CROWNS, PULSE_LENGTHS, PULSE$1, GROUND, CONE_VERTICES, GROUND_VERTICES;
 var init_CastConeSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$16 = Math.PI / 180;
+	DEG$17 = Math.PI / 180;
 	BANDS$2 = [
 		{
 			tilt: 75,
@@ -297246,10 +297246,10 @@ function bandAlpha(b, t, frames, tinted = false) {
 */
 function pointHeight$2(b, j, t, tinted = false) {
 	const band = BANDS$1[b];
-	const full = band.height * Math.sin(9 * j * DEG$15);
-	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$15));
+	const full = band.height * Math.sin(9 * j * DEG$16);
+	if (t < 91) return Math.max(0, full * Math.sin(t * DEG$16));
 	if (!band.pulse || tinted || t === 91) return Math.max(0, full);
-	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$15);
+	return full * .55 + full * .45 * Math.sin(t % 360 * DEG$16);
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -297278,12 +297278,12 @@ function buildBand$1(out, o, b, t, center, tinted) {
 	const band = BANDS$1[b];
 	const step = Math.floor(band.arc / 20);
 	const turn = (band.turn + band.spin * t) % 360;
-	const lean = Math.cos(band.tilt * DEG$15);
-	const rise = Math.sin(band.tilt * DEG$15);
+	const lean = Math.cos(band.tilt * DEG$16);
+	const rise = Math.sin(band.tilt * DEG$16);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$15;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$16;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$2(b, j, t, tinted);
@@ -297327,10 +297327,10 @@ function buildCircle(out, t, center, tinted = false) {
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$15, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
+var DEG$16, FADE, BANDS$1, TINT_MODES, CIRCLE_VERTICES;
 var init_CastCircleSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$15 = Math.PI / 180;
+	DEG$16 = Math.PI / 180;
 	FADE = 40;
 	BANDS$1 = [
 		{
@@ -297724,7 +297724,7 @@ function ringHeight(b, j, t) {
 	const band = RING_BANDS[b];
 	const age = Math.min(t, GROW);
 	const amplitude = band.height * Math.pow(band.grow, age);
-	return Math.max(0, amplitude * Math.sin(9 * j * DEG$14) * Math.sin(age * DEG$14));
+	return Math.max(0, amplitude * Math.sin(9 * j * DEG$15) * Math.sin(age * DEG$15));
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -297740,12 +297740,12 @@ function vertex$8(out, i, center, x, y, up, u, v) {
 function buildBand(out, o, b, t, turn, center) {
 	const band = RING_BANDS[b];
 	const step = Math.floor(band.arc / 20);
-	const lean = Math.cos(band.tilt * DEG$14);
-	const rise = Math.sin(band.tilt * DEG$14);
+	const lean = Math.cos(band.tilt * DEG$15);
+	const rise = Math.sin(band.tilt * DEG$15);
 	let prev = null;
 	for (let i = 0, a = 0; a <= band.arc; i++, a += step) {
 		const j = Math.min(i, 20);
-		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$14;
+		const angle = (band.arc === 360 && j === 20 ? turn : turn + a) * DEG$15;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = ringHeight(b, j, t);
@@ -297790,10 +297790,10 @@ function buildRings(out, t, turns, center) {
 	starts.push(o / 5);
 	return starts;
 }
-var DEG$14, GROW, RING_COLOR, RING_BANDS, RING_VERTICES$3;
+var DEG$15, GROW, RING_COLOR, RING_BANDS, RING_VERTICES$3;
 var init_AcidDemonRingSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$14 = Math.PI / 180;
+	DEG$15 = Math.PI / 180;
 	GROW = 90;
 	RING_COLOR = [
 		255,
@@ -298926,7 +298926,7 @@ function simulateRing(i, variant, lowEffects = false) {
 */
 function pointHeight$1(variant, j, age) {
 	let h = WIDTH[variant] * taper(j);
-	if (age <= 15) h *= Math.sin(6 * age * DEG$13);
+	if (age <= 15) h *= Math.sin(6 * age * DEG$14);
 	return Math.max(0, h);
 }
 /**
@@ -298952,15 +298952,15 @@ function vertex$6(out, o, center, x, y, up, u, v) {
 * @return {number} float index after the ring
 */
 function buildRing$1(out, o, state, variant, heading, center) {
-	const lean = Math.cos(state.lean * DEG$13);
-	const rise = Math.sin(state.lean * DEG$13);
-	const dx = state.drift * Math.cos(heading * DEG$13);
-	const dy = state.drift * Math.sin(heading * DEG$13);
+	const lean = Math.cos(state.lean * DEG$14);
+	const rise = Math.sin(state.lean * DEG$14);
+	const dx = state.drift * Math.cos(heading * DEG$14);
+	const dy = state.drift * Math.sin(heading * DEG$14);
 	const start = heading + 195;
 	let prev = null;
 	for (let n = 0, a = 0; a <= ARC; n++, a += STEP$1) {
 		const j = Math.min(n, 20);
-		const angle = (start + a) * DEG$13;
+		const angle = (start + a) * DEG$14;
 		const cos = Math.cos(angle);
 		const sin = Math.sin(angle);
 		const h = pointHeight$1(variant, j, state.age);
@@ -298994,12 +298994,12 @@ function buildRing$1(out, o, state, variant, heading, center) {
 * @return {number}
 */
 function headingTo$1(from, to) {
-	return (Math.atan2(to[1] - from[1], to[0] - from[0]) / DEG$13 + 360) % 360;
+	return (Math.atan2(to[1] - from[1], to[0] - from[0]) / DEG$14 + 360) % 360;
 }
-var DEG$13, STEP$1, ARC, SET_AGES, DRIFT, WAVE_TEXTURES, WIDTH, FOOT, TAPER, WAVE_FRAMES;
+var DEG$14, STEP$1, ARC, SET_AGES, DRIFT, WAVE_TEXTURES, WIDTH, FOOT, TAPER, WAVE_FRAMES;
 var init_SonicWaveSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$13 = Math.PI / 180;
+	DEG$14 = Math.PI / 180;
 	STEP$1 = 15;
 	ARC = 315;
 	SET_AGES = [
@@ -299329,9 +299329,9 @@ function sparkCorners(orb, spark) {
 		]
 	];
 }
-var DEG$12, CORE_COLORS, SPARK_GREYS, sin, cos;
+var DEG$13, CORE_COLORS, SPARK_GREYS, sin, cos;
 var init_DupleLightSim = __esmMin((() => {
-	DEG$12 = Math.PI / 180;
+	DEG$13 = Math.PI / 180;
 	CORE_COLORS = [[
 		68,
 		42,
@@ -299347,11 +299347,11 @@ var init_DupleLightSim = __esmMin((() => {
 		75,
 		5
 	];
-	sin = (deg) => Math.sin(Math.trunc(deg) * DEG$12);
-	cos = (deg) => Math.cos(Math.trunc(deg) * DEG$12);
+	sin = (deg) => Math.sin(Math.trunc(deg) * DEG$13);
+	cos = (deg) => Math.cos(Math.trunc(deg) * DEG$13);
 }));
 // src/Renderer/Effects/DupleLight.js
-var DEG$11, _program$13, TEXTURE_FILES, _textures$9, _generation$5, BLACK$3, MAX_CATCH_UP, DupleLight;
+var DEG$12, _program$13, TEXTURE_FILES, _textures$9, _generation$5, BLACK$3, MAX_CATCH_UP, DupleLight;
 var init_DupleLight = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -299361,7 +299361,7 @@ var init_DupleLight = __esmMin((() => {
 	init_DupleLightSim();
 	init_EffectPrim$2();
 	init_EffectPrim$1();
-	DEG$11 = Math.PI / 180;
+	DEG$12 = Math.PI / 180;
 	_program$13 = null;
 	TEXTURE_FILES = ["data/texture/effect/thunder_center.bmp", "data/texture/effect/freeze_a.bmp"];
 	_textures$9 = [null, null];
@@ -299457,8 +299457,8 @@ var init_DupleLight = __esmMin((() => {
 				-at[2],
 				at[1] + .5
 			];
-			const beta = (360 - Camera.angle[0] + 90) % 360 * DEG$11;
-			const alpha = (360 - Camera.angle[1]) % 360 * DEG$11;
+			const beta = (360 - Camera.angle[0] + 90) % 360 * DEG$12;
+			const alpha = (360 - Camera.angle[1]) % 360 * DEG$12;
 			const right = [
 				Math.cos(alpha),
 				0,
@@ -299481,8 +299481,8 @@ var init_DupleLight = __esmMin((() => {
 							180,
 							270
 						].map((a) => {
-							const x = Math.cos(a * DEG$11) * s;
-							const y = Math.sin(a * DEG$11) * s;
+							const x = Math.cos(a * DEG$12) * s;
+							const y = Math.sin(a * DEG$12) * s;
 							return [
 								c[0] + x * right[0] + y * up[0],
 								c[1] + x * right[1] + y * up[1],
@@ -300553,8 +300553,8 @@ function stepRing(ring) {
 				}
 			}
 		}
-		const wave = Math.sin(phaseOf(b, band.counter) % 360 * DEG$10);
-		for (let j = 0; j < 21; j++) band.points[j] = band.length + band.length * WOBBLE$1 * Math.sin(9 * j * DEG$10) * wave;
+		const wave = Math.sin(phaseOf(b, band.counter) % 360 * DEG$11);
+		for (let j = 0; j < 21; j++) band.points[j] = band.length + band.length * WOBBLE$1 * Math.sin(9 * j * DEG$11) * wave;
 	}
 }
 /**
@@ -300579,11 +300579,11 @@ function vertex$5(out, i, center, x, y, up, u, v) {
 function buildRing(out, ring, center) {
 	let o = 0;
 	for (const band of ring.bands) {
-		const reach = Math.cos(band.lean * DEG$10);
-		const up_ = Math.sin(band.lean * DEG$10);
+		const reach = Math.cos(band.lean * DEG$11);
+		const up_ = Math.sin(band.lean * DEG$11);
 		let prev = null;
 		for (let j = 0; j < 21; j++) {
-			const angle = (band.start + 18 * j) % 360 * DEG$10;
+			const angle = (band.start + 18 * j) % 360 * DEG$11;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
 			const p = band.points[j];
@@ -300608,10 +300608,10 @@ function buildRing(out, ring, center) {
 		}
 	}
 }
-var DEG$10, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP$1, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE$1, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
+var DEG$11, f32, BAND_START, BAND_ALPHA, FOOT_START, FOOT_RESTART, FOOT_STEP$1, FOOT_FULL, LEAN_START, LEAN_MIN, WOBBLE$1, RING_VERTICES$1, ARG_MODE, RING_MODES, CYCLE_MODES;
 var init_CastRingSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$10 = Math.PI / 180;
+	DEG$11 = Math.PI / 180;
 	f32 = Math.fround;
 	BAND_START = [
 		180,
@@ -300888,7 +300888,7 @@ function stepEpiclesisRing(ring) {
 			}
 		}
 		if (band.age < 10) band.alpha = Math.min(ALPHA_MAX, band.alpha + ALPHA_IN);
-		const length = band.age <= 10 ? STRIP * Math.sin(9 * band.age * DEG$9) : STRIP;
+		const length = band.age <= 10 ? STRIP * Math.sin(9 * band.age * DEG$10) : STRIP;
 		band.points.fill(length);
 	});
 }
@@ -300899,10 +300899,10 @@ function stepEpiclesisRing(ring) {
 function ringRunning(ring) {
 	return ring.bands.some((band) => band.active);
 }
-var DEG$9, STRIP, TINT$1, ALPHA_IN, ALPHA_MAX, ALPHA_OUT, FOOT_STEP, FOOT_FADE;
+var DEG$10, STRIP, TINT$1, ALPHA_IN, ALPHA_MAX, ALPHA_OUT, FOOT_STEP, FOOT_FADE;
 var init_EpiclesisRingSim = __esmMin((() => {
 	init_CastRingSim();
-	DEG$9 = Math.PI / 180;
+	DEG$10 = Math.PI / 180;
 	STRIP = 6.001;
 	TINT$1 = [
 		177,
@@ -301125,7 +301125,7 @@ function stepColumns(columns) {
 		if (column.alpha < 0) column.alpha = 0;
 		if (c === 1 || c === 3) {
 			const half = Math.trunc(column.age % 720 / 2);
-			column.radius = column.base + .5 * Math.sin(half * DEG$8);
+			column.radius = column.base + .5 * Math.sin(half * DEG$9);
 		}
 	});
 }
@@ -301153,7 +301153,7 @@ function vertex$4(out, o, center, x, y, z, u, v) {
 function buildColumn(out, o, column, center) {
 	let prev = null;
 	for (let i = 0; i < 6; i++) {
-		const angle = (column.start + 72 * i) % 360 * DEG$8;
+		const angle = (column.start + 72 * i) % 360 * DEG$9;
 		const x = column.radius * Math.cos(angle);
 		const z = column.radius * Math.sin(angle);
 		const low = [
@@ -301188,10 +301188,10 @@ function buildColumn(out, o, column, center) {
 function columnsDone(columns) {
 	return columns.every((column) => column.age > 140 && column.alpha <= 0);
 }
-var DEG$8, TINT, ALPHA_START, RADIUS$3;
+var DEG$9, TINT, ALPHA_START, RADIUS$3;
 var init_ForestLightSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$8 = Math.PI / 180;
+	DEG$9 = Math.PI / 180;
 	TINT = [
 		230,
 		255,
@@ -302484,7 +302484,7 @@ var init_Flasher = __esmMin((() => {
 * @return {object}
 */
 function createStreak(random = Math.random) {
-	const angle = Math.floor(random() * 360) * DEG$7;
+	const angle = Math.floor(random() * 360) * DEG$8;
 	return {
 		age: 0,
 		base: [
@@ -302537,8 +302537,8 @@ function streakAlive(s) {
 * @return {Array} two arrays of four [x, y, z]
 */
 function streakQuads(s, yaw) {
-	const sy = Math.sin(yaw * DEG$7);
-	const cy = Math.cos(yaw * DEG$7);
+	const sy = Math.sin(yaw * DEG$8);
+	const cy = Math.cos(yaw * DEG$8);
 	const forward = [
 		sy,
 		0,
@@ -302584,9 +302584,9 @@ function coneTicks(hitCount) {
 	for (let i = 0; i < Math.max(1, Math.floor(hitCount) || 1); i++) ticks.push(CONE.firstTick + i * CONE.every);
 	return ticks;
 }
-var DEG$7, STREAK, CONE, SOUNDS;
+var DEG$8, STREAK, CONE, SOUNDS;
 var init_BlitzBeatSim = __esmMin((() => {
-	DEG$7 = Math.PI / 180;
+	DEG$8 = Math.PI / 180;
 	STREAK = {
 		count: 10,
 		life: 20,
@@ -303211,15 +303211,15 @@ function orbAt(orb, ticks, size) {
 	angle -= Math.floor(angle / 360) * 360;
 	const turn = Math.floor(angle);
 	const phase = ((orb.phase + orb.bob * ticks) % 360 + 360) % 360;
-	const wave = Math.sin(phase * DEG$6);
+	const wave = Math.sin(phase * DEG$7);
 	const radius = 8 + WOBBLE * wave;
 	const front = size + size * PULSE * wave;
 	return {
 		angle: turn,
 		phase,
-		x: radius * Math.cos(turn * DEG$6),
+		x: radius * Math.cos(turn * DEG$7),
 		y: -12 + WOBBLE * wave * orb.bob,
-		z: radius * Math.sin(turn * DEG$6),
+		z: radius * Math.sin(turn * DEG$7),
 		front,
 		back: front + size * BACK_GROW
 	};
@@ -303250,10 +303250,10 @@ function cameraFrame(modelView, right, away) {
 	}
 	away[1] = 0;
 }
-var DEG$6, CHARM_ORB_EFFECTS, ALL_CHARM_ORB_EFFECTS, ORB_LOOKS, TURN$1, WOBBLE, PULSE, BACK_GROW;
+var DEG$7, CHARM_ORB_EFFECTS, ALL_CHARM_ORB_EFFECTS, ORB_LOOKS, TURN$1, WOBBLE, PULSE, BACK_GROW;
 var init_EnergyOrbSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$6 = Math.PI / 180;
+	DEG$7 = Math.PI / 180;
 	CHARM_ORB_EFFECTS = {
 		1: 737,
 		2: 738,
@@ -303485,17 +303485,17 @@ function ringPhase(ticks) {
 * units: x and z on the ground plane, y the height (negative is up).
 */
 function soulOffset(index, count, phase) {
-	const angle = (360 / Math.min(count, 5) * (index % 5) + phase) * DEG$5;
+	const angle = (360 / Math.min(count, 5) * (index % 5) + phase) * DEG$6;
 	return {
 		x: Math.cos(angle) * 10,
 		y: -10,
 		z: Math.sin(angle) * 10
 	};
 }
-var DEG$5, SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS, TEXTURE$4, TURN, TIERS, OVERLAY;
+var DEG$6, SOUL_COLLECT_EFFECT, SOUL_ENERGY_JOBS, TEXTURE$4, TURN, TIERS, OVERLAY;
 var init_SoulCollectSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$5 = Math.PI / 180;
+	DEG$6 = Math.PI / 180;
 	SOUL_COLLECT_EFFECT = 1225;
 	SOUL_ENERGY_JOBS = [
 		4240,
@@ -304038,23 +304038,23 @@ function pointAngle(point, i) {
 */
 function pointCorners(line, i, out) {
 	const point = line.points[i];
-	const p = pointAngle(point, i) * DEG$4;
+	const p = pointAngle(point, i) * DEG$5;
 	const cos = Math.cos(p);
 	const sin = Math.sin(p);
-	const lean = Math.cos(line.tilt * DEG$4);
+	const lean = Math.cos(line.tilt * DEG$5);
 	const up = -line.height;
 	out[0] = cos * point.radius;
 	out[1] = up;
 	out[2] = sin * point.radius;
 	out[3] = cos * (point.radius + lean);
-	out[4] = up + START.drop - Math.sin(line.tilt * DEG$4);
+	out[4] = up + START.drop - Math.sin(line.tilt * DEG$5);
 	out[5] = sin * (point.radius + lean);
 	return out;
 }
-var DEG$4, TEXTURE$2, LOOKS, START, STEP;
+var DEG$5, TEXTURE$2, LOOKS, START, STEP;
 var init_RotateLineSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$4 = Math.PI / 180;
+	DEG$5 = Math.PI / 180;
 	TEXTURE$2 = "cloud11.tga";
 	LOOKS = {
 		986: {
@@ -304355,7 +304355,7 @@ function bandState(b, t, shape = FUNNEL) {
 * @return {number}
 */
 function pointHeight(b, j, t, shape = FUNNEL) {
-	return shape.height * Math.sin(9 * j * DEG$3) * (1 + shape.breathe * Math.sin((t + shape.turn * b) % 360 * DEG$3));
+	return shape.height * Math.sin(9 * j * DEG$4) * (1 + shape.breathe * Math.sin((t + shape.turn * b) % 360 * DEG$4));
 }
 /**
 * Write one vertex in roBrowser's GL space, from client units about `center`.
@@ -304383,11 +304383,11 @@ function buildFunnel(out, t, center, shape = FUNNEL) {
 	let o = 0;
 	for (let b = 0; b < 4; b++) {
 		const band = bandState(b, t, shape);
-		const lean = Math.cos(band.lean * DEG$3);
-		const rise = Math.sin(band.lean * DEG$3);
+		const lean = Math.cos(band.lean * DEG$4);
+		const rise = Math.sin(band.lean * DEG$4);
 		let prev = null;
 		for (let j = 0; j < 21; j++) {
-			const angle = (j === 20 ? band.angle : band.angle + j * step) * DEG$3;
+			const angle = (j === 20 ? band.angle : band.angle + j * step) * DEG$4;
 			const cos = Math.cos(angle);
 			const sin = Math.sin(angle);
 			const h = pointHeight(b, j, t, shape);
@@ -304413,10 +304413,10 @@ function buildFunnel(out, t, center, shape = FUNNEL) {
 	}
 	return o / 5;
 }
-var DEG$3, FUNNEL, GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL;
+var DEG$4, FUNNEL, GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL;
 var init_CastFunnelSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$3 = Math.PI / 180;
+	DEG$4 = Math.PI / 180;
 	FUNNEL = {
 		height: 25,
 		breathe: .15,
@@ -304985,7 +304985,7 @@ function randomInt$1(k, random = Math.random) {
 * One spike's random look, at a point (units, relative to the effect)
 */
 function makeSpike(spawn, x, y, set, alpha, random) {
-	const turn = randomInt$1(360, random) * DEG$2;
+	const turn = randomInt$1(360, random) * DEG$3;
 	const radial = (set.radial[0] + randomInt$1(set.radial[1], random)) / 10;
 	return {
 		spawn,
@@ -305053,8 +305053,8 @@ function spikeAt(spike, age) {
 * @return {Array} [axis, across1, across2], unit vectors (x, y, up)
 */
 function spikeAxes(spike) {
-	const yaw = spike.yaw * DEG$2;
-	const pitch = spike.pitch * DEG$2;
+	const yaw = spike.yaw * DEG$3;
+	const pitch = spike.pitch * DEG$3;
 	const axis = [
 		Math.cos(pitch) * Math.cos(yaw),
 		Math.cos(pitch) * Math.sin(yaw),
@@ -305108,10 +305108,10 @@ function buildSpike(out, offset, spike, rise, center, shape = SPIKE) {
 	}
 	return o;
 }
-var DEG$2, SPIKE, PATH, SHARDS, CORNER_P, CORNER_Q;
+var DEG$3, SPIKE, PATH, SHARDS, CORNER_P, CORNER_Q;
 var init_IceSpikesSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG$2 = Math.PI / 180;
+	DEG$3 = Math.PI / 180;
 	SPIKE = {
 		life: 40,
 		fadeStart: 30,
@@ -305654,16 +305654,16 @@ function stepHeal(heal) {
 		const speed = u === 0 ? 4 : 3;
 		for (let j = 0; j < 21; j++) {
 			const phase = (34 * j + band.age * speed) % 360;
-			let p = band.length * .25 * Math.sin(phase * DEG$1) + band.length * .75;
-			if (band.age < 91) p *= Math.sin(band.age * DEG$1);
+			let p = band.length * .25 * Math.sin(phase * DEG$2) + band.length * .75;
+			if (band.age < 91) p *= Math.sin(band.age * DEG$2);
 			band.points[j] = Math.max(0, p);
 		}
 	});
 }
-var DEG$1, HEAL_KINDS;
+var DEG$2, HEAL_KINDS;
 var init_HealSim = __esmMin((() => {
 	init_CastRingSim();
-	DEG$1 = Math.PI / 180;
+	DEG$2 = Math.PI / 180;
 	HEAL_KINDS = {
 		312: {
 			hold: 60,
@@ -305922,7 +305922,7 @@ function stepSet(set, random) {
 				}
 			}
 		}
-		square.side = Math.max(0, square.size * (.1 * Math.sin(square.phase * DEG) + .9));
+		square.side = Math.max(0, square.size * (.1 * Math.sin(square.phase * DEG$1) + .9));
 	}
 }
 /**
@@ -305956,8 +305956,8 @@ function vertex(out, i, center, x, y, up, u, v) {
 */
 function buildSquare(out, o, square, center) {
 	const half = square.side / 2;
-	const cos = Math.cos(square.turn * DEG) * half;
-	const sin = Math.sin(square.turn * DEG) * half;
+	const cos = Math.cos(square.turn * DEG$1) * half;
+	const sin = Math.sin(square.turn * DEG$1) * half;
 	const bottom = 10 - half;
 	const top = 10 + half;
 	o = vertex(out, o, center, cos, sin, bottom, 0, 1);
@@ -305968,10 +305968,10 @@ function buildSquare(out, o, square, center) {
 	o = vertex(out, o, center, cos, sin, bottom, 0, 1);
 	return o;
 }
-var DEG, SET_TICKS, GROWTH, SHADES, TEXTURE, CIRCLE_POWER_VERTICES;
+var DEG$1, SET_TICKS, GROWTH, SHADES, TEXTURE, CIRCLE_POWER_VERTICES;
 var init_CirclePowerSim = __esmMin((() => {
 	init_EffectPrimSim();
-	DEG = Math.PI / 180;
+	DEG$1 = Math.PI / 180;
 	SET_TICKS = [0, 10];
 	GROWTH = 1.02;
 	SHADES = [
@@ -358897,6 +358897,88 @@ var init_ScaledLayer = __esmMin((() => {
 	_scaledPos = [0, 0];
 	_scaledLayer = {};
 }));
+// src/Renderer/Entity/FlyingLift.js
+/**
+* One official frame of the lift.
+*
+* @param {{angle: number, base: number}} state
+* @param {number} target HOVER_PX, SIT_PX, or 0 to come down
+*/
+function stepFlight(state, target) {
+	state.angle += 2;
+	if (state.angle >= 360) state.angle -= 360;
+	if (!target) {
+		if (state.base > 0) state.base--;
+		return;
+	}
+	if (state.angle % 30 !== 0) return;
+	if (state.base < target) state.base++;
+	else if (state.base > target) state.base--;
+}
+/**
+* Height of the body this frame, in pixels, never below the ground.
+*
+* @param {{angle: number, base: number}} state
+* @return {number}
+*/
+function flightPx(state) {
+	const px = Math.trunc(Math.sin(state.angle * DEG) * 4 + state.base);
+	return px > 0 ? px : 0;
+}
+/**
+* Base height the entity's current action floats it towards.
+*
+* @param {object} entity
+* @return {number}
+*/
+function targetOf(entity) {
+	const ACTION = entity.ACTION;
+	if (!ACTION) return 0;
+	switch (entity.action) {
+		case ACTION.IDLE:
+		case ACTION.WALK: return 20;
+		case ACTION.SIT: return 100;
+		default: return 0;
+	}
+}
+/**
+* Advance the entity's lift to `now` and return how many pixels to raise its
+* body. 0 when it is not flying.
+*
+* @param {object} entity
+* @param {number} now ms
+* @return {number}
+*/
+function flyingLiftPx(entity, now) {
+	if (!(entity._effectState & StatusState_default.EffectState.FLYING)) {
+		entity._flyTick = 0;
+		return 0;
+	}
+	let state = entity._flight;
+	if (!state) state = entity._flight = {
+		angle: 0,
+		base: 0
+	};
+	if (!entity._flyTick) entity._flyTick = now;
+	let steps = Math.floor((now - entity._flyTick) / FRAME_MS);
+	if (steps > 0) {
+		entity._flyTick += steps * FRAME_MS;
+		if (steps > MAX_STEPS) {
+			steps = MAX_STEPS;
+			entity._flyTick = now;
+		}
+		const target = targetOf(entity);
+		for (let i = 0; i < steps; i++) stepFlight(state, target);
+	}
+	return flightPx(state);
+}
+var DEG, FRAME_MS, MAX_STEPS;
+var init_FlyingLift = __esmMin((() => {
+	init_StatusState();
+	DEG = Math.PI / 180;
+	FRAME_MS = 1e3 / 60;
+	MAX_STEPS = 120;
+}));
 // src/Renderer/Entity/EntityRender.js
 function acquireSnapshotBuffers() {
 	const buf = _snapshotPool.pop();
@@ -359431,9 +359513,10 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 		const w = frame.originalWidth * layer.scale[0] * size / 2;
 		const h = frame.originalHeight * layer.scale[1] * size / 2;
 		this.boundingRect.x1 = Math.min(this.boundingRect.x1, layer.pos[0] + pos[0] - w);
-		this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h);
+		const lift = this._flyLiftPx || 0;
+		this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h + lift);
 		this.boundingRect.x2 = Math.max(this.boundingRect.x2, layer.pos[0] + pos[0] + w);
-		this.boundingRect.y2 = Math.min(this.boundingRect.y2, -(layer.pos[1] + pos[1]) - h);
+		this.boundingRect.y2 = Math.min(this.boundingRect.y2, -(layer.pos[1] + pos[1]) - h + lift);
 		this.bodyHeight = height;
 	}
 	if (type === "robe") this.robeHeight = height + layer.pos[1];
@@ -359456,6 +359539,7 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.offset[0] = layer.pos[0] + pos[0];
 	SpriteRenderer.offset[1] = layer.pos[1] + pos[1];
 	SpriteRenderer.xSize = this.xSize;
+	if (this._flyLiftPx && type !== "shadow" && type !== "cartshadow") SpriteRenderer.offset[1] -= this._flyLiftPx;
 	SpriteRenderer.ySize = this.ySize;
 	if (type !== "shadow" && type !== "cartshadow" && this._bodyMotions && this._bodyMotions.size) {
 		const marks = marksOf(this);
@@ -359500,6 +359584,7 @@ var init_EntityRender = __esmMin((() => {
 	init_GR2ModelRenderer();
 	init_BodyMotionSim();
 	init_ScaledLayer();
+	init_FlyingLift();
 	WALK_DIST_TO_MOTION = 170.2;
 	_snapshotPool = [];
 	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
@@ -359653,6 +359738,7 @@ var init_EntityRender = __esmMin((() => {
 			}
 			SpriteRenderer.position.set(self.position);
 			SpriteRenderer.position[2] += bodyLiftCells(this);
+			this._flyLiftPx = flyingLiftPx(this, Date.now());
 			this.attachments.renderBefore(Date.now());
 			SpriteRenderer.zIndex = 1;
 			switch (self.objecttype) {
