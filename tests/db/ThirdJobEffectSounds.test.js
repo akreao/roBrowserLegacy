@@ -53,4 +53,20 @@ describe('Third-job STR effect sounds', () => {
 		expect(sounds('ef_rayofgenesis')).toEqual([['effect/lg_rayofgenesis', 0]]);
 		expect(sounds('ef_gateofhell')).toEqual([['effect/sr_gateofhell', 0]]);
 	});
+
+	it.each([
+		'ef_lg_banishingpoint_cast',
+		'ef_lg_overbrand_cast',
+		'ef_sr_fallenempire',
+		'ef_sr_tigercannon',
+		'ef_sr_rampageblaster',
+		'ef_sr_howlingoflion'
+	])('%s plays no sound (the older row plays the skill sound)', key => {
+		expect(sounds(key)).toEqual([]);
+	});
+
+	it('Earth Drive STR plays wizard_earthspike.wav 20 ticks in', () => {
+		expect(sounds('ef_lg_earthdrive')).toEqual([['effect/wizard_earthspike', 333]]);
+		expect(sounds('ef_earthdrive')).toEqual([['effect/lg_earthdrive', 0]]);
+	});
 });

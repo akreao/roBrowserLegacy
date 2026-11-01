@@ -25561,8 +25561,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_banishingpoint/new_banishingpoint_cast/new_banishingpoint_cast',
-			texturePath: 'new_banishingpoint/new_banishingpoint_cast/',
-			wav: 'effect/lg_banishingpoint'
+			texturePath: 'new_banishingpoint/new_banishingpoint_cast/'
+			// kRO 2025-07-16: this STR plays no sound; lg_banishingpoint plays from the older row of the skill
 		},
 		{
 			type: 'STR',
@@ -25577,8 +25577,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_overbrand/new_overbrand_cast/new_overbrand_cast',
-			texturePath: 'new_overbrand/new_overbrand_cast/',
-			wav: 'effect/lg_overbrand'
+			texturePath: 'new_overbrand/new_overbrand_cast/'
+			// kRO 2025-07-16: this STR plays no sound; lg_overbrand plays from the older row of the skill
 		},
 		{
 			type: 'STR',
@@ -25642,7 +25642,9 @@ export default {
 			type: 'STR',
 			file: 'new_earthdrive/new_earthdrive/new_earthdrive',
 			texturePath: 'new_earthdrive/new_earthdrive/',
-			wav: 'effect/lg_earthdrive'
+			// kRO 2025-07-16: this STR's own sound, 20 ticks in (lg_earthdrive plays from ef_earthdrive)
+			wav: 'effect/wizard_earthspike',
+			delayWav: 333
 		},
 		{
 			type: 'STR',
@@ -25705,8 +25707,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_fallenempire/new_fallenempire/new_fallenempire',
-			texturePath: 'new_fallenempire/new_fallenempire/',
-			wav: 'effect/sr_fallenempire'
+			texturePath: 'new_fallenempire/new_fallenempire/'
+			// kRO 2025-07-16: this STR plays no sound; sr_fallenempire plays from the older row of the skill
 		},
 		{
 			type: 'STR',
@@ -25730,8 +25732,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_tigercannon/new_tigercannon',
-			texturePath: 'new_tigercannon/',
-			wav: 'effect/sr_tigercannon'
+			texturePath: 'new_tigercannon/'
+			// kRO 2025-07-16: this STR plays no sound; sr_tigercannon plays from the older row of the skill
 		}
 	],
 
@@ -25740,8 +25742,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_rampageblaster/new_rampageblaster/new_rampageblaster',
-			texturePath: 'new_rampageblaster/new_rampageblaster/',
-			wav: 'effect/sr_rampageblaster'
+			texturePath: 'new_rampageblaster/new_rampageblaster/'
+			// kRO 2025-07-16: this STR plays no sound; sr_rampageblaster plays from the older row of the skill
 		},
 		{
 			type: 'STR',
@@ -25777,8 +25779,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'new_howlingoflion/new_howlingoflion/new_howlingoflion',
-			texturePath: 'new_howlingoflion/new_howlingoflion/',
-			wav: 'effect/sr_howlingoflion'
+			texturePath: 'new_howlingoflion/new_howlingoflion/'
+			// kRO 2025-07-16: this STR plays no sound; sr_howlingoflion plays from the older row of the skill
 		},
 		{
 			type: 'STR',
