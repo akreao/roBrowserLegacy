@@ -8843,7 +8843,23 @@ export default {
 			//aura blade	//EF_AURABLADE	Aura Blade
 			wav: 'effect/\xbf\xc0\xb6\xf3\x20\xba\xed\xb7\xb9\xc0\xcc\xb5\xe5', //żŔ¶ó şí·ąŔĚµĺ
 			attachedEntity: true
-			//+ on cast small white-magic aura (double)
+		},
+		{
+			// Official client (kRO 2025-07-16, lord-knight-skills.md): on tick 0 two cast-aura rings (builder
+			// 0xbfa8b0), size 45 in ring_white.tga and size 25 in ring_yellow.tga, both argument 22; life 60 ticks.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				if (!Params.Init.ownerEntity) {
+					return;
+				}
+				this.add(
+					new CastRing(Params.Init.ownerEntity.position, Params.Inst.startTick, 60 * 16, 'ring_white.tga', [22, 22], {
+						textures: ['ring_white.tga', 'ring_yellow.tga']
+					}),
+					Params
+				);
+			}
 		}
 	],
 
