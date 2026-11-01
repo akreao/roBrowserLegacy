@@ -186,18 +186,19 @@ function vertex(out, i, center, x, y, up, u, v) {
  * @param {object} spike
  * @param {number} rise from spikeAt
  * @param {Array} center effect position, in cells
+ * @param {object} [shape] depth (start under the ground) and uStep (U a face); Frost Diver's by default
  * @return {number} next float to write
  */
 // Base corner signs (p, q) in order round the spike
 const CORNER_P = [-1, 1, 1, -1];
 const CORNER_Q = [-1, -1, 1, 1];
 
-export function buildSpike(out, offset, spike, rise, center) {
+export function buildSpike(out, offset, spike, rise, center, shape = SPIKE) {
 	// The axes only depend on the spike: work them out once.
 	const [axis, a, b] = spike.axes || (spike.axes = spikeAxes(spike));
 	const baseX = spike.x + axis[0] * rise;
 	const baseY = spike.y + axis[1] * rise;
-	const baseZ = -SPIKE.depth + axis[2] * rise;
+	const baseZ = -shape.depth + axis[2] * rise;
 	const S = spike.size;
 	const H = spike.height;
 	const tipX = baseX + axis[0] * H;
@@ -230,10 +231,10 @@ export function buildSpike(out, offset, spike, rise, center) {
 			baseX + a[0] * p1 + b[0] * q1,
 			baseY + a[1] * p1 + b[1] * q1,
 			baseZ + a[2] * p1 + b[2] * q1,
-			u + SPIKE.uStep,
+			u + shape.uStep,
 			1
 		);
-		u += SPIKE.uStep;
+		u += shape.uStep;
 	}
 
 	return o;

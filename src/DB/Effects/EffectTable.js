@@ -120,6 +120,7 @@ import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import { GANBANTEIN_FUNNEL, SAGE_GROUND_FUNNEL } from 'Renderer/Effects/CastFunnelSim.js';
 import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
+import { gravitationFieldEffect, gravitationCastEffect } from 'DB/Effects/GravitationFieldEffect.js';
 import MapPreferences from 'Preferences/Map.js';
 import {
 	planPath as planIcePath,
@@ -162,7 +163,6 @@ const ForgetEffects = SongEffects.ForgetEffects;
 const FortuneEffects = SongEffects.FortuneEffects;
 const GospelEffects = SongEffects.GospelEffects;
 const FogEffects = SongEffects.FogEffects;
-const GravityEffects = SongEffects.GravityEffects;
 const EvillandEffects = SongEffects.EvillandEffects;
 
 export default {
@@ -11719,28 +11719,8 @@ export default {
 
 	//521: [{}],	//EF_DOUBLECASTBODY	   Player Become Red with Red Aura
 
-	'522_ground': [
-		{
-			// Gravitation field
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				const self = this;
-				GravityEffects.forEach(function (effect) {
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
-				});
-			}
-		},
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				const start = Params.Inst.startTick;
-				const duration = 200;
-				Camera.setQuake(start, duration);
-			}
-		}
-	],
+	// EF_GRAVITATION, Gravitation Field: the client's stone and ice spikes on each unit (GravitationFieldEffect.js)
+	522: gravitationFieldEffect,
 
 	523: [
 		{
@@ -19629,12 +19609,9 @@ export default {
 		}
 	],
 
-	// Gravitation Field's ground packet: the official client plays wizard_earthspike.wav at the cell.
-	ef_gravitation_wav: [
-		{
-			wav: 'effect/wizard_earthspike'
-		}
-	],
+	// Gravitation Field's ground packet: the official client plays wizard_earthspike.wav at the cell,
+	// then effect 522 there 260 ms later (GravitationFieldEffect.js).
+	ef_gravitation_cast: gravitationCastEffect,
 
 	ef_magicpower: [
 		{
