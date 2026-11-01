@@ -129,6 +129,9 @@ import {
 } from 'Renderer/Effects/IceSpikesSim.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import { PRIM_TICK_MS } from 'Renderer/Effects/EffectPrimSim.js';
+import HealCylinders from 'Renderer/Effects/HealCylinders.js';
+import { HEAL_LIFE } from 'Renderer/Effects/HealSim.js';
+import { readySparksRow } from 'DB/Effects/ReadySparkEffect.js';
 import CirclePower from 'Renderer/Effects/CirclePower.js';
 import FacingTurn from 'Renderer/Effects/FacingTurn.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -7185,89 +7188,20 @@ export default {
 
 	312: [
 		{
-			//EF_HEAL	   Heal Effect
-			alphaMax: 0.2,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 0.7,
-			bottomSize: 0.95,
-			duration: 1500,
-			fade: true,
-			green: 1,
-			height: 8,
-			red: 0.7,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 0.95,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			//EF_HEAL	   Heal Effect: the official client's 0xbee690 (variant 0, kRO 2025-07-16): _heal_effect.wav, two upright
+			// alpha_down.tga bands (HealCylinders.js) and rising pok1 sparks (ReadySparkEffect.js). See effect-port/heal.md.
+			wav: '_heal_effect',
+			attachedEntity: true
 		},
 		{
-			alphaMax: 0.2,
-			animation: 1,
+			type: 'FUNC',
 			attachedEntity: true,
-			blendMode: 2,
-			blue: 0.7,
-			bottomSize: 1,
-			duration: 1500,
-			fade: true,
-			green: 1,
-			height: 8,
-			red: 0.7,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 1,
-			type: 'CYLINDER'
+			duration: HEAL_LIFE * PRIM_TICK_MS,
+			func: function (Params) {
+				this.add(new HealCylinders(312, Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
 		},
-		{
-			alphaMax: 0.6,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 1300,
-			delayOffset: 400,
-			duplicate: 15,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1.5,
-			posyRand: 1.5,
-			poszEndRand: 2,
-			poszEndRandMiddle: 6,
-			poszStart: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			timeBetweenDupli: 10,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			alphaMax: 0.6,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 1100,
-			delayLate: 200,
-			duplicate: 7,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 5,
-			poszStartRand: 1,
-			poszStartRandMiddle: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			timeBetweenDupli: 50,
-			type: '3D',
-			zIndex: 1
-		}
+		readySparksRow(312)
 	],
 
 	313: [
@@ -7826,93 +7760,20 @@ export default {
 
 	320: [
 		{
-			//EF_HEAL3	   Offensive Heal
-			alphaMax: 0.2,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			bottomSize: 0.95,
-			duration: 1000,
-			fade: true,
-			green: 1,
-			height: 10,
-			red: 1,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 0.95,
-			type: 'CYLINDER',
-			wav: '_heal_effect'
+			//EF_HEAL3	   Offensive Heal: the official client's 0xbee690 (variant 1, kRO 2025-07-16): _heal_effect.wav, two upright
+			// alpha_down.tga bands (HealCylinders.js) and rising pok1 sparks (ReadySparkEffect.js). See effect-port/heal.md.
+			wav: '_heal_effect',
+			attachedEntity: true
 		},
 		{
-			alphaMax: 0.2,
-			animation: 1,
+			type: 'FUNC',
 			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			bottomSize: 1,
-			duration: 1000,
-			fade: true,
-			green: 1,
-			height: 9,
-			red: 1,
-			rotate: true,
-			textureName: 'ring_white',
-			topSize: 1,
-			type: 'CYLINDER'
+			duration: HEAL_LIFE * PRIM_TICK_MS,
+			func: function (Params) {
+				this.add(new HealCylinders(320, Params.Init.ownerEntity, Params.Inst.startTick), Params);
+			}
 		},
-		{
-			alphaMax: 0.8,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 1000,
-			delayOffset: 400,
-			duplicate: 10,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1.5,
-			posyRand: 1.5,
-			poszEndRand: 3,
-			poszEndRandMiddle: 6,
-			poszStart: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			sparkling: true,
-			sparkNumber: 2,
-			timeBetweenDupli: 10,
-			type: '3D',
-			zIndex: 1
-		},
-		{
-			alphaMax: 0.8,
-			attachedEntity: true,
-			blendMode: 2,
-			blue: 1,
-			duration: 900,
-			delayLate: 200,
-			duplicate: 5,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			green: 1,
-			posxRand: 1,
-			posyRand: 1,
-			poszEnd: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 0,
-			red: 1,
-			size: 9,
-			sizeRand: 2,
-			sparkling: true,
-			sparkNumber: 2,
-			timeBetweenDupli: 50,
-			type: '3D',
-			zIndex: 1
-		}
+		readySparksRow(320)
 	],
 
 	321: [

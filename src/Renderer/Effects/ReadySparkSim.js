@@ -20,6 +20,12 @@
  *  - spark k (0-3) shows effect/pok3.tga instead on ticks 35 - 7k and 36 - 7k;
  *  - it is drawn added, tinted (150, 150, 250).
  *
+ * Heal (312, 320) leaves the same sparks (0xbee690, mode 0) with its own
+ * numbers: every 6th tick from 6 to 48 (320: to 24), r(13) - 6 units off on x
+ * and z, on the ground, rising (30 + r(40)) / 100 (320: (40 + r(40)) / 100);
+ * only 320's sparks flash pok3; mode 0 draws them white with normal alpha
+ * blending (SPARK_SETS; effect-port/heal.md).
+ *
  * Units are the client's, 5 to a cell; ticks are 60 a second. r(k) is a whole
  * number from 0 to k - 1.
  *
@@ -44,8 +50,57 @@ export const SPARK = {
 /** Ticks of the effect on which sparks are left, by effect id. */
 export const SPARK_WINDOWS = {
 	543: { from: 0, to: 80 },
-	546: { from: 40, to: 120 }
+	546: { from: 40, to: 120 },
+	312: { from: 6, to: 48 },
+	320: { from: 6, to: 24 }
 };
+
+/**
+ * Each effect's spark numbers (SPARK's where not given): ticks between bursts,
+ * scatter (r(scatter) - offset units), height, rise (riseBase + r(riseRange) / 100),
+ * whether sparks flash pok3, tint and blending; stay: the sparks stay where they
+ * were left when the actor moves (the client keeps each spark's place).
+ */
+export const SPARK_SETS = {
+	543: {},
+	546: {},
+	312: {
+		every: 6,
+		scatter: 13,
+		offset: 6,
+		height: 0,
+		riseBase: 0.3,
+		riseRange: 40,
+		flash: false,
+		color: [255, 255, 255],
+		additive: false,
+		stay: true
+	},
+	320: {
+		every: 6,
+		scatter: 13,
+		offset: 6,
+		height: 0,
+		riseBase: 0.4,
+		riseRange: 40,
+		flash: true,
+		color: [255, 255, 255],
+		additive: false,
+		stay: true
+	}
+};
+
+/**
+ * @param {number} effectId
+ * @return {object} the effect's spark numbers
+ */
+export function sparkSet(effectId) {
+	return Object.assign(
+		{ offset: 5, riseBase: 0.1, riseRange: 20, flash: true, additive: true },
+		SPARK,
+		SPARK_SETS[effectId]
+	);
+}
 
 /** Sprite pixels to a unit. */
 export const PX_PER_UNIT = 7;
@@ -62,14 +117,15 @@ const r = (random, k) => Math.floor(random() * k);
  */
 export function planSparks(effectId, random = Math.random) {
 	const window = SPARK_WINDOWS[effectId];
+	const set = sparkSet(effectId);
 	const sparks = [];
-	for (let tick = window.from; tick <= window.to; tick += SPARK.every) {
-		for (let k = 0; k < SPARK.perPrim; k++) {
+	for (let tick = window.from; tick <= window.to; tick += set.every) {
+		for (let k = 0; k < set.perPrim; k++) {
 			const size = 2 + r(random, 10) * 0.1;
-			const x = r(random, SPARK.scatter) - 5;
-			const z = r(random, SPARK.scatter) - 5;
-			const rise = r(random, 20) * 0.01 + 0.1;
-			sparks.push({ spawn: tick, k, x, z, rise, size });
+			const x = r(random, set.scatter) - set.offset;
+			const z = r(random, set.scatter) - set.offset;
+			const rise = r(random, set.riseRange) * 0.01 + set.riseBase;
+			sparks.push({ spawn: tick, k, x, z, rise, size, height: set.height, flash: set.flash });
 		}
 	}
 	return sparks;
@@ -116,11 +172,12 @@ export function sparkAt(spark, age) {
 	if (alpha < 0) {
 		return null;
 	}
-	const flash = 36 - 7 * spark.k;
+	const flash = spark.flash === false ? -1 : 36 - 7 * spark.k;
+	const height = spark.height === undefined ? SPARK.height : spark.height;
 	return {
 		x: spark.x / UNITS_PER_CELL,
 		y: spark.z / UNITS_PER_CELL,
-		z: (SPARK.height + spark.rise * n) / UNITS_PER_CELL,
+		z: (height + spark.rise * n) / UNITS_PER_CELL,
 		size: spark.size * Math.SQRT2 * PX_PER_UNIT,
 		angle: (((SPARK.spin * n) % 360) + 360) % 360,
 		texture: n === flash - 1 || n === flash ? 1 : 0,
