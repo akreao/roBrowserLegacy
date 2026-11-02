@@ -13763,7 +13763,7 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, e
 	this.headpalette = fp.readShort();
 	this.bodypalette = fp.readShort();
 	this.Robe = fp.readShort();
-	this.name = fp.readBinaryString(NAME_LENGTH);
+	this.name = fp.readString(NAME_LENGTH);
 
 	// fill necessary vars to render a player
 	this.speed = 0;
@@ -14468,7 +14468,7 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY_V2 = function PACKET_ZC_STORE_ASSISTANT_ENTRY_V2
 	this.headpalette = fp.readShort();
 	this.bodypalette = fp.readShort();
 	this.Robe = fp.readShort();
-	this.name = fp.readBinaryString(NAME_LENGTH);
+	this.name = fp.readString(NAME_LENGTH);
 	this.unknown2 = fp.readShort();
 
 	// fill necessary vars to render a player
