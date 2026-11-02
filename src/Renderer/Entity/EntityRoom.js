@@ -168,7 +168,7 @@ class Room {
 		// the flipped scene shows it.
 		const top = VerticalFlip.overlayTop(_pos[1], ui.offsetHeight, window.innerHeight);
 
-		ui.style.top = (top | 0) + 'px';
+		ui.style.top = `${top | 0}px`;
 		ui.style.left = ((_pos[0] - ui.clientWidth / 2) | 0) + 'px';
 	}
 }

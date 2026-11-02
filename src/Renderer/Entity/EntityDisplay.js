@@ -436,7 +436,7 @@ class Display {
 		// the flipped scene shows it.
 		const top = VerticalFlip.overlayTop(_pos[1] + 13, canvas.height / dpr, window.innerHeight);
 
-		canvas.style.top = (top | 0) + 'px';
+		canvas.style.top = `${top | 0}px`;
 		canvas.style.left = ((_pos[0] - canvas.width / dpr / 2) | 0) + 'px';
 		canvas.style.width = canvas.width / dpr + 'px';
 		canvas.style.height = canvas.height / dpr + 'px';

@@ -193,7 +193,7 @@ class Dialog {
 		// the flipped scene shows it.
 		const top = VerticalFlip.overlayTop(_pos[1] - canvas.height - 2, canvas.height, window.innerHeight);
 
-		canvas.style.top = (top | 0) + 'px';
+		canvas.style.top = `${top | 0}px`;
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to the clipped overlay layer
