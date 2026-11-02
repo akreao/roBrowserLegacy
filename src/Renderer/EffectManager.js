@@ -980,8 +980,9 @@ class EffectManager {
 	 * @param {number} creator id
 	 * @param {number} [level] skill level, when the packet has it
 	 * @param {number} [range] skill unit range, when the packet has it
+	 * @param {string} [message] the unit's text (Graffiti, ZC_SKILL_ENTRY2)
 	 */
-	static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid, level, range) {
+	static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid, level, range, message) {
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -1027,7 +1028,8 @@ class EffectManager {
 				duration: -1, // Infinite by default but the effect param can have a duration that overrides this
 				otherAID: creatorUid,
 				skillLevel: level,
-				unitRange: range
+				unitRange: range,
+				unitMessage: message
 			};
 
 			EffectManager.spam(EF_Init_Par);

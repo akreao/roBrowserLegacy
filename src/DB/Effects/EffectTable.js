@@ -111,6 +111,7 @@ import Flasher from 'Renderer/Effects/Flasher.js';
 import { blitzBeatEffect } from 'DB/Effects/BlitzBeatEffect.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import { stealEffect } from 'DB/Effects/StealEffect.js';
+import { graffitiEffect } from 'DB/Effects/GraffitiEffect.js';
 import { mammoniteEffect } from 'DB/Effects/MammoniteEffect.js';
 import EnergyOrb from 'Renderer/Effects/EnergyOrb.js';
 import SoulCollect from 'Renderer/Effects/SoulCollect.js';
@@ -25289,6 +25290,9 @@ export default {
 			texturePath: ''
 		}
 	],
+
+	// Graffiti (Rogue's Scribble) unit 0xB0: the caster's text on the ground (GraffitiEffect.js)
+	ef_graffiti: graffitiEffect,
 
 	// Suicide (SA_INSTANTDEATH), from the client's own effect folders.
 	ef_sa_instantdeath: [
