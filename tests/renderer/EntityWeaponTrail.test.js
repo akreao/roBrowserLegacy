@@ -8,6 +8,9 @@ import JobId from 'DB/Jobs/JobConst.js';
 const DAGGER = 1;
 const BOOK = 15;
 const files = new Set();
+// Trail sprites that answer only when the test says so, to load out of order
+const held = [];
+let holdTrails = false;
 
 vi.mock('DB/DBManager.js', async () => {
 	const DB = {
@@ -23,7 +26,13 @@ vi.mock('DB/DBManager.js', async () => {
 // Loads at once; a file that isn't there calls the error callback.
 vi.mock('Core/Client.js', () => ({
 	default: {
-		loadFile: vi.fn((path, onLoad, onError) => (files.has(path) ? onLoad && onLoad() : onError && onError()))
+		loadFile: vi.fn((path, onLoad, onError) => {
+			if (holdTrails && path.startsWith('trail') && onLoad) {
+				held.push(() => (files.has(path) ? onLoad() : onError && onError()));
+				return;
+			}
+			return files.has(path) ? onLoad && onLoad() : onError && onError();
+		})
 	}
 }));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
@@ -33,17 +42,21 @@ vi.mock('Renderer/Entity/EntityAction.js', () => ({ default: vi.fn() }));
 
 const { default: EntityViewInit } = await import('Renderer/Entity/EntityView.js');
 
-function sage() {
-	const e = { _job: JobId.SAGE, _sex: 0, _bodypalette: 0, costume: 0, sound: {} };
+function wielder(job) {
+	const e = { _job: job, _sex: 0, _bodypalette: 0, costume: 0, sound: {} };
 	EntityViewInit.call(e);
-	e.job = JobId.SAGE;
+	e.job = job;
 	return e;
 }
+const sage = () => wielder(JobId.SAGE);
 
 describe('EntityView weapon trail', () => {
 	files.add(`weapon${DAGGER}_${JobId.SAGE}.spr`);
 	files.add(`weapon${BOOK}_${JobId.SAGE}.spr`);
 	files.add(`trail${DAGGER}_${JobId.SAGE}.spr`);
+	files.add(`weapon${DAGGER}_${JobId.WIZARD}.spr`);
+	files.add(`body${JobId.WIZARD}_0.spr`);
+	files.add(`body${JobId.WIZARD}_0.act`);
 
 	it('draws the trail of a weapon that has one', () => {
 		const e = sage();
@@ -64,6 +77,25 @@ describe('EntityView weapon trail', () => {
 		const e = sage();
 		e.weapon = DAGGER;
 		e.weapon = 0;
+		expect(e.files.weapon_trail.spr).toBeNull();
+	});
+
+	it('drops the old trail when the new weapon has no sprite at all', () => {
+		const e = sage();
+		e.weapon = DAGGER;
+		e.weapon = 1234;
+		expect(e.files.weapon_trail.spr).toBeNull();
+	});
+
+	it('ignores a trail that finishes loading after a job change', () => {
+		const e = sage();
+		holdTrails = true;
+		e.weapon = DAGGER;
+		// Same dagger, a job with no dagger trail, before the Sage trail answers
+		e.job = JobId.WIZARD;
+		holdTrails = false;
+		held.splice(0).forEach(done => done());
+		expect(e.files.weapon.spr).toBe(`weapon${DAGGER}_${JobId.WIZARD}.spr`);
 		expect(e.files.weapon_trail.spr).toBeNull();
 	});
 });

@@ -761,6 +761,8 @@ function clearWeaponTrail() {
 	this.files.weapon_trail.spr = null;
 	this.files.weapon_trail.act = null;
 	this.files.weapon_trail.pal = null;
+	// A trail still loading for the old weapon, job or sex is no longer wanted
+	this._weaponTrailLoad = (this._weaponTrailLoad || 0) + 1;
 }
 
 /**
@@ -778,6 +780,11 @@ function UpdateGeneric(type, func, fallback) {
 		// Set when a weapon look is drawn from its base type's sprite
 		let keepLook = false;
 
+		// The trail belongs to the weapon being replaced, whether or not the new one loads
+		if (type === 'weapon') {
+			clearWeaponTrail.call(this);
+		}
+
 		// Nothing to load
 		if (!val || val <= 0) {
 			this['_' + type] = 0;
@@ -785,9 +792,6 @@ function UpdateGeneric(type, func, fallback) {
 				this.files[type].spr = null;
 				this.files[type].act = null;
 				this.files[type].pal = null;
-			}
-			if (type === 'weapon') {
-				clearWeaponTrail.call(this);
 			}
 			return;
 		}
@@ -810,9 +814,6 @@ function UpdateGeneric(type, func, fallback) {
 			this.files[type].spr = null;
 			this.files[type].act = null;
 			this.files[type].pal = null;
-			if (type === 'weapon') {
-				clearWeaponTrail.call(this);
-			}
 
 			// Load weapon sound
 			if (type === 'weapon') {
@@ -846,11 +847,11 @@ function UpdateGeneric(type, func, fallback) {
 						clearWeaponTrail.call(_this);
 						const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
 						if (trail_file) {
-							const trailWeapon = _this._weapon;
+							const trailLoad = _this._weaponTrailLoad;
 							Client.loadFile(trail_file + '.act');
 							Client.loadFile(trail_file + '.spr', function () {
-								// The weapon changed while this trail was loading
-								if (_this._weapon !== trailWeapon || shouldSuppressHead.call(_this)) {
+								// The weapon, job or sex changed while this trail was loading
+								if (_this._weaponTrailLoad !== trailLoad || shouldSuppressHead.call(_this)) {
 									return;
 								}
 								_this.files['weapon_trail'].spr = trail_file + '.spr';
