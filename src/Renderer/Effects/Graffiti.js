@@ -35,6 +35,9 @@ let _atlas = null;
 let _atlasLoading = false;
 const _waiting = new Set();
 
+/** Graffiti with GL objects, rebuilt after a context loss. */
+const _live = new Set();
+
 function loadAtlas() {
 	if (_atlas || _atlasLoading) {
 		return;
@@ -70,6 +73,7 @@ class Graffiti {
 
 	init(gl) {
 		this.gl = gl;
+		_live.add(this);
 		const plane = Altitude.generatePlane(this.x, this.y, GRAFFITI_CELLS);
 		if (!plane) {
 			return;
@@ -120,6 +124,7 @@ class Graffiti {
 
 	free(gl) {
 		_waiting.delete(this);
+		_live.delete(this);
 		if (this.buffer) {
 			gl.deleteBuffer(this.buffer);
 			this.buffer = null;
@@ -155,6 +160,12 @@ class Graffiti {
 			_program = null;
 		}
 		// The atlas is a canvas, not a GL object: it survives a context reset.
+		// Live graffiti lost their buffer and texture with the old context: drop
+		// them (deleting a lost object does nothing) and build them again.
+		_live.forEach(graffiti => {
+			graffiti.free(gl);
+			graffiti.needInit = true;
+		});
 		this.ready = false;
 	}
 
