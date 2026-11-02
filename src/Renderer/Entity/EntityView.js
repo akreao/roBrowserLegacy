@@ -754,6 +754,16 @@ function UpdateHeadPalette(pal) {
 }
 
 /**
+ * Stop drawing the weapon trail. A weapon whose job has no trail sprite for it
+ * (a Sage's book) draws none, rather than the trail of the weapon held before.
+ */
+function clearWeaponTrail() {
+	this.files.weapon_trail.spr = null;
+	this.files.weapon_trail.act = null;
+	this.files.weapon_trail.pal = null;
+}
+
+/**
  * Update Generic function to load hats, weapons and shields
  *
  * @param {string} type - weapon / shield / etc
@@ -776,6 +786,9 @@ function UpdateGeneric(type, func, fallback) {
 				this.files[type].act = null;
 				this.files[type].pal = null;
 			}
+			if (type === 'weapon') {
+				clearWeaponTrail.call(this);
+			}
 			return;
 		}
 
@@ -797,6 +810,9 @@ function UpdateGeneric(type, func, fallback) {
 			this.files[type].spr = null;
 			this.files[type].act = null;
 			this.files[type].pal = null;
+			if (type === 'weapon') {
+				clearWeaponTrail.call(this);
+			}
 
 			// Load weapon sound
 			if (type === 'weapon') {
@@ -824,12 +840,17 @@ function UpdateGeneric(type, func, fallback) {
 					if (type === 'weapon') {
 						_this.attackFile = DB.getWeaponSound(_val);
 
-						//Load weapon trail effect
+						// Load weapon trail effect. Drop the old weapon's trail first: not every
+						// job has one for every weapon type (kRO has no Sage book trail), and the
+						// official client then draws none.
+						clearWeaponTrail.call(_this);
 						const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
 						if (trail_file) {
+							const trailWeapon = _this._weapon;
 							Client.loadFile(trail_file + '.act');
 							Client.loadFile(trail_file + '.spr', function () {
-								if (shouldSuppressHead.call(_this)) {
+								// The weapon changed while this trail was loading
+								if (_this._weapon !== trailWeapon || shouldSuppressHead.call(_this)) {
 									return;
 								}
 								_this.files['weapon_trail'].spr = trail_file + '.spr';
