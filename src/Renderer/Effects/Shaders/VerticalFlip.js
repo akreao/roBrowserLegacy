@@ -97,6 +97,20 @@ class VerticalFlip {
 		return _active;
 	}
 
+	/**
+	 * Where an element laid over the scene (name, HP bar, chat bubble...) goes
+	 * while the scene is drawn upside down: the mirror of its box, so it keeps
+	 * its place next to the flipped sprite but stays readable.
+	 *
+	 * @param {number} top - CSS top of the element on the unflipped scene
+	 * @param {number} height - CSS height of the element
+	 * @param {number} screenHeight - height of the scene on screen
+	 * @returns {number} CSS top to use
+	 */
+	static overlayTop(top, height, screenHeight) {
+		return _active ? screenHeight - top - height : top;
+	}
+
 	/** @param {boolean} bool - Enables/disables the effect */
 	static setActive(bool) {
 		_active = bool;

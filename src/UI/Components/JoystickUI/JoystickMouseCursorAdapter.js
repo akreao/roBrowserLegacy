@@ -12,6 +12,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 import DB from 'DB/DBManager.js';
 import ControlsSettings from 'Preferences/Controls.js';
 import Interaction from './JoystickInteractionService.js';
@@ -84,6 +85,12 @@ function moveMouseToEntity(entity) {
 	let screenY = Renderer.height / 2 - Math.round((Renderer.height / 2) * (_pos[1] * z));
 
 	screenY = screenY - 13;
+
+	// Illusion (Hallucination) draws the scene upside down: put the cursor
+	// on the entity as drawn, which is also where picking looks for it.
+	if (VerticalFlip.isActive()) {
+		screenY = Renderer.height - screenY;
+	}
 
 	// Update mouse position
 	Mouse.screen.x = screenX;

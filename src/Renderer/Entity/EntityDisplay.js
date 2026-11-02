@@ -12,6 +12,7 @@
 import glMatrix from 'Utils/gl-matrix.js';
 import MapPreferences from 'Preferences/Map.js';
 import EntityOverlay from 'Renderer/Entity/EntityOverlay.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 import Session from 'Engine/SessionStorage.js';
 
 /**
@@ -431,7 +432,11 @@ class Display {
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
-		canvas.style.top = ((_pos[1] + 13) | 0) + 'px';
+		// Illusion (Hallucination) draws the scene upside down: move it to where
+		// the flipped scene shows it.
+		const top = VerticalFlip.overlayTop(_pos[1] + 13, canvas.height / dpr, window.innerHeight);
+
+		canvas.style.top = `${top | 0}px`;
 		canvas.style.left = ((_pos[0] - canvas.width / dpr / 2) | 0) + 'px';
 		canvas.style.width = canvas.width / dpr + 'px';
 		canvas.style.height = canvas.height / dpr + 'px';
