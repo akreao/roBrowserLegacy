@@ -86619,6 +86619,19 @@ var init_VerticalFlip = __esmMin((() => {
 		static isActive() {
 			return _active$5;
 		}
+		/**
+		* Where an element laid over the scene (name, HP bar, chat bubble...) goes
+		* while the scene is drawn upside down: the mirror of its box, so it keeps
+		* its place next to the flipped sprite but stays readable.
+		*
+		* @param {number} top - CSS top of the element on the unflipped scene
+		* @param {number} height - CSS height of the element
+		* @param {number} screenHeight - height of the scene on screen
+		* @returns {number} CSS top to use
+		*/
+		static overlayTop(top, height, screenHeight) {
+			return _active$5 ? screenHeight - top - height : top;
+		}
 		/** @param {boolean} bool - Enables/disables the effect */
 		static setActive(bool) {
 			_active$5 = bool;
@@ -245529,6 +245542,7 @@ function moveMouseToEntity(entity) {
 	const screenX = Renderer.width / 2 + Math.round(Renderer.width / 2 * (_pos[0] * z));
 	let screenY = Renderer.height / 2 - Math.round(Renderer.height / 2 * (_pos[1] * z));
 	screenY = screenY - 13;
+	if (VerticalFlip.isActive()) screenY = Renderer.height - screenY;
 	Mouse.screen.x = screenX;
 	Mouse.screen.y = screenY;
 	const _selector = document.querySelector(".cursor");
@@ -245795,6 +245809,7 @@ var init_JoystickMouseCursorAdapter = __esmMin((() => {
 	init_MouseEventHandler();
 	init_gl_matrix$1();
 	init_Camera();
+	init_VerticalFlip();
 	init_DBManager();
 	init_Controls();
 	init_JoystickInteractionService();
@@ -355452,6 +355467,7 @@ var vec4$5, _pos$5, _size$5, Cast;
 var init_EntityCast = __esmMin((() => {
 	init_gl_matrix();
 	init_EntityOverlay();
+	init_VerticalFlip();
 	vec4$5 = gl_matrix_default.vec4;
 	_pos$5 = /* @__PURE__ */ new Float32Array(4);
 	_size$5 = /* @__PURE__ */ new Float32Array(2);
@@ -355544,7 +355560,8 @@ var init_EntityCast = __esmMin((() => {
 			const z = _pos$5[3] === 0 ? 1 : 1 / _pos$5[3];
 			_pos$5[0] = _size$5[0] + Math.round(_size$5[0] * (_pos$5[0] * z));
 			_pos$5[1] = _size$5[1] - Math.round(_size$5[1] * (_pos$5[1] * z));
-			canvas.style.top = (_pos$5[1] | 0) + "px";
+			const top = VerticalFlip.overlayTop(_pos$5[1], canvas.height, window.innerHeight);
+			canvas.style.top = `${top | 0}px`;
 			canvas.style.left = (_pos$5[0] - canvas.width / 2 | 0) + "px";
 			EntityOverlay.append(canvas);
 		}
@@ -355563,6 +355580,7 @@ var init_EntityLife = __esmMin((() => {
 	init_gl_matrix();
 	init_DBManager();
 	init_EntityOverlay();
+	init_VerticalFlip();
 	vec4$4 = gl_matrix_default.vec4;
 	_pos$4 = /* @__PURE__ */ new Float32Array(4);
 	_size$4 = /* @__PURE__ */ new Float32Array(2);
@@ -355667,8 +355685,8 @@ var init_EntityLife = __esmMin((() => {
 			const z = _pos$4[3] === 0 ? 1 : 1 / _pos$4[3];
 			_pos$4[0] = _size$4[0] + Math.round(_size$4[0] * (_pos$4[0] * z));
 			_pos$4[1] = _size$4[1] - Math.round(_size$4[1] * (_pos$4[1] * z));
-			if (window.VerticalFlip && window.VerticalFlip.isActive()) _pos$4[1] = window.innerHeight - _pos$4[1];
-			canvas.style.top = (_pos$4[1] | 0) + "px";
+			const top = VerticalFlip.overlayTop(_pos$4[1], canvas.height, window.innerHeight);
+			canvas.style.top = `${top | 0}px`;
 			canvas.style.left = (_pos$4[0] - canvas.width / 2 | 0) + "px";
 			EntityOverlay.append(canvas);
 		}
@@ -355696,6 +355714,7 @@ var init_EntityDisplay = __esmMin((() => {
 	init_gl_matrix();
 	init_Map();
 	init_EntityOverlay();
+	init_VerticalFlip();
 	init_SessionStorage();
 	vec4$3 = gl_matrix_default.vec4;
 	_pos$3 = /* @__PURE__ */ new Float32Array(4);
@@ -355911,7 +355930,8 @@ var init_EntityDisplay = __esmMin((() => {
 			const z = _pos$3[3] === 0 ? 1 : 1 / _pos$3[3];
 			_pos$3[0] = _size$3[0] + Math.round(_size$3[0] * (_pos$3[0] * z));
 			_pos$3[1] = _size$3[1] - Math.round(_size$3[1] * (_pos$3[1] * z));
-			canvas.style.top = (_pos$3[1] + 13 | 0) + "px";
+			const top = VerticalFlip.overlayTop(_pos$3[1] + 13, canvas.height / dpr, window.innerHeight);
+			canvas.style.top = `${top | 0}px`;
 			canvas.style.left = (_pos$3[0] - canvas.width / dpr / 2 | 0) + "px";
 			canvas.style.width = canvas.width / dpr + "px";
 			canvas.style.height = canvas.height / dpr + "px";
@@ -355944,6 +355964,7 @@ var init_EntityDialog = __esmMin((() => {
 	init_gl_matrix();
 	init_Events();
 	init_EntityOverlay();
+	init_VerticalFlip();
 	vec4$2 = gl_matrix_default.vec4;
 	_pos$2 = /* @__PURE__ */ new Float32Array(4);
 	_size$2 = /* @__PURE__ */ new Float32Array(2);
@@ -356041,7 +356062,8 @@ var init_EntityDialog = __esmMin((() => {
 			const z = _pos$2[3] === 0 ? 1 : 1 / _pos$2[3];
 			_pos$2[0] = _size$2[0] + Math.round(_size$2[0] * (_pos$2[0] * z));
 			_pos$2[1] = _size$2[1] - Math.round(_size$2[1] * (_pos$2[1] * z));
-			canvas.style.top = (_pos$2[1] - canvas.height - 2 | 0) + "px";
+			const top = VerticalFlip.overlayTop(_pos$2[1] - canvas.height - 2, canvas.height, window.innerHeight);
+			canvas.style.top = `${top | 0}px`;
 			canvas.style.left = (_pos$2[0] - canvas.width / 2 | 0) + "px";
 			EntityOverlay.append(canvas);
 		}
@@ -358023,6 +358045,16 @@ function UpdateHeadPalette(pal) {
 	this.files.head.pal = DB.getHeadPalPath(this._head, this._headpalette, this.job, this._sex);
 }
 /**
+* Stop drawing the weapon trail. A weapon whose job has no trail sprite for it
+* (a Sage's book) draws none, rather than the trail of the weapon held before.
+*/
+function clearWeaponTrail() {
+	this.files.weapon_trail.spr = null;
+	this.files.weapon_trail.act = null;
+	this.files.weapon_trail.pal = null;
+	this._weaponTrailLoad = (this._weaponTrailLoad || 0) + 1;
+}
+/**
 * Update Generic function to load hats, weapons and shields
 *
 * @param {string} type - weapon / shield / etc
@@ -358035,6 +358067,7 @@ function UpdateGeneric(type, func, fallback) {
 		const _this = this;
 		let _val = val;
 		let keepLook = false;
+		if (type === "weapon") clearWeaponTrail.call(this);
 		if (!val || val <= 0) {
 			this["_" + type] = 0;
 			if (this.files[type]) {
@@ -358069,11 +358102,13 @@ function UpdateGeneric(type, func, fallback) {
 				}
 				if (type === "weapon") {
 					_this.attackFile = DB.getWeaponSound(_val);
+					clearWeaponTrail.call(_this);
 					const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
 					if (trail_file) {
+						const trailLoad = _this._weaponTrailLoad;
 						Client.loadFile(trail_file + ".act");
 						Client.loadFile(trail_file + ".spr", function() {
-							if (shouldSuppressHead.call(_this)) return;
+							if (_this._weaponTrailLoad !== trailLoad || shouldSuppressHead.call(_this)) return;
 							_this.files["weapon_trail"].spr = trail_file + ".spr";
 							_this.files["weapon_trail"].act = trail_file + ".act";
 						});
@@ -360266,6 +360301,7 @@ var init_EntityRoom = __esmMin((() => {
 	init_Client();
 	init_DBManager();
 	init_EntityRoom$1();
+	init_VerticalFlip();
 	vec4$1 = gl_matrix_default.vec4;
 	_pos$1 = /* @__PURE__ */ new Float32Array(4);
 	_size$1 = /* @__PURE__ */ new Float32Array(2);
@@ -360366,7 +360402,8 @@ var init_EntityRoom = __esmMin((() => {
 			const z = _pos$1[3] === 0 ? 1 : 1 / _pos$1[3];
 			_pos$1[0] = _size$1[0] + Math.round(_size$1[0] * (_pos$1[0] * z));
 			_pos$1[1] = _size$1[1] - Math.round(_size$1[1] * (_pos$1[1] * z));
-			ui.style.top = (_pos$1[1] | 0) + "px";
+			const top = VerticalFlip.overlayTop(_pos$1[1], ui.offsetHeight, window.innerHeight);
+			ui.style.top = `${top | 0}px`;
 			ui.style.left = (_pos$1[0] - ui.clientWidth / 2 | 0) + "px";
 		}
 	};
@@ -361243,6 +361280,7 @@ var vec4, _pos, _size, Emblem;
 var init_EntityEmblem = __esmMin((() => {
 	init_gl_matrix();
 	init_EntityOverlay();
+	init_VerticalFlip();
 	vec4 = gl_matrix_default.vec4;
 	_pos = /* @__PURE__ */ new Float32Array(4);
 	_size = /* @__PURE__ */ new Float32Array(2);
@@ -361297,7 +361335,8 @@ var init_EntityEmblem = __esmMin((() => {
 			const z = _pos[3] === 0 ? 1 : 1 / _pos[3];
 			_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 			_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
-			canvas.style.top = (_pos[1] | 0) + "px";
+			const top = VerticalFlip.overlayTop(_pos[1], canvas.height, window.innerHeight);
+			canvas.style.top = `${top | 0}px`;
 			canvas.style.left = (_pos[0] - canvas.width / 2 | 0) + "px";
 			EntityOverlay.append(canvas);
 		}
@@ -362256,7 +362295,7 @@ function intersect() {
 		_lastSupportPriority = _supportPriority;
 	}
 	const x = Mouse.screen.x;
-	const y = Mouse.screen.y;
+	const y = VerticalFlip.isActive() ? Mouse.screen.height - Mouse.screen.y : Mouse.screen.y;
 	const doCulling = GraphicsSettings.performanceMode;
 	let playerX, playerY, viewAreaSq;
 	if (doCulling && SessionStorage_default.Entity && SessionStorage_default.Entity.position) {
@@ -362430,6 +362469,7 @@ var init_EntityManager = __esmMin((() => {
 	init_Water();
 	init_GR2ModelRenderer();
 	init_EntityComposer();
+	init_VerticalFlip();
 	_list = [];
 	_gidMap = /* @__PURE__ */ new Map();
 	_renderSortDirty = true;
