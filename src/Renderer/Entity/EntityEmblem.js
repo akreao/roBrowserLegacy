@@ -10,6 +10,7 @@
 
 import glMatrix from 'Utils/gl-matrix.js';
 import EntityOverlay from 'Renderer/Entity/EntityOverlay.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 
 /**
  * Global methods
@@ -103,7 +104,11 @@ class Emblem {
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
-		canvas.style.top = (_pos[1] | 0) + 'px';
+		// Illusion (Hallucination) draws the scene upside down: move it to where
+		// the flipped scene shows it.
+		const top = VerticalFlip.overlayTop(_pos[1], canvas.height, window.innerHeight);
+
+		canvas.style.top = (top | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to the clipped overlay layer

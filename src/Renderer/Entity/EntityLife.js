@@ -11,6 +11,7 @@
 import glMatrix from 'Utils/gl-matrix.js';
 import DB from 'DB/DBManager.js';
 import EntityOverlay from 'Renderer/Entity/EntityOverlay.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 
 /**
  * Global methods
@@ -188,15 +189,11 @@ class Life {
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
-		// Check if the Vertical Flip (Illusion effect) is active
-		// If true, invert the Y coordinate relative to the renderer height
-		// Using a dynamic check or window access to avoid cycle if possible,
-		// but usually Shaders don't import Renderer.
-		if (window.VerticalFlip && window.VerticalFlip.isActive()) {
-			_pos[1] = window.innerHeight - _pos[1];
-		}
+		// Illusion (Hallucination) draws the scene upside down: move it to where
+		// the flipped scene shows it.
+		const top = VerticalFlip.overlayTop(_pos[1], canvas.height, window.innerHeight);
 
-		canvas.style.top = (_pos[1] | 0) + 'px';
+		canvas.style.top = (top | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to the clipped overlay layer

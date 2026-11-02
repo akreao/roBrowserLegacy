@@ -12,6 +12,7 @@ import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import EntityRoom from 'UI/Components/EntityRoom/EntityRoom.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 
 /**
  * Private methods
@@ -163,7 +164,11 @@ class Room {
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
-		ui.style.top = (_pos[1] | 0) + 'px';
+		// Illusion (Hallucination) draws the scene upside down: move it to where
+		// the flipped scene shows it.
+		const top = VerticalFlip.overlayTop(_pos[1], ui.offsetHeight, window.innerHeight);
+
+		ui.style.top = (top | 0) + 'px';
 		ui.style.left = ((_pos[0] - ui.clientWidth / 2) | 0) + 'px';
 	}
 }
