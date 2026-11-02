@@ -173838,14 +173838,14 @@ var init_PacketStructure = __esmMin((() => {
 	};
 	PACKET.ZC.ADD_MEMBER_TO_GROUP3.size = 85;
 	PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
-		this.groupName = fp.readBinaryString(NAME_LENGTH);
+		this.groupName = fp.readString(NAME_LENGTH);
 		this.groupInfo = (function() {
 			const count = (end - fp.tell()) / 50 | 0;
 			const out = new Array(count);
 			for (let i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].AID = fp.readULong();
-				out[i].characterName = fp.readBinaryString(NAME_LENGTH);
+				out[i].characterName = fp.readString(NAME_LENGTH);
 				out[i].mapName = fp.readBinaryString(16);
 				out[i].role = fp.readUChar();
 				out[i].state = fp.readUChar();
@@ -174043,7 +174043,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.headpalette = fp.readShort();
 		this.bodypalette = fp.readShort();
 		this.Robe = fp.readShort();
-		this.name = fp.readBinaryString(NAME_LENGTH);
+		this.name = fp.readString(NAME_LENGTH);
 		this.speed = 0;
 		this.objecttype = 0;
 		this.bodyState = 0;
@@ -174422,7 +174422,7 @@ var init_PacketStructure = __esmMin((() => {
 	};
 	PACKET.ZC.ADD_MEMBER_TO_GROUP4.size = 89;
 	PACKET.ZC.GROUP_LIST3 = function PACKET_ZC_GROUP_LIST3(fp, end) {
-		this.groupName = fp.readBinaryString(NAME_LENGTH);
+		this.groupName = fp.readString(NAME_LENGTH);
 		this.groupInfo = (function() {
 			const count = (end - fp.tell()) / 54 | 0;
 			const out = new Array(count);
@@ -174430,7 +174430,7 @@ var init_PacketStructure = __esmMin((() => {
 				out[i] = {};
 				out[i].AID = fp.readULong();
 				out[i].GID = fp.readULong();
-				out[i].characterName = fp.readBinaryString(NAME_LENGTH);
+				out[i].characterName = fp.readString(NAME_LENGTH);
 				out[i].mapName = fp.readBinaryString(16);
 				out[i].role = fp.readUChar();
 				out[i].state = fp.readUChar();
@@ -174613,7 +174613,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.headpalette = fp.readShort();
 		this.bodypalette = fp.readShort();
 		this.Robe = fp.readShort();
-		this.name = fp.readBinaryString(NAME_LENGTH);
+		this.name = fp.readString(NAME_LENGTH);
 		this.unknown2 = fp.readShort();
 		this.speed = 0;
 		this.objecttype = 0;
