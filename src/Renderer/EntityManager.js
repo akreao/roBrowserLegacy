@@ -20,6 +20,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Water from 'Renderer/Map/Water.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 import EntityComposer from 'Renderer/Entity/EntityComposer.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 const _list = [];
 
 /**
@@ -558,7 +559,10 @@ function intersect() {
 	}
 
 	const x = Mouse.screen.x;
-	const y = Mouse.screen.y;
+	// The Illusion (Hallucination) screen effect draws the scene upside down,
+	// so the entity under the cursor is the one drawn at the mirrored height.
+	// Ground picking (Altitude.intersect) does the same.
+	const y = VerticalFlip.isActive() ? Mouse.screen.height - Mouse.screen.y : Mouse.screen.y;
 
 	// Culling for picking
 	const doCulling = GraphicsSettings.performanceMode;
